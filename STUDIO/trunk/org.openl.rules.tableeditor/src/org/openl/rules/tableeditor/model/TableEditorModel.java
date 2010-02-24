@@ -18,21 +18,21 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
-import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.IGridRegion.Tool;
+import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableAction;
 import org.openl.rules.table.actions.IUndoableGridAction;
 import org.openl.rules.table.actions.UndoableActions;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableMoveTableAction;
+import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
-import org.openl.rules.tableeditor.model.TableEditorModel.GridRegionAction.ActionType;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 
 import java.io.IOException;
@@ -45,69 +45,6 @@ import java.util.Vector;
  * 
  */
 public class TableEditorModel {
-    static class GridRegionAction implements IUndoableGridAction {
-        public static enum ActionType {
-            MOVE,
-            EXPAND;
-        }
-
-        IGridRegion region;
-        ActionType actionType;
-        boolean isInsert;
-        boolean isColumns;
-        int nRowsOrColumns;
-
-        public GridRegionAction(IGridRegion region, boolean isColumns, boolean isInsert, ActionType actionType,
-                int nRowsOrColumns) {
-            this.region = region;
-            this.actionType = actionType;
-            this.isColumns = isColumns;
-            this.isInsert = isInsert;
-            this.nRowsOrColumns = nRowsOrColumns;
-        }
-
-        public void doAction(IWritableGrid wgrid, IUndoGrid undoGrid) {
-            switch (actionType) {
-                case EXPAND:
-                    resizeRegion(isInsert, isColumns, nRowsOrColumns, region);
-                    break;
-                case MOVE:
-                    moveRegion(isInsert, isColumns, nRowsOrColumns, region);
-                    break;
-            }
-        }
-
-        public void undoAction(IWritableGrid wgrid, IUndoGrid undoGrid) {
-            switch (actionType) {
-                case EXPAND:
-                    resizeRegion(!isInsert, isColumns, nRowsOrColumns, region);
-                    break;
-                case MOVE:
-                    moveRegion(!isInsert, isColumns, nRowsOrColumns, region);
-                    break;
-            }
-        }
-
-        public void resizeRegion(boolean isInsert, boolean isColumns, int rowsOrColumns, IGridRegion r) {
-            int inc = isInsert ? rowsOrColumns : -rowsOrColumns;
-            if (isColumns) {
-                ((GridRegion) r).setRight(r.getRight() + inc);
-            } else {
-                ((GridRegion) r).setBottom(r.getBottom() + inc);
-            }
-        }
-
-        public void moveRegion(boolean isInsert, boolean isColumns, int rowsOrColumns, IGridRegion r) {
-            int inc = isInsert ? rowsOrColumns : -rowsOrColumns;
-            if (isColumns) {
-                ((GridRegion) r).setLeft(r.getLeft() + inc);
-                ((GridRegion) r).setRight(r.getRight() + inc);
-            } else {
-                ((GridRegion) r).setTop(r.getTop() + inc);
-                ((GridRegion) r).setBottom(r.getBottom() + inc);
-            }
-        }
-    }
 
     /**
      * Table Headers – syntax depends on first keyword
@@ -513,7 +450,7 @@ public class TableEditorModel {
         if (propIsBlank) {return;}
         
         IUndoableGridAction action = IWritableGrid.Tool
-            .insertProp(fullTableRegion, wgrid(), name, value); // returns null if set new property with empty or same value
+            .insertProp(fullTableRegion, displayedTableRegion, wgrid(), name, value); // returns null if set new property with empty or same value
         if (action != null) {
             action.doAction(wgrid(), undoGrid);
             createdActions.add(action);

@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridAction;
+import org.openl.rules.table.actions.MergeCellsAction;
 import org.openl.rules.table.actions.UndoableClearAction;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableCopyValueAction;
@@ -17,6 +19,7 @@ import org.openl.rules.table.actions.UndoableResizeMergedRegionAction;
 import org.openl.rules.table.actions.UndoableSetStyleAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.actions.UnmergeByColumnsAction;
+import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
@@ -233,16 +236,16 @@ public interface IWritableGrid extends IGrid {
          * @return null if set new property with empty or same value
          * */
 
-        public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
+        public static IUndoableGridAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion, IWritableGrid wgrid,
                 String newPropName, String newPropValue) {
             IGridFilter filter = getFilter(newPropName);
-            int regionHeight = IGridRegion.Tool.height(region);
-            int regionWidth = IGridRegion.Tool.width(region);
+            int regionHeight = IGridRegion.Tool.height(tableRegion);
+            int regionWidth = IGridRegion.Tool.width(tableRegion);
             int nRows = 1;
             int beforeRow = 1;
 
-            int leftCell = region.getLeft();
-            int topCell = region.getTop();
+            int leftCell = tableRegion.getLeft();
+            int topCell = tableRegion.getTop();
 
             
             String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
@@ -274,17 +277,27 @@ public interface IWritableGrid extends IGrid {
 
             ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(regionWidth * rowsToMove);
 
-            int firstToMove = region.getTop() + beforeRow;
-            actions.addAll(shiftRows(firstToMove, nRows, INSERT, region));
+            int firstToMove = tableRegion.getTop() + beforeRow;
+            actions.addAll(shiftRows(firstToMove, nRows, INSERT, tableRegion));
 
             if (!containsPropSection) {
-                actions.add(new UnmergeByColumnsAction(new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow, region.getRight())));
+                actions.add(new UnmergeByColumnsAction(new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow, tableRegion.getRight())));
                 actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
                 if (regionWidth > 3) {
                     // clear cells
                     for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {
                         actions.add(new UndoableClearAction(j, topCell + beforeRow));
                     }
+                } else if (regionWidth < 3) {
+                    // expand table by including neighboring cell in merged
+                    // regions, width will equal 3
+                    actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, topCell, leftCell + 2)));
+                    for (int row = topCell + 2; row < tableRegion.getBottom() + nRows; row++) {
+                        actions.add(new MergeCellsAction(new GridRegion(row, leftCell + regionWidth - 1, row,
+                                leftCell + 2)));
+                    }
+                    actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 1));
+                    actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND, 1));
                 }
             }
             actions.add(new UndoableSetValueAction(leftCell + 1, topCell + beforeRow, newPropName, null));
@@ -296,7 +309,7 @@ public interface IWritableGrid extends IGrid {
                 actions.add(new UndoableResizeMergedRegionAction(new GridRegion(topCell + 1, leftCell,
                         topCell + 1, leftCell), nRows, INSERT, ROWS));
             } else {
-                actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, region));
+                actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, tableRegion));
             }
 
             return new UndoableCompositeAction(actions);
