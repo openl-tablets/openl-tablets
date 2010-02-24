@@ -1,5 +1,6 @@
 package org.openl.rules.web.jsf.util;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Collection;
 
@@ -11,6 +12,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -148,12 +151,21 @@ public abstract class FacesUtils {
         return (ServletRequest) getExternalContext().getRequest();
     }
 
+    public static ServletResponse getResponse() {
+        return (ServletResponse) getExternalContext().getResponse();
+    }
+
     public static HttpSession getSession() {
         return (HttpSession) getExternalContext().getSession(false);
     }
 
     public static String getContextPath() {
         return getExternalContext().getRequestContextPath();
+    }
+
+    public static void redirect(String page) throws IOException {
+        HttpServletResponse response = (HttpServletResponse) getResponse();
+        response.sendRedirect(page);
     }
 
 }

@@ -2,7 +2,6 @@ package org.openl.rules.ui.tablewizard;
 
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -11,11 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -112,7 +110,7 @@ public class PropertyTableCreationWizard extends WizardBase {
     }
 
     @Override
-    protected void onFinish(boolean cancelled) {
+    protected void onCancel() {
         reset();
     }
 
@@ -202,26 +200,30 @@ public class PropertyTableCreationWizard extends WizardBase {
         properties.remove(propToRemove);
     }
 
-    public String save() {
-        try {
-            doSave();
-            return "done";
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not create table: ", e.getMessage()));
-        }
-        return null;
+    @Override
+    protected void onFinish() throws Exception {
+        doSave();
     }
 
-    private void doSave() throws CreateTableException, IOException {
-        PropertiesTableBuilder builder = new PropertiesTableBuilder(
-                new XlsSheetGridModel(getDestinationSheet()));
+    private void doSave() throws CreateTableException {
+        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
+        String newTableUri = buildTable(sourceCodeModule);
+        setNewTableUri(newTableUri);
+    }
+
+    protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
+        XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
+        PropertiesTableBuilder builder = new PropertiesTableBuilder(gridModel);
         Map<String, Object> properties = buildProperties();
         builder.beginTable(properties.size() + 1);
         builder.writeHeader(tableName);
         builder.writeBody(properties);
+
+        String uri = gridModel.getRangeUri(builder.getTableRegion());
+
         builder.endTable();
         builder.save();
+        return uri;
     }
 
     private String buildCategoryName() {

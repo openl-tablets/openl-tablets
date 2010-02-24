@@ -354,7 +354,7 @@
   <navigation-rule>
     <navigation-case>
       <from-outcome>mainPage</from-outcome>
-      <to-view-id>/mainRedirect.jsp</to-view-id>
+      <to-view-id>/openTable.jsp</to-view-id>
       <redirect/>
     </navigation-case>
       <navigation-case>
@@ -448,11 +448,6 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable6.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>done</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-    <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
     </navigation-case>
@@ -486,11 +481,6 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTableTest3.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>done</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
-      <redirect/>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
     </navigation-case>
@@ -523,11 +513,6 @@
 
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTableProperty3.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>done</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
-      <redirect/>
-    </navigation-case>
     <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTableProperty2.xhtml</to-view-id>
@@ -576,16 +561,9 @@
       <to-view-id>/facelets/tableCopier/copyNames.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
-  
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyNamesSaveContent.xhtml</from-view-id>        
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
+
   <!--End change names navigation  -->  
-  
+
   <!-- Change properties navigation -->   
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyProperties.xhtml</from-view-id>
@@ -598,7 +576,7 @@
       <to-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
-  
+
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</from-view-id>  
     <navigation-case>
@@ -606,15 +584,7 @@
       <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
-  
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyPropertiesSaveContent.xhtml</from-view-id>        
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-  
+
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/changeVersion.xhtml</from-view-id>
     <navigation-case>

@@ -1,17 +1,10 @@
 package org.openl.rules.ui;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -30,7 +23,6 @@ import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringTool;
 
 /**
  * Backing bean for table coping.
@@ -39,12 +31,9 @@ import org.openl.util.StringTool;
  */
 public abstract class TableCopier extends WizardBase {
     
-    /** Logger */
-    private static final Log LOG = LogFactory.getLog(TableCopier.class);   
     /** Table identifier */
     private String elementUri = null;
-    /** New table identifier */
-    private String newTableUri = null;
+
     /** Table technical name */
     private String tableTechnicalName;
     /** Table business name */
@@ -63,7 +52,8 @@ public abstract class TableCopier extends WizardBase {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        newTableUri = buildTable(sourceCodeModule, model);
+        String newTableUri = buildTable(sourceCodeModule, model);
+        setNewTableUri(newTableUri);
     }
 
     /**
@@ -80,43 +70,69 @@ public abstract class TableCopier extends WizardBase {
         TableSyntaxNode baseNode = model.getNode(elementUri);
         String baseTableType = baseNode.getType();
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
-        //validateTechnicalName(node);
 
         TableBuilder builder = new TableBuilder(gridModel);
 
-        int baseTableWidth = originalTable.getGridWidth();
-        int baseTableHeight = originalTable.getGridHeight();
         int logicBaseTableStartRow = 0;
 
-        builder.beginTable(baseTableWidth, baseTableHeight);
         boolean envTable = ITableNodeTypes.XLS_ENVIRONMENT.equals(baseTableType);
-        boolean otherTable = ITableNodeTypes.XLS_OTHER.equals(baseTableType); 
+        boolean otherTable = ITableNodeTypes.XLS_OTHER.equals(baseTableType);
+
+        String newHeader = null;
+        ICellStyle headerStyle = null;
+        Map<String, Object> buildedPropForNewTable = null;
+        ICellStyle propertiesStyle = null;
+
         if (!envTable && !otherTable) {
-            String newHeader = buildHeader(baseNode.getHeaderLineValue().getValue(), baseTableType);
-            ICellStyle headerStyle = originalTable.getCell(0, 0).getStyle();
-            builder.writeHeader(newHeader, headerStyle);
+            newHeader = buildHeader(baseNode.getHeaderLineValue().getValue(), baseTableType);
+            headerStyle = originalTable.getCell(0, 0).getStyle();
             logicBaseTableStartRow++;
 
             ITableProperties tableProperties = baseNode.getTableProperties();   
             Map<String, Object> baseTablePhysicalProperties = null;
-            ICellStyle propertiesStyle = null;
+
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
                 baseTablePhysicalProperties = tableProperties.getPropertiesDefinedInTable();
             }
-            Map<String, Object> buildedPropForNewTable = buildProperties(); 
-            if (buildedPropForNewTable.size() > 0) {
-                builder.writeProperties(buildedPropForNewTable, propertiesStyle);
-            }
+            buildedPropForNewTable = buildProperties();
+
             logicBaseTableStartRow += baseTablePhysicalProperties == null ? 0 : baseTablePhysicalProperties.size();
         }
 
-        builder.writeGridTable(originalTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
-                baseTableHeight - logicBaseTableStartRow).getGridTable());
+        IGridTable gridTable = originalTable.getLogicalRegion(0, logicBaseTableStartRow, originalTable.getGridWidth(),
+                originalTable.getGridHeight() - logicBaseTableStartRow).getGridTable();
+
+        // calculate new table size
+        int tableWidth = originalTable.getGridWidth();
+        if (tableWidth < 3 && buildedPropForNewTable != null && !buildedPropForNewTable.isEmpty()) {
+            tableWidth = 3;
+        }
+
+        int tableHeight = 0;
+        if  (newHeader != null) {
+            tableHeight += 1;
+        }
+        if (buildedPropForNewTable != null) {
+            tableHeight += buildedPropForNewTable.size();
+        }
+        tableHeight += gridTable.getGridHeight();
+
+        // build table
+        builder.beginTable(tableWidth, tableHeight);
+        if (newHeader != null) {
+            builder.writeHeader(newHeader, headerStyle);
+        }
+        if (buildedPropForNewTable != null && !buildedPropForNewTable.isEmpty()) {
+            builder.writeProperties(buildedPropForNewTable, propertiesStyle);
+        }
+        builder.writeGridTable(gridTable);
 
         String uri = gridModel.getRangeUri(builder.getTableRegion());
+
         builder.endTable();
         builder.save();
+
         return uri;
     }
 
@@ -215,10 +231,6 @@ public abstract class TableCopier extends WizardBase {
         this.elementUri = elementUri;
     }
 
-    public String getNewTableUri() {
-        return newTableUri;
-    }
-
     public boolean isEdit() {
         return edit;
     }
@@ -241,7 +253,7 @@ public abstract class TableCopier extends WizardBase {
     }
     
     @Override
-    protected void onFinish(boolean cancelled) {
+    protected void onCancel() {
         reset();
     }
     
@@ -282,48 +294,15 @@ public abstract class TableCopier extends WizardBase {
     public void setTableTechnicalName(String tableTechnicalName) {
         this.tableTechnicalName = tableTechnicalName;
     }
-    
-    /**
-     * Copy table handler.
-     */
-    public String copy() {
-        String result = null;
-        boolean success = false;
-        try {
-            doCopy();
-            success = true;
-        } catch (CreateTableException e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                            String.format("Could not copy table. %s", e.getMessage()), e.getMessage()));
-            LOG.error("Could not copy table: ", e);
-            result = "copyFailed";
-        }
-        if (success) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Table was copied successful"));
-            result = "copySuccess";
-            resetStudio();
-            HttpServletResponse resp = (HttpServletResponse) FacesUtils.getExternalContext().getResponse();
-            try {
-                resp.sendRedirect(makeUrlForNewTable());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
+
+    @Override
+    protected void onFinish() throws Exception {
+        doCopy();
     }
 
-    private void resetStudio() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.reset();
-        studio.getModel().buildProjectTree();
+    @Override
+    protected String makeUrlForNewTable() {
+        return super.makeUrlForNewTable() + "&mode=" + (edit ? "edit" : "view");
     }
-    
-    private String makeUrlForNewTable(){
-        StringBuffer buffer = new StringBuffer(FacesUtils.getExternalContext().getRequestContextPath()
-                + "/faces/facelets/tableeditor/showTable.xhtml");
-        buffer.append("?uri="+StringTool.encodeURL(newTableUri));
-        buffer.append("&mode="+(edit?"edit":"view"));
-        return buffer.toString();
-    }
+
 }

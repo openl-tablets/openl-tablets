@@ -47,6 +47,7 @@ public class ShowTableBean {
     private String uri;
     private String notViewParams;
     private String paramsWithoutShowFormulas;
+    private String paramsWithoutUri;
 
     private boolean switchParam;
 
@@ -75,9 +76,10 @@ public class ShowTableBean {
                 entry.setValue(new String[] { (String) entry.getValue() });
             }
         }
-        notViewParams = WebTool.listParamsExcept(new String[] { "transparency", "filterType", "view" }, paramMap);
-        paramsWithoutShowFormulas = WebTool.listParamsExcept(new String[] { "transparency", "filterType",
-                "showFormulas" }, paramMap);
+        notViewParams = WebTool.listRequestParams(paramMap, new String[] { "transparency", "filterType", "view" });
+        paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
+        paramsWithoutShowFormulas = WebTool.listRequestParams(
+                paramMap, new String[] { "transparency", "filterType", "showFormulas" });
     }
 
     // TODO: make internal and instance method
@@ -116,6 +118,10 @@ public class ShowTableBean {
 
     public String getNotViewParams() {
         return notViewParams;
+    }
+
+    public String getParamsWithoutUri() {
+        return paramsWithoutUri;
     }
 
     public String getParamsWithoutShowFormulas() {
@@ -226,6 +232,7 @@ public class ShowTableBean {
         IGridTable table = studio.getModel().getTableWithMode(uri, IXlsTableNames.VIEW_DEVELOPER);
         try {
             new TableServiceImpl(true).removeTable(table);
+            studio.rebuildModel();
         } catch (TableServiceException e) {
             e.printStackTrace();
             // TODO UI exception
@@ -234,16 +241,10 @@ public class ShowTableBean {
         return "mainPage";
     }
 
-    public void resetStudio() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.reset();
-        studio.getModel().buildProjectTree();
-    }
-
     public void afterSaveAction(String newUri) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTableUri(newUri);
-        resetStudio();
+        studio.rebuildModel();
     }
 
     @SuppressWarnings("unchecked")

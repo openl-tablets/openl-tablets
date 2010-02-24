@@ -1,20 +1,31 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
+
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
+import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 
 /**
  * @author Aliaksandr Antonik.
@@ -27,6 +38,10 @@ public abstract class WizardBase extends BaseWizardBean {
     private Map<String, XlsWorkbookSourceCodeModule> workbooks;
     private boolean newWorksheet;
     private String newWorksheetName;
+    /** New table identifier */
+    private String newTableUri;
+
+    private static final Log LOG = LogFactory.getLog(WizardBase.class);
 
     protected XlsSheetSourceCodeModule getDestinationSheet() {
         XlsSheetSourceCodeModule sourceCodeModule;
@@ -100,6 +115,14 @@ public abstract class WizardBase extends BaseWizardBean {
         }
     }
 
+    public String getNewTableUri() {
+        return newTableUri;
+    }
+
+    public void setNewTableUri(String newTableUri) {
+        this.newTableUri = newTableUri;
+    }
+
     protected void reset() {
         worksheetIndex = 0;
         workbooks = null;
@@ -122,4 +145,38 @@ public abstract class WizardBase extends BaseWizardBean {
     public void setWorksheetIndex(Integer worksheetIndex) {
         this.worksheetIndex = worksheetIndex;
     }
+
+    @Override
+    public String finish() {
+        boolean success = false;
+        try {
+            onFinish();
+            success = true;
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not save table.", e.getMessage()));
+            LOG.error("Could not save table: ", e);
+        }
+        if (success) {
+            resetStudio();
+            try {
+                FacesUtils.redirect(makeUrlForNewTable());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    private void resetStudio() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.rebuildModel();
+    }
+
+    protected String makeUrlForNewTable() {
+        StringBuffer buffer = new StringBuffer(FacesUtils.getContextPath() + "/openTable.jsp");
+        buffer.append("?uri=" + StringTool.encodeURL(newTableUri));
+        return buffer.toString();
+    }
+
 }

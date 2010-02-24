@@ -293,6 +293,11 @@ public class WebStudio {
         }
     }
 
+    public void rebuildModel() {
+        reset();
+        model.buildProjectTree();
+    }
+
     public void select(String name) throws Exception {
         OpenLWrapperInfo[] ww = getWrappers();
         if (name == null) {

@@ -8,7 +8,7 @@ public abstract class BaseWizardBean {
     private int maxVisitedStep;
 
     public void cancel() {
-        onFinish(true);
+        onCancel();
     }
 
     public int getMaxVisitedStep() {
@@ -30,9 +30,11 @@ public abstract class BaseWizardBean {
         return "next";
     }
 
-    protected abstract void onFinish(boolean cancelled);
+    protected abstract void onCancel();
 
     protected abstract void onStart();
+
+    protected abstract void onFinish() throws Exception;
 
     protected void onStepFirstVisit(int step) {
     }
@@ -51,4 +53,10 @@ public abstract class BaseWizardBean {
         onStart();
         return getName();
     }
+
+    public String finish() throws Exception {
+        onFinish();
+        return null;
+    }
+
 }

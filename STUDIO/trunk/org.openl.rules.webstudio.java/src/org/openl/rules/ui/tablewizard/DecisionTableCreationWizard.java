@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -99,9 +98,9 @@ public class DecisionTableCreationWizard extends WizardBase {
         getReturn().getParameters().add(new Parameter());
     }
 
-    private void doSave() throws CreateTableException, IOException {
-        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        DecisionTableBuilder builder = new DecisionTableBuilder(new XlsSheetGridModel(sourceCodeModule));
+    protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
+        XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
+        DecisionTableBuilder builder = new DecisionTableBuilder(gridModel);
 
         // compute table dimensions
         int tableWidth = returnValue.getParameters().size();
@@ -111,13 +110,7 @@ public class DecisionTableCreationWizard extends WizardBase {
         for (TableArtifact artifact : actions) {
             tableWidth += artifact.getParameters().size();
         }
-        int tableHeight = DecisionTableBuilder.LOGIC_ELEMENT_HEIGHT + 4; // let
-                                                                            // it
-                                                                            // be
-                                                                            // 1-3
-                                                                            // extra
-                                                                            // empty
-                                                                            // rows
+        int tableHeight = DecisionTableBuilder.LOGIC_ELEMENT_HEIGHT + 4; // let it be 1-3 extra empty rows
 
         // start writing finally
         builder.beginTable(tableWidth, tableHeight);
@@ -143,7 +136,17 @@ public class DecisionTableCreationWizard extends WizardBase {
         doSaveWriteArtifacts(builder, actions);
         doSaveWriteArtifacts(builder, Collections.singletonList(returnValue));
 
+        String newTableUri = gridModel.getRangeUri(builder.getTableRegion());
+
         builder.endTable();
+
+        return newTableUri;
+    }
+    
+    private void doSave() throws CreateTableException {
+        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
+        String newTableUri = buildTable(sourceCodeModule);
+        setNewTableUri(newTableUri);
     }
 
     public Map<String, Object> getSystemProperties() {        
@@ -311,7 +314,7 @@ public class DecisionTableCreationWizard extends WizardBase {
     }
 
     @Override
-    protected void onFinish(boolean cancelled) {
+    protected void onCancel() {
         reset();
     }
 
@@ -422,15 +425,9 @@ public class DecisionTableCreationWizard extends WizardBase {
         super.reset();
     }
 
-    public String save() {
-        try {
-            doSave();
-            return "done";
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not create table: ", e.getMessage()));
-        }
-        return null;
+    @Override
+    protected void onFinish() throws Exception {
+        doSave();
     }
 
     public void selectAction() {
