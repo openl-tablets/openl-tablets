@@ -11,8 +11,8 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <properties>
-    <openl.version.eclipse>5.3.1</openl.version.eclipse>
-    <openl.version.maven>5.3.1-SNAPSHOT</openl.version.maven>
+    <openl.version.eclipse>5.4.0.RC3</openl.version.eclipse>
+    <openl.version.maven>5.4.0.RC3</openl.version.maven>
   </properties>
 
  <scm>
