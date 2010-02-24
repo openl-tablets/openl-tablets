@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich"
+                template="/facelets/common/studioWizardBase.xhtml">
+
+    <ui:define name="page">
+
+    <ui:include src="/facelets/tableWizard/wizardSteps.xhtml">
+        <ui:param name="max" value="4" />
+    </ui:include>
+
+    <h2>Enter Property Table Information</h2>
+    <h:form>
+        <h:panelGrid columns="2">
+            <h:outputLabel value="Table Name" for="techName" />
+            <h:inputText id="techName" value="#{tableWizard.tableName}" />
+            <h:outputText value="Properties:" />
+            <a4j:commandLink oncomplete="#{rich:component('newPropertyDlg')}.show();">
+                <h:graphicImage value="/images/add_obj.gif" alt="Add property" title="Add property" />
+            </a4j:commandLink>
+        </h:panelGrid>
+        <h:dataTable id="propertiesTable" value="#{tableWizard.properties}" var="prop">
+            <h:column>
+                <h:outputText value="#{prop.displayName}" />
+            </h:column>
+            <h:column>
+                <h:inputText value="#{prop.value}" rendered="#{prop.string}" />
+                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                    defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
+                    rendered="#{prop.date}" />
+                <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
+            </h:column>
+            <h:column>
+                <a4j:commandLink action="#{tableWizard.removeProperty}" ajaxSingle="true"
+                    reRender="propertiesTable,propNames">
+                    <h:graphicImage value="/images/delete.gif" alt="Remove property" title="Remove property" />
+                    <f:setPropertyActionListener value="#{prop}" target="#{tableWizard.propToRemove}" />
+                </a4j:commandLink>
+            </h:column>
+        </h:dataTable>
+
+        <hr />
+
+        <h:inputHidden value="2" id="step" binding="#{tableCreatorWizardManager.hiddenStep}" />
+        <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />
+        <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" />
+        <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" />
+    </h:form>
+
+    <rich:modalPanel id="newPropertyDlg" height="100" width="290" top="100" left="200" resizeable="false">
+        <f:facet name="header">
+            <h:outputText value="Add Property" />
+        </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+                onclick="#{rich:component('newPropertyDlg')}.hide();" />
+        </f:facet>
+        <h:form>
+            <h:panelGrid columns="2">
+                <h:outputText value="Select Property" />
+                <h:selectOneMenu id="propNames" value="#{tableWizard.propNameToAdd}">
+                    <f:selectItems value="#{tableWizard.propertyNamesList}" />
+                </h:selectOneMenu>
+            </h:panelGrid>
+            <h:panelGrid columns="2" style="margin: 10px 0px 0px 70px">
+                <a4j:commandButton value="Add" action="#{tableWizard.addProperty}" reRender="propertiesTable,propNames"
+                    oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
+                <h:commandButton value="Cancel" onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+            </h:panelGrid>
+        </h:form>
+    </rich:modalPanel>
+
+  </ui:define>
+
+</ui:composition>
