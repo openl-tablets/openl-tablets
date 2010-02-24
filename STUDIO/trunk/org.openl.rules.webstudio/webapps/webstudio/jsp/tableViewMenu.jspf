@@ -29,10 +29,10 @@ document.getElementById(elmnt).style.visibility="hidden"
 	}
 
 	String[] menuParams = {"transparency", "filterType"};
-	String pars = WebTool.listParamsExcept(menuParams, request);
+	String pars = WebTool.listRequestParams(request, menuParams);
 
 	String[] menuParamsView = {"transparency", "filterType", "view"};
-	String parsView = WebTool.listParamsExcept(menuParamsView, request);
+	String parsView = WebTool.listRequestParams(request, menuParamsView);
 
 
 	view = studio.getModel().getTableView(request.getParameter("view"));

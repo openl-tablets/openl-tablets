@@ -42,8 +42,8 @@
 
       <hr/>
       <h:inputHidden value="2" id="step" binding="#{tableCopierWizardManager.hiddenStep}"/>
-      <h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" onclick="enableControls()"/> 
-      <h:commandButton value="Finish" action="#{tableCopierWizard.copy}" onclick="return validateForm()"/>      
+      <h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" onclick="enableControls()"/>
+      <h:commandButton value="Finish" action="#{tableCopierWizard.finish}" onclick="return validateForm()"/>
       <h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" immediate="true"/>
     </h:form>
 

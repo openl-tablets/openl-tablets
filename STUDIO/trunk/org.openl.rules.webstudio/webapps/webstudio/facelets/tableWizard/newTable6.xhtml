@@ -6,7 +6,7 @@
                 template="/facelets/common/wizardBase.xhtml"
         >
   <ui:define name="page">
-    <h:messages errorClass="error" showSummary="true" showDetail="true"/>
+    <h:messages errorClass="error" />
     
     <h2>Style templates</h2>
 
@@ -17,9 +17,8 @@
     <h:form>
       <h:inputHidden value="6" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
       <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
+      <h:commandButton value="Save" action="#{tableWizard.finish}"/>
       <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
-
-      <h:commandButton value="Save" action="#{tableWizard.save}"/>
     </h:form>
   </ui:define>
 </ui:composition>

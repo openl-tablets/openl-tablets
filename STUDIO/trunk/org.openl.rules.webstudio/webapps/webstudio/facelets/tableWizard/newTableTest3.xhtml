@@ -9,9 +9,8 @@
   <ui:define name="controlButtons">
     <h:inputHidden value="3" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
     <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" onclick="enableControls()"/>
+    <h:commandButton value="Save" action="#{tableWizard.finish}" onclick="return validateForm();enableControls()"/>
     <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"/>
-
-    <h:commandButton value="Save" action="#{tableWizard.save}" onclick="return validateForm();enableControls()"/>
   </ui:define>
 
 </ui:composition>

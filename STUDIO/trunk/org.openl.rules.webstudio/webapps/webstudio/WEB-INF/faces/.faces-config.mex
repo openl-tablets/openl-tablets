@@ -5,7 +5,7 @@
   <JSFFlowResource path="/facelets/repository/search/advanced.xhtml" location="330,30" dimension="256,36" />
   <JSFFlowResource path="/index.jsp" location="30,130" dimension="92,36" />
   <JSFFlowResource path="" location="180,130" dimension="36,36" />
-  <JSFFlowResource path="/mainRedirect.jsp" location="330,130" dimension="128,36" />
+  <JSFFlowResource path="/openTable.jsp" location="480,1030" dimension="116,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable0.xhtml" location="630,130" dimension="233,36" />
   <JSFFlowResource path="/html/ws-intro.html" location="30,230" dimension="135,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable1.xhtml" location="330,230" dimension="233,36" />
@@ -16,7 +16,6 @@
   <JSFFlowResource path="/facelets/tableWizard/newTable4.xhtml" location="630,330" dimension="233,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable5.xhtml" location="30,430" dimension="233,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable6.xhtml" location="330,430" dimension="233,36" />
-  <JSFFlowResource path="/facelets/tableWizard/newTable7.xhtml" location="630,430" dimension="233,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableTest2.xhtml" location="30,530" dimension="254,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableTest3.xhtml" location="480,530" dimension="254,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableProperty2.xhtml" location="630,1130" dimension="275,36" />
@@ -25,12 +24,9 @@
   <JSFFlowResource path="/facelets/tableCopier/copyNames.xhtml" location="480,630" dimension="234,36" />
   <JSFFlowResource path="/facelets/tableCopier/copyProperties.xhtml" location="30,730" dimension="251,36" />
   <JSFFlowResource path="/facelets/tableeditor/showTable.xhtml" location="30,830" dimension="227,36" />
-  <JSFFlowResource path="/facelets/tableCopier/copyNamesSelectDestination.xhtml" location="480,730" dimension="317,36" />
-  <JSFFlowResource path="/facelets/tableCopier/copyNamesSaveContent.xhtml" location="330,830" dimension="297,36" />
-  <JSFFlowResource path="/facelets/tableCopier/copyPropertiesSelectDestination.xhtml" location="30,930" dimension="334,36" />
-  <JSFFlowResource path="/facelets/tableCopier/copyPropertiesSaveContent.xhtml" location="480,930" dimension="314,36" />
-  <JSFFlowResource path="/facelets/tableeditor/changeVersion.xhtml" location="480,1030" dimension="246,36" />
   <JSFFlowResource path="/facelets/tableCopier/changeVersion.xhtml" location="330,1130" dimension="249,36" />
+  <JSFFlowResource path="/facelets/tableCopier/copyNamesSelectDestination.xhtml" location="480,730" dimension="317,36" />
+  <JSFFlowResource path="/facelets/tableCopier/copyPropertiesSelectDestination.xhtml" location="30,930" dimension="334,36" />
   <JSFFlowResource path="/facelets/tableCopier/selectSheet.xhtml" location="480,1230" dimension="235,36" />
   <JSFFlowNavigationCase id="/facelets/repository/main.xhtml,/facelets/repository/search/advanced.xhtml,search.advanced,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
@@ -70,10 +66,13 @@
       <AbsolutePoint location="114,66" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id=",/mainRedirect.jsp,mainPage,&lt;empty&gt;" routingType="0">
+  <JSFFlowNavigationCase id=",/openTable.jsp,mainPage,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="216,148" />
-      <AbsolutePoint location="330,148" />
+      <AbsolutePoint location="198,166" />
+      <AbsolutePoint location="198,308" />
+      <AbsolutePoint location="891,308" />
+      <AbsolutePoint location="891,1048" />
+      <AbsolutePoint location="596,1048" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id=",/facelets/tableWizard/newTable0.xhtml,wizardSelect,&lt;empty&gt;" routingType="0">
@@ -86,8 +85,8 @@
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id=",/html/ws-intro.html,newTableCancel,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="198,166" />
-      <AbsolutePoint location="198,248" />
+      <AbsolutePoint location="183,166" />
+      <AbsolutePoint location="183,248" />
       <AbsolutePoint location="165,248" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
@@ -107,10 +106,10 @@
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTable0.xhtml,/facelets/tableWizard/newTableProperty1.xhtml,newTableProperty,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="863,148" />
-      <AbsolutePoint location="1002,148" />
-      <AbsolutePoint location="1002,1003" />
-      <AbsolutePoint location="167,1003" />
-      <AbsolutePoint location="167,1030" />
+      <AbsolutePoint location="942,148" />
+      <AbsolutePoint location="942,1003" />
+      <AbsolutePoint location="182,1003" />
+      <AbsolutePoint location="182,1030" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTable1.xhtml,/facelets/tableWizard/newTable2.xhtml,next,&lt;empty&gt;" routingType="0">
@@ -129,10 +128,10 @@
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest1.xhtml,/facelets/tableWizard/newTableTest2.xhtml,next,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="757,266" />
-      <AbsolutePoint location="757,293" />
-      <AbsolutePoint location="270,293" />
-      <AbsolutePoint location="270,530" />
+      <AbsolutePoint location="870,266" />
+      <AbsolutePoint location="870,493" />
+      <AbsolutePoint location="157,493" />
+      <AbsolutePoint location="157,530" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest1.xhtml,/facelets/tableWizard/newTable0.xhtml,prev,&lt;empty&gt;" routingType="0">
@@ -144,17 +143,17 @@
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableProperty1.xhtml,/facelets/tableWizard/newTableProperty2.xhtml,next,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="167,1066" />
-      <AbsolutePoint location="167,1118" />
-      <AbsolutePoint location="767,1118" />
+      <AbsolutePoint location="167,1103" />
+      <AbsolutePoint location="767,1103" />
       <AbsolutePoint location="767,1130" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableProperty1.xhtml,/facelets/tableWizard/newTable0.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="182,1066" />
-      <AbsolutePoint location="182,1088" />
-      <AbsolutePoint location="927,1088" />
-      <AbsolutePoint location="927,163" />
+      <AbsolutePoint location="167,1030" />
+      <AbsolutePoint location="167,973" />
+      <AbsolutePoint location="912,973" />
+      <AbsolutePoint location="912,163" />
       <AbsolutePoint location="863,163" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
@@ -211,12 +210,6 @@
       <AbsolutePoint location="761,366" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableWizard/newTable6.xhtml,/facelets/tableWizard/newTable7.xhtml,done,&lt;empty&gt;" routingType="0">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="563,448" />
-      <AbsolutePoint location="630,448" />
-    </AutomaticBendpoints>
-  </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTable6.xhtml,/facelets/tableWizard/newTable5.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="330,463" />
@@ -231,16 +224,10 @@
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest2.xhtml,/facelets/tableWizard/newTableTest1.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="157,530" />
-      <AbsolutePoint location="157,493" />
-      <AbsolutePoint location="870,493" />
-      <AbsolutePoint location="870,266" />
-    </AutomaticBendpoints>
-  </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest3.xhtml,/facelets/tableWizard/newTable7.xhtml,done,&lt;empty&gt;" routingType="0">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="726,530" />
-      <AbsolutePoint location="726,466" />
+      <AbsolutePoint location="270,530" />
+      <AbsolutePoint location="270,278" />
+      <AbsolutePoint location="757,278" />
+      <AbsolutePoint location="757,266" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest3.xhtml,/facelets/tableWizard/newTableTest2.xhtml,prev,&lt;empty&gt;" routingType="0">
@@ -251,35 +238,26 @@
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableProperty2.xhtml,/facelets/tableWizard/newTableProperty3.xhtml,next,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="782,1166" />
-      <AbsolutePoint location="782,1303" />
-      <AbsolutePoint location="167,1303" />
-      <AbsolutePoint location="167,1266" />
+      <AbsolutePoint location="767,1166" />
+      <AbsolutePoint location="767,1203" />
+      <AbsolutePoint location="167,1203" />
+      <AbsolutePoint location="167,1230" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableProperty2.xhtml,/facelets/tableWizard/newTableProperty1.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="782,1130" />
-      <AbsolutePoint location="782,973" />
-      <AbsolutePoint location="182,973" />
-      <AbsolutePoint location="182,1030" />
-    </AutomaticBendpoints>
-  </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableWizard/newTableProperty3.xhtml,/facelets/tableWizard/newTable7.xhtml,done,&lt;empty&gt;" routingType="0">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="30,1248" />
-      <AbsolutePoint location="-7,1248" />
-      <AbsolutePoint location="-7,693" />
-      <AbsolutePoint location="746,693" />
-      <AbsolutePoint location="746,466" />
+      <AbsolutePoint location="782,1073" />
+      <AbsolutePoint location="182,1073" />
+      <AbsolutePoint location="182,1066" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableProperty3.xhtml,/facelets/tableWizard/newTableProperty2.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="167,1230" />
-      <AbsolutePoint location="167,1208" />
-      <AbsolutePoint location="767,1208" />
-      <AbsolutePoint location="767,1166" />
+      <AbsolutePoint location="167,1266" />
+      <AbsolutePoint location="167,1303" />
+      <AbsolutePoint location="782,1303" />
+      <AbsolutePoint location="782,1166" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableCopier/copyTableSelectOptions.xhtml,/facelets/tableCopier/copyNames.xhtml,changeName,&lt;empty&gt;" routingType="0">
@@ -326,16 +304,16 @@
       <AbsolutePoint location="454,1130" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
+  <JSFFlowNavigationCase id="/facelets/tableCopier/changeVersion.xhtml,/facelets/tableCopier/selectSheet.xhtml,next,&lt;empty&gt;" routingType="0">
+    <AutomaticBendpoints>
+      <AbsolutePoint location="571,1166" />
+      <AbsolutePoint location="571,1230" />
+    </AutomaticBendpoints>
+  </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableCopier/copyNamesSelectDestination.xhtml,/facelets/tableCopier/copyNames.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="653,730" />
       <AbsolutePoint location="653,666" />
-    </AutomaticBendpoints>
-  </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableCopier/copyNamesSaveContent.xhtml,/facelets/tableCopier/copyNamesSelectDestination.xhtml,prev,&lt;empty&gt;" routingType="0">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="487,830" />
-      <AbsolutePoint location="487,766" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableCopier/copyPropertiesSelectDestination.xhtml,/facelets/tableCopier/copyProperties.xhtml,prev,&lt;empty&gt;" routingType="0">
@@ -344,22 +322,10 @@
       <AbsolutePoint location="279,766" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableCopier/copyPropertiesSaveContent.xhtml,/facelets/tableCopier/copyPropertiesSelectDestination.xhtml,prev,&lt;empty&gt;" routingType="0">
+  <JSFFlowNavigationCase id="/facelets/tableCopier/selectSheet.xhtml,/facelets/tableCopier/changeVersion.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
-      <AbsolutePoint location="480,948" />
-      <AbsolutePoint location="364,948" />
-    </AutomaticBendpoints>
-  </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableCopier/changeVersion.xhtml,/facelets/tableCopier/selectSheet.xhtml,next,&lt;empty&gt;" routingType="0">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="571,1166" />
-      <AbsolutePoint location="571,1230" />
-    </AutomaticBendpoints>
-  </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableCopier/selectSheet.xhtml,/facelets/tableeditor/changeVersion.xhtml,prev,&lt;empty&gt;" routingType="1">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="603,1230" />
-      <AbsolutePoint location="603,1066" />
+      <AbsolutePoint location="487,1230" />
+      <AbsolutePoint location="487,1166" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
 </JSFFlowViewLayout>

@@ -1,12 +1,11 @@
 package org.openl.rules.webtools;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.table.ui.ICellFont;
 
-import org.openl.util.ArrayTool;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -142,32 +141,31 @@ public class WebTool extends StringTool {
     }
 
     @SuppressWarnings("unchecked")
-    public static String listParamsExcept(String[] usedParams, ServletRequest request) {
-        return listParamsExcept(usedParams, request.getParameterMap());
+    public static String listRequestParams(ServletRequest request) {
+        return listRequestParams(request.getParameterMap(), null);
     }
 
-    public static String listParamsExcept(String[] usedParams, Map<String, String[]> pmap) {
-        StringBuffer buf = null;
+    @SuppressWarnings("unchecked")
+    public static String listRequestParams(ServletRequest request, String[] exceptParams) {
+        return listRequestParams(request.getParameterMap(), exceptParams);
+    }
 
-        for (Iterator<String> iter = pmap.keySet().iterator(); iter.hasNext();) {
-            String pname = (String) iter.next();
+    public static String listRequestParams(Map<String, String[]> paramsMap, String[] exceptParams) {
+        StringBuilder buf = new StringBuilder();
 
-            if (ArrayTool.contains(usedParams, pname)) {
+        for (String paramName : paramsMap.keySet()) {
+            if (ArrayUtils.contains(exceptParams, paramName)) {
                 continue;
             }
-            if (buf == null) {
-                buf = new StringBuffer(100);
-
-                // buf.append('?');
-            } else {
+            if (buf.length() != 0) {
                 buf.append('&');
             }
-
-            String[] values = pmap.get(pname);
-            buf.append(pname).append('=').append(StringTool.encodeURL(values[0]));
+            String[] paramValues = paramsMap.get(paramName);
+            buf.append(paramName).append('=').append(
+                    StringTool.encodeURL(paramValues[0]));
         }
 
-        return (buf == null) ? "" : buf.toString();
+        return buf.toString();
     }
 
     static public String makeXlsOrDocUrl(String url) {

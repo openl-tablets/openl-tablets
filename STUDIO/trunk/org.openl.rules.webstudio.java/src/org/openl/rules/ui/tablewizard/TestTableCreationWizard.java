@@ -6,12 +6,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.IOException;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
@@ -60,23 +58,43 @@ public class TestTableCreationWizard extends WizardBase {
         return node;
     }
 
-    
-    private void doSave() throws CreateTableException, IOException {
+    protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
         TableSyntaxNode node = getSelectedNode();
         
         String header = TestTableBuilder.getHeader(node, technicalName);
         
         Map<String, String> params = TestTableBuilder.getParams(node);
 
-        TestTableBuilder builder = new TestTableBuilder(new XlsSheetGridModel(getDestinationSheet()));
-        builder.beginTable(params.size() + 1, 4);
+        XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
+        TestTableBuilder builder = new TestTableBuilder(gridModel);
+
+        Map<String, Object> systemProps = getSystemProperties();
+
+        int width = params.size() + 1;
+        if (width < 3 && !systemProps.isEmpty()) {
+            width = 3;  // Properties require 3 columns
+        }
+        int height = 3 + systemProps.size(); // 3 required rows + Properties
+        builder.beginTable(width, height);
+
         builder.writeHeader(header, null);
-        
-        builder.writeProperties(getSystemProperties(), null);
-        
+
+        builder.writeProperties(systemProps, null);
+
         builder.writeParams(params, null);
+
+        String uri = gridModel.getRangeUri(builder.getTableRegion());
+
         builder.endTable();
         builder.save();
+
+        return uri;
+    }
+
+    private void doSave() throws CreateTableException {
+        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
+        String newTableUri = buildTable(sourceCodeModule);
+        setNewTableUri(newTableUri);
     }
 
     private Map<String, Object> getSystemProperties() {        
@@ -114,7 +132,7 @@ public class TestTableCreationWizard extends WizardBase {
     }
 
     @Override
-    protected void onFinish(boolean cancelled) {
+    protected void onCancel() {
         tableItems = null;
         reset();
     }
@@ -148,15 +166,9 @@ public class TestTableCreationWizard extends WizardBase {
         }
     }
 
-    public String save() {
-        try {
-            doSave();
-            return "done";
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not create table: ", e.getMessage()));
-        }
-        return null;
+    @Override
+    protected void onFinish() throws Exception {
+        doSave();
     }
 
     public void setSelectedTable(int selectedTable) {
