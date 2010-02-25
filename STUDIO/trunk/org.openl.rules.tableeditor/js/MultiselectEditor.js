@@ -154,4 +154,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
 });
 
-TableEditor.Editors["multiselect"] = MultiselectEditor;
+if (TableEditor) {
+	TableEditor.Editors["multiselect"] = MultiselectEditor;
+}

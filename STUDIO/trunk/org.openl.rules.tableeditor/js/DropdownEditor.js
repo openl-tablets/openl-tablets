@@ -54,4 +54,6 @@ var DropdownEditor = Class.create(BaseEditor, {
 
 });
 
-TableEditor.Editors["combo"] = DropdownEditor;
+if (TableEditor) {
+	TableEditor.Editors["combo"] = DropdownEditor;
+}

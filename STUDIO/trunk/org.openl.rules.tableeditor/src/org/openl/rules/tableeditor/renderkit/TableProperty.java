@@ -105,18 +105,26 @@ public class TableProperty {
     }
 
     public String getStringValue() {
+        
         String result = "";
+       
         if (value != null) {
+        
             if (value instanceof Date) {
                 SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
                 result = sdf.format((Date) value);
+            
             } else if (EnumUtils.isEnum(value)) {
                 result = ((Enum<?>) value).name();
+            
             } else if (EnumUtils.isEnumArray(value)) {
+            
                 Object[] enums = (Object[]) value;
+                
                 if (!ArrayUtils.isEmpty(enums)) {
                     String[] names = EnumUtils.getNames(enums);
                     result = StringUtils.join(names, ",");
+                
                 } else {
                     result = "";
                 }
@@ -124,6 +132,7 @@ public class TableProperty {
                 result = value.toString();
             }
         }
+        
         return result;
     }
 
