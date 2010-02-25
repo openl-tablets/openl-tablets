@@ -28,6 +28,7 @@
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
           <warName>${war.name}</warName>
           <packagingExcludes>
+            WEB-INF/lib/poi-2.5.1-*.jar,
             WEB-INF/lib/org.openl.lib-*.jar,
             WEB-INF/lib/org.openl.poi.lib-*.jar,
             WEB-INF/lib/org.openl.rules.webstudio.lib-*.jar
