@@ -27,11 +27,8 @@
 						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
 					</c:if>
 					<c:if test="#{propDef.date}">
-						<td><rich:calendar id="#{propDef.name}" 
-										   value="#{propDef.value}"										   
-										   popup="true" 
-										   enableManualInput="false"
-	      								   jointPoint="bottom-left" 
+						<td><rich:calendar id="#{propDef.name}"
+										   value="#{propDef.value}"
 	      								   datePattern="#{propDef.format}"
 	      								   defaultTime = "00:00"
 	      								   timeZone="#{formatPatterns.defaultTimeZone}">
