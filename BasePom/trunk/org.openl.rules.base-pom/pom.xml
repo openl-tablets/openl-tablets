@@ -41,14 +41,14 @@
 
   <distributionManagement>
     <repository>
-      <id>internal-minsk</id>
-      <name>OpenL Minsk Maven Repository For Releases</name>
-      <url>http://openl.internal.corp:8085/nexus/content/repositories/releases</url>
+      <id>exigen-repo-release</id>
+      <name>Exigen Release Repository</name>
+      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
     </repository>
     <snapshotRepository>
-      <id>internal-minsk</id>
-      <name>OpenL Minsk Maven Repository</name>
-      <url>http://openl.internal.corp:8085/nexus/content/repositories/all-minsk</url>
+      <id>exigen-repo-snapshot</id>
+      <name>Exigen Snapshot Repository</name>
+      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
     </snapshotRepository>
   </distributionManagement>
 
