@@ -126,6 +126,43 @@ public class HTMLRenderer {
         }
         return "";
     }
+    
+    public String getSingleSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
+        
+        String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
+        String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+
+        String params = String.format(
+                "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
+                choisesString, 
+                displayValuesString);
+        
+        String id = componentId == null ? StringUtils.EMPTY : componentId; 
+
+        String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", 
+                id, 
+                params,
+                StringEscapeUtils.escapeJavaScript(value));
+        
+        return jsCode;
+    }
+    
+    public String getMultiSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
+
+        String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
+        String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+
+        String params = String.format(
+                "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
+                choisesString, displayValuesString);
+
+        String id = componentId == null ? StringUtils.EMPTY : componentId;
+
+        String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params,
+                StringEscapeUtils.escapeJavaScript(value));
+
+        return jsCode;
+    }
 
     protected String renderEditor(TableEditor editor, String cellToEdit) {
         StringBuilder result = new StringBuilder();
@@ -615,20 +652,12 @@ public class HTMLRenderer {
         }
 
         private void insertSingleSelect(String componentId, String[] values, String[] displayValues, String value) {
-            String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-            String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
-
-            String params = String
-                    .format("{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
-                            choisesString, displayValuesString);
-
-            String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", componentId, params,
-                    StringEscapeUtils.escapeJavaScript(value));
-
-            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
-                    renderJSBody(jsCode));
+            
+            String jsCode = getSingleSelectComponentCode(componentId, values, displayValues, value);
+            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>")
+                  .append(renderJSBody(jsCode));
         }
-
+        
         private void insertSingleSelectForEnum(TableProperty prop, String id) {
             Class<?> instanceClass = prop.getType();
             String value = prop.getStringValue();
@@ -651,15 +680,8 @@ public class HTMLRenderer {
         }
 
         private void insertMultiSelect(String componentId, String[] values, String[] displayValues, String value) {
-            String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-            String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
-
-            String params = String
-                    .format("{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
-                            choisesString, displayValuesString);
-
-            String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", componentId, params,
-                    StringEscapeUtils.escapeJavaScript(value));
+            
+            String jsCode = getMultiSelectComponentCode(componentId, values, displayValues, value);
 
             result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
                     renderJSBody(jsCode));

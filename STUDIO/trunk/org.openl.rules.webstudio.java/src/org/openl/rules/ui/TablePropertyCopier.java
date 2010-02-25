@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.component.html.HtmlOutputText;
+
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -20,8 +22,10 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.EnumUtils;
 
 public class TablePropertyCopier extends TableCopier {
 
@@ -32,6 +36,41 @@ public class TablePropertyCopier extends TableCopier {
     private List<TableProperty> defaultProps = new ArrayList<TableProperty>();
 
     private UIRepeat propsTable;
+    
+    private HtmlOutputText enumOutput;
+    private HtmlOutputText enumArrayOutput;
+
+    public HtmlOutputText getEnumOutput() {
+        return enumOutput;
+    }
+
+    public void setEnumOutput(HtmlOutputText enumOutput) {
+        this.enumOutput = enumOutput;
+    }
+
+    public HtmlOutputText getEnumArrayOutput() {
+        return enumArrayOutput;
+    }
+
+    public void setEnumArrayOutput(HtmlOutputText enumArrayOutput) {
+        this.enumArrayOutput = enumArrayOutput;
+    }
+    
+    public String getEnumValue() {
+        
+        String componentId = enumOutput.getId();
+        TableProperty property = (TableProperty)enumOutput.getAttributes().get("property");
+        
+        return getEnumSelectComponentCode(componentId, property);
+    }
+    
+    public String getEnumArrayValue() {
+
+        String componentId = enumArrayOutput.getId();
+        TableProperty property = (TableProperty)enumArrayOutput.getAttributes().get("property");
+        
+        return getEnumMultiSelectComponentCode(componentId, property);
+    }
 
     public List<TableProperty> getPropsToCopy() {
         return propsToCopy;
@@ -66,29 +105,39 @@ public class TablePropertyCopier extends TableCopier {
      * get to the properties copying page.
      */
     private void initProperties(boolean excludeDimensionalProperties) {
-        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions
-                .getDefaultDefinitions();
+        
+        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         TableSyntaxNode node = getCopyingTable();
         
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if (!propDefinition.isSystem() && !(excludeDimensionalProperties && propDefinition.isDimensional())) {
+            
+            if (!propDefinition.isSystem() 
+                    && !(excludeDimensionalProperties && propDefinition.isDimensional())) {
+                
                 ITableProperties tableProperties = node.getTableProperties();
+                
                 String name = propDefinition.getName();
-                Object propertyValue = tableProperties.getPropertyValue(name) != null ?
+                Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
                         tableProperties.getPropertyValue(name) : null;
+                
                 if (!tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
                     propertyValue = StringUtils.EMPTY;
                 }
+                
                 Class<?> propertyType = null;
+                
                 if (propDefinition.getType() != null) {
                     propertyType = propDefinition.getType().getInstanceClass();
                 }
+                
                 String displayName = propDefinition.getDisplayName();                
                 String format = propDefinition.getFormat();
                 
-                propsToCopy.add(new TableProperty.TablePropertyBuilder(name, displayName)
+                TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, displayName)
                         .value(propertyValue).type(propertyType).format(format)
-                        .build());
+                        .build();
+                
+                propsToCopy.add(tableProperty);
             }
         }
     }
@@ -229,6 +278,37 @@ public class TablePropertyCopier extends TableCopier {
                 LOG.error("Can not update table properties", e);
             }
         }
+    }
+    
+    private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
+
+            Class<?> instanceClass = tableProperty.getType();
+            String value = tableProperty.getStringValue();
+
+            String[] values = EnumUtils.getNames(instanceClass);
+            String[] displayValues = EnumUtils.getValues(instanceClass);
+
+            String id = String.format("%s:enumSelect", componentId);
+            
+            String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
+            
+            return String.format("<div id='%s'><script type='text/javascript'>%s</script></div>", id, componentCode);
+    }
+    
+    private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
+        
+        Class<?> instanceClass = tableProperty.getType().getComponentType();
+
+        String valueString = tableProperty.getStringValue();
+
+        String[] values = EnumUtils.getNames(instanceClass);
+        String[] displayValues = EnumUtils.getValues(instanceClass);
+        
+        String id = String.format("%s:enumArraySelect", componentId);
+        
+        String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
+        
+        return String.format("<div id='%s'><script type='text/javascript'>%s</script></div>", id, componentCode);
     }
 
 }
