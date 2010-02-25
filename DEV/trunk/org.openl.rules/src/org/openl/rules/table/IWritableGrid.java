@@ -297,7 +297,7 @@ public interface IWritableGrid extends IGrid {
                                 leftCell + 2)));
                     }
                     actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
-                    actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND, 1));
+                    actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
                 }
             }
             actions.add(new UndoableSetValueAction(leftCell + 1, topCell + beforeRow, newPropName, null));
