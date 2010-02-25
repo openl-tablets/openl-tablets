@@ -67,6 +67,7 @@ public class NewVersionTableCopier extends TablePropertyCopier {
             nextVersion = new Version(INIT_VERSION);
         }
         nextVersion.setVariant(nextVersion.getVariant() + 1);
+
         return nextVersion;
     }
 
