@@ -253,7 +253,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         Cell cellTo = getXlsCell(colTo, rowTo);
 
         if (cellFrom == null) {
-            if (cellTo != null && !isTopLeftCellInMergedRegion(colTo, rowTo)) {
+            if (cellTo != null) {
                 clearCell(colTo, rowTo);
             }
             return;
