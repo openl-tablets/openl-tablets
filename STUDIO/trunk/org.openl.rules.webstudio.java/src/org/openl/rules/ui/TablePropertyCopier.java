@@ -26,8 +26,11 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.EnumUtils;
+import org.openl.util.conf.Version;
 
 public class TablePropertyCopier extends TableCopier {
+
+    public static final String INIT_VERSION = "0.0.1";
 
     private static final Log LOG = LogFactory.getLog(TablePropertyCopier.class);
 
@@ -261,6 +264,15 @@ public class TablePropertyCopier extends TableCopier {
         return getProperty("version");
     }
 
+    public Version getMinNextVersion() {
+        Object originalVersion = getVersion().getValue();
+        if (originalVersion != null && originalVersion instanceof String) {
+            return Version.parseVersion((String) originalVersion, 0, "..");
+        } else {
+            return Version.parseVersion(INIT_VERSION, 0, "..");
+        }
+    }
+    
     protected void updatePropertiesForOriginalTable(Map<String, String> properties) {
         if (properties.size() > 0) {
             WebStudio studio = WebStudioUtils.getWebStudio();

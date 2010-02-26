@@ -3,18 +3,15 @@ package org.openl.rules.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.meta.Version;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.util.conf.Version;
 
 /**
  * @author Andrei Astrouski
  */
 public class NewVersionTableCopier extends TablePropertyCopier {
-
-    public static final String INIT_VERSION = "0.0.1";
-
     public NewVersionTableCopier(String tableUri) {
         super(tableUri, true);
     }
@@ -52,23 +49,20 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         ITableProperties tableProperties = originalNode.getTableProperties();
         String version = tableProperties.getVersion();
         try {
-            return new Version(version);
+            return Version.parseVersion(version, 0, "..");
         } catch (IllegalArgumentException e) {
             return null;
         }
     }
 
-    public Version getMinVersion() {
-        Version nextVersion;
+    public Version getMinNextVersion() {
         Version originalVersion = getOriginalVersion();
         if (originalVersion != null) {
-            nextVersion = new Version(originalVersion);
+            originalVersion.setVariant(originalVersion.getVariant() + 1);
+            return originalVersion;
         } else {
-            nextVersion = new Version(INIT_VERSION);
+            return Version.parseVersion(INIT_VERSION, 0, "..");
         }
-        nextVersion.setVariant(nextVersion.getVariant() + 1);
-
-        return nextVersion;
     }
 
 }

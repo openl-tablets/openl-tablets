@@ -47,8 +47,10 @@
 	                       			   defaultTime="00:00" 
 	                       			   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.date}" />
                 		 
-              		   	<h:inputText value="#{prop.value}" readonly="#{prop.name == 'version'}" rendered="#{prop.name == 'version'}" />
-               		   	<h:commandButton value="edit" onclick="Richfaces.showModalPanel('modalVersionChange'); return false;" rendered="#{prop.name == 'version'}" />
+              		   	<h:panelGroup id="editVersionPanel" rendered="#{prop.name == 'version'}">
+              		   		<h:inputText value="#{prop.value}" readonly="#{prop.name == 'version'}"/>
+               		   		<input type="button" id="huis" value="Edit" onclick="#{rich:component('modalVersionChange')}.show();"/>
+               		   	</h:panelGroup>
 
                		    <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}"/>
 
@@ -118,39 +120,18 @@
     </f:facet>
 
     <h:form id="changeVersionForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputText value="Current Version" />
-        <h:outputText value="#{tableCopierWizard.version.value}"/>
-        <h:outputLabel for="major" styleClass="required" value="Major Version" />
-        <rich:inputNumberSpinner id="major" minValue="0" value="0" maxValue="32000"
-                                 inputSize="4" cycled="false" onchange="adjustNextVersion();"/>
-        <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
-        <rich:inputNumberSpinner id="minor" minValue="0" value="0" maxValue="32000" cycled="false" inputSize="4" 
-                 onchange="adjustNextVersion()"/>
-        <h:outputLabel for="variant" styleClass="required" value="Variant Version" />
-        <rich:inputNumberSpinner id="variant" minValue="0" value="0" maxValue="32000" inputSize="4" cycled="false"
-                 onchange="adjustNextVersion()"/>
-        <h:inputHidden id="newVersion" value="#{tableCopierWizard.version.value}" />
-      </h:panelGrid>
+	    <ui:include src="/facelets/tableCopier/selectVersionForm.xhtml"/>
 
       <br />
       <rich:separator height="1" />
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Ok"/>
+        <a4j:commandButton styleClass="button" value="Ok" reRender="editVersionPanel" oncomplete="#{rich:component('modalVersionChange')}.hide();" />
         <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalVersionChange')}.hide();" />
       </h:panelGrid>
     </h:form>
 
-    <script>
-      function adjustNextVersion() {
-        var major = $('changeVersionForm:majorEdit').down().value;
-        var minor = $('changeVersionForm:minorEdit').down().value;
-        var variant = $('changeVersionForm:variantEdit').down().value;
-        $("changeVersionForm:newVersion").value = major + "." + minor + "." + variant;
-      }
-    </script>
   </rich:modalPanel>
 
     </ui:define>
