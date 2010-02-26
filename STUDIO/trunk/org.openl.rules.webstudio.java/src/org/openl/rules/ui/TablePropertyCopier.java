@@ -282,19 +282,19 @@ public class TablePropertyCopier extends TableCopier {
     
     private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
 
-            Class<?> instanceClass = tableProperty.getType();
-            String value = tableProperty.getStringValue();
+        Class<?> instanceClass = tableProperty.getType();
+        String value = tableProperty.getStringValue();
 
-            String[] values = EnumUtils.getNames(instanceClass);
-            String[] displayValues = EnumUtils.getValues(instanceClass);
+        String[] values = EnumUtils.getNames(instanceClass);
+        String[] displayValues = EnumUtils.getValues(instanceClass);
 
-            String id = String.format("%s:enumSelect", componentId);
-            
-            String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
-            
-            return String.format("<div id='%s'><script type='text/javascript'>%s</script></div>", id, componentCode);
+        String id = String.format("%s:enumSelect", componentId);
+
+        String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
+
+        return getEditorHTMLCode(id, componentCode);
     }
-    
+
     private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
         
         Class<?> instanceClass = tableProperty.getType().getComponentType();
@@ -307,8 +307,19 @@ public class TablePropertyCopier extends TableCopier {
         String id = String.format("%s:enumArraySelect", componentId);
         
         String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
-        
-        return String.format("<div id='%s'><script type='text/javascript'>%s</script></div>", id, componentCode);
+
+        return getEditorHTMLCode(id, componentCode);
+    }
+
+    private String getEditorHTMLCode(String id, String editorCode) {
+        return String.format(
+                  "<div id='%1$s'></div>"
+                + "<script type='text/javascript'>"
+                + "var editor = %2$s;"
+                // editor value setter code
+                + "editor.input.onblur=function(){var newValue = this.getValue();"
+                + "$('%1$s').up().down('input[name!=id]').value=newValue;return false;};"
+                + "</script>", id, editorCode);
     }
 
 }
