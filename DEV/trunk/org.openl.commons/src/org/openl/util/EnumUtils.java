@@ -16,7 +16,9 @@ public class EnumUtils {
     public static String[] getNames(Object[] constants) {
         List<String> names = new ArrayList<String>();
         for (Object constant : constants) {
-            names.add(getName((Enum<?>) constant));
+            if (constant != null) {
+                names.add(getName((Enum<?>) constant));
+            }
         }
         return names.toArray(new String[names.size()]);
     }
