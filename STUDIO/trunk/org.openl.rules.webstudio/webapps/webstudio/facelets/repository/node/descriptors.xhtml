@@ -71,8 +71,7 @@
   </script>
 
   <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-    <h:commandButton value="Add" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" onclick="#{artefact.checkedOut} &amp;&amp; showAddDeployEntry()"
-      type="button" />
+    <h:commandButton value="Add" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" onclick="#{artefact.checkedOut} &amp;&amp; showAddDeployEntry();return false;" />
     <h:commandButton id="openSelectedProjectsBtn" value="Open Selected Projects" styleClass="disabledButton" onclick="return !isEmptySelection()" action="#{deploymentController.openSelectedProjects}" />
   </h:panelGrid>
 
