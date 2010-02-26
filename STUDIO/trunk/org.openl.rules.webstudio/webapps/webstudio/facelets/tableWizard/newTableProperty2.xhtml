@@ -27,13 +27,19 @@
             <h:column>
                 <h:outputText value="#{prop.displayName}" />
             </h:column>
+            
             <h:column>
-                <h:inputText value="#{prop.value}" rendered="#{prop.string}" />
+                
                 <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
                     defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
                     rendered="#{prop.date}" />
+                    
                 <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
+
+				<h:inputText value="#{prop.value}" 
+				             rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}"/>
             </h:column>
+            
             <h:column>
                 <a4j:commandLink action="#{tableWizard.removeProperty}" ajaxSingle="true"
                     reRender="propertiesTable,propNames">

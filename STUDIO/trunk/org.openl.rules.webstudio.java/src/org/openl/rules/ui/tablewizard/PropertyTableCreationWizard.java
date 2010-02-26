@@ -4,12 +4,14 @@ import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,20 +24,57 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.util.EnumUtils;
 
 public class PropertyTableCreationWizard extends WizardBase {
 
-    private String scopeType;    
+    private String scopeType;
     private String categoryName;
     private String newCategoryName;
     private String categoryNameSelector = "existing";
     private String tableName;
     private String propNameToAdd;
     private TableProperty propToRemove;
-    private List<SelectItem> scopeTypes = new ArrayList<SelectItem>
-                    (Arrays.asList(new SelectItem("Module"), new SelectItem("Category")));
+    private List<SelectItem> scopeTypes = new ArrayList<SelectItem>(Arrays.asList(new SelectItem("Module"),
+            new SelectItem("Category")));
     private List<TableProperty> properties = new ArrayList<TableProperty>();
+
+//    private HtmlOutputText enumOutput;
+//    private HtmlOutputText enumArrayOutput;
+//
+//    public HtmlOutputText getEnumOutput() {
+//        return enumOutput;
+//    }
+//
+//    public void setEnumOutput(HtmlOutputText enumOutput) {
+//        this.enumOutput = enumOutput;
+//    }
+//
+//    public HtmlOutputText getEnumArrayOutput() {
+//        return enumArrayOutput;
+//    }
+//
+//    public void setEnumArrayOutput(HtmlOutputText enumArrayOutput) {
+//        this.enumArrayOutput = enumArrayOutput;
+//    }
+//
+//    public String getEnumValue() {
+//
+//        String componentId = enumOutput.getId();
+//        TableProperty property = (TableProperty) enumOutput.getAttributes().get("property");
+//
+//        return getEnumSelectComponentCode(componentId, property);
+//    }
+//
+//    public String getEnumArrayValue() {
+//
+//        String componentId = enumArrayOutput.getId();
+//        TableProperty property = (TableProperty) enumArrayOutput.getAttributes().get("property");
+//
+//        return getEnumMultiSelectComponentCode(componentId, property);
+//    }
 
     public String getCategoryName() {
         return categoryName;
@@ -155,7 +194,7 @@ public class PropertyTableCreationWizard extends WizardBase {
     public List<SelectItem> getPropertyNamesList() {
         List<SelectItem> propertyNames = new ArrayList<SelectItem>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-            .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
+                .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             List<String> exceptProperties = getExceptProperties();
@@ -179,7 +218,7 @@ public class PropertyTableCreationWizard extends WizardBase {
 
     private TablePropertyDefinition getPropByName(String name) {
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-            .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
+                .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (propDefinition.getName().equals(name)) {
                 return propDefinition;
@@ -192,8 +231,9 @@ public class PropertyTableCreationWizard extends WizardBase {
         TablePropertyDefinition propDefinition = getPropByName(propNameToAdd);
         Class<?> propType = propDefinition.getType() == null ? String.class : propDefinition.getType()
                 .getInstanceClass();
-        properties.add(new TableProperty.TablePropertyBuilder(propDefinition.getName(),
-                propDefinition.getDisplayName()).type(propType).format(propDefinition.getFormat()).build());
+        properties
+                .add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propDefinition.getDisplayName())
+                        .type(propType).format(propDefinition.getFormat()).build());
     }
 
     public void removeProperty() {
@@ -246,13 +286,12 @@ public class PropertyTableCreationWizard extends WizardBase {
             String categoryName = buildCategoryName();
             if (categoryName != null) {
                 resultProperties.put("category", categoryName);
-            }            
+            }
         }
         for (int i = 0; i < properties.size(); i++) {
             String name = (properties.get(i)).getName();
             Object value = (properties.get(i)).getValue();
-            if (value == null
-                    || (value != null && (value instanceof String && StringUtils.isEmpty((String) value)))) {
+            if (value == null || (value != null && (value instanceof String && StringUtils.isEmpty((String) value)))) {
                 continue;
             } else {
                 resultProperties.put(name.trim(), value);
@@ -260,5 +299,36 @@ public class PropertyTableCreationWizard extends WizardBase {
         }
         return resultProperties;
     }
+
+//    private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
+//
+//        Class<?> instanceClass = tableProperty.getType();
+//        String value = tableProperty.getStringValue();
+//
+//        String[] values = EnumUtils.getNames(instanceClass);
+//        String[] displayValues = EnumUtils.getValues(instanceClass);
+//
+//        String id = String.format("%s:enum_select", componentId);
+//
+//        String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
+//
+//        return String.format("<script type='text/javascript'>%2$s</script><div id='%1$s'></div>", id, componentCode);
+//    }
+//
+//    private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
+//
+//        Class<?> instanceClass = tableProperty.getType().getComponentType();
+//
+//        String valueString = tableProperty.getStringValue();
+//
+//        String[] values = EnumUtils.getNames(instanceClass);
+//        String[] displayValues = EnumUtils.getValues(instanceClass);
+//
+//        String id = String.format("%s:enum_array_select", componentId);
+//
+//        String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
+//
+//        return String.format("<div id='%s'></div><script type='text/javascript'>%s</script>", id, componentCode);
+//    }
 
 }
