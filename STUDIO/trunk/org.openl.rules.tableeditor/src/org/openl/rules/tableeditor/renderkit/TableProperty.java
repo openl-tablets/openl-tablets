@@ -104,6 +104,11 @@ public class TableProperty {
         return getStringValue();
     }
 
+    public void setStringValue(String value) {
+        // TODO Refactor with property type
+        this.value = value;
+    }
+
     public String getStringValue() {
         
         String result = "";
@@ -124,9 +129,6 @@ public class TableProperty {
                 if (!ArrayUtils.isEmpty(enums)) {
                     String[] names = EnumUtils.getNames(enums);
                     result = StringUtils.join(names, ",");
-                
-                } else {
-                    result = "";
                 }
             } else {
                 result = value.toString();
