@@ -581,6 +581,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             CellMetaInfo numberMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                     JavaOpenClass.getOpenClass(numberValue.getClass()), false);            
             setCellMetaInfo(col, row, numberMeta);
+            return;
         } else if (value instanceof Date) {
 
             Date dateValue = (Date) value;
@@ -595,7 +596,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             CellMetaInfo dateMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                     JavaOpenClass.getOpenClass(dateValue.getClass()), false);            
             setCellMetaInfo(col, row, dateMeta);
-        
+            return;
         } else if (value instanceof Boolean) {
         
             Boolean boolValue = (Boolean) value;
@@ -604,6 +605,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             CellMetaInfo booleanMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                     JavaOpenClass.getOpenClass(boolValue.getClass()), false);            
             setCellMetaInfo(col, row, booleanMeta);
+            return;
         
         } else if (EnumUtils.isEnum(value)) {
             cell.setCellValue(((Enum<?>) value).name());
@@ -611,6 +613,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             CellMetaInfo enumMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                     JavaOpenClass.getOpenClass(value.getClass()), false);            
             setCellMetaInfo(col, row, enumMeta);
+            return;
         
         } else if (EnumUtils.isEnumArray(value)) {
         
@@ -623,7 +626,18 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             CellMetaInfo enumArrayMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                     JavaOpenClass.getOpenClass(value.getClass().getComponentType()), true);            
             setCellMetaInfo(col, row, enumArrayMeta);
-        
+            return;
+     
+        } else if (value.getClass().isArray()) {
+            
+            Object[] values = (Object[]) value;
+            cell.setCellValue(StringUtils.join(values, ","));
+            
+            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                    JavaOpenClass.getOpenClass(value.getClass().getComponentType()), false);            
+            setCellMetaInfo(col, row, meta);
+            return;
+
         } else { // String       
             
             // Formula
@@ -633,9 +647,9 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                 cell.setCellType(Cell.CELL_TYPE_BLANK);
                 cell.setCellValue(strValue);
                 
-                CellMetaInfo enumArrayMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                         JavaOpenClass.getOpenClass(strValue.getClass()), false);            
-                setCellMetaInfo(col, row, enumArrayMeta);
+                setCellMetaInfo(col, row, meta);
             }
         }
     }
