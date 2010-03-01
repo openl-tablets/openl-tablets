@@ -33,50 +33,48 @@
             </a4j:commandLink>
         </h:panelGrid>
 
-<h:panelGroup id="propertiesTable">
+    <h:panelGroup id="propertiesTable">
         <table>
             <a4j:repeat value="#{tableWizard.properties}" var="prop">
                 <tr>
                     <td>
                         <h:outputText value="#{prop.displayName}" />
                     </td>
-            
-            <td>
-                
-                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
-                    defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
-                    rendered="#{prop.date}" />
-                    
-                <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
+                    <td style="width: 156px">
+                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                            defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
+                            rendered="#{prop.date}" />
 
-                <h:outputText binding="#{tableWizard.enumOutput}" escape="false" value="#{tableWizard.enumValue}"
-                    rendered="#{prop.enum}">
-                    <f:attribute name="property" value="#{prop}"/>
-                </h:outputText>
-                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
+                        <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
 
-                <h:outputText binding="#{tableWizard.enumArrayOutput}" escape="false" value="#{tableWizard.enumArrayValue}"
-                    rendered="#{prop.enumArray}">
-                    <f:attribute name="property" value="#{prop}"/>
-                </h:outputText>
-                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+                        <h:outputText binding="#{tableWizard.enumOutput}" escape="false"
+                            value="#{tableWizard.enumValue}" rendered="#{prop.enum}">
+                            <f:attribute name="property" value="#{prop}"/>
+                        </h:outputText>
+                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
+      
+                        <h:outputText binding="#{tableWizard.enumArrayOutput}" escape="false"
+                            value="#{tableWizard.enumArrayValue}" rendered="#{prop.enumArray}">
+                            <f:attribute name="property" value="#{prop}"/>
+                        </h:outputText>
+                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
 
-				<h:inputText value="#{prop.value}" 
-				             rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}"/>
-            </td>
-            
-            <td>
-                <a4j:commandLink action="#{tableWizard.removeProperty}" ajaxSingle="true"
-                    reRender="propertiesTable,propNames">
-                    <h:graphicImage value="/images/delete.gif" alt="Remove property" title="Remove property" />
-                    <f:setPropertyActionListener value="#{prop}" target="#{tableWizard.propToRemove}" />
-                </a4j:commandLink>
-            </td>
-            </tr>
+          				<h:inputText value="#{prop.value}" 
+                            rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}"/>
+                    </td>
+                    <td>
+                        <a4j:commandLink action="#{tableWizard.removeProperty}" ajaxSingle="true"
+                            reRender="propertiesTable,propNames">
+                            <h:graphicImage value="/images/delete.gif" alt="Remove property" title="Remove property" />
+                            <f:setPropertyActionListener value="#{prop}" target="#{tableWizard.propToRemove}" />
+                        </a4j:commandLink>
+                    </td>
+                </tr>
             </a4j:repeat>
         </table>
-</h:panelGroup>
-        <hr />
+    </h:panelGroup>
+
+    <hr />
 
         <h:inputHidden value="2" id="step" binding="#{tableCreatorWizardManager.hiddenStep}" />
         <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />

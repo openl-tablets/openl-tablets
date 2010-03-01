@@ -16,12 +16,6 @@
         <a4j:loadScript src="resource:///js/DropdownEditor.js" />
         <a4j:loadScript src="resource:///js/AjaxHelper.js" />
         <a4j:loadStyle src="resource:///css/multiselect.css" />
-        
-        <style>
-            .default_Props {
-                border: 1px solid rgb(255,255,0);
-            }
-        </style>
     </ui:define>
     <ui:define name="page">
         <h:messages errorClass="error" infoStyle="color:green" />
@@ -70,20 +64,6 @@
                     </td>
 				</tr>
 			</a4j:repeat>
-			
-			<!--<tr><td></td><td><b>Default properties:</b></td></tr>
-			<a4j:repeat value="#{tableCopierWizard.defaultProps}" var="prop">
-				<tr>
-                    <td><h:outputText value="#{prop.displayName}"/></td>
-                    <td class="default_Props">
-    				    <h:inputText value="#{prop.value}" rendered="#{prop.string}" />
-                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
-                            defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
-                            rendered="#{prop.date}" />
-                        <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
-                    </td>
-				</tr>
-			</a4j:repeat>-->
 		</table>
 
         <script type="text/javascript">
