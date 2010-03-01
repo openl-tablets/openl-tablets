@@ -34,4 +34,6 @@ var TextEditor = Class.create(BaseTextEditor, {
     }
 });
 
-TableEditor.Editors["text"] = TextEditor;
+if (this.tableEditor) {
+    TableEditor.Editors["text"] = TextEditor;
+}
