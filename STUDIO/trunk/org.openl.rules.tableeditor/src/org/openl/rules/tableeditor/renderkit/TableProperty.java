@@ -130,6 +130,11 @@ public class TableProperty {
                     String[] names = EnumUtils.getNames(enums);
                     result = StringUtils.join(names, ",");
                 }
+            } else if (isSimpleArray()) {
+                
+                Object[] array = (Object[]) value;
+                result = StringUtils.join(array, ",");
+
             } else {
                 result = value.toString();
             }
@@ -180,6 +185,10 @@ public class TableProperty {
 
     public boolean isEnumArray() {
         return type != null && type.isArray() && type.getComponentType().isEnum();
+    }
+    
+    public boolean isSimpleArray() {
+        return type != null && type.isArray() && String.class.equals(type.getComponentType());
     }
 
     public void setConstraints(Constraints constraints) {

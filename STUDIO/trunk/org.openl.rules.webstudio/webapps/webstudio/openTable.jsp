@@ -32,7 +32,7 @@
             leftFramePageToOpen += "?nodeToOpen=" + nodeToOpen;
         }
         String tableParams = WebTool.listRequestParams(request, new String[]{ "uri" });
-        tableParams += ((tableParams.isEmpty() ? "" : "&") + "uri=" + StringTool.encodeURL(tableUri));
+        tableParams += ((StringUtils.isEmpty(tableParams) ? "" : "&") + "uri=" + StringTool.encodeURL(tableUri));
         mainFramePageToOpen = TABLE_PAGE + "?" + tableParams;
     }
 %>    
