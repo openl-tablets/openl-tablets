@@ -9,8 +9,8 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
     ta : null,
 
     editor_initialize: function() {
-        this.input = document.createElement("div");
-        this.ta = document.createElement("textarea");
+        this.input = new Element("div");
+        this.ta = new Element("textarea");
         this.ta.cols = 50;
         this.ta.rows = 6;
         this.ta.maxLength = this.MAX_FIELD_SIZE;
@@ -83,4 +83,6 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
     getInputElement : function() {return this.ta}
 });
 
-TableEditor.Editors["multilineText"] = MultiLineEditor;
+if (this.tableEditor) {
+    TableEditor.Editors["multilineText"] = MultiLineEditor;
+}

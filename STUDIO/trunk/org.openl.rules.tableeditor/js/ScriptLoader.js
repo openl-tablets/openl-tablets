@@ -22,7 +22,7 @@ var ScriptLoader = Class.create({
             html = html.toString();
             var matchScripts = new RegExp(Prototype.ScriptFragment, 'img');
             var scripts = html.match(matchScripts) || [];
-            var div = document.createElement('div');
+            var div = new Element('div');
             (div = $(div)).innerHTML =
                 ',' + scripts.join(','); // hack for IE
             return div.select('script');
@@ -47,7 +47,7 @@ var ScriptLoader = Class.create({
     evalScript: function(script) {
         if (script) {
             var head = $$("head")[0];
-            var newScript = document.createElement("script");
+            var newScript = new Element("script");
             newScript.type = "text/javascript";
             if (scriptSrc = script.src) {
                 newScript.src = scriptSrc;

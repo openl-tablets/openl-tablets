@@ -6,7 +6,7 @@
 var BooleanEditor = Class.create(BaseEditor, {
 
     editor_initialize: function() {
-        this.input = $(document.createElement("input"));
+        this.input = new Element("input");
         this.input.setAttribute("type", "checkbox");
 
         var self = this;
@@ -16,4 +16,6 @@ var BooleanEditor = Class.create(BaseEditor, {
 
 });
 
-TableEditor.Editors["boolean"] = BooleanEditor;
+if (this.tableEditor) {
+    TableEditor.Editors["boolean"] = BooleanEditor;
+}

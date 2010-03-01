@@ -134,7 +134,7 @@ var Validation = Class.create({
 
     showMessage: function(message) {
         // TODO Refactor to use Tooltip
-        var messageTip = $(document.createElement("div"));
+        var messageTip = new Element("div");
         messageTip.id = this.input.id + "_message";
         messageTip.innerHTML = message;
         messageTip.style.padding = "3px";

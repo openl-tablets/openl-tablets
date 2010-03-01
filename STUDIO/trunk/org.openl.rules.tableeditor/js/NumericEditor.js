@@ -45,4 +45,6 @@ var NumericEditor = Class.create(BaseTextEditor, {
     }
 });
 
-TableEditor.Editors["numeric"] = NumericEditor;
+if (this.tableEditor) {
+    TableEditor.Editors["numeric"] = NumericEditor;
+}
