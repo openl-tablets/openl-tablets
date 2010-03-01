@@ -35,7 +35,7 @@ import org.openl.util.StringTool;
 
 /**
  * Render TableEditor HTML.
- *
+ * 
  * @author Andrei Astrouski
  */
 public class HTMLRenderer {
@@ -56,16 +56,13 @@ public class HTMLRenderer {
 
     public String render(TableEditor editor, boolean inner, String cellToEdit, List<ActionLink> actionLinks) {
         StringBuilder result = new StringBuilder();
-        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css"))
-            .append(renderCSS("css/toolbar.css"))
-            .append(renderCSS("css/datepicker.css"))
-            .append(renderCSS("css/multiselect.css"))
-            .append(renderCSS("css/tooltip.css"));
-            if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
-                result.append(renderJS("js/prototype/prototype-1.6.1.js"));
-            }
-            result.append(
-                renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
+        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
+                renderCSS("css/toolbar.css")).append(renderCSS("css/datepicker.css")).append(
+                renderCSS("css/multiselect.css")).append(renderCSS("css/tooltip.css"));
+        if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
+            result.append(renderJS("js/prototype/prototype-1.6.1.js"));
+        }
+        result.append(renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
                 renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
                 renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(
                 renderJS("js/BaseTextEditor.js"));
@@ -126,27 +123,24 @@ public class HTMLRenderer {
         }
         return "";
     }
-    
+
     public String getSingleSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
-        
+
         String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
         String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
         String params = String.format(
                 "{choices : [%s], displayValues : [%s]}",
-                choisesString, 
-                displayValuesString);
-        
-        String id = componentId == null ? StringUtils.EMPTY : componentId; 
+                choisesString, displayValuesString);
 
-        String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", 
-                id, 
-                params,
-                StringEscapeUtils.escapeJavaScript(value));
-        
+        String id = componentId == null ? StringUtils.EMPTY : componentId;
+
+        String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
+                .escapeJavaScript(value));
+
         return jsCode;
     }
-    
+
     public String getMultiSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
 
         String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
@@ -158,8 +152,8 @@ public class HTMLRenderer {
 
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
-        String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params,
-                StringEscapeUtils.escapeJavaScript(value));
+        String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
+                .escapeJavaScript(value));
 
         return jsCode;
     }
@@ -173,21 +167,17 @@ public class HTMLRenderer {
         String afterSave = getEditorJSAction(editor.getOnAfterSave());
         String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + "}";
         result.append(renderJSBody("var " + editorJsVar + ";"))
-                .append(renderEditorToolbar(editor.getId(), editorJsVar))
-                .append(renderJS("js/tooltip.js"))
-                .append(renderJS("js/validation.js"))
-                .append(renderJS("js/datepicker.packed.js"))
-                .append(renderJS("js/TextEditor.js"))
-                .append(renderJS("js/MultiLineEditor.js"))
-                .append(renderJS("js/NumericEditor.js"))
-                .append(renderJS("js/DropdownEditor.js"))
-                .append(renderJS("js/FormulaEditor.js"))
-                .append(renderJS("js/BooleanEditor.js"))
-                .append(renderJS("js/DateEditor.js"))
-                .append(renderJS("js/MultiselectEditor.js"))
-                .append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT,
-                        /*collapsed properties where turned to false on edit view*/false))
-                .append("<div id=\"").append(tableId).append("\"></div>").append(
+                .append(renderEditorToolbar(editor.getId(), editorJsVar)).append(renderJS("js/tooltip.js")).append(
+                        renderJS("js/validation.js")).append(renderJS("js/datepicker.packed.js")).append(
+                        renderJS("js/TextEditor.js")).append(renderJS("js/MultiLineEditor.js")).append(
+                        renderJS("js/NumericEditor.js")).append(renderJS("js/DropdownEditor.js")).append(
+                        renderJS("js/FormulaEditor.js")).append(renderJS("js/BooleanEditor.js")).append(
+                        renderJS("js/DateEditor.js")).append(renderJS("js/MultiselectEditor.js")).append(
+                        renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT,
+                        /*
+                         * collapsed properties where turned to false on edit
+                         * view
+                         */false)).append("<div id=\"").append(tableId).append("\"></div>").append(
                         renderJSBody(editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
                                 + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ");"));
         return result.toString();
@@ -203,23 +193,29 @@ public class HTMLRenderer {
         final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
                 + " class=\"item_separator\"></img>";
 
-        result.append("<div class=\"te_toolbar\">").append(
-                renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save")).append(
-                renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo")).append(
-                renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo"))
-                    .append(toolbarItemSeparator).append(
-                renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
-                        "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before")).append(
-                renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
-                        "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
-                .append(toolbarItemSeparator).append(
+        result
+                .append("<div class=\"te_toolbar\">")
+                .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save"))
+                .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo"))
+                .append(
+                        renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)",
+                                "Redo"))
+                .append(toolbarItemSeparator)
+                .append(
+                        renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
+                                "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before"))
+                .append(
+                        renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
+                                "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
+                .append(toolbarItemSeparator)
+                .append(
                         renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar,
                                 "img/insert_column.gif",
-                                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)",
-                                "Insert column before")).append(
+                                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)", "Insert column before"))
+                .append(
                         renderEditorToolbarItem(editorId + "_remove_column", editorJsVar, "img/delete_column.gif",
-                                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column"))
-                .append(toolbarItemSeparator).append(
+                                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column")).append(
+                        toolbarItemSeparator).append(
                         renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
                                 "setAlignment('left')", "Align left")).append(
                         renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
@@ -272,8 +268,8 @@ public class HTMLRenderer {
     protected String renderViewer(TableEditor editor, List<ActionLink> actionLinks) {
         StringBuilder result = new StringBuilder();
         if (editor.getTable() != null) {
-            result.append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_VIEW,
-                    editor.isCollapseProps()));
+            result.append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_VIEW, editor
+                    .isCollapseProps()));
         }
         if (editor.getTable() != null) {
             IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
@@ -297,20 +293,19 @@ public class HTMLRenderer {
 
     protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
         final String tableType = table.getType();
-        if (tableType !=  null 
-                && !tableType.equals(ITableNodeTypes.XLS_OTHER)
-                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) 
+        if (tableType != null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
+                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)
                 && !tableType.equals(ITableNodeTypes.XLS_PROPERTIES)) {
             ITableProperties props = table.getProperties();
-            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
-                    collapseProps).renderProperties();
+            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode, collapseProps)
+                    .renderProperties();
         }
         return "";
     }
 
     /**
      * Render HTML table by table model.
-     *
+     * 
      * @author Andrey Naumenko
      */
     public static class TableRenderer {
@@ -355,12 +350,12 @@ public class HTMLRenderer {
 
                     s.append(" id=\"").append(id).append("\">");
                     if (embedCellURI) {
-                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i))
-                         .append("\"></input>");
+                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i)).append(
+                                "\"></input>");
                     }
                     if (cell.hasFormula()) {
-                        s.append("<input name=\"formula\" type=\"hidden\" value=\"").append(cell.getFormula())
-                         .append("\"></input>");
+                        s.append("<input name=\"formula\" type=\"hidden\" value=\"").append(cell.getFormula()).append(
+                                "\"></input>");
                     }
                     String cellContent = cell.getContent(showFormulas);
                     if (cellContent != null) {
@@ -376,8 +371,8 @@ public class HTMLRenderer {
 
         public String renderWithMenu(String menuId, boolean showFormulas) {
             menuId = menuId == null ? "" : menuId;
-            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"",
-                    true, showFormulas);
+            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"", true,
+                    showFormulas);
         }
 
         public void setCellIdPrefix(String prefix) {
@@ -387,9 +382,9 @@ public class HTMLRenderer {
 
     /**
      * Render properties
-     *
+     * 
      * @author DLiauchuk
-     *
+     * 
      */
     public class PropertyRenderer {
 
@@ -420,7 +415,7 @@ public class HTMLRenderer {
             for (TablePropertyDefinition propDefinition : propDefinitions) {
                 String name = propDefinition.getName();
                 String displayName = propDefinition.getDisplayName();
-                Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null; 
+                Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null;
                 Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType()
                         .getInstanceClass();
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
@@ -429,9 +424,9 @@ public class HTMLRenderer {
                 Constraints constraints = propDefinition.getConstraints();
                 String description = propDefinition.getDescription();
                 boolean system = propDefinition.isSystem();
-                TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName)
-                    .value(value).type(type).group(group).format(format).constraints(constraints)
-                    .description(description).system(system).inheritanceLevel(inheritanceLevel).build();
+                TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName).value(value).type(type)
+                        .group(group).format(format).constraints(constraints).description(description).system(system)
+                        .inheritanceLevel(inheritanceLevel).build();
                 listProp.add(prop);
             }
             return listProp;
@@ -478,7 +473,7 @@ public class HTMLRenderer {
             if (collapsed) {
                 result.append(renderJSBody("$('" + propsId + "').hide()"));
             }
-            return result.toString();            
+            return result.toString();
         }
 
         private void buildPropsTable() {
@@ -509,7 +504,7 @@ public class HTMLRenderer {
 
         private int getNumToDivideColumns(int groupSize) {
             int numToDivide = 0;
-            if (groupSize %2 == 0) {
+            if (groupSize % 2 == 0) {
                 numToDivide = groupSize / 2;
             } else {
                 numToDivide = (groupSize + 1) / 2;
@@ -548,8 +543,7 @@ public class HTMLRenderer {
         private void insertPropValue(TableProperty prop, String mode) {
             if ("edit".equals(mode)) {
                 final String propId = getPropId(prop);
-                if (prop.isSystem() || !prop.canBeOverridenInTable()
-                        || "version".equalsIgnoreCase(prop.getName())) {
+                if (prop.isSystem() || !prop.canBeOverridenInTable() || "version".equalsIgnoreCase(prop.getName())) {
                     insertText(prop, propId, true);
                 } else {
                     insertInput(prop, propId, true);
@@ -564,8 +558,8 @@ public class HTMLRenderer {
             String propsTableUri = getProprtiesTablePageUrl(prop, mode);
             if (propsTableUri != null) {
                 String imgUp = WebUtil.internalPath("img/up.gif");
-                result.append("<a href='" + propsTableUri + "' title=''><img src='"
-                        + imgUp + "' title='Go to Properties table' alt='Go to Properties table' /></a>");
+                result.append("<a href='" + propsTableUri + "' title=''><img src='" + imgUp
+                        + "' title='Go to Properties table' alt='Go to Properties table' /></a>");
             }
             result.append("</td>");
         }
@@ -591,10 +585,9 @@ public class HTMLRenderer {
         private void renderHideButton(String idToHide) {
             String imgCollapseSrc = WebUtil.internalPath("img/arrow_right.gif");
             String imgExpandSrc = WebUtil.internalPath("img/arrow_down.gif");
-            result.append(" <img src='" + imgCollapseSrc + "' onclick=\"$('"
-                    + idToHide + "').toggle();this.src=(this.title == 'Hide' ? '"
-                    + imgExpandSrc + "' : '" + imgCollapseSrc + "');"
-                    + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
+            result.append(" <img src='" + imgCollapseSrc + "' onclick=\"$('" + idToHide
+                    + "').toggle();this.src=(this.title == 'Hide' ? '" + imgExpandSrc + "' : '" + imgCollapseSrc
+                    + "');" + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
                     + " title='Hide' class='te_props_hidebutton' />");
         }
 
@@ -603,9 +596,14 @@ public class HTMLRenderer {
         }
 
         private void insertInput(TableProperty prop, String id, boolean showTooltip) {
+            
             boolean inserted = true;
+            
             String propValue = prop.getStringValue();
+
             if (prop.isString() || prop.isDouble()) {
+                insertTextbox(prop, id); 
+            } else if (prop.isSimpleArray()) {
                 insertTextbox(prop, id);
             } else if (prop.isDate()) {
                 insertCalendar(prop, id);
@@ -624,40 +622,38 @@ public class HTMLRenderer {
         }
 
         private void insertTooltip(String propId, String description) {
-            result.append(renderJSBody("new Tooltip('_" + propId + "','"
-                    + description + "',{skin:'green'})"));
+            result.append(renderJSBody("new Tooltip('_" + propId + "','" + description + "',{skin:'green'})"));
         }
 
         private void insertCalendar(TableProperty prop, String id) {
             String value = prop.getStringValue();
             Constraints constraints = prop.getConstraints();
-            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new DateEditor('','" + id + "','','"
-                        + StringEscapeUtils.escapeJavaScript(value) + "','')"));
+            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>").append(
+                    renderJSBody("new DateEditor('','" + id + "','','" + StringEscapeUtils.escapeJavaScript(value)
+                            + "','')"));
 
             for (Constraint constraint : constraints.getAll()) {
-                if (constraint instanceof LessThanConstraint
-                        || constraint instanceof MoreThanConstraint) {
+                if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
                     String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
                     String compareToField = (String) constraint.getParams()[0];
                     String compareToFieldId = "_" + id.replaceFirst(prop.getName() + "(?=$)", compareToField);
                     TableProperty compareToProperty = getProperty(compareToField);
-                    String compareToPropertyDisplayName = compareToProperty == null ? ""
-                            : compareToProperty.getDisplayName();
-                    result.append(renderJSBody("new Validation('_" + id + "', '"
-                            + validator + "', 'blur', {compareToFieldId:'" + compareToFieldId
-                            + "',messageParams:'" + compareToPropertyDisplayName + "'})"));
+                    String compareToPropertyDisplayName = compareToProperty == null ? "" : compareToProperty
+                            .getDisplayName();
+                    result.append(renderJSBody("new Validation('_" + id + "', '" + validator
+                            + "', 'blur', {compareToFieldId:'" + compareToFieldId + "',messageParams:'"
+                            + compareToPropertyDisplayName + "'})"));
                 }
             }
         }
 
         private void insertSingleSelect(String componentId, String[] values, String[] displayValues, String value) {
-            
+
             String jsCode = getSingleSelectComponentCode(componentId, values, displayValues, value);
-            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>")
-                  .append(renderJSBody(jsCode));
+            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
+                    renderJSBody(jsCode));
         }
-        
+
         private void insertSingleSelectForEnum(TableProperty prop, String id) {
             Class<?> instanceClass = prop.getType();
             String value = prop.getStringValue();
@@ -680,7 +676,7 @@ public class HTMLRenderer {
         }
 
         private void insertMultiSelect(String componentId, String[] values, String[] displayValues, String value) {
-            
+
             String jsCode = getMultiSelectComponentCode(componentId, values, displayValues, value);
 
             result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
@@ -689,9 +685,14 @@ public class HTMLRenderer {
 
         private void insertTextbox(TableProperty prop, String id) {
             String value = prop.getStringValue();
-            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new TextEditor('','" + id + "','','"
-                        + StringEscapeUtils.escapeJavaScript(value) + "','')"));
+            insertTextbox(value, id);
+        }
+
+        private void insertTextbox(String value, String id) {
+
+            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>").append(
+                    renderJSBody("new TextEditor('','" + id + "','','" + StringEscapeUtils.escapeJavaScript(value)
+                            + "','')"));
         }
 
         private void insertCheckbox(String value, String id) {
@@ -699,8 +700,8 @@ public class HTMLRenderer {
             if (value == null) {
                 bValue = false;
             }
-            result.append("<td id='" + id + "'></td>")
-                .append(renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','')"));
+            result.append("<td id='" + id + "'></td>").append(
+                    renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','')"));
         }
 
         private void insertPropLabel(String displayName) {
@@ -714,8 +715,7 @@ public class HTMLRenderer {
         private void insertText(TableProperty prop, String id, boolean showTooltip) {
             String propValue = prop.getDisplayValue();
             result.append("<td class='te_props_propvalue'><span"
-                    + (StringUtils.isNotBlank(id) ? (" id='_" + id + "'") : "")
-                    + ">" + propValue + "</span></td>");
+                    + (StringUtils.isNotBlank(id) ? (" id='_" + id + "'") : "") + ">" + propValue + "</span></td>");
             if (showTooltip) {
                 insertTooltip(id, prop.getDescription());
             }
