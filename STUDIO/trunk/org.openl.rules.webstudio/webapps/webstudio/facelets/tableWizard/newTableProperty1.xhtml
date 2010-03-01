@@ -20,13 +20,12 @@
 
     <h2>Select scope</h2>
   	<h:form id="scopeForm">
-    	<fieldset>
-            <legend>Table Scope</legend>
-	        <h:selectOneMenu id="scopeType" value="#{tableWizard.scopeType}"
-                onchange="updateCategoryNameModule()">
-	            <f:selectItems value="#{tableWizard.scopeTypes}" />
-	        </h:selectOneMenu>
-	   	</fieldset>
+        <h:outputText value="Table Scope: " />
+        <h:selectOneMenu id="scopeType" value="#{tableWizard.scopeType}"
+           onchange="updateCategoryNameModule()">
+	       <f:selectItems value="#{tableWizard.scopeTypes}" />
+	    </h:selectOneMenu>
+        <br/><br/>
 	   	<fieldset id="categoryNameModule">
             <legend>Category Name</legend>
             <h:panelGrid columns="2">
