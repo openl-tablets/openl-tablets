@@ -266,7 +266,7 @@ public class TablePropertyCopier extends TableCopier {
 
     public Version getMinNextVersion() {
         Object originalVersion = getVersion().getValue();
-        if (originalVersion != null && originalVersion instanceof String) {
+        if (StringUtils.isNotEmpty((String)originalVersion)) {
             return Version.parseVersion((String) originalVersion, 0, "..");
         } else {
             return Version.parseVersion(INIT_VERSION, 0, "..");

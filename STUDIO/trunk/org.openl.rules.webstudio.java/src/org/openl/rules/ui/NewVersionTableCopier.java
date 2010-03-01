@@ -50,19 +50,18 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         String version = tableProperties.getVersion();
         try {
             return Version.parseVersion(version, 0, "..");
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return null;
         }
     }
 
     public Version getMinNextVersion() {
         Version originalVersion = getOriginalVersion();
-        if (originalVersion != null) {
-            originalVersion.setVariant(originalVersion.getVariant() + 1);
-            return originalVersion;
-        } else {
-            return Version.parseVersion(INIT_VERSION, 0, "..");
+        if (originalVersion == null) {
+            originalVersion = Version.parseVersion(INIT_VERSION, 0, "..");
         }
+        originalVersion.setVariant(originalVersion.getVariant() + 1);
+        return originalVersion;
     }
 
 }
