@@ -4,7 +4,6 @@ import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,40 +40,40 @@ public class PropertyTableCreationWizard extends WizardBase {
             new SelectItem("Category")));
     private List<TableProperty> properties = new ArrayList<TableProperty>();
 
-//    private HtmlOutputText enumOutput;
-//    private HtmlOutputText enumArrayOutput;
-//
-//    public HtmlOutputText getEnumOutput() {
-//        return enumOutput;
-//    }
-//
-//    public void setEnumOutput(HtmlOutputText enumOutput) {
-//        this.enumOutput = enumOutput;
-//    }
-//
-//    public HtmlOutputText getEnumArrayOutput() {
-//        return enumArrayOutput;
-//    }
-//
-//    public void setEnumArrayOutput(HtmlOutputText enumArrayOutput) {
-//        this.enumArrayOutput = enumArrayOutput;
-//    }
-//
-//    public String getEnumValue() {
-//
-//        String componentId = enumOutput.getId();
-//        TableProperty property = (TableProperty) enumOutput.getAttributes().get("property");
-//
-//        return getEnumSelectComponentCode(componentId, property);
-//    }
-//
-//    public String getEnumArrayValue() {
-//
-//        String componentId = enumArrayOutput.getId();
-//        TableProperty property = (TableProperty) enumArrayOutput.getAttributes().get("property");
-//
-//        return getEnumMultiSelectComponentCode(componentId, property);
-//    }
+    private HtmlOutputText enumOutput;
+    private HtmlOutputText enumArrayOutput;
+
+    public HtmlOutputText getEnumOutput() {
+        return enumOutput;
+    }
+
+    public void setEnumOutput(HtmlOutputText enumOutput) {
+        this.enumOutput = enumOutput;
+    }
+
+    public HtmlOutputText getEnumArrayOutput() {
+        return enumArrayOutput;
+    }
+
+    public void setEnumArrayOutput(HtmlOutputText enumArrayOutput) {
+        this.enumArrayOutput = enumArrayOutput;
+    }
+
+    public String getEnumValue() {
+
+        String componentId = enumOutput.getId();
+        TableProperty property = (TableProperty) enumOutput.getAttributes().get("property");
+
+        return getEnumSelectComponentCode(componentId, property);
+    }
+
+    public String getEnumArrayValue() {
+
+        String componentId = enumArrayOutput.getId();
+        TableProperty property = (TableProperty) enumArrayOutput.getAttributes().get("property");
+
+        return getEnumMultiSelectComponentCode(componentId, property);
+    }
 
     public String getCategoryName() {
         return categoryName;
@@ -300,35 +299,46 @@ public class PropertyTableCreationWizard extends WizardBase {
         return resultProperties;
     }
 
-//    private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
-//
-//        Class<?> instanceClass = tableProperty.getType();
-//        String value = tableProperty.getStringValue();
-//
-//        String[] values = EnumUtils.getNames(instanceClass);
-//        String[] displayValues = EnumUtils.getValues(instanceClass);
-//
-//        String id = String.format("%s:enum_select", componentId);
-//
-//        String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
-//
-//        return String.format("<script type='text/javascript'>%2$s</script><div id='%1$s'></div>", id, componentCode);
-//    }
-//
-//    private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
-//
-//        Class<?> instanceClass = tableProperty.getType().getComponentType();
-//
-//        String valueString = tableProperty.getStringValue();
-//
-//        String[] values = EnumUtils.getNames(instanceClass);
-//        String[] displayValues = EnumUtils.getValues(instanceClass);
-//
-//        String id = String.format("%s:enum_array_select", componentId);
-//
-//        String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
-//
-//        return String.format("<div id='%s'></div><script type='text/javascript'>%s</script>", id, componentCode);
-//    }
+    private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
+
+        Class<?> instanceClass = tableProperty.getType();
+        String value = tableProperty.getStringValue();
+
+        String[] values = EnumUtils.getNames(instanceClass);
+        String[] displayValues = EnumUtils.getValues(instanceClass);
+
+        String id = String.format("%s:enum_select", componentId);
+
+        String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
+
+        return getEditorHTMLCode(id, componentCode);
+    }
+
+    private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
+
+        Class<?> instanceClass = tableProperty.getType().getComponentType();
+
+        String valueString = tableProperty.getStringValue();
+
+        String[] values = EnumUtils.getNames(instanceClass);
+        String[] displayValues = EnumUtils.getValues(instanceClass);
+
+        String id = String.format("%s:enum_array_select", componentId);
+
+        String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
+
+        return getEditorHTMLCode(id, componentCode);
+    }
+
+    private String getEditorHTMLCode(String id, String editorCode) {
+        return String.format(
+                  "<div id='%1$s'></div>"
+                + "<script type='text/javascript'>"
+                + "var editor = %2$s;"
+                // editor value setter code
+                + "editor.input.onblur=function(){var newValue = this.getValue();"
+                + "$('%1$s').up().down('input[type=hidden]').value=newValue;return false;};"
+                + "</script>", id, editorCode);
+    }
 
 }

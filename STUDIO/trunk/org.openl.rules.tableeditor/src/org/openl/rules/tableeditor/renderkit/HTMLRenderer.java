@@ -133,7 +133,7 @@ public class HTMLRenderer {
         String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
         String params = String.format(
-                "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
+                "{choices : [%s], displayValues : [%s]}",
                 choisesString, 
                 displayValuesString);
         
@@ -153,7 +153,7 @@ public class HTMLRenderer {
         String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
         String params = String.format(
-                "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
+                "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"&#92;&#92;&#92;&#92;\"}",
                 choisesString, displayValuesString);
 
         String id = componentId == null ? StringUtils.EMPTY : componentId;

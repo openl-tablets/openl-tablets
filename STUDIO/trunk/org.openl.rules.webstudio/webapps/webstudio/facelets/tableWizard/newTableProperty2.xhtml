@@ -7,6 +7,15 @@
                 xmlns:rich="http://richfaces.org/rich"
                 template="/facelets/common/studioWizardBase.xhtml">
 
+    <ui:define name="header">
+        <a4j:loadScript src="resource:///js/BaseEditor.js" />
+        <a4j:loadScript src="resource:///js/BaseTextEditor.js" />
+        <a4j:loadScript src="resource:///js/MultiselectEditor.js" />
+        <a4j:loadScript src="resource:///js/DropdownEditor.js" />
+        <a4j:loadScript src="resource:///js/AjaxHelper.js" />
+        <a4j:loadStyle src="resource:///css/multiselect.css" />
+    </ui:define>
+
     <ui:define name="page">
 
     <ui:include src="/facelets/tableWizard/wizardSteps.xhtml">
@@ -23,12 +32,16 @@
                 <h:graphicImage value="/images/add_obj.gif" alt="Add property" title="Add property" />
             </a4j:commandLink>
         </h:panelGrid>
-        <h:dataTable id="propertiesTable" value="#{tableWizard.properties}" var="prop">
-            <h:column>
-                <h:outputText value="#{prop.displayName}" />
-            </h:column>
+
+<h:panelGroup id="propertiesTable">
+        <table>
+            <a4j:repeat value="#{tableWizard.properties}" var="prop">
+                <tr>
+                    <td>
+                        <h:outputText value="#{prop.displayName}" />
+                    </td>
             
-            <h:column>
+            <td>
                 
                 <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
                     defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
@@ -36,19 +49,33 @@
                     
                 <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
 
+                <h:outputText binding="#{tableWizard.enumOutput}" escape="false" value="#{tableWizard.enumValue}"
+                    rendered="#{prop.enum}">
+                    <f:attribute name="property" value="#{prop}"/>
+                </h:outputText>
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
+
+                <h:outputText binding="#{tableWizard.enumArrayOutput}" escape="false" value="#{tableWizard.enumArrayValue}"
+                    rendered="#{prop.enumArray}">
+                    <f:attribute name="property" value="#{prop}"/>
+                </h:outputText>
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+
 				<h:inputText value="#{prop.value}" 
 				             rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}"/>
-            </h:column>
+            </td>
             
-            <h:column>
+            <td>
                 <a4j:commandLink action="#{tableWizard.removeProperty}" ajaxSingle="true"
                     reRender="propertiesTable,propNames">
                     <h:graphicImage value="/images/delete.gif" alt="Remove property" title="Remove property" />
                     <f:setPropertyActionListener value="#{prop}" target="#{tableWizard.propToRemove}" />
                 </a4j:commandLink>
-            </h:column>
-        </h:dataTable>
-
+            </td>
+            </tr>
+            </a4j:repeat>
+        </table>
+</h:panelGroup>
         <hr />
 
         <h:inputHidden value="2" id="step" binding="#{tableCreatorWizardManager.hiddenStep}" />
