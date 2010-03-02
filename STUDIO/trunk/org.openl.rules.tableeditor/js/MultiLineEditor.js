@@ -83,6 +83,6 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
     getInputElement : function() {return this.ta}
 });
 
-if (this.tableEditor) {
+if (BaseEditor.isTableEditorExists()) {
     TableEditor.Editors["multilineText"] = MultiLineEditor;
 }
