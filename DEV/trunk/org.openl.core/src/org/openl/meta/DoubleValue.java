@@ -399,7 +399,8 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     public boolean equals(Object obj) {
         if (obj instanceof DoubleValue)
         {
-            return value == ((DoubleValue)obj).doubleValue();
+            DoubleValue secondObj = (DoubleValue)obj;
+            return value == secondObj.doubleValue() && metaInfo == secondObj.metaInfo;
         }    
         return false;
     }
