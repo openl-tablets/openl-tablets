@@ -130,6 +130,7 @@ public class TableEditorModel {
     private boolean collapseProps = false;
     private String beforeSaveAction;
     private String afterSaveAction;
+    private String saveFailureAction;
 
     private GridTable[] othertables;
 
@@ -137,7 +138,7 @@ public class TableEditorModel {
 
     private XlsUndoGrid undoGrid;
 
-    FilteredGrid filteredGrid;
+    private FilteredGrid filteredGrid;
 
     private TableEditor tableEditor;
 
@@ -578,6 +579,14 @@ public class TableEditorModel {
 
     public String getAfterSaveAction() {
         return afterSaveAction;
+    }
+    
+    public String getSaveFailureAction() {
+        return saveFailureAction;
+    }
+
+    public void setSaveFailureAction(String saveFailureAction) {
+        this.saveFailureAction = saveFailureAction;
     }
 
     public void setTableEditor(TableEditor tableEditor) {

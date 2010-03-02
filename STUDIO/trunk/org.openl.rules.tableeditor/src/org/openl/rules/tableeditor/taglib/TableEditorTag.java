@@ -12,8 +12,10 @@ public class TableEditorTag extends TableViewerTag {
     private ValueExpression editable = null;
     private MethodExpression beforeSaveAction = null;
     private MethodExpression afterSaveAction = null;
+    private MethodExpression saveFailureAction = null;
     private ValueExpression onBeforeSave = null;
     private ValueExpression onAfterSave = null;
+    private ValueExpression onSaveFailure = null;
 
     @Override
     public String getComponentType() {
@@ -35,6 +37,14 @@ public class TableEditorTag extends TableViewerTag {
     public void setAfterSaveAction(MethodExpression afterSaveAction) {
         this.afterSaveAction = afterSaveAction;
     }
+    
+    public MethodExpression getSaveFailureAction() {
+        return saveFailureAction;
+    }
+
+    public void setSaveFailureAction(MethodExpression saveFailureAction) {
+        this.saveFailureAction = saveFailureAction;
+    }
 
     public void setOnBeforeSave(ValueExpression onBeforeSave) {
         this.onBeforeSave = onBeforeSave;
@@ -42,6 +52,14 @@ public class TableEditorTag extends TableViewerTag {
 
     public void setOnAfterSave(ValueExpression onAfterSave) {
         this.onAfterSave = onAfterSave;
+    }
+    
+    public ValueExpression getOnSaveFailure() {
+        return onSaveFailure;
+    }
+
+    public void setOnSaveFailure(ValueExpression onSaveFailure) {
+        this.onSaveFailure = onSaveFailure;
     }
 
     @Override
@@ -57,8 +75,10 @@ public class TableEditorTag extends TableViewerTag {
         component.setValueExpression(Constants.ATTRIBUTE_EDITABLE, editable);
         component.getAttributes().put(Constants.ATTRIBUTE_BEFORE_SAVE_ACTION, beforeSaveAction);
         component.getAttributes().put(Constants.ATTRIBUTE_AFTER_SAVE_ACTION, afterSaveAction);
+        component.getAttributes().put(Constants.ATTRIBUTE_SAVE_FAILURE_ACTION, saveFailureAction);
         component.setValueExpression(Constants.ATTRIBUTE_ON_BEFORE_SAVE, onBeforeSave);
         component.setValueExpression(Constants.ATTRIBUTE_ON_AFTER_SAVE, onAfterSave);
+        component.setValueExpression(Constants.ATTRIBUTE_ON_SAVE_FAILURE, onSaveFailure);
     }
 
     @Override
@@ -68,6 +88,7 @@ public class TableEditorTag extends TableViewerTag {
         mode = null;
         editable = null;
         beforeSaveAction = null;
+        saveFailureAction = null;
         afterSaveAction = null;
     }
 
