@@ -371,12 +371,10 @@ background-color:transparent;
 margin:20px 0px  20px 0px ;
 }
 
-table.main
-{
-color:#000000;
-background-color:#e8e8e1;
-font-size: 100%;
-padding:3px;
+table.main {
+    color: #000000;
+    font-size: 100%;
+    padding: 3px;
 }
 
 code
@@ -390,12 +388,11 @@ span.codeerror
 	color: red; font-weight: bold;
 }
 
-.javacode
-{
+.javacode {
 	margin-left: 4px;
-	background: #e0f0e0; padding: 2; 
-	border-width: 1; border-style: solid;
-	border-color: black;
+	background: #e0f0e0;
+	padding: 2; 
+	border: 1px solid rgb(150,150,100);
 }
 
 span.rule-keyword
