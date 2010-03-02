@@ -1,14 +1,14 @@
 package org.openl.rules.ui.tree;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.ui.OpenMethodGroupsDictionary;
+import org.openl.rules.ui.OverloadedMethodsDictionary;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass.MethodKey;
@@ -76,14 +76,14 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
             IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
-            OpenMethodGroupsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
+            OverloadedMethodsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
             if (openMethodGroupsDictionary.contains(method)) {
-                List<IOpenMethod> groupMethods = openMethodGroupsDictionary.getGroup(method);
+                Set<TableSyntaxNodeKey> methodOverloads = openMethodGroupsDictionary.getAllMethodOverloads(method);
                 // If group of methods size is over then 1 create the tree
                 // element (folder); otherwise - method is unique and additional
                 // element will not be created.
                 // author: Alexey Gamanovich
-                if (groupMethods != null && groupMethods.size() > 1) {
+                if (methodOverloads != null && methodOverloads.size() > 1) {
                     return true;
                 }
             }
@@ -97,9 +97,9 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
-        OpenMethodGroupsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
-        List<IOpenMethod> groupMethods = openMethodGroupsDictionary.getGroup(method);
-        String folderName = getMajorityName(groupMethods);
+        OverloadedMethodsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
+        Set<TableSyntaxNodeKey> methodOverloads = openMethodGroupsDictionary.getAllMethodOverloads(method);
+        String folderName = getMajorityName(methodOverloads);
         return makeFolderNode(folderName);
     }
 
@@ -141,15 +141,15 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     /**
      * Gets the majority name of methods group.
      * 
-     * @param methods collection of methods what belong to group.
+     * @param methods collection of TableSyntaxNodeKeys what belong to group.
      * @return majority name
      */
-    private String getMajorityName(List<IOpenMethod> methods) {
+    private String getMajorityName(Set<TableSyntaxNodeKey> overloads) {
 
         Map<String, Integer> map = new HashMap<String, Integer>();
 
-        for (IOpenMethod method : methods) {
-            String[] names = getDisplayValue(method.getInfo().getSyntaxNode(), 0);
+        for (TableSyntaxNodeKey oneOverloadVariant : overloads) {
+            String[] names = getDisplayValue(oneOverloadVariant.getTableSyntaxNode(), 0);
             String name = names[0];
 
             Integer value = map.get(name);

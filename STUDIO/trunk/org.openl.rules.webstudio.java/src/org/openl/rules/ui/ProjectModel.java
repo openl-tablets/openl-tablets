@@ -848,7 +848,7 @@ public class ProjectModel implements IProjectTypes {
 
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
         
-        OpenMethodGroupsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
+        OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
         TreeBuilder<Object> treeBuilder = new TreeBuilder<Object>();
 
@@ -937,7 +937,7 @@ public class ProjectModel implements IProjectTypes {
         cacheTree(null, treeNode);
     }
 
-    private OpenMethodGroupsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
+    private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
 
         // Create open methods dictionary that organizes
         // open methods in groups using their meta info.
@@ -945,9 +945,9 @@ public class ProjectModel implements IProjectTypes {
         // groups of methods in tree.
         // author: Alexey Gamanovich
         //
-        IOpenMethod[] methods = getMethods(tableSyntaxNodes);
-        OpenMethodGroupsDictionary methodNodesDictionary = new OpenMethodGroupsDictionary();
-        methodNodesDictionary.addAll(methods);
+        List<TableSyntaxNode> executableNodes = getAllExecutableTables(tableSyntaxNodes);
+        OverloadedMethodsDictionary methodNodesDictionary = new OverloadedMethodsDictionary();
+        methodNodesDictionary.addAll(executableNodes);
 
         return methodNodesDictionary;
     }
@@ -969,16 +969,14 @@ public class ProjectModel implements IProjectTypes {
         return groupSorters.toArray(new OpenMethodInstancesGroupTreeNodeBuilder[groupSorters.size()]);
     }*/
 
-    private IOpenMethod[] getMethods(TableSyntaxNode[] nodes) {
-        List<IOpenMethod> methods = new ArrayList<IOpenMethod>();
-
+    private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
+        List<TableSyntaxNode> executableNodes = new ArrayList<TableSyntaxNode>();
         for (TableSyntaxNode node : nodes) {
             if (node.getMember() instanceof IOpenMethod) {
-                methods.add((IOpenMethod) node.getMember());
+                executableNodes.add(node);
             }
         }
-
-        return methods.toArray(new IOpenMethod[methods.size()]);
+        return executableNodes;
     }
 
     public String makeXlsUrl(String elementUri) {

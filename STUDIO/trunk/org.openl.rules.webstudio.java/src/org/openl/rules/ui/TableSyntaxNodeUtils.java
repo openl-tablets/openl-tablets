@@ -21,7 +21,7 @@ public class TableSyntaxNodeUtils {
         return getTableDisplayValue(tableSyntaxNode, i, null);
     }
 
-    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i, OpenMethodGroupsDictionary dictionary) {
+    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i, OverloadedMethodsDictionary dictionary) {
         
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         

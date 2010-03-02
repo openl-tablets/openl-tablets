@@ -1,10 +1,13 @@
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass.MethodKey;
 
@@ -12,12 +15,12 @@ import org.openl.types.impl.AOpenClass.MethodKey;
  * Dictionary of IOpenMethod instances. Categorizes methods using their
  * signatures.
  */
-public class OpenMethodGroupsDictionary {
+public class OverloadedMethodsDictionary {
 
     /**
      * Internal map of groups.
      */
-    private Map<MethodKey, List<IOpenMethod>> internalMap = new HashMap<MethodKey, List<IOpenMethod>>();
+    private Map<MethodKey, Set<TableSyntaxNodeKey>> internalMap = new HashMap<MethodKey, Set<TableSyntaxNodeKey>>();
 
     /**
      * Checks that method already in dictionary.
@@ -27,53 +30,53 @@ public class OpenMethodGroupsDictionary {
      *         <code>false</code> - otherwise
      */
     public boolean contains(IOpenMethod method) {
-
         MethodKey key = buildKey(method);
 
         return contains(key);
     }
 
     /**
-     * Adds IOpenMethod instance to dictionary. If method(s) with same signature
+     * Adds TableSyntaxNode instance to dictionary. If method(s) with same signature
      * already exists in dictionary new one will be added to its group;
      * otherwise - new entry will be created.
      * 
-     * @param method IOpenMethod instance
+     * @param table executable table
      */
-    public void add(IOpenMethod method) {
+    public void add(TableSyntaxNode table) {
 
+        IOpenMethod method = (IOpenMethod)table.getMember();
         MethodKey key = buildKey(method);
 
         if (contains(key)) {
-            List<IOpenMethod> value = internalMap.get(key);
-            value.add(method);
+            Set<TableSyntaxNodeKey> value = internalMap.get(key);
+            value.add(buildKey(table));
         } else {
-            List<IOpenMethod> value = new ArrayList<IOpenMethod>();
-            value.add(method);
+            Set<TableSyntaxNodeKey> value = new HashSet<TableSyntaxNodeKey>();
+            value.add(buildKey(table));
 
             internalMap.put(key, value);
         }
     }
 
     /**
-     * Adds all methods from array to dictionary.
+     * Adds all nodes to dictionary.
      * 
-     * @param methods array of methods
+     * @param methods list of executable nodes
      */
-    public void addAll(IOpenMethod[] methods) {
+    public void addAll(List<TableSyntaxNode> tables) {
 
-        for (IOpenMethod method : methods) {
-            add(method);
+        for (TableSyntaxNode table : tables) {
+            add(table);
         }
     }
 
     /**
-     * Gets group of methods for passed IOpenMethod instance.
+     * Gets group of all possible overloads for specified method.
      * 
      * @param method IOpenMethod instance
      * @return group of methods
      */
-    public List<IOpenMethod> getGroup(IOpenMethod method) {
+    public Set<TableSyntaxNodeKey> getAllMethodOverloads(IOpenMethod method) {
         MethodKey key = buildKey(method);
 
         return internalMap.get(key);
@@ -98,5 +101,15 @@ public class OpenMethodGroupsDictionary {
      */
     private MethodKey buildKey(IOpenMethod method) {
         return new MethodKey(method);
+    }
+
+    /**
+     * Build key for TableSyntaxNode.
+     * 
+     * @param table Table for key generation.
+     * @return builded key object
+     */
+    private TableSyntaxNodeKey buildKey(TableSyntaxNode table) {
+        return new TableSyntaxNodeKey(table);
     }
 }
