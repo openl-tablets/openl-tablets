@@ -206,7 +206,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[13] = new TablePropertyDefinition();
 		definitions[13].setBusinessSearch(true);
-		definitions[13].setConstraints(new org.openl.rules.table.constraints.Constraints("list: East, West, Midwest, South"));
+		definitions[13].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usregions"));
 		definitions[13].setDescription("US Region");
 		definitions[13].setDimensional(true);
 		definitions[13].setDisplayName("US Region");
@@ -217,7 +217,7 @@ public class DefaultPropertyDefinitions
 		definitions[13].setPrimaryKey(false);
 		definitions[13].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[13].setSystem(false);
-		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsregionsEnum.class));
 		definitions[14] = new TablePropertyDefinition();
 		definitions[14].setBusinessSearch(false);
 		definitions[14].setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
@@ -248,8 +248,8 @@ public class DefaultPropertyDefinitions
 		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum.class));
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setBusinessSearch(false);
-		definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("list: languages"));
-		definitions[16].setDefaultValue("en");
+		definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("data: languages"));
+		definitions[16].setDefaultValue("EN");
 		definitions[16].setDescription("Language");
 		definitions[16].setDimensional(false);
 		definitions[16].setDisplayName("Language");
@@ -259,10 +259,10 @@ public class DefaultPropertyDefinitions
 		definitions[16].setPrimaryKey(false);
 		definitions[16].setSecurityFilter("no");
 		definitions[16].setSystem(false);
-		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.LanguagesEnum.class));
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setBusinessSearch(true);
-		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("list: US States"));
+		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usstates"));
 		definitions[17].setDescription("US State");
 		definitions[17].setDimensional(true);
 		definitions[17].setDisplayName("US State");
@@ -273,10 +273,10 @@ public class DefaultPropertyDefinitions
 		definitions[17].setPrimaryKey(false);
 		definitions[17].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[17].setSystem(false);
-		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsstatesEnum.class));
 		definitions[18] = new TablePropertyDefinition();
 		definitions[18].setBusinessSearch(true);
-		definitions[18].setConstraints(new org.openl.rules.table.constraints.Constraints("list: US, EU, Asia Pacific, North America"));
+		definitions[18].setConstraints(new org.openl.rules.table.constraints.Constraints("data: regions"));
 		definitions[18].setDescription("Economic Region");
 		definitions[18].setDimensional(false);
 		definitions[18].setDisplayName("Region");
@@ -286,7 +286,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setPrimaryKey(false);
 		definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[18].setSystem(false);
-		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RegionsEnum.class));
 		definitions[19] = new TablePropertyDefinition();
 		definitions[19].setBusinessSearch(false);
 		definitions[19].setConstraints(new org.openl.rules.table.constraints.Constraints("NN.NN[.NN]"));

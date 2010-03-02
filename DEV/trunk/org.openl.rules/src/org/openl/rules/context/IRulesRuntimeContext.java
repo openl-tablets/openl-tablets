@@ -11,10 +11,10 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 	void setCurrentDate(java.util.Date currentDate);	
 	java.lang.String getLob();
 	void setLob(java.lang.String lob);	
-	java.lang.String getUsRegion();
-	void setUsRegion(java.lang.String usRegion);	
-	java.lang.String getUsState();
-	void setUsState(java.lang.String usState);	
+	org.openl.rules.enumeration.UsregionsEnum getUsRegion();
+	void setUsRegion(org.openl.rules.enumeration.UsregionsEnum usRegion);	
+	org.openl.rules.enumeration.UsstatesEnum getUsState();
+	void setUsState(org.openl.rules.enumeration.UsstatesEnum usState);	
 	org.openl.rules.enumeration.CountriesEnum getCountry();
 	void setCountry(org.openl.rules.enumeration.CountriesEnum country);	
 	// <<< END INSERT >>>

@@ -84,20 +84,20 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("usregion", new MatchingConstraint<java.lang.String, java.lang.String>() { 
+		constraints.put("usregion", new MatchingConstraint<org.openl.rules.enumeration.UsregionsEnum, org.openl.rules.enumeration.UsregionsEnum>() { 
 
 			@Override
-			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
+			protected org.openl.rules.enumeration.UsregionsEnum getContextValue(IRulesRuntimeContext context) {
 			    return context.getUsRegion();
 			}
 			
 			@Override
-			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			protected org.openl.rules.enumeration.UsregionsEnum getPropertyValue(ITableProperties properties) {
 			    return properties.getUsregion();
 			}
 			
 			@Override
-			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			protected boolean matchNotNulls(org.openl.rules.enumeration.UsregionsEnum propertyValue, org.openl.rules.enumeration.UsregionsEnum contextValue) {
 			    return EQ(propertyValue, contextValue);
 			}
 			
@@ -120,20 +120,20 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("state", new MatchingConstraint<java.lang.String, java.lang.String>() { 
+		constraints.put("state", new MatchingConstraint<org.openl.rules.enumeration.UsstatesEnum, org.openl.rules.enumeration.UsstatesEnum>() { 
 
 			@Override
-			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
+			protected org.openl.rules.enumeration.UsstatesEnum getContextValue(IRulesRuntimeContext context) {
 			    return context.getUsState();
 			}
 			
 			@Override
-			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			protected org.openl.rules.enumeration.UsstatesEnum getPropertyValue(ITableProperties properties) {
 			    return properties.getState();
 			}
 			
 			@Override
-			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			protected boolean matchNotNulls(org.openl.rules.enumeration.UsstatesEnum propertyValue, org.openl.rules.enumeration.UsstatesEnum contextValue) {
 			    return EQ(propertyValue, contextValue);
 			}
 			

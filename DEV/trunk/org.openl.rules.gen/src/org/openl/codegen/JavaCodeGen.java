@@ -472,6 +472,6 @@ public class JavaCodeGen implements ICodeGen {
     }
 
     public StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb) {
-        return sb.append(InheritanceLevel.class.getSimpleName()).append(".").append(value);
+        return sb.append(InheritanceLevel.class.getSimpleName()).append(".").append(value.name());
     }
 }

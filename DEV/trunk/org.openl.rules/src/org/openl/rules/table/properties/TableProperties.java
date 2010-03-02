@@ -91,198 +91,150 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     // <<< INSERT >>>
-    public java.lang.String getName() {
-        return (java.lang.String) getPropertyValue("name");
-    }
-
-    public void setName(java.lang.String name) {
-        setFieldValue("name", name);
-    }
-
-    public java.lang.String getCategory() {
-        return (java.lang.String) getPropertyValue("category");
-    }
-
-    public void setCategory(java.lang.String category) {
-        setFieldValue("category", category);
-    }
-
-    public java.lang.String getDescription() {
-        return (java.lang.String) getPropertyValue("description");
-    }
-
-    public void setDescription(java.lang.String description) {
-        setFieldValue("description", description);
-    }
-
-    public java.lang.String[] getTags() {
-        return (java.lang.String[]) getPropertyValue("tags");
-    }
-
-    public void setTags(java.lang.String[] tags) {
-        setFieldValue("tags", tags);
-    }
-
-    public java.util.Date getEffectiveDate() {
-        return (java.util.Date) getPropertyValue("effectiveDate");
-    }
-
-    public void setEffectiveDate(java.util.Date effectiveDate) {
-        setFieldValue("effectiveDate", effectiveDate);
-    }
-
-    public java.util.Date getExpirationDate() {
-        return (java.util.Date) getPropertyValue("expirationDate");
-    }
-
-    public void setExpirationDate(java.util.Date expirationDate) {
-        setFieldValue("expirationDate", expirationDate);
-    }
-
-    public java.lang.String getCreatedBy() {
-        return (java.lang.String) getPropertyValue("createdBy");
-    }
-
-    public void setCreatedBy(java.lang.String createdBy) {
-        setFieldValue("createdBy", createdBy);
-    }
-
-    public java.util.Date getCreatedOn() {
-        return (java.util.Date) getPropertyValue("createdOn");
-    }
-
-    public void setCreatedOn(java.util.Date createdOn) {
-        setFieldValue("createdOn", createdOn);
-    }
-
-    public java.lang.String getModifiedBy() {
-        return (java.lang.String) getPropertyValue("modifiedBy");
-    }
-
-    public void setModifiedBy(java.lang.String modifiedBy) {
-        setFieldValue("modifiedBy", modifiedBy);
-    }
-
-    public java.util.Date getModifyOn() {
-        return (java.util.Date) getPropertyValue("modifyOn");
-    }
-
-    public void setModifyOn(java.util.Date modifyOn) {
-        setFieldValue("modifyOn", modifyOn);
-    }
-
-    public java.lang.String getBuildPhase() {
-        return (java.lang.String) getPropertyValue("buildPhase");
-    }
-
-    public void setBuildPhase(java.lang.String buildPhase) {
-        setFieldValue("buildPhase", buildPhase);
-    }
-
-    public java.lang.String getValidateDT() {
-        return (java.lang.String) getPropertyValue("validateDT");
-    }
-
-    public void setValidateDT(java.lang.String validateDT) {
-        setFieldValue("validateDT", validateDT);
-    }
-
-    public java.lang.String getLob() {
-        return (java.lang.String) getPropertyValue("lob");
-    }
-
-    public void setLob(java.lang.String lob) {
-        setFieldValue("lob", lob);
-    }
-
-    public java.lang.String getUsregion() {
-        return (java.lang.String) getPropertyValue("usregion");
-    }
-
-    public void setUsregion(java.lang.String usregion) {
-        setFieldValue("usregion", usregion);
-    }
-
-    public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
-        return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country");
-    }
-
-    public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
-        setFieldValue("country", country);
-    }
-
-    public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
-        return (org.openl.rules.enumeration.CurrenciesEnum) getPropertyValue("currency");
-    }
-
-    public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
-        setFieldValue("currency", currency);
-    }
-
-    public java.lang.String getLang() {
-        return (java.lang.String) getPropertyValue("lang");
-    }
-
-    public void setLang(java.lang.String lang) {
-        setFieldValue("lang", lang);
-    }
-
-    public java.lang.String getState() {
-        return (java.lang.String) getPropertyValue("state");
-    }
-
-    public void setState(java.lang.String state) {
-        setFieldValue("state", state);
-    }
-
-    public java.lang.String getRegion() {
-        return (java.lang.String) getPropertyValue("region");
-    }
-
-    public void setRegion(java.lang.String region) {
-        setFieldValue("region", region);
-    }
-
-    public java.lang.String getVersion() {
-        return (java.lang.String) getPropertyValue("version");
-    }
-
-    public void setVersion(java.lang.String version) {
-        setFieldValue("version", version);
-    }
-
-    public java.lang.Boolean getActive() {
-        return (java.lang.Boolean) getPropertyValue("active");
-    }
-
-    public void setActive(java.lang.Boolean active) {
-        setFieldValue("active", active);
-    }
-
-    public java.lang.Boolean getFailOnMiss() {
-        return (java.lang.Boolean) getPropertyValue("failOnMiss");
-    }
-
-    public void setFailOnMiss(java.lang.Boolean failOnMiss) {
-        setFieldValue("failOnMiss", failOnMiss);
-    }
-
-    public java.lang.Boolean getReturnOnMiss() {
-        return (java.lang.Boolean) getPropertyValue("returnOnMiss");
-    }
-
-    public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
-        setFieldValue("returnOnMiss", returnOnMiss);
-    }
-
-    public java.lang.String getScope() {
-        return (java.lang.String) getPropertyValue("scope");
-    }
-
-    public void setScope(java.lang.String scope) {
-        setFieldValue("scope", scope);
-    }
-
+	public java.lang.String getName() {
+		return (java.lang.String) getPropertyValue("name"); 
+	}
+	public void setName(java.lang.String name) {
+		setFieldValue("name", name);
+	}	
+	public java.lang.String getCategory() {
+		return (java.lang.String) getPropertyValue("category"); 
+	}
+	public void setCategory(java.lang.String category) {
+		setFieldValue("category", category);
+	}	
+	public java.lang.String getDescription() {
+		return (java.lang.String) getPropertyValue("description"); 
+	}
+	public void setDescription(java.lang.String description) {
+		setFieldValue("description", description);
+	}	
+	public java.lang.String[] getTags() {
+		return (java.lang.String[]) getPropertyValue("tags"); 
+	}
+	public void setTags(java.lang.String[] tags) {
+		setFieldValue("tags", tags);
+	}	
+	public java.util.Date getEffectiveDate() {
+		return (java.util.Date) getPropertyValue("effectiveDate"); 
+	}
+	public void setEffectiveDate(java.util.Date effectiveDate) {
+		setFieldValue("effectiveDate", effectiveDate);
+	}	
+	public java.util.Date getExpirationDate() {
+		return (java.util.Date) getPropertyValue("expirationDate"); 
+	}
+	public void setExpirationDate(java.util.Date expirationDate) {
+		setFieldValue("expirationDate", expirationDate);
+	}	
+	public java.lang.String getCreatedBy() {
+		return (java.lang.String) getPropertyValue("createdBy"); 
+	}
+	public void setCreatedBy(java.lang.String createdBy) {
+		setFieldValue("createdBy", createdBy);
+	}	
+	public java.util.Date getCreatedOn() {
+		return (java.util.Date) getPropertyValue("createdOn"); 
+	}
+	public void setCreatedOn(java.util.Date createdOn) {
+		setFieldValue("createdOn", createdOn);
+	}	
+	public java.lang.String getModifiedBy() {
+		return (java.lang.String) getPropertyValue("modifiedBy"); 
+	}
+	public void setModifiedBy(java.lang.String modifiedBy) {
+		setFieldValue("modifiedBy", modifiedBy);
+	}	
+	public java.util.Date getModifyOn() {
+		return (java.util.Date) getPropertyValue("modifyOn"); 
+	}
+	public void setModifyOn(java.util.Date modifyOn) {
+		setFieldValue("modifyOn", modifyOn);
+	}	
+	public java.lang.String getBuildPhase() {
+		return (java.lang.String) getPropertyValue("buildPhase"); 
+	}
+	public void setBuildPhase(java.lang.String buildPhase) {
+		setFieldValue("buildPhase", buildPhase);
+	}	
+	public java.lang.String getValidateDT() {
+		return (java.lang.String) getPropertyValue("validateDT"); 
+	}
+	public void setValidateDT(java.lang.String validateDT) {
+		setFieldValue("validateDT", validateDT);
+	}	
+	public java.lang.String getLob() {
+		return (java.lang.String) getPropertyValue("lob"); 
+	}
+	public void setLob(java.lang.String lob) {
+		setFieldValue("lob", lob);
+	}	
+	public org.openl.rules.enumeration.UsregionsEnum getUsregion() {
+		return (org.openl.rules.enumeration.UsregionsEnum) getPropertyValue("usregion"); 
+	}
+	public void setUsregion(org.openl.rules.enumeration.UsregionsEnum usregion) {
+		setFieldValue("usregion", usregion);
+	}	
+	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
+		return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country"); 
+	}
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
+		setFieldValue("country", country);
+	}	
+	public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
+		return (org.openl.rules.enumeration.CurrenciesEnum) getPropertyValue("currency"); 
+	}
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
+		setFieldValue("currency", currency);
+	}	
+	public org.openl.rules.enumeration.LanguagesEnum getLang() {
+		return (org.openl.rules.enumeration.LanguagesEnum) getPropertyValue("lang"); 
+	}
+	public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
+		setFieldValue("lang", lang);
+	}	
+	public org.openl.rules.enumeration.UsstatesEnum getState() {
+		return (org.openl.rules.enumeration.UsstatesEnum) getPropertyValue("state"); 
+	}
+	public void setState(org.openl.rules.enumeration.UsstatesEnum state) {
+		setFieldValue("state", state);
+	}	
+	public org.openl.rules.enumeration.RegionsEnum getRegion() {
+		return (org.openl.rules.enumeration.RegionsEnum) getPropertyValue("region"); 
+	}
+	public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
+		setFieldValue("region", region);
+	}	
+	public java.lang.String getVersion() {
+		return (java.lang.String) getPropertyValue("version"); 
+	}
+	public void setVersion(java.lang.String version) {
+		setFieldValue("version", version);
+	}	
+	public java.lang.Boolean getActive() {
+		return (java.lang.Boolean) getPropertyValue("active"); 
+	}
+	public void setActive(java.lang.Boolean active) {
+		setFieldValue("active", active);
+	}	
+	public java.lang.Boolean getFailOnMiss() {
+		return (java.lang.Boolean) getPropertyValue("failOnMiss"); 
+	}
+	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
+		setFieldValue("failOnMiss", failOnMiss);
+	}	
+	public java.lang.Boolean getReturnOnMiss() {
+		return (java.lang.Boolean) getPropertyValue("returnOnMiss"); 
+	}
+	public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
+		setFieldValue("returnOnMiss", returnOnMiss);
+	}	
+	public java.lang.String getScope() {
+		return (java.lang.String) getPropertyValue("scope"); 
+	}
+	public void setScope(java.lang.String scope) {
+		setFieldValue("scope", scope);
+	}	
     // <<< END INSERT >>>
 
     /**
