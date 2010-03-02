@@ -2,11 +2,11 @@ package org.openl.rules.enumeration;
 
 public enum UsregionsEnum {
 
-	W("West"),
-	SW("Southwest"),
 	MW("Midwest"),
+	NE("Northeast"),
 	SE("Southeast"),
-	NE("Northeast");
+	SW("Southwest"),
+	W("West");
 
 	private final String displayName;
 

@@ -2,13 +2,13 @@ package org.openl.rules.enumeration;
 
 public enum LanguagesEnum {
 
-	EN("English"),
-	POR("Portuguese"),
-	RUS("Russian"),
-	FRA("French"),
-	ITA("Italian"),
 	CHI("Chinese"),
-	GER("German");
+	EN("English"),
+	FRA("French"),
+	GER("German"),
+	ITA("Italian"),
+	POR("Portuguese"),
+	RUS("Russian");
 
 	private final String displayName;
 

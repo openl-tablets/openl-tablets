@@ -2,20 +2,20 @@ package org.openl.rules.enumeration;
 
 public enum CurrenciesEnum {
 
-	USD("United States Dollar"),
+	ARS("Argentine Peso"),
 	AUD("Australian Dollar"),
+	BRL("Brazilian Real"),
+	BYR("Belarusian Ruble"),
+	CAD("Canadian Dollar"),
+	CNY("Chinese Yuan"),
+	EUR("Euro"),
+	GBP("Pound Sterling"),
+	INR("Indian rupee"),
 	MXN("Mexican Peso"),
 	NZD("New Zealand Dollar"),
-	BRL("Brazilian Real"),
-	ARS("Argentine Peso"),
-	EUR("Euro"),
-	CNY("Chinese Yuan"),
-	INR("Indian rupee"),
-	GBP("Pound Sterling"),
-	ZAR("South African Rand"),
 	RUB("Russian Ruble"),
-	CAD("Canadian Dollar"),
-	BYR("Belarusian Ruble");
+	USD("United States Dollar"),
+	ZAR("South African Rand");
 
 	private final String displayName;
 
