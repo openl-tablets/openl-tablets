@@ -1,6 +1,6 @@
 package org.openl.rules.ui.tree;
 
-import org.openl.rules.ui.OpenMethodGroupsDictionary;
+import org.openl.rules.ui.OverloadedMethodsDictionary;
 
 /**
  * Base tree node builder that uses information about method groups in build
@@ -12,13 +12,13 @@ public abstract class OpenMethodsGroupTreeNodeBuilder extends BaseTableTreeNodeB
     /**
      * Method groups dictionary.
      */
-    private OpenMethodGroupsDictionary openMethodGroupsDictionary;
+    private OverloadedMethodsDictionary openMethodGroupsDictionary;
 
-    public void setOpenMethodGroupsDictionary(OpenMethodGroupsDictionary openMethodGroupsDictionary) {
+    public void setOpenMethodGroupsDictionary(OverloadedMethodsDictionary openMethodGroupsDictionary) {
         this.openMethodGroupsDictionary = openMethodGroupsDictionary;
     }
 
-    public OpenMethodGroupsDictionary getOpenMethodGroupsDictionary() {
+    public OverloadedMethodsDictionary getOpenMethodGroupsDictionary() {
         return openMethodGroupsDictionary;
     }
 }

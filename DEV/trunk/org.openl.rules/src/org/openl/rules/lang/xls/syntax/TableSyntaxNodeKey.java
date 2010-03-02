@@ -20,7 +20,10 @@ public class TableSyntaxNodeKey {
         this.tsn = tsn;
     }
 
-    private TableSyntaxNode getTsn() {
+    /**
+     * @return The TableSyntaxNode, key was generated for 
+     */
+    public TableSyntaxNode getTableSyntaxNode() {
         return tsn;
     }
 
@@ -32,11 +35,11 @@ public class TableSyntaxNodeKey {
         TableSyntaxNodeKey key = (TableSyntaxNodeKey) obj;
 
         EqualsBuilder equalsBuilder = new EqualsBuilder();
-        equalsBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()), new MethodKey((IOpenMethod) key.getTsn()
+        equalsBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()), new MethodKey((IOpenMethod) key.getTableSyntaxNode()
                 .getMember()));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), key.getTsn()
+            equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), key.getTableSyntaxNode()
                     .getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
         }
         return equalsBuilder.isEquals();
