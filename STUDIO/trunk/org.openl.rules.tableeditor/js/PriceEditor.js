@@ -20,6 +20,6 @@ var PriceEditor = Class.create(BaseTextEditor, {
     }
 });
 
-if (this.tableEditor) {
+if (BaseEditor.isTableEditorExists()) {
     TableEditor.Editors["price"] = PriceEditor;
 }

@@ -24,6 +24,6 @@ var FormulaEditor = Class.create(BaseTextEditor, {
 
 });
 
-if (this.tableEditor) {
+if (BaseEditor.isTableEditorExists()) {
     TableEditor.Editors["formula"] = FormulaEditor;
 }

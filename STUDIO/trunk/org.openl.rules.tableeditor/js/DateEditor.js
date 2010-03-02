@@ -62,6 +62,6 @@ var DateEditor = Class.create(BaseTextEditor, {
 
 });
 
-if (this.tableEditor) {
+if (BaseEditor.isTableEditorExists()) {
     TableEditor.Editors["date"] = DateEditor;
 }

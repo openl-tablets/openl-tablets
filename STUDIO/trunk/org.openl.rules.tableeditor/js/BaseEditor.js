@@ -162,6 +162,7 @@ var BaseEditor = Class.create({
      *  Returns HTML element which is actually main input element for this editor.
      */
     getInputElement: function() {return this.input}
+
 });
 
 /**
@@ -179,4 +180,8 @@ BaseEditor.stopPropagationHandler = function(e) {
     } else {
         e.cancelBubble = true;
     }
+}
+
+BaseEditor.isTableEditorExists = function() {
+    return typeof TableEditor != 'undefined';
 }

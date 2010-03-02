@@ -16,6 +16,6 @@ var BooleanEditor = Class.create(BaseEditor, {
 
 });
 
-if (this.tableEditor) {
+if (BaseEditor.isTableEditorExists()) {
     TableEditor.Editors["boolean"] = BooleanEditor;
 }
