@@ -78,6 +78,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
             editorModel.setCollapseProps(tableEditor.isCollapseProps());
             editorModel.setBeforeSaveAction(tableEditor.getBeforeSaveAction());
             editorModel.setAfterSaveAction(tableEditor.getAfterSaveAction());
+            editorModel.setSaveFailureAction(tableEditor.getSaveFailureAction());
             editorModelMap.put(tableEditor.getId(), editorModel);
         }
     }

@@ -203,6 +203,11 @@ var TableEditor = Class.create({
             onFailure: function(response) {
                 AjaxHelper.handleError(response,
                         "Server failed to save your changes");
+
+				if (self.actions && self.actions.saveFailure) {
+                    self.actions.saveFailure();
+                }
+
             }
         });
     },

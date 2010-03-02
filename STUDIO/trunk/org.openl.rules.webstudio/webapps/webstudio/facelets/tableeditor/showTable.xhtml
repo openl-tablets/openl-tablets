@@ -180,6 +180,12 @@
                 window.parent.frames.leftFrame.location.href =
                     "#{contextPath}/openTable.jsp?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
             }
+            
+            function onSaveFailure() {
+                $('saveWindow').component.hide();
+                window.parent.frames.leftFrame.document.getElementById('saveWindow').component.hide();
+            }
+            
         </script>
 
         <rich:modalPanel id="saveWindow" height="40" width="105" top="200" left="220"
@@ -199,7 +205,7 @@
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
             beforeSaveAction="#{showTableBean.updateSystemProperties}"
             afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
-            onAfterSave="javascript:onAfterSave();" excludeScripts="prototype">
+            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();" excludeScripts="prototype">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 

@@ -159,13 +159,19 @@ public class HTMLRenderer {
     }
 
     protected String renderEditor(TableEditor editor, String cellToEdit) {
+        
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
+        
         String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
         String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
+        
         String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
         String afterSave = getEditorJSAction(editor.getOnAfterSave());
-        String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + "}";
+        String saveFailure = getEditorJSAction(editor.getOnSaveFailure());
+        
+        String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",saveFailure:" + saveFailure + "}";
+
         result.append(renderJSBody("var " + editorJsVar + ";"))
                 .append(renderEditorToolbar(editor.getId(), editorJsVar)).append(renderJS("js/tooltip.js")).append(
                         renderJS("js/validation.js")).append(renderJS("js/datepicker.packed.js")).append(
@@ -180,6 +186,7 @@ public class HTMLRenderer {
                          */false)).append("<div id=\"").append(tableId).append("\"></div>").append(
                         renderJSBody(editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
                                 + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ");"));
+
         return result.toString();
     }
 
