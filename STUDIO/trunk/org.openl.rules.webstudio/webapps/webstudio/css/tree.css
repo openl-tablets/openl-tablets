@@ -17,8 +17,13 @@ body {
     color: black;
 }
 
-.tree .treeNodeSelected {
+.treeNodeSelected {
     border: 0px;
     font-size: 95%;
     font-weight: bold;
+}
+
+.treeNodeInactive {
+    opacity: 0.30;
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 30);
 }

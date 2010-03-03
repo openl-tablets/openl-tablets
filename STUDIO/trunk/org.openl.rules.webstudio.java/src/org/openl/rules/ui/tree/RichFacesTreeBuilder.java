@@ -62,8 +62,13 @@ public class RichFacesTreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
         String url = getUrl(node);
         String type = getType(node);
         int state = getState(node);
-        TreeNodeData nodeData = new TreeNodeData(name, title, url, state, type);
+        boolean active = isActive(node);
+        TreeNodeData nodeData = new TreeNodeData(name, title, url, state, type, active);
         return nodeData;
+    }
+
+    protected boolean isActive(ITreeElement<?> element) {
+        return true;
     }
 
     protected String getType(ITreeElement<?> element) {

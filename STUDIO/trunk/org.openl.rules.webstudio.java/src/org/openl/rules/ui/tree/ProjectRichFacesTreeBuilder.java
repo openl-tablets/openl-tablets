@@ -1,5 +1,7 @@
 package org.openl.rules.ui.tree;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -25,6 +27,22 @@ public class ProjectRichFacesTreeBuilder extends RichFacesTreeBuilder {
             return 2; // has tests
         }
         return super.getState(element);
+    }
+
+    @Override
+    protected boolean isActive(ITreeElement<?> element) {
+        ProjectTreeNode projectNode = (ProjectTreeNode) element;
+        TableSyntaxNode syntaxNode = projectNode.getTableSyntaxNode();
+        if (syntaxNode != null) {
+            ITableProperties tableProperties = syntaxNode.getTableProperties();
+            if (tableProperties != null) {
+                Boolean active = tableProperties.getActive();
+                if (active != null) {
+                    return active;
+                }
+            }
+        }
+        return super.isActive(element);
     }
 
     @Override

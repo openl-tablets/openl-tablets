@@ -7,16 +7,19 @@ public class TreeNodeData {
     private String url;
     private int state;
     private String type;
+    private boolean active;
 
     public TreeNodeData() {
     }
 
-    public TreeNodeData(String name, String title, String url, int state, String type) {
+    public TreeNodeData(String name, String title, String url, int state,
+            String type, boolean active) {
         this.name = name;
         this.title = title;
         this.url = url;
         this.state = state;
         this.type = type;
+        this.active = active;
     }
 
     public String getName() {
@@ -57,6 +60,14 @@ public class TreeNodeData {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
 }
