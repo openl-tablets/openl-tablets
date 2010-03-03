@@ -327,6 +327,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
 
     /**
      * Returns foreign_key_tokens from the current column. see {@link #hasForeignKeysRow(ILogicalTable)}.
+     * 
      * @param descriptorRows
      * @param columnNum
      * @return
@@ -345,6 +346,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Gets the field, and if it is not <code>null</code> and isWritable, returns it.
      * In other cases throws an exception.
+     * 
      * @param currentFieldNameNode
      * @param table
      * @param loadedFieldType
@@ -427,8 +429,9 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     
     /**
      * Gets the horizontal table representation from current table. If it was vertical it will 
-     * be transposed
-     * @param table
+     * be transposed.
+     * 
+     * @param tableBody
      * @param tableType
      * @return Horizontal representation of table.
      */
@@ -445,6 +448,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     
     /**
      * Goes through the data table columns from left to right, and count number of <code>{@link IOpenField}</code>.
+     * 
      * @param dataTable
      * @param tableType
      * @return Number of <code>{@link IOpenField}</code> found in the data table.
@@ -472,6 +476,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Gets the Data_With_Titles rows from the data table body. Data_With_Titles start row consider to be the 
      * next row after descriptor section of the table and till the end of the table. 
+     * 
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Data_With_Titles rows for current data table body. 
      */
@@ -483,6 +488,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Gets the number of the start row for Data_With_Titles section of the data table body.
      * It depends on whether table has or no the foreign key row.
+     * 
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Number of the start row for the Data_With_Titles section.
      */
@@ -502,6 +508,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Gets the descriptor rows from the data table body. Descriptor rows are
      * obligatory parameter row and optional foreign key row if it exists in  the table.
+     * 
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Descriptor rows for current data table body. 
      */
@@ -513,6 +520,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Gets the number of end row for descriptor section of the data table body.
      * It depends on whether table has or no the foreign key row.
+     * 
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Number of end row for descriptor section.
      */
@@ -532,6 +540,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     
     /**
      * Adds sub table for displaying on bussiness view.
+     * 
      * @param tsn <code>TableSyntaxNode</code> representing table.
      * @param tableType Type of the data in table.
      */
@@ -583,6 +592,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * calls {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, 
      * IBindingContext, OpenL, boolean)} to populate <code>ITable</code> with data. Also adds to 
      * <code>TableSyntaxNode</code> sub table for displaying on bussiness view.
+     * 
      * @param xlsOpenClass Open class representing OpenL module.
      * @param tsn <code>TableSyntaxNode</code> to be processed.
      * @param tableName Name of the outcome table.
@@ -602,6 +612,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     
     /**
      * Populate the <code>ITable</code> with data from <code>ILogicalTable</code>. 
+     * 
      * @param xlsOpenClass Open class representing OpenL module.
      * @param tableToProcess Table to be processed.
      * @param tableBody Body of the table (without header and properties sections). Its like a source to process 
