@@ -30,11 +30,11 @@ import org.openl.vm.Tracer;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TraceHelper {
 
-    TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
+    private TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
     private int treeElementsNumber = 0;
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
@@ -125,17 +125,17 @@ public class TraceHelper {
 
     private void cleanCachedTree() {
         traceTreeCache.clear();
-        treeElementsNumber=0;
+        treeElementsNumber = 0;
     }
 
-    private void cacheTree(ITreeElement<?> treeNode) {        
-        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {            
+    private void cacheTree(ITreeElement<?> treeNode) {
+        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ITreeElement<?> child = (ITreeElement<?>) iterator.next();
             traceTreeCache.put(treeElementsNumber++, child);
             cacheTree(child);
         }
     }
-    
+
     public int getNodeKey(ITreeElement<?> node) {
         return traceTreeCache.getKey(node);
     }
@@ -159,7 +159,7 @@ public class TraceHelper {
         IGridTable gt = new TableEditorModel(table, view, false).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });
-        //TODO: Show formulas in trace
+        // TODO: Show formulas in trace
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 }

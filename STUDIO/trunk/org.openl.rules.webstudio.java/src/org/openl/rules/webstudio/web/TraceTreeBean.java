@@ -31,6 +31,11 @@ public class TraceTreeBean {
             ProjectModel model = studio.getModel();
             Tracer tracer = model.traceElement(uri);
             TraceHelper traceHelper = (TraceHelper) FacesUtils.getSessionParam(TRACER_NAME);
+            
+            if (traceHelper == null) {
+                traceHelper = new TraceHelper();
+            }
+            
             ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
             if (tree != null) {
                 RichFacesTreeBuilder treeBuilder = new TraceRichFacesTreeBuilder(tree, traceHelper);
