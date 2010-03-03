@@ -6,7 +6,6 @@
  */
 var MultiselectEditor = Class.create(BaseTextEditor, {
     multiselectPanel: null,
-    ulElement: null,
     entries: null,
     choices: null,
     separator: null,
@@ -20,8 +19,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         // creating containing DIV
         this.multiselectPanel = new Element("div");
-        this.multiselectPanel.style.position = "absolute";
-        this.multiselectPanel.zIndex = "10";
         this.multiselectPanel.className = "multiselect_container_outer";
 
         // creating buttons
@@ -35,22 +32,22 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         // creating inner DIV
         var container = new Element("div");
         container.className = "multiselect_container";
-        this.multiselectPanel.appendChild(new Element("br"));
-        this.multiselectPanel.appendChild(container);
 
         // creating UL HTML element
-        this.ulElement = new Element("ul");
-        container.appendChild(this.ulElement);
+        var ulElement = new Element("ul");
 
         // creating entries
         var pc = param.choices, pd = param.displayValues;
         for (var ind = 0, len = pc.length; ind < len; ++ind) {
             var li = new Element("li");
-            this.ulElement.appendChild(li);
+            ulElement.appendChild(li);
 
             li.innerHTML = '<input type="checkbox" name="multiselect_cb">' + pd[ind].escapeHTML();
             this.entries[pc[ind]] = li.down();
         }
+
+        container.appendChild(ulElement);
+        this.multiselectPanel.appendChild(container);
 
         ["click", "dblclick"].each(function (s) {self.stopEventPropogation(s)});
         this.input.onclick = function() {

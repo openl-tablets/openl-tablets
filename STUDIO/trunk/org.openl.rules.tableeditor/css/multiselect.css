@@ -1,6 +1,10 @@
 .multiselect_container_outer {
+    position: absolute;
+    z-index: 100;
     background-color: rgb(205, 220, 255);
     border: 1px solid;
+    padding-top: 3px;
+    width: 240px;
 }
 
 .multiselect_container {
@@ -9,7 +13,7 @@
     border-top: 1px solid;
     padding: 0;
     margin-top: 5px;
-    //height: expression(this.scrollHeight > 250 ? '250px': 'auto'); /* IE */
+    //height: expression(this.scrollHeight > 250 ? '250px' : 'auto'); /* IE */
 }
 
 .multiselect_container ul {
