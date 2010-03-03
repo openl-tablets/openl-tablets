@@ -85,8 +85,16 @@ public class MethodNodeBinder extends ANodeBinder {
         
         if (target.isStaticTarget() != om.getMethod().isStatic())
         {
-            String msg = om.getMethod().isStatic() ? "Warning: access of a static method from non-static object" : "Error: access of a non-static method from a static object";
-            bindingContext.addError(new BoundError(node, msg));
+            String msg = null;
+            // It is temporary decision. While we dont have the mechanism for working with warnings and exceptions.
+            // In previous version can`t generate wrapper as an error was thrown, but it was just a warning.
+            // author: DLiauchuk
+            if (om.getMethod().isStatic()) {
+                msg = "Warning: access of a static method from non-static object";
+            } else {
+                msg = "Error: access of a non-static method from a static object";
+                bindingContext.addError(new BoundError(node, msg));
+            }
         }    
         
         
