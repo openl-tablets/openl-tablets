@@ -307,7 +307,7 @@ public class PropertyTableCreationWizard extends WizardBase {
         String[] values = EnumUtils.getNames(instanceClass);
         String[] displayValues = EnumUtils.getValues(instanceClass);
 
-        String id = String.format("%s:%s:enum_select", componentId, tableProperty.getDisplayName());
+        String id = String.format("%s:%s:enum_select", componentId, tableProperty.getName());
 
         String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
 
