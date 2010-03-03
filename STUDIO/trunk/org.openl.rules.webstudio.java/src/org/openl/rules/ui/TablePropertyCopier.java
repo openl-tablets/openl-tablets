@@ -300,7 +300,7 @@ public class TablePropertyCopier extends TableCopier {
         String[] values = EnumUtils.getNames(instanceClass);
         String[] displayValues = EnumUtils.getValues(instanceClass);
 
-        String id = String.format("%s:enumSelect", componentId);
+        String id = String.format("%s:%s:enumSelect", componentId, tableProperty.getName());
 
         String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
 
@@ -316,7 +316,7 @@ public class TablePropertyCopier extends TableCopier {
         String[] values = EnumUtils.getNames(instanceClass);
         String[] displayValues = EnumUtils.getValues(instanceClass);
         
-        String id = String.format("%s:enumArraySelect", componentId);
+        String id = String.format("%s:%s:enumArraySelect", componentId, tableProperty.getName());
         
         String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
 
