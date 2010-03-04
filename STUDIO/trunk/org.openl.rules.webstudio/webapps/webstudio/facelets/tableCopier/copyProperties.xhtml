@@ -48,12 +48,12 @@
 
                		    <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}"/>
 
-                		<h:outputText binding="#{tableCopierWizard.enumOutput}" escape="false" value="#{tableCopierWizard.enumValue}" rendered="#{prop.enum}">
+                		<h:outputText binding="#{tableCopierWizard.enumHelper.enumOutput}" escape="false" value="#{tableCopierWizard.enumHelper.enumValue}" rendered="#{prop.enum}">
                             <f:attribute name="property" value="#{prop}"/>
                         </h:outputText>
                         <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
 
-                		<h:outputText binding="#{tableCopierWizard.enumArrayOutput}" escape="false" value="#{tableCopierWizard.enumArrayValue}" rendered="#{prop.enumArray}">
+                		<h:outputText binding="#{tableCopierWizard.enumHelper.enumArrayOutput}" escape="false" value="#{tableCopierWizard.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
                             <f:attribute name="property" value="#{prop}"/>
                         </h:outputText>
                         <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
