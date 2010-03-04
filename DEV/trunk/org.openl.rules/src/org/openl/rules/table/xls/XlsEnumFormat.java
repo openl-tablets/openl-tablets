@@ -6,9 +6,9 @@ import org.openl.util.Log;
 
 public class XlsEnumFormat extends XlsFormat {
 
-    private Class enumClass;
+    private Class<?> enumClass;
     
-    public XlsEnumFormat(Class enumType) {
+    public XlsEnumFormat(Class<?> enumType) {
         this.enumClass = enumType;
     }
 
