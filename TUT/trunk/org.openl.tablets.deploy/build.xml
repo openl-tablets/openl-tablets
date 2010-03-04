@@ -86,9 +86,9 @@
         <include name="**/org.openl.*${openl.plugin.version}.jar" />
       </fileset>
     	
-      <!--copy org.openl.lib.poi35.dev.modified-5.5.0-SNAPSHOT.jar to webstudio lib -->    	
       <fileset dir="${plugin.base.path}/org.openl.poi.lib${openl.plugin.version}/lib">    	
-    	<include name="**/org.openl.lib.poi35.dev.modified*.jar" />
+    	<include name="**/poi*.jar" />
+		<include name="**/ooxml-schemas*.jar" />
       </fileset>    	
     </copy>
 
