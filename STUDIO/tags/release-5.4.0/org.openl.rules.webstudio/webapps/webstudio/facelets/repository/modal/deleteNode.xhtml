@@ -1,0 +1,40 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:modalPanel id="modalDeleteNode" width="400" minWidth="400" height="110" minHeight="110">
+    <f:facet name="header">
+      <h:outputText value="Confirm Delete" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalDeleteNode');" />
+    </f:facet>
+
+    <h:form id="deleteNodeForm">
+      <h:outputText rendered="#{node.type == 'project' || node.type == 'deployment'}"
+
+        value="Are you sure you want to delete the project '#{node.name}'?" />
+      <h:outputText rendered="#{node.type == 'folder'}"
+        value="Are you sure you want to delete the folder '#{node.name}'?" />
+
+      <h:outputText rendered="#{node.type == 'file'}"
+        value="Are you sure you want to delete the file '#{node.name}'?" />
+
+      <br />
+      <br />
+      <rich:separator height="1" />
+      <br />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Delete" action="#{repositoryTreeController.deleteNode}" />
+        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+
+  </rich:modalPanel>
+
+</ui:composition>
