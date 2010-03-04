@@ -1,0 +1,20 @@
+<project name="GenJavaWrapper" default="generate" basedir="../">
+
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	
+	
+<target name="generate">
+	<echo message="Generating org.openl.tablets.tutorial2 Wrapper"/>
+
+	<openlgen openlName="org.openl.xls" userHome="." 
+		srcFile="rules/Tutorial_2.xls"
+	    targetClass="org.openl.tablets.tutorial2.Tutorial_2Wrapper"
+		displayName="Tutorial 2 - Intro to Data Tables"
+		targetSrcDir="gen"
+	>
+	</openlgen>	
+	
+	
+	
+</target>
+</project>
