@@ -156,9 +156,9 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public static DoubleValue multiply(DoubleValue dv1, DoubleValue dv2) {
-        if (dv1.getValue() == 0 || dv2.getValue() == 0) {
-            return DoubleValue.ZERO;
-        }
+//        if (dv1.getValue() == 0 || dv2.getValue() == 0) {
+//            return DoubleValue.ZERO;
+//        }
 
         return new DoubleValueFormula(dv1, dv2, dv1.getValue() * dv2.getValue(), "*", true);
     }
@@ -400,7 +400,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         if (obj instanceof DoubleValue)
         {
             DoubleValue secondObj = (DoubleValue)obj;
-            return value == secondObj.doubleValue() && metaInfo == secondObj.metaInfo;
+            return value == secondObj.doubleValue();// && metaInfo == secondObj.metaInfo;
         }    
         return false;
     }
