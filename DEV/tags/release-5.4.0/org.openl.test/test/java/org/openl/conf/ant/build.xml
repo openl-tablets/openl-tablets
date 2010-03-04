@@ -1,9 +1,0 @@
-<project name="zz" default="aaa">
-
-<property name="aa" value="${zopa}2"/>	
-	
-<target name="aaa">
-<echo message="zopa=${zopa}"></echo>
-	<echo message="aa=${aa}"></echo>
-</target>
-</project>
