@@ -1,0 +1,14 @@
+// openl script
+
+String distance =  (50[mi] + 50[mi]).printAs(mi, "[mi]");
+
+System.out.println("50[mi] + 50[mi] = " + distance);
+
+String distance_mi =  (50[mi] + 50[km]).printAs(mi, "[mi]");
+
+System.out.println("50[mi] + 50[km] = " + distance_mi);
+
+String distance_km =  (50[mi] + 50[km]).printAs(km, "[km]");
+
+System.out.println("50[mi] + 50[km] = " + distance_km);
+
