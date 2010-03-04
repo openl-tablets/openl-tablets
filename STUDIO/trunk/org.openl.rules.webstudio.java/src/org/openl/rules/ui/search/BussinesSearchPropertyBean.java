@@ -11,10 +11,12 @@ import org.openl.rules.search.OpenLBussinessSearch;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.ui.EnumValuesUIHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.util.EnumUtils;
 
 
 /**
@@ -28,7 +30,8 @@ public class BussinesSearchPropertyBean {
     private String tableContain;
     private final OpenLBussinessSearch search = new OpenLBussinessSearch();    
     private BussinessSearchResultBean busSearchResBean = null;
-     
+    
+    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
     
     public BussinessSearchResultBean getBusSearchResBean() {
         return busSearchResBean;
@@ -87,14 +90,16 @@ public class BussinesSearchPropertyBean {
             Map<String, Object> mapforSearch = search.getBusSearchCondit().getPropToSearch();  
             mapforSearch.clear();
             for(TableProperty prop : propForSearch) {
-                if (prop.isString() && prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getDisplayValue())) {
+                if (prop.isString() && prop.getValue() != null && StringUtils.isNotEmpty(prop.getDisplayValue()))
                     mapforSearch.put(prop.getName(), (String)prop.getValue());
-                } else {
-                    if (prop.isDate() && prop.getValue()!=null) {
-                        mapforSearch.put(prop.getName(), (Date)prop.getValue());
-                    }
+                else if (prop.isDate() && prop.getValue() != null)
+                        mapforSearch.put(prop.getName(), (Date)prop.getValue());                    
+                else if (prop.isEnum() && prop.getValue() != null && StringUtils.isNotEmpty((String)prop.getValue())) {
+                    Object enumValue = EnumUtils.valueOf(prop.getType(), prop.getStringValue());
+                    mapforSearch.put(prop.getName(), enumValue);
                 }
-            }            
+                    
+            }
             search.getBusSearchCondit().setTablesContains(searchTableContains());
         }
     }
@@ -136,7 +141,11 @@ public class BussinesSearchPropertyBean {
         } 
         return result;
     } 
-    
+
+    public EnumValuesUIHelper getEnumHelper() {
+        return enumHelper;
+    }
+
     /**
      * Request scope bean, holding flag if search run is required.
      */    

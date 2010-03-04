@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.faces.component.html.HtmlOutputText;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,9 +22,8 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
-import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.util.EnumUtils;
+import org.openl.rules.ui.EnumValuesUIHelper;
 
 public class PropertyTableCreationWizard extends WizardBase {
 
@@ -39,40 +37,11 @@ public class PropertyTableCreationWizard extends WizardBase {
     private List<SelectItem> scopeTypes = new ArrayList<SelectItem>(Arrays.asList(new SelectItem("Module"),
             new SelectItem("Category")));
     private List<TableProperty> properties = new ArrayList<TableProperty>();
-
-    private HtmlOutputText enumOutput;
-    private HtmlOutputText enumArrayOutput;
-
-    public HtmlOutputText getEnumOutput() {
-        return enumOutput;
-    }
-
-    public void setEnumOutput(HtmlOutputText enumOutput) {
-        this.enumOutput = enumOutput;
-    }
-
-    public HtmlOutputText getEnumArrayOutput() {
-        return enumArrayOutput;
-    }
-
-    public void setEnumArrayOutput(HtmlOutputText enumArrayOutput) {
-        this.enumArrayOutput = enumArrayOutput;
-    }
-
-    public String getEnumValue() {
-
-        String componentId = enumOutput.getId();
-        TableProperty property = (TableProperty) enumOutput.getAttributes().get("property");
-
-        return getEnumSelectComponentCode(componentId, property);
-    }
-
-    public String getEnumArrayValue() {
-
-        String componentId = enumArrayOutput.getId();
-        TableProperty property = (TableProperty) enumArrayOutput.getAttributes().get("property");
-
-        return getEnumMultiSelectComponentCode(componentId, property);
+    
+    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();  
+    
+    public EnumValuesUIHelper getEnumHelper() {
+        return enumHelper;
     }
 
     public String getCategoryName() {
@@ -297,48 +266,6 @@ public class PropertyTableCreationWizard extends WizardBase {
             }
         }
         return resultProperties;
-    }
-
-    private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
-
-        Class<?> instanceClass = tableProperty.getType();
-        String value = tableProperty.getStringValue();
-
-        String[] values = EnumUtils.getNames(instanceClass);
-        String[] displayValues = EnumUtils.getValues(instanceClass);
-
-        String id = String.format("%s:%s:enum_select", componentId, tableProperty.getName());
-
-        String componentCode = new HTMLRenderer().getSingleSelectComponentCode(id, values, displayValues, value);
-
-        return getEditorHTMLCode(id, componentCode);
-    }
-
-    private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
-
-        Class<?> instanceClass = tableProperty.getType().getComponentType();
-
-        String valueString = tableProperty.getStringValue();
-
-        String[] values = EnumUtils.getNames(instanceClass);
-        String[] displayValues = EnumUtils.getValues(instanceClass);
-
-        String id = String.format("%s:%s:enum_array_select", componentId, tableProperty.getName());
-
-        String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
-
-        return getEditorHTMLCode(id, componentCode);
-    }
-
-    private String getEditorHTMLCode(String id, String editorCode) {
-        return String.format(
-                  "<div id='%1$s'></div>"
-                + "<script type='text/javascript'>"
-                + "var editor = %2$s;"
-                // editor value setter code
-                + "editor.input.onblur=function(){var newValue = this.getValue();"
-                + "$('%1$s').up().down('input[type=hidden]').value=newValue;return false;};"
-                + "</script>", id, editorCode);
     }
 
 }

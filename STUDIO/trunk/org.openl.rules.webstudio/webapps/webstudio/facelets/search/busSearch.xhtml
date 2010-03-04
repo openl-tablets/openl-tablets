@@ -3,10 +3,20 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:c="http://java.sun.com/jstl/core"
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
   template="/facelets/common/studioBase.xhtml">
-        
+  
+  <ui:define name="header">
+        <a4j:loadScript src="resource:///js/validation.js" />
+        <a4j:loadScript src="resource:///js/BaseEditor.js" />
+        <a4j:loadScript src="resource:///js/BaseTextEditor.js" />
+        <a4j:loadScript src="resource:///js/MultiselectEditor.js" />
+        <a4j:loadScript src="resource:///js/DropdownEditor.js" />
+        <a4j:loadScript src="resource:///js/AjaxHelper.js" />
+        <a4j:loadStyle src="resource:///css/multiselect.css" />
+    </ui:define>      
        
   <ui:define name="page">
   	<table>
@@ -21,22 +31,33 @@
 	<h:form id="businessSearchForm">
 	<fieldset><legend>Properties</legend>  
 		<table id="propertySearchTable">
-			<c:forEach items="#{bussinessSearch.propForSearch}" var="propDef">
-				<tr><td><h:outputLabel for="#{propDef.name}" value="#{propDef.displayName}"/></td>
-					<c:if test="#{propDef.string}">
-						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
-					</c:if>
-					<c:if test="#{propDef.date}">
-						<td><rich:calendar id="#{propDef.name}"
-										   value="#{propDef.value}"
-	      								   datePattern="#{propDef.format}"
-	      								   defaultTime = "00:00"
-	      								   timeZone="#{formatPatterns.defaultTimeZone}">
-	       					</rich:calendar>
-	      				</td>
-					</c:if>
-				</tr>				
-			</c:forEach>
+			<a4j:repeat value="#{bussinessSearch.propForSearch}" var="prop">
+				<tr>
+                    <td><h:outputText value="#{prop.displayName}"/></td>
+                    <td>
+	                 	<rich:calendar value="#{prop.value}" 
+	                       			   datePattern="#{prop.format}"
+	                       			   defaultTime="00:00" 
+	                       			   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.date}" />
+                		
+                		<h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
+                					value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enum}">
+                            <f:attribute name="property" value="#{prop}"/>
+                        </h:outputText>
+                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
+
+                		<h:outputText binding="#{bussinessSearch.enumHelper.enumArrayOutput}" escape="false" 
+                					value="#{bussinessSearch.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
+                            <f:attribute name="property" value="#{prop}"/>
+                        </h:outputText>
+                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+
+           		    	<h:inputText value="#{prop.value}" rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}"/>
+               		    
+                        <input type="hidden" name="id" value="#{prop.name}" />
+                    </td>
+				</tr>
+			</a4j:repeat>
 		</table>
 	</fieldset>
 	<br/>

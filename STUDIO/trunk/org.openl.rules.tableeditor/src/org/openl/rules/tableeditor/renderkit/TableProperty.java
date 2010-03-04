@@ -131,9 +131,10 @@ public class TableProperty {
                     result = StringUtils.join(names, ",");
                 }
             } else if (isSimpleArray()) {
-                
-                Object[] array = (Object[]) value;
-                result = StringUtils.join(array, ",");
+                if (StringUtils.isNotEmpty((String)value)) {
+                    Object[] array = (Object[]) value;
+                    result = StringUtils.join(array, ",");
+                }
 
             } else {
                 result = value.toString();

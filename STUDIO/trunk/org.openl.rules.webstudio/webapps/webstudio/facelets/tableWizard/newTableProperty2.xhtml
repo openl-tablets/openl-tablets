@@ -43,14 +43,14 @@
 
                         <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
 
-                        <h:outputText binding="#{tableWizard.enumOutput}" escape="false"
-                            value="#{tableWizard.enumValue}" rendered="#{prop.enum}">
+                        <h:outputText binding="#{tableWizard.enumHelper.enumOutput}" escape="false"
+                            value="#{tableWizard.enumHelper.enumValue}" rendered="#{prop.enum}">
                             <f:attribute name="property" value="#{prop}"/>
                         </h:outputText>
                         <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
       
-                        <h:outputText binding="#{tableWizard.enumArrayOutput}" escape="false"
-                            value="#{tableWizard.enumArrayValue}" rendered="#{prop.enumArray}">
+                        <h:outputText binding="#{tableWizard.enumHelper.enumArrayOutput}" escape="false"
+                            value="#{tableWizard.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
                             <f:attribute name="property" value="#{prop}"/>
                         </h:outputText>
                         <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
