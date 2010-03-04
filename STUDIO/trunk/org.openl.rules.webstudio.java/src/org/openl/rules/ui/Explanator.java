@@ -3,6 +3,7 @@ package org.openl.rules.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.map.IdentityMap;
 import org.openl.meta.DoubleValue;
 
 public class Explanator {
@@ -11,11 +12,11 @@ public class Explanator {
 
     static int uniqueId = 0;
 
-    Map value2id = new HashMap();
+    IdentityMap value2id = new IdentityMap();
 
-    Map id2value = new HashMap();
+    Map<Integer, Object> id2value = new HashMap<Integer, Object>();
 
-    Map explanators = new HashMap();
+    Map<String, Explanation> explanators = new HashMap<String, Explanation>();
 
     public static Explanator getCurrent() {
         return current.get();
@@ -30,7 +31,7 @@ public class Explanator {
     }
 
     public Explanation getExplanation(String rootID) {
-        Explanation expl = (Explanation) explanators.get(rootID);
+        Explanation expl = explanators.get(rootID);
         if (expl == null) {
             int id = Integer.parseInt(rootID);
 
@@ -43,7 +44,7 @@ public class Explanator {
     }
 
     public int getUniqueId(DoubleValue value) {
-        Integer id = (Integer) value2id.get(value);
+        Integer id = (Integer)value2id.get(value);
 
         if (id != null) {
             return id.intValue();
@@ -56,8 +57,8 @@ public class Explanator {
     }
 
     public void reset() {
-        id2value = new HashMap();
-        value2id = new HashMap();
-        explanators = new HashMap();
+        id2value = new HashMap<Integer, Object>();
+        value2id = new IdentityMap();
+        explanators = new HashMap<String, Explanation>();
     }
 }
