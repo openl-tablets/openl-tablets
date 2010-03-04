@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -49,7 +47,7 @@ import org.openl.util.StringTool;
 public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         XlsWorkbookSourceCodeModule.WorkbookListener {
     
-    private final static Log LOG = LogFactory.getLog(XlsSheetGridModel.class);
+   // private final static Log LOG = LogFactory.getLog(XlsSheetGridModel.class);
 
     class XlsCell implements ICell {
 
@@ -177,9 +175,9 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         for (int i = 0; i < cell.length(); i++) {
             char ch = cell.charAt(i);
             if (!Character.isLetter(ch)) {
-                return col;
+                return col-1;
             }
-            col = col * mul + ch - 'A';
+            col = col * mul + ch - 'A' + 1;
         }
         throw new RuntimeException("Invalid cell: " + cell);
     }
