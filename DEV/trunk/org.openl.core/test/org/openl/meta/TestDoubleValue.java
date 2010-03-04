@@ -9,7 +9,7 @@ public class TestDoubleValue {
     public void testEquals() {
         DoubleValue value1 = new DoubleValue(10.2, new ValueMetaInfo("shortName", "fullName", "sourceUrl"), "");
         DoubleValue value2 = new DoubleValue(10.2, new ValueMetaInfo("shortName2", "fullName2", "sourceUrl2"), "");
-        assertFalse(value1.equals(value2));
+        assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);
     }
