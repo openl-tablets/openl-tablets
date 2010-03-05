@@ -77,6 +77,8 @@ import org.openl.vm.Tracer;
 
 public class ProjectModel implements IProjectTypes {
 
+    private static final String ERRORS_FOLDER_NAME = "All Errors";
+
     OpenLWrapper wrapper;
 
     OpenLWrapperInfo wrapperInfo;
@@ -176,23 +178,31 @@ public class ProjectModel implements IProjectTypes {
     }
 
     private void addErrors(CompiledOpenClass comp, ProjectTreeNode root) {
-        String[] errName = { "All Errors", "All Errors", "All Errors" };
+        int parsingErrorsNum = comp.getParsingErrors().length;
+        int bindingErrorsNum = comp.getBindingErrors().length;
+        int validationErrorsNum = 0;
+        if (validationExceptions != null) {
+            validationErrorsNum = validationExceptions.size();
+        }
+        int errorsSum = parsingErrorsNum + bindingErrorsNum + validationErrorsNum;
+        String finalErrorFolderName = ERRORS_FOLDER_NAME + " [" + errorsSum + "]";
+        
+        String[] errName = { finalErrorFolderName, finalErrorFolderName, finalErrorFolderName };
 
         ProjectTreeNode errorFolder = new ProjectTreeNode(errName, PT_FOLDER, null, null, 0, null);
         root.getElements().put(new NodeKey(0, errName), errorFolder);
-
-        int pn = comp.getParsingErrors().length;
-        for (int i = 0; i < pn; i++) {
+        
+        for (int i = 0; i < parsingErrorsNum; i++) {
             addError((SyntaxError) comp.getParsingErrors()[i], errorFolder, i);
         }
-
-        for (int i = 0; i < comp.getBindingErrors().length; i++) {
-            addError((SyntaxError) comp.getBindingErrors()[i], errorFolder, i + pn);
+        
+        for (int i = 0; i < bindingErrorsNum; i++) {
+            addError((SyntaxError) comp.getBindingErrors()[i], errorFolder, i + parsingErrorsNum);
         }
-        pn += comp.getBindingErrors().length;
-        int k = pn;
+        
+        int parsAndBindErrorsSum = parsingErrorsNum + bindingErrorsNum;
         if (validationExceptions != null) {
-            for (int i = 0; i < validationExceptions.size(); ++i) {
+            for (int i = 0; i < validationErrorsNum; ++i) {
                 Throwable t = validationExceptions.get(i);
 
                 if (t instanceof SyntaxErrorException) {
@@ -200,13 +210,12 @@ public class ProjectModel implements IProjectTypes {
                     ISyntaxError[] errors = se.getSyntaxErrors();
 
                     for (int j = 0; j < errors.length; j++) {
-                        addError((SyntaxError) errors[j], errorFolder, ++k);
+                        addError((SyntaxError) errors[j], errorFolder, ++parsAndBindErrorsSum);
                     }
 
                 } else {
-                    addError(t, errorFolder, ++k);
+                    addError(t, errorFolder, ++parsAndBindErrorsSum);
                 }
-
             }
         }
     }
