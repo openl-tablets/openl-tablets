@@ -70,6 +70,28 @@ public class SpreadsheetResult implements IDynamicObject {
         return spreadsheet.rowNames[row];
     }
 
+    public int getRowIndex(String name) {
+        String[] names = spreadsheet.rowNames;
+        for (int i = 0; i < names.length; i++) {
+            if (name.equals(names[i]))
+                return i;
+        }
+        
+        throw new RuntimeException("Row name <" + name + "> not found");
+    }
+
+
+    public int getColumnIndex(String name) {
+        String[] names = spreadsheet.colNames;
+        for (int i = 0; i < names.length; i++) {
+            if (name.equals(names[i]))
+                return i;
+        }
+        
+        throw new RuntimeException("Column name <" + name + "> not found");
+    }
+    
+    
     public Spreadsheet getSpreadsheet() {
         return spreadsheet;
     }
