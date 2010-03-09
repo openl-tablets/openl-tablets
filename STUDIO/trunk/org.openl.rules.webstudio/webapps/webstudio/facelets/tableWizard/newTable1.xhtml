@@ -20,7 +20,7 @@
 
           <h:outputLabel value="Return value" for="ret_type"/>
           <h:selectOneMenu id="ret_type" value="#{tableWizard.returnType}" style="width:90%;">
-            <f:selectItems value="#{OpenLTypes.returnTypes}"/>
+            <f:selectItems value="#{tableWizard.domainTypes}"/>
           </h:selectOneMenu>
 
           <h:outputLabel value="Orientation" for="t_or"/>
