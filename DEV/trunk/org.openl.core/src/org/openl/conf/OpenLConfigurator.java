@@ -25,16 +25,16 @@ import org.openl.util.Log;
 
 public class OpenLConfigurator extends Configurator {
 
-    static public final String OPENL_ALT_CONFIG_ROOT = "lang.config";
+    public static final String OPENL_ALT_CONFIG_ROOT = "lang.config";
 
-    static final public String OPENL_DEFAULT_PROPERTY_FILE_NAME = "OpenL.properties";
-    static final public String OPENL_PROPERTY_FILE_PROPERTY = "properties.file";
+    public static final String OPENL_DEFAULT_PROPERTY_FILE_NAME = "OpenL.properties";
+    public static final String OPENL_PROPERTY_FILE_PROPERTY = "properties.file";
 
-    static final public String DEFAULT_BUILDER_CLASS_PROPERTY = "org.openl.builderclass";
-    static final public String BUILDER_CLASS = ".builderclass";
+    public static final String DEFAULT_BUILDER_CLASS_PROPERTY = "org.openl.builderclass";
+    public static final String BUILDER_CLASS = ".builderclass";
 
-    static final public String DEFAULT_BUILDER_CLASS_PATH_PROPERTY = "org.openl.builder.classpath";
-    static final public String BUILDER_CLASS_PATH = ".builder.classpath";
+    public static final String DEFAULT_BUILDER_CLASS_PATH_PROPERTY = "org.openl.builder.classpath";
+    public static final String BUILDER_CLASS_PATH = ".builder.classpath";
     // static final public String DEFAULT_BUILDER_CLASS_NAME =
     // "org.openl.conf.ant.AntOpenLBuilder";
 
