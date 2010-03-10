@@ -37,7 +37,7 @@ public class TableViewer {
                 cm.setValign("bottom");
                 break;
             case ICellStyle.VERTICAL_CENTER:
-                cm.setHalign("center");
+                cm.setValign("center");
                 break;
             case ICellStyle.VERTICAL_TOP:
                 cm.setValign("top");
