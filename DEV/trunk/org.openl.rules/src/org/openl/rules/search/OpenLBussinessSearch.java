@@ -6,6 +6,7 @@ import java.util.Map;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.util.EnumUtils;
 
 /**
  * Class to search tables, by {@link BussinessSearchCondition}  
@@ -105,6 +106,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
  
     }
 
+    @SuppressWarnings("unchecked")
     private int comparePropValues(Object propValueFromSearch, Object propertyValue) {
         int result = -1;
         if(propertyValue instanceof String && propValueFromSearch instanceof String) 
@@ -115,7 +117,11 @@ public class OpenLBussinessSearch implements IOpenLSearch{
                 result = ((Boolean)propertyValue).compareTo(((Boolean)propValueFromSearch));
         else if(propertyValue instanceof Integer && propValueFromSearch instanceof Integer)
                 result = ((Integer)propertyValue).compareTo(((Integer)propValueFromSearch));
+        else if(propertyValue instanceof Enum && propValueFromSearch instanceof Enum)
+            result = ((Enum)propertyValue).compareTo(((Enum)propValueFromSearch));
         return result;
+        
+        
     }
     
     /**
