@@ -15,11 +15,11 @@ import org.openl.types.IOpenClass;
  */
 public class CompiledOpenClass {
 
-    ISyntaxError[] parsingErrors;
+    private ISyntaxError[] parsingErrors;
 
-    ISyntaxError[] bindingErrors;
+    private ISyntaxError[] bindingErrors;
 
-    IOpenClass openClass;
+    private IOpenClass openClass;
 
     public CompiledOpenClass(IOpenClass openClass, ISyntaxError[] parsingErrors, ISyntaxError[] bindingErrors) {
         this.openClass = openClass;

@@ -16,7 +16,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  *
  * @author sam
  */
-abstract public class AUserContext implements IUserContext {
+public abstract class AUserContext implements IUserContext {
     static Properties props(IUserContext cxt) {
         Properties properties = cxt.getUserProperties();
         return properties != null ? properties : PropertyFileLoader.NO_PROPERTIES;

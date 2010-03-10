@@ -25,10 +25,12 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  */
 public class OpenClassJavaWrapper {
-    CompiledOpenClass __compiledClass;
-    IRuntimeEnv __env;
+    
+    private CompiledOpenClass __compiledClass;
+    
+    private IRuntimeEnv __env;
 
-    static public OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, IOpenSourceCodeModule src) {
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, IOpenSourceCodeModule src) {
         OpenL openl = OpenL.getInstance(openlName, ucxt);
 
         CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, src);

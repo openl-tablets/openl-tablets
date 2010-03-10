@@ -32,16 +32,18 @@ import org.openl.util.Log;
  *
  */
 public class PropertyFileLoader {
-    static final public Properties NO_PROPERTIES = new Properties();
-    String propertiesFileDefaultName;
+    
+    public static final Properties NO_PROPERTIES = new Properties();
+    
+    private String propertiesFileDefaultName;
 
-    String propertiesFileProperty;
+    private String propertiesFileProperty;
 
-    Properties properties = null;
+    private Properties properties = null;
 
-    IConfigurableResourceContext context;
+    private IConfigurableResourceContext context;
 
-    PropertyFileLoader parent = null;
+    private PropertyFileLoader parent = null;
 
     public PropertyFileLoader(String propertiesFileDefaultName, String propertiesFileProperty,
             IConfigurableResourceContext context, PropertyFileLoader parent) {
