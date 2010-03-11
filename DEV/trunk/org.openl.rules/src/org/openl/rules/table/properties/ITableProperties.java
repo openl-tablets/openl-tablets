@@ -167,5 +167,9 @@ public interface ITableProperties {
     void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);    
     
     void setPropertiesAppliedByDefault(Map<String, Object> defaultProperties);    
+    
+    void setCurrentTableType(String currentTableType);
+
+    String getCurrentTableType();
 	
 }

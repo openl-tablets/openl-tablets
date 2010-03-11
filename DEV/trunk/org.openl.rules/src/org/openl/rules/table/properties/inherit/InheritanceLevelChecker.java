@@ -52,7 +52,7 @@ public class InheritanceLevelChecker {
             InheritanceLevel[] inheritanceLevels = propertyDefinition.getInheritanceLevel();
             if (inheritanceLevels != null && inheritanceLevels.length > 0) {
                 if (!Arrays.asList(inheritanceLevels).contains(currentLevel)) {
-                    String msg = "Property with name "+ name + " can`t be defined on the " 
+                    String msg = "Property with name ["+ name + "] can`t be defined on the " 
                     + currentLevel.getDisplayName() + " level";
                     LOG.debug(msg);
                     throw new InvalidPropertyLevelException(msg);

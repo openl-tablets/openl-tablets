@@ -1,12 +1,14 @@
 package org.openl.rules.table.properties.inherit;
 
+import org.openl.rules.table.properties.TablePropertiesException;
+
 /**
  * Handles situations when property is defined on wrong level. 
  * 
  * @author DLiauchuk
  *
  */
-public class InvalidPropertyLevelException extends Exception {
+public class InvalidPropertyLevelException extends TablePropertiesException {
 
     private static final long serialVersionUID = -5315833464199624657L;
 
