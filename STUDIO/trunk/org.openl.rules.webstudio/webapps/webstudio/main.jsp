@@ -93,7 +93,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
   studio.select(selected);
 %>
 
-<frameset rows="78,*" framespacing="0" border="3">
+<frameset rows="86,*" framespacing="0" border="3">
 <frame src="${pageContext.request.contextPath}/faces/facelets/studio/header.xhtml" name="header" scrolling="no"
     noresize="noresize" />
 
