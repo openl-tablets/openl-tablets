@@ -13,20 +13,21 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
  */
 public class BaseOpenlBuilder {
     
-    private XlsModuleSyntaxNode xsn;
+    private XlsModuleSyntaxNode xsn;    
+    private OpenClassJavaWrapper wrapper;
     
     public BaseOpenlBuilder() {        
     }
     
     protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {        
-        OpenClassJavaWrapper wrapper = getJavaWrapper(fileToBuildWrapper);
+        buildJavaWrapper(fileToBuildWrapper);
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
         xsn = xmi.getXlsModuleNode();        
     }
     
-    private OpenClassJavaWrapper getJavaWrapper(String fileToBuildWrapper) {
+    protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {
         UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper);
+        wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper);
         return wrapper;
     }
     
@@ -40,7 +41,7 @@ public class BaseOpenlBuilder {
         return result;
     }
 
-    protected TableSyntaxNode[] getTableSyntaxNodes(String fileToBuildWrapper) {
+    protected TableSyntaxNode[] getTableSyntaxNodes(String fileToBuildWrapper) {        
         buildXlsModuleSyntaxNode(fileToBuildWrapper);
         XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
@@ -50,5 +51,8 @@ public class BaseOpenlBuilder {
     public XlsModuleSyntaxNode getModuleSuntaxNode() {
         return xsn;
     }
-
+    
+    public OpenClassJavaWrapper getJavaWrapper() {
+        return wrapper;
+    }
 }

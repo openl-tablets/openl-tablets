@@ -29,6 +29,7 @@ public class TablePropertyDefinitionUtils {
 
     /**
      * Gets the name of the property by the given display name
+     * 
      * @param displayName
      * @return name
      */
@@ -44,6 +45,7 @@ public class TablePropertyDefinitionUtils {
 
     /**
      * Gets the display name of the property by the given name
+     * 
      * @param name
      * @return diplayName
      */
@@ -59,6 +61,7 @@ public class TablePropertyDefinitionUtils {
 
     /**
      * Gets the property by its given name
+     * 
      * @param name
      * @return property definition
      */
@@ -105,11 +108,27 @@ public class TablePropertyDefinitionUtils {
     public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(
             InheritanceLevel inheritanceLevel) {
         List<TablePropertyDefinition> resultDefinitions = new ArrayList<TablePropertyDefinition>();
-        for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+        for(TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel)) {
                 resultDefinitions.add(propertyDefinition);
             }
         }
         return resultDefinitions.toArray(new TablePropertyDefinition[0]);
+    }
+    
+    /**
+     * Gets the table type in which this property can be defined.
+     * 
+     * @param name property name.
+     * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for 
+     * each type of tables.
+     */
+    public static String getTableTypeByPropertyName(String name) {
+        String result = null;
+        TablePropertyDefinition propDefinition = getPropertyByName(name);
+        if (propDefinition != null) {
+            result = propDefinition.getTableType();
+        }
+        return result;
     }
 }

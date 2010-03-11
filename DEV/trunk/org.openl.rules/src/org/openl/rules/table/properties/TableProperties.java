@@ -21,6 +21,7 @@ import org.openl.util.EnumUtils;
 
 public class TableProperties extends DynamicObject implements ITableProperties {
 
+    private String currentTableType;
     /**
      * Table section that contains properties in appropriate table in data
      * source.
@@ -44,7 +45,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      * @param name name of the property to check.
      * @return <code>TRUE</code> if property can be defined on TABLE level.
      */
-    private boolean canBeOverridenOnTableLevel(String name) {
+    private boolean canOverrideOnTableLevel(String name) {
         boolean result = false;
         try {
             InheritanceLevelChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
@@ -55,11 +56,29 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return result;
     }
+    
+    /**
+     * Check if property can be set for current table type. 
+     * TODO: Decide what to do when it is impossible to set for this table type.
+     * 
+     * @param name name of the property to check.
+     * @return <code>TRUE</code> if property can be set for current table type.
+     */
+    private boolean canSetForCurrentTableType(String name) {
+        boolean result = false;
+        String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(name);
+        if (StringUtils.isEmpty(definitionTableType) || definitionTableType.equals(currentTableType)) {
+            result = true;
+        } else {
+            // TODO: message to UI that current property e set for current table type.            
+        }
+        return result;
+    }
 
     /**
      * The result <code>{@link Map}</code> will contain all pairs from
      * downLevelProperties and pairs from upLevelProperties that are not defined
-     * in downLevelProperties.
+     * in downLevelProperties. Ignore properties from upper level that can`t be defined for current table type.
      * 
      * @param downLevelProperties properties that are on the down level.
      * @param upLevelProperties properties that are on the up level.
@@ -72,9 +91,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
-
-            if (!downLevelProperties.containsKey(upLevelPropertyName)) {
-                resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
+            String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(upLevelPropertyName);
+            
+            if (StringUtils.isEmpty(definitionTableType) || definitionTableType.equals(currentTableType)) {
+                if (!downLevelProperties.containsKey(upLevelPropertyName)) {
+                    resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
+                }
             }
         }
         return resultProperties;
@@ -341,10 +363,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     @Override
     public void setFieldValue(String name, Object value) {
-        canBeOverridenOnTableLevel(name);
-        super.setFieldValue(name, value);
+        canOverrideOnTableLevel(name);
+        canSetForCurrentTableType(name);
+        
+        super.setFieldValue(name, value);                
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -399,6 +423,14 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     public Map<String, Object> getPropertiesAppliedByDefault() {
         return defaultProperties;
+    }
+
+    public void setCurrentTableType(String currentTableType) {
+        this.currentTableType = currentTableType;
+    }
+
+    public String getCurrentTableType() {
+        return currentTableType;
     }
 
 }

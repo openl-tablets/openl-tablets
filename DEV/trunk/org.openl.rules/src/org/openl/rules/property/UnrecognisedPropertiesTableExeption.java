@@ -1,9 +1,9 @@
 package org.openl.rules.property;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.OpenLRuntimeException;
+import org.openl.rules.table.properties.TablePropertiesException;
 
-public class UnrecognisedPropertiesTableExeption extends OpenLRuntimeException {
+public class UnrecognisedPropertiesTableExeption extends TablePropertiesException {
     
     private static final long serialVersionUID = -4605677258951761707L;
 

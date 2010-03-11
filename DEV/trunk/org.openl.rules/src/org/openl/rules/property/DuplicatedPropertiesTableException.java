@@ -4,13 +4,13 @@
 package org.openl.rules.property;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.OpenLRuntimeException;
+import org.openl.rules.table.properties.TablePropertiesException;
 
 /**
  * @author DLiauchuk
  * 
  */
-public class DuplicatedPropertiesTableException extends OpenLRuntimeException {
+public class DuplicatedPropertiesTableException extends TablePropertiesException {
 
     private static final long serialVersionUID = -1637117550935829524L;
 

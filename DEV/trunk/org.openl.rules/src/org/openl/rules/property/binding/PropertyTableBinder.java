@@ -18,7 +18,10 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.TablePropertiesException;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.types.IOpenClass;
@@ -60,9 +63,11 @@ public class PropertyTableBinder extends DataNodeBinder {
         
         propertiesInstance.setPropertiesSection(tsn.getTable());
         
+        propertiesInstance.setCurrentTableType(tsn.getType());
+        
         tsn.setTableProperties(propertiesInstance);
 
-        analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext)cxt, propertyNode);
+        analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext)cxt, propertyNode);        
         
         propertyNode.setPropertiesInstance(propertiesInstance);
 
@@ -106,7 +111,7 @@ public class PropertyTableBinder extends DataNodeBinder {
      */
     private void analysePropertiesNode(TableSyntaxNode tsn, TableProperties propertiesInstance, 
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) 
-            throws DuplicatedPropertiesTableException {        
+            throws TablePropertiesException {        
         String scope = propertiesInstance.getScope();
         if (scope != null) { 
                 if (isModuleProperties(scope)) {
@@ -125,9 +130,14 @@ public class PropertyTableBinder extends DataNodeBinder {
     }
     
     private void processCategoryProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
-            RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) {
+            RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) throws InvalidPropertyLevelException {
         String category = getCategoryToApplyProperties(tsn, propertiesInstance);
+        
         String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
+        
+        InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, propertiesInstance
+                .getPropertiesAll().keySet());
+        
         if (!cxt.isTableSyntaxNodeExist(key)){
             cxt.registerTableSyntaxNode(key, tsn);
         } else {           
@@ -137,8 +147,12 @@ public class PropertyTableBinder extends DataNodeBinder {
     }
 
     private void processModuleProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
-            RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) {
-        String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY; 
+            RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) throws InvalidPropertyLevelException {
+        String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY;
+        
+        InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, propertiesInstance
+                .getPropertiesAll().keySet());
+        
         if (!cxt.isTableSyntaxNodeExist(key)) {
             cxt.registerTableSyntaxNode(key, tsn);
         } else {
