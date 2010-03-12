@@ -3,7 +3,8 @@ package org.openl.rules.table.properties.inherit;
 import org.openl.rules.table.properties.TablePropertiesException;
 
 /**
- * Handles situations when property is defined on wrong level. 
+ * Occurs when property is defined on wrong level. For example if property is suitable just fior CATEGORY level and 
+ * is defined on TABLE level, this is exception should be thrown.  
  * 
  * @author DLiauchuk
  *

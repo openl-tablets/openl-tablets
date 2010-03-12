@@ -3,16 +3,17 @@ package org.openl.rules.lang.xls.bindibg;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class ArrayInPropSectionTest extends BaseOpenlBuilder{
+public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper{
     private String __src = "test/rules/TestArrayInPropSection.xls";
     
     @Test
     public void testLoadingArrayInPropertyTableSection() {      
         String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";    
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         
         if (resultTsn != null) {

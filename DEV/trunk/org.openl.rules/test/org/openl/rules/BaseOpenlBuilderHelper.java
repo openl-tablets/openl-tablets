@@ -7,17 +7,18 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
 /**
+ * Helper class for building OpenClassJavaWrapper and getting XlsModuleSyntaxNode from it. To get everything you need 
+ * for your tests just extend this class. To initialize inner fields call build method and pass the path to file 
+ * as parameter. 
+ *  
  * 
  * @author DLiauchuk
  *
  */
-public class BaseOpenlBuilder {
+public abstract class BaseOpenlBuilderHelper {
     
     private XlsModuleSyntaxNode xsn;    
     private OpenClassJavaWrapper wrapper;
-    
-    public BaseOpenlBuilder() {        
-    }
     
     protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {        
         buildJavaWrapper(fileToBuildWrapper);
@@ -41,18 +42,20 @@ public class BaseOpenlBuilder {
         return result;
     }
 
-    protected TableSyntaxNode[] getTableSyntaxNodes(String fileToBuildWrapper) {        
-        buildXlsModuleSyntaxNode(fileToBuildWrapper);
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
+    protected TableSyntaxNode[] getTableSyntaxNodes() {  
+        TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
         return tsns;
     }
     
-    public XlsModuleSyntaxNode getModuleSuntaxNode() {
+    protected XlsModuleSyntaxNode getModuleSuntaxNode() {
         return xsn;
     }
     
-    public OpenClassJavaWrapper getJavaWrapper() {
+    protected OpenClassJavaWrapper getJavaWrapper() {
         return wrapper;
+    }
+    
+    public void build(String fileToBuildWrapper) {
+        buildXlsModuleSyntaxNode(fileToBuildWrapper);        
     }
 }

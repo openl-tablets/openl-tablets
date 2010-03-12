@@ -8,12 +8,12 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 
-public class OpenLBussinessSearchTest extends BaseOpenlBuilder{
+public class OpenLBussinessSearchTest extends BaseOpenlBuilderHelper{
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
     

@@ -20,7 +20,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.TablePropertiesException;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -135,8 +135,8 @@ public class PropertyTableBinder extends DataNodeBinder {
         
         String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
         
-        InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, propertiesInstance
-                .getPropertiesAll().keySet());
+        PropertiesChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, propertiesInstance
+                .getAllProperties().keySet());
         
         if (!cxt.isTableSyntaxNodeExist(key)){
             cxt.registerTableSyntaxNode(key, tsn);
@@ -150,8 +150,8 @@ public class PropertyTableBinder extends DataNodeBinder {
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) throws InvalidPropertyLevelException {
         String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY;
         
-        InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, propertiesInstance
-                .getPropertiesAll().keySet());
+        PropertiesChecker.checkPropertiesLevel(InheritanceLevel.MODULE, propertiesInstance
+                .getAllProperties().keySet());
         
         if (!cxt.isTableSyntaxNodeExist(key)) {
             cxt.registerTableSyntaxNode(key, tsn);

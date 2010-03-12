@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.data.binding.DataTableBoundNode.DataOpenField;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,14 +14,15 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author DLiauchuk
  *
  */
-public class DataTableTest extends BaseOpenlBuilder{
+public class DataTableTest extends BaseOpenlBuilderHelper{
     
     private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testSimpleStringArray() {
         String tableName = "Data String simpleStringArray";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -45,7 +46,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testTypeWithArrayColumns() {
         String tableName = "Data TypeWithArray testTypeWithArrayColumns";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -68,7 +70,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testTypeWithArrayRows() {
         String tableName = "Data TypeWithArray testTypeWithArrayRows";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -92,7 +95,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testTypeWithArrayRowsOneElement() {
         String tableName = "Data TypeWithArray testTypeWithArrayRowsOneElement";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -112,7 +116,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testCommaSeparated() {
         String tableName = "Data TypeWithArray testCommaSeparated";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -136,7 +141,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testStringArray() {
         String tableName = "Data TypeWithArray testStringArray";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -157,7 +163,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testStringArrayWithEscaper() {
         String tableName = "Data TypeWithArray testStringArrayWithEscaper";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -180,7 +187,8 @@ public class DataTableTest extends BaseOpenlBuilder{
     @Test
     public void testClass() {
         String tableName = "Data TypeWithArray testClassLoading";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();

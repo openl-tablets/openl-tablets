@@ -4,11 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 
-public class OpenLAdvancedSearchTest extends BaseOpenlBuilder{
+public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
     

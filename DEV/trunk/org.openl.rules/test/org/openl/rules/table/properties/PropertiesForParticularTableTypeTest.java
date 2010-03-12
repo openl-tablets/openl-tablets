@@ -8,32 +8,33 @@ import static org.junit.Assert.fail;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsregionsEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
-public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilder {
+public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
     
     private String __src = "test/rules/PropertiesForParticularTableType.xls";
     
     @Test
     public void testErrorParsing() {
-        String tableName = "Rules void hello1(int hour)";        
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
+        String tableName = "Rules void hello1(int hour)";
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             ITableProperties tableProperties  = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
             
-            assertTrue("Properties failed to load due the error", tableProperties.getPropertiesAll().isEmpty());
+            assertTrue("Properties failed to load due the error", tableProperties.getAllProperties().isEmpty());
             
             assertEquals("There is one binding error", 1, getJavaWrapper().getCompiledClass().getBindingErrors().length);
             
             assertEquals("Property with name [scope] can`t be defined on the " +
-            		"Table level : org.openl.rules.table.properties.inherit.InvalidPropertyLevelException", 
+            		"[Table] level. : org.openl.rules.table.properties.inherit.InvalidPropertyLevelException", 
             		getJavaWrapper().getCompiledClass().getBindingErrors()[0].getMessage());
             
             } else {
@@ -44,7 +45,8 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilder {
     @Test
     public void testNotProcessingInheritPropertiesForTableType() {
         String tableName = "Rules void hello2(int hour)";        
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             ITableProperties tableProperties  = resultTsn.getTableProperties();
@@ -59,7 +61,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilder {
             assertEquals(UsregionsEnum.SE.name(), ((UsregionsEnum)categoryProperties.get("usregion")).name());                
             assertEquals(RegionsEnum.NCSA.name(),((RegionsEnum) categoryProperties.get("region")).name());
                 
-            Map<String, Object> allProperties = tableProperties.getPropertiesAll();
+            Map<String, Object> allProperties = tableProperties.getAllProperties();
             assertEquals("AllProperties size is 10, ignore property 'scope' and including default properties", 
                     10, allProperties.size());
             assertTrue("There is no property 'scope' applied for this table, as it can`t be defined in such table type",
