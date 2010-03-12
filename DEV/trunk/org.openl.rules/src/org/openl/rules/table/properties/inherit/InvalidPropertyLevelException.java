@@ -13,23 +13,19 @@ public class InvalidPropertyLevelException extends TablePropertiesException {
 
     private static final long serialVersionUID = -5315833464199624657L;
 
-    public InvalidPropertyLevelException() {
-        // TODO Auto-generated constructor stub
+    public InvalidPropertyLevelException() {        
     }
 
     public InvalidPropertyLevelException(String message) {
-        super(message);
-        // TODO Auto-generated constructor stub
+        super(message);        
     }
 
     public InvalidPropertyLevelException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
+        super(cause);        
     }
 
     public InvalidPropertyLevelException(String message, Throwable cause) {
-        super(message, cause);
-        // TODO Auto-generated constructor stub
+        super(message, cause);        
     }
 
 }
