@@ -6,7 +6,7 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.util.ArrayUtils;
 import org.openl.util.EnumUtils;
@@ -67,7 +67,7 @@ public class TableProperty {
     public boolean canBeOverridenInTable() {
         boolean result = false;
         try {
-            InheritanceLevelChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
+            PropertiesChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
             result = true;
         } catch (InvalidPropertyLevelException e) {
         }
