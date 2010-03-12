@@ -21,6 +21,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -304,8 +305,8 @@ public class HTMLRenderer {
                 && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)
                 && !tableType.equals(ITableNodeTypes.XLS_PROPERTIES)) {
             ITableProperties props = table.getProperties();
-            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode, collapseProps)
-                    .renderProperties();
+            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode, collapseProps,
+                    tableType).renderProperties();
         }
         return "";
     }
@@ -406,14 +407,19 @@ public class HTMLRenderer {
         private String propsId;
 
         private boolean collapsed;
+        
+        private String tableType;
 
-        public PropertyRenderer(String propsId, ITableProperties props, String view, boolean collapsed) {
+        public PropertyRenderer(String propsId, ITableProperties props, String view, boolean collapsed,
+                String tableType) {
             this.propsId = propsId == null ? "" : propsId;
             this.props = props;
             this.mode = view;
+            this.tableType = tableType;
             this.listProperties = initPropertiesList();
             this.result = new StringBuilder();
             this.collapsed = collapsed;
+            
         }
 
         private List<TableProperty> initPropertiesList() {
@@ -431,10 +437,13 @@ public class HTMLRenderer {
                 Constraints constraints = propDefinition.getConstraints();
                 String description = propDefinition.getDescription();
                 boolean system = propDefinition.isSystem();
-                TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName).value(value).type(type)
-                        .group(group).format(format).constraints(constraints).description(description).system(system)
-                        .inheritanceLevel(inheritanceLevel).build();
-                listProp.add(prop);
+                if (PropertiesChecker.canSetPropertyForTableType(name, tableType)) {
+                    TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName).value(value).type(type)
+                    .group(group).format(format).constraints(constraints).description(description).system(system)
+                    .inheritanceLevel(inheritanceLevel).build();
+                    listProp.add(prop);
+                }
+                
             }
             return listProp;
         }
