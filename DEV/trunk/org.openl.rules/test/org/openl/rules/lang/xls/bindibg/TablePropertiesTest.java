@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -18,7 +18,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 
-public class TablePropertiesTest extends BaseOpenlBuilder{
+public class TablePropertiesTest extends BaseOpenlBuilderHelper{
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
         
@@ -96,7 +96,8 @@ public class TablePropertiesTest extends BaseOpenlBuilder{
     
     @Test
     public void testPropertyDef() {
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src); 
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(); 
         assertTrue(61 == tsns.length);        
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
@@ -125,7 +126,7 @@ public class TablePropertiesTest extends BaseOpenlBuilder{
     public void testInheritanceProperties() {
         TableProperties tableProperties = initProperties();
         
-        Map<String, Object> allProperties = tableProperties.getPropertiesAll();
+        Map<String, Object> allProperties = tableProperties.getAllProperties();
         
         // check table properties.
         assertTrue(allProperties.containsKey(PROPERTY_NAME));

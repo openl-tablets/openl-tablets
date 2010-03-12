@@ -1,14 +1,13 @@
-/**
- * 
- */
 package org.openl.rules.property;
 
 import org.openl.binding.IBoundNode;
 import org.openl.rules.table.properties.TablePropertiesException;
 
 /**
- * @author DLiauchuk
+ * Exception class for situation when we have more than one module properties table or more than 
+ * one table for category.
  * 
+ * @author DLiauchuk
  */
 public class DuplicatedPropertiesTableException extends TablePropertiesException {
 

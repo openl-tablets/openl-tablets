@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObject;
@@ -20,6 +22,8 @@ import org.openl.util.ArrayUtils;
 import org.openl.util.EnumUtils;
 
 public class TableProperties extends DynamicObject implements ITableProperties {
+    
+    private final Log LOG = LogFactory.getLog(TableProperties.class);
 
     private String currentTableType;
     /**
@@ -39,8 +43,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private Map<String, Object> defaultProperties = new HashMap<String, Object>();
 
     /**
-     * Check if property can be overriden on table level. TODO: Decide what to
-     * do when it is impossible to override.
+     * Check if property can be overriden on table level.<br> 
+     * TODO: Decide what to do when it is impossible to override.
      * 
      * @param name name of the property to check.
      * @return <code>TRUE</code> if property can be defined on TABLE level.
@@ -48,33 +52,16 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private boolean canOverrideOnTableLevel(String name) {
         boolean result = false;
         try {
-            InheritanceLevelChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
+            PropertiesChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
             result = true;
         } catch (InvalidPropertyLevelException ex) {
             // TODO: message to UI that current property can`t be overriden in
             // table level.
+            LOG.warn(ex.getMessage());
         }
         return result;
     }
     
-    /**
-     * Check if property can be set for current table type. 
-     * TODO: Decide what to do when it is impossible to set for this table type.
-     * 
-     * @param name name of the property to check.
-     * @return <code>TRUE</code> if property can be set for current table type.
-     */
-    private boolean canSetForCurrentTableType(String name) {
-        boolean result = false;
-        String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(name);
-        if (StringUtils.isEmpty(definitionTableType) || definitionTableType.equals(currentTableType)) {
-            result = true;
-        } else {
-            // TODO: message to UI that current property e set for current table type.            
-        }
-        return result;
-    }
-
     /**
      * The result <code>{@link Map}</code> will contain all pairs from
      * downLevelProperties and pairs from upLevelProperties that are not defined
@@ -91,9 +78,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
-            String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(upLevelPropertyName);
             
-            if (StringUtils.isEmpty(definitionTableType) || definitionTableType.equals(currentTableType)) {
+            if (PropertiesChecker.canSetPropertyForTableType(upLevelPropertyName, currentTableType)) {
                 if (!downLevelProperties.containsKey(upLevelPropertyName)) {
                     resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
                 }
@@ -263,7 +249,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      * {@inheritDoc}
      */
     public Object getPropertyValue(String key) {
-        return getPropertiesAll().get(key);
+        return getAllProperties().get(key);
     }
 
     /**
@@ -355,7 +341,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     /**
      * {@inheritDoc}
      */
-    public Map<String, Object> getPropertiesAll() {
+    public Map<String, Object> getAllProperties() {
         Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp, moduleProperties);
         return mergeLevelProperties(tableAndCategoryAndModuleProp, defaultProperties);
@@ -364,9 +350,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     @Override
     public void setFieldValue(String name, Object value) {
         canOverrideOnTableLevel(name);
-        canSetForCurrentTableType(name);
-        
-        super.setFieldValue(name, value);                
+        PropertiesChecker.canSetPropertyForTableType(name, currentTableType);
+        super.setFieldValue(name, value);
+      
     }
     
     /**

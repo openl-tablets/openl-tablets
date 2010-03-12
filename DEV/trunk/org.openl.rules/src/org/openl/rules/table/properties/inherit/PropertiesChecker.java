@@ -4,21 +4,23 @@ import java.util.Arrays;
 import java.util.Set;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.table.properties.TablePropertiesException;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 /**
- * Class to check properties level according to its definition.
+ * Class to check properties according to some situations.
  * 
  * @author DLiauchuk
  *
  */
-public class InheritanceLevelChecker {
+public class PropertiesChecker {
     
-    private static final Log LOG = LogFactory.getLog(InheritanceLevelChecker.class);
+    private static final Log LOG = LogFactory.getLog(PropertiesChecker.class);
     
     /**
      * Checks if properties with given names can be defined on the current level. Checks according to the properties 
@@ -52,16 +54,36 @@ public class InheritanceLevelChecker {
             InheritanceLevel[] inheritanceLevels = propertyDefinition.getInheritanceLevel();
             if (inheritanceLevels != null && inheritanceLevels.length > 0) {
                 if (!Arrays.asList(inheritanceLevels).contains(currentLevel)) {
-                    String msg = "Property with name ["+ name + "] can`t be defined on the " 
-                    + currentLevel.getDisplayName() + " level";
+                    String msg = String.format("Property with name [%s] can`t be defined on the [%s] level.", name, 
+                            currentLevel.getDisplayName());
                     LOG.debug(msg);
                     throw new InvalidPropertyLevelException(msg);
                 } 
             } else {
-                LOG.debug("Inheritance levels were not defined for property with name "+ name);
+                LOG.debug(String.format("Inheritance levels were not defined for property with name [%s].", name));
             }
         } else {
-            LOG.debug("There is no such property in Definitions with name " + name);
+            LOG.debug(String.format("There is no such property in Definitions with name [%s].", name));
         }
+    }
+    
+    /**
+     * Checks if properties can be defined for given type of table.
+     * 
+     * @param propertyName
+     * @param tableType     
+     * @return TRUE if given property can be set for given type of table. 
+     */
+    public static boolean canSetPropertyForTableType(String propertyName, String tableType) {
+        boolean result = false;
+        String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(propertyName);
+        if (StringUtils.isEmpty(definitionTableType) || definitionTableType.equals(tableType)) {
+            result = true;
+        } else {
+            // If definitionTableType is empty, it means that property is suitable for all kinds of tables.
+            // If type from property definition and current table type are equals. It means property is suitable 
+            // for this kind of table.
+        }
+        return result;
     }
 }

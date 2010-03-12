@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsregionsEnum;
@@ -12,14 +12,15 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
-public class PropertyTableTest extends BaseOpenlBuilder{    
+public class PropertyTableTest extends BaseOpenlBuilderHelper{    
 
     private String __src = "test/rules/PropertyTableTest.xls";
     
     @Test
     public void testPropertyTableLoading() {
         String tableName = "Rules void hello1(int hour)";        
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             ITableProperties tableProperties  = resultTsn.getTableProperties();

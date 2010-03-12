@@ -17,7 +17,7 @@ public interface ITableProperties {
      * 
      * @return <code>{@link Map}</code> of all properties relevant to current table.
      */
-    Map<String, Object> getPropertiesAll();
+    Map<String, Object> getAllProperties();
     
     /**
      * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map contains all 

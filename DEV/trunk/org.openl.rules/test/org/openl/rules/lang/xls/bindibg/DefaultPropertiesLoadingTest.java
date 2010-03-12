@@ -7,20 +7,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilder;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
-public class DefaultPropertiesLoadingTest extends BaseOpenlBuilder{
+public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper{
     
     private String __src = "test/rules/DefaultPropertiesLoadingTest.xls";
     
     @Test
     public void testLoadingDefaultValuesForPreviouslyEmptyProp() {  
         String tableName = "Rules void hello1(int hour)";        
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
+        build(__src);
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);       
         if (resultTsn != null) {
             List<TablePropertyDefinition> defaultPropDefinitions = TablePropertyDefinitionUtils
@@ -34,7 +35,7 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilder{
             assertTrue("Tsn doesn`t have properties defined in appropriate table in excel", 
                     !resultTsn.hasPropertiesDefinedInTable());                
             List<String> tsnPropNames = new ArrayList<String>();
-            for (Map.Entry<String, Object> property : resultTsn.getTableProperties().getPropertiesAll().entrySet()) {
+            for (Map.Entry<String, Object> property : resultTsn.getTableProperties().getAllProperties().entrySet()) {
                 tsnPropNames.add(property.getKey());
             }
             assertTrue("Tsn contains all properties that must be set by default",

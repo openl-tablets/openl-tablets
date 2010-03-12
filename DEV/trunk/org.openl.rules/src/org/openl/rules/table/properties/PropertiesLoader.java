@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -24,7 +24,7 @@ import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -38,7 +38,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class PropertiesLoader {
     
-    //private final Log LOG = LogFactory.getLog(PropertiesLoader.class);
+    private final Log LOG = LogFactory.getLog(PropertiesLoader.class);
     
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
     private OpenL openl;
@@ -76,37 +76,54 @@ public class PropertiesLoader {
             
             propertiesInstance.setPropertiesSection(propertiesSection);   
             
-            checkProperties(propertiesInstance, tsn);
+            String tableType = tsn.getType();
             
-            propertiesInstance.setCurrentTableType(tsn.getType());
+            Set<String> propertyNamesToCheck = propertiesInstance.getPropertiesDefinedInTable().keySet();
+            
+            checkProperties(propertyNamesToCheck, tableType);
+            
+            propertiesInstance.setCurrentTableType(tableType);
             
             tsn.setTableProperties(propertiesInstance);
         }
     }
-
-    private void checkProperties(TableProperties propertiesInstance, TableSyntaxNode tsn) 
+    
+    /**
+     * We need to check loaded properties that all values are appropriate for this table. If there is any problem an 
+     * error should be thrown. Now we check 2 situations:<br>
+     *              1) properties can be defined on TABLE level.<br>
+     *              2) properties can be defined for current type of table.   
+     * 
+     * @param propertyNamesToCheck properties names that are physically defined in table.
+     * @param tableType type of he table. Shows whether it is a decision table or a data or some other.
+     * 
+     * @throws TablePropertiesException if there is any problem in loaded properties.
+     */
+    private void checkProperties(Set<String> propertyNamesToCheck, String tableType) 
         throws TablePropertiesException {        
         
-        Set<String> propertyNamesToCheck = propertiesInstance.getPropertiesDefinedInTable().keySet();
+        PropertiesChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertyNamesToCheck);
         
-        InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertyNamesToCheck);
-        
-        checkPropertiesForTableType(propertyNamesToCheck, tsn);        
+        checkPropertiesForTableType(propertyNamesToCheck, tableType);        
     }
-
-    private void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tsn) 
+    
+    /**
+     * Checks if properties can be defined for given type of table.
+     * 
+     * @param propertyNamesToCheck
+     * @param tableType
+     * 
+     * @throws TablePropertiesException if there is any problem in loaded properties.
+     */
+    private void checkPropertiesForTableType(Set<String> propertyNamesToCheck, String tableType) 
         throws TablePropertiesException {
         
-        String tableType = tsn.getType();
         
         for (String propertyNameToCheck : propertyNamesToCheck) {
-            String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(propertyNameToCheck);            
-            if (StringUtils.isNotEmpty(definitionTableType)) {
-                if (!definitionTableType.equals(tableType)) {
-                    throw new TablePropertiesException(String
-                            .format("Property %s can`t be defined in table of type %s.", propertyNameToCheck
-                                    , tableType));
-                }
+            if (!PropertiesChecker.canSetPropertyForTableType(propertyNameToCheck, tableType)) {
+                throw new TablePropertiesException(String
+                      .format("Property [%s] can`t be defined in table of type [%s].", propertyNameToCheck
+                              , tableType));
             }
         }
     }
@@ -125,11 +142,11 @@ public class PropertiesLoader {
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
             
-            tableProperties.setPropertiesAppliedForCategory(categoryProperties.getPropertiesAll());
+            tableProperties.setPropertiesAppliedForCategory(categoryProperties.getAllProperties());
             tableProperties.setCategoryPropertiesTable(categoryProperties.getPropertiesSection());
         }
     }
-
+    
     private String getCategory(TableSyntaxNode tsn) {
         String result = null;
         ITableProperties tableProperties = tsn.getTableProperties();
@@ -154,7 +171,7 @@ public class PropertiesLoader {
         if (tableProperties != null && modulePropertiesTsn != null) {
             ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
             
-            tableProperties.setPropertiesAppliedForModule(moduleProperties.getPropertiesAll());
+            tableProperties.setPropertiesAppliedForModule(moduleProperties.getAllProperties());
             tableProperties.setModulePropertiesTable(moduleProperties.getPropertiesSection());
         }
     }
