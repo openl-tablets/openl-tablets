@@ -20,7 +20,11 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class TablePropertiesTest extends BaseOpenlBuilderHelper{
     
-    private String __src = "test/rules/Tutorial_4_Test.xls";
+    public TablePropertiesTest() {
+        super(__src);   
+    }
+
+    private static String __src = "test/rules/Tutorial_4_Test.xls";
         
     private static final String PROPERTY_LANG = "lang";
     private static final String PROPERTY_BUILD_PHASE = "buildPhase";
@@ -95,8 +99,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
     }
     
     @Test
-    public void testPropertyDef() {
-        build(__src);
+    public void testPropertyDef() {       
         TableSyntaxNode[] tsns = getTableSyntaxNodes(); 
         assertTrue(61 == tsns.length);        
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());

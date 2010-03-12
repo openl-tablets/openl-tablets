@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -15,14 +14,13 @@ import org.openl.rules.table.properties.ITableProperties;
 
 public class OpenLBussinessSearchTest extends BaseOpenlBuilderHelper{
     
-    private String __src = "test/rules/Tutorial_4_Test.xls";
+    private static String __src = "test/rules/Tutorial_4_Test.xls";
+    
+    public OpenLBussinessSearchTest() {
+        super(__src);        
+    }
     
     private OpenLBussinessSearch search = new OpenLBussinessSearch();
-    
-    @Before
-    public void buildOpenlWrapper() {
-        buildXlsModuleSyntaxNode(__src);
-    }
     
     private void initSearchCondition(Map<String, Object> propList) {
         BussinessSearchCondition searchCondition = new BussinessSearchCondition();        

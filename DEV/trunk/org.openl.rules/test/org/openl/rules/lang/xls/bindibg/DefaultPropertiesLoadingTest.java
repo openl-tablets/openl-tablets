@@ -15,12 +15,15 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper{
     
-    private String __src = "test/rules/DefaultPropertiesLoadingTest.xls";
+    private static String __src = "test/rules/DefaultPropertiesLoadingTest.xls";
+    
+    public DefaultPropertiesLoadingTest() {
+        super(__src);        
+    }    
     
     @Test
     public void testLoadingDefaultValuesForPreviouslyEmptyProp() {  
-        String tableName = "Rules void hello1(int hour)";        
-        build(__src);
+        String tableName = "Rules void hello1(int hour)";
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);       
         if (resultTsn != null) {

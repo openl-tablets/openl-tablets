@@ -2,7 +2,6 @@ package org.openl.rules.search;
 
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.search.ISearchConstants;
@@ -10,14 +9,12 @@ import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 
 public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
     
-    private String __src = "test/rules/Tutorial_4_Test.xls";
+    private static String __src = "test/rules/Tutorial_4_Test.xls";
     
+    public OpenLAdvancedSearchTest() {
+        super(__src);        
+    }    
     private OpenLAdvancedSearch search = new OpenLAdvancedSearch();
-    
-    @Before
-    public void buildOpenlWrapper() {
-        buildXlsModuleSyntaxNode(__src);
-    }
     
     @Test 
     public void testTableSearch() {      

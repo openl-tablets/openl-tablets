@@ -7,12 +7,16 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper{
-    private String __src = "test/rules/TestArrayInPropSection.xls";
+    
+    private static String __src = "test/rules/TestArrayInPropSection.xls";
+    
+    public ArrayInPropSectionTest() {
+        super(__src);        
+    }
     
     @Test
     public void testLoadingArrayInPropertyTableSection() {      
-        String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";    
-        build(__src);
+        String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         
