@@ -17,12 +17,15 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
     
-    private String __src = "test/rules/PropertiesForParticularTableType.xls";
+    private static String __src = "test/rules/PropertiesForParticularTableType.xls";
+    
+    public PropertiesForParticularTableTypeTest() {
+        super(__src);        
+    }
     
     @Test
     public void testErrorParsing() {
         String tableName = "Rules void hello1(int hour)";
-        build(__src);
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -44,8 +47,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
     
     @Test
     public void testNotProcessingInheritPropertiesForTableType() {
-        String tableName = "Rules void hello2(int hour)";        
-        build(__src);
+        String tableName = "Rules void hello2(int hour)";
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {

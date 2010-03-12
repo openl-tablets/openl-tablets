@@ -14,12 +14,15 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class PropertyTableTest extends BaseOpenlBuilderHelper{    
 
-    private String __src = "test/rules/PropertyTableTest.xls";
+    private static String __src = "test/rules/PropertyTableTest.xls";
+    
+    public PropertyTableTest() {
+        super(__src);        
+    }
     
     @Test
     public void testPropertyTableLoading() {
-        String tableName = "Rules void hello1(int hour)";        
-        build(__src);
+        String tableName = "Rules void hello1(int hour)";
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {

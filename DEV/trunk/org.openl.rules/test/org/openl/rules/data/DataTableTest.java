@@ -16,12 +16,15 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  */
 public class DataTableTest extends BaseOpenlBuilderHelper{
     
-    private String __src = "test/rules/Tutorial_2_Test.xls";
+    private static String __src = "test/rules/Tutorial_2_Test.xls";
+    
+    public DataTableTest() {
+        super(__src);        
+    }
     
     @Test
     public void testSimpleStringArray() {
-        String tableName = "Data String simpleStringArray";
-        build(__src);
+        String tableName = "Data String simpleStringArray";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -45,8 +48,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testTypeWithArrayColumns() {
-        String tableName = "Data TypeWithArray testTypeWithArrayColumns";
-        build(__src);
+        String tableName = "Data TypeWithArray testTypeWithArrayColumns";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -69,8 +71,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testTypeWithArrayRows() {
-        String tableName = "Data TypeWithArray testTypeWithArrayRows";
-        build(__src);
+        String tableName = "Data TypeWithArray testTypeWithArrayRows";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -94,8 +95,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testTypeWithArrayRowsOneElement() {
-        String tableName = "Data TypeWithArray testTypeWithArrayRowsOneElement";
-        build(__src);
+        String tableName = "Data TypeWithArray testTypeWithArrayRowsOneElement";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -115,8 +115,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testCommaSeparated() {
-        String tableName = "Data TypeWithArray testCommaSeparated";
-        build(__src);
+        String tableName = "Data TypeWithArray testCommaSeparated";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -140,8 +139,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testStringArray() {
-        String tableName = "Data TypeWithArray testStringArray";
-        build(__src);
+        String tableName = "Data TypeWithArray testStringArray";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -162,8 +160,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testStringArrayWithEscaper() {
-        String tableName = "Data TypeWithArray testStringArrayWithEscaper";
-        build(__src);
+        String tableName = "Data TypeWithArray testStringArrayWithEscaper";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -186,8 +183,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testClass() {
-        String tableName = "Data TypeWithArray testClassLoading";
-        build(__src);
+        String tableName = "Data TypeWithArray testClassLoading";        
         TableSyntaxNode[] tsns = getTableSyntaxNodes();        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {

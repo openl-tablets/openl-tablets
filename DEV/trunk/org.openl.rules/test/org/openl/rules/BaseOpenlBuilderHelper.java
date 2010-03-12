@@ -8,8 +8,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
 /**
  * Helper class for building OpenClassJavaWrapper and getting XlsModuleSyntaxNode from it. To get everything you need 
- * for your tests just extend this class. To initialize inner fields call build method and pass the path to file 
- * as parameter. 
+ * for your tests just extend this class. 
  *  
  * 
  * @author DLiauchuk
@@ -19,6 +18,10 @@ public abstract class BaseOpenlBuilderHelper {
     
     private XlsModuleSyntaxNode xsn;    
     private OpenClassJavaWrapper wrapper;
+    
+    public BaseOpenlBuilderHelper(String _src) {
+        build(_src);        
+    }
     
     protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {        
         buildJavaWrapper(fileToBuildWrapper);
@@ -55,7 +58,7 @@ public abstract class BaseOpenlBuilderHelper {
         return wrapper;
     }
     
-    public void build(String fileToBuildWrapper) {
+    private void build(String fileToBuildWrapper) {
         buildXlsModuleSyntaxNode(fileToBuildWrapper);        
     }
 }
