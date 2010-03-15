@@ -30,6 +30,7 @@ var DropdownEditor = Class.create(BaseEditor, {
 
         this.input.style.borderWidth = "1px";
         this.input.style.borderStyle = "solid";
+        this.input.style.borderColor = "threedface";
 
         this.input.style.fontFamily = this.parentElement.style.fontFamily;
         this.input.style.fontSize = this.parentElement.style.fontSize;
