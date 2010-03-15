@@ -1,3 +1,7 @@
+form {
+    margin: 0px;
+}
+
 .lblSearch {
   font-size: 13px;
 }
@@ -146,40 +150,21 @@ textarea {
   font-size: 11px;
 }
 
-input.button {
-  border: 0px;
-  font-weight: bold;
-  color: #FFFFFF;
-  text-align: center;
-  height: 18px;
-  background: url(../webresource/images/button_DEFAULT.gif) repeat-x center;
-  background-color: #7c99b6;
-  margin: 0;
-  padding: 0px 5px;
-  width: 0;
-  overflow: visible;
+input.button, input.disabledButton {
+    border: 0px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    height: 18px;
+    background-color: #7c99b6;
 }
 
-input.button[class] {
-  width: auto;
+input.button {
+    background: url(../webresource/images/button_DEFAULT.gif) repeat-x;
 }
 
 input.disabledButton {
-  border: 0px;
-  font-weight: bold;
-  color: #FFFFFF;
-  text-align: center;
-  height: 18px;
-  background: url(../webresource/images/disabledButton.gif) repeat-x center;
-  background-color: #7c99b6;
-  margin: 0;
-  padding: 0px 5px 0px 5px;
-  width: 0;
-  overflow: visible;
-}
-
-input.disabledButton[class] {
-  width: auto;
+    background: url(../webresource/images/disabledButton.gif) repeat-x;
 }
 
 a {
