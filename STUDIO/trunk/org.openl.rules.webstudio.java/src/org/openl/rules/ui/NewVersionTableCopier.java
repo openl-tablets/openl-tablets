@@ -6,6 +6,8 @@ import java.util.Map;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 import org.openl.util.conf.Version;
 
 /**
@@ -14,6 +16,17 @@ import org.openl.util.conf.Version;
 public class NewVersionTableCopier extends TablePropertyCopier {
     public NewVersionTableCopier(String tableUri) {
         super(tableUri, true);
+        checkVersionPropertyExistance();
+    }
+    
+    private void checkVersionPropertyExistance(){
+        TableProperty versionProperty =  super.getVersion();
+        if(versionProperty == null){
+            //property "version" is absent in base table
+            versionProperty = new TablePropertyBuilder("version", "version").build();
+            versionProperty.setValue(INIT_VERSION);
+            getPropertiesManager().addProperty(versionProperty);
+        }
     }
 
     @Override

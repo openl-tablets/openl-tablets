@@ -102,6 +102,14 @@ public class PropertiesBean {
                         .type(propType).format(propDefinition.getFormat()).build());
         possibleToAddProps.remove(propNameToAdd);
     }
+    
+    /**
+     * Adds new property into the bean. 
+     */
+    public void addProperty(TableProperty property) {
+        properties.add(property);
+        possibleToAddProps.remove(property.getName());
+    }
 
     /**
      * Action that can be use on form. "propToRemove" must be specified.
