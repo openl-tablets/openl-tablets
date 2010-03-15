@@ -31,7 +31,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.word.WordDocSourceCodeModule;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 
