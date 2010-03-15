@@ -1,7 +1,6 @@
 package org.openl.rules.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,43 +20,23 @@ import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.conf.Version;
 
 public class TablePropertyCopier extends TableCopier {
+    private PropertiesBean propertiesManager = new PropertiesBean(getAllPossibleProperties());
 
     public static final String INIT_VERSION = "0.0.1";
 
     private static final Log LOG = LogFactory.getLog(TablePropertyCopier.class);
 
-    private List<TableProperty> propsToCopy = new ArrayList<TableProperty>();
-
-    private List<TableProperty> defaultProps = new ArrayList<TableProperty>();
-
     private UIRepeat propsTable;
     
-    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();  
-    
-    public EnumValuesUIHelper getEnumHelper() {
-        return enumHelper;
-    }
-
-    public List<TableProperty> getPropsToCopy() {
-        return propsToCopy;
-    }
-
-    public void setPropsToCopy(List<TableProperty> propsToCopy) {
-        this.propsToCopy = propsToCopy;
+    public PropertiesBean getPropertiesManager() {
+        return propertiesManager;
     }
     
-    public void setDefaultProps(List<TableProperty> defaultProps) {
-        this.defaultProps = defaultProps;
-    }
-
-    public List<TableProperty> getDefaultProps() {
-        return defaultProps;
-    }
-
     public TablePropertyCopier(String elementUri) {
         this(elementUri, false);
     }
@@ -66,23 +45,34 @@ public class TablePropertyCopier extends TableCopier {
         start();
         setElementUri(elementUri);
         initTableNames();
-        initProperties(false);
+        initProperties();
         setEdit(edit);
+    }
+    
+    private static List<String> getAllPossibleProperties() {
+        List<String> possibleProperties = new ArrayList<String>();
+        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        for (TablePropertyDefinition propDefinition : propDefinitions) {
+            if (!propDefinition.isSystem()) {
+                possibleProperties.add(propDefinition.getName());
+
+            }
+        }
+        return possibleProperties;
     }
 
     /**
      * When doing the copy of the table, just properties that where physically defined in original table
      * get to the properties copying page.
      */
-    private void initProperties(boolean excludeDimensionalProperties) {
-        
+    private void initProperties() {
+        List<TableProperty> definedProperties = new ArrayList<TableProperty>();        
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         TableSyntaxNode node = getCopyingTable();
         
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             
-            if (!propDefinition.isSystem() 
-                    && !(excludeDimensionalProperties && propDefinition.isDimensional())) {
+            if (!propDefinition.isSystem()) {
                 
                 ITableProperties tableProperties = node.getTableProperties();
                 
@@ -90,26 +80,24 @@ public class TablePropertyCopier extends TableCopier {
                 Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
                         tableProperties.getPropertyValue(name) : null;
                 
-                if (!tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
-                    propertyValue = StringUtils.EMPTY;
+                if (tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
+                    Class<?> propertyType = null;
+
+                    if (propDefinition.getType() != null) {
+                        propertyType = propDefinition.getType().getInstanceClass();
+                    }
+
+                    String displayName = propDefinition.getDisplayName();
+                    String format = propDefinition.getFormat();
+
+                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, displayName).value(
+                            propertyValue).type(propertyType).format(format).build();
+
+                    definedProperties.add(tableProperty);
                 }
-                
-                Class<?> propertyType = null;
-                
-                if (propDefinition.getType() != null) {
-                    propertyType = propDefinition.getType().getInstanceClass();
-                }
-                
-                String displayName = propDefinition.getDisplayName();                
-                String format = propDefinition.getFormat();
-                
-                TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, displayName)
-                        .value(propertyValue).type(propertyType).format(format)
-                        .build();
-                
-                propsToCopy.add(tableProperty);
             }
         }
+        propertiesManager.setProperties(definedProperties);
     }
 
     public String getValidationJS() {
@@ -145,7 +133,7 @@ public class TablePropertyCopier extends TableCopier {
     }
 
     private TableProperty getProperty(String name) {
-        for (TableProperty property : propsToCopy) {
+        for (TableProperty property : propertiesManager.getProperties()) {
             if (property.getName().equals(name)) {
                 return property;
             }
@@ -159,60 +147,24 @@ public class TablePropertyCopier extends TableCopier {
     }
     
     @Override
-    protected void reset() {
-        super.reset();
-        propsToCopy.clear();
-    }
-    
-    @Override
     protected Map<String, Object> buildProperties() {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
         newProperties.putAll(buildSystemProperties());
         //TO DO:
         // validateIfNecessaryPropertiesWereChanged(tableProperties);
         
-        for (int i = 0; i < propsToCopy.size(); i++) {
-            String key = (propsToCopy.get(i)).getName();
-            Object value = (propsToCopy.get(i)).getValue();
+        for (TableProperty property : propertiesManager.getProperties()) {
+            String name = property.getName();
+            Object value = property.getValue();
             if (value == null || (value instanceof String && StringUtils.isEmpty((String)value))) {
                 continue;
             } else {
-                newProperties.put(key.trim(), value);
+                newProperties.put(name.trim(), value);
             }
         }        
-        newProperties.putAll(processDefaultValues());
         return newProperties;        
     }
     
-    /**
-     * Base table may have properties set by default. These properties exists only in {@link TableSyntaxNode} 
-     * representation of the table and not in source of the table. So when copying we must add to new table just 
-     * properties and values that were revalued during the copy.
-     * 
-     * @return Map of properties that in base table were as default and were revalued during copy for new table.
-     */
-    private Map<String, Object> processDefaultValues() {
-        Map<String, Object> revaluedDefaultProperties = new HashMap<String, Object>();
-        TableSyntaxNode node = getCopyingTable();
-        ITableProperties baseTableProperties = node.getTableProperties();        
-        if (baseTableProperties != null) {
-            for (TableProperty defaultCopyingProp : defaultProps) {
-                String propName = defaultCopyingProp.getName();
-                Object basePropValue = baseTableProperties.getPropertyValue(propName);
-                Object newPropValue = defaultCopyingProp.getValue();
-                if (newPropValue != null) {
-                    boolean emptyString = false;
-                    if (newPropValue instanceof String) {
-                         emptyString = StringUtils.isEmpty((String) newPropValue);
-                    }
-                    if (!basePropValue.equals(newPropValue) && !emptyString) {
-                        revaluedDefaultProperties.put(propName, newPropValue);
-                    }
-                }
-            }
-        }
-        return revaluedDefaultProperties;
-    }
 
     public void setPropsTable(UIRepeat propsTable) {
         this.propsTable = propsTable;
@@ -231,10 +183,13 @@ public class TablePropertyCopier extends TableCopier {
         return getProperty("version");
     }
 
+    /**
+     * @return Min version that can be set into new copy of original table.
+     */
     public Version getMinNextVersion() {
-        Object originalVersion = getVersion().getValue();
-        if (StringUtils.isNotEmpty((String)originalVersion)) {
-            return Version.parseVersion((String) originalVersion, 0, "..");
+        TableProperty originalVersion = getVersion();
+        if (originalVersion != null && StringUtils.isNotEmpty((String) originalVersion.getValue())) {
+            return Version.parseVersion((String) originalVersion.getValue(), 0, "..");
         } else {
             return Version.parseVersion(INIT_VERSION, 0, "..");
         }

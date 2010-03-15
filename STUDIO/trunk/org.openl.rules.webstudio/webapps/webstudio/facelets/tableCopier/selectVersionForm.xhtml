@@ -6,6 +6,7 @@
                 xmlns:c="http://java.sun.com/jstl/core">
 
         <c:set var="minVersion" value="#{tableCopierWizard.minNextVersion}" />
+            <h:panelGroup rendered="#{not empty tableCopierWizard.version}">
             <fieldset>
                 <legend>
                     <h:outputText value="Current Version: " />
@@ -30,6 +31,7 @@
                     <h:inputHidden id="newVersion" value="#{tableCopierWizard.version.value}" />
                 </h:panelGrid>
             </fieldset>
+            </h:panelGroup>
 
             <hr />
 
