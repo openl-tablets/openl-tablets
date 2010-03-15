@@ -8,12 +8,13 @@
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
-          <span style="float: left; font-weight: bold;"><h:outputText value="Repository Tree" styleClas="label" /></span>
+          <span style="float: left; font-weight: bold; margin-top: 2px;"><h:outputText value="Repository Tree" /></span>
 
           <span style="float: right;">
-            <input type="button" class="button" value="Filter" onclick="showRepFilterDialog();"/>
+            <input type="button" class="button" value="Filter" onclick="showRepFilterDialog();" />
             <h:commandLink class="actionButton" title="Refresh" action="#{repositoryTreeController.refreshTree}">
-              <h:graphicImage url="/webresource/images/refresh.gif" styleClass="actionImage" />
+              <h:graphicImage url="/webresource/images/refresh.gif" styleClass="actionImage"
+                  style="margin-left: 3px" />
             </h:commandLink>
           </span>
         </rich:column>
