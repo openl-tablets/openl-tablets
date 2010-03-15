@@ -66,6 +66,11 @@
       <artifactId>org.openl.conf.ant</artifactId>
     </dependency>
 
+	<dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.grammars</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j</artifactId>

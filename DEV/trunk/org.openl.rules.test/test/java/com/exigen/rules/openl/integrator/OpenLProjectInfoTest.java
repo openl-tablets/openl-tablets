@@ -4,7 +4,7 @@ import java.net.URL;
 
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IOpenClass;
 
 import junit.framework.TestCase;

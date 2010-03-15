@@ -1,17 +1,15 @@
 /*
- * Created on Oct 2, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on Oct 2, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.rules.lang.xls;
 
 import org.openl.IOpenParser;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IUserContext;
-import org.openl.syntax.IParsedCode;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.util.PropertiesLocator;
 
 /**
@@ -28,8 +26,9 @@ public class XlsParser implements IOpenParser {
     private String searchPath;
 
     public XlsParser(IUserContext userContext) {
+
         this.resourceContext = new ConfigurableResourceContext(userContext.getUserClassLoader(),
-                new String[] { userContext.getUserHome() });
+                                                               new String[] { userContext.getUserHome() });
     }
 
     protected String getSearchPath() {
@@ -44,10 +43,12 @@ public class XlsParser implements IOpenParser {
     }
 
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
+
         throw new UnsupportedOperationException(".xls files can not be parsed as a Method Body");
     }
 
     public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
+
         throw new UnsupportedOperationException(".xls files can not be parsed as a Method Header");
     }
 
@@ -57,14 +58,17 @@ public class XlsParser implements IOpenParser {
     }
 
     public IParsedCode parseAsType(IOpenSourceCodeModule source) {
+
         throw new UnsupportedOperationException(".xls files can not be parsed as a Type");
     }
 
     public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
+
         throw new UnsupportedOperationException(".xls files can not be parsed as a float range");
     }
 
     public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
+
         throw new UnsupportedOperationException(".xls files can not be parsed as a integer range");
     }
 

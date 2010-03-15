@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.impl.BoundError;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.source.IOpenSourceCodeModule;
 
 public class ConversionRulesController {
     private static ConversionRulesController instance;

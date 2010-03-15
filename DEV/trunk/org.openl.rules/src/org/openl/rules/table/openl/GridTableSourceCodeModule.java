@@ -9,8 +9,8 @@ package org.openl.rules.table.openl;
 import java.io.InputStream;
 import java.io.Reader;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.table.IGridTable;
+import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor

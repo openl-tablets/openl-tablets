@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.ArrayTool;
 import org.openl.vm.IRuntimeEnv;
 

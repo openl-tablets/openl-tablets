@@ -10,10 +10,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.IGridTable;
+import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor

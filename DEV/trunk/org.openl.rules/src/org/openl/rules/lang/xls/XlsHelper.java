@@ -3,13 +3,13 @@ package org.openl.rules.lang.xls;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.IBoundCode;
 import org.openl.conf.UserContext;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.syntax.IParsedCode;
-import org.openl.syntax.impl.FileSourceCodeModule;
-import org.openl.syntax.impl.URLSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
 import org.openl.util.PropertiesLocator;
 import org.openl.util.RuntimeExceptionWrapper;

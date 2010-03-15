@@ -1,7 +1,7 @@
 package org.openl.meta;
 
-import org.openl.IOpenSourceCodeModule;
-import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
     IMetaInfo metaInfo;

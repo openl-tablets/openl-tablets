@@ -6,7 +6,7 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.dt.DTRule;
 import org.openl.rules.dt.DTRuleQuery;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IOpenClass;
 
 import junit.framework.TestCase;

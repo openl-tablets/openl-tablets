@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleBindingContext;
@@ -21,6 +20,7 @@ import org.openl.rules.dt.IDTCondition;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.validator.IValidatedObject;
 import org.openl.rules.validator.IValidationResult;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;

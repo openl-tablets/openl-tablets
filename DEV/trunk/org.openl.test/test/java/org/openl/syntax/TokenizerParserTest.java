@@ -5,9 +5,9 @@
  */
 package org.openl.syntax;
 
-import org.openl.IOpenSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.TokenizerParser;
 
 import junit.framework.Assert;

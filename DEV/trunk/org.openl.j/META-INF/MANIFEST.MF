@@ -6,4 +6,5 @@ Bundle-Version: 5.5.0
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
- org.openl.lib
+ org.openl.lib,
+ org.openl.grammars;bundle-version="5.5.0"

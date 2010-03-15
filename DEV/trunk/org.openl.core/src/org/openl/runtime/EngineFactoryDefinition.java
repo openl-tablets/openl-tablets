@@ -1,7 +1,7 @@
 package org.openl.runtime;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.conf.IUserContext;
+import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * 

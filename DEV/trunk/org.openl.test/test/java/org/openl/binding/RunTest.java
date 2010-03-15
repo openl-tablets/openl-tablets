@@ -7,10 +7,10 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.openl.OpenL;
-import org.openl.SourceType;
 import org.openl.engine.OpenLManager;
+import org.openl.source.SourceType;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.SyntaxErrorException;
-import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
 public class RunTest extends TestCase {

@@ -1,18 +1,17 @@
 package org.openl.engine;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.ProcessedCode;
-import org.openl.SourceType;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
-import org.openl.syntax.IParsedCode;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.SourceType;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.code.ProcessedCode;
 
 /**
- * Class that defines OpenL engine manager implementation for source processing
- * operations.
+ * Class that defines OpenL engine manager implementation for source processing operations.
  * 
  */
 public class OpenLSourceManager extends OpenLHolder {
@@ -26,6 +25,7 @@ public class OpenLSourceManager extends OpenLHolder {
      * @param openl {@link OpenL} instance
      */
     public OpenLSourceManager(OpenL openl) {
+
         super(openl);
 
         bindManager = new OpenLBindManager(openl);
@@ -51,12 +51,14 @@ public class OpenLSourceManager extends OpenLHolder {
      * @param source source
      * @param sourceType type of source
      * @param bindingContextDelegator binding context
-     * @param ignoreErrors define a flag that indicates to suppress errors or
-     *            break source processing when an error has occurred
+     * @param ignoreErrors define a flag that indicates to suppress errors or break source processing when an error has
+     *            occurred
      * @return processed code descriptor
      */
-    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
-            IBindingContextDelegator bindingContextDelegator, boolean ignoreErrors) {
+    public ProcessedCode processSource(IOpenSourceCodeModule source,
+                                       SourceType sourceType,
+                                       IBindingContextDelegator bindingContextDelegator,
+                                       boolean ignoreErrors) {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
 

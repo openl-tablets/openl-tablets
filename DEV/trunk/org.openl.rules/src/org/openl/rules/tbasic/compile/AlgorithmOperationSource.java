@@ -3,9 +3,9 @@
  */
 package org.openl.rules.tbasic.compile;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author User

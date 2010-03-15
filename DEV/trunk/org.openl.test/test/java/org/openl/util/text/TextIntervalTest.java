@@ -6,7 +6,7 @@
 
 package org.openl.util.text;
 
-import org.openl.syntax.impl.JavaCC30Grammar;
+import org.openl.grammar.JavaCC30Position;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -29,7 +29,7 @@ public class TextIntervalTest extends TestCase {
     public void testJavaCC30Position() {
         String text = "abc\r\nedf\r\n";
 
-        JavaCC30Grammar.JavaCC30Position pos = new JavaCC30Grammar.JavaCC30Position(1, 1);
+        JavaCC30Position pos = new JavaCC30Position(1, 1);
 
         TextInfo ti = new TextInfo(text);
 

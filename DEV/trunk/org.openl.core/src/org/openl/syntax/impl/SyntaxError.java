@@ -10,8 +10,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.main.SourceCodeURLTool;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;

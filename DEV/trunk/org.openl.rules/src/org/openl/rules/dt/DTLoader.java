@@ -35,26 +35,14 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
 
     void addAction(String name, int row, ILogicalTable table) {
         actions.add(new DTAction(name, row, table, false));
-
     }
 
     void addCondition(String name, int row, ILogicalTable table) {
-
-        // ILogicalTable conditionRow = table.getLogicalRow(row);
-        //
-        // ILogicalTable codeTable = conditionRow.getLogicalColumn(CODE_COLUMN);
-        // ILogicalTable paramTable =
-        // conditionRow.getLogicalColumn(PARAM_COLUMN);
-        //
-        // ILogicalTable valuesTable = conditionRow.columns(DATA_COLUMN);
-
         conditions.add(new DTCondition(name, row, table));
-
     }
 
     void addReturnAction(String name, int row, ILogicalTable table) {
         actions.add(new DTAction(name, row, table, true));
-
     }
 
     void addRule(int row, ILogicalTable table) {
@@ -77,7 +65,6 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
         }
 
         return cnt;
-
     }
 
     boolean hasHConditions(ILogicalTable t) {
@@ -93,10 +80,7 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
         }
 
         return false;
-
     }
-    
-    
     
     /**
      * 
@@ -104,7 +88,6 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
      * the same is true for all isValid..() functions in this class
      * @return
      */
-    
     public static boolean isValidConditionHeader(String s)
     {
     	return s.length() >=2 && s.charAt(0) == 'C' && Character.isDigit(s.charAt(1));
@@ -140,8 +123,6 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
     	return isValidConditionHeader(s) || DTLookupConvertor.isValidHConditionHeader(s);
     }
     
-    
-
     public DecisionTable load(TableSyntaxNode tsn, DecisionTable dt, OpenL openl, ModuleOpenClass module,
             IBindingContextDelegator cxtd) throws Exception {
 

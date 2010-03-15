@@ -15,16 +15,8 @@
   <description />
 
   <build>
-    <resources>
-      <resource>
-        <directory>grammars</directory>
-        <includes>
-          <include>**/*.jj</include>
-        </includes>
-      </resource>
-    </resources>
 
-    <plugins>
+   <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -34,27 +26,9 @@
           </archive>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>grammars</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
-  </build>
+
+	</build>
 
   <dependencies>
     <dependency>
@@ -65,6 +39,11 @@
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.commons</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.grammars</artifactId>
     </dependency>
 
     <dependency>

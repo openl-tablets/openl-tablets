@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.base.INamedThing;
 import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
@@ -23,6 +22,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;

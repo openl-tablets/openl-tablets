@@ -4,11 +4,11 @@
 package org.openl.rules.test;
 
 import org.openl.OpenL;
-import org.openl.OpenLUtils;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLUtils;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 /**
  * @author snshor

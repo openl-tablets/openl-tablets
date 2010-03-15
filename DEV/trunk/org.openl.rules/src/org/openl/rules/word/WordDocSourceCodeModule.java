@@ -5,10 +5,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.poi.hwpf.HWPFDocument;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
-import org.openl.syntax.impl.SourceCodeModuleDelegator;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 

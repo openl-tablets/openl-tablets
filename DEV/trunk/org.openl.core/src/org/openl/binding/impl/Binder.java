@@ -18,10 +18,10 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.INodeBinderFactory;
-import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.impl.SyntaxError;
 import org.openl.types.java.JavaOpenClass;
 
