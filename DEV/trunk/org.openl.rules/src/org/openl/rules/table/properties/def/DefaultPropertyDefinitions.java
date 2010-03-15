@@ -352,7 +352,7 @@ public class DefaultPropertyDefinitions
 		definitions[23].setName("scope");
 		definitions[23].setPrimaryKey(false);
 		definitions[23].setSystem(false);
-		definitions[23].setTableType("xls.props");
+		definitions[23].setTableType("xls.properties");
 		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }
