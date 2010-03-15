@@ -18,6 +18,7 @@ import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
@@ -25,11 +26,12 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.conf.Version;
 
 public class TablePropertyCopier extends TableCopier {
-    private PropertiesBean propertiesManager = new PropertiesBean(getAllPossibleProperties());
+    
+    private static final Log LOG = LogFactory.getLog(TablePropertyCopier.class);
+    
+    private PropertiesBean propertiesManager; 
 
     public static final String INIT_VERSION = "0.0.1";
-
-    private static final Log LOG = LogFactory.getLog(TablePropertyCopier.class);
 
     private UIRepeat propsTable;
     
@@ -44,25 +46,28 @@ public class TablePropertyCopier extends TableCopier {
     public TablePropertyCopier(String elementUri, boolean edit) {
         start();
         setElementUri(elementUri);
+        propertiesManager = new PropertiesBean(getAllPossibleProperties(getCopyingTable().getType()));
         initTableNames();
         initProperties();
         setEdit(edit);
     }
     
-    private static List<String> getAllPossibleProperties() {
+    private List<String> getAllPossibleProperties(String tableType) {
         List<String> possibleProperties = new ArrayList<String>();
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (!propDefinition.isSystem()) {
-                possibleProperties.add(propDefinition.getName());
-
+                // check if the property can be defined in current type of table.
+                if (PropertiesChecker.canSetPropertyForTableType(propDefinition.getName(), tableType)) {
+                    possibleProperties.add(propDefinition.getName());
+                }
             }
         }
         return possibleProperties;
     }
 
     /**
-     * When doing the copy of the table, just properties that where physically defined in original table
+     * When doing the copy of the table, properties that where physically defined in original table
      * get to the properties copying page.
      */
     private void initProperties() {
@@ -89,11 +94,12 @@ public class TablePropertyCopier extends TableCopier {
 
                     String displayName = propDefinition.getDisplayName();
                     String format = propDefinition.getFormat();
-
+                    
                     TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, displayName).value(
-                            propertyValue).type(propertyType).format(format).build();
-
+                                propertyValue).type(propertyType).format(format).build();
+    
                     definedProperties.add(tableProperty);
+                    
                 }
             }
         }
