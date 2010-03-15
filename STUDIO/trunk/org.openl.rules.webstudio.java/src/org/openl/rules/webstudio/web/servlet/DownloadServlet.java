@@ -14,9 +14,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.ui.WebStudio;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 public class DownloadServlet extends HttpServlet {
     private static final Log LOG = LogFactory.getLog(DownloadServlet.class);

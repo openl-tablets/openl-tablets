@@ -3,7 +3,6 @@ package org.openl.rules.diff.xls;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -19,6 +18,7 @@ import org.openl.rules.table.ui.ICellStyle;
 
 import org.openl.rules.diff.test.AbstractProjection;
 import org.openl.rules.diff.test.AbstractProperty;
+import org.openl.source.IOpenSourceCodeModule;
 
 import static org.openl.rules.diff.xls.XlsProjectionType.*;
 
