@@ -139,10 +139,10 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator {
         for (Iterator<Map.Entry<Object, DTRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
             Map.Entry<Object, DTRuleNodeBuilder> element = iter.next();
 
-            nodeMap.put(element.getKey(), ((DTRuleNodeBuilder) element.getValue()).makeNode());
+            nodeMap.put(element.getKey(), ((DTRuleNodeBuilder) element.getValue()).makeNode(element.getKey()));
         }
 
-        ContainsInAryIndex index = new ContainsInAryIndex(emptyBuilder.makeNode(), nodeMap);
+        ContainsInAryIndex index = new ContainsInAryIndex(emptyBuilder.makeNode("Empty"), nodeMap);
 
         return index;
 
