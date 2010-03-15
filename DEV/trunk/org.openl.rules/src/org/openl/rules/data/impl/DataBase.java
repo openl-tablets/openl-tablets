@@ -10,9 +10,9 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
+import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.DuplicatedTableException;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.IDataTableModel;

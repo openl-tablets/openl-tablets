@@ -15,12 +15,12 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.IOpenBinder;
 import org.openl.IOpenParser;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.IBoundCode;
-import org.openl.syntax.IParsedCode;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.syntax.ISyntaxError;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.test.OpenlTest;
 import org.openl.xls.OpenLBuilder;
 

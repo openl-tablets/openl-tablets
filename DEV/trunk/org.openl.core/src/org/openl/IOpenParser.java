@@ -6,7 +6,8 @@
 
 package org.openl;
 
-import org.openl.syntax.IParsedCode;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
 
 /**
  * The <code>IOpenParser</code> interface is designed to provide a common

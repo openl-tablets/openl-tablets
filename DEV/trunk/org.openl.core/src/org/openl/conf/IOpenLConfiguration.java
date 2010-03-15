@@ -12,7 +12,7 @@ import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
-import org.openl.syntax.IGrammarFactory;
+import org.openl.syntax.grammar.IGrammarFactory;
 import org.openl.types.IOpenFactory;
 
 /**

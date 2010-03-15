@@ -1,7 +1,7 @@
 package org.openl.rules.calc;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.meta.IMetaInfo;
+import org.openl.source.IOpenSourceCodeModule;
 
 public class SpreadsheetCellMetaInfo implements IMetaInfo {
 

@@ -1,8 +1,8 @@
 package org.openl.rules.dt;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
 
 /**

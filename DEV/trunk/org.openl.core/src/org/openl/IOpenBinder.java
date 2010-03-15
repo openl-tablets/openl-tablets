@@ -14,7 +14,7 @@ import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
-import org.openl.syntax.IParsedCode;
+import org.openl.syntax.code.IParsedCode;
 
 /**
  * @author snshor

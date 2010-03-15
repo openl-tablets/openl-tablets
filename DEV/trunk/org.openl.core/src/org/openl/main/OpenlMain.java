@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.MethodNotFoundException;
@@ -22,8 +21,9 @@ import org.openl.binding.OpenLRuntimeException;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.engine.OpenLManager;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.syntax.SyntaxErrorException;
-import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.SourceLocator;
 import org.openl.util.text.TextInfo;
 

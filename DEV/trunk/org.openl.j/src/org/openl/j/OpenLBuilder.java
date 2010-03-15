@@ -14,7 +14,7 @@ import org.openl.conf.OpenFactoryConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.grammars.bexgrammar.BExGrammar;
+import org.openl.grammar.bexgrammar.BExGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {

@@ -8,8 +8,8 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
-import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.code.IParsedCode;
 
 /**
  * @author snshor

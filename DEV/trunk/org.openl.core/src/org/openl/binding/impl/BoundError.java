@@ -6,8 +6,8 @@
 
 package org.openl.binding.impl;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.IBoundError;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.SyntaxError;
 import org.openl.util.text.ILocation;

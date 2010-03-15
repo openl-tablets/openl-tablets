@@ -1,13 +1,13 @@
 package org.openl.rules.calc;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.data.IString2DataConvertor;
-import org.openl.syntax.impl.SubTextSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
 
 public class CellLoader {

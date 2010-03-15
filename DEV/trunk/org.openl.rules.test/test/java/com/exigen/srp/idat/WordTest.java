@@ -9,7 +9,7 @@ import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.word.WordDocSourceCodeModule;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 public class WordTest extends TestCase {
 

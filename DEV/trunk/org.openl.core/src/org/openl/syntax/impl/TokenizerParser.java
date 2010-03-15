@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.IOpenSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.text.AbsolutePosition;
 import org.openl.util.text.TextInterval;

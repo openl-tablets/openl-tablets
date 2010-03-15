@@ -14,11 +14,11 @@ import java.util.ArrayList;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
-import org.openl.syntax.impl.FileSourceCodeModule;
-import org.openl.syntax.impl.SourceCodeModuleDelegator;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 

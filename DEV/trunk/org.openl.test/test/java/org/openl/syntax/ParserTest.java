@@ -11,10 +11,11 @@ import junit.framework.TestCase;
 
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
+import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.LiteralNode;
-import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.text.ILocation;

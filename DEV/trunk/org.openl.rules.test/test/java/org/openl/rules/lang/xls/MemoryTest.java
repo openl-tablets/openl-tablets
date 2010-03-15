@@ -15,7 +15,7 @@ import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.main.OpenlMain;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.java.JavaOpenClass;
 
 /**

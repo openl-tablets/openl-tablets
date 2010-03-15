@@ -7,13 +7,12 @@
 package org.openl.rules.data.binding;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
+import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.data.impl.ColumnDescriptor;
 import org.openl.rules.data.impl.ForeignKeyColumnDescriptor;
@@ -26,6 +25,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;

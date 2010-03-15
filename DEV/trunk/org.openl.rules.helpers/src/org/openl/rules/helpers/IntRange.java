@@ -4,10 +4,10 @@
 package org.openl.rules.helpers;
 
 import org.openl.OpenL;
-import org.openl.SourceType;
 import org.openl.domain.IntRangeDomain;
 import org.openl.engine.OpenLManager;
-import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.source.SourceType;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
 /**

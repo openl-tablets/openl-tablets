@@ -7,7 +7,8 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.conf.ant,
  org.openl.j,
- org.openl.rules.helpers
+ org.openl.rules.helpers,
+ org.openl.grammars;bundle-version="5.5.0"
 Eclipse-AutoStart: true
 Bundle-Vendor: OpenL
 Export-Package: org.openl.test,

@@ -1,6 +1,5 @@
 package org.openl.rules.cmatch;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -9,6 +8,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 

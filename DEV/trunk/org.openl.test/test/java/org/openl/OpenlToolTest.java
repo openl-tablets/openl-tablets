@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
-import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;

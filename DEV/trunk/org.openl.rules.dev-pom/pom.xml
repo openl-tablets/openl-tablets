@@ -19,6 +19,7 @@
   <modules>
     <module>../org.openl.commons</module>
     <module>../org.openl.core</module>
+	<module>../org.openl.grammars</module>
     <module>../org.openl.j</module>
     <module>../org.openl.j.science</module>
     <module>../org.openl.rules.helpers</module>
@@ -182,6 +183,12 @@
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.grammars</artifactId>
         <version>${version}</version>
       </dependency>
 

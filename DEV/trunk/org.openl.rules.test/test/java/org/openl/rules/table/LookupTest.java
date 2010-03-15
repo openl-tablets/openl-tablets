@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 public class LookupTest extends TestCase {
 

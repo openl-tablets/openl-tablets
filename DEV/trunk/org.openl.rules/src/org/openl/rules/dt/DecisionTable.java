@@ -164,37 +164,10 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         return actionRows;
     }
 
-    // public Object invoke2(Object target, Object[] params, IRuntimeEnv env)
-    // {
-    // boolean[] mask = new DecisionTableAlgorithm(conditionRows.length,
-    // getColumns(), conditionRows, target, params, env).calculateTable();
-    // if (Log.isDebugEnabled())
-    // {
-    // Log.debug(header.getName());
-    // Log.debug(printMask(mask));
-    // }
-    // Object ret = null;
-    // for (int i = 0; i < mask.length; i++)
-    // {
-    // if (!mask[i])
-    // continue;
-    // for (int j = 0; j < actionRows.length; j++)
-    // {
-    // ret = actionRows[j].executeAction(i, target, params, env);
-    // if (ret != null && actionRows[j].isReturnAction())
-    // return ret;
-    // }
-    // }
-    // return ret;
-    // }
-
     public DTOptimizedAlgorithm getAlgorithm() {
         return algorithm;
     }
 
-    // public Object getResult(int row, int col)
-    // {
-    // }
     int getColumns() {
         return columns;
     }
@@ -217,9 +190,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         return header.getInfo().getDisplayName(mode);
     }
 
-    /**
-     * @return
-     */
     public ILogicalTable getDisplayTable() {
         ILogicalTable bView = tableSyntaxNode.getSubTables().get(VIEW_BUSINESS);
         return bView.getLogicalColumn(0);
@@ -230,7 +200,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
     }
 
     public IMemberMetaInfo getInfo() {
-        // return header.getInfo();
         return this;
     }
 
@@ -310,7 +279,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         }
 
         return ret;
-
     }
 
     public Object invokeStandard(Object target, Object[] params, IRuntimeEnv env) {
@@ -428,10 +396,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         algorithm.buildIndex();
     }
 
-    // public IDecisionTableStructure getStructure()
-    // {
-    // return structure;
-    // }
     public void prepare(IOpenMethodHeader header, OpenL openl, ModuleOpenClass dtModule, IBindingContextDelegator cxtd)
             throws Exception {
         IMethodSignature signature = header.getSignature();
@@ -494,9 +458,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         return getName();
     }
 
-    /**
-     * @param dependencies
-     */
     public void updateDependency(BindingDependencies dependencies) {
         for (int i = 0; i < conditionRows.length; i++) {
             ((CompositeMethod) conditionRows[i].getMethod()).updateDependency(dependencies);
@@ -508,8 +469,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
             updateValueDependency((FunctionalRow) actionRows[i], dependencies);
 
         }
-
-        // header.
     }
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {

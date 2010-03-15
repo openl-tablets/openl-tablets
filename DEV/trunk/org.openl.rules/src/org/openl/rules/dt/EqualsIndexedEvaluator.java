@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
-import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
 
 /**

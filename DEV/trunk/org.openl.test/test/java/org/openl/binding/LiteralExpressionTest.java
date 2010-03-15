@@ -5,10 +5,10 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 import org.openl.IOpenVM;
 import org.openl.OpenL;
-import org.openl.ProcessedCode;
-import org.openl.SourceType;
 import org.openl.engine.OpenLSourceManager;
-import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.source.SourceType;
+import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.code.ProcessedCode;
 
 
 public class LiteralExpressionTest  extends TestCase{

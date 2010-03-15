@@ -8,12 +8,12 @@ package org.openl.main;
 
 import java.net.URL;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
-import org.openl.syntax.impl.FileSourceCodeModule;
-import org.openl.syntax.impl.URLSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.Log;

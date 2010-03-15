@@ -1,7 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.util.text.ILocation;

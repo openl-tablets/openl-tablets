@@ -10,7 +10,7 @@ import org.openl.rules.cmatch.SubValue;
 import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.String2DataConvertorFactory;
-import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenClass;
 
 public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {

@@ -4,10 +4,10 @@ import java.io.InputStream;
 import java.io.Reader;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.syntax.XlsURLConstants;
+import org.openl.source.IOpenSourceCodeModule;
 
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
     String sheetName;

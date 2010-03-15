@@ -7,6 +7,7 @@
 package org.openl.binding;
 
 import org.openl.syntax.*;
+import org.openl.syntax.code.IParsedCode;
 
 /**
  * The <code>IBoundCode</code> interface is designed to provide a common

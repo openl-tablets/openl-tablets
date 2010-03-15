@@ -6,7 +6,6 @@
 
 package org.openl.rules.method.binding;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -17,8 +16,9 @@ import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.CompositeSourceCodeModule;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;

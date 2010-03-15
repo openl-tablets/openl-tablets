@@ -1,13 +1,13 @@
 package org.openl.engine;
 
 import org.openl.CompiledOpenClass;
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.SourceType;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.binding.OpenLRuntimeException;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.SourceType;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;

@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.binding;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -13,7 +12,8 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.syntax.impl.SubTextSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 

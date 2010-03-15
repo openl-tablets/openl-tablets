@@ -6,7 +6,7 @@
 
 package org.openl.syntax.impl;
 
-import org.openl.IOpenSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.TextInterval;
 
 /**

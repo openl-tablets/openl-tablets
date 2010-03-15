@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.OpenlToolAdaptor;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
+import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;

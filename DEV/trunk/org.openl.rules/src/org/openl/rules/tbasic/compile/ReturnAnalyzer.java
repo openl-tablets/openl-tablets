@@ -2,12 +2,12 @@ package org.openl.rules.tbasic.compile;
 
 import java.util.List;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 

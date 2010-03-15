@@ -22,7 +22,7 @@ import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.conf.UserContext;
-import org.openl.syntax.IGrammar;
+import org.openl.syntax.grammar.IGrammar;
 
 /**
  * @author snshor
