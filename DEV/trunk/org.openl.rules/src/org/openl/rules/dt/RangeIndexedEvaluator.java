@@ -142,7 +142,7 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
         IntervalMap<Object, Integer> map = new IntervalMap<Object, Integer>();
         DTRuleNodeBuilder emptyBuilder = new DTRuleNodeBuilder();
 
-        List<Integer> firstEmptyRules = new ArrayList<Integer>();
+//        List<Integer> firstEmptyRules = new ArrayList<Integer>();
 
         for (; it.hasNext();) {
             int i = it.nextInt();
@@ -150,15 +150,15 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
             if (indexedparams[i] == null || indexedparams[i][0] == null) {
                 emptyBuilder.addRule(i);
 
-                boolean mapHasAnyValue = false;
-                for (Iterator<List<Integer>> iter = map.treeMap().values().iterator(); iter.hasNext();) {
-                    List<Integer> list = iter.next();
-                    list.add(i);
-                    mapHasAnyValue = true;
-                }
-                if (!mapHasAnyValue) {
-                    firstEmptyRules.add(i);
-                }
+//                boolean mapHasAnyValue = false;
+//                for (Iterator<List<Integer>> iter = map.treeMap().values().iterator(); iter.hasNext();) {
+//                    List<Integer> list = iter.next();
+//                    list.add(i);
+//                    mapHasAnyValue = true;
+//                }
+//                if (!mapHasAnyValue) {
+//                    firstEmptyRules.add(i);
+//                }
 
                 continue;
             }
@@ -176,9 +176,9 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
                 vFrom = adaptor.getMin(indexedparams[i][0]);
                 vTo = adaptor.getMax(indexedparams[i][0]);
             }
-            for (Integer fe : firstEmptyRules) {
-                map.putInterval(vFrom, vTo, fe);
-            }
+//            for (Integer fe : firstEmptyRules) {
+//                map.putInterval(vFrom, vTo, fe);
+//            }
 
 //TODO          fix null from and To, last coud be replaces with very big value
 //TODO DoubleRange            
@@ -198,11 +198,16 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
         List<DTRuleNode> rules = new ArrayList<DTRuleNode>();
 
         int i = 0;
+        
+        DTRuleNode emptyNode = emptyBuilder.makeNode("Empty");
+        
         for (Iterator<Map.Entry<Comparable<Object>, List<Integer>>> iter = tm.entrySet().iterator(); iter.hasNext(); ++i) {
             Map.Entry<Comparable<Object>, List<Integer>> element = iter.next();
             Comparable<?> indexObj = element.getKey();
 
             List<Integer> list = element.getValue();
+            if (emptyNode.rules.length > 0)
+                list = merge(list, emptyNode.rules);
 
             int[] idxAry = new int[list.size()];
             for (int j = 0; j < idxAry.length; j++) {
@@ -210,16 +215,52 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
             }
 
 //            if (idxAry.length > 0) {
-                rules.add(new DTRuleNode(idxAry));
+                rules.add(new DTRuleNode(idxAry, indexObj));
                 index.add(indexObj);
 //            }
         }
 
-        RangeIndex rix = new RangeIndex(emptyBuilder.makeNode(), index.toArray(new Comparable[0]), rules
+        RangeIndex rix = new RangeIndex(emptyNode, index.toArray(new Comparable[0]), rules
                 .toArray(new DTRuleNode[0]));
 
         return rix;
 
+    }
+
+    private List<Integer> merge(List<Integer> list, int[] rules) {
+        int idx1 = 0;
+        int idx2 = 0;
+        
+        int N =list.size() + rules.length;
+        List<Integer> newList = new ArrayList<Integer>(N);
+        
+        for (int i = 0; i < N; i++) {
+            if (idx1 == list.size())
+            {    
+                newList.add(rules[idx2++]);
+                continue;
+            }
+            if (idx2 == rules.length)
+            {    
+                newList.add(list.get(idx1++));
+                continue;
+            }
+            int i1 = list.get(idx1);
+            int i2 = rules[idx2];
+            
+            if (i1 < i2)
+            {
+                newList.add(i1);
+                idx1++;
+            }
+            else
+            {
+                newList.add(i2);
+                idx2++;
+            }
+        }
+        
+        return newList;
     }
 
 }
