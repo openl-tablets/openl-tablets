@@ -7,7 +7,7 @@
 package org.openl.eclipse.builder;
 
 import org.eclipse.core.resources.IFile;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 /**
  *
