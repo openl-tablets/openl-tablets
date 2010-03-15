@@ -29,6 +29,9 @@ public class TablePropertyCopier extends TableCopier {
     
     private static final Log LOG = LogFactory.getLog(TablePropertyCopier.class);
     
+    /**
+     * Bean - container of all properties for new copy of the original table.
+     */
     private PropertiesBean propertiesManager; 
 
     public static final String INIT_VERSION = "0.0.1";
