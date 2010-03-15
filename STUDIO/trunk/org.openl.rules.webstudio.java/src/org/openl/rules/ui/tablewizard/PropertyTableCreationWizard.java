@@ -23,25 +23,19 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.ui.EnumValuesUIHelper;
 
 public class PropertyTableCreationWizard extends WizardBase {
-
+    private PropertiesBean propertiesManager;
     private String scopeType;
     private String categoryName;
     private String newCategoryName;
     private String categoryNameSelector = "existing";
     private String tableName;
-    private String propNameToAdd;
-    private TableProperty propToRemove;
     private List<SelectItem> scopeTypes = new ArrayList<SelectItem>(Arrays.asList(new SelectItem("Module"),
             new SelectItem("Category")));
-    private List<TableProperty> properties = new ArrayList<TableProperty>();
     
-    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();  
-    
-    public EnumValuesUIHelper getEnumHelper() {
-        return enumHelper;
+    public PropertiesBean getPropertiesManager() {
+        return propertiesManager;
     }
 
     public String getCategoryName() {
@@ -93,21 +87,14 @@ public class PropertyTableCreationWizard extends WizardBase {
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
-
-    public String getPropNameToAdd() {
-        return propNameToAdd;
-    }
-
-    public void setPropNameToAdd(String propNameToAdd) {
-        this.propNameToAdd = propNameToAdd;
-    }
-
-    public TableProperty getPropToRemove() {
-        return propToRemove;
-    }
-
-    public void setPropToRemove(TableProperty propToRemove) {
-        this.propToRemove = propToRemove;
+    
+    @Override
+    public String next() {
+        if(getStep() == 1){
+            //after step two we create PropertiesBean according to specified scope
+            propertiesManager = new PropertiesBean(getPropertyNamesList());
+        }
+        return super.next();
     }
 
     @Override
@@ -155,19 +142,15 @@ public class PropertyTableCreationWizard extends WizardBase {
         return categories;
     }
 
-    public List<TableProperty> getProperties() {
-        return properties;
-    }
-
-    public List<SelectItem> getPropertyNamesList() {
-        List<SelectItem> propertyNames = new ArrayList<SelectItem>();
+    public List<String> getPropertyNamesList() {
+        List<String> propertyNames = new ArrayList<String>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             List<String> exceptProperties = getExceptProperties();
             if (!exceptProperties.contains(propName)) {
-                propertyNames.add(new SelectItem(propName, propDefinition.getDisplayName()));
+                propertyNames.add(propName);
             }
         }
         return propertyNames;
@@ -177,35 +160,7 @@ public class PropertyTableCreationWizard extends WizardBase {
         List<String> exceptProps = new ArrayList<String>();
         exceptProps.add("scope");
         exceptProps.add("category");
-        for (TableProperty property : properties) {
-            String name = property.getName();
-            exceptProps.add(name);
-        }
         return exceptProps;
-    }
-
-    private TablePropertyDefinition getPropByName(String name) {
-        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-                .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
-        for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if (propDefinition.getName().equals(name)) {
-                return propDefinition;
-            }
-        }
-        return null;
-    }
-
-    public void addProperty() {
-        TablePropertyDefinition propDefinition = getPropByName(propNameToAdd);
-        Class<?> propType = propDefinition.getType() == null ? String.class : propDefinition.getType()
-                .getInstanceClass();
-        properties
-                .add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propDefinition.getDisplayName())
-                        .type(propType).format(propDefinition.getFormat()).build());
-    }
-
-    public void removeProperty() {
-        properties.remove(propToRemove);
     }
 
     @Override
@@ -256,9 +211,9 @@ public class PropertyTableCreationWizard extends WizardBase {
                 resultProperties.put("category", categoryName);
             }
         }
-        for (int i = 0; i < properties.size(); i++) {
-            String name = (properties.get(i)).getName();
-            Object value = (properties.get(i)).getValue();
+        for (TableProperty property : propertiesManager.getProperties()) {
+            String name = property.getName();
+            Object value = property.getValue();
             if (value == null || (value != null && (value instanceof String && StringUtils.isEmpty((String) value)))) {
                 continue;
             } else {
