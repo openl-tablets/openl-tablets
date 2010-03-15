@@ -130,9 +130,9 @@ public class TableProperty {
                     String[] names = EnumUtils.getNames(enums);
                     result = StringUtils.join(names, ",");
                 }
-            } else if (isSimpleArray()) {
-                if (StringUtils.isNotEmpty((String)value)) {
-                    Object[] array = (Object[]) value;
+            } else if (isSimpleArray()) { // checks that it's String[]
+                if (((String[])value).length > 0) {
+                    String[] array = (String[]) value;
                     result = StringUtils.join(array, ",");
                 }
 
@@ -188,6 +188,13 @@ public class TableProperty {
         return type != null && type.isArray() && type.getComponentType().isEnum();
     }
     
+    /**
+     * <b>Attention! Wrong method name.</b>
+     * Checks if the current type is <code>String[]</code>
+     * 
+     * @return true if type is <code>String[]</code>
+     * TODO: Rename! to <code>isStringArray</code>
+     */
     public boolean isSimpleArray() {
         return type != null && type.isArray() && String.class.equals(type.getComponentType());
     }
