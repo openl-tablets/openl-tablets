@@ -27,22 +27,25 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
             throws Exception {
-        IGridTable table = tsn.getTable().getGridTable();
-
-        IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
-
-        OpenMethodHeader header = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, new SubTextSourceCodeModule(
-                src, tsn.getHeader().getHeaderToken().getIdentifier().length()), (IBindingContextDelegator) cxt);
-
+        OpenMethodHeader header = createHeader(tsn, openl, cxt);
         header.setDeclaringClass(module);
 
         checkForDuplicates(tsn, (RulesModuleBindingContext) cxt, header);
         return createNode(tsn, openl, header, module);
     }
 
+    protected OpenMethodHeader createHeader(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt) throws Exception {
+        IGridTable table = tsn.getTable().getGridTable();
+        IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
+        OpenMethodHeader header = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, new SubTextSourceCodeModule(
+                src, tsn.getHeader().getHeaderToken().getIdentifier().length()), (IBindingContextDelegator) cxt);
+        return header;
+    }
+
     private void checkForDuplicates(TableSyntaxNode tsn, RulesModuleBindingContext cxt, OpenMethodHeader header)
             throws DuplicatedTableException {
         String key = makeKey(tsn, header);
+
         if (!cxt.isTableSyntaxNodeExist(key)) {
             cxt.registerTableSyntaxNode(key, tsn);
         } else {

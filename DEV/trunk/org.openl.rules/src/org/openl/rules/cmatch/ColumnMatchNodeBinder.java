@@ -5,7 +5,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
-import org.openl.rules.lang.xls.binding.AXlsTableBinder;
+import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -15,7 +15,8 @@ import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.impl.SyntaxError;
 import org.openl.types.impl.OpenMethodHeader;
 
-public class ColumnMatchNodeBinder extends AXlsTableBinder {
+public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
+    private SubTextSourceCodeModule nameOfAlgorithm;
     private SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn, IOpenSourceCodeModule src,
             int headerTokenLength) throws SyntaxError {
         String s = src.getCode();
@@ -43,15 +44,14 @@ public class ColumnMatchNodeBinder extends AXlsTableBinder {
     }
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-            throws Exception {
+    protected OpenMethodHeader createHeader(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt) throws Exception {
         IGridTable table = tsn.getTable().getGridTable();
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
 
         int headerTokenLength = tsn.getHeader().getHeaderToken().getIdentifier().length();
 
-        SubTextSourceCodeModule nameOfAlgorithm = cutNameOfAlgorithm(tsn, src, headerTokenLength);
+        nameOfAlgorithm = cutNameOfAlgorithm(tsn, src, headerTokenLength);
         if (nameOfAlgorithm != null) {
             String name = nameOfAlgorithm.getCode();
             // TODO
@@ -62,9 +62,12 @@ public class ColumnMatchNodeBinder extends AXlsTableBinder {
         SubTextSourceCodeModule codeModule = new SubTextSourceCodeModule(src, headerTokenLength);
         OpenMethodHeader header = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, codeModule,
                 (IBindingContextDelegator) cxt);
+        return header;
+    }
 
-        header.setDeclaringClass(module);
-
+    @Override
+    protected IMemberBoundNode createNode(TableSyntaxNode tsn, OpenL openl, OpenMethodHeader header,
+            XlsModuleOpenClass module) {
         return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }
 }
