@@ -142,8 +142,6 @@ public class ObjectViewer {
 
     // public ObjectViewer() {}
 
-    static NumberFormat format = new DecimalFormat("#.0#");
-
     private ProjectModel projectModel;
 
     static public Object displaySpreadsheetResult(final SpreadsheetResult res) {
@@ -281,18 +279,15 @@ public class ObjectViewer {
     }
 
     public String displayDoubleValueWithExplanation(DoubleValue dv) {
-        return displayDoubleValueWithExplanation(dv, format, null);
+        return displayDoubleValueWithExplanation(dv, null);
     }
 
-    public String displayDoubleValueWithExplanation(DoubleValue dv, NumberFormat format, String clazz) {
+    public String displayDoubleValueWithExplanation(DoubleValue dv, String clazz) {
+        NumberFormat format = new DecimalFormat(dv.getFormat());
         return "<a href=\"" + getURL(dv) + "\"" + (clazz == null ? "" : " class=\"" + clazz + "\"") + ">"
         // + new
                 // String2DataConvertorFactory.String2DoubleConvertor().format(dv,dv.getFormat())
                 + format.format(dv) + "</a>";
-    }
-
-    public String displayDoubleValueWithExplanation(DoubleValue dv, String clazz) {
-        return displayDoubleValueWithExplanation(dv, format, clazz);
     }
 
     /**
@@ -568,7 +563,7 @@ public class ObjectViewer {
         }
 
         if (res instanceof DoubleValue) {
-            return displayDoubleValueWithExplanation((DoubleValue) res, format, null);
+            return displayDoubleValueWithExplanation((DoubleValue) res);
         }
 
         if (res instanceof IMetaHolder) {
