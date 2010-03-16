@@ -14,18 +14,14 @@ public class OpenLMessages {
     private List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
     public static OpenLMessages getCurrentInstance() {
+        
+        if (currentInstance.get() == null) {
+            currentInstance.set(new OpenLMessages());
+        }
+        
         return currentInstance.get();
     }
     
-    public static void setCurrentInstance(OpenLMessages messages) {
-        
-        if (messages == null) {
-            currentInstance.remove();
-        } else {
-            currentInstance.set(messages);
-        }
-    }
-
     /**
      * Gets copy list of OpenL messages.
      * 

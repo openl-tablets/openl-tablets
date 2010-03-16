@@ -64,7 +64,7 @@ public class WorksheetIndexParser implements IIndexParser {
 
             HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, parsedHeader);
 
-            String xls_type = XlsLoader.tableHeaders().get(header);
+            String xls_type = XlsLoader.getTableHeaders().get(header);
             if (xls_type == null) {
                 xls_type = NOT_AVAILABLE;
             }
