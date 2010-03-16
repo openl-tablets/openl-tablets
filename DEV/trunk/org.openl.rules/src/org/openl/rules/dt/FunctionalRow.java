@@ -19,6 +19,7 @@ import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
@@ -161,6 +162,13 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, src, value, false);
     }
     
+    private static void applyFormat(ILogicalTable cell, Object target){
+        String format = cell.getGridTable().getCell(0, 0).getStyle().getTextFormat();
+        if (target instanceof DoubleValue){
+            ((DoubleValue)target).setFormat(format);
+        }
+    }
+    
     private static Object loadSingleParamInternal(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
             OpenlToolAdaptor ota, String src, Object value, boolean isPartOfArray) throws BoundError {
         // TODO: parse values considering underlying excel format. Note: this
@@ -213,6 +221,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                     res = conv.parse(src, null, ota.getBindingContext());
                 }
                 
+                applyFormat(cell, res);                
                 
                 if (res instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
