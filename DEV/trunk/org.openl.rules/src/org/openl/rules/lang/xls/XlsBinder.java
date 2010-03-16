@@ -52,7 +52,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.binding.MethodTableNodeBinder;
 import org.openl.rules.property.binding.PropertyTableBinder;
-import org.openl.rules.structure.StructureTableNodeBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
@@ -111,7 +110,6 @@ public class XlsBinder implements IOpenBinder {
             { ITableNodeTypes.XLS_METHOD, MethodTableNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_TEST_METHOD, TestMethodNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_TABLE, StructureTableNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_TBASIC, AlgorithmNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_PROPERTIES, PropertyTableBinder.class.getName() }, };

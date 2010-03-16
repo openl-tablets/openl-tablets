@@ -30,7 +30,6 @@ public interface ITableNodeTypes {
     static final String XLS_RUN_METHOD = "xls.run.method";
     static final String XLS_DATATYPE = "xls.datatype";
     static final String XLS_OPENL = "xls.openl";
-    static final String XLS_TABLE = "xls.table";
     static final String XLS_ENVIRONMENT = "xls.environment";
     static final String XLS_PERSISTENT = "xls.persistent";
     static final String XLS_OTHER = "xls.other";
