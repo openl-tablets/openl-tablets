@@ -1,7 +1,5 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -18,6 +16,7 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.INodeBinderFactory;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
@@ -26,20 +25,26 @@ import org.openl.syntax.impl.SyntaxError;
 import org.openl.types.java.JavaOpenClass;
 
 /**
+ * Default implementation of {@link IOpenBinder}.
+ * 
  * @author snshor
- *
  */
 public class Binder implements IOpenBinder {
 
-    INodeBinderFactory nodeBinderFactory;
-    INameSpacedMethodFactory methodFactory;
-    ICastFactory castFactory;
-    INameSpacedVarFactory varFactory;
-    INameSpacedTypeFactory typeFactory;
+    private INodeBinderFactory nodeBinderFactory;
+    private INameSpacedMethodFactory methodFactory;
+    private ICastFactory castFactory;
+    private INameSpacedVarFactory varFactory;
+    private INameSpacedTypeFactory typeFactory;
     private OpenL openl;
 
-    public Binder(INodeBinderFactory nodeBinderFactory, INameSpacedMethodFactory methodFactory,
-            ICastFactory castFactory, INameSpacedVarFactory varFactory, INameSpacedTypeFactory typeFactory, OpenL openl) {
+    public Binder(INodeBinderFactory nodeBinderFactory,
+        INameSpacedMethodFactory methodFactory,
+        ICastFactory castFactory,
+        INameSpacedVarFactory varFactory,
+        INameSpacedTypeFactory typeFactory,
+        OpenL openl) {
+
         this.nodeBinderFactory = nodeBinderFactory;
         this.methodFactory = methodFactory;
         this.castFactory = castFactory;
@@ -48,94 +53,104 @@ public class Binder implements IOpenBinder {
         this.openl = openl;
     }
 
+    public ICastFactory getCastFactory() {
+
+        return castFactory;
+    }
+
+    public INameSpacedMethodFactory getMethodFactory() {
+
+        return methodFactory;
+    }
+
+    public INodeBinderFactory getNodeBinderFactory() {
+
+        return nodeBinderFactory;
+    }
+
+    public INameSpacedTypeFactory getTypeFactory() {
+
+        return typeFactory;
+    }
+
+    public INameSpacedVarFactory getVarFactory() {
+
+        return varFactory;
+    }
+
+    public IBindingContext makeBindingContext() {
+
+        return new BindingContext(this, JavaOpenClass.VOID, openl);
+
+    }
+
     public IBoundCode bind(IParsedCode parsedCode) {
+
         return bind(parsedCode, null);
     }
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
     public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator) {
 
-        IBindingContext ibc = makeBindingContext();
+        IBindingContext bindingContext = makeBindingContext();
 
         if (delegator != null) {
-            delegator.setTopDelegate(ibc);
-            ibc = delegator;
+            delegator.setTopDelegate(bindingContext);
+            bindingContext = delegator;
         }
 
         ISyntaxNode syntaxNode = parsedCode.getTopNode();
+
         try {
-            ibc.pushLocalVarContext();
+            bindingContext.pushLocalVarContext();
 
-            INodeBinder nodeBinder = ibc.findBinder(syntaxNode);
+            INodeBinder nodeBinder = bindingContext.findBinder(syntaxNode);
+
             if (nodeBinder == null) {
-                throw new NullPointerException("Binder not found for node " + syntaxNode.getType());
+                
+                String message = String.format("Binder not found for node '%s'", syntaxNode.getType());
+                OpenLMessagesUtils.addError(message);
+                
+                throw new NullPointerException(message);
             }
-            IBoundNode topnode = nodeBinder.bind(syntaxNode, ibc);
 
-            ibc.popLocalVarContext();
+            IBoundNode topnode = nodeBinder.bind(syntaxNode, bindingContext);
 
-            return new BoundCode(parsedCode, topnode, ibc.getError(), ibc.getLocalVarFrameSize());
+            bindingContext.popLocalVarContext();
+
+            return new BoundCode(parsedCode, topnode, bindingContext.getError(), bindingContext.getLocalVarFrameSize());
+
         } catch (SyntaxErrorException see) {
+
             for (int i = 0; i < see.getSyntaxErrors().length; i++) {
                 ISyntaxError err = see.getSyntaxErrors()[i];
-                ibc.addError(err);
+                bindingContext.addError(err);
+
+                OpenLMessagesUtils.addError(err.getMessage());
             }
 
-            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), ibc.getError(), ibc.getLocalVarFrameSize());
-        } catch (ProblemsWithChildrenError pwce) {
-            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), ibc.getError(), ibc.getLocalVarFrameSize());
-        } catch (SyntaxError se) {
-            ibc.addError(se);
+            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), bindingContext.getError(), bindingContext.getLocalVarFrameSize());
 
-            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), ibc.getError(), ibc.getLocalVarFrameSize());
+        } catch (ProblemsWithChildrenError pwce) {
+            OpenLMessagesUtils.addError(pwce.getMessage());
+
+            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), bindingContext.getError(), bindingContext.getLocalVarFrameSize());
+        } catch (SyntaxError se) {
+            OpenLMessagesUtils.addError(se.getMessage());
+            bindingContext.addError(se);
+
+            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), bindingContext.getError(), bindingContext.getLocalVarFrameSize());
         }
 
         catch (Throwable t) {
-            ibc.addError(new BoundError(syntaxNode, "", t));
-            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), ibc.getError(), ibc.getLocalVarFrameSize());
+            BoundError error = new BoundError(syntaxNode, "", t);
+            bindingContext.addError(error);
+            OpenLMessagesUtils.addError(error.getMessage());
+
+            return new BoundCode(parsedCode, new ErrorBoundNode(syntaxNode), bindingContext.getError(), bindingContext.getLocalVarFrameSize());
         }
-
     }
-
-    /**
-     * @return
-     */
-    public ICastFactory getCastFactory() {
-        return castFactory;
-    }
-
-    /**
-     * @return
-     */
-    public INameSpacedMethodFactory getMethodFactory() {
-        return methodFactory;
-    }
-
-    /**
-     * @return
-     */
-    public INodeBinderFactory getNodeBinderFactory() {
-        return nodeBinderFactory;
-    }
-
-    public INameSpacedTypeFactory getTypeFactory() {
-        return typeFactory;
-    }
-
-    /**
-     * @return
-     */
-    public INameSpacedVarFactory getVarFactory() {
-        return varFactory;
-    }
-
-    public IBindingContext makeBindingContext() {
-        return new BindingContext(this, JavaOpenClass.VOID, openl);
-
-    }
-
 }

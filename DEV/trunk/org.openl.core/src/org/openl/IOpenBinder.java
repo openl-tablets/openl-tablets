@@ -17,36 +17,25 @@ import org.openl.binding.INodeBinderFactory;
 import org.openl.syntax.code.IParsedCode;
 
 /**
+ * Defines parsed code binder abstraction.
+ * 
  * @author snshor
- *
  */
 public interface IOpenBinder {
+  
     public IBoundCode bind(IParsedCode parsedCode);
 
     public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator);
 
-    /**
-     * @return
-     */
     public ICastFactory getCastFactory();
 
-    /**
-     * @return
-     */
     public INameSpacedMethodFactory getMethodFactory();
 
-    /**
-     * @return
-     */
     public INodeBinderFactory getNodeBinderFactory();
 
     public INameSpacedTypeFactory getTypeFactory();
 
-    /**
-     * @return
-     */
     public INameSpacedVarFactory getVarFactory();
 
     public IBindingContext makeBindingContext();
-
 }

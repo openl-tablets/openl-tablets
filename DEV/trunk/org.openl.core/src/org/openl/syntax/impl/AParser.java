@@ -25,16 +25,6 @@ public abstract class AParser implements IOpenParser {
 
     protected abstract IGrammarFactory getGrammarFactory();
 
-    //    protected IParsedCode parse(IOpenSourceCodeModule source, String parsingType) {
-    //
-    //        IGrammar grammar = getGrammarFactory().getGrammar();
-    //        grammar.setModule(source);
-    //        grammar.parse(source.getCharacterStream(), parsingType);
-    //
-    //        return makeParsedCode(grammar, source);
-    //
-    //    }
-
     /**
      * {@inheritDoc}
      */
