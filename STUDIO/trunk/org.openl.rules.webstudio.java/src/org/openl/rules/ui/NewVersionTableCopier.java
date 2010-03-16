@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
@@ -14,6 +15,10 @@ import org.openl.util.conf.Version;
  * @author Andrei Astrouski
  */
 public class NewVersionTableCopier extends TablePropertyCopier {
+    
+    private static final String VERSION_PROP_NAME = "version";
+    private static final String ACTIVE_PROP_NAME = "active";
+    
     public NewVersionTableCopier(String tableUri) {
         super(tableUri, true);
         checkVersionPropertyExistance();
@@ -22,9 +27,9 @@ public class NewVersionTableCopier extends TablePropertyCopier {
     private void checkVersionPropertyExistance(){
         TableProperty versionProperty =  super.getVersion();
         if(versionProperty == null){
-            //property "version" is absent in base table
-            versionProperty = new TablePropertyBuilder("version", "version").build();
-            versionProperty.setValue(INIT_VERSION);
+            //property "version" is absent in base table            
+            versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME, 
+                    TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME)).value(INIT_VERSION).build();            
             getPropertiesManager().addProperty(versionProperty);
         }
     }
@@ -37,10 +42,10 @@ public class NewVersionTableCopier extends TablePropertyCopier {
 
     private void updateOriginalTable() {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put("active", "false");
+        properties.put(ACTIVE_PROP_NAME, "false");
         Version version = getOriginalVersion();
         if (version == null) {
-            properties.put("version", INIT_VERSION);
+            properties.put(VERSION_PROP_NAME, INIT_VERSION);
         }
         updatePropertiesForOriginalTable(properties);
     }
@@ -48,7 +53,7 @@ public class NewVersionTableCopier extends TablePropertyCopier {
     @Override
     protected Map<String, Object> buildProperties() {
         Map<String, Object> properties = super.buildProperties();
-        properties.put("active", true);
+        properties.put(ACTIVE_PROP_NAME, true);
         return properties;
     }
 
