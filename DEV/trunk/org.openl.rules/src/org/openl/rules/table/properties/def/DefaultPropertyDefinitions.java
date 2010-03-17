@@ -303,7 +303,7 @@ public class DefaultPropertyDefinitions
 		definitions[19].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[20] = new TablePropertyDefinition();
 		definitions[20].setBusinessSearch(false);
-		definitions[20].setConstraints(new org.openl.rules.table.constraints.Constraints("only one active version per dimension"));
+		definitions[20].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:TableGroup"));
 		definitions[20].setDefaultValue("true");
 		definitions[20].setDescription("Indicates an active version");
 		definitions[20].setDimensional(false);

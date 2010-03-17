@@ -9,6 +9,7 @@ import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.ISyntaxError;
@@ -73,7 +74,7 @@ public class OpenLCompileManager extends OpenLHolder {
         List<ValidationResult> validationResults = validationManager.validate(openClass);
         List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
         
-        getOpenL().addMessages(validationMessages);
+        OpenLMessages.getCurrentInstance().addMessages(validationMessages);
 
         return new CompiledOpenClass(openClass, parsingErrors, bindingErrors);
     }

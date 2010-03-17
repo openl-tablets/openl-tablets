@@ -7,9 +7,7 @@
 package org.openl;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
@@ -17,7 +15,6 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
 import org.openl.conf.cache.CacheUtils;
-import org.openl.message.OpenLMessage;
 
 /**
  * This class describes OpenL engine context abstraction that used during
@@ -55,12 +52,6 @@ public class OpenL {
     private ICompileContext compileContext;
 
     private String name;
-
-    /**
-     * OpenL messages. Used to accumulate engine messages for communication with
-     * end user.
-     */
-    private List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
     /**
      * Gets instance of <code>OpenL</code> with given name.
@@ -332,43 +323,4 @@ public class OpenL {
     public void setCompileContext(ICompileContext compileContext) {
         this.compileContext = compileContext;
     }
-
-    /**
-     * Gets copy list of OpenL messages.
-     * 
-     * @return list of messages
-     */
-    public List<OpenLMessage> getMessages() {
-        return new ArrayList<OpenLMessage>(messages);
-    }
-
-    /**
-     * Removes all entries from OpenL messages.
-     * 
-     */
-    public void removeMessages() {
-        messages = new ArrayList<OpenLMessage>();
-    }
-
-    /**
-     * Adds new OpenL message.
-     * 
-     * @param message new message
-     */
-    public void addMessage(OpenLMessage message) {
-        messages.add(message);
-    }
-
-    /**
-     * Adds OpenL messages.
-     * 
-     * @param messages messages to add
-     */
-    public void addMessages(List<OpenLMessage> messages) {
-
-        for (OpenLMessage message : messages) {
-            addMessage(message);
-        }
-    }
-
 }
