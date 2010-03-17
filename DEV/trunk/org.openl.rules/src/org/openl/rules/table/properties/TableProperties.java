@@ -41,26 +41,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private Map<String, Object> moduleProperties = new HashMap<String, Object>();
 
     private Map<String, Object> defaultProperties = new HashMap<String, Object>();
-
-    /**
-     * Check if property can be overriden on table level.<br> 
-     * TODO: Decide what to do when it is impossible to override.
-     * 
-     * @param name name of the property to check.
-     * @return <code>TRUE</code> if property can be defined on TABLE level.
-     */
-    private boolean canOverrideOnTableLevel(String name) {
-        boolean result = false;
-        try {
-            PropertiesChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
-            result = true;
-        } catch (InvalidPropertyLevelException ex) {
-            // TODO: message to UI that current property can`t be overriden in
-            // table level.
-            LOG.warn(ex.getMessage());
-        }
-        return result;
-    }
     
     /**
      * The result <code>{@link Map}</code> will contain all pairs from
@@ -349,7 +329,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     @Override
     public void setFieldValue(String name, Object value) {
-        canOverrideOnTableLevel(name);
+        PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);
         PropertiesChecker.canSetPropertyForTableType(name, currentTableType);
         super.setFieldValue(name, value);
       

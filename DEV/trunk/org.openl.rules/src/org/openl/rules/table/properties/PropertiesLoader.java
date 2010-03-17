@@ -102,9 +102,21 @@ public class PropertiesLoader {
     private void checkProperties(Set<String> propertyNamesToCheck, String tableType) 
         throws TablePropertiesException {        
         
-        PropertiesChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertyNamesToCheck);
+        checkPropertiesLevel(propertyNamesToCheck);
         
         checkPropertiesForTableType(propertyNamesToCheck, tableType);        
+    }
+
+    private void checkPropertiesLevel(Set<String> propertyNamesToCheck) throws InvalidPropertyLevelException {
+        InheritanceLevel currentLevel = InheritanceLevel.TABLE;
+        for (String propertyNameToCheck : propertyNamesToCheck) { 
+            if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
+                String msg = String.format("Property with name [%s] can`t be defined on the [%s] level.", 
+                        propertyNameToCheck, currentLevel.getDisplayName());                
+                throw new InvalidPropertyLevelException(msg);
+            }
+        }
+        
     }
     
     /**
@@ -117,7 +129,6 @@ public class PropertiesLoader {
      */
     private void checkPropertiesForTableType(Set<String> propertyNamesToCheck, String tableType) 
         throws TablePropertiesException {
-        
         
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.canSetPropertyForTableType(propertyNameToCheck, tableType)) {

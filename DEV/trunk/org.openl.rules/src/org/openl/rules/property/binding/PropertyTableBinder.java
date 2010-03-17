@@ -135,8 +135,8 @@ public class PropertyTableBinder extends DataNodeBinder {
         
         String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
         
-        PropertiesChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, propertiesInstance
-                .getAllProperties().keySet());
+        InheritanceLevel currentLevel = InheritanceLevel.CATEGORY;
+        checkPropertiesLevel(currentLevel, propertiesInstance);
         
         if (!cxt.isTableSyntaxNodeExist(key)){
             cxt.registerTableSyntaxNode(key, tsn);
@@ -146,12 +146,22 @@ public class PropertyTableBinder extends DataNodeBinder {
         }
     }
 
+    private void checkPropertiesLevel(InheritanceLevel currentLevel, TableProperties propertiesInstance) {        
+        for (String propertyNameToCheck : propertiesInstance.getAllProperties().keySet()) { 
+            if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
+                String msg = String.format("Property with name [%s] can`t be defined on the [%s] level.", 
+                        propertyNameToCheck, currentLevel.getDisplayName());                
+                throw new InvalidPropertyLevelException(msg);
+            }
+        }
+    }
+
     private void processModuleProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) throws InvalidPropertyLevelException {
         String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY;
         
-        PropertiesChecker.checkPropertiesLevel(InheritanceLevel.MODULE, propertiesInstance
-                .getAllProperties().keySet());
+        InheritanceLevel currentLevel = InheritanceLevel.MODULE;
+        checkPropertiesLevel(currentLevel, propertiesInstance);
         
         if (!cxt.isTableSyntaxNodeExist(key)) {
             cxt.registerTableSyntaxNode(key, tsn);

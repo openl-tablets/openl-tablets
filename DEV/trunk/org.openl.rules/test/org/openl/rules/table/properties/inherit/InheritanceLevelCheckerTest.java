@@ -9,24 +9,18 @@ public class InheritanceLevelCheckerTest {
     @Test
     public void testExistingName() {
         String propertyName = "name";
-        try {
-            PropertiesChecker.checkPropertyLevel(InheritanceLevel.TABLE, propertyName);
-            assertTrue(true);
-        } catch (InvalidPropertyLevelException ex) {
-            fail();
-        }
+        
+        boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName);
+        assertTrue(result);        
     }
     
     @Test
     public void testUnExistingName() {
         // property region unable to define on TABLE level for testing. it is defined in TablePropertyDefinition.xlsx
         String propertyName = "region";
-        try {
-            PropertiesChecker.checkPropertyLevel(InheritanceLevel.TABLE, propertyName);
-            fail();
-        } catch (InvalidPropertyLevelException ex) {
-            assertTrue(true);
-        }
+        
+        boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName);
+        assertFalse(result);
     }
 
 }
