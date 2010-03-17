@@ -59,7 +59,7 @@
                         alt="Edit Table In Excel - #{showTableBean.uri}" />
                 </h:outputLink>
 
-                <h:outputLink rendered="#{showTableBean.copyable}"                    
+                <h:outputLink rendered="#{showTableBean.copyable}" target="_self"
                     value="#{contextPath}/faces/facelets/tableCopier/copyTableSelectOptions.xhtml">
                     <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
