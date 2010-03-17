@@ -98,8 +98,8 @@ public class PropertiesBean {
         Class<?> propType = propDefinition.getType() == null ? String.class : propDefinition.getType()
                 .getInstanceClass();
         properties
-                .add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propDefinition.getDisplayName())
-                        .type(propType).format(propDefinition.getFormat()).build());
+                .add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType)
+                        .displayName(propDefinition.getDisplayName()).format(propDefinition.getFormat()).build());
         possibleToAddProps.remove(propNameToAdd);
     }
     

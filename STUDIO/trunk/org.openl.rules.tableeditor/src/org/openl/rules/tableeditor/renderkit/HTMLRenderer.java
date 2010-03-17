@@ -438,9 +438,9 @@ public class HTMLRenderer {
                 String description = propDefinition.getDescription();
                 boolean system = propDefinition.isSystem();
                 if (PropertiesChecker.canSetPropertyForTableType(name, tableType)) {
-                    TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName).value(value).type(type)
-                    .group(group).format(format).constraints(constraints).description(description).system(system)
-                    .inheritanceLevel(inheritanceLevel).build();
+                    TableProperty prop = new TableProperty.TablePropertyBuilder(name, type).value(value)
+                    .displayName(displayName).group(group).format(format).constraints(constraints)
+                    .description(description).system(system).inheritanceLevel(inheritanceLevel).build();
                     listProp.add(prop);
                 }
                 

@@ -103,8 +103,8 @@ public class TablePropertyCopier extends TableCopier {
                     String displayName = propDefinition.getDisplayName();
                     String format = propDefinition.getFormat();
                     
-                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, displayName).value(
-                                propertyValue).type(propertyType).format(format).build();
+                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, propertyType).value(
+                                propertyValue).displayName(displayName).format(format).build();
     
                     definedProperties.add(tableProperty);
                     
