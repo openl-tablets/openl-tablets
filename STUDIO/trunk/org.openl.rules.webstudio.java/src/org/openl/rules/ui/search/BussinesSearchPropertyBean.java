@@ -2,7 +2,6 @@ package org.openl.rules.ui.search;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +15,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.util.EnumUtils;
-
 
 /**
  * Bean to handle business search, has session scope.
@@ -27,6 +24,7 @@ import org.openl.util.EnumUtils;
 public class BussinesSearchPropertyBean {
 
     private List<TableProperty> propForSearch = new ArrayList<TableProperty>();
+    private List<TableProperty> filledPropsForSearch = new ArrayList<TableProperty>();
     private String tableContain;
     private final OpenLBussinessSearch search = new OpenLBussinessSearch();    
     private BussinessSearchResultBean busSearchResBean = null;
@@ -86,19 +84,11 @@ public class BussinesSearchPropertyBean {
      * Initialize the conditions for business search
      */
     public void initBusSearchCond() {
-        if(arePropertieValuesSet()) {
+        if(isAnyPropertyFilled()) {
             Map<String, Object> mapforSearch = search.getBusSearchCondit().getPropToSearch();  
             mapforSearch.clear();
-            for(TableProperty prop : propForSearch) {
-                if (prop.isString() && prop.getValue() != null && StringUtils.isNotEmpty(prop.getDisplayValue()))
-                    mapforSearch.put(prop.getName(), (String)prop.getValue());
-                else if (prop.isDate() && prop.getValue() != null)
-                        mapforSearch.put(prop.getName(), (Date)prop.getValue());                    
-                else if (prop.isEnum() && prop.getValue() != null && StringUtils.isNotEmpty((String)prop.getValue())) {
-                    Object enumValue = EnumUtils.valueOf(prop.getType(), prop.getStringValue());
-                    mapforSearch.put(prop.getName(), enumValue);
-                }
-                    
+            for(TableProperty prop : filledPropsForSearch) {
+                mapforSearch.put(prop.getName(), prop.getValue());
             }
             search.getBusSearchCondit().setTablesContains(searchTableContains());
         }
@@ -108,10 +98,19 @@ public class BussinesSearchPropertyBean {
         return WebStudioUtils.isStudioReady();
     }
     
-    public boolean arePropertieValuesSet() {
+    /**
+     * Returns <code>true</code> if any property on UI was filled for search.
+     * If none returns <code>false</code>. Put all filled properties to new list. 
+     * 
+     * @return <code>true</code> if any property on UI was filled for search.
+     * If none returns <code>false</code>.
+     */
+    public boolean isAnyPropertyFilled() {
+        filledPropsForSearch.clear();
         boolean result = false;
         for(TableProperty prop : propForSearch) {
-            if (prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getDisplayValue())){
+            if (prop.getValue() != null && StringUtils.isNotEmpty(prop.getDisplayValue())){
+                filledPropsForSearch.add(prop);
                 result = true;
             }
         }
@@ -177,7 +176,7 @@ public class BussinesSearchPropertyBean {
         }
         
         public List<TableSearch> getSearchResults() {
-            if (!isSearching() || !bussinessSearchBean.isReady() || !bussinessSearchBean.arePropertieValuesSet()) {
+            if (!isSearching() || !bussinessSearchBean.isReady() || !bussinessSearchBean.isAnyPropertyFilled()) {
                 return Collections.emptyList();
             }
             if (tableSearchList == null) {
