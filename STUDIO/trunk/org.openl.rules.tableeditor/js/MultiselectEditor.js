@@ -11,8 +11,14 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     separator: null,
     separatorEscaper: null,
     destroyed: null,
+    ie6Popup: null,
+    ie6: null,
 
     editor_initialize: function(param) {
+        this.ie6 = Prototype.Browser.IE
+            && parseInt(navigator.userAgent.substring(
+                    navigator.userAgent.indexOf("MSIE") + 5)) == 6;
+
         this.createInput();
         this.choices = param.choices;
         this.entries = $H();
@@ -66,6 +72,12 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.separator = param.separator || ',';
         this.separatorEscaper = param.separatorEscaper;
 
+        // The iframe hack to cover selectlists in Internet Explorer 6.
+        // Selectlists are always on top in IE 6, so they are covered by iframe.
+        if (this.ie6) {
+            this.createIE6Popup();
+        }
+
         this.destroyed = true;
     },
 
@@ -76,6 +88,14 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.multiselectPanel.style.top = pos[1] + "px";
 
         document.body.appendChild(this.multiselectPanel);
+
+        if (this.ie6) {
+            this.openIE6Popup(
+                    pos,
+                    this.multiselectPanel.offsetWidth + "px",
+                    this.multiselectPanel.offsetHeight + "px");
+        }
+
         this.destroyed = false;
         var entries = this.entries;
         this.splitValue(this.input.value).each(function (key) {
@@ -89,6 +109,9 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     close: function() {
         if (!this.destroyed) {
             Event.stopObserving(document, 'click', this.documentClickListener);
+            if (this.ie6) {
+                this.destroyIE6Popup();
+            }
             Element.remove(this.multiselectPanel);
             this.destroyed = true;
         }
@@ -147,6 +170,30 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         if (!abort) {
             this.close();
         }
+    },
+
+    createIE6Popup: function() {
+        this.ie6Popup = new Element("iframe");
+        this.ie6Popup.src = "javascript:'<html></html>';";
+        this.ie6Popup.setAttribute('className','ie6Popup');
+        // Remove iFrame from tabIndex                                        
+        this.ie6Popup.setAttribute("tabIndex", -1);                              
+        this.ie6Popup.scrolling = "no";
+        this.ie6Popup.frameBorder = "0";
+    },
+
+    openIE6Popup: function(pos, width, height) {
+        this.ie6Popup.style.left = pos[0] + "px";
+        this.ie6Popup.style.top = pos[1] + "px";
+        this.ie6Popup.style.width = width;
+        this.ie6Popup.style.height = height;
+        this.ie6Popup.style.display = "block";
+
+        document.body.appendChild(this.ie6Popup);
+    },
+
+    destroyIE6Popup: function() {
+        Element.remove(this.ie6Popup);
     }
 
 });
