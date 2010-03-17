@@ -18,6 +18,7 @@ import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
@@ -60,8 +61,12 @@ public class TablePropertyCopier extends TableCopier {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (!propDefinition.isSystem()) {
-                // check if the property can be defined in current type of table.
-                if (PropertiesChecker.canSetPropertyForTableType(propDefinition.getName(), tableType)) {
+                String propertyName = propDefinition.getName();
+                
+                // check if the property can be defined in current type of table 
+                // and if property can be defined on TABLE level.
+                if (PropertiesChecker.canSetPropertyForTableType(propertyName, tableType) 
+                        && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName)) {
                     possibleProperties.add(propDefinition.getName());
                 }
             }
