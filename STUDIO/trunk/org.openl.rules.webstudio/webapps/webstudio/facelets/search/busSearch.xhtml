@@ -7,58 +7,56 @@
   xmlns:c="http://java.sun.com/jstl/core"
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
   template="/facelets/common/studioBase.xhtml">
-  
+
   <ui:define name="header">
-        <a4j:loadScript src="resource:///js/validation.js" />
-        <a4j:loadScript src="resource:///js/BaseEditor.js" />
-        <a4j:loadScript src="resource:///js/BaseTextEditor.js" />
-        <a4j:loadScript src="resource:///js/MultiselectEditor.js" />
-        <a4j:loadScript src="resource:///js/DropdownEditor.js" />
-        <a4j:loadScript src="resource:///js/AjaxHelper.js" />
-        <a4j:loadStyle src="resource:///css/multiselect.css" />
-    </ui:define>      
-       
+      <a4j:loadScript src="resource:///js/validation.js" />
+      <a4j:loadScript src="resource:///js/BaseEditor.js" />
+      <a4j:loadScript src="resource:///js/BaseTextEditor.js" />
+      <a4j:loadScript src="resource:///js/MultiselectEditor.js" />
+      <a4j:loadScript src="resource:///js/DropdownEditor.js" />
+      <a4j:loadScript src="resource:///js/AjaxHelper.js" />
+      <a4j:loadStyle src="resource:///css/multiselect.css" />
+  </ui:define>
+
   <ui:define name="page">
   	<table>
 		<tr>
-			<td valign="bottom"><a href="#{contextPath}/jsp/search/indexSearch.jsp"><font size="-1">Index</font></a></td>
-			<td valign="bottom" align="center"><a href="advSearch.xhtml"><font size="-1">Advanced Search</font></a></td>			
+			<td valign="bottom"><a href="#{contextPath}/jsp/search/indexSearch.jsp" target="_self"><font size="-1">Index</font></a></td>
+			<td valign="bottom" align="center"><a href="#{contextPath}/faces/facelets/search/advSearch.xhtml" target="_self"><font size="-1">Advanced Search</font></a></td>			
 		</tr>
 	</table>
-	<table class="search-table">
+
+    <table class="search-table">
 	<tr><th>Business Search</th></tr>
 	<tr><td>
 	<h:form id="businessSearchForm">
-	<fieldset><legend>Properties</legend>  
-		<table id="propertySearchTable">
-			<a4j:repeat value="#{bussinessSearch.propForSearch}" var="prop">
-				<tr>
-                    <td><h:outputText value="#{prop.displayName}"/></td>
-                    <td>
-	                 	<rich:calendar value="#{prop.value}" 
-	                       			   datePattern="#{prop.format}"
-	                       			   defaultTime="00:00" 
-	                       			   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.date}" />
+	<fieldset>
+        <legend>Properties</legend>
+        <h:dataTable value="#{bussinessSearch.propForSearch}" var="prop">
+            <h:column>
+                <h:outputText value="#{prop.displayName}"/>
+            </h:column>
+            <h:column>
+	            <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
+                   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.date}" />
                 		
-                		<h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
-                					value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enum}">
-                            <f:attribute name="property" value="#{prop}"/>
-                        </h:outputText>
-                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
+                <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
+                    value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enum}">
+                    <f:attribute name="property" value="#{prop}"/>
+                </h:outputText>
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
 
-                		<h:outputText binding="#{bussinessSearch.enumHelper.enumArrayOutput}" escape="false" 
-                					value="#{bussinessSearch.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
-                            <f:attribute name="property" value="#{prop}"/>
-                        </h:outputText>
-                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+                <h:outputText binding="#{bussinessSearch.enumHelper.enumArrayOutput}" escape="false" 
+                    value="#{bussinessSearch.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
+                    <f:attribute name="property" value="#{prop}"/>
+                </h:outputText>
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
 
-           		    	<h:inputText value="#{prop.value}" rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}"/>
-               		    
-                        <input type="hidden" name="id" value="#{prop.name}" />
-                    </td>
-				</tr>
-			</a4j:repeat>
-		</table>
+  		    	<h:inputText value="#{prop.value}" rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}" />
+
+                <input type="hidden" name="id" value="#{prop.name}" />
+            </h:column>
+		</h:dataTable>
 	</fieldset>
 	<br/>
 	<fieldset>
@@ -71,7 +69,7 @@
 	<h:commandButton value="Search" action="#{bussinessSearchRequest.search}"/>
 	</h:form></td></tr>
 	</table>
-	
+
 	<c:if test="#{not bussinessSearch.ready}">
   		<p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
 	</c:if>
