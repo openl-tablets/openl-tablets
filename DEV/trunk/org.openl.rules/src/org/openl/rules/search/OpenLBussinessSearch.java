@@ -1,12 +1,14 @@
 package org.openl.rules.search;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.util.EnumUtils;
 
 /**
  * Class to search tables, by {@link BussinessSearchCondition}  
@@ -105,7 +107,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
         return result;
  
     }
-
+    
     @SuppressWarnings("unchecked")
     private int comparePropValues(Object propValueFromSearch, Object propertyValue) {
         int result = -1;
@@ -119,6 +121,14 @@ public class OpenLBussinessSearch implements IOpenLSearch{
                 result = ((Integer)propertyValue).compareTo(((Integer)propValueFromSearch));
         else if(propertyValue instanceof Enum && propValueFromSearch instanceof Enum)
             result = ((Enum)propertyValue).compareTo(((Enum)propValueFromSearch));
+        else if(propertyValue.getClass().isArray() && propValueFromSearch.getClass().isArray()) {                        
+            List propertyValueArray = Arrays.asList((Object[])propertyValue);
+            List propertyValueFromSearchArray = Arrays.asList((Object[])propValueFromSearch);
+            if (propertyValueArray.containsAll(propertyValueFromSearchArray)) {
+                result = 0;
+            }
+        }
+            
         return result;
         
         

@@ -334,38 +334,7 @@ public interface IWritableGrid extends IGrid {
             if (tablePropeprtyDefinition != null) {
 
                 Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                result = getFilter(type, tablePropeprtyDefinition);
-            }
-
-            return result;
-        }
-
-        private static IGridFilter getFilter(Class<?> type, TablePropertyDefinition tablePropeprtyDefinition) {
-
-            IGridFilter result = null;
-
-            if (String.class.equals(type)) {
-                result = new XlsStringFormat();
-
-            } else if (Date.class.equals(type)) {
-                result = new XlsDateFormat(tablePropeprtyDefinition.getFormat());
-
-            } else if (Boolean.class.equals(type)) {
-                result = new XlsBooleanFormat();
-
-            } else if (type.isEnum()) {
-                result = new XlsEnumFormat(type);
-
-            } else if (Integer.class.equals(type)) {
-                result = XlsNumberFormat.General;
-
-            } else if (Double.class.equals(type)) {
-                result = XlsNumberFormat.General;
-
-            } else if (type.isArray()) {
-                Class<?> componentType = type.getComponentType();
-                IGridFilter componentFilter = getFilter(componentType, tablePropeprtyDefinition);
-                result = new XlsArrayFormat((XlsFormat) componentFilter);
+                result = XlsFormat.getFormatter(type, tablePropeprtyDefinition.getFormat());
             }
 
             return result;

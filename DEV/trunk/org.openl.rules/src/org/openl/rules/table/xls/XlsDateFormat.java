@@ -78,5 +78,9 @@ public class XlsDateFormat extends XlsFormat {
             return value;
         }
     }
-
+    
+    public void setFormat(String format) {
+        String javaFormat = convertTojavaFormat(format);
+        this.format = new SimpleDateFormat(javaFormat);
+    }
 }
