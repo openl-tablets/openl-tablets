@@ -98,9 +98,9 @@ var BaseEditor = Class.create({
      */
     show: function(value) {
         if (this.input) {
-            AjaxHelper.setInputValue(this.getInputElement(), value);
             this.parentElement.innerHTML = "";
             this.parentElement.appendChild(this.input);
+            AjaxHelper.setInputValue(this.getInputElement(), value);
             if (this.focus) {
                 this.input.focus();
             }
