@@ -1,6 +1,5 @@
 package org.openl.rules.tableeditor.renderkit;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -8,8 +7,7 @@ import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
-import org.openl.util.ArrayUtils;
-import org.openl.util.EnumUtils;
+import org.openl.rules.table.xls.XlsFormat;
 
 /**
  * Temporary class for holding table properties
@@ -103,44 +101,28 @@ public class TableProperty {
     public String getDisplayValue() {
         return getStringValue();
     }
-
+    
+    /**
+     * Setter for the property value as {@link String}. Income value will be parsed to the appropriate type.
+     * That can be found calling {@link #getType()} method.
+     * 
+     * @param value value of the property as String.
+     */
     public void setStringValue(String value) {
-        // TODO Refactor with property type
-        this.value = value;
+        Object result = value;
+        if (StringUtils.isNotEmpty(value)) {
+            result = XlsFormat.getFormatter(type, getFormat()).parse(value);            
+        } else {
+            result = null;
+        }
+        this.value = result;
     }
 
-    public String getStringValue() {
-        
-        String result = "";
-       
+    public String getStringValue() {        
+        String result = StringUtils.EMPTY;       
         if (value != null) {
-        
-            if (value instanceof Date) {
-                SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
-                result = sdf.format((Date) value);
-            
-            } else if (EnumUtils.isEnum(value)) {
-                result = ((Enum<?>) value).name();
-            
-            } else if (EnumUtils.isEnumArray(value)) {
-            
-                Object[] enums = (Object[]) value;
-                
-                if (!ArrayUtils.isEmpty(enums)) {
-                    String[] names = EnumUtils.getNames(enums);
-                    result = StringUtils.join(names, ",");
-                }
-            } else if (isSimpleArray()) { // checks that it's String[]
-                if (((String[])value).length > 0) {
-                    String[] array = (String[]) value;
-                    result = StringUtils.join(array, ",");
-                }
-
-            } else {
-                result = value.toString();
-            }
-        }
-        
+            result = XlsFormat.getFormatter(type, getFormat()).format(value); 
+        }        
         return result;
     }
 
@@ -151,8 +133,25 @@ public class TableProperty {
     public void setType(Class<?> type) {
         this.type = type;
     }
-
-    public void setValue(Object value) {
+    
+    /**
+     * This is a setter for the value of the property. Value must be always typify. 
+     * This method is commonly used from UI. If property <code>{@link #isDate()}</code>, 
+     * <code>{@link #isBoolean()}</code> UI controls will be typify, and the income 
+     * value will be of the appropriate type. And if the income value is String we try 
+     * to parse it to the appropriate type.
+     *  
+     * @param value a value of the property. 
+     */
+    public void setValue(Object value) {         
+        if (value instanceof String) {
+            String valueStr = (String)value;
+            if (StringUtils.isNotEmpty(valueStr)) {
+                value = XlsFormat.getFormatter(type, getFormat()).parse(valueStr);
+            } else {
+                value = null;
+            }
+        }
         this.value = value;
     }
 
@@ -188,14 +187,12 @@ public class TableProperty {
         return type != null && type.isArray() && type.getComponentType().isEnum();
     }
     
-    /**
-     * <b>Attention! Wrong method name.</b>
+    /**     
      * Checks if the current type is <code>String[]</code>
      * 
-     * @return true if type is <code>String[]</code>
-     * TODO: Rename! to <code>isStringArray</code>
+     * @return true if type is <code>String[]</code>     
      */
-    public boolean isSimpleArray() {
+    public boolean isStringArray() {
         return type != null && type.isArray() && String.class.equals(type.getComponentType());
     }
 

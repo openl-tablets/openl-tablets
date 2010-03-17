@@ -619,7 +619,7 @@ public class HTMLRenderer {
 
             if (prop.isString() || prop.isDouble()) {
                 insertTextbox(prop, id); 
-            } else if (prop.isSimpleArray()) {
+            } else if (prop.isStringArray()) {
                 insertTextbox(prop, id);
             } else if (prop.isDate()) {
                 insertCalendar(prop, id);
