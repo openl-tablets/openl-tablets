@@ -131,4 +131,13 @@ public class TablePropertyDefinitionUtils {
         }
         return result;
     }
+    
+    public static Class<?> getPropertyTypeByPropertyName(String name) {
+        Class<?> result = null;
+        TablePropertyDefinition propDefinition = getPropertyByName(name);
+        if (propDefinition != null) {
+            result = propDefinition.getType().getInstanceClass();
+        }
+        return result;
+    }
 }
