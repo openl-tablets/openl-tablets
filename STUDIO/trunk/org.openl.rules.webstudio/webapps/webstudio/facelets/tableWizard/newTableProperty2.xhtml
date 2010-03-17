@@ -8,14 +8,6 @@
                 xmlns:c="http://java.sun.com/jstl/core"
                 template="/facelets/common/choosePropertiesBase.xhtml">
 
-	<ui:define name="header">
-		<a4j:loadStyle src="resource:///css/multiselect.css" />
-		<a4j:loadScript src="resource:///js/AjaxHelper.js" />
-		<a4j:loadScript src="resource:///js/BaseEditor.js" />
-		<a4j:loadScript src="resource:///js/BaseTextEditor.js" />
-		<a4j:loadScript src="resource:///js/MultiselectEditor.js" />
-		<a4j:loadScript src="resource:///js/DropdownEditor.js" />
-	</ui:define>
 	<ui:define name="tableTitle">
     	<c:set var="propertiesManager" value="#{tableWizard.propertiesManager}" />
         <h:inputText id="techName" value="#{tableWizard.tableName}" />
