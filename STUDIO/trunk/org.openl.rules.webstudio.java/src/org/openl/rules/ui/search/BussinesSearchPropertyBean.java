@@ -66,9 +66,9 @@ public class BussinesSearchPropertyBean {
                 Class<?> propertyType = propDefinition.getType() == null ? null : propDefinition.getType()
                         .getInstanceClass();
                 propForSearch.add(
-                        new TableProperty.TablePropertyBuilder(propDefinition.getName(), propDefinition.getDisplayName())
-                            .type(propertyType).group(propDefinition.getGroup()).format(propDefinition.getFormat())
-                            .constraints(propDefinition.getConstraints())
+                        new TableProperty.TablePropertyBuilder(propDefinition.getName(), propertyType)
+                            .displayName(propDefinition.getDisplayName()).group(propDefinition.getGroup())
+                            .format(propDefinition.getFormat()).constraints(propDefinition.getConstraints())
                             .build());
             }
         }

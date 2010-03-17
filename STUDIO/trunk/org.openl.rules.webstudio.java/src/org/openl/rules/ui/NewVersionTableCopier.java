@@ -29,7 +29,9 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         if(versionProperty == null){
             //property "version" is absent in base table            
             versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME, 
-                    TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME)).value(INIT_VERSION).build();            
+                    TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME))
+                    .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME))
+                    .value(INIT_VERSION).build();            
             getPropertiesManager().addProperty(versionProperty);
         }
     }

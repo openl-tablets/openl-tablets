@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.rules.table.xls.XlsFormat;
 
 /**
@@ -231,12 +230,12 @@ public class TableProperty {
      */
     public static class TablePropertyBuilder {
         // Required parameters
-        private String name;
-        private String displayName;
-
-        // Optional parameters
-        private Object value;
+        private String name;        
         private Class<?> type;
+        
+        // Optional parameters
+        private String displayName;
+        private Object value;        
         private String group;
         private String format;
         private Constraints constraints;
@@ -244,9 +243,9 @@ public class TableProperty {
         private boolean system;
         private InheritanceLevel inheritanceLevel;
 
-        public TablePropertyBuilder(String name, String displayName) {
+        public TablePropertyBuilder(String name, Class<?> type) {
             this.name = name;
-            this.displayName = displayName;
+            this.type = type;
         }
 
         public TablePropertyBuilder value(Object val) {
@@ -254,8 +253,8 @@ public class TableProperty {
             return this;
         }
 
-        public TablePropertyBuilder type(Class<?> val) {
-            type = val;
+        public TablePropertyBuilder displayName(String displayName) {
+            this.displayName = displayName;
             return this;
         }
 
