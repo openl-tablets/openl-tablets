@@ -23,48 +23,29 @@ public class PropertiesChecker {
     private static final Log LOG = LogFactory.getLog(PropertiesChecker.class);
     
     /**
-     * Checks if properties with given names can be defined on the current level. Checks according to the properties 
-     * definitions in {@link DefaultPropertyDefinitions}. If one of the property can`t be defined on the current level
-     * throws an exception. 
-     * 
-     * @param currentLevel current level of current properties.
-     * @param propertiesNamesToCheck names of properties to check.  
-     * @throws InvalidPropertyLevelException if one of property can`t be defined on current level.
-     */
-    public static void checkPropertiesLevel(InheritanceLevel currentLevel, Set<String> propertiesNamesToCheck) 
-    throws InvalidPropertyLevelException {
-        for (String propertyNameToCheck : propertiesNamesToCheck) {                        
-            checkPropertyLevel(currentLevel, propertyNameToCheck);
-        }
-    }
-    
-    /**
-     * Checks if property with given name can be defined on the current level. Checks according to the property 
-     * definitions in {@link DefaultPropertyDefinitions}. If property can`t be defined on the current level
-     * throws an exception.
+     * Checks if property with given name is suitable for given level. Checks according to the property 
+     * definitions in {@link DefaultPropertyDefinitions}. 
      * 
      * @param currentLevel current level of current property.
-     * @param name name of the property to check.
-     * @throws InvalidPropertyLevelException if property can`t be defined on the current level.
+     * @param propertyName name of the property to check.
+     * @return true if property with income name can be defined in income level.
      */
-    public static void checkPropertyLevel(InheritanceLevel currentLevel, String name) 
-    throws InvalidPropertyLevelException {
-        TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
+    public static boolean isPropertySuitableForLevel(InheritanceLevel currentLevel, String propertyName) {
+        boolean result = false;
+        TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
         if (propertyDefinition != null) {
             InheritanceLevel[] inheritanceLevels = propertyDefinition.getInheritanceLevel();
             if (inheritanceLevels != null && inheritanceLevels.length > 0) {
-                if (!Arrays.asList(inheritanceLevels).contains(currentLevel)) {
-                    String msg = String.format("Property with name [%s] can`t be defined on the [%s] level.", name, 
-                            currentLevel.getDisplayName());
-                    LOG.debug(msg);
-                    throw new InvalidPropertyLevelException(msg);
+                if (Arrays.asList(inheritanceLevels).contains(currentLevel)) {
+                    result = true;
                 } 
             } else {
-                LOG.debug(String.format("Inheritance levels were not defined for property with name [%s].", name));
+                LOG.debug(String.format("Inheritance levels were not defined for property with name [%s].", propertyName));
             }
         } else {
-            LOG.debug(String.format("There is no such property in Definitions with name [%s].", name));
+            LOG.debug(String.format("There is no such property in Definitions with name [%s].", propertyName));
         }
+        return result;
     }
     
     /**
