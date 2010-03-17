@@ -1,5 +1,7 @@
 package org.openl.codegen.tools;
 
+import org.openl.rules.validation.ActivePropertyValidator;
+
 /**
  * Class used by Velocity engine as external tools.
  */
@@ -16,6 +18,15 @@ public class VelocityTool {
         }
         
         return clazz.getName();
+    }
+    
+    public boolean hasConstructorWithoutParams(Class<?> clazz) {
+        
+        if (clazz.equals(ActivePropertyValidator.class)) {
+            return true;
+        }
+        
+        return false;
     }
     
     public String formatAccessorName(String name) {

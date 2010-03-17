@@ -2,7 +2,11 @@
 	{
 #foreach( $validatorsDefinition in $validatorsDefinitions )
 #foreach( $validatorClass in $validatorsDefinition.ValidatorClasses )
-		addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}"));
+#if ( ${tool.hasConstructorWithoutParams($validatorClass)} )
+        addValidator(new ${validatorClass.Name}());
+#else
+        addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}"));
+#end
 #end#end
 	}
 #end

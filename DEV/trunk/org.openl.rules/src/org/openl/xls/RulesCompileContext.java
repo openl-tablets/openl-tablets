@@ -12,7 +12,8 @@ public class RulesCompileContext extends DefaultCompileContext {
 
     // <<< INSERT >>>
 	{
-		addValidator(new org.openl.rules.validation.UniquePropertyValueValidator("name"));
+        addValidator(new org.openl.rules.validation.UniquePropertyValueValidator("name"));
+        addValidator(new org.openl.rules.validation.ActivePropertyValidator());
 	}
     // <<< END INSERT >>>
 }
