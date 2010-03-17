@@ -63,12 +63,7 @@ public class TableProperty {
      *         level.
      */
     public boolean canBeOverridenInTable() {
-        boolean result = false;
-        try {
-            PropertiesChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
-            result = true;
-        } catch (InvalidPropertyLevelException e) {
-        }
+        boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);        
         return result;
     }
 
