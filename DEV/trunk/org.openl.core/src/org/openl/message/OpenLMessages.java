@@ -5,29 +5,38 @@ import java.util.List;
 
 public class OpenLMessages {
 
-    private static ThreadLocal<OpenLMessages> currentInstance = new ThreadLocal<OpenLMessages>();
+    /**
+     * Instances of {@link OpenLMessages} per thread.
+     */
+    private static ThreadLocal<OpenLMessages> currentInstance = new ThreadLocal<OpenLMessages>() {
+
+        @Override
+        protected OpenLMessages initialValue() {
+            return new OpenLMessages();
+        }
+    };
 
     /**
-     * OpenL messages. Used to accumulate engine messages for communication with
-     * end user.
+     * OpenL messages. Used to accumulate engine messages for communication with end user.
      */
     private List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
+    /**
+     * Gets current instance of OpenL messages for current thread.
+     * 
+     * @return {@link OpenLMessages} instance
+     */
     public static OpenLMessages getCurrentInstance() {
-        
-        if (currentInstance.get() == null) {
-            currentInstance.set(new OpenLMessages());
-        }
-        
         return currentInstance.get();
     }
-    
+
     /**
      * Gets copy list of OpenL messages.
      * 
      * @return list of messages
      */
     public List<OpenLMessage> getMessages() {
+
         return new ArrayList<OpenLMessage>(messages);
     }
 
@@ -36,6 +45,7 @@ public class OpenLMessages {
      * 
      */
     public void clear() {
+
         messages = new ArrayList<OpenLMessage>();
     }
 
@@ -45,6 +55,7 @@ public class OpenLMessages {
      * @param message new message
      */
     public void addMessage(OpenLMessage message) {
+
         messages.add(message);
     }
 
