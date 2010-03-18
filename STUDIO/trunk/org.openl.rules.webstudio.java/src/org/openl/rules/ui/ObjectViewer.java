@@ -139,7 +139,7 @@ public class ObjectViewer {
             return url != null;
         }
 
-        public AXlsFormatter getFormat() {
+        public AXlsFormatter getFormatter() {
             // TODO Auto-generated method stub
             return null;
         }
