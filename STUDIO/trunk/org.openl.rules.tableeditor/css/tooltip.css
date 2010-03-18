@@ -5,27 +5,32 @@
 }
 
 .tooltip_skin-green {
-    background: rgb(230, 255, 220);
+    background: rgb(230, 255, 225);
     border: 1px solid rgb(170, 230, 180);
-    color: rgb(40, 50, 40);
+    color: rgb(40, 60, 50);
+}
+
+.tooltip_skin-blue {
+    background: rgb(230, 240, 255);
+    border: 1px solid rgb(160, 200, 230);
+    color: rgb(40, 50, 60);
 }
 
 .tooltip_skin-red {
     background: rgb(255, 180, 180);
     border: 1px solid rgb(255, 110, 90);
-    color: rgb(60, 40, 40);
+    color: rgb(70, 40, 40);
 }
 
 /* Common Tooltip styles */
 
 .tooltip {
     position: absolute;
-    z-index: 1000;
+    z-index: 9101;
     padding: 3px;
     width: 150px;
     font-family: Times New Roman, Verdana, Arial, Tahoma;
     font-size: 12px;
-    color: black;
 }
 
 /* Tooltip pointer styles */
@@ -111,4 +116,21 @@
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
+}
+
+.shadow_all {
+    box-shadow: 3px 3px 3px #DDDDDD;
+    -moz-box-shadow: 3px 3px 3px #DDDDDD;
+    -webkit-box-shadow: 3px 3px 3px #DDDDDD;
+}
+
+/* The iframe hack to cover selectlists in Internet Explorer 6 */
+iframe.ie6Popup {
+    position: absolute;
+    z-index: 9100;
+    background: #fff;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    display: none;
 }
