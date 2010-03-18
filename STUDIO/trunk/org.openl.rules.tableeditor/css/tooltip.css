@@ -17,6 +17,7 @@
 }
 
 /* Common Tooltip styles */
+
 .tooltip {
     position: absolute;
     z-index: 1000;
@@ -27,12 +28,16 @@
     color: black;
 }
 
-.tooltip .tooltip_pointer_down,.tooltip .tooltip_pointer_down_body {
+/* Tooltip pointer styles */
+
+.tooltip .tooltip_pointer_down,
+.tooltip .tooltip_pointer_down_body {
     position: absolute;
     width: 0;
     height: 0;
-    border-bottom-width: 0;
+    border-bottom: 0;
     background: none;
+    font-size: 0;
 }
 
 .tooltip_left .tooltip_pointer_down {
@@ -51,6 +56,12 @@
     left: 2px;
 }
 
+*html .tooltip_left .tooltip_pointer_down,
+*html .tooltip_left .tooltip_pointer_down_body {
+    border-right-color: #000001;
+    filter: chroma(color=#000001);
+}
+
 .tooltip_center .tooltip_pointer_down {
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
@@ -67,6 +78,13 @@
     left: -4px;
 }
 
+*html .tooltip_center .tooltip_pointer_down,
+*html .tooltip_center .tooltip_pointer_down_body {
+    border-left-color: #000001;
+    border-right-color: #000001;
+    filter: chroma(color=#000001);
+}
+
 .tooltip_right .tooltip_pointer_down {
     border-left: 12px solid transparent;
     border-right: 0px;
@@ -81,6 +99,12 @@
     border-top: 8px solid transparent;
     top: -12px;
     right: 2px;
+}
+
+*html .tooltip_right .tooltip_pointer_down,
+*html .tooltip_right .tooltip_pointer_down_body {
+    border-left-color: #000001;
+    filter: chroma(color=#000001);
 }
 
 .corner_all {

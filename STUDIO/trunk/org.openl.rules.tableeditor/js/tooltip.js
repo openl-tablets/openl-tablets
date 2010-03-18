@@ -55,16 +55,18 @@ var Tooltip = Class.create({
             }
 
             var tooltipPointerDiv = new Element("div");
-            tooltipPointerDiv.className = 'tooltip_pointer_down ' + skinClass;
+            tooltipPointerDiv.addClassName('tooltip_pointer_down')
+            tooltipPointerDiv.addClassName(skinClass);
             var tooltipPointerBodyDiv = new Element("div");
 
-            tooltipPointerBodyDiv.className = 'tooltip_pointer_down_body';
+            tooltipPointerBodyDiv.addClassName('tooltip_pointer_down_body');
             tooltipPointerDiv.appendChild(tooltipPointerBodyDiv);
             tooltipDiv.appendChild(tooltipPointerDiv);
         }
 
-        var styleClasses = "tooltip corner_all " + skinClass + " " + pointerClass;
-        tooltipDiv.className = styleClasses;
+        tooltipDiv.addClassName(skinClass);
+        tooltipDiv.addClassName(pointerClass);
+        tooltipDiv.addClassName("tooltip corner_all");
 
         // set pointer background
         tooltipPointerBodyDiv.setStyle({borderTopColor: tooltipDiv.getStyle('backgroundColor')});
