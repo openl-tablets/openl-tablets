@@ -233,7 +233,7 @@ public class TableEditorModel {
         FormattedCell fc = filteredGrid.getFormattedCell(fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
 
         if (fc != null) {
-            return fc.getFilter().getFormat();
+            return fc.getFilter().getFormatter();
         }
 
         return null;
