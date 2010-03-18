@@ -27,28 +27,28 @@ public class CellStyle implements ICellStyle {
 
     int rotation;
 
-    public CellStyle(ICellStyle cs) {
-        if (cs == null) {
+    public CellStyle(ICellStyle cellStyle) {
+        if (cellStyle == null) {
             return;
         }
 
-        horizontalAlignment = cs.getHorizontalAlignment();
+        horizontalAlignment = cellStyle.getHorizontalAlignment();
 
-        verticalAlignment = cs.getVerticalAlignment();
+        verticalAlignment = cellStyle.getVerticalAlignment();
 
-        fillBackgroundColor = cs.getFillBackgroundColor();
-        fillForegroundColor = cs.getFillForegroundColor();
+        fillBackgroundColor = cellStyle.getFillBackgroundColor();
+        fillForegroundColor = cellStyle.getFillForegroundColor();
 
-        textFormat = cs.getTextFormat();
+        textFormat = cellStyle.getTextFormat();
 
-        borderStyle = cs.getBorderStyle();
-        borderRGB = cs.getBorderRGB();
+        borderStyle = cellStyle.getBorderStyle();
+        borderRGB = cellStyle.getBorderRGB();
 
-        ident = cs.getIdent();
+        ident = cellStyle.getIdent();
 
-        wrappedText = cs.isWrappedText();
+        wrappedText = cellStyle.isWrappedText();
 
-        rotation = cs.getRotation();
+        rotation = cellStyle.getRotation();
     }
 
     public short[][] getBorderRGB() {

@@ -3,6 +3,7 @@
  */
 package org.openl.rules.table.xls;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.IGridSelector;
-import org.openl.rules.table.xls.XlsNumberFormat.SegmentFormatter;
+import org.openl.rules.table.xls.SegmentFormatter;
 
 /**
  * @author snshor
@@ -20,43 +21,20 @@ import org.openl.rules.table.xls.XlsNumberFormat.SegmentFormatter;
  */
 public class SimpleXlsFormatter implements IGridFilter {
 
-    static final public String GENERAL_XLS_FORMAT = "General";
+    public static final String GENERAL_XLS_FORMAT = "General";
 
-    Map<String, XlsFormat> existingFormatters = new HashMap<String, XlsFormat>();
+    private Map<String, XlsFormat> existingFormatters = new HashMap<String, XlsFormat>();
 
-    Map<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
-
-    static boolean containsAny(String src, String test) {
-        char[] tst = test.toCharArray();
-        for (int i = 0; i < tst.length; i++) {
-            if (src.indexOf(tst[i]) >= 0) {
-                return true;
-            }
-        }
-        return false;
+    private Map<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
+    
+    public Object parse(String value) {
+        throw new UnsupportedOperationException("This format does not parse");
     }
-
-    static boolean isDateFormat(String fmt) {
-        // fmt = fmt.toLowerCase();
-        if (fmt == null) {
-            return false;
-        }
-
-        if (GENERAL_XLS_FORMAT.equalsIgnoreCase(fmt)) {
-            return false;
-        }
-
-        if (containsAny(fmt, "#0?")) {
-            return false;
-        }
-
-        return true;
+    
+    public IGridSelector getGridSelector() {
+        return null;
     }
-
-    static boolean isGeneralFormat(String fmt) {
-        return fmt == null || GENERAL_XLS_FORMAT.equalsIgnoreCase(fmt);
-    }
-
+    
     public FormattedCell filterFormat(FormattedCell fc) {
         switch (fc.getType()) {
             case IGrid.CELL_TYPE_NUMERIC:
@@ -67,58 +45,72 @@ public class SimpleXlsFormatter implements IGridFilter {
 
         return fc;
     }
-
-    /**
-     * @param fmt
-     * @return
-     */
-    private XlsDateFormat findXlsDateFormat(String fmt) {
-        XlsDateFormat xnf = (XlsDateFormat) existingFormatters.get(fmt);
-        if (xnf != null) {
-            return xnf;
+    
+    private static boolean containsAny(String src, String test) {
+        char[] tst = test.toCharArray();
+        for (int i = 0; i < tst.length; i++) {
+            if (src.indexOf(tst[i]) >= 0) {
+                return true;
+            }
         }
-        xnf = new XlsDateFormat(fmt);
-        existingFormatters.put(fmt, xnf);
-        return xnf;
+        return false;
     }
 
-    /**
-     * @param fmt
-     * @return
-     */
-    XlsNumberFormat findXlsNumberFormat(String fmt) {
-        if (isGeneralFormat(fmt)) {
+    private static boolean isDateFormat(String format) {
+        // fmt = fmt.toLowerCase();
+        if (format == null) {
+            return false;
+        }
+
+        if (GENERAL_XLS_FORMAT.equalsIgnoreCase(format)) {
+            return false;
+        }
+
+        if (containsAny(format, "#0?")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean isGeneralFormat(String format) {
+        return format == null || GENERAL_XLS_FORMAT.equalsIgnoreCase(format);
+    }    
+    
+    private XlsDateFormat findXlsDateFormat(String format) {
+        XlsDateFormat dateFormat = (XlsDateFormat) existingFormatters.get(format);
+        if (dateFormat != null) {
+            return dateFormat;
+        }
+        dateFormat = (XlsDateFormat)XlsFormat.getFormatter(Date.class, format);
+        existingFormatters.put(format, dateFormat);
+        return dateFormat;
+    }
+  
+    private XlsNumberFormat findXlsNumberFormat(String format) {
+        if (isGeneralFormat(format)) {
             return XlsNumberFormat.General;
         }
 
-        XlsNumberFormat xnf = (XlsNumberFormat) existingFormatters.get(fmt);
-        if (xnf != null) {
-            return xnf;
+        XlsNumberFormat numberFormat = (XlsNumberFormat) existingFormatters.get(format);
+        if (numberFormat != null) {
+            return numberFormat;
         }
-        xnf = makeFormat(fmt);
-        existingFormatters.put(fmt, xnf);
-        return xnf;
+        numberFormat = makeFormat(format);
+        existingFormatters.put(format, numberFormat);
+        return numberFormat;
+    }
+    
+    private FormattedCell formatDate(FormattedCell formattedCell) {
+        String format = formattedCell.getStyle().getTextFormat();
+        XlsDateFormat dateFormat = findXlsDateFormat(format);
+        dateFormat.filterFormat(formattedCell);
+
+        return formattedCell;
     }
 
-    /**
-     * @param fc
-     * @return
-     */
-    private FormattedCell formatDate(FormattedCell fc) {
-        String fmt = fc.getStyle().getTextFormat();
-        XlsDateFormat xnf = findXlsDateFormat(fmt);
-        xnf.filterFormat(fc);
-
-        return fc;
-    }
-
-    /**
-     * @param fc
-     * @return
-     */
-
-    protected FormattedCell formatNumber(FormattedCell fc) {
-        CellStyle style = fc.getStyle();
+    private FormattedCell formatNumber(FormattedCell formattedCell) {
+        CellStyle style = formattedCell.getStyle();
         if (style.getHorizontalAlignment() == ICellStyle.ALIGN_GENERAL) {
             style.setHorizontalAlignment(ICellStyle.ALIGN_RIGHT);
         }
@@ -126,25 +118,21 @@ public class SimpleXlsFormatter implements IGridFilter {
         String fmt = style.getTextFormat();
 
         XlsNumberFormat xnf = findXlsNumberFormat(fmt);
-        xnf.filterFormat(fc);
+        xnf.filterFormat(formattedCell);
 
-        return fc;
+        return formattedCell;
     }
-
-    /**
-     * @param fc
-     * @return
-     */
-    private FormattedCell formatNumberOrDate(FormattedCell fc) {
+    
+    private FormattedCell formatNumberOrDate(FormattedCell formattedCell) {
         // the only way to tell a date from a number (as far as I can
         // understand)
         // is to check format, so let's do it
 
-        if (isDateFormat(fc.getStyle().getTextFormat())) {
-            return formatDate(fc);
+        if (isDateFormat(formattedCell.getStyle().getTextFormat())) {
+            return formatDate(formattedCell);
         }
 
-        return formatNumber(fc);
+        return formatNumber(formattedCell);
     }
 
     private FormattedCell formatFormula(FormattedCell fc) {
@@ -152,31 +140,23 @@ public class SimpleXlsFormatter implements IGridFilter {
         return new XlsFormulaFormat(format).filterFormat(fc);
     }
 
-    private XlsFormat getFormat(FormattedCell fc) {
-        String fmt = fc.getStyle().getTextFormat();
-        if (isDateFormat(fmt)) {
-            return findXlsDateFormat(fmt);
-        } else if (fc.getObjectValue() instanceof Number) {
-            return findXlsNumberFormat(fmt);
+    private XlsFormat getFormat(FormattedCell formattedCell) {
+        String format = formattedCell.getStyle().getTextFormat();
+        if (isDateFormat(format)) {
+            return findXlsDateFormat(format);
+        } else if (formattedCell.getObjectValue() instanceof Number) {
+            return findXlsNumberFormat(format);
         } else {
             return null;
         }
     }
-
-    public IGridSelector getGridSelector() {
-        return null;
-    }
-
-    XlsNumberFormat makeFormat(String fmt) {
-        if (GENERAL_XLS_FORMAT.equals(fmt)) {
+    
+    private XlsNumberFormat makeFormat(String format) {
+        if (GENERAL_XLS_FORMAT.equals(format)) {
             return XlsNumberFormat.General;
         }
 
-        return XlsNumberFormat.makeFormat(fmt, existingFmts);
-    }
-
-    public Object parse(String value) {
-        throw new UnsupportedOperationException("This format does not parse");
-    }
+        return XlsNumberFormat.makeFormat(format, existingFmts);
+    }    
 
 }

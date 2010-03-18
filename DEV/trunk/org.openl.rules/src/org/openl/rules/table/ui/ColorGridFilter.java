@@ -11,13 +11,13 @@ import org.openl.rules.table.FormattedCell;
  */
 public class ColorGridFilter extends AGridFilter {
 
-    static final public int FONT = 1, BACKGROUND = 2, BORDERS = 4, ALL = 0xFF;
+    public static final  int FONT = 1, BACKGROUND = 2, BORDERS = 4, ALL = 0xFF;
 
-    int scope = ALL;
+    private int scope = ALL;
 
-    IColorFilter filter;
+    private IColorFilter filter;
 
-    static public ColorGridFilter makeTransparentFilter(IGridSelector selector, double transparency, int color) {
+    public static ColorGridFilter makeTransparentFilter(IGridSelector selector, double transparency, int color) {
         TransparentColorFilter tf = new TransparentColorFilter(color, transparency);
 
         return new ColorGridFilter(selector, tf);

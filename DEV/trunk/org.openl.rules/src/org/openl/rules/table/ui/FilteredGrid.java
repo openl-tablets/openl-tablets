@@ -17,9 +17,9 @@ import org.openl.rules.table.IGrid;
  */
 public class FilteredGrid extends GridDelegator {
 
-    IGridFilter[] formatFilters;
+    private IGridFilter[] formatFilters;
 
-    HashMap<CellKey, FormattedCell> formattedCells = new HashMap<CellKey, FormattedCell>();
+    private HashMap<CellKey, FormattedCell> formattedCells = new HashMap<CellKey, FormattedCell>();
 
     /**
      * @param delegate
