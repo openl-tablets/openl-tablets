@@ -1,7 +1,12 @@
 
 var Tooltip = Class.create({
 
+    ie6: Prototype.Browser.IE
+        && parseInt(navigator.userAgent.substring(
+                navigator.userAgent.indexOf("MSIE") + 5)) == 6,
+
     firedTooltips: $H(),
+    firedIE6Popups: $H(),
 
     initialize: function(id, content, params) {
         this.element = $(id);
@@ -24,11 +29,23 @@ var Tooltip = Class.create({
     show: function() {
         var tooltip = this.createTooltip();
         if (!this.firedTooltips.get(this.element.id)) {
+            // Show tooltip
+            document.body.appendChild(tooltip);
             this.firedTooltips.set(this.element.id, tooltip);
 
-            document.body.appendChild(tooltip);
-
             this.applyStylesToPointer(tooltip);
+
+            // The iframe hack to cover selectlists in Internet Explorer 6.
+            // Selectlists are always on top in IE 6, so they should be covered by iframe.
+            if (this.ie6) {
+                var ie6Popup = this.createIE6Popup();
+                this.openIE6Popup(ie6Popup,
+                        tooltip.style.left,
+                        tooltip.style.top,
+                        tooltip.offsetWidth + "px",
+                        tooltip.offsetHeight + "px");
+            }
+            this.firedIE6Popups.set(this.element.id, ie6Popup);
         }
     },
 
@@ -76,9 +93,11 @@ var Tooltip = Class.create({
             tooltipDiv.appendChild(tooltipPointerDiv);
         }
 
+        tooltipDiv.addClassName("tooltip");
         tooltipDiv.addClassName(skinClass);
         tooltipDiv.addClassName(pointerClass);
-        tooltipDiv.addClassName("tooltip corner_all");
+        tooltipDiv.addClassName("corner_all");
+        tooltipDiv.addClassName("shadow_all");
 
         var pos = Element.cumulativeOffset(this.element);
         pos[0] += this.element.getWidth() - 25;
@@ -90,10 +109,48 @@ var Tooltip = Class.create({
     },
 
     hide: function() {
-        var currenTooltip = this.firedTooltips.get(this.element.id);
-        if (currenTooltip) {
+        var currentTooltip = this.firedTooltips.get(this.element.id);
+        if (currentTooltip) {
             this.firedTooltips.unset(this.element.id);
-            document.body.removeChild(currenTooltip);
+            document.body.removeChild(currentTooltip);
+
+            // Hide iframe in IE 6
+            if (this.ie6) {
+                var currentIE6Popup = this.firedIE6Popups.get(this.element.id);
+                if (currentIE6Popup) {
+                    this.firedIE6Popups.unset(this.element.id);
+                    this.destroyIE6Popup(currentIE6Popup);
+                }
+            }
+        }
+    },
+
+    createIE6Popup: function() {
+        var ie6Popup = new Element("iframe");
+        ie6Popup.src = "javascript:'<html></html>';";
+        ie6Popup.setAttribute('className','ie6Popup');
+        // Remove iFrame from tabIndex                                        
+        ie6Popup.setAttribute("tabIndex", -1);                              
+        ie6Popup.scrolling = "no";
+        ie6Popup.frameBorder = "0";
+        return ie6Popup;
+    },
+
+    openIE6Popup: function(ie6Popup, left, top, width, height) {
+        if (ie6Popup) {
+            ie6Popup.style.left = left;
+            ie6Popup.style.top = top;
+            ie6Popup.style.width = width;
+            ie6Popup.style.height = height;
+            ie6Popup.style.display = "block";
+
+            document.body.appendChild(ie6Popup);
+        }
+    },
+
+    destroyIE6Popup: function(ie6Popup) {
+        if (ie6Popup) {
+            Element.remove(ie6Popup);
         }
     }
 
