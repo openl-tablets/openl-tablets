@@ -144,7 +144,7 @@ public class ObjectViewer {
 
     private ProjectModel projectModel;
 
-    static public Object displaySpreadsheetResult(final SpreadsheetResult res) {
+    public static Object displaySpreadsheetResult(final SpreadsheetResult res) {
 
         TableSyntaxNode tsn = (TableSyntaxNode) res.getSpreadsheet().getInfo().getSyntaxNode();
 
