@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.xls.XlsDateFormat;
+import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
 
 /**
@@ -75,7 +75,7 @@ public class SystemValuesManager {
             resultValue = systemValue.getValue();
             if(resultValue != null) {
                 if (resultValue instanceof Date) {
-                    SimpleDateFormat format = new SimpleDateFormat(XlsDateFormat.DEFAULT_JAVA_DATE_FORMAT);
+                    SimpleDateFormat format = new SimpleDateFormat(XlsDateFormatter.DEFAULT_JAVA_DATE_FORMAT);
                     result = format.format((Date)resultValue);                    
                 } else {
                     result = resultValue.toString();

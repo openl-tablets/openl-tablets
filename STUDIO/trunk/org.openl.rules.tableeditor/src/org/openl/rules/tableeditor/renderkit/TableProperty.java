@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.xls.XlsFormat;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
 /**
  * Temporary class for holding table properties
@@ -105,7 +105,7 @@ public class TableProperty {
     public void setStringValue(String value) {
         Object result = value;
         if (StringUtils.isNotEmpty(value)) {
-            result = XlsFormat.getFormatter(type, getFormat()).parse(value);            
+            result = AXlsFormatter.getFormatter(type, getFormat()).parse(value);            
         } else {
             result = null;
         }
@@ -115,7 +115,7 @@ public class TableProperty {
     public String getStringValue() {        
         String result = StringUtils.EMPTY;       
         if (value != null) {
-            result = XlsFormat.getFormatter(type, getFormat()).format(value); 
+            result = AXlsFormatter.getFormatter(type, getFormat()).format(value); 
         }        
         return result;
     }
@@ -141,7 +141,7 @@ public class TableProperty {
         if (value instanceof String) {
             String valueStr = (String)value;
             if (StringUtils.isNotEmpty(valueStr)) {
-                value = XlsFormat.getFormatter(type, getFormat()).parse(valueStr);
+                value = AXlsFormatter.getFormatter(type, getFormat()).parse(valueStr);
             } else {
                 value = null;
             }

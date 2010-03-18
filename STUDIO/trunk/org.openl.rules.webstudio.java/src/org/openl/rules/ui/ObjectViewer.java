@@ -45,14 +45,15 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Table;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.table.ui.SimpleHtmlFilter;
-import org.openl.rules.table.ui.TableValueFilter;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.ui.filters.ColorGridFilter;
+import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
+import org.openl.rules.table.ui.filters.TableValueFilter;
+import org.openl.rules.table.ui.filters.XlsSimpleFilter;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
@@ -138,6 +139,11 @@ public class ObjectViewer {
             return url != null;
         }
 
+        public AXlsFormatter getFormat() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
 
     // public ObjectViewer() {}
@@ -173,7 +179,7 @@ public class ObjectViewer {
         };
 
         TableValueFilter tvf = new TableValueFilter(gt, model);
-        IGridFilter[] filters = { tvf, new SimpleXlsFormatter(), new SimpleHtmlFilter(), new LinkMaker(tvf) };
+        IGridFilter[] filters = { tvf, new XlsSimpleFilter(), new SimpleHtmlFilter(), new LinkMaker(tvf) };
 
         FilteredGrid fg = new FilteredGrid(gt.getGrid(), filters);
 

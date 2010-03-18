@@ -6,7 +6,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.table.ITable;
-import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.util.BooleanUtils;

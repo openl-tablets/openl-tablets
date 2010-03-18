@@ -8,9 +8,9 @@ import org.openl.rules.table.IGridRegion;
 
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ui.ColorGridFilter;
-import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
+import org.openl.rules.table.ui.filters.ColorGridFilter;
+import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 

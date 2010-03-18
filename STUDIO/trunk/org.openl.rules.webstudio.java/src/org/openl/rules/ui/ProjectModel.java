@@ -32,11 +32,11 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.ui.filters.ColorGridFilter;
+import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
@@ -108,7 +108,7 @@ public class ProjectModel implements IProjectTypes {
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 1;
             IGridFilter[] f1 = new IGridFilter[filters == null ? N : filters.length + N];
-            f1[0] = new SimpleXlsFormatter();
+            f1[0] = new XlsSimpleFilter();
             // f1[1] = new SimpleHtmlFilter();
             for (int i = N; i < f1.length; i++) {
                 f1[i] = filters[i - N];

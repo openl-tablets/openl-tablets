@@ -3,9 +3,9 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.rules.table.ui.GreyColorFilter;
-import org.openl.rules.table.ui.IColorFilter;
-import org.openl.rules.table.ui.TransparentColorFilter;
+import org.openl.rules.table.ui.filters.GreyColorFilter;
+import org.openl.rules.table.ui.filters.IColorFilter;
+import org.openl.rules.table.ui.filters.TransparentColorFilter;
 
 /**
  * @author snshor
