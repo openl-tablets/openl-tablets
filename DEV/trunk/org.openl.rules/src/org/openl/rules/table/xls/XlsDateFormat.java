@@ -21,11 +21,6 @@ public class XlsDateFormat extends XlsFormat {
     
     private SimpleDateFormat format;
     
-    /**
-     *
-     * @param fmt
-     * @return
-     */
     public static String convertTojavaFormat(String fmt) {
         // TODO this will require much more work than that
 

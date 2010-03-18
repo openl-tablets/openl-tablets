@@ -8,9 +8,5 @@ package org.openl.rules.table.ui;
  *
  */
 public interface IGridSelector {
-    static public class Coord {
-        public int col, row;
-    }
-
     boolean selectCoords(int col, int row);
 }

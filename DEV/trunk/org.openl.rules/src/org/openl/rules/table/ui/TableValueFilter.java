@@ -10,11 +10,11 @@ public class TableValueFilter extends AGridFilter {
         public Object getValue(int col, int row);
     }
 
-    Model model;
+    private Model model;
 
-    int startX, startY;
+    private int startX, startY;
 
-    IGrid grid;
+    private IGrid grid;
 
     public TableValueFilter(IGridTable t, Model m) {
         model = m;
