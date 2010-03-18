@@ -23,16 +23,16 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.table.xls.XlsArrayFormat;
-import org.openl.rules.table.xls.XlsBooleanFormat;
-import org.openl.rules.table.xls.XlsDateFormat;
-import org.openl.rules.table.xls.XlsEnumFormat;
-import org.openl.rules.table.xls.XlsFormat;
-import org.openl.rules.table.xls.XlsNumberFormat;
+import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.XlsStringFormat;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
+import org.openl.rules.table.xls.formatters.XlsBooleanFormatter;
+import org.openl.rules.table.xls.formatters.XlsDateFormatter;
+import org.openl.rules.table.xls.formatters.XlsEnumFormatter;
+import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
+import org.openl.rules.table.xls.formatters.XlsStringFormatter;
 
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
 import org.openl.util.export.IExporter;
@@ -238,7 +238,7 @@ public interface IWritableGrid extends IGrid {
 
         public static IUndoableGridAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion, IWritableGrid wgrid,
                 String newPropName, String newPropValue) {
-            IGridFilter filter = getFilter(newPropName);
+            AXlsFormatter format = getFormat(newPropName);
             int regionHeight = IGridRegion.Tool.height(tableRegion);
             int regionWidth = IGridRegion.Tool.width(tableRegion);
             int nRows = 1;
@@ -264,7 +264,7 @@ public interface IWritableGrid extends IGrid {
                             // property with such name and value already exists.
                             return null;
                         }
-                        return new UndoableSetValueAction(leftCell + 2, topCell + 1 + i, newPropValue, filter);
+                        return new UndoableSetValueAction(leftCell + 2, topCell + 1 + i, newPropValue, format);
                     }
                 }
             }
@@ -301,7 +301,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
             actions.add(new UndoableSetValueAction(leftCell + 1, topCell + beforeRow, newPropName, null));
-            actions.add(new UndoableSetValueAction(leftCell + 2, topCell + beforeRow, newPropValue, filter));
+            actions.add(new UndoableSetValueAction(leftCell + 2, topCell + beforeRow, newPropValue, format));
 
             if (propsCount == 1) {
                 // resize 'properties' cell
@@ -325,16 +325,16 @@ public interface IWritableGrid extends IGrid {
         }
         
 
-        private static IGridFilter getFilter(String propertyName) {
+        private static AXlsFormatter getFormat(String propertyName) {
 
-            IGridFilter result = null;
+            AXlsFormatter result = null;
             TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
                     .getPropertyByName(propertyName);
 
             if (tablePropeprtyDefinition != null) {
 
                 Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                result = XlsFormat.getFormatter(type, tablePropeprtyDefinition.getFormat());
+                result = AXlsFormatter.getFormatter(type, tablePropeprtyDefinition.getFormat());
             }
 
             return result;
@@ -449,23 +449,23 @@ public interface IWritableGrid extends IGrid {
         }
 
         public static IUndoableGridAction setStringValue(int col, int row, IGridRegion region, String value,
-                IGridFilter filter) {
+                AXlsFormatter format) {
 
             int gcol = region.getLeft() + col;
             int grow = region.getTop() + row;
 
             // wgrid.setCellStringValue(gcol, grow, value);
-            return new UndoableSetValueAction(gcol, grow, value, filter);
+            return new UndoableSetValueAction(gcol, grow, value, format);
         }
 
         public static IUndoableGridAction setStringValue(int col, int row, IGridTable table, String value,
-                IGridFilter filter) {
+                AXlsFormatter format) {
             // IWritableGrid wgrid = getWritableGrid(table);
             int gcol = table.getGridColumn(col, row);
             int grow = table.getGridRow(col, row);
 
             // wgrid.setCellStringValue(gcol, grow, value);
-            return new UndoableSetValueAction(gcol, grow, value, filter);
+            return new UndoableSetValueAction(gcol, grow, value, format);
 
         }
 

@@ -1,11 +1,10 @@
-package org.openl.rules.table.xls;
+package org.openl.rules.table.xls.formatters;
 
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.ITextFormatter;
 
 public class SegmentFormatter {
     
-    private ITextFormatter formatter;   
+    private IFormatter formatter;   
 
     private short[] color;
 
@@ -17,12 +16,12 @@ public class SegmentFormatter {
         // TODO Auto-generated constructor stub
     }
 
-    public SegmentFormatter(ITextFormatter format, short[] color) {
+    public SegmentFormatter(IFormatter format, short[] color) {
         this.formatter = format;
         this.color = color;
     }
 
-    public SegmentFormatter(ITextFormatter format, short[] color, int alignment) {
+    public SegmentFormatter(IFormatter format, short[] color, int alignment) {
         this.formatter = format;
         this.color = color;
         this.alignment = alignment;
@@ -32,11 +31,11 @@ public class SegmentFormatter {
         return formatter.parse(value);
     }
     
-    public void setFormatter(ITextFormatter format) {
+    public void setFormatter(IFormatter format) {
         this.formatter = format;
     }
     
-    public ITextFormatter getFormatter() {
+    public IFormatter getFormatter() {
         return formatter;
     }
     

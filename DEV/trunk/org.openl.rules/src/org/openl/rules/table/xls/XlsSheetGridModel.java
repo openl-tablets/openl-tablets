@@ -36,6 +36,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
@@ -589,7 +590,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.setCellStyle(sheet.getWorkbook().createCellStyle());
             cell.getCellStyle().cloneStyleFrom(previousStyle);
             cell.getCellStyle().setDataFormat((short) BuiltinFormats
-                    .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+                    .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
             
             CellMetaInfo dateMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
                     JavaOpenClass.getOpenClass(dateValue.getClass()), false);            

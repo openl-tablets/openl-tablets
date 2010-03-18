@@ -10,8 +10,8 @@ import java.io.IOException;
 
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsCellStyle2;
-import org.openl.rules.table.xls.XlsDateFormat;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
@@ -270,7 +270,7 @@ public class TableBuilder {
         cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle().setDataFormat((short) BuiltinFormats
-                .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+                .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
         return cell.getCellStyle();
     }
 

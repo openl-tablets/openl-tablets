@@ -32,7 +32,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.xls.XlsNumberFormat;
+import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.SyntaxErrorException;
@@ -166,7 +166,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
     private static void applyFormat(ILogicalTable cell, Object target){
         String originalFormat = cell.getGridTable().getCell(0, 0).getStyle().getTextFormat();
         //Java does not support some Excel formats
-        String transformed = XlsNumberFormat.transformToJavaFormat(originalFormat, null);
+        String transformed = XlsNumberFormatter.transformToJavaFormat(originalFormat, null);
         if (target instanceof DoubleValue){
             ((DoubleValue)target).setFormat(transformed);
         }

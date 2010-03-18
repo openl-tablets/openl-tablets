@@ -4,7 +4,7 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
 /**
  * @author snshor
@@ -12,24 +12,24 @@ import org.openl.rules.table.ui.IGridFilter;
  */
 public class UndoableSetValueAction extends AUndoableCellAction {
 
-    String value;
-    IGridFilter filter;
+    private String value;
+    private AXlsFormatter format;
 
     /**
      * @param col
      * @param row
      */
-    public UndoableSetValueAction(int col, int row, String value, IGridFilter filter) {
+    public UndoableSetValueAction(int col, int row, String value, AXlsFormatter format) {
         super(col, row);
         this.value = value;
-        this.filter = filter;
+        this.format = format;
     }
 
     @Override
     public void doDirectChange(IWritableGrid wgrid) {
         Object result = value;
-        if (filter != null) {
-            result = filter.parse(value);
+        if (format != null) {
+            result = format.parse(value);
         }
         wgrid.setCellValue(col, row, result);
     }

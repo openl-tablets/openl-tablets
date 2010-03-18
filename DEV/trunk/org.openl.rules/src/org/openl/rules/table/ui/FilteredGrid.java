@@ -10,6 +10,7 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridDelegator;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
+import org.openl.rules.table.ui.filters.IGridFilter;
 
 /**
  * @author snshor

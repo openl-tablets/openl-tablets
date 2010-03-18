@@ -1,8 +1,9 @@
-package org.openl.rules.table.ui;
+package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
 public class TableValueFilter extends AGridFilter {
 
@@ -37,6 +38,11 @@ public class TableValueFilter extends AGridFilter {
         Object v = model.getValue(column - startX, row - startY);
 
         return v;
+    }
+
+    public AXlsFormatter getFormat() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

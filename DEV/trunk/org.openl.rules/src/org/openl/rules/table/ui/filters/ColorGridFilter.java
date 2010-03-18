@@ -1,9 +1,12 @@
 /**
  * Created Mar 1, 2007
  */
-package org.openl.rules.table.ui;
+package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
+import org.openl.rules.table.ui.CellStyle;
+import org.openl.rules.table.ui.IGridSelector;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
 /**
  * @author snshor
@@ -34,17 +37,17 @@ public class ColorGridFilter extends AGridFilter {
         this.scope = scope;
     }
 
-    public FormattedCell filterFormat(FormattedCell cell) {
+    public FormattedCell filterFormat(FormattedCell formattedCell) {
 
         if ((scope & FONT) != 0) {
-            short[] fc = cell.getFont().getFontColor();
+            short[] fc = formattedCell.getFont().getFontColor();
             if (fc == null) {
                 fc = IColorFilter.BLACK;
             }
-            cell.getFont().setFontColor(filter.filterColor(fc));
+            formattedCell.getFont().setFontColor(filter.filterColor(fc));
         }
 
-        CellStyle style = cell.getStyle();
+        CellStyle style = formattedCell.getStyle();
         if ((scope & BACKGROUND) != 0) {
             short[] bcg = style.getFillBackgroundColor();
             if (bcg == null) {
@@ -63,7 +66,7 @@ public class ColorGridFilter extends AGridFilter {
         }
 
         if ((scope & BORDERS) != 0) {
-            short[][] bb = style.borderRGB;
+            short[][] bb = style.getBorderRGB();
 
             if (bb != null) {
                 for (int i = 0; i < bb.length; i++) {
@@ -73,7 +76,12 @@ public class ColorGridFilter extends AGridFilter {
 
         }
 
-        return cell;
+        return formattedCell;
+    }
+
+    public AXlsFormatter getFormat() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

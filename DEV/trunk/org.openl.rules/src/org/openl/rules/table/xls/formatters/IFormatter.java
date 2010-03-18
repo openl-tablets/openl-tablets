@@ -1,13 +1,13 @@
 /**
  * Created Feb 28, 2007
  */
-package org.openl.rules.table.ui;
+package org.openl.rules.table.xls.formatters;
 
 /**
  * @author snshor
  *
  */
-public interface ITextFormatter {
+public interface IFormatter {
     String format(Object obj);
     Object parse(String value);
 }
