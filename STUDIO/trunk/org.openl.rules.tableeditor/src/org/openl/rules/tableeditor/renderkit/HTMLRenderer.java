@@ -22,7 +22,7 @@ import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 import org.openl.rules.tableeditor.model.ui.CellModel;

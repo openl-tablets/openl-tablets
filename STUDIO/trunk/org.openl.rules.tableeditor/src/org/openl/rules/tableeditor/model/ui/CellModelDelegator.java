@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.model.ui;
 
 import org.openl.rules.table.ui.ICellFont;
-import org.openl.rules.table.ui.IColorFilter;
+import org.openl.rules.table.ui.filters.IColorFilter;
 
 public class CellModelDelegator implements ICellModel {
     CellModel model;

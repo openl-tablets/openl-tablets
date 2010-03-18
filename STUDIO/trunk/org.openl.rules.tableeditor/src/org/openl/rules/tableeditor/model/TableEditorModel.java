@@ -29,10 +29,11 @@ import org.openl.rules.table.actions.UndoableMoveTableAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 
 import java.io.IOException;
@@ -228,11 +229,11 @@ public class TableEditorModel {
         return gridTable.getGrid().getCell(tX(column), tY(row));
     }
 
-    private IGridFilter getFilter(int col, int row) {
+    private AXlsFormatter getFormatter(int col, int row) {
         FormattedCell fc = filteredGrid.getFormattedCell(fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
 
         if (fc != null) {
-            return fc.getFilter();
+            return fc.getFilter().getFormat();
         }
 
         return null;
@@ -327,7 +328,7 @@ public class TableEditorModel {
             return;
         }
 
-        filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[] { new SimpleXlsFormatter() });
+        filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[] { new XlsSimpleFilter() });
     }
 
     public synchronized void redo() {
@@ -404,7 +405,7 @@ public class TableEditorModel {
 
     public synchronized void setCellValue(int row, int col, String value) {
         IUndoableGridAction action = IWritableGrid.Tool.setStringValue(
-                col, row, fullTableRegion, value, getFilter(col, row));
+                col, row, fullTableRegion, value, getFormatter(col, row));
         action.doAction(wgrid(), undoGrid);
         actions.addNewAction(action);
     }

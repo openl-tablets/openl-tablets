@@ -2,9 +2,9 @@ package org.openl.rules.tableeditor.model.ui;
 
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.table.ui.SimpleHtmlFilter;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
+import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 
@@ -40,7 +40,7 @@ public class TableModel {
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 1;
             IGridFilter[] f1 = new IGridFilter[!filtered ? (N + 1) : (N + filters.length)];
-            f1[0] = new SimpleXlsFormatter();
+            f1[0] = new XlsSimpleFilter();
             if (!filtered) {
                 f1[N] = new SimpleHtmlFilter();
             } else {
