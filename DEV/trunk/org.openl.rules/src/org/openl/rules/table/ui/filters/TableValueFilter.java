@@ -40,7 +40,7 @@ public class TableValueFilter extends AGridFilter {
         return v;
     }
 
-    public AXlsFormatter getFormat() {
+    public AXlsFormatter getFormatter() {
         // TODO Auto-generated method stub
         return null;
     }

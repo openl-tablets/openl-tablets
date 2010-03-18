@@ -22,7 +22,7 @@ public class FormulaFilter extends AGridFilter {
         return cell;
     }
 
-    public AXlsFormatter getFormat() {
+    public AXlsFormatter getFormatter() {
         return this.format;
     }
     

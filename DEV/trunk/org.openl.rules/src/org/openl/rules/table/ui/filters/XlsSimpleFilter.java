@@ -164,7 +164,7 @@ public class XlsSimpleFilter implements IGridFilter {
         return XlsNumberFormatter.makeFormat(format, existingFmts);
     }
 
-    public AXlsFormatter getFormat() {
+    public AXlsFormatter getFormatter() {
         // TODO Auto-generated method stub
         return null;
     }    
