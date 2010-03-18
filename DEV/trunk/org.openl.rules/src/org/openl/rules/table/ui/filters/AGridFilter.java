@@ -1,10 +1,12 @@
 /**
  * Created Mar 1, 2007
  */
-package org.openl.rules.table.ui;
+package org.openl.rules.table.ui.filters;
+
+import org.openl.rules.table.ui.IGridSelector;
 
 public abstract class AGridFilter implements IGridFilter {
-    IGridSelector selector;
+    private IGridSelector selector;
 
     public AGridFilter() {
     }

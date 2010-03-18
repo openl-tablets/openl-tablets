@@ -9,23 +9,23 @@ package org.openl.rules.table.ui;
  */
 public class CellStyle implements ICellStyle {
 
-    int horizontalAlignment = ALIGN_GENERAL;
+    private int horizontalAlignment = ALIGN_GENERAL;
 
-    int verticalAlignment = ALIGN_GENERAL;
+    private int verticalAlignment = ALIGN_GENERAL;
 
-    short[] fillBackgroundColor;
+    private short[] fillBackgroundColor;
 
-    short[] fillForegroundColor;
-    String textFormat;
+    private short[] fillForegroundColor;
+    private String textFormat;
 
-    short[] borderStyle;
+    private short[] borderStyle;
 
-    short[][] borderRGB;
-    int ident;
+    private short[][] borderRGB;
+    private int ident;
 
-    boolean wrappedText;
+    private boolean wrappedText;
 
-    int rotation;
+    private int rotation;
 
     public CellStyle(ICellStyle cellStyle) {
         if (cellStyle == null) {

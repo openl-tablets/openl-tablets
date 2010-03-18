@@ -1,20 +1,19 @@
 /**
  * Created Feb 28, 2007
  */
-package org.openl.rules.table.xls;
+package org.openl.rules.table.xls.formatters;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.openl.rules.table.FormattedCell;
 import org.openl.util.Log;
 
 /**
  * @author snshor
  *
  */
-public class XlsDateFormat extends XlsFormat {
+public class XlsDateFormatter extends AXlsFormatter {
     
     public static String DEFAULT_JAVA_DATE_FORMAT = "MM/dd/yyyy";
     public static String DEFAULT_XLS_DATE_FORMAT = "m/d/yy";
@@ -27,33 +26,15 @@ public class XlsDateFormat extends XlsFormat {
         return fmt.replace('m', 'M');
     }
         
-    public XlsDateFormat(SimpleDateFormat fmt) {
+    public XlsDateFormatter(SimpleDateFormat fmt) {
         format = fmt;
     }
 
-    public XlsDateFormat(String fmt) {
+    public XlsDateFormatter(String fmt) {
         String javaFormat = convertTojavaFormat(fmt);
         format = new SimpleDateFormat(javaFormat);
-    }
-
-    public FormattedCell filterFormat(FormattedCell cell) {
-        Object value = cell.getObjectValue();
-        if (value == null) {
-            return cell;
-        }
-
-        String fDate = format(value);
-        if (fDate == null) {
-            return cell;
-        }
-
-        cell.setFormattedValue(fDate);
-        cell.setFilter(this);
-
-        return cell;
-    }
-
-    @Override
+    }    
+    
     public String format(Object value) {
         if (!(value instanceof Date)) {
             Log.error("Should be date" + value);
@@ -64,7 +45,6 @@ public class XlsDateFormat extends XlsFormat {
         return fDate;
     }
 
-    @Override
     public Object parse(String value) {
         try {
             return format.parse(value);

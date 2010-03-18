@@ -1,4 +1,4 @@
-package org.openl.rules.table.ui;
+package org.openl.rules.table.xls.formatters;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -6,7 +6,7 @@ import java.text.ParseException;
 
 import org.openl.util.Log;
 
-public class NumberTextFormatter implements ITextFormatter {
+public class NumberTextFormatter implements IFormatter {
 
     private DecimalFormat format;    
 

@@ -50,7 +50,8 @@ public class Xls2TextConverter {
 
         conv.convert(args[0], args[1]);
     }
-    static void processArg(String string, Xls2TextConverter conv) {
+    
+    private static void processArg(String string, Xls2TextConverter conv) {
         IOpenClass ioc = JavaOpenClass.getOpenClass(conv.getClass());
 
         IOpenField f = ioc.getField(string);

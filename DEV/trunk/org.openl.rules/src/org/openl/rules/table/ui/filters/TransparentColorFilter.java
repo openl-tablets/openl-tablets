@@ -2,7 +2,8 @@
  *  OpenL Tablets,  2006
  *  https://sourceforge.net/projects/openl-tablets/
  */
-package org.openl.rules.table.ui;
+package org.openl.rules.table.ui.filters;
+
 
 /**
  * @author snshor
@@ -10,8 +11,8 @@ package org.openl.rules.table.ui;
  */
 public class TransparentColorFilter implements IColorFilter {
 
-    short[] filter;
-    double transparency; // 0-1, 1 - completely transparent
+    private short[] filter;
+    private double transparency; // 0-1, 1 - completely transparent
 
     public TransparentColorFilter(int color, double transparency) {
         this.transparency = transparency;
@@ -21,10 +22,6 @@ public class TransparentColorFilter implements IColorFilter {
         filter[2] = (short) ((color >> 0) & 0xff);
     }
 
-    /**
-     * @param filter
-     * @param transparency
-     */
     public TransparentColorFilter(short[] filter, double transparency) {
         this.filter = filter;
         this.transparency = transparency;

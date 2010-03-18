@@ -1,7 +1,7 @@
 /**
  * Created Feb 27, 2007
  */
-package org.openl.rules.table.xls;
+package org.openl.rules.table.ui.filters;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -11,19 +11,22 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.IGridSelector;
-import org.openl.rules.table.xls.SegmentFormatter;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.rules.table.xls.formatters.SegmentFormatter;
+import org.openl.rules.table.xls.formatters.XlsDateFormatter;
+import org.openl.rules.table.xls.formatters.XlsFormulaFormatter;
+import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 
 /**
  * @author snshor
  *
  */
-public class SimpleXlsFormatter implements IGridFilter {
+public class XlsSimpleFilter implements IGridFilter {
 
     public static final String GENERAL_XLS_FORMAT = "General";
 
-    private Map<String, XlsFormat> existingFormatters = new HashMap<String, XlsFormat>();
+    private Map<String, AXlsFormatter> existingFormatters = new HashMap<String, AXlsFormatter>();
 
     private Map<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
     
@@ -77,22 +80,22 @@ public class SimpleXlsFormatter implements IGridFilter {
         return format == null || GENERAL_XLS_FORMAT.equalsIgnoreCase(format);
     }    
     
-    private XlsDateFormat findXlsDateFormat(String format) {
-        XlsDateFormat dateFormat = (XlsDateFormat) existingFormatters.get(format);
+    private XlsDateFormatter findXlsDateFormat(String format) {
+        XlsDateFormatter dateFormat = (XlsDateFormatter) existingFormatters.get(format);
         if (dateFormat != null) {
             return dateFormat;
         }
-        dateFormat = (XlsDateFormat)XlsFormat.getFormatter(Date.class, format);
+        dateFormat = (XlsDateFormatter)AXlsFormatter.getFormatter(Date.class, format);
         existingFormatters.put(format, dateFormat);
         return dateFormat;
     }
   
-    private XlsNumberFormat findXlsNumberFormat(String format) {
+    private XlsNumberFormatter findXlsNumberFormat(String format) {
         if (isGeneralFormat(format)) {
-            return XlsNumberFormat.General;
+            return XlsNumberFormatter.General;
         }
 
-        XlsNumberFormat numberFormat = (XlsNumberFormat) existingFormatters.get(format);
+        XlsNumberFormatter numberFormat = (XlsNumberFormatter) existingFormatters.get(format);
         if (numberFormat != null) {
             return numberFormat;
         }
@@ -103,10 +106,10 @@ public class SimpleXlsFormatter implements IGridFilter {
     
     private FormattedCell formatDate(FormattedCell formattedCell) {
         String format = formattedCell.getStyle().getTextFormat();
-        XlsDateFormat dateFormat = findXlsDateFormat(format);
-        dateFormat.filterFormat(formattedCell);
-
-        return formattedCell;
+        XlsDateFormatter dateFormat = findXlsDateFormat(format);
+        DateFilter dateFilter = new DateFilter(dateFormat);
+        
+        return dateFilter.filterFormat(formattedCell);
     }
 
     private FormattedCell formatNumber(FormattedCell formattedCell) {
@@ -115,12 +118,12 @@ public class SimpleXlsFormatter implements IGridFilter {
             style.setHorizontalAlignment(ICellStyle.ALIGN_RIGHT);
         }
 
-        String fmt = style.getTextFormat();
+        String format = style.getTextFormat();
 
-        XlsNumberFormat xnf = findXlsNumberFormat(fmt);
-        xnf.filterFormat(formattedCell);
+        XlsNumberFormatter xnf = findXlsNumberFormat(format);
+        NumberFilter numFilter = new NumberFilter(xnf); 
 
-        return formattedCell;
+        return numFilter.filterFormat(formattedCell);
     }
     
     private FormattedCell formatNumberOrDate(FormattedCell formattedCell) {
@@ -136,11 +139,13 @@ public class SimpleXlsFormatter implements IGridFilter {
     }
 
     private FormattedCell formatFormula(FormattedCell fc) {
-        XlsFormat format = getFormat(fc);
-        return new XlsFormulaFormat(format).filterFormat(fc);
+        AXlsFormatter format = getFormat(fc);
+        AXlsFormatter formulaFormat = new XlsFormulaFormatter(format);
+        
+        return new FormulaFilter(formulaFormat).filterFormat(fc);
     }
 
-    private XlsFormat getFormat(FormattedCell formattedCell) {
+    private AXlsFormatter getFormat(FormattedCell formattedCell) {
         String format = formattedCell.getStyle().getTextFormat();
         if (isDateFormat(format)) {
             return findXlsDateFormat(format);
@@ -151,12 +156,17 @@ public class SimpleXlsFormatter implements IGridFilter {
         }
     }
     
-    private XlsNumberFormat makeFormat(String format) {
+    private XlsNumberFormatter makeFormat(String format) {
         if (GENERAL_XLS_FORMAT.equals(format)) {
-            return XlsNumberFormat.General;
+            return XlsNumberFormatter.General;
         }
 
-        return XlsNumberFormat.makeFormat(format, existingFmts);
+        return XlsNumberFormatter.makeFormat(format, existingFmts);
+    }
+
+    public AXlsFormatter getFormat() {
+        // TODO Auto-generated method stub
+        return null;
     }    
 
 }

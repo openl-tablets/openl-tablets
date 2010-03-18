@@ -1,11 +1,9 @@
-package org.openl.rules.table.xls;
+package org.openl.rules.table.xls.formatters;
 
-import org.openl.rules.table.FormattedCell;
 import org.openl.util.Log;
 
-public class XlsBooleanFormat extends XlsFormat{
-
-    @Override
+public class XlsBooleanFormatter extends AXlsFormatter{
+    
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
             Log.error("Should be Boolean" + value);
@@ -16,11 +14,6 @@ public class XlsBooleanFormat extends XlsFormat{
         return fBoolean;        
     }
 
-    public FormattedCell filterFormat(FormattedCell cell) {
-        
-        return null;
-    }
-    
     public Object parse(String value) {        
         try{
             return new Boolean(value);

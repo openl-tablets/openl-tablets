@@ -1,6 +1,7 @@
-package org.openl.rules.table.ui;
+package org.openl.rules.table.xls.formatters;
 
-public class ConstTextFormatter implements ITextFormatter {
+
+public class ConstTextFormatter implements IFormatter {
 
     private String format;
 

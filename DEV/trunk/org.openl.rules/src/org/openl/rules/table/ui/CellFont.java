@@ -9,17 +9,20 @@ package org.openl.rules.table.ui;
  */
 public class CellFont implements ICellFont {
 
-    short[] fontColor;
+    private short[] fontColor;
 
-    int size;
+    private int size;
 
-    String name;
+    private String name;
 
-    boolean italic;
+    private boolean italic;
 
-    boolean bold;
-    boolean underlined;
-    boolean strikeout;
+    private boolean bold;
+    
+    private boolean underlined;
+    
+    private boolean strikeout;
+    
     public CellFont(ICellFont cf) {
         if (cf == null) {
             name = "arial";

@@ -1,18 +1,17 @@
-package org.openl.rules.table.xls;
+package org.openl.rules.table.xls.formatters;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.util.EnumUtils;
 import org.openl.util.Log;
 
-public class XlsEnumFormat extends XlsFormat {
+public class XlsEnumFormatter extends AXlsFormatter {
 
     private Class<?> enumClass;
     
-    public XlsEnumFormat(Class<?> enumType) {
+    public XlsEnumFormatter(Class<?> enumType) {
         this.enumClass = enumType;
     }
-
-    @Override
+    
     public String format(Object value) {
 
         if (!(value instanceof Enum)) {
@@ -23,8 +22,7 @@ public class XlsEnumFormat extends XlsFormat {
         
         return EnumUtils.getName((Enum<?>)value);        
     }
-
-    @Override
+    
     public Object parse(String value) {
         return EnumUtils.valueOf(enumClass, value);
     }

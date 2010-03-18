@@ -1,4 +1,4 @@
-package org.openl.rules.table.xls;
+package org.openl.rules.table.xls.formatters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.openl.util.StringTool;
  * (method <code>{@link #format(Object)}</code>). 
  * 
  */
-public class XlsArrayFormat extends XlsFormat {
+public class XlsArrayFormatter extends AXlsFormatter {
     
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains 
@@ -34,12 +34,12 @@ public class XlsArrayFormat extends XlsFormat {
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private XlsFormat elementFormat;
+    private AXlsFormatter elementFormat;
     
     /**
      * @param elementFormat formatter for the component type of array.
      */
-    public XlsArrayFormat(XlsFormat elementFormat) {
+    public XlsArrayFormatter(AXlsFormatter elementFormat) {
         this.elementFormat = elementFormat;
     }
     
@@ -50,8 +50,7 @@ public class XlsArrayFormat extends XlsFormat {
      * @param value array of elements that should be represented as <code>{@link String}</code>. 
      * @return <code>{@link String}</code> representation of the income array. <code>NULL</code> if the income value is
      * <code>NULL</code> or if income value is not an array.
-     */
-    @Override
+     */    
     public String format(Object value) {
         String result = null;
         if (value != null) {
@@ -78,7 +77,6 @@ public class XlsArrayFormat extends XlsFormat {
      * @param value <code>{@link String}</code> representation of the array.
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.  
      */
-    @Override
     public Object parse(String value) {        
         Object result = null;
         if (StringUtils.isNotEmpty(value)) {
@@ -103,9 +101,4 @@ public class XlsArrayFormat extends XlsFormat {
         }
         return result;
     }
-
-    public FormattedCell filterFormat(FormattedCell cell) {
-        return cell;
-    }
-
 }
