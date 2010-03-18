@@ -22,10 +22,22 @@ var Tooltip = Class.create({
     },
 
     show: function() {
-        var tooltipDiv = this.createTooltip();
+        var tooltip = this.createTooltip();
         if (!this.firedTooltips.get(this.element.id)) {
-            this.firedTooltips.set(this.element.id, tooltipDiv);
-            document.body.appendChild(tooltipDiv);
+            this.firedTooltips.set(this.element.id, tooltip);
+
+            document.body.appendChild(tooltip);
+
+            this.applyStylesToPointer(tooltip);
+        }
+    },
+
+    applyStylesToPointer: function(tooltip) {
+        var pointer = tooltip.down('div.tooltip_pointer_down_body');
+        if (pointer) {
+            // Set pointer background
+            var tooltipBackground = tooltip.getStyle('backgroundColor');
+            pointer.setStyle({borderTopColor: tooltipBackground});
         }
     },
 
@@ -67,9 +79,6 @@ var Tooltip = Class.create({
         tooltipDiv.addClassName(skinClass);
         tooltipDiv.addClassName(pointerClass);
         tooltipDiv.addClassName("tooltip corner_all");
-
-        // set pointer background
-        tooltipPointerBodyDiv.setStyle({borderTopColor: tooltipDiv.getStyle('backgroundColor')});
 
         var pos = Element.cumulativeOffset(this.element);
         pos[0] += this.element.getWidth() - 25;
