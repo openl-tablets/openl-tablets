@@ -18,7 +18,7 @@ public class SimpleHtmlFilter extends AGridFilter {
         return cell;
     }
 
-    public AXlsFormatter getFormat() {
+    public AXlsFormatter getFormatter() {
         // TODO Auto-generated method stub
         return null;
     }

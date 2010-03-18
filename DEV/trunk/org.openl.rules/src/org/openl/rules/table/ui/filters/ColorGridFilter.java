@@ -79,7 +79,7 @@ public class ColorGridFilter extends AGridFilter {
         return formattedCell;
     }
 
-    public AXlsFormatter getFormat() {
+    public AXlsFormatter getFormatter() {
         // TODO Auto-generated method stub
         return null;
     }

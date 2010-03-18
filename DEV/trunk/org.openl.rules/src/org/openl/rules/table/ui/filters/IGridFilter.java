@@ -14,5 +14,5 @@ public interface IGridFilter {
 
     Object parse(String value);
     
-    AXlsFormatter getFormat();
+    AXlsFormatter getFormatter();
 }

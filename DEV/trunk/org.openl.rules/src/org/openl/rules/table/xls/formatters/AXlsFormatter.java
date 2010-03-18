@@ -48,8 +48,8 @@ public abstract class AXlsFormatter implements IFormatter {
                 formatter = new XlsEnumFormatter(clazz);
             } else  if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
-                AXlsFormatter componentFilter = getFormatter(componentType, null);
-                formatter = new XlsArrayFormatter((AXlsFormatter) componentFilter);
+                AXlsFormatter componentFormatter = getFormatter(componentType, null);
+                formatter = new XlsArrayFormatter((AXlsFormatter) componentFormatter);
             }
         }
         

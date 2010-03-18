@@ -47,7 +47,7 @@ public class NumberFilter extends AGridFilter {
         return formattedCell;
     }
 
-    public AXlsFormatter getFormat() {        
+    public AXlsFormatter getFormatter() {        
         return format;
     }
     
