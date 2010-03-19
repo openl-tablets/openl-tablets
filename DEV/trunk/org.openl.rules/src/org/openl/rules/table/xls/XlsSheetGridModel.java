@@ -6,8 +6,10 @@
 
 package org.openl.rules.table.xls;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +39,16 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
+import org.openl.rules.table.xls.formatters.XlsEnumFormatter;
+import org.openl.rules.table.xls.writers.AXlsCellWriter;
+import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
+import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
+import org.openl.rules.table.xls.writers.XlsCellDateWriter;
+import org.openl.rules.table.xls.writers.XlsCellEnumArrayWriter;
+import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
+import org.openl.rules.table.xls.writers.XlsCellFormulaWriter;
+import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
+import org.openl.rules.table.xls.writers.XlsCellStringWriter;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
@@ -47,6 +59,16 @@ import org.openl.util.StringTool;
  */
 public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         XlsWorkbookSourceCodeModule.WorkbookListener {
+    
+    private static final String RANGE_SEPARATOR = ":";
+
+    private XlsSheetSourceCodeModule sheetSource;
+
+    private Sheet sheet;
+
+    private Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
+    
+    private Map<String, AXlsCellWriter> cellWriters = new HashMap<String, AXlsCellWriter>();
     
    // private final static Log LOG = LogFactory.getLog(XlsSheetGridModel.class);
 
@@ -162,15 +184,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     }
 
-    public static final String RANGE_SEPARATOR = ":";
-
-    XlsSheetSourceCodeModule sheetSource;
-
-    Sheet sheet;
-
-    Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
-
-    static public int getColumn(String cell) {
+    public static int getColumn(String cell) {
         int col = 0;
         int mul = 'Z' - 'A' + 1;
         for (int i = 0; i < cell.length(); i++) {
@@ -183,7 +197,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         throw new RuntimeException("Invalid cell: " + cell);
     }
 
-    static public int getRow(String cell) {
+    public static int getRow(String cell) {
         for (int i = 0; i < cell.length(); i++) {
             char ch = cell.charAt(i);
             if (Character.isDigit(ch)) {
@@ -213,13 +227,26 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     public XlsSheetGridModel(Sheet sheet) {
         this.sheet = sheet;
-    }
+        initCellWriters();
+    }    
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
         sheet = sheetSource.getSheet();
 
-        sheetSource.getWorkbookSource().addListener(this);
+        sheetSource.getWorkbookSource().addListener(this);   
+        initCellWriters();
+    }
+    
+    private void initCellWriters() {
+        cellWriters.put(AXlsCellWriter.ARRAY_WRITER, new XlsCellArrayWriter(this));
+        cellWriters.put(AXlsCellWriter.BOOLEAN_WRITER, new XlsCellBooleanWriter(this));
+        cellWriters.put(AXlsCellWriter.DATE_WRITER, new XlsCellDateWriter(this));
+        cellWriters.put(AXlsCellWriter.ENUM_ARRAY_WRITER, new XlsCellEnumArrayWriter(this));
+        cellWriters.put(AXlsCellWriter.ENUM_WRITER, new XlsCellEnumWriter(this));
+        cellWriters.put(AXlsCellWriter.FORMULA_WRITER, new XlsCellFormulaWriter(this));
+        cellWriters.put(AXlsCellWriter.NUMBER_WRITER, new XlsCellNumberWriter(this));        
+        cellWriters.put(AXlsCellWriter.STRING_WRITER, new XlsCellStringWriter(this));
     }
 
     public int addMergedRegion(IGridRegion reg) {
@@ -563,94 +590,41 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         xlsCell.setCellStyle(newXlsStyle);
     }
 
-    public void setCellValue(int col, int row, Object value) {
-        
-        if (value == null) {
-            return;
+    public void setCellValue(int col, int row, Object value) {        
+        if (value != null) {
+            Cell cell = getOrCreateXlsCell(col, row);
+            
+            AXlsCellWriter cellWriter = getCellWriter(cell, value);
+            cellWriter.setCellToWrite(cell);
+            cellWriter.setValueToWrite(value);
+            cellWriter.writeCellValue();
         }
-        
-        Cell cell = getOrCreateXlsCell(col, row);
+    }
+
+    private AXlsCellWriter getCellWriter(Cell cell, Object value) {
         String strValue = String.valueOf(value);
+        AXlsCellWriter result = null;
         if (value instanceof Number) {
-            
-            Number numberValue = (Number) value;
-            cell.setCellValue(numberValue.doubleValue());
-            
-            // we need to set cell meta info for the cell, to open appropriate editor for it on UI.
-            CellMetaInfo numberMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                    JavaOpenClass.getOpenClass(numberValue.getClass()), false);            
-            setCellMetaInfo(col, row, numberMeta);
-            return;
+            result = cellWriters.get(AXlsCellWriter.NUMBER_WRITER);
         } else if (value instanceof Date) {
-
-            Date dateValue = (Date) value;
-            cell.setCellValue(dateValue);
-            
-            CellStyle previousStyle = cell.getCellStyle();
-            cell.setCellStyle(sheet.getWorkbook().createCellStyle());
-            cell.getCellStyle().cloneStyleFrom(previousStyle);
-            cell.getCellStyle().setDataFormat((short) BuiltinFormats
-                    .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
-            
-            CellMetaInfo dateMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                    JavaOpenClass.getOpenClass(dateValue.getClass()), false);            
-            setCellMetaInfo(col, row, dateMeta);
-            return;
+            result = cellWriters.get(AXlsCellWriter.DATE_WRITER);
         } else if (value instanceof Boolean) {
-        
-            Boolean boolValue = (Boolean) value;
-            cell.setCellValue(boolValue.booleanValue());
-            
-            CellMetaInfo booleanMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                    JavaOpenClass.getOpenClass(boolValue.getClass()), false);            
-            setCellMetaInfo(col, row, booleanMeta);
-            return;
-        
+            result = cellWriters.get(AXlsCellWriter.BOOLEAN_WRITER);        
         } else if (EnumUtils.isEnum(value)) {
-            cell.setCellValue(((Enum<?>) value).name());
-            
-            CellMetaInfo enumMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                    JavaOpenClass.getOpenClass(value.getClass()), false);            
-            setCellMetaInfo(col, row, enumMeta);
-            return;
-        
+            result = cellWriters.get(AXlsCellWriter.ENUM_WRITER);
         } else if (EnumUtils.isEnumArray(value)) {
-        
-            Object[] enums = (Object[]) value;
-            String[] names = EnumUtils.getNames(enums);
-            cell.setCellValue(StringUtils.join(names, ","));
-            
-            // we have an array of Enums. we need to set as meta info information that domain class is Enum, so we 
-            // need to take a component class and multiValue to true as it is an array.
-            CellMetaInfo enumArrayMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                    JavaOpenClass.getOpenClass(value.getClass().getComponentType()), true);            
-            setCellMetaInfo(col, row, enumArrayMeta);
-            return;
-     
+            result = cellWriters.get(AXlsCellWriter.ENUM_ARRAY_WRITER);     
         } else if (value.getClass().isArray()) {
-            
-            Object[] values = (Object[]) value;
-            cell.setCellValue(StringUtils.join(values, ","));
-            
-            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                    JavaOpenClass.getOpenClass(value.getClass().getComponentType()), false);            
-            setCellMetaInfo(col, row, meta);
-            return;
-
-        } else { // String       
-            
+            result = cellWriters.get(AXlsCellWriter.ARRAY_WRITER);
+        } else { // String
             // Formula
             if (strValue.startsWith("=") && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-                cell.setCellFormula(strValue.replaceFirst("=", ""));
+                result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
             } else {
-                cell.setCellType(Cell.CELL_TYPE_BLANK);
-                cell.setCellValue(strValue);
-                
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                        JavaOpenClass.getOpenClass(strValue.getClass()), false);            
-                setCellMetaInfo(col, row, meta);
+                result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
             }
         }
+        return result;        
     }
 
 }
