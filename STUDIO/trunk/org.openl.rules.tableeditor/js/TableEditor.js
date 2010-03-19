@@ -26,6 +26,7 @@ var TableEditor = Class.create({
     propIdPrefix: null,
     actions: null,
     inheritedPropStyleClass: null,
+    editWrapper: null,
 
     // Constructor
     initialize : function(editorId, url, editCell, actions) {
@@ -296,8 +297,31 @@ var TableEditor = Class.create({
             var formula = cell.down("input[name='formula']");
             initialValue = formula ? formula.value : '';
         }
-        this.editor = new TableEditor.Editors[response.editor](this, cell.id, response.params, initialValue, true);
+        this.showCellEditor(response.editor, cell, initialValue, response.params);
+        this.editCell = cell;
         this.selectElement(cell);
+    },
+
+    showCellEditor: function(editorName, parent, initialValue, params) {
+        this.editWrapper = new Element("div");
+        var wrapperId = parent.id + "_editWrapper";
+        this.editWrapper.setAttribute("id", wrapperId);
+        this.editWrapper.style.position = "absolute";
+        this.editWrapper.style.zIndex = "3";
+        this.editWrapper.style.width = parent.offsetWidth - 2 + "px";
+        this.editWrapper.style.height = parent.offsetHeight - 2 + "px";
+        var pos = Element.cumulativeOffset(parent);
+        this.editWrapper.style.left = pos[0] + "px";
+        this.editWrapper.style.top = pos[1] + "px";
+        //Element.clonePosition(this.editWrapper, parent);
+
+        document.body.appendChild(this.editWrapper);
+
+        if (!initialValue) {
+            initialValue = AjaxHelper.unescapeHTML(parent.innerHTML.replace(/<br>/ig, "\n")).strip();
+        }
+
+        this.editor = new TableEditor.Editors[editorName](this, wrapperId, params, initialValue, true);
     },
 
     switchEditor: function(editorName) {
@@ -327,8 +351,11 @@ var TableEditor = Class.create({
                                 "Error during setting the value.");
                     }
                 });
+                var displayValue = this.editor.getDisplayValue();
+                this.editCell.innerHTML = displayValue;
             }
             this.editor.detach();
+            document.body.removeChild(this.editWrapper);
         }
         this.editor = null;
     },
