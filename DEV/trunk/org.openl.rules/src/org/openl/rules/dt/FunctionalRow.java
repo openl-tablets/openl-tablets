@@ -163,14 +163,15 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, src, value, false);
     }
     
-    private static void applyFormat(ILogicalTable cell, Object target){
-        String originalFormat = cell.getGridTable().getCell(0, 0).getStyle().getTextFormat();
-        //Java does not support some Excel formats
-        String transformed = XlsNumberFormatter.transformToJavaFormat(originalFormat, null);
-        if (target instanceof DoubleValue){
-            ((DoubleValue)target).setFormat(transformed);
-        }
-    }
+//    private static void applyFormat(ILogicalTable cell, Object target){
+//        if (target instanceof DoubleValue){
+//            String originalFormat = cell.getGridTable().getCell(0, 0).getStyle().getTextFormat();
+//        //Java does not support some Excel formats
+//        String transformed = XlsNumberFormatter.transformToJavaFormat(originalFormat, null);
+//
+//            ((DoubleValue)target).setFormat(transformed);
+//        }
+//    }
     
     private static Object loadSingleParamInternal(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
             OpenlToolAdaptor ota, String src, Object value, boolean isPartOfArray) throws BoundError {
@@ -224,7 +225,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                     res = conv.parse(src, null, ota.getBindingContext());
                 }
                 
-                applyFormat(cell, res);                
+//                applyFormat(cell, res);                
                 
                 if (res instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
