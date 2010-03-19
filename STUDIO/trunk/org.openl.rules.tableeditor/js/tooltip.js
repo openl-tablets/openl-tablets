@@ -128,7 +128,7 @@ var Tooltip = Class.create({
     createIE6Popup: function() {
         var ie6Popup = new Element("iframe");
         ie6Popup.src = "javascript:'<html></html>';";
-        ie6Popup.setAttribute('className','ie6Popup');
+        ie6Popup.setAttribute('className','tooltip_ie6Popup');
         // Remove iFrame from tabIndex                                        
         ie6Popup.setAttribute("tabIndex", -1);                              
         ie6Popup.scrolling = "no";

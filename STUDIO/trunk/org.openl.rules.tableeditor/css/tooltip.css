@@ -125,7 +125,7 @@
 }
 
 /* The iframe hack to cover selectlists in Internet Explorer 6 */
-iframe.ie6Popup {
+iframe.tooltip_ie6Popup {
     position: absolute;
     z-index: 9100;
     background: #fff;

@@ -175,7 +175,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     createIE6Popup: function() {
         this.ie6Popup = new Element("iframe");
         this.ie6Popup.src = "javascript:'<html></html>';";
-        this.ie6Popup.setAttribute('className','ie6Popup');
+        this.ie6Popup.setAttribute('className','ms_ie6Popup');
         // Remove iFrame from tabIndex                                        
         this.ie6Popup.setAttribute("tabIndex", -1);                              
         this.ie6Popup.scrolling = "no";
