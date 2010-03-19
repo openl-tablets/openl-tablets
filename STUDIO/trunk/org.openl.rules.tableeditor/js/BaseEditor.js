@@ -45,27 +45,25 @@ var BaseEditor = Class.create({
         return input ? AjaxHelper.getInputValue(input).toString().replace(/\u00A0/g, ' ') : null;
     },
 
-    /**
-     * Destroys HTML editor control, writes value to cell.
-     */
-    setTDValue : function(/* String */ value) {
+    getDisplayValue: function() {
+        var value = this.isCancelled() ? this.initialValue : this.getValue();
         if (!value.strip()) {
-          this.parentElement.innerHTML = "&nbsp";
-        } else
-            this.parentElement.innerHTML = value.escapeHTML().replace(/\n/g, "<br>");
+            value = "&nbsp";
+        } else {
+            value = value.escapeHTML().replace(/\n/g, "<br>");
+        }
+        return value;
     },
 
     /** Returns if the editing was cancelled */
     isCancelled : function() {
-        return (this.initialValue == this.getValue());
+        return this.initialValue == this.getValue();
     },
 
     /**
      * Destroys HTML editor control, writes value to cell, releases editor resources.
      */
     detach : function() {
-        var v = this.isCancelled() ? this.initialValue : this.getValue();
-        this.setTDValue(v);
         if (this.stoppedEvents) {
             var input = this.input;
             this.stoppedEvents.each(function(evt) {
