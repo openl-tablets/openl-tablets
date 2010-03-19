@@ -6,10 +6,10 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.table.ui.SimpleHtmlFilter;
-import org.openl.rules.table.ui.TableValueFilter;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
+import org.openl.rules.table.ui.filters.TableValueFilter;
+import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.DynamicObject;
@@ -59,7 +59,7 @@ public class GameInterface
 		};
 
 		IGridFilter[] filters = { new TableValueFilter(gt, model),
-				new SimpleXlsFormatter(), new SimpleHtmlFilter(), };
+				new XlsSimpleFilter(), new SimpleHtmlFilter(), };
 
 		FilteredGrid fg = new FilteredGrid(gt.getGrid(), filters);
 
