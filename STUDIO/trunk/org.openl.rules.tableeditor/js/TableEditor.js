@@ -1,7 +1,7 @@
 /**
  * Table editor.
  *
- * @requires prototype JavaScript library
+ * @requires Prototype v1.6.1+ library
  *
  * @author Andrey Naumenko
  */
@@ -27,7 +27,7 @@ var TableEditor = Class.create({
     actions: null,
     inheritedPropStyleClass: null,
 
-    /** Constructor */
+    // Constructor
     initialize : function(editorId, url, editCell, actions) {
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
@@ -103,8 +103,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: load data from specific url
-     * @type: private
+     * Load data from specific url.
      */
     loadData : function(url) {
         if (!url) url = this.buildUrl(TableEditor.Operations.LOAD);
@@ -136,8 +135,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: renders table
-     * @type: private
+     * Renders table.
      */
     renderTable : function(data) {
         this.decorator = new Decorator();
@@ -149,9 +147,8 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: computes table width in rows, and height in columns (that is sum of all rowSpans in a column
+     * Computes table width in rows, and height in columns (that is sum of all rowSpans in a column
      * and sum of all colSpans in a row).
-     * @type: private
      */
     computeTableInfo: function(table) {
         this.rows = 0;
@@ -174,8 +171,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: makes all changes persistant. Sends corresponding request to the server.
-     * @type: public
+     * Makes all changes persistant. Sends corresponding request to the server.
      */
     save: function() {
         var beforeSavePassed = true;
@@ -213,8 +209,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: handles mouse double click on table
-     * @type: private
+     * Handles mouse double click on table.
      */
     handleDoubleClick: function(event) {
         var cell = Event.findElement(event, "TD");
@@ -268,8 +263,8 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: sends request to server to find out required editor for a cell. After getting response calls this.editBegin
-     * @type: private
+     * Sends request to server to find out required editor for a cell.
+     * After getting response calls this.editBegin.
      */
     editBeginRequest : function(cell, keyCode, ignoreAjaxRequestCount) {
         if (!ignoreAjaxRequestCount && Ajax.activeRequestCount > 0) return;
@@ -294,7 +289,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     *  @desc: Create and activate new editor
+     *  Create and activate new editor.
      */
     editBegin : function(cell, response, initialValue) {
         if (response.editor == 'formula') {
@@ -339,8 +334,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: handles mouse click on the table
-     * @type: private
+     * Handles mouse click on the table.
      */
     handleClick: function(e) {
         var elt = Event.element(e);
@@ -362,12 +356,11 @@ var TableEditor = Class.create({
 
 
     /**
-     * @desc: makes a cell 'selected', that is sets up this.selectionPos and this.currentElement, and also applies
+     * Makes a cell 'selected', that is sets up this.selectionPos and this.currentElement, and also applies
      * visual decoration to the cell.
      * If elt is null(undefined) than this.currentElement is set based on value of this.selectionPos array.
      * dir param is used to track selections history, if it is not given history is cleared, if it is set to -1 and
      * elt param is not given the new selection is taken from history.
-     * @type: private
      */
     selectElement: function(elt, dir) {
         if (elt && this.currentElement && elt.id == this.currentElement.id) return;
@@ -474,8 +467,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: handles key presses. Performs table navigation.
-     * @type: private
+     * Handles key presses. Performs table navigation.
      */
     handleKeyDown: function(event) {
         if (!this.isCellLocation(this.currentElement)) {
@@ -551,8 +543,7 @@ var TableEditor = Class.create({
     },
 
     /**
-     * @desc: inspect element id and extracts its position in table. Element is expected to be a TD
-     * @type: private
+     * Inspect element id and extracts its position in table. Element is expected to be a TD.
      */
     elementPosition: function(e) {
         var id = $(e).id;
@@ -671,14 +662,15 @@ var TableEditor = Class.create({
             }
         } catch(ex) {}
     },
-    // ----------------------------------------------------------------- Callback functions --
+    // Callback functions
     undoStateUpdated : Prototype.emptyFunction,
     redoStateUpdated : Prototype.emptyFunction,
     isSelectedUpdated : Prototype.emptyFunction
 });
 
 /**
- *  Here is editors registry. The editors would add themselves to this hash with the name as a key
+ *  Here is editors registry.
+ *  The editors would add themselves to this hash with the name as a key.
  */
 TableEditor.Editors = $H();
 
@@ -699,12 +691,12 @@ TableEditor.Operations = {
     SAVE : "saveTable"
 };
 
-// standalone functions
+// Standalone functions
 
 TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
 
 /**
- * returns array [row, column] from string like 'B20' - excel style cell coordinates   
+ * Returns array [row, column] from string like 'B20' - excel style cell coordinates.   
  */
 TableEditor.parseXlsCell = function (s) {
     var m = s.match(/^([A-Z]+)(\d+)$/)
@@ -722,15 +714,14 @@ TableEditor.parseXlsCell = function (s) {
  *  Responsible for visual display of 'selected' element.
  */
 var Decorator = Class.create({
-    /** Holds changed properties of last decorated  element */
+    // Holds changed properties of last decorated  element
     previosState : {},
 
-    /** Empty constructor */
+    // Empty constructor
     initialize : Prototype.emptyFunction,
 
     /**
-     * @desc changes elememnt style, so it looks 'selected'
-     * @type: public
+     * Changes elememnt style, so it looks 'selected'.
      */
     decorate: function(/* Element */ elt) {
         if (!elt) return;
@@ -744,8 +735,7 @@ var Decorator = Class.create({
     },
 
     /**
-     * @desc reverts 'selection' of last decorated element
-     * @type: public
+     * Reverts 'selection' of last decorated element.
      */
     undecorate: function(/* Element */ elt) {
         if (elt) {
