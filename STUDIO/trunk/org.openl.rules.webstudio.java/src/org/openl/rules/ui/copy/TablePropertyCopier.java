@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.ui.copy;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,6 +22,8 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.conf.Version;

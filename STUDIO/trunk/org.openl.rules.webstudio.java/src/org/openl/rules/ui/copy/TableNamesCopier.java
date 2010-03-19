@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.ui.copy;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -47,33 +47,33 @@ public class WebStudio {
 
     private static final Log LOG = LogFactory.getLog(WebStudio.class);
 
-    public WebStudioViewMode DEVELOPER_BYTYPE_VIEW = new DeveloperByTypeViewMode();
-    public WebStudioViewMode DEVELOPER_BYFILE_VIEW = new DeveloperByFileViewMode();
-    public WebStudioViewMode BUSINESS1_VIEW = new BusinessViewMode1();
-    public WebStudioViewMode BUSINESS2_VIEW = new BusinessViewMode2();
-    public WebStudioViewMode BUSINESS3_VIEW = new BusinessViewMode3();
+    private WebStudioViewMode DEVELOPER_BYTYPE_VIEW = new DeveloperByTypeViewMode();
+    private WebStudioViewMode DEVELOPER_BYFILE_VIEW = new DeveloperByFileViewMode();
+    private WebStudioViewMode BUSINESS1_VIEW = new BusinessViewMode1();
+    private WebStudioViewMode BUSINESS2_VIEW = new BusinessViewMode2();
+    private WebStudioViewMode BUSINESS3_VIEW = new BusinessViewMode3();
 
-    WebStudioViewMode[] businessModes = { BUSINESS1_VIEW, BUSINESS2_VIEW, BUSINESS3_VIEW };
-    WebStudioViewMode[] developerModes = { DEVELOPER_BYTYPE_VIEW, DEVELOPER_BYFILE_VIEW };
+    private WebStudioViewMode[] businessModes = { BUSINESS1_VIEW, BUSINESS2_VIEW, BUSINESS3_VIEW };
+    private WebStudioViewMode[] developerModes = { DEVELOPER_BYTYPE_VIEW, DEVELOPER_BYFILE_VIEW };
 
     private String workspacePath;
-    ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
-    List<StudioListener> listeners = new ArrayList<StudioListener>();
-    String tableUri;
-    ProjectModel model = new ProjectModel(this);
+    private ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
+    private List<StudioListener> listeners = new ArrayList<StudioListener>();
+    private String tableUri;
+    private ProjectModel model = new ProjectModel(this);
     private OpenLProjectLocator locator;
-    OpenLWrapperInfo[] wrappers = null;
+    private OpenLWrapperInfo[] wrappers = null;
 
-    WebStudioViewMode mode = BUSINESS1_VIEW;
+    private WebStudioViewMode mode = BUSINESS1_VIEW;
     private Set<String> writableProjects;
-    OpenLWrapperInfo currentWrapper;
+    private OpenLWrapperInfo currentWrapper;
     private boolean showFormulas;
     private boolean collapseProperties = true;
 
-    WebStudioProperties properties = new WebStudioProperties();
+    private WebStudioProperties properties = new WebStudioProperties();
 
-    int businessModeIdx = 0;
-    int developerModeIdx = 0;
+    private int businessModeIdx = 0;
+    private int developerModeIdx = 0;
 
     public WebStudio() {
         boolean initialized = false;

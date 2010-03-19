@@ -13,10 +13,10 @@ import org.openl.rules.webtools.indexer.FileIndexer;
  */
 public class TableInfo {
 
-    IGridTable table;
-    String displayName;
-    boolean runnable;
-    String uri;
+    private IGridTable table;
+    private String displayName;
+    private boolean runnable;
+    private String uri;
 
     public TableInfo(IGridTable table, String displayName, boolean runnable) {
         this.table = table;
