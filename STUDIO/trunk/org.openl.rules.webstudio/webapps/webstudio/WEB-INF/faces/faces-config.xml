@@ -347,7 +347,7 @@
 
   <managed-bean>
     <managed-bean-name>tableCopier</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.TableNamesCopier</managed-bean-class>
+    <managed-bean-class>org.openl.rules.ui.copy.TableNamesCopier</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
