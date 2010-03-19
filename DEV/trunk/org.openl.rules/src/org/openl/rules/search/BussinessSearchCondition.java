@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
+ * 
  * Bean consists criteria for business search
  * @author DLiauchuk
  *
@@ -29,11 +30,11 @@ public class BussinessSearchCondition {
     }
     
     public TableSyntaxNode[] getTablesContains() {
-        return tablesContains;
+        return tablesContains.clone();
     }
 
     public void setTablesContains(TableSyntaxNode[] tablesContains) {
-        this.tablesContains = tablesContains;
+        this.tablesContains = tablesContains.clone();
     }
     
 }
