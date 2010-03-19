@@ -2,7 +2,6 @@ package org.openl.rules.ui.tree;
 
 import java.util.Iterator;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.util.tree.ITreeElement;
