@@ -30,7 +30,11 @@ public class BussinessSearchCondition {
     }
     
     public TableSyntaxNode[] getTablesContains() {
-        return tablesContains.clone();
+        if (tablesContains != null) {
+            return tablesContains.clone();
+        } else {
+            return null;
+        }        
     }
 
     public void setTablesContains(TableSyntaxNode[] tablesContains) {
