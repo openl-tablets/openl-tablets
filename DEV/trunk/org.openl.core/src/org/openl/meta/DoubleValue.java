@@ -74,7 +74,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 
     double value;
 
-    String format = "#0.##";
+    String format = "#0.####";
 
     public static DoubleValue add(DoubleValue dv1, DoubleValue dv2) {
         if (dv1 == null || dv1.getValue() == 0) {
