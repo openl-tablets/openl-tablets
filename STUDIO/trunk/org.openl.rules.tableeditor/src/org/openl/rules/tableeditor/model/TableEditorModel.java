@@ -230,13 +230,17 @@ public class TableEditorModel {
     }
 
     private AXlsFormatter getFormatter(int col, int row) {
+        AXlsFormatter formatter = null;
         FormattedCell fc = filteredGrid.getFormattedCell(fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
 
         if (fc != null) {
-            return fc.getFilter().getFormatter();
+            IGridFilter filter = fc.getFilter();
+            if (filter != null) {
+                formatter = filter.getFormatter();
+            }
         }
 
-        return null;
+        return formatter;
     }
 
     public void getUndoableActions(TableEditorModel other) {
