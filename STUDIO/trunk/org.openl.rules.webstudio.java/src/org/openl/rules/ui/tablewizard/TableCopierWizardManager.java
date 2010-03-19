@@ -1,10 +1,10 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.ui.NewVersionTableCopier;
-import org.openl.rules.ui.TablePropertyCopier;
-import org.openl.rules.ui.TableNamesCopier;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.copy.NewVersionTableCopier;
+import org.openl.rules.ui.copy.TableNamesCopier;
+import org.openl.rules.ui.copy.TablePropertyCopier;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;

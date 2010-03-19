@@ -8,15 +8,15 @@ import org.openl.meta.DoubleValue;
 
 public class Explanator {
 
-    static ThreadLocal<Explanator> current = new ThreadLocal<Explanator>();
+    private static ThreadLocal<Explanator> current = new ThreadLocal<Explanator>();
 
-    static int uniqueId = 0;
+    private static int uniqueId = 0;
 
-    IdentityMap value2id = new IdentityMap();
+    private IdentityMap value2id = new IdentityMap();
 
-    Map<Integer, Object> id2value = new HashMap<Integer, Object>();
+    private Map<Integer, Object> id2value = new HashMap<Integer, Object>();
 
-    Map<String, Explanation> explanators = new HashMap<String, Explanation>();
+    private Map<String, Explanation> explanators = new HashMap<String, Explanation>();
 
     public static Explanator getCurrent() {
         return current.get();

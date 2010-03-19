@@ -91,11 +91,11 @@ public class ObjectViewer {
         }
     }
 
-    static class LinkMaker implements IGridFilter, IGridSelector {
+    private static class LinkMaker implements IGridFilter, IGridSelector {
 
-        String url;
+        private String url;
 
-        TableValueFilter dataAdapter;
+        private TableValueFilter dataAdapter;
 
         public LinkMaker(TableValueFilter dataAdapter) {
             super();

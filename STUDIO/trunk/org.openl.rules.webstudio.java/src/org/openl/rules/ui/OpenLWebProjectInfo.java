@@ -18,27 +18,20 @@ import org.openl.util.StringTool;
  *
  */
 public class OpenLWebProjectInfo {
-    String workspace;
-    String name;
+    
+    private String workspace;
+    
+    private String name;
 
-    Properties projectProperties;
+    private Properties projectProperties;
 
-    URLClassLoader ucl;
+    private URLClassLoader ucl;
 
-    /**
-     * @param workspace
-     * @param name
-     */
     public OpenLWebProjectInfo(String workspace, String name) {
         this.workspace = workspace;
         this.name = name;
     }
-
-    /**
-     * @param classLoader
-     * @return
-     * @throws IOException
-     */
+    
     public ClassLoader getClassLoader(ClassLoader parent, boolean reload) throws IOException {
         if (ucl != null && !reload) {
             return ucl;
@@ -69,10 +62,6 @@ public class OpenLWebProjectInfo {
         return ucl;
     }
 
-    /**
-     * @param wrapperClassName
-     * @return
-     */
     public String getDisplayName(String wrapperClassName) {
         Properties p = getProjectProperties();
         if (p == null) {

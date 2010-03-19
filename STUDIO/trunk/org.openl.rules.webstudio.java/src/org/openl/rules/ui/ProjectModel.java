@@ -75,21 +75,21 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
 
-public class ProjectModel implements IProjectTypes {
+public class ProjectModel {
 
     private static final String ERRORS_FOLDER_NAME = "All Errors";
 
-    OpenLWrapper wrapper;
+    private OpenLWrapper wrapper;
 
-    OpenLWrapperInfo wrapperInfo;
+    private OpenLWrapperInfo wrapperInfo;
 
-    Throwable projectProblem;
+    private Throwable projectProblem;
 
-    ProjectIndexer indexer;
+    private ProjectIndexer indexer;
 
-    WebStudio studio;
+    private WebStudio studio;
 
-    ColorFilterHolder filterHolder = new ColorFilterHolder();
+    private ColorFilterHolder filterHolder = new ColorFilterHolder();
 
     private OpenLSavedSearch[] savedSearches;
 
@@ -101,7 +101,7 @@ public class ProjectModel implements IProjectTypes {
 
     private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
 
-    List<Throwable> validationExceptions;
+    private List<Throwable> validationExceptions;
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
@@ -174,7 +174,8 @@ public class ProjectModel implements IProjectTypes {
          */
         String name = se.getMessage();
         String[] names = { name, name, name };
-        errorFolder.getElements().put(new NodeKey(i, names), new ProjectTreeNode(names, PT_PROBLEM, uri, se, 0, null));
+        errorFolder.getElements().put(new NodeKey(i, names), new ProjectTreeNode(names, IProjectTypes.PT_PROBLEM, uri, 
+                se, 0, null));
     }
 
     private void addErrors(CompiledOpenClass comp, ProjectTreeNode root) {
@@ -189,7 +190,7 @@ public class ProjectModel implements IProjectTypes {
         
         String[] errName = { finalErrorFolderName, finalErrorFolderName, finalErrorFolderName };
 
-        ProjectTreeNode errorFolder = new ProjectTreeNode(errName, PT_FOLDER, null, null, 0, null);
+        ProjectTreeNode errorFolder = new ProjectTreeNode(errName, IProjectTypes.PT_FOLDER, null, null, 0, null);
         root.getElements().put(new NodeKey(0, errName), errorFolder);
         
         for (int i = 0; i < parsingErrorsNum; i++) {
@@ -931,7 +932,7 @@ public class ProjectModel implements IProjectTypes {
         int childNumber = 0;
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();
-            if (child.getType().startsWith(PT_TABLE + ".")) {
+            if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
                 ProjectTreeNode ptr = (ProjectTreeNode) child;
                 uriTreeCache.put(ptr.getUri(), ptr);
             }

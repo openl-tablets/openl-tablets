@@ -9,14 +9,11 @@ package org.openl.rules.ui;
  *
  */
 public class OpenLWrapperInfo {
-    String wrapperClassName;
+    
+    private String wrapperClassName;
 
-    OpenLWebProjectInfo projectInfo;
+    private OpenLWebProjectInfo projectInfo;
 
-    /**
-     * @param name
-     * @param projectInfo
-     */
     public OpenLWrapperInfo(String name, OpenLWebProjectInfo projectInfo) {
         wrapperClassName = name;
         this.projectInfo = projectInfo;

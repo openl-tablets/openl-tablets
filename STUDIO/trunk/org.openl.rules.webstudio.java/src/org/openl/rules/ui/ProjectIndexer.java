@@ -22,7 +22,7 @@ import java.util.Iterator;
  *
  */
 public class ProjectIndexer extends FileIndexer {
-    String projectRoot;
+    private String projectRoot;
 
     public ProjectIndexer(String projectRoot) {
         this.projectRoot = projectRoot;

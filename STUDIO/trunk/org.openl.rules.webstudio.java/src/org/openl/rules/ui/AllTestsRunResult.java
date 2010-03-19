@@ -17,7 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class AllTestsRunResult {
 
-    static public class Test {
+    public static class Test {
         TestMethodTestAll method;
         TestResult result;
         String testName;
@@ -42,18 +42,12 @@ public class AllTestsRunResult {
             return method.getNumberOfTests();
         }
 
-        /**
-         * @param tid
-         * @param env
-         * @param target
-         * @return
-         */
         public Object run(int tid, Object target, IRuntimeEnv env, int ntimes) {
             return method.run(tid, target, env, ntimes);
         }
     }
 
-    Test[] tests;
+    private Test[] tests;
 
     public AllTestsRunResult(IOpenMethod[] methods, String[] names) {
 
@@ -66,10 +60,6 @@ public class AllTestsRunResult {
         }
     }
 
-    /**
-     * @param testName
-     * @return
-     */
     private Test findTest(String testName) {
         for (int i = 0; i < tests.length; i++) {
             if (tests[i].testName.equals(testName)) {
@@ -110,19 +100,11 @@ public class AllTestsRunResult {
         return cnt;
     }
 
-    /**
-     * @param testName
-     * @param tid
-     * @return
-     */
     public Object run(String testName, int tid, Object target, IRuntimeEnv env, int ntimes) {
         Test test = findTest(testName);
         return test.run(tid, target, env, ntimes);
     }
 
-    /**
-     * @param ttr
-     */
     public void setResults(TestResult[] ttr) {
 
         for (int i = 0; i < ttr.length; i++) {

@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.ui.copy;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +18,8 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.WizardBase;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
