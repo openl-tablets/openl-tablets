@@ -57,8 +57,8 @@ public class RichFacesTreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
     }
 
     protected TreeNodeData getNodeData(ITreeElement<?> node) {
-        String name = StringEscapeUtils.escapeHtml(getDisplayName(node, INamedThing.SHORT));
-        String title = StringEscapeUtils.escapeHtml(getDisplayName(node, INamedThing.REGULAR));
+        String name = getDisplayName(node, INamedThing.SHORT);
+        String title = getDisplayName(node, INamedThing.REGULAR);
         String url = getUrl(node);
         String type = getType(node);
         int state = getState(node);
