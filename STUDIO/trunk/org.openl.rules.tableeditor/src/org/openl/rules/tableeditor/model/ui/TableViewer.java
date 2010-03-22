@@ -9,6 +9,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.Log;
 
 public class TableViewer {
+
     IGrid grid;
 
     IGridRegion reg;
@@ -51,28 +52,12 @@ public class TableViewer {
         short[] rgb = style.getFillForegroundColor();
         cm.setRgbBackground(rgb);
 
-        // setCssBorders(cm, style);
-
         cm.setFont(cell.getFont());
-
-        /*
-         * buf.append(" style=\""); String[] borders = style.cssBorders();
-         * buf.append("border-style:"); for (int i = 0; i < 4; i++) {
-         * buf.append(' ').append(borders[ICellStyle.BORDER_TYPE +i]); }
-         *
-         * buf.append("; border-color:"); for (int i = 0; i < 4; i++) {
-         * buf.append(' ').append(borders[ICellStyle.BORDER_COLOR +i]); }
-         *
-         * buf.append("; border-width:"); for (int i = 0; i < 4; i++) {
-         * buf.append(' ').append(borders[ICellStyle.BORDER_WIDTH +i]); }
-         *
-         * buf.append("\"");
-         */
 
     }
 
     public static String showTable(TableModel tm, boolean showGrid) {
-        StringBuffer buf = new StringBuffer(1000);
+        StringBuilder buf = new StringBuilder(1000);
         tm.toHtmlString(buf, showGrid);
         return buf.toString();
     }
@@ -101,7 +86,7 @@ public class TableViewer {
         cm.setColspan(getColSpan(cell));
         cm.setRowspan(getRowSpan(cell));
 
-        if (cm.row == 0) {
+        if (cm.getRow() == 0) {
             cm.setWidth(getWidth(cell));
         }
 
@@ -116,67 +101,6 @@ public class TableViewer {
         setStyle(cell, cm);
         return cm;
     }
-
-    // private static void setCssBorders(CellModel cm, ICellStyle cs)
-    // {
-    //
-    // short[] xlsb = cs.getBorderStyle();
-    // if (xlsb == null)
-    // return;
-    // int[] borderWidth = new int[4];
-    // String[] borderStyle = new String[4];
-    //
-    // for (int i = 0; i < 4; i++)
-    // {
-    // switch (xlsb[i])
-    // {
-    // case ICellStyle.BORDER_NONE:
-    // borderWidth[i] = 0;
-    // borderStyle[i] = "none";
-    // break;
-    // case ICellStyle.BORDER_DASH_DOT_DOT:
-    // case ICellStyle.BORDER_DASH_DOT:
-    // case ICellStyle.BORDER_DASHED:
-    // borderWidth[i] = 1;
-    // borderStyle[i] = "dashed";
-    // break;
-    //
-    // case ICellStyle.BORDER_DOTTED:
-    // borderWidth[i] = 1;
-    // borderStyle[i] = "dotted";
-    // break;
-    // case ICellStyle.BORDER_DOUBLE:
-    // borderWidth[i] = 1;
-    // borderStyle[i] = "double";
-    // break;
-    // case ICellStyle.BORDER_THIN:
-    // borderWidth[i] = 1;
-    // borderStyle[i] = "solid";
-    // break;
-    // case ICellStyle.BORDER_THICK:
-    // borderWidth[i] = 3;
-    // borderStyle[i] = "solid";
-    // break;
-    // case ICellStyle.BORDER_HAIR:
-    // borderWidth[i] = 1;
-    // borderStyle[i] = "dotted";
-    // break;
-    // case ICellStyle.BORDER_MEDIUM:
-    // borderWidth[i] = 2;
-    // borderStyle[i] = "solid";
-    // break;
-    // case ICellStyle.BORDER_MEDIUM_DASH_DOT:
-    // case ICellStyle.BORDER_MEDIUM_DASH_DOT_DOT:
-    // case ICellStyle.BORDER_MEDIUM_DASHED:
-    // borderWidth[i] = 2;
-    // borderStyle[i] = "dashed";
-    // break;
-    // }
-    // }
-    // cm.setBorderStyle(borderStyle);
-    // cm.setBorderWidth(borderWidth);
-    // cm.setBorderColor(cs.getBorderRGB());
-    // }
 
     public TableModel buildModel(IGridTable gt) {
 

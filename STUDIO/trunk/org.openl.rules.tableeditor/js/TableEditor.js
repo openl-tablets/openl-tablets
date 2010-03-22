@@ -332,6 +332,7 @@ var TableEditor = Class.create({
         editorWrapper.style.left = pos[0] + "px";
         editorWrapper.style.top = pos[1] + "px";
         editorWrapper.style.padding = "1px";
+        editorWrapper.style.backgroundColor = "#B4C8FF";
         
         return editorWrapper;
     },
@@ -343,8 +344,8 @@ var TableEditor = Class.create({
                 fontSize: cell.style.fontSize,
                 fontWeight: cell.style.fontWeight,
                 fontStyle: cell.style.fontStyle,
-                
-                textAlign: cell.align
+
+                textAlign: cell.style.textAlign
             }
     
             return style;
@@ -635,7 +636,7 @@ var TableEditor = Class.create({
                     if (self.editor) {
                         self.editor.input.style.textAlign = _align;
                     }
-                    cell.align = _align;
+                    cell.style.textAlign = _align;
                 }
             },
             parameters : params,

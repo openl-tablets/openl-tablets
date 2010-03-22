@@ -34,7 +34,7 @@ public interface ICellModel {
 
     public void setRowspan(int rowspan);
 
-    public void toHtmlString(StringBuffer buf, TableModel model);
+    public void toHtmlString(StringBuilder buf, TableModel model);
 
     /**
      * @return true if cell contains formula.
@@ -52,7 +52,5 @@ public interface ICellModel {
      * @return Formula of cell if it is contained in cell.
      */
     String getFormula();
-
-    // !!! public void setColorFilter(IColorFilter[] filter);
 
 }

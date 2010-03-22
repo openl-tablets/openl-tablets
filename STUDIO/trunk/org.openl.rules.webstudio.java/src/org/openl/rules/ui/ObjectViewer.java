@@ -105,7 +105,7 @@ public class ObjectViewer {
 
         public FormattedCell filterFormat(FormattedCell cell) {
 
-            String fontStyle = WebTool.fontToHtml(cell.getFont(), new StringBuffer()).toString();
+            String fontStyle = WebTool.fontToHtml(cell.getFont(), new StringBuilder()).toString();
 
             cell.setFormattedValue("<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
                     + cell.getFormattedValue() + "</a>");
