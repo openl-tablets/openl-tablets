@@ -8,6 +8,9 @@
                 xmlns:c="http://java.sun.com/jstl/core"
                 template="/facelets/common/choosePropertiesBase.xhtml">
 
+    <ui:define name="pageTitle">
+        Select Properties
+    </ui:define>
 	<ui:define name="tableTitle">
     	<c:set var="propertiesManager" value="#{tableWizard.propertiesManager}" />
         <h:inputText id="techName" value="#{tableWizard.tableName}" />
