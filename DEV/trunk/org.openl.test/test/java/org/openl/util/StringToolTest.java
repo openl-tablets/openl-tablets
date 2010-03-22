@@ -3,9 +3,6 @@
  */
 package org.openl.util;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -75,22 +72,6 @@ public class StringToolTest extends TestCase {
      * StringBuffer)'
      */
     public void testEncodeHTMLBodyStringStringBuffer() {
-
-    }
-
-    /*
-     * Test method for
-     * 'org.openl.util.StringTool.encodeJavaScriptString(String)'
-     */
-    public void testEncodeJavaScriptStringString() {
-
-    }
-
-    /*
-     * Test method for 'org.openl.util.StringTool.encodeJavaScriptString(String,
-     * StringBuffer)'
-     */
-    public void testEncodeJavaScriptStringStringStringBuffer() {
 
     }
 

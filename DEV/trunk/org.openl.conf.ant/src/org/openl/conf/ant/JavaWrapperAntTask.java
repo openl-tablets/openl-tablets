@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -449,21 +450,24 @@ public class JavaWrapperAntTask extends Task {
 
         buf.append("  public static org.openl.CompiledOpenClass __compiledClass;\n\n");
 
-        buf.append("  public static String __openlName = \"").append(StringTool.escapeJava(openlName)).append("\";\n\n");
+        buf.append("  public static String __openlName = \"").append(
+                StringEscapeUtils.escapeJava(openlName)).append("\";\n\n");
 
         buf.append("  public static String __src = \"").append(
-                StringTool.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile)).append("\";\n\n");
+                StringEscapeUtils.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile)).append("\";\n\n");
 
         buf.append("  public static String __srcModuleClass = ").append(
-                (srcModuleClass == null ? null : "\"" + StringTool.escapeJava(srcModuleClass) + "\"")).append(";\n\n");
+                (srcModuleClass == null ? null : "\""
+                    + StringEscapeUtils.escapeJava(srcModuleClass) + "\"")).append(";\n\n");
 
-        buf.append("  public static String __folder = \"").append(StringTool.escapeJava(rulesFolder)).append("\";\n\n");
+        buf.append("  public static String __folder = \"").append(
+                StringEscapeUtils.escapeJava(rulesFolder)).append("\";\n\n");
 
-        buf.append("  public static String __project = \"").append(StringTool.escapeJava(getRulesProject())).append(
-                "\";\n\n");
+        buf.append("  public static String __project = \"").append(
+                StringEscapeUtils.escapeJava(getRulesProject())).append("\";\n\n");
 
         buf.append("  public static String __userHome = \"").append(
-                StringTool.escapeJava(deplUserHome == null ? userHome : deplUserHome)).append("\";\n\n");
+                StringEscapeUtils.escapeJava(deplUserHome == null ? userHome : deplUserHome)).append("\";\n\n");
 
         addEnvVariable(buf);
 
