@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.syntax.impl.NaryNode;
 
-public class WorkbookSyntaxNode  extends NodeWithProperties implements ITableNodeTypes{
+public class WorkbookSyntaxNode  extends NaryNode implements ITableNodeTypes{
 
     public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes, XlsWorkbookSourceCodeModule module) {
         super(XLS_WORKBOOK, null, nodes, module);
