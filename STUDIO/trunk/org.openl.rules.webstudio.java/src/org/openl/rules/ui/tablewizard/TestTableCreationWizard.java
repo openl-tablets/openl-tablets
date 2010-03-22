@@ -86,15 +86,8 @@ public class TestTableCreationWizard extends WizardBase {
         String uri = gridModel.getRangeUri(builder.getTableRegion());
 
         builder.endTable();
-        builder.save();
 
         return uri;
-    }
-
-    private void doSave() throws CreateTableException {
-        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        String newTableUri = buildTable(sourceCodeModule);
-        setNewTableUri(newTableUri);
     }
 
     private Map<String, Object> getSystemProperties() {        
@@ -168,7 +161,11 @@ public class TestTableCreationWizard extends WizardBase {
 
     @Override
     protected void onFinish() throws Exception {
-        doSave();
+        XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
+        String newTableUri = buildTable(sheetSourceModule);
+        setNewTableUri(newTableUri);
+        getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
+        super.onFinish();
     }
 
     public void setSelectedTable(int selectedTable) {

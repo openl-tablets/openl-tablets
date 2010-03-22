@@ -53,9 +53,10 @@ public abstract class TableCopier extends WizardBase {
     protected void doCopy() throws CreateTableException {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
-        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        String newTableUri = buildTable(sourceCodeModule, model);
+        XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
+        String newTableUri = buildTable(sheetSourceModule, model);
         setNewTableUri(newTableUri);
+        getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
     }
 
     /**
@@ -133,7 +134,6 @@ public abstract class TableCopier extends WizardBase {
         String uri = gridModel.getRangeUri(builder.getTableRegion());
 
         builder.endTable();
-        builder.save();
 
         return uri;
     }
@@ -300,6 +300,7 @@ public abstract class TableCopier extends WizardBase {
     @Override
     protected void onFinish() throws Exception {
         doCopy();
+        super.onFinish();
     }
 
     @Override

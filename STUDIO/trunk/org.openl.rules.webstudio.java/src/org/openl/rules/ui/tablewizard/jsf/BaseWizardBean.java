@@ -1,14 +1,25 @@
 package org.openl.rules.ui.tablewizard.jsf;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+
 /**
  * @author Aliaksandr Antonik.
  */
 public abstract class BaseWizardBean {
     private int step;
     private int maxVisitedStep;
+    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
 
     public void cancel() {
         onCancel();
+    }
+
+    public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {
+        return modifiedWorkbooks;
     }
 
     public int getMaxVisitedStep() {
@@ -34,7 +45,15 @@ public abstract class BaseWizardBean {
 
     protected abstract void onStart();
 
-    protected abstract void onFinish() throws Exception;
+    protected void onFinish() throws Exception {
+        doSave();
+    }
+
+    protected void doSave() throws Exception {
+        for(XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks){
+            workbook.save();
+        }
+    }
 
     protected void onStepFirstVisit(int step) {
     }

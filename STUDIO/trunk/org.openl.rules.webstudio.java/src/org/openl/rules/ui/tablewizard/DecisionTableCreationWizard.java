@@ -143,12 +143,6 @@ public class DecisionTableCreationWizard extends WizardBase {
         return newTableUri;
     }
     
-    private void doSave() throws CreateTableException {
-        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        String newTableUri = buildTable(sourceCodeModule);
-        setNewTableUri(newTableUri);
-    }
-
     public Map<String, Object> getSystemProperties() {        
         if (systemProperties.isEmpty()) {
             List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils
@@ -427,7 +421,11 @@ public class DecisionTableCreationWizard extends WizardBase {
 
     @Override
     protected void onFinish() throws Exception {
-        doSave();
+        XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
+        String newTableUri = buildTable(sheetSourceModule);
+        setNewTableUri(newTableUri);
+        getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
+        super.onFinish();
     }
 
     public void selectAction() {

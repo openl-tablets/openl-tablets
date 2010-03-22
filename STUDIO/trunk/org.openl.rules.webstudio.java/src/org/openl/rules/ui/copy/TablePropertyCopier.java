@@ -223,9 +223,9 @@ public class TablePropertyCopier extends TableCopier {
                     String propValue = properties.get(propName);
                     tableEditorModel.setProperty(propName, propValue);
                 }
-                tableEditorModel.save();
+                getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());
             } catch (Exception e) {
-                LOG.error("Can not update table properties", e);
+                LOG.error("Can not update table properties for original table", e);
             }
         }
     }
