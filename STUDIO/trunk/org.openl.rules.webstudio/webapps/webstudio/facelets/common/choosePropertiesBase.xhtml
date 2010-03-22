@@ -22,11 +22,13 @@
 		<h:form>
 			<h:outputLabel value="Table Name : " for="techName" />
 			<ui:insert name="tableTitle" />
-			<hr />
-			<br />
+		    <br />
+            <br />
 			<h:outputText value="Properties:" />
+            <br />
+            <br />
 			<h:panelGroup id="propertiesTable">
-				<table>
+				<table cellpadding="2">
 					<a4j:repeat value="#{propertiesManager.properties}" var="prop">
 						<tr>
 							<td>
@@ -74,7 +76,7 @@
 							</td>
 							<td>
 								<a4j:commandLink action="#{propertiesManager.removeProperty}"
-									ajaxSingle="true" reRender="propertiesTable,newPropertyDlg">
+									reRender="propertiesTable,newPropertyDlg">
 									<h:graphicImage value="/images/delete.gif"
 										alt="Remove property" title="Remove property" />
 									<f:setPropertyActionListener value="#{prop}"
