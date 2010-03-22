@@ -165,13 +165,11 @@ public class PropertyTableCreationWizard extends WizardBase {
 
     @Override
     protected void onFinish() throws Exception {
-        doSave();
-    }
-
-    private void doSave() throws CreateTableException {
-        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        String newTableUri = buildTable(sourceCodeModule);
+        XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
+        String newTableUri = buildTable(sheetSourceModule);
         setNewTableUri(newTableUri);
+        getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
+        super.onFinish();
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -185,7 +183,6 @@ public class PropertyTableCreationWizard extends WizardBase {
         String uri = gridModel.getRangeUri(builder.getTableRegion());
 
         builder.endTable();
-        builder.save();
         return uri;
     }
 

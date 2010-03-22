@@ -128,6 +128,7 @@ public abstract class WizardBase extends BaseWizardBean {
         workbooks = null;
         newWorksheet = false;
         newWorksheetName = StringUtils.EMPTY;
+        getModifiedWorkbooks().clear();
     }
 
     public void setNewWorksheet(String value) {

@@ -6,6 +6,7 @@ package org.openl.rules.tableeditor.model;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.CellKey;
@@ -401,10 +402,17 @@ public class TableEditorModel {
         actions = new UndoableActions();
         return newTableUri;
     }
+    
+    /**
+     * @return Sheet source of editable table
+     */
+    public XlsSheetSourceCodeModule getSheetSource(){
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
+        return xlsgrid.getSheetSource();
+    }
 
     public synchronized void saveAs(String fname) throws IOException {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
-        xlsgrid.getSheetSource().getWorkbookSource().saveAs(fname);
+        getSheetSource().getWorkbookSource().saveAs(fname);
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
