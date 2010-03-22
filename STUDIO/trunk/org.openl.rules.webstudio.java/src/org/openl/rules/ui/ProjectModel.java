@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
@@ -372,8 +374,11 @@ public class ProjectModel {
         return ores;
     }
 
-    public String displayResult(Object res) {
-        return new ObjectViewer(this).displayResult(res);
+    public String displayResult(Object res, HttpSession session) {
+        ObjectViewer objViewer = new ObjectViewer(this);
+        // when this method is called form .jsp we need to set a session object.
+        objViewer.setSession(session);
+        return objViewer.displayResult(res);
     }
 
     public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {        

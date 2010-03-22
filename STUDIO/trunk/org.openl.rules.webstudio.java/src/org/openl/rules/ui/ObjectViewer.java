@@ -9,6 +9,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -60,9 +62,10 @@ import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
@@ -149,6 +152,11 @@ public class ObjectViewer {
     // public ObjectViewer() {}
 
     private ProjectModel projectModel;
+    
+    /**
+     * session is needed for method {@link #canModifyCurrentProject()}
+     */
+    private HttpSession session;
 
     public static Object displaySpreadsheetResult(final SpreadsheetResult res) {
 
@@ -384,7 +392,8 @@ public class ObjectViewer {
         return buf.toString();
     }
 
-    private void displayErrorAndCode(Throwable tt, ILocation srcLocation, IOpenSourceCodeModule module, StringBuffer buf) {
+    private void displayErrorAndCode(Throwable tt, ILocation srcLocation, IOpenSourceCodeModule module, 
+            StringBuffer buf) {
         buf.append("<table><tr><td class='error_box'>");
         displayNonOpenlException(tt, buf).append("<p/>\n");
         String errorUri = SourceCodeURLTool.makeSourceLocationURL(srcLocation, module, "");
@@ -400,8 +409,9 @@ public class ObjectViewer {
         buf.append("\n" + "<table><tr><td class='javacode'>");
 
         printCodeAndErrorToHtml(srcLocation, module, buf);
-
-        boolean canEditTable = ShowTableBean.canModifyCurrentProject();
+        
+        boolean canEditTable = canModifyCurrentProject();
+        
         if (canEditTable) {
             buf.append("<a href='javascript:editError(\"").append(
                     tableUri != null ? tableUri : "").append("\"").append(",")
@@ -430,6 +440,23 @@ public class ObjectViewer {
         
         buf.append("</td></tr></table>");
         buf.append("</td></tr></table>");
+    }
+    
+    /**     
+     * 
+     * @return true if user has the possibility to modify the tables in project.
+     */
+    private boolean canModifyCurrentProject() {
+        boolean canEditTable = false;
+        if (session != null) {
+            WebStudio studio = WebStudioUtils.getWebStudio(session);
+            UserWorkspaceProject currentProject = studio.getCurrentProject(session);
+            
+            if (currentProject != null) {
+                canEditTable = (currentProject.isCheckedOut() || currentProject.isLocalOnly());
+            }
+        }
+        return canEditTable;
     }
 
     /**
@@ -554,7 +581,7 @@ public class ObjectViewer {
         toHtml(t.getMessage(), buf);
         return buf;
     }
-
+    
     public String displayResult(Object res) {
         if (res == null) {
             return "<b>null</b>";
@@ -868,6 +895,14 @@ public class ObjectViewer {
 
     StringBuffer toHtml(String msg, StringBuffer buf) {
         return StringTool.prepareXMLAttributeValue(msg, buf);
+    }
+
+    public HttpSession getSession() {
+        return session;
+    }
+
+    public void setSession(HttpSession session) {
+        this.session = session;
     }
 
 }

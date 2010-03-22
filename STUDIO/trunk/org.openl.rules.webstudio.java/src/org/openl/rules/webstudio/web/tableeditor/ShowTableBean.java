@@ -81,9 +81,8 @@ public class ShowTableBean {
         paramsWithoutShowFormulas = WebTool.listRequestParams(
                 paramMap, new String[] { "transparency", "filterType", "showFormulas" });
     }
-
-    // TODO: make internal and instance method
-    public static boolean canModifyCurrentProject() {
+    
+    public boolean canModifyCurrentProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         UserWorkspaceProject currentProject = studio.getCurrentProject();
         if (currentProject != null) {

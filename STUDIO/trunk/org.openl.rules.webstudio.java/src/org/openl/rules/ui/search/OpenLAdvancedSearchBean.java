@@ -131,7 +131,7 @@ public class OpenLAdvancedSearchBean {
             }
 
             ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-            return model.displayResult(model.runSearch(advancedSearchBean.search));
+            return model.displayResult(model.runSearch(advancedSearchBean.search), null);
         }
 
         public List<TableSearch> getSearchResults() {
