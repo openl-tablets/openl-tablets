@@ -2,11 +2,11 @@ package org.openl.rules.tableeditor.renderkit;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 
 /**
@@ -94,9 +94,10 @@ public class TableProperty {
      * @return
      */
     public String getDisplayValue() {
-        return getStringValue();
+        return StringEscapeUtils.escapeHtml(
+                getStringValue());
     }
-    
+
     /**
      * Setter for the property value as {@link String}. Income value will be parsed to the appropriate type.
      * That can be found calling {@link #getType()} method.
