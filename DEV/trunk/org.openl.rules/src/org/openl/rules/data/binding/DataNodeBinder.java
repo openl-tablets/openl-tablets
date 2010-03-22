@@ -398,7 +398,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
             String uri = titleCell.getGridTable().getUri(0, 0);
             
             // remove extra spaces
-            value = StringUtils.trim(value);
+            value = StringUtils.trimToEmpty(value);
             result = new StringValue(value, value, value, uri);
         } else {
             result = new StringValue(value, value, value, value);
