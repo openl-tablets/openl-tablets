@@ -1,3 +1,10 @@
+/**
+ * Validation.
+ * 
+ * @requires Prototype v1.6.1+ library
+ * 
+ * @author Andrei Astrouski
+ */
 var Validator = Class.create({
 
     initialize: function(name, errorMessage, validateFunc) {

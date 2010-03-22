@@ -1,4 +1,10 @@
-
+/**
+ * Tooltip.
+ * 
+ * @requires Prototype v1.6.1+ library
+ * 
+ * @author Andrei Astrouski
+ */
 var Tooltip = Class.create({
 
     ie6: Prototype.Browser.IE

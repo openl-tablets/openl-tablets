@@ -1,13 +1,13 @@
 /**
- * @requires prototype JavaScript library
+ * Class for managing (enabling/disabling) icons.
+ * 
+ * @requires Prototype v1.6.1+ library
  *
- * @author Aliaksandr Antonik.
+ * @author Aliaksandr Antonik
  */
 
-/**
- * Class for managing icons: enabling/disabling
- */
 var IconManager = Class.create({
+
     initialize: function(enabledClass, overClass, disabledClass) {
         this.disabledClass = disabledClass;
         this.enabledClass = enabledClass;

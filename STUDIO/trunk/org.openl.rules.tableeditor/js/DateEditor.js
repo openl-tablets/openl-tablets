@@ -1,5 +1,7 @@
 /**
  * Date editor.
+ * 
+ * @requires Prototype v1.6.1+ library
  *
  * @author Andrei Astrouski
  */
@@ -11,7 +13,6 @@ var DateEditor = Class.create(BaseTextEditor, {
         this.input.style.width = "85%";
 
         var self = this;
-        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
 
         this.input.onkeydown = function(event) {
         	return self.keyPressed(event || window.event)

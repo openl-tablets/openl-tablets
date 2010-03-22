@@ -1,5 +1,7 @@
 /**
  * Multiple choice editor.
+ * 
+ * @requires Prototype v1.6.1+ library
  *
  * @author Aliaksandr Antonik
  * @author Andrei Astrouski
@@ -55,7 +57,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         container.appendChild(ulElement);
         this.multiselectPanel.appendChild(container);
 
-        ["click", "dblclick"].each(function (s) {self.stopEventPropogation(s)});
         this.input.onclick = function() {
             self.open();
         };
