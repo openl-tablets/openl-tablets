@@ -38,7 +38,9 @@ public class BussinessSearchCondition {
     }
 
     public void setTablesContains(TableSyntaxNode[] tablesContains) {
-        this.tablesContains = tablesContains.clone();
+        if (tablesContains != null) {
+            this.tablesContains = tablesContains.clone();
+        }         
     }
     
 }
