@@ -57,7 +57,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         container.appendChild(ulElement);
         this.multiselectPanel.appendChild(container);
 
-        this.input.onclick = function() {
+        this.input.onclick = function(event) {
             self.open();
         };
         this.input.onkeydown = function(event) {
@@ -164,7 +164,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var element = Event.element(e);
         var abort = false;
         do {
-            if (element == this.multiselectPanel) {
+            if (element == this.input
+                    || element == this.multiselectPanel) {
                 abort = true;
             }
         } while (element = element.parentNode);
