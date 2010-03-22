@@ -4,8 +4,8 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    IMetaInfo metaInfo;
-    String value;
+    private IMetaInfo metaInfo;
+    private String value;
 
     public StringValue(String value) {
         if (value == null) {
