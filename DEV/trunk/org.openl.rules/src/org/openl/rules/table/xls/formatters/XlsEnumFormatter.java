@@ -14,7 +14,7 @@ public class XlsEnumFormatter extends AXlsFormatter {
     
     public String format(Object value) {
 
-        if (!(value instanceof Enum)) {
+        if (!(value instanceof Enum<?>)) {
             
             Log.error(String.format("Should be a %s value: %s" , enumClass.toString(), value.toString()));
             return null;
