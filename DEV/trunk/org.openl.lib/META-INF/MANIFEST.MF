@@ -23,11 +23,12 @@ Export-Package: org.apache.commons.collections,
  org.apache.commons.lang.exception,
  org.apache.commons.lang.math,
  org.apache.commons.lang.mutable,
+ org.apache.commons.lang.reflect,
  org.apache.commons.lang.text,
  org.apache.commons.lang.time,
  org.apache.commons.logging,
  org.apache.commons.logging.impl
-Bundle-ClassPath: lib/commons-lang-2.4.jar,
- lib/commons-logging-1.1.1.jar,
- lib/commons-collections-3.2.jar
+Bundle-ClassPath: lib/commons-logging-1.1.1.jar,
+ lib/commons-collections-3.2.jar,
+ lib/commons-lang-2.5.jar
 Require-Bundle: org.openl.poi.lib;bundle-version="5.3.1";visibility:=reexport
