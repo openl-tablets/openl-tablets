@@ -61,10 +61,6 @@ public class JSFFunctions {
         return formatCurrentDate("yyyy");
     }
 
-    public static String escapeJavaScript(String string) {
-        return StringEscapeUtils.escapeJavaScript(string);
-    }
-
     private static String formatCurrentDate(String pattern) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
 
