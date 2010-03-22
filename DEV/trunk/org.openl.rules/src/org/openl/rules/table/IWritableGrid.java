@@ -31,6 +31,7 @@ import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
 import org.openl.rules.table.xls.formatters.XlsBooleanFormatter;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.table.xls.formatters.XlsEnumFormatter;
+import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.rules.table.xls.formatters.XlsStringFormatter;
 
@@ -334,7 +335,7 @@ public interface IWritableGrid extends IGrid {
             if (tablePropeprtyDefinition != null) {
 
                 Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                result = AXlsFormatter.getFormatter(type, tablePropeprtyDefinition.getFormat());
+                result = XlsFormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
             }
 
             return result;
