@@ -20,13 +20,14 @@ import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
 
 /**
  * @author snshor
  */
 
-public class TableSyntaxNode extends NodeWithProperties implements IIndexElement {
+public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     private ILogicalTable table;
     // String header;
