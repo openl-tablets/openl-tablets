@@ -49,7 +49,7 @@
 <h1> <span class="<%=test.getResult().getNumberOfFailures() > 0 ? "red" : "blue" %>"><%=test.getTestName()%></span> </h1>		
 <p>  
   	  
-  <%=studio.getModel().displayResult(test.getResult())%>
+  <%=studio.getModel().displayResult(test.getResult(), session)%>
 <%}%>  
 <p>
 

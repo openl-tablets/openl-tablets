@@ -47,7 +47,7 @@
 <%
    Object res =  studio.getModel().runElement(uri, testName, testID);
 %>
-<%=studio.getModel().displayResult(res)%>
+<%=studio.getModel().displayResult(res, session)%>
 <p>
 
 </body>
