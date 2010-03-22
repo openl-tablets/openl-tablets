@@ -6,16 +6,12 @@
 
 package org.openl.rules.table.xls;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -38,8 +34,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.xls.formatters.XlsEnumFormatter;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
@@ -49,7 +43,6 @@ import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
 import org.openl.rules.table.xls.writers.XlsCellFormulaWriter;
 import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.rules.table.xls.writers.XlsCellStringWriter;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
 
