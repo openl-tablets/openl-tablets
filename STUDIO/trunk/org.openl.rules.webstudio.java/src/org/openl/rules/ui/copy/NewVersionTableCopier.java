@@ -66,13 +66,18 @@ public class NewVersionTableCopier extends TablePropertyCopier {
 
     public Version getOriginalVersion() {
         TableSyntaxNode originalNode = getCopyingTable();
-        ITableProperties tableProperties = originalNode.getTableProperties();
-        String version = tableProperties.getVersion();
-        try {
-            return Version.parseVersion(version, 0, "..");
-        } catch (RuntimeException e) {
+        if (originalNode != null) {
+            ITableProperties tableProperties = originalNode.getTableProperties();
+            String version = tableProperties.getVersion();
+            try {
+                return Version.parseVersion(version, 0, "..");
+            } catch (RuntimeException e) {
+                return null;
+            }
+        } else {
             return null;
         }
+        
     }
 
     public Version getMinNextVersion() {
