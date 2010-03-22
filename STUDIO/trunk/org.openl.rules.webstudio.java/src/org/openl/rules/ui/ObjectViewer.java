@@ -24,7 +24,6 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.OpenLRuntimeExceptionWithMetaInfo;
 import org.openl.meta.StringValue;
-import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.rules.dt.DTOverlapping;
@@ -46,7 +45,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Table;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -263,10 +261,6 @@ public class ObjectViewer {
         this.projectModel = projectModel;
     }
 
-    /**
-     * @param res
-     * @return
-     */
     private String displayArray(Object res) {
         int len = Array.getLength(res);
         if (len == 0) {
@@ -304,10 +298,6 @@ public class ObjectViewer {
                 + format.format(dv) + "</a>";
     }
 
-    /**
-     * @param res
-     * @return
-     */
     private String displayDTValidationResult(DTValidationResult res) {
 
         DecisionTable dt = res.getDT();
@@ -459,11 +449,6 @@ public class ObjectViewer {
         return canEditTable;
     }
 
-    /**
-     * @param t
-     * @param buf
-     * @return
-     */
     private StringBuffer displayException(Throwable t, StringBuffer buf) {
 
         if (t instanceof OpenLRuntimeException) {
@@ -516,7 +501,7 @@ public class ObjectViewer {
             String[] descrs = omi.optionalDescriptions();
             for (int i = 0; i < holders.length; i++) {
                 buf.append("<p/>");
-                String descr = descrs == null ? stringValueof(holders[i]) : descrs[i];
+                String descr = descrs == null ? String.valueOf(holders[i]) : descrs[i];
                 displayMetaHolder(holders[i], descr, buf);
             }
 
@@ -526,10 +511,6 @@ public class ObjectViewer {
         return displayNonOpenlException(t, buf);
     }
 
-    /**
-     * @param res
-     * @return
-     */
     private String displayMatrix(Object res) {
         int len = Array.getLength(res);
 
@@ -600,7 +581,7 @@ public class ObjectViewer {
         }
 
         if (res instanceof IMetaHolder) {
-            return displayMetaHolder((IMetaHolder) res, stringValueof(res), new StringBuffer()).toString();
+            return displayMetaHolder((IMetaHolder) res, String.valueOf(res), new StringBuffer()).toString();
         }
 
         if (res instanceof TestResult) {
@@ -665,10 +646,6 @@ public class ObjectViewer {
         return value;
     }
 
-    /**
-     * @param rule
-     * @return
-     */
     public String displayRule(DTRule rule) {
         StringBuffer buf = new StringBuffer(300);
 
@@ -681,10 +658,6 @@ public class ObjectViewer {
         return buf.toString();
     }
 
-    /**
-     * @param rules
-     * @return
-     */
     public String displayRuleArray(DTRule[] rules) {
         IGridTable[] tables = new IGridTable[rules.length];
         for (int i = 0; i < tables.length; i++) {
@@ -695,11 +668,7 @@ public class ObjectViewer {
         GridTable gt = new GridTable(0, 0, cg.getHeight() - 1, cg.getWidth() - 1, cg);
         return displayResult(gt);
     }
-
-    /**
-     * @param searchRes
-     * @return
-     */
+    
     public String displaySearch(OpenLAdvancedSearchResult searchRes) {
         TableAndRows[] tr = searchRes.tablesAndRows();
 
@@ -709,7 +678,7 @@ public class ObjectViewer {
         for (int i = 0; i < tr.length; i++) {
             TableSyntaxNode tsn = tr[i].getTsn();
 
-            StringValue tname = getTableName(tsn);
+            StringValue tname = TableSyntaxNodeUtils.getTableSyntaxNodeName(tsn);
             res[2 * i] = tname;
 
             ISearchTableRow[] trows = tr[i].getRows();
@@ -746,11 +715,7 @@ public class ObjectViewer {
         return type + (fvalue == null ? "" : String.valueOf(fvalue));
 
     }
-
-    /**
-     * @param tt
-     * @return
-     */
+   
     private String displayTestResult(TestResult tt) {
 
         StringBuffer buf = new StringBuffer();
@@ -815,7 +780,7 @@ public class ObjectViewer {
                 ISearchTableRow[] rows = tr[i].getRows();
                 if (rows.length > 0) {
                     TableSyntaxNode tsn = tr[i].getTsn();
-                    StringValue tableName = getTableName(tsn);
+                    StringValue tableName = TableSyntaxNodeUtils.getTableSyntaxNodeName(tsn);
                     String tableUri = tsn.getUri();
                     CompositeGrid cg = sviewer.makeGrid(rows);
                     IGridTable gridTable = cg != null ? cg.asGridTable() : null;
@@ -836,36 +801,14 @@ public class ObjectViewer {
                 TableSearch tableSearch = new TableSearch();
                 tableSearch.setTableUri(foundTable.getUri());
                 tableSearch.setTable(new TableSyntaxNodeAdapter(foundTable));
-                tableSearch.setXlsLink((displayResult(getTableName(foundTable))));
+                tableSearch.setXlsLink((displayResult(TableSyntaxNodeUtils.getTableSyntaxNodeName(foundTable))));
                 tableSearchList.add(tableSearch);                
             }
         }
         return tableSearchList;
     }
-
-    public StringValue getTableName(TableSyntaxNode tsn) {
-        StringValue resultName = null;
-        ITableProperties tableProperties = tsn.getTableProperties();
-        String sourceHeaderString = tsn.getHeader().getSourceString();
-        String name = null;
-        if (tableProperties != null) {
-            Object propValue = tableProperties.getName();
-            if (propValue != null) {
-                name = (String) propValue;                
-            } else {
-                name = sourceHeaderString;
-            }
-        } else {
-            name = sourceHeaderString;            
-        }
-        resultName = new StringValue(name);
-        resultName.setMetaInfo(new ValueMetaInfo(name,
-                tsn.getHeader().getSourceString(), tsn.getUri()));
-
-        return resultName;
-    }
-
-    IGridFilter makeFilter(int[] rules, DecisionTable dt) {
+    
+    private IGridFilter makeFilter(int[] rules, DecisionTable dt) {
         IGridRegion[] regions = new IGridRegion[rules.length];
 
         for (int i = 0; i < rules.length; i++) {
@@ -882,18 +825,14 @@ public class ObjectViewer {
 
     }
 
-    void makeXlsOrDocUrl(String uri, StringBuffer buf) {
+    private void makeXlsOrDocUrl(String uri, StringBuffer buf) {
 
         String url = WebTool.makeXlsOrDocUrl(uri);
         buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
         buf.append(" target='show_app_hidden'");
     }
 
-    public String stringValueof(Object obj) {
-        return String.valueOf(obj);
-    }
-
-    StringBuffer toHtml(String msg, StringBuffer buf) {
+    private StringBuffer toHtml(String msg, StringBuffer buf) {
         return StringTool.prepareXMLAttributeValue(msg, buf);
     }
 

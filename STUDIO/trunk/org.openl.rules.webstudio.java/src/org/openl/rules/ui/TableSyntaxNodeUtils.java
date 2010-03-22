@@ -1,6 +1,8 @@
 package org.openl.rules.ui;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.meta.StringValue;
+import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -93,5 +95,36 @@ public class TableSyntaxNodeUtils {
             src = tokens[tokens.length - 1].trim();
         }
         return src;
+    }
+    
+    /**
+     * Gets the name of given <code>TableSyntaxNode</code> with metaInfo, that contains uri to this table.
+     * <br>NullSafe method, returns <code>null</code> if the income parameter was <code>null</code>. 
+     * 
+     * @param tsn <code>TableSyntaxNode</code>
+     * @return <code>TableSyntaxNode</code> name with metaInfo, that contains uri to this table.
+     */
+    public static StringValue getTableSyntaxNodeName(TableSyntaxNode tsn) {
+        StringValue resultName = null;
+        if (tsn != null) {
+            ITableProperties tableProperties = tsn.getTableProperties();
+            String sourceHeaderString = tsn.getHeader().getSourceString();
+            String name = null;
+            if (tableProperties != null) {
+                Object propValue = tableProperties.getName();
+                if (propValue != null) {
+                    name = (String) propValue;                
+                } else {
+                    name = sourceHeaderString;
+                }
+            } else {
+                name = sourceHeaderString;            
+            }
+            resultName = new StringValue(name);
+            resultName.setMetaInfo(new ValueMetaInfo(name,
+                    sourceHeaderString, tsn.getUri()));
+        }        
+
+        return resultName;
     }
 }
