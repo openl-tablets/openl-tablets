@@ -389,18 +389,19 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      */
     private StringValue makeColumnTitle(ILogicalTable dataWithTitleRows, int column, boolean hasColumnTytleRow) {
         StringValue result = null;
+        String value = StringUtils.EMPTY;
         if (hasColumnTytleRow) {
             ILogicalTable titleCell = dataWithTitleRows.getLogicalRegion(column, 0, 1, 1);
 
-            String value = titleCell.getGridTable().getCell(0, 0).getStringValue();            
+            value = titleCell.getGridTable().getCell(0, 0).getStringValue();            
             
             String uri = titleCell.getGridTable().getUri(0, 0);
-            if (value == null) {
-                value = "";
-            }
+            
+            // remove extra spaces
+            value = StringUtils.trim(value);
             result = new StringValue(value, value, value, uri);
         } else {
-            result = new StringValue(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
+            result = new StringValue(value, value, value, value);
         }
         return result;
     }
@@ -457,10 +458,12 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         int cnt = 0;
         int w = dataTable.getLogicalWidth();
         for (int i = 0; i < w; ++i) {
-            String fieldName = dataTable.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+            String fieldName = dataTable.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();            
             if (fieldName == null) {
                 continue;
             }
+            // remove extra spaces
+            fieldName = StringUtils.trim(fieldName);
             IOpenField of = findField(fieldName, null, tableType);
             if (of != null) {
                 ++cnt;
