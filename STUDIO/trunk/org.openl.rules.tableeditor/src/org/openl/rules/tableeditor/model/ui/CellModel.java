@@ -5,23 +5,27 @@ import org.openl.rules.webtools.WebTool;
 
 public class CellModel implements ICellModel {
 
-    static final short[] WHITE = { 255, 255, 255 };
+    public static final short[] WHITE = { 255, 255, 255 };
 
-    int row;
-    int column;
-    int ident = 0;
-    String content = "&nbsp;";
-    int colspan = 1;
-    int rowspan = 1;
-    String halign;
-    String valign;
-    short[] rgbBackground;
-    BorderStyle[] borderStyle;
+    private int row;
+    private int column;
+
+    private int colspan = 1;
+    private int rowspan = 1;
+
+    private int ident = 0;
+    private String halign;
+    private String valign;
+    private short[] rgbBackground;
+    private BorderStyle[] borderStyle;
+    private int cellPadding = 1;
     private boolean hasFormula;
     private String formula;
 
-    ICellFont font;
-    int width;
+    private String content = "&nbsp;";
+
+    private ICellFont font;
+    private int width;
 
     static int calcMaxLineLength(String content) {
         int max = 0;
@@ -43,58 +47,20 @@ public class CellModel implements ICellModel {
         hasFormula = false;
     }
 
-    private void addStyleAttribute(StringBuffer style, String attribute) {
-        if (style.length() == 0) {
-            style.append(" style=\"");
-        }
-        if (style.charAt(style.length() - 1) != ';') {
-            style.append(";");
-        }
-        style.append(attribute).append(";");
-    }
-
-    public void atttributesToHtml(StringBuffer buf, TableModel table) {
+    public void atttributesToHtml(StringBuilder buf, TableModel table) {
         if (colspan != 1) {
             buf.append(" colspan=").append(colspan);
         }
         if (rowspan != 1) {
             buf.append(" rowspan=").append(rowspan);
         }
-        if (halign != null) {
-            buf.append(" align=" + halign);
-        }
-        if (valign != null) {
-            buf.append(" valign=" + valign);
-        }
-        if (width != 0) {
-            buf.append(" width=" + width);
-        }
 
-        if (rgbBackground == null) {
-            rgbBackground = WHITE;
-        }
+        String style = getHtmlStyle(table);
 
-        short[] color = rgbBackground;
-
-        buf.append(" bgcolor=" + WebTool.toHexString(color));
-
-        float cellPadding = 1;
-        StringBuffer style = new StringBuffer();
-        if ((borderStyle != null) || (font != null)) {
-            addStyleAttribute(style, "padding:" + String.valueOf(cellPadding) + "px");
-            borderToHtml(style, table);
-            WebTool.fontToHtml(font, style);
-        }
-        if (ident > 0) {
-            addStyleAttribute(style, "padding-left:" + (cellPadding * 0.063 + ident) + "em");
-        }
-        if (style.length() != 0) {
-            style.append("\"");
-            buf.append(style);
-        }
+        buf.append(" style=\"" + style + "\"");
     }
 
-    private void borderToHtml(StringBuffer buf, TableModel table) {
+    private void borderToHtml(StringBuilder buf, TableModel table) {
         if (borderStyle == null) {
             return;
         }
@@ -176,14 +142,14 @@ public class CellModel implements ICellModel {
     }
 
     /**
-     * Returns style string for cell
+     * Returns style string for cell.
      *
      * @param tm
      *
      * @return style string for cell
      */
     public String getHtmlStyle(TableModel tm) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (halign != null) {
             sb.append("text-align:" + halign + ";");
         }
@@ -193,7 +159,7 @@ public class CellModel implements ICellModel {
         }
 
         if (width != 0) {
-            sb.append("width:" + width + ";");
+            sb.append("width:" + width + "px" + ";");
         }
 
         if (rgbBackground == null) {
@@ -203,11 +169,25 @@ public class CellModel implements ICellModel {
         short[] color = rgbBackground;
         sb.append("background-color:" + WebTool.toRgbString(color) + ";");
 
-        if ((borderStyle != null) || (font != null)) {
+        if (borderStyle != null || font != null) {
+            sb.append("padding:" + String.valueOf(cellPadding) + "px" + ";");
             borderToHtml(sb, tm);
             WebTool.fontToHtml(font, sb);
         }
+
+        if (ident > 0) {
+            sb.append("padding-left:" + (cellPadding * 0.063 + ident) + "em" + ";");
+        }
+
         return sb.toString();
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
     }
 
     public int getIdent() {
@@ -283,10 +263,10 @@ public class CellModel implements ICellModel {
         this.width = width;
     }
 
-    public void toHtmlString(StringBuffer buf, TableModel table) {
+    public void toHtmlString(StringBuilder buf, TableModel table) {
         buf.append("<td ");
         atttributesToHtml(buf, table);
-        //FIXME: is this method deprecated? should formulas be displayed?
+        //FIXME: Should formulas be displayed?
         buf.append('>').append("<div ").append(" onMouseDown='clickCell(").append(column).append(',').append(row)
                 .append(",event)'").append(" id='c").append(column).append('x').append(row).append("'>").append(
                         getContent(false)).append("</div></td>\n");

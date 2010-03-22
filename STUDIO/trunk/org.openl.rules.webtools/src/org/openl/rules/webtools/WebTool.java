@@ -100,13 +100,7 @@ public class WebTool extends StringTool {
         }
     }
 
-    // static public String makeXlsUrl()
-    // {
-    // return "&wbPath=" + parser.wbPath + "&wbName=" + parser.wbName
-    // + "&wsName=" + parser.wsName + "&range=" + parser.range;
-    //
-    // }
-    static public StringBuffer fontToHtml(ICellFont font, StringBuffer buf) {
+    public static StringBuilder fontToHtml(ICellFont font, StringBuilder buf) {
         if (font == null) {
             return buf;
         }
@@ -124,10 +118,6 @@ public class WebTool extends StringTool {
             buf.append("; font-weight: bold");
         }
 
-        // !!! IColorFilter fontFilter = getColorFilter(FONT_COLOR_FILTER_IDX);
-
-        // !!! short[] color = fontFilter == null ? font.getFontColor() :
-        // fontFilter.filterColor(font.getFontColor());
         short[] color = font.getFontColor();
 
         buf.append("; color: " + toHexString(color));

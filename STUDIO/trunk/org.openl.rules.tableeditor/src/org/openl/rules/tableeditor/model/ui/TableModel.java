@@ -82,27 +82,27 @@ public class TableModel {
                     return (CellModel) icm;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.row == row ? cm : null;
+                return cm.getRow() == row ? cm : null;
             case ICellStyle.LEFT:
                 if (icm instanceof CellModel) {
                     return (CellModel) icm;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.column == col ? cm : null;
+                return cm.getColumn() == col ? cm : null;
             case ICellStyle.RIGHT:
                 if (icm instanceof CellModel) {
                     cm = (CellModel) icm;
-                    return cm.colspan == 1 ? cm : null;
+                    return cm.getColspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.column + cm.colspan - 1 == col ? cm : null;
+                return cm.getColumn() + cm.getColspan() - 1 == col ? cm : null;
             case ICellStyle.BOTTOM:
                 if (icm instanceof CellModel) {
                     cm = (CellModel) icm;
-                    return cm.rowspan == 1 ? cm : null;
+                    return cm.getRowspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.row + cm.rowspan - 1 == row ? cm : null;
+                return cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
             default:
                 throw new RuntimeException();
 
@@ -141,7 +141,7 @@ public class TableModel {
         return cells[r][c] != null;
     }
 
-    public void toHtmlString(StringBuffer buf, boolean showGrid) {
+    public void toHtmlString(StringBuilder buf, boolean showGrid) {
         buf.append("<table ").append(attributes).append(">\n");
 
         if (showGrid) {

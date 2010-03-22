@@ -337,7 +337,7 @@ public class HTMLRenderer {
             final String prefix = cellIdPrefix != null ? cellIdPrefix : Constants.ID_POSTFIX_CELL;
 
             IGridTable table = tableModel.getGridTable();
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder();
             s.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
 
             for (int i = 0; i < tableModel.getCells().length; i++) {
