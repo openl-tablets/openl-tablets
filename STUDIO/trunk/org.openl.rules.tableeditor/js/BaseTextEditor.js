@@ -3,28 +3,30 @@
  *
  * Not an editor itself, it just introduces functions common for all text based editors - that is common reaction
  * to F2 F3 keys.
+ * 
+ * @requires Prototype v1.6.1+ library
  *
  * @author Andrey Naumenko
  */
 
 var BaseTextEditor = Class.create(BaseEditor, {
 
-    MAX_FIELD_SIZE : 1500,
+    maxInputSize: null,
 
     createInput: function() {
         this.input = new Element("input");
         this.input.setAttribute("type", "text");
+        if (this.maxInputSize) {
+            this.input.maxLength = this.maxInputSize;
+        }
 
-        this.input.style.borderWidth = "1px";
-        this.input.style.borderStyle = "solid";
-        this.input.style.borderColor = "threedface";
+        this.setDefaultStyle();
 
-        this.input.style.fontFamily = this.parentElement.style.fontFamily;
-        this.input.style.fontSize = this.parentElement.style.fontSize;
-        this.input.style.fontStyle = this.parentElement.style.fontStyle;
-        this.input.style.fontWeight = this.parentElement.style.fontWeight;
-        this.input.style.textAlign = this.parentElement.align;
+        this.input.setStyle(this.style);
+    },
 
+    setDefaultStyle: function() {
+        this.input.style.border = "1px solid threedface";
         this.input.style.margin = "0px";
         this.input.style.padding = "0px";
         this.input.style.width = "100%";
@@ -32,24 +34,24 @@ var BaseTextEditor = Class.create(BaseEditor, {
     },
 
     /**
-     * Moves caret to beginning of the input
+     * Moves caret to beginning of the input.
      */
     handleF2: function(event) {
         var input = this.getInputElement();
         if (input.createTextRange) {
             var r = input.createTextRange();
             r.collapse(true);
-            r.select()
+            r.select();
 
         } else if (input.setSelectionRange) {
             input.setSelectionRange(0, 0);
-            input.focus()
+            input.focus();
         }
         Event.stop(event);
     },
 
     /**
-     * Moves caret to the end of the input
+     * Moves caret to the end of the input.
      */
     handleF3: function(event) {
         var input = this.getInputElement();
@@ -57,12 +59,12 @@ var BaseTextEditor = Class.create(BaseEditor, {
         if (input.createTextRange) {
             var r = input.createTextRange();
             r.collapse(false);
-            r.select()
+            r.select();
 
         } else if (input.setSelectionRange) {
             var len = input.value.length;
             input.setSelectionRange(len, len);
-            input.focus()
+            input.focus();
         }
 
         if (event) Event.stop(event);

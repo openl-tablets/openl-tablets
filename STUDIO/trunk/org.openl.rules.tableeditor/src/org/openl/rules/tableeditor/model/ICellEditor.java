@@ -15,7 +15,7 @@ public interface ICellEditor {
 
     static final public String CE_TEXT = "text",
                                CE_NUMERIC = "numeric",
-                               CE_MULTILINE = "multilineText",
+                               CE_MULTILINE = "multiline",
                                CE_COMBO = "combo",
                                CE_DATE = "date",
                                CE_MULTISELECT = "multiselect",

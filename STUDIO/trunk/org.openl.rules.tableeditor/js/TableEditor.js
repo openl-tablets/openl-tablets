@@ -26,7 +26,7 @@ var TableEditor = Class.create({
     propIdPrefix: null,
     actions: null,
     inheritedPropStyleClass: null,
-    editWrapper: null,
+    editorWrapper: null,
 
     // Constructor
     initialize : function(editorId, url, editCell, actions) {
@@ -297,31 +297,58 @@ var TableEditor = Class.create({
             var formula = cell.down("input[name='formula']");
             initialValue = formula ? formula.value : '';
         }
-        this.showCellEditor(response.editor, cell, initialValue, response.params);
+        var editorStyle = this.getCellEditorStyle(cell);
+
+        this.showCellEditor(response.editor, cell, initialValue, response.params, editorStyle);
+
         this.editCell = cell;
         this.selectElement(cell);
     },
 
-    showCellEditor: function(editorName, parent, initialValue, params) {
-        this.editWrapper = new Element("div");
-        var wrapperId = parent.id + "_editWrapper";
-        this.editWrapper.setAttribute("id", wrapperId);
-        this.editWrapper.style.position = "absolute";
-        this.editWrapper.style.zIndex = "3";
-        this.editWrapper.style.width = parent.offsetWidth - 2 + "px";
-        this.editWrapper.style.height = parent.offsetHeight - 2 + "px";
-        var pos = Element.cumulativeOffset(parent);
-        this.editWrapper.style.left = pos[0] + "px";
-        this.editWrapper.style.top = pos[1] + "px";
-        //Element.clonePosition(this.editWrapper, parent);
+    showCellEditor: function(editorName, cell, initialValue, params, style) {
+        this.editorWrapper = this.createEditorWrapper(cell);
 
-        document.body.appendChild(this.editWrapper);
+        document.body.appendChild(this.editorWrapper);
 
         if (!initialValue) {
-            initialValue = AjaxHelper.unescapeHTML(parent.innerHTML.replace(/<br>/ig, "\n")).strip();
+            initialValue = AjaxHelper.unescapeHTML(cell.innerHTML.replace(/<br>/ig, "\n")).strip();
         }
 
-        this.editor = new TableEditor.Editors[editorName](this, wrapperId, params, initialValue, true);
+        this.editor = new TableEditor.Editors[editorName](
+                this, this.editorWrapper.id, params, initialValue, true, style);
+    },
+
+    createEditorWrapper: function(cell) {
+        var editorWrapper = new Element("div");
+
+        var wrapperId = cell.id + "_editorWrapper";
+        editorWrapper.setAttribute("id", wrapperId);
+
+        editorWrapper.style.position = "absolute";
+        editorWrapper.style.zIndex = "3";
+        editorWrapper.style.width = cell.offsetWidth - 2 + "px";
+        editorWrapper.style.height = cell.offsetHeight - 2 + "px";
+        var pos = Element.cumulativeOffset(cell);
+        editorWrapper.style.left = pos[0] + "px";
+        editorWrapper.style.top = pos[1] + "px";
+        editorWrapper.style.padding = "1px";
+        
+        return editorWrapper;
+    },
+
+    getCellEditorStyle: function(cell) {
+        if (cell) {
+            var style = {
+                fontFamily: cell.style.fontFamily,
+                fontSize: cell.style.fontSize,
+                fontWeight: cell.style.fontWeight,
+                fontStyle: cell.style.fontStyle,
+                
+                textAlign: cell.align
+            }
+    
+            return style;
+        }
     },
 
     switchEditor: function(editorName) {
@@ -354,8 +381,8 @@ var TableEditor = Class.create({
                 var displayValue = this.editor.getDisplayValue();
                 this.editCell.innerHTML = displayValue;
             }
-            this.editor.detach();
-            document.body.removeChild(this.editWrapper);
+            this.editor.destroy();
+            document.body.removeChild(this.editorWrapper);
         }
         this.editor = null;
     },
@@ -500,6 +527,7 @@ var TableEditor = Class.create({
         if (!this.isCellLocation(this.currentElement)) {
             return;
         }
+
         if (this.editor) {
             switch (event.keyCode) {
                 case 113: this.editor.handleF2(event); break;
@@ -507,6 +535,7 @@ var TableEditor = Class.create({
             }
             return;
         }
+
         if (!TableEditor.isNavigationKey(event.keyCode)) return;
 
         if (!this.hasSelection()) {
@@ -517,7 +546,7 @@ var TableEditor = Class.create({
 
         var sp = this.selectionPos.clone();
 
-        // check history
+        // Check history
         if (this.selectionHistory.length > 0 && this.selectionHistory.last()[0] == event.keyCode) {
             this.selectElement(null, -1);
             return;
@@ -603,9 +632,8 @@ var TableEditor = Class.create({
                     alert(response.status);
                 else {
                     self.processCallbacks(response, "do");
-                    var editor = cell.down('input');
-                    if (editor) {
-                        editor.style.textAlign = _align;
+                    if (self.editor) {
+                        self.editor.input.style.textAlign = _align;
                     }
                     cell.align = _align;
                 }

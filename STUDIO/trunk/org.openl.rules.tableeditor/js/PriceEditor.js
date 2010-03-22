@@ -1,13 +1,13 @@
 /**
  * Price editor.
+ * 
+ * @requires Prototype v1.6.1+ library
  *
  * @author Andrey Naumenko
  */
 var PriceEditor = Class.create(BaseTextEditor, {
     editor_initialize: function() {
         this.createInput();
-        var self = this;
-        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
     },
 
     show: function($super, value) {

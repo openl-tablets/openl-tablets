@@ -1,8 +1,10 @@
 
 /**
  * Base dropdown editor.
+ * 
+ * @requires Prototype v1.6.1+ library
  *
- * @author Aliaksandr Antonik.
+ * @author Aliaksandr Antonik
  */
 var DropdownEditor = Class.create(BaseEditor, {
     /**
@@ -20,32 +22,22 @@ var DropdownEditor = Class.create(BaseEditor, {
         for (var ind = 0; ind < len; ++ind) {
             this.addOption(pc[ind], pd[ind]);
         }
-
-        var self = this;                       
-        ["click", "mousedown", "selectstart"].each(function (s) { self.stopEventPropogation(s) })
     },
 
     createInput: function() {
         this.input = new Element("select");
 
-        this.input.style.borderWidth = "1px";
-        this.input.style.borderStyle = "solid";
-        this.input.style.borderColor = "threedface";
-
-        this.input.style.fontFamily = this.parentElement.style.fontFamily;
-        this.input.style.fontSize = this.parentElement.style.fontSize;
-        this.input.style.fontStyle = this.parentElement.style.fontStyle;
-        this.input.style.fontWeight = this.parentElement.style.fontWeight;
-        this.input.style.textAlign = this.parentElement.align;
-
+        // Default styles
+        this.input.style.border = "1px solid threedface";
         this.input.style.margin = "0px";
         this.input.style.padding = "0px";
         this.input.style.width = "101%";
+
+        this.input.setStyle(this.style);
     },
 
     /**
-     *  @desc add an option element to this select
-     *  @type public
+     *  Add an option element to this select
      */
     addOption : function(value, name) {
         var optionElement = new Element("option");

@@ -4,22 +4,9 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.webtools.WebTool;
 
 public class CellModel implements ICellModel {
+
     static final short[] WHITE = { 255, 255, 255 };
 
-    // public void setColorFilter(IColorFilter[] filter) {
-    // this.filter = filter;
-    // }
-    static final int FONT_COLOR_FILTER_IDX = 0;
-
-    // public void setColorFilter(IColorFilter[] filter) {
-    // this.filter = filter;
-    // }
-    static final int BGR_COLOR_FILTER_IDX = 1;
-
-    // public void setColorFilter(IColorFilter[] filter) {
-    // this.filter = filter;
-    // }
-    static final int BORDER_COLOR_FILTER_IDX = 2;
     int row;
     int column;
     int ident = 0;
@@ -33,17 +20,6 @@ public class CellModel implements ICellModel {
     private boolean hasFormula;
     private String formula;
 
-    // int[] borderWidth;
-    //
-    // String[] borderStyle;
-    //
-    // short[][] borderColor;
-
-    // String fontFamily;
-    // String fontSize;
-    // short[] fontColor;
-    // boolean isItalic;
-    // boolean
     ICellFont font;
     int width;
 
@@ -94,16 +70,10 @@ public class CellModel implements ICellModel {
             buf.append(" width=" + width);
         }
 
-        // else if (isNumber(content))
-        // buf.append(" align=right");
         if (rgbBackground == null) {
             rgbBackground = WHITE;
         }
 
-        // IColorFilter bcgFilter = getColorFilter(BGR_COLOR_FILTER_IDX);
-
-        // short[] color = bcgFilter == null ? rgbBackground :
-        // bcgFilter.filterColor(rgbBackground);
         short[] color = rgbBackground;
 
         buf.append(" bgcolor=" + WebTool.toHexString(color));
@@ -124,27 +94,6 @@ public class CellModel implements ICellModel {
         }
     }
 
-    // /**
-    // * @param content2
-    // * @return
-    // */
-    // private static boolean isNumber(String content)
-    // {
-    // if (content.charAt(0) == '<')
-    // return true;
-    //
-    // try
-    // {
-    // if (content.endsWith("%"))
-    // content = content.substring(0, content.length()-1);
-    //
-    // Double.parseDouble(content);
-    // return true;
-    // } catch (Throwable e)
-    // {
-    // return false;
-    // }
-    // }
     private void borderToHtml(StringBuffer buf, TableModel table) {
         if (borderStyle == null) {
             return;
@@ -179,25 +128,10 @@ public class CellModel implements ICellModel {
     String convertContent(String content) {
         StringBuilder buf = new StringBuilder(content.length() + 100);
 
-        // if (content.charAt(0) == '<')
-        // {
-        // int idx = content.indexOf('>');
-        // buf.append(content.substring(0, idx)).append(" style=\"");
-        // fontToHtml(buf);
-        // buf.append('\"');
-        // buf.append(content.substring(idx));
-        // return buf.toString();
-        // }
         boolean startLine = true;
-        // boolean needIdent = true;
 
         for (int i = 0; i < content.length(); i++) {
             char ch = content.charAt(i);
-
-            /*
-             * if (needIdent) { for (int j = 0; j < ident; j++) {
-             * buf.append("&nbsp;&nbsp;"); } needIdent = false; }
-             */
 
             if ((ch == ' ') && startLine) {
                 buf.append("&nbsp;");
@@ -206,7 +140,6 @@ public class CellModel implements ICellModel {
 
             if (ch == '\n') {
                 startLine = true;
-                // needIdent = true;
                 buf.append("<br>");
                 continue;
             }
@@ -277,16 +210,6 @@ public class CellModel implements ICellModel {
         return sb.toString();
     }
 
-    // public void setTextFilter(ITextFilter textFilter)
-    // {
-    // this.textFilter = textFilter;
-    // }
-    // ITextFilter textFilter;
-    /**
-     * DOCUMENT ME!
-     *
-     * @return Returns the ident.
-     */
     public int getIdent() {
         return ident;
     }
@@ -328,15 +251,6 @@ public class CellModel implements ICellModel {
         this.colspan = colspan;
     }
 
-    // IColorFilter[] filter = null;
-    //
-    // IColorFilter getColorFilter(int i)
-    // {
-    // if (filter == null || filter.length <= i)
-    // return null;
-    // return filter[i];
-    // }
-
     public void setContent(String content) {
         this.content = content;
     }
@@ -349,11 +263,6 @@ public class CellModel implements ICellModel {
         this.halign = halign;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param ident The ident to set.
-     */
     public void setIdent(int ident) {
         this.ident = ident;
     }
@@ -370,13 +279,8 @@ public class CellModel implements ICellModel {
         this.valign = valign;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param w
-     */
-    public void setWidth(int w) {
-        width = w;
+    public void setWidth(int width) {
+        this.width = width;
     }
 
     public void toHtmlString(StringBuffer buf, TableModel table) {
