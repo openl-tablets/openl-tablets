@@ -15,6 +15,7 @@ import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.table.xls.formatters.SegmentFormatter;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
+import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 import org.openl.rules.table.xls.formatters.XlsFormulaFormatter;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 
@@ -85,7 +86,7 @@ public class XlsSimpleFilter implements IGridFilter {
         if (dateFormat != null) {
             return dateFormat;
         }
-        dateFormat = (XlsDateFormatter)AXlsFormatter.getFormatter(Date.class, format);
+        dateFormat = (XlsDateFormatter)XlsFormattersManager.getFormatter(Date.class, format);
         existingFormatters.put(format, dateFormat);
         return dateFormat;
     }
