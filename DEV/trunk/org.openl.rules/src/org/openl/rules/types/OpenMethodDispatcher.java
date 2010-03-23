@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -135,8 +136,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         IRuntimeContext context = env.getContext();
 
         if (context == null) {
-            throw new RuntimeException(
-                    "Runtime engine context is not defined. Set proper initialized context in OpenL runtime environment.");
+            //Using empty context: all methods will be matched by properties.
+            context = IRulesRuntimeContext.EMPTY_CONTEXT;
         }
 
         // Get matching method.
