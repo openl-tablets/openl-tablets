@@ -11,8 +11,8 @@ public class CtrIntRange extends IntRange {
         super(min, max);
     }
 
-    public CtrIntRange(String s) {
-        super(s);
+    public CtrIntRange(String range) {
+        super(range);
     }
 
     public IntBoolExp contains(IntExp exp) {

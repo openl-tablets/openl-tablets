@@ -22,13 +22,14 @@ import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.ParameterDeclaration;
 
 public class DTAnalyzer {
-    DecisionTable dt;
+    
+    private DecisionTable decisionTable;
 
-    Map<IDecisionRow, ConditionAnalyzer> cdanMap;
+    private Map<IDecisionRow, ConditionAnalyzer> conditionAnalyzers;
 
-    Map<String, DTParamDescription> usedDTParams = new HashMap<String, DTParamDescription>();
+    private Map<String, DTParamDescription> usedDTParams = new HashMap<String, DTParamDescription>();
 
-    static IOpenField getLocalField(IOpenField f) {
+    private static IOpenField getLocalField(IOpenField f) {
         if (f instanceof ILocalVar) {
             return f;
         }
@@ -40,22 +41,22 @@ public class DTAnalyzer {
         return f;
     }
 
-    public DTAnalyzer(DecisionTable dt) {
-        this.dt = dt;
-        cdanMap = new HashMap<IDecisionRow, ConditionAnalyzer>();
-        IDTCondition[] dtcc = dt.getConditionRows();
-        for (int i = 0; i < dtcc.length; i++) {
-            cdanMap.put(dtcc[i], new ConditionAnalyzer(dtcc[i]));
+    public DTAnalyzer(DecisionTable decisionTable) {
+        this.decisionTable = decisionTable;
+        conditionAnalyzers = new HashMap<IDecisionRow, ConditionAnalyzer>();
+        IDTCondition[] dtConditionRows = decisionTable.getConditionRows();
+        for (int i = 0; i < dtConditionRows.length; i++) {
+            conditionAnalyzers.put(dtConditionRows[i], new ConditionAnalyzer(dtConditionRows[i]));
         }
     }
 
     public boolean containsFormula(IDecisionRow row) {
-        Object[][] values = row.getParamValues();
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] != null) {
-                Object[] p = values[i];
-                for (int j = 0; j < p.length; j++) {
-                    if (p[j] != null && p[j] instanceof IOpenMethod) {
+        Object[][] paramValues = row.getParamValues();
+        for (int i = 0; i < paramValues.length; i++) {
+            if (paramValues[i] != null) {
+                Object[] paramvalue = paramValues[i];
+                for (int j = 0; j < paramvalue.length; j++) {
+                    if (paramvalue[j] != null && paramvalue[j] instanceof IOpenMethod) {
                         return true;
                     }
                 }
@@ -69,11 +70,11 @@ public class DTAnalyzer {
     }
 
     public DecisionTable getDt() {
-        return dt;
+        return decisionTable;
     }
 
     public IDomain<?> getParameterDomain(String parameterName, IDecisionRow condition) {
-        return cdanMap.get(condition).getParameterDomain(parameterName);
+        return conditionAnalyzers.get(condition).getParameterDomain(parameterName);
     }
 
     public IDomain<?> getSignatureParameterDomain(String parameterName) {
@@ -81,48 +82,56 @@ public class DTAnalyzer {
     }
 
     public IParameterDeclaration[] referencedSignatureParams(IDecisionRow row) {
-        IMethodSignature ims = dt.getSignature();
+        IMethodSignature methodSignature = decisionTable.getSignature();
 
         CompositeMethod method = (CompositeMethod) row.getMethod();
 
-        BindingDependencies deps = new BindingDependencies();
+        BindingDependencies bindingDependecies = new BindingDependencies();
 
-        method.updateDependency(deps);
+        method.updateDependency(bindingDependecies);
 
-        List<IParameterDeclaration> res = new ArrayList<IParameterDeclaration>();
+        List<IParameterDeclaration> paramDeclarations = new ArrayList<IParameterDeclaration>();
 
-        for (Iterator<IOpenField> iter = deps.getFieldsMap().values().iterator(); iter.hasNext();) {
-            IOpenField f = iter.next();
+        for (Iterator<IOpenField> iter = bindingDependecies.getFieldsMap().values().iterator(); iter.hasNext();) {
+            IOpenField openField = iter.next();
 
-            f = getLocalField(f);
+            openField = getLocalField(openField);
 
-            if (f instanceof ILocalVar) {
-                for (int i = 0; i < ims.getNumberOfArguments(); i++) {
-                    if (ims.getParameterName(i).equals(f.getName())) {
-                        res.add(new ParameterDeclaration(ims.getParameterTypes()[i], ims.getParameterName(i)));
+            if (openField instanceof ILocalVar) {
+                for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
+                    if (methodSignature.getParameterName(i).equals(openField.getName())) {
+                        paramDeclarations.add(new ParameterDeclaration(methodSignature.getParameterTypes()[i], 
+                                methodSignature.getParameterName(i)));
                     }
                 }
             }
         }
 
-        return res.toArray(new IParameterDeclaration[0]);
+        return paramDeclarations.toArray(new IParameterDeclaration[0]);
 
     }
 
-    public void setDt(DecisionTable dt) {
-        this.dt = dt;
+    public void setDt(DecisionTable decisionTable) {
+        this.decisionTable = decisionTable;
     }
 
-    public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration, IDTValidatedObject dtvo) {
+    public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration, 
+            IDTValidatedObject objectToValidate) {
 
-        DTParamDescription dpd = usedDTParams.get(parameterDeclaration.getName());
-        if (dpd == null) {
-            IOpenClass newType = dtvo.getTransformer().transformSignatureType(parameterDeclaration);
-            dpd = new DTParamDescription(parameterDeclaration, newType);
-            usedDTParams.put(parameterDeclaration.getName(), dpd);
+        DTParamDescription dtParamDescription = usedDTParams.get(parameterDeclaration.getName());
+        if (dtParamDescription == null) {
+            IOpenClass newType = objectToValidate.getTransformer().transformSignatureType(parameterDeclaration);
+            dtParamDescription = new DTParamDescription(parameterDeclaration, newType);
+            usedDTParams.put(parameterDeclaration.getName(), dtParamDescription);
         }
 
-        return dpd.getNewType();
+        return dtParamDescription.getNewType();
     }
+
+    public Map<String, DTParamDescription> getUsedDTParams() {
+        return usedDTParams;
+    }
+    
+    
 
 }

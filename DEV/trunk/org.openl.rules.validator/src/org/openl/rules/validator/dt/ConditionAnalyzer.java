@@ -5,7 +5,7 @@ import org.openl.rules.dt.IDecisionRow;
 import org.openl.types.IParameterDeclaration;
 
 public class ConditionAnalyzer {
-    IDecisionRow condition;
+    private IDecisionRow condition;
 
     public ConditionAnalyzer(IDecisionRow condition) {
         this.condition = condition;

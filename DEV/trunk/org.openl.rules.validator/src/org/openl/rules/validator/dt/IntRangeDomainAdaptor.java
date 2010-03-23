@@ -6,7 +6,7 @@ import com.exigen.ie.constrainer.IntVar;
 
 public class IntRangeDomainAdaptor implements IDomainAdaptor {
 
-    IntRangeDomain irange;
+    private IntRangeDomain irange;
 
     public IntRangeDomainAdaptor(IntRangeDomain irange) {
         this.irange = irange;

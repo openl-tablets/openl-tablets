@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.openl.rules.dt.DTOverlapping;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.validator.IValidationResult;
 import org.openl.util.ArrayOfNamedValues;
 
 import com.exigen.ie.constrainer.consistencyChecking.Overlapping;
@@ -17,37 +18,26 @@ import com.exigen.ie.constrainer.consistencyChecking.Uncovered;
  * @author snshor
  *
  */
-public class DTValidationResult implements IDTValidationResult {
+public class DTValidationResult implements IValidationResult {
 
-    DecisionTable dt;
-    DTOverlapping[] overlappings;
-    DTUncovered[] uncovered;
+    private DecisionTable decisionTable;
+    private DTOverlapping[] overlappings;
+    private DTUncovered[] uncovered;
 
-    public DTValidationResult(DecisionTable dt, DTOverlapping[] overlappings, DTUncovered[] uncovered) {
-        this.dt = dt;
+    public DTValidationResult(DecisionTable decisionTable, DTOverlapping[] overlappings, DTUncovered[] uncovered) {
+        this.decisionTable = decisionTable;
         this.overlappings = overlappings;
 
         this.uncovered = uncovered;
     }
-
-    /**
-     * @param dt2
-     * @param overlappings2
-     * @param uncovereds
-     * @param transformer
-     */
-    public DTValidationResult(DecisionTable dt, Overlapping[] ov, Uncovered[] un, IConditionTransformer transformer,
+    
+    public DTValidationResult(DecisionTable decisionTable, Overlapping[] ov, Uncovered[] un, IConditionTransformer transformer,
             DTAnalyzer dtan) {
-        this.dt = dt;
+        this.decisionTable = decisionTable;
         overlappings = convertOverlappings(ov, transformer, dtan);
         uncovered = convertUncovered(un, transformer, dtan);
     }
-
-    /**
-     * @param ov
-     * @param transformer
-     * @return
-     */
+    
     private DTOverlapping[] convertOverlappings(Overlapping[] ov, IConditionTransformer transformer, DTAnalyzer dtan) {
         DTOverlapping[] ov2 = new DTOverlapping[ov.length];
         for (int i = 0; i < ov.length; i++) {
@@ -61,12 +51,7 @@ public class DTValidationResult implements IDTValidationResult {
         }
         return ov2;
     }
-
-    /**
-     * @param un
-     * @param transformer
-     * @return
-     */
+    
     private DTUncovered[] convertUncovered(Uncovered[] un, IConditionTransformer transformer, DTAnalyzer dtan) {
         DTUncovered[] un2 = new DTUncovered[un.length];
         for (int i = 0; i < un.length; i++) {
@@ -82,7 +67,7 @@ public class DTValidationResult implements IDTValidationResult {
     }
 
     public DecisionTable getDT() {
-        return dt;
+        return decisionTable;
     }
 
     public DTOverlapping[] getOverlappings() {
