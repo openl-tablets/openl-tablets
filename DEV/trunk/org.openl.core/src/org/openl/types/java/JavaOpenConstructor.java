@@ -23,9 +23,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
 
-    Constructor<?> constructor;
+    private Constructor<?> constructor;
 
-    IOpenClass[] parameterTypes;
+    private IOpenClass[] parameterTypes;
 
     public JavaOpenConstructor(Constructor<?> constructor) {
         this.constructor = constructor;
@@ -91,6 +91,15 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
      */
     public String getParameterName(int i) {
         return "p" + i;
+    }
+    
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.openl.types.IMethodSignature#getParameterType(int)
+     */
+    public IOpenClass getParameterType(int i) {
+        return getParameterTypes()[i];
     }
 
     public synchronized IOpenClass[] getParameterTypes() {

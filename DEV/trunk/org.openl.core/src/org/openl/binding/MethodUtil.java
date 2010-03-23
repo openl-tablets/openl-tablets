@@ -18,105 +18,115 @@ import org.openl.util.print.Formatter;
  */
 public class MethodUtil {
 
-    static StringBuffer printMethod(IOpenMethod method, StringBuffer buf) {
+    public static StringBuffer printMethod(IOpenMethod method, StringBuffer buf) {
         return printMethod(method.getName(), method.getSignature(), buf);
     }
 
-    static public String printMethod(IOpenMethodHeader m, int mode, boolean printType) {
+    public static String printMethod(IOpenMethodHeader methodHeader, int mode, boolean printType) {
         StringBuffer buf = new StringBuffer(100);
 
         if (printType) {
-            buf.append(m.getType().getDisplayName(mode)).append(' ');
+            buf.append(methodHeader.getType().getDisplayName(mode)).append(' ');
         }
 
-        buf.append(m.getName()).append('(');
+        startPrintingMethodName(methodHeader.getName(), buf);
 
-        IMethodSignature signature = m.getSignature();
+        IMethodSignature signature = methodHeader.getSignature();
 
-        IOpenClass[] params = signature.getParameterTypes();
-        for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(',');
-            }
-            buf.append(params[i].getDisplayName(mode));
-            if (signature.getParameterName(i) != null) {
-                buf.append(' ').append(signature.getParameterName(i));
-            }
+        for (int i = 0; i < signature.getNumberOfArguments(); i++) {
+            printParameterInfo(signature.getParameterType(i).getDisplayName(mode), signature.getParameterName(i), i > 0, buf);
         }
-        buf.append(')');
+        
+        endPrintingMethodName(buf);
 
         return buf.toString();
     }
 
-    static public String printMethod(String name, Class<?>[] params) {
+    public static String printMethod(String name, Class<?>[] params) {
         return printMethod(name, params, new StringBuffer()).toString();
     }
 
-    static public StringBuffer printMethod(String name, Class<?>[] params, StringBuffer buf) {
-        buf.append(name).append("(");
+    public static StringBuffer printMethod(String name, Class<?>[] params, StringBuffer buf) {
+        startPrintingMethodName(name, buf);
+        
         for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(',');
-            }
-            buf.append(params[i].getName());
+            printParameterInfo(params[i].getName(), null, i > 0, buf);
         }
-        buf.append(')');
+        
+        endPrintingMethodName(buf);
         return buf;
     }
 
-    static public StringBuffer printMethod(String name, IMethodSignature signature, StringBuffer buf) {
-        IOpenClass[] params = signature.getParameterTypes();
-        buf.append(name).append("(");
-        for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(',');
-            }
-            buf.append(params[i].getName());
-            if (signature.getParameterName(i) != null) {
-                buf.append(' ').append(signature.getParameterName(i));
-            }
+    public static StringBuffer printMethod(String name, IMethodSignature signature, StringBuffer buf) {
+        startPrintingMethodName(name, buf);
+        
+        for (int i = 0; i < signature.getNumberOfArguments(); i++) {
+            printParameterInfo(signature.getParameterType(i).getName(), signature.getParameterName(i), i > 0, buf);
         }
-        buf.append(')');
+        
+        endPrintingMethodName(buf);
         return buf;
     }
 
-    static public String printMethod(String name, IOpenClass[] params) {
+    public static String printMethod(String name, IOpenClass[] params) {
         return printMethod(name, params, new StringBuffer()).toString();
     }
 
-    static public StringBuffer printMethod(String name, IOpenClass[] params, StringBuffer buf) {
-        buf.append(name).append("(");
+    public static StringBuffer printMethod(String name, IOpenClass[] params, StringBuffer buf) {
+        startPrintingMethodName(name, buf);
+        
         for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(',');
-            }
-            buf.append(params[i].getName());
+            printParameterInfo(params[i].getName(), null, i > 0, buf);
         }
-        buf.append(')');
+        endPrintingMethodName(buf);
         return buf;
     }
 
-    
-    
-    static public StringBuffer printMethodWithParams(IOpenMethod method, Object[] params, int mode, StringBuffer buf) {
-//        buf.append(method.getType().getDisplayName(mode)).append(' ');
-        buf.append(method.getName()).append('(');
+    public static StringBuffer printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode, StringBuffer buf) {
+        startPrintingMethodName(method.getName(), buf);
 
-//        IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
-
+        IMethodSignature signature = method.getSignature();
         for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(", ");
-            }
- //           buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
-            buf.append(method.getSignature().getParameterName(i)).append(" = ");
-            Formatter.format(params[i], mode, buf);
+            printParameterInfo(null, signature.getParameterName(i), params[i], i > 0, mode, buf);
         }
 
-        buf.append(')');
-        // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
-        // false));
+        endPrintingMethodName(buf);
+
         return buf;
+    }
+    
+    public static String printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode) {
+        return printMethodWithParameterValues(method, params, mode, new StringBuffer()).toString();
+    }
+    
+    private static void startPrintingMethodName(String name, StringBuffer buf) {
+        buf.append(name).append('(');
+    }
+    
+    private static void endPrintingMethodName(StringBuffer buf) {
+        buf.append(')');
+    }
+    private static void printParameterInfo(String type, String name, boolean isFirst, StringBuffer buf){
+        printParameterInfo(type, name, null, isFirst, 0, buf);
+    }
+    
+    private static void printParameterInfo(String type, String name, Object value, boolean isFirst, int displayMode, StringBuffer buf){
+        if (!isFirst){
+            buf.append(',');
+        }
+        
+        if (type != null){
+            buf.append(' ').append(type);
+        }
+        
+        if (name != null){
+            buf.append(' ').append(name);
+        }
+        
+        if (value != null){
+            buf.append(" = ");
+            Formatter.format(value, displayMode, buf);
+        }
     }
     
 }

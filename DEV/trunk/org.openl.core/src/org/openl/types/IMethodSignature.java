@@ -12,7 +12,7 @@ package org.openl.types;
  */
 public interface IMethodSignature {
 
-    static final class VoidSignature implements IMethodSignature {
+    final class VoidSignature implements IMethodSignature {
         public int getNumberOfArguments() {
             return 0;
         }
@@ -24,6 +24,10 @@ public interface IMethodSignature {
         public String getParameterName(int i) {
             throw new IndexOutOfBoundsException();
         }
+        
+        public IOpenClass getParameterType(int i) {
+            throw new IndexOutOfBoundsException();
+        }
 
         public IOpenClass[] getParameterTypes() {
             return IOpenClass.EMPTY;
@@ -31,14 +35,16 @@ public interface IMethodSignature {
 
     }
 
-    public static final IMethodSignature VOID = new VoidSignature();
+    IMethodSignature VOID = new VoidSignature();
 
-    public int getNumberOfArguments();
+    int getNumberOfArguments();
 
-    public int getParameterDirection(int i);
+    int getParameterDirection(int i);
 
-    public String getParameterName(int i);
+    String getParameterName(int i);
+    
+    IOpenClass getParameterType(int i);
 
-    public IOpenClass[] getParameterTypes();
+    IOpenClass[] getParameterTypes();
 
 }
