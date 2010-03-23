@@ -12,7 +12,8 @@ import com.exigen.ie.constrainer.IntVar;
  *
  */
 public class EnumDomainAdaptor implements IDomainAdaptor {
-    Object[] values;
+    
+    private Object[] values;
 
     public EnumDomainAdaptor(EnumDomain<?> d) {
         values = d.getEnum().getAllObjects();

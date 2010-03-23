@@ -5,10 +5,13 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 
 public class DTParamDescription {
-    IParameterDeclaration originalDeclaration;
+    
+    private IParameterDeclaration originalDeclaration;
 
-    IDomain<?> domain;
-    IOpenClass newType;
+    private IDomain<?> domain;
+    
+    private IOpenClass newType;
+    
     public DTParamDescription(IParameterDeclaration parameterDeclaration, IOpenClass newType) {
         originalDeclaration = parameterDeclaration;
         this.newType = newType;

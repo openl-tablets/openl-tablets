@@ -151,17 +151,17 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         return null;
     }
 
-    public Object transformSignatureValueBack(String name, int intValue, DTAnalyzer dtan) {
+    public Object transformSignatureValueBack(String name, int intValue, DTAnalyzer dtAnalyzer) {
 
-        DTParamDescription pd = dtan.usedDTParams.get(name);
+        DTParamDescription pd = dtAnalyzer.getUsedDTParams().get(name);
 
-        Class<?> c = pd.getOriginalDeclaration().getType().getInstanceClass();
+        Class<?> instanceClass = pd.getOriginalDeclaration().getType().getInstanceClass();
 
-        if (c == boolean.class || c == Boolean.class) {
+        if (instanceClass == boolean.class || instanceClass == Boolean.class) {
             return intValue == 1 ? "true" : "false";
         }
 
-        IDomain<?> domain = dtan.getSignatureParameterDomain(name);
+        IDomain<?> domain = dtAnalyzer.getSignatureParameterDomain(name);
 
         if (domain == null) {
             return intValue;

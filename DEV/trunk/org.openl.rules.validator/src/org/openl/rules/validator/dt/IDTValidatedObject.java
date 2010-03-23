@@ -11,10 +11,10 @@ import org.openl.rules.validator.IValidatedObject;
  *
  */
 public interface IDTValidatedObject extends IValidatedObject {
-    public DecisionTable getDT();
+    DecisionTable getDT();
 
-    public IConditionSelector getSelector();
+    IConditionSelector getSelector();
 
-    public IConditionTransformer getTransformer();
+    IConditionTransformer getTransformer();
 
 }

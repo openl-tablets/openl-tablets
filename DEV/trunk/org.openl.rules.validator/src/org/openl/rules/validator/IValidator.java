@@ -11,6 +11,6 @@ import org.openl.OpenL;
  */
 public interface IValidator {
 
-    public IValidationResult validate(IValidatedObject ivo, OpenL openl);
+    IValidationResult validate(IValidatedObject objectToValidate, OpenL openl);
 
 }
