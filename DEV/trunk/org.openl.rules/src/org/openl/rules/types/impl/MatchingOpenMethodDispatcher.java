@@ -58,7 +58,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new RuntimeException(String.format("Ambigous method dispatch. Details: \n%1$s\nContext: %2$s",
+                throw new RuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
                         toString(candidates), context.toString()));
         }
 

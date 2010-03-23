@@ -3,6 +3,9 @@ package org.openl.rules.context;
 import org.openl.runtime.IRuntimeContext;
 
 public interface IRulesRuntimeContext extends IRuntimeContext {
+    // Empty contains that can be used as default. All tables regardless values
+    // of their properties will be matched for this context.
+    public static IRulesRuntimeContext EMPTY_CONTEXT = new DefaultRulesRuntimeContext();
 	
 	Object getValue(String variable);
 	
