@@ -10,6 +10,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.util.print.Formatter;
 
 /**
  * @author snshor
@@ -95,4 +96,27 @@ public class MethodUtil {
         return buf;
     }
 
+    
+    
+    static public StringBuffer printMethodWithParams(IOpenMethod method, Object[] params, int mode, StringBuffer buf) {
+//        buf.append(method.getType().getDisplayName(mode)).append(' ');
+        buf.append(method.getName()).append('(');
+
+//        IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
+
+        for (int i = 0; i < params.length; i++) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+ //           buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
+            buf.append(method.getSignature().getParameterName(i)).append(" = ");
+            Formatter.format(params[i], mode, buf);
+        }
+
+        buf.append(')');
+        // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
+        // false));
+        return buf;
+    }
+    
 }

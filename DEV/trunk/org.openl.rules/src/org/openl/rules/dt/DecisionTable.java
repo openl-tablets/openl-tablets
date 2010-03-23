@@ -6,8 +6,10 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
+import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -266,19 +268,43 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         IIntIterator rules = algorithm.checkedRules(target, params, env);
 
         Object ret = null;
+        boolean atLeastOneRuleFired = false;
         for (; rules.hasNext();) {
+            atLeastOneRuleFired = true;
             int ruleN = rules.nextInt();
 
             for (int j = 0; j < actionRows.length; j++) {
                 ret = actionRows[j].executeAction(ruleN, target, params, env);
-                if (ret != null && actionRows[j].isReturnAction()) {
+                if (actionRows[j].isReturnAction() &&  (ret != null || actionRows[j].getParamValues()[ruleN] != null)) {
                     return ret;
                 }
             }
 
         }
 
+        if (!atLeastOneRuleFired)
+            checkFailOnMiss(params);
+        
         return ret;
+    }
+
+    
+    
+    /**
+     * Fails on miss 
+     * @param params
+     */
+    private void checkFailOnMiss(Object[] params) {
+       boolean failOnMiss = getTableSyntaxNode().getTableProperties().getFailOnMiss();
+       if (failOnMiss)
+       {
+           
+           String msg = MethodUtil.printMethodWithParams(getMethod(), params, INamedThing.REGULAR, new StringBuffer()).toString();
+           msg += " failed to match any rule condition";
+           
+           throw new FailOnMissException(msg, this, params);
+       }    
+       
     }
 
     public Object invokeStandard(Object target, Object[] params, IRuntimeEnv env) {

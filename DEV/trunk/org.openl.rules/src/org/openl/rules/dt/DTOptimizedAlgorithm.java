@@ -398,11 +398,11 @@ public class DTOptimizedAlgorithm {
      * not-optimized algorithm has the whole ruleset as initial.
      *
      * 3)Performance. From the algorithm definition it is clear, that step 1 of
-     * algoritm is performed with constant or near constant speed with regard to
+     * algorithm is performed with constant or near constant speed with regard to
      * the number of the rules. The performance of the part 2 is largely
-     * dependend the size of the resulting ruleset. The order of initial indexed
+     * dependent the size of the resulting ruleset. The order of initial indexed
      * conditions does not seem to affect performance much (//TODO this
-     * atatement needs verification)
+     * statement needs verification)
      *
      *
      * @return iterator over <b>rule indexes</b> - integer iterator.
