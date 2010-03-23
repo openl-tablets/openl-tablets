@@ -64,6 +64,10 @@ public class MethodSignature implements IMethodSignature {
     public String getParameterName(int i) {
         return parameters[i].getName();
     }
+    
+    public IOpenClass getParameterType(int i) {
+        return parameters[i].getType();
+    }
 
     public IOpenClass[] getParameterTypes() {
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];

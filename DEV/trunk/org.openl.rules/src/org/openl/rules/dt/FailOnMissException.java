@@ -2,17 +2,28 @@ package org.openl.rules.dt;
 
 
 public class FailOnMissException extends RuntimeException {
-
-    private static final long serialVersionUID = 1L;
     
-    DecisionTable decisionTable; 
-    Object[] params;
+    private static final long serialVersionUID = -4344185808917149412L;
     
-    public FailOnMissException(String msg, DecisionTable decisionTable, Object[] params) {
-        super(msg);
-        this.decisionTable = decisionTable;
-        this.params = params.clone();
+    private DecisionTable decisionTable; 
+    private Object[] invokationParameters;
+    
+    public FailOnMissException() {
+    }
+    
+    public FailOnMissException(String message, DecisionTable theDecisionTable, Object[] theInvokationParameters) {
+        super(message);
+        decisionTable = theDecisionTable;
+        invokationParameters = theInvokationParameters.clone();
         
+    }
+
+    public DecisionTable getDecisionTable() {
+        return decisionTable;
+    }
+
+    public Object[] getInvokationParameters() {
+        return invokationParameters;
     }
 
 }

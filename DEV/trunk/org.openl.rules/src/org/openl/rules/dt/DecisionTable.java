@@ -267,44 +267,38 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
 
         IIntIterator rules = algorithm.checkedRules(target, params, env);
 
-        Object ret = null;
+        Object returnValue = null;
         boolean atLeastOneRuleFired = false;
+        
         for (; rules.hasNext();) {
             atLeastOneRuleFired = true;
             int ruleN = rules.nextInt();
 
             for (int j = 0; j < actionRows.length; j++) {
-                ret = actionRows[j].executeAction(ruleN, target, params, env);
-                if (actionRows[j].isReturnAction() &&  (ret != null || actionRows[j].getParamValues()[ruleN] != null)) {
-                    return ret;
+                returnValue = actionRows[j].executeAction(ruleN, target, params, env);
+                if (actionRows[j].isReturnAction() &&  (returnValue != null || actionRows[j].getParamValues()[ruleN] != null)) {
+                    return returnValue;
                 }
             }
-
         }
 
-        if (!atLeastOneRuleFired)
-            checkFailOnMiss(params);
+        if (!atLeastOneRuleFired && shouldFailOnMiss()){
+            String method = MethodUtil.printMethodWithParameterValues(getMethod(), params, INamedThing.REGULAR);
+            String message = String.format("%s failed to match any rule condition", method);
+            
+            throw new FailOnMissException(message, this, params);
+        }
         
-        return ret;
+        return returnValue;
     }
 
     
     
     /**
-     * Fails on miss 
-     * @param params
+     * Check whether execution of decision table should be failed if no rule fired.  
      */
-    private void checkFailOnMiss(Object[] params) {
-       boolean failOnMiss = getTableSyntaxNode().getTableProperties().getFailOnMiss();
-       if (failOnMiss)
-       {
-           
-           String msg = MethodUtil.printMethodWithParams(getMethod(), params, INamedThing.REGULAR, new StringBuffer()).toString();
-           msg += " failed to match any rule condition";
-           
-           throw new FailOnMissException(msg, this, params);
-       }    
-       
+    private boolean shouldFailOnMiss() {
+      return getTableSyntaxNode().getTableProperties().getFailOnMiss();
     }
 
     public Object invokeStandard(Object target, Object[] params, IRuntimeEnv env) {
