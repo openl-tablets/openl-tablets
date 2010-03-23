@@ -6,15 +6,15 @@ public class FailOnMissException extends RuntimeException {
     private static final long serialVersionUID = -4344185808917149412L;
     
     private DecisionTable decisionTable; 
-    private Object[] invokationParameters;
+    private Object[] invocationParameters;
     
     public FailOnMissException() {
     }
     
-    public FailOnMissException(String message, DecisionTable theDecisionTable, Object[] theInvokationParameters) {
+    public FailOnMissException(String message, DecisionTable theDecisionTable, Object[] theInvocationParameters) {
         super(message);
         decisionTable = theDecisionTable;
-        invokationParameters = theInvokationParameters.clone();
+        invocationParameters = theInvocationParameters.clone();
         
     }
 
@@ -22,8 +22,8 @@ public class FailOnMissException extends RuntimeException {
         return decisionTable;
     }
 
-    public Object[] getInvokationParameters() {
-        return invokationParameters;
+    public Object[] getInvocationParameters() {
+        return invocationParameters;
     }
 
 }
