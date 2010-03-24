@@ -1,4 +1,4 @@
-package org.openl.rules.ui.tree;
+package org.openl.rules.ui.tree.richfaces;
 
 import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
@@ -7,9 +7,9 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
 
-public class ExplainRichFacesTreeBuilder extends RichFacesTreeBuilder {
+public class ExplainTreeBuilder extends TreeBuilder {
 
-    public ExplainRichFacesTreeBuilder(ITreeElement<?> root) {
+    public ExplainTreeBuilder(ITreeElement<?> root) {
         super(root);
     }
 
