@@ -15,7 +15,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -41,7 +40,12 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.rules.tableeditor.model.ui.TableViewer;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.ui.tree.NodeKey;
@@ -54,14 +58,10 @@ import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
-import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.tableeditor.model.ui.TableModel;
-import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.tableeditor.model.ui.TableViewer;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.SyntaxErrorException;
-import org.openl.syntax.impl.SyntaxError;
+import org.openl.syntax.error.ASyntaxNodeError;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -196,11 +196,11 @@ public class ProjectModel {
         root.getElements().put(new NodeKey(0, errName), errorFolder);
         
         for (int i = 0; i < parsingErrorsNum; i++) {
-            addError((SyntaxError) comp.getParsingErrors()[i], errorFolder, i);
+            addError((ASyntaxNodeError) comp.getParsingErrors()[i], errorFolder, i);
         }
         
         for (int i = 0; i < bindingErrorsNum; i++) {
-            addError((SyntaxError) comp.getBindingErrors()[i], errorFolder, i + parsingErrorsNum);
+            addError((ASyntaxNodeError) comp.getBindingErrors()[i], errorFolder, i + parsingErrorsNum);
         }
         
         int parsAndBindErrorsSum = parsingErrorsNum + bindingErrorsNum;
@@ -208,12 +208,12 @@ public class ProjectModel {
             for (int i = 0; i < validationErrorsNum; ++i) {
                 Throwable t = validationExceptions.get(i);
 
-                if (t instanceof SyntaxErrorException) {
-                    SyntaxErrorException se = (SyntaxErrorException) t;
-                    ISyntaxError[] errors = se.getSyntaxErrors();
+                if (t instanceof SyntaxNodeException) {
+                    SyntaxNodeException se = (SyntaxNodeException) t;
+                    ISyntaxNodeError[] errors = se.getErrors();
 
                     for (int j = 0; j < errors.length; j++) {
-                        addError((SyntaxError) errors[j], errorFolder, ++parsAndBindErrorsSum);
+                        addError((ASyntaxNodeError) errors[j], errorFolder, ++parsAndBindErrorsSum);
                     }
 
                 } else {
@@ -525,21 +525,21 @@ public class ProjectModel {
         return displayName;
     }
 
-    public ISyntaxError[] getErrors(String elementUri) {
+    public ISyntaxNodeError[] getErrors(String elementUri) {
         
         TableSyntaxNode tsn = getNode(elementUri);
-        ISyntaxError[] se = null;
+        ISyntaxNodeError[] se = null;
 
         if (tsn != null) {
             se = tsn.getErrors();
         }
 
-        return se == null ? ISyntaxError.EMPTY : se;
+        return se == null ? new ISyntaxNodeError[0] : se;
     }
     
     public boolean hasErrors(String elementUri) {
         
-        ISyntaxError[] se = getErrors(elementUri);
+        ISyntaxNodeError[] se = getErrors(elementUri);
         
         return se.length > 0;
     }
@@ -1171,8 +1171,9 @@ public class ProjectModel {
         if (pte == null) {
             return null;
         }
-        
+
         Object error = pte.getProblems();
+
         ObjectViewer objViewer = new ObjectViewer(this); 
         objViewer.setSession(session);
         return objViewer.displayResult(error);
@@ -1182,9 +1183,8 @@ public class ProjectModel {
         TableSyntaxNode tsn = getNode(elementUri);
         ObjectViewer objViewer = new ObjectViewer(this);
         objViewer.setSession(session);
-        ISyntaxError[] se = tsn.getErrors();        
+        ISyntaxNodeError[] se = tsn.getErrors();
         if (se != null) {
-            
             return objViewer.displayResult(se);
         }
         if (tsn.getValidationResult() != null) {

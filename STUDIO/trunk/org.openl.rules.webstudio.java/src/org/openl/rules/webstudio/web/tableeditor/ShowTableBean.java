@@ -28,7 +28,8 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.util.StringTool;
 
 /**
@@ -43,7 +44,7 @@ public class ShowTableBean {
     private String name;
     private boolean runnable;
     private boolean testable;
-    private ISyntaxError[] se;
+    private ISyntaxNodeError[] se;
     private String uri;
     private String notViewParams;
     private String paramsWithoutShowFormulas;
@@ -127,7 +128,7 @@ public class ShowTableBean {
         return paramsWithoutShowFormulas;
     }
 
-    public ISyntaxError[] getSe() {
+    public ISyntaxNodeError[] getSe() {
         return se;
     }
 
