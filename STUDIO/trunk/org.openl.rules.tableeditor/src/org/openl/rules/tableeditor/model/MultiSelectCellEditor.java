@@ -47,7 +47,8 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
         TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
                 CE_MULTISELECT);
-        typeResponse.setParams(new MultiChoiceParam(choices, displayValues, FunctionalRow.ARRAY_ELEMENTS_SEPARATOR,
+        typeResponse.setParams(new MultiChoiceParam(getChoices(), getDisplayValues(),
+                FunctionalRow.ARRAY_ELEMENTS_SEPARATOR,
                 FunctionalRow.ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
         return typeResponse;
     }

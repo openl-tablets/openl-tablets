@@ -26,9 +26,10 @@ import org.openl.rules.web.jsf.util.FacesUtils;
  * @author Andrey Naumenko
  */
 public class TableEditorController extends BaseTableEditorController implements ITableEditorController {
-    
-    public static Log LOG = LogFactory.getLog(TableEditorController.class);
-    private static String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
+
+    private static final Log LOG = LogFactory.getLog(TableEditorController.class);
+
+    private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
 
     public String edit() {
         String editorId = getEditorId();

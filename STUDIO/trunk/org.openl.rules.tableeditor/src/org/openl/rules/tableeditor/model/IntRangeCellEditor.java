@@ -5,7 +5,9 @@ import org.openl.rules.tableeditor.event.TableEditorController.RangeParam;
 
 public class IntRangeCellEditor implements ICellEditor {
 
-    int min, max;
+    private int min;
+
+    private int max;
 
     public IntRangeCellEditor(int min, int max) {
         this.min = min;
