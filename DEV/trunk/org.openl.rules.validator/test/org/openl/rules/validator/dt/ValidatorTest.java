@@ -1,9 +1,6 @@
 package org.openl.rules.validator.dt;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.junit.Assert.*;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.dt.DecisionTable;
@@ -47,5 +44,4 @@ public class ValidatorTest extends TestHelperValidator{
             fail();
         }
     }
-
 }

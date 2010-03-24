@@ -18,11 +18,11 @@ import org.openl.types.impl.AOpenClass;
  * 
  */
 public class DTValidator implements IValidator {
-    public static DTValidationResult validateDT(DecisionTable dt,
+    public static DTValidationResult validateDT(DecisionTable decisionTable,
             Map<String, IDomainAdaptor> domains, IOpenClass type)
             throws Exception {
 
-        return new DTValidator().validateDT(new DTValidatedObject(dt, domains),
+        return new DTValidator().validateDT(new DTValidatedObject(decisionTable, domains),
                 ((XlsModuleOpenClass) type).getOpenl());
     }
 
