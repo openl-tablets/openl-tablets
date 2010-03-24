@@ -1,6 +1,5 @@
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;

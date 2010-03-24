@@ -8,6 +8,7 @@ package org.openl.binding;
 
 import org.openl.syntax.*;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.error.ISyntaxNodeError;
 
 /**
  * The <code>IBoundCode</code> interface is designed to provide a common
@@ -23,7 +24,7 @@ public interface IBoundCode {
      * 
      * @return syntax errors
      */
-    ISyntaxError[] getErrors();
+    ISyntaxNodeError[] getErrors();
 
     /**
      * Gets link to parsed code that was used in binding process.

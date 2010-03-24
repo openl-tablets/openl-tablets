@@ -28,7 +28,7 @@ public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
      * @param children
      */
     public MethodHeaderNode(ISyntaxNode syntaxNode, IOpenMethodHeader methodHeader) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         this.methodHeader = methodHeader;
     }
 

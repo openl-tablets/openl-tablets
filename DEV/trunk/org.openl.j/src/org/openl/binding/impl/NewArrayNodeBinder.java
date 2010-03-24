@@ -1,7 +1,5 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -26,22 +24,24 @@ public class NewArrayNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode,
-     *      org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
+     * org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        int nc = node.getNumberOfChildren();
-        if (nc != 1) {
-            throw new BoundError(node, "New array node must have 1 subnode");
+        int childrenCount = node.getNumberOfChildren();
+
+        if (childrenCount != 1) {
+            BindHelper.processError("New array node must have 1 subnode", node, bindingContext);
+
+            return new ErrorBoundNode(node);
         }
 
         ISyntaxNode indexChild = node.getChild(0);
+        int dimension = 0;
 
-        int dim = 0;
         while (indexChild.getType().equals("array.index.empty")) {
-            dim++;
+            dimension++;
             indexChild = indexChild.getChild(0);
         }
 
@@ -53,7 +53,6 @@ public class NewArrayNodeBinder extends ANodeBinder {
         }
 
         int exprsize = expressions.size();
-
         IBoundNode[] exprAry = new IBoundNode[exprsize];
 
         for (int i = 0; i < exprAry.length; i++) {
@@ -61,21 +60,21 @@ public class NewArrayNodeBinder extends ANodeBinder {
         }
 
         ISyntaxNode typeNode = indexChild;
-
         String typeName = ((IdentifierNode) typeNode).getIdentifier();
-
         IOpenClass componentType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (componentType == null) {
-            throw new BoundError(typeNode, "Type " + typeName + " not found");
+
+            String message = String.format("Type '%s' not found", typeName);
+            BindHelper.processError(message, typeNode, bindingContext);
+
+            return new ErrorBoundNode(node);
         }
 
         IAggregateInfo info = componentType.getAggregateInfo();
+        IOpenClass arrayType = info.getIndexedAggregateType(componentType, dimension + exprsize);
 
-        IOpenClass arrayType = info.getIndexedAggregateType(componentType, dim + exprsize);
-
-        return new ArrayBoundNode(node, exprAry, dim, arrayType, componentType);
-
+        return new ArrayBoundNode(node, exprAry, dimension, arrayType, componentType);
     }
 
 }

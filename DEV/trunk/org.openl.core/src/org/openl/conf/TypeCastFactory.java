@@ -6,7 +6,6 @@
 
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.ACastFactory;
 import org.openl.binding.impl.StaticClassLibrary;

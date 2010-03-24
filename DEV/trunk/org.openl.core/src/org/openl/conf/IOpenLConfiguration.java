@@ -6,7 +6,6 @@
 
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;

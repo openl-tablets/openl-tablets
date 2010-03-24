@@ -7,10 +7,10 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.syntax.impl.NaryNode;
 
-public class WorkbookSyntaxNode  extends NaryNode implements ITableNodeTypes{
+public class WorkbookSyntaxNode  extends NaryNode {
 
     public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes, XlsWorkbookSourceCodeModule module) {
-        super(XLS_WORKBOOK, null, nodes, module);
+        super(ITableNodeTypes.XLS_WORKBOOK, null, nodes, module);
     }
     
     public TableSyntaxNode[] getTableSyntaxNodes()
@@ -32,6 +32,6 @@ public class WorkbookSyntaxNode  extends NaryNode implements ITableNodeTypes{
     
     public WorksheetSyntaxNode[] getWorksheetSyntaxNodes()
     {
-        return (WorksheetSyntaxNode[])nodes;
+        return (WorksheetSyntaxNode[])getNodes();
     }
 }

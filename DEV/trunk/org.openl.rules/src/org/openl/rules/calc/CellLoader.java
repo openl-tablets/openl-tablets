@@ -1,7 +1,7 @@
 package org.openl.rules.calc;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
@@ -68,7 +68,7 @@ public class CellLoader {
             // validateValue(res, paramType);
             return res;
         } catch (Throwable t) {
-            throw new BoundError(null, null, t, srcModule);
+            throw new BoundError(null, t, null, srcModule);
         }
     }
 

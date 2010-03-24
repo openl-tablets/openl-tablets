@@ -9,11 +9,11 @@ package org.openl.binding.impl.module;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.binding.AmbiguousMethodException;
-import org.openl.binding.AmbiguousVarException;
-import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.MethodSearch;
 import org.openl.syntax.impl.ISyntaxConstants;

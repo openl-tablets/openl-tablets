@@ -28,7 +28,7 @@ public class ModuleNode extends ABoundNode // implements IBoundModuleNode
      * @param children
      */
     public ModuleNode(ISyntaxNode syntaxNode, IOpenClass type) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         this.type = type;
     }
 

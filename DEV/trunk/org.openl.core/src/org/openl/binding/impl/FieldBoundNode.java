@@ -1,7 +1,5 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -16,25 +14,24 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class FieldBoundNode extends ATargetBoundNode {
 
     IOpenField boundField;
 
     public FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         boundField = field;
     }
 
     public FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field, IBoundNode target) {
-        super(syntaxNode, IBoundNode.EMPTY, target);
+        super(syntaxNode, new IBoundNode[0], target);
         boundField = field;
     }
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#assign(java.lang.Object)
      */
     @Override
@@ -46,7 +43,6 @@ public class FieldBoundNode extends ATargetBoundNode {
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#invoke(java.lang.Object[])
      */
     // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
@@ -54,10 +50,8 @@ public class FieldBoundNode extends ATargetBoundNode {
     // return boundField.get(target);
     // }
     //
-
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -68,7 +62,6 @@ public class FieldBoundNode extends ATargetBoundNode {
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#getType()
      */
     public IOpenClass getType() {
@@ -77,7 +70,6 @@ public class FieldBoundNode extends ATargetBoundNode {
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#isLvalue()
      */
     @Override

@@ -9,15 +9,15 @@ package org.openl.binding.impl;
 import java.util.List;
 
 import org.openl.OpenL;
-import org.openl.binding.AmbiguousMethodException;
-import org.openl.binding.AmbiguousVarException;
-import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.syntax.ISyntaxError;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -46,7 +46,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /**
      * @param error
      */
-    public void addError(ISyntaxError error) {
+    public void addError(ISyntaxNodeError error) {
         delegate.addError(error);
     }
 
@@ -143,8 +143,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /**
      * @return
      */
-    public ISyntaxError[] getError() {
-        return delegate.getError();
+    public ISyntaxNodeError[] getErrors() {
+        return delegate.getErrors();
     }
 
     /**
@@ -189,7 +189,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /**
      * @return
      */
-    public List<ISyntaxError> popErrors() {
+    public List<ISyntaxNodeError> popErrors() {
         return delegate.popErrors();
     }
 

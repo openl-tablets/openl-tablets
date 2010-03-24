@@ -15,9 +15,11 @@ public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
 
     private int getIntValue(Long number, ISyntaxNode node) throws SyntaxError {
         if (number > Integer.MAX_VALUE || number < Integer.MIN_VALUE) {
-            String message = String.format("Number %d is outside the valid range %d - %d", number.longValue(),
-                    Integer.MIN_VALUE, Integer.MAX_VALUE);
-            throw new SyntaxError(node, message, null);
+            String message = String.format("Number %d is outside the valid range %d - %d",
+                number.longValue(),
+                Integer.MIN_VALUE,
+                Integer.MAX_VALUE);
+            throw new SyntaxError(message, null, node);
         }
 
         return number.intValue();

@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.OpenFieldDelegator;

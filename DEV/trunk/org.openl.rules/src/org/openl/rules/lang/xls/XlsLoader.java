@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.openl.OpenL;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DTLoader;
@@ -41,10 +40,11 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.SyntaxError;
 import org.openl.syntax.impl.TokenizerParser;
@@ -102,7 +102,7 @@ public class XlsLoader {
 
     private List<ISyntaxNode> nodesList = new ArrayList<ISyntaxNode>();
 
-    private List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
+    private List<ISyntaxNodeError> errors = new ArrayList<ISyntaxNodeError>();
 
     private List<IdentifierNode> extensionNodes = new ArrayList<IdentifierNode>();
 
@@ -294,9 +294,9 @@ public class XlsLoader {
 
                 if (src == null) {
 
-                    ISyntaxError se = new SyntaxError(null,
+                    ISyntaxError se = new SyntaxError(
                         "Include " + include + " not found",
-                        null,
+                        null, null,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
 
                     addError(se);
@@ -312,9 +312,9 @@ public class XlsLoader {
                     String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
                     src = new URLSourceCodeModule(new URL(newURL));
                 } catch (Throwable t) {
-                    ISyntaxError se = new SyntaxError(null,
+                    ISyntaxError se = new SyntaxError(
                         "Include " + include + " not found",
-                        t,
+                        t, null,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
                     addError(se);
                     tableSyntaxNode.addError(se);
@@ -326,9 +326,9 @@ public class XlsLoader {
             try {
                 preprocessWorkbook(src);
             } catch (Throwable t) {
-                ISyntaxError se = new SyntaxError(null,
+                ISyntaxError se = new SyntaxError(
                     "Include " + include + " not found",
-                    t,
+                    t, null,
                     new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
                 addError(se);
                 tableSyntaxNode.addError(se);
@@ -468,7 +468,7 @@ public class XlsLoader {
             this.openl = openl;
         } else {
             if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
-                SyntaxError error = new SyntaxError(openl, "Only one openl statement is allowed", null);
+                SyntaxError error = new SyntaxError("Only one openl statement is allowed", null, openl);
                 OpenLMessagesUtils.addError(error.getMessage());
                 addError(error);
             }
@@ -480,7 +480,7 @@ public class XlsLoader {
         if (this.vocabulary == null) {
             this.vocabulary = vocabulary;
         } else {
-            SyntaxError error = new SyntaxError(vocabulary, "Only one vocabulary is allowed", null);
+            SyntaxError error = new SyntaxError("Only one vocabulary is allowed", null, vocabulary);
             OpenLMessagesUtils.addError(error.getMessage());
             addError(error);
         }

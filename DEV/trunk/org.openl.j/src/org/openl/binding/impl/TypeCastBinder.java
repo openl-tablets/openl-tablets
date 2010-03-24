@@ -1,7 +1,5 @@
 /*
- * Created on Jul 11, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on Jul 11, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -14,17 +12,16 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TypeCastBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
-     *      org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+
         IBoundNode[] children = bindChildren(node, bindingContext);
 
         IOpenClass to = children[0].getType();
@@ -37,7 +34,11 @@ public class TypeCastBinder extends ANodeBinder {
         IOpenCast cast = bindingContext.getCast(from, to);
 
         if (cast == null) {
-            throw new BoundError(node, "Can not convert from " + from.getName() + " to " + to.getName());
+
+            String message = String.format("Can not convert from '%s' to '%s'", from.getName(), to.getName());
+            BindHelper.processError(message, node, bindingContext);
+
+            return new ErrorBoundNode(node);
         }
 
         return new CastNode(node, children[1], cast, to);

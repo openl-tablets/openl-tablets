@@ -1,7 +1,5 @@
 /*
- * Created on Oct 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on Oct 3, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.rules.datatype.binding;
@@ -9,7 +7,7 @@ package org.openl.rules.datatype.binding;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -25,7 +23,7 @@ import org.openl.syntax.impl.TokenizerParser;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableNames {
 
@@ -33,7 +31,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableName
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-            throws Exception {
+                                                                                                                     throws Exception {
 
         ILogicalTable table = LogicalTable.logicalTable(tsn.getTable());
 
@@ -45,7 +43,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableName
 
         if (parsedHeader.length < 2) {
             errMsg = "Datatype table format: Datatype <typename> [tablename]";
-            BoundError err = new BoundError(null, errMsg, null, src);
+            BoundError err = new BoundError(errMsg, null, null, src);
             throw err;
         }
 
@@ -59,14 +57,14 @@ public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableName
         if (cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
             errMsg = "Duplicated Type Definition: " + typeName;
 
-            BoundError err = new BoundError(parsedHeader[TYPE_INDEX], errMsg, null);
+            BoundError err = new BoundError(errMsg, null, parsedHeader[TYPE_INDEX]);
             throw err;
         }
 
         ModuleOpenClass tableType = new ModuleOpenClass(module.getSchema(), typeName, cxt.getOpenL());
 
         cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
-        
+
         // Add new type to internal types of module.
         //
         module.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);

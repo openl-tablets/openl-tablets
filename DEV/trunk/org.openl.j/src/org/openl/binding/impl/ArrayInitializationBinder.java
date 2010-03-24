@@ -25,7 +25,11 @@ public class ArrayInitializationBinder extends ANodeBinder {
      *      org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        throw new UnsupportedOperationException("Array has always to be initialized with a type");
+        
+        BindHelper.processError("Array has always to be initialized with a type", node, bindingContext);
+        
+        return new ErrorBoundNode(node);
+//        throw new UnsupportedOperationException("Array has always to be initialized with a type");
     }
 
     /*
@@ -47,7 +51,6 @@ public class ArrayInitializationBinder extends ANodeBinder {
         }
 
         return new ArrayInitializerNode(node, nodes, type, casts);
-
     }
 
 }

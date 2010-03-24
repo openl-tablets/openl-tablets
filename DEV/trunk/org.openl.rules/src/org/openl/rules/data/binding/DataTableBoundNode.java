@@ -97,7 +97,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
      * @param children
      */
     public DataTableBoundNode(TableSyntaxNode dtNode, XlsModuleOpenClass module) {
-        super(dtNode, IBoundNode.EMPTY);
+        super(dtNode, new IBoundNode[0]);
         this.module = module;
     }
 

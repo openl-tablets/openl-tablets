@@ -1,13 +1,12 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -15,146 +14,158 @@ import org.openl.types.IOpenClass;
 /**
  * @author snshor
  */
-
 public class BinaryOperatorNodeBinder extends ANodeBinder {
 
-    static public IBoundNode bindOperator(ISyntaxNode node, String operatorName, IBoundNode b1, IBoundNode b2,
-            IBindingContext bindingContext) throws BoundError {
+    public static IBoundNode bindOperator(ISyntaxNode node,
+                                          String operatorName,
+                                          IBoundNode b1,
+                                          IBoundNode b2,
+                                          IBindingContext bindingContext) throws BoundError {
+
         IOpenClass[] types = { b1.getType(), b2.getType() };
+        IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
 
-        IMethodCaller om = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
+        if (methodCaller == null) {
 
-        if (om == null) {
-            throw new BoundError(node, errorMsg(operatorName, types[0], types[1]));
+            String message = errorMsg(operatorName, types[0], types[1]);
+            BindHelper.processError(message, node, bindingContext);
+
+            return new ErrorBoundNode(node);
+            //            throw new BoundError(errorMsg(operatorName, types[0], types[1]), node);
         }
 
-        return new BinaryOpNode(node, new IBoundNode[] { b1, b2 }, om);
+        return new BinaryOpNode(node, new IBoundNode[] { b1, b2 }, methodCaller);
     }
 
-    static public String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {
+    public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {
         return "Operator not defined for: " + methodName + "(" + t1.getName() + ", " + t2.getName() + ")";
-
     }
 
-    static public IMethodCaller findBinaryOperatorMethodCaller(String methodName, IOpenClass[] types,
-            IBindingContext bindingContext) {
-        IMethodCaller om = findSingleBinaryOperatorMethodCaller(methodName, types, bindingContext);
-        if (om != null) {
-            return om;
+    public static IMethodCaller findBinaryOperatorMethodCaller(String methodName,
+                                                               IOpenClass[] types,
+                                                               IBindingContext bindingContext) {
+
+        IMethodCaller methodCaller = findSingleBinaryOperatorMethodCaller(methodName, types, bindingContext);
+
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
-        BinaryOperatorMap bop = BinaryOperatorMap.findOp(methodName);
-        if (bop == null) {
-            return om;
+        BinaryOperatorMap binaryOperations = BinaryOperatorMap.findOp(methodName);
+
+        if (binaryOperations == null) {
+            return methodCaller;
         }
 
-        om = findWithSynonims(methodName, types, bindingContext, bop.getSynonims());
-        if (om != null) {
-            return om;
+        methodCaller = findWithSynonims(methodName, types, bindingContext, binaryOperations.getSynonims());
+
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
-        if (bop.isSymmetrical()) {
+        if (binaryOperations.isSymmetrical()) {
+
             IOpenClass[] symTypes = new IOpenClass[] { types[1], types[0] };
-            om = findSingleBinaryOperatorMethodCaller(methodName, symTypes, bindingContext);
-            if (om != null) {
-                return new BinaryMethodCallerSwapParams(om);
+            methodCaller = findSingleBinaryOperatorMethodCaller(methodName, symTypes, bindingContext);
+
+            if (methodCaller != null) {
+                return new BinaryMethodCallerSwapParams(methodCaller);
             }
-            om = findWithSynonims(methodName, symTypes, bindingContext, bop.getSynonims());
-            if (om != null) {
-                return new BinaryMethodCallerSwapParams(om);
+
+            methodCaller = findWithSynonims(methodName, symTypes, bindingContext, binaryOperations.getSynonims());
+
+            if (methodCaller != null) {
+                return new BinaryMethodCallerSwapParams(methodCaller);
             }
         }
 
-        if (bop.getInverse() != null) {
+        if (binaryOperations.getInverse() != null) {
+
             IOpenClass[] invTypes = new IOpenClass[] { types[1], types[0] };
-            om = findSingleBinaryOperatorMethodCaller(bop.getInverse(), invTypes, bindingContext);
-            if (om != null) {
-                return new BinaryMethodCallerSwapParams(om);
+            methodCaller = findSingleBinaryOperatorMethodCaller(binaryOperations.getInverse(), invTypes, bindingContext);
+
+            if (methodCaller != null) {
+                return new BinaryMethodCallerSwapParams(methodCaller);
             }
 
-            BinaryOperatorMap bopInv = BinaryOperatorMap.findOp(bop.getInverse());
-            om = findWithSynonims(methodName, invTypes, bindingContext, bopInv.getSynonims());
-            if (om != null) {
-                return new BinaryMethodCallerSwapParams(om);
+            BinaryOperatorMap bopInv = BinaryOperatorMap.findOp(binaryOperations.getInverse());
+            methodCaller = findWithSynonims(methodName, invTypes, bindingContext, bopInv.getSynonims());
+
+            if (methodCaller != null) {
+                return new BinaryMethodCallerSwapParams(methodCaller);
             }
         }
 
         return null;
-
     }
 
-    static IMethodCaller findSingleBinaryOperatorMethodCaller(String methodName, IOpenClass[] types,
-            IBindingContext bindingContext) {
+    private static IMethodCaller findSingleBinaryOperatorMethodCaller(String methodName,
+                                                                      IOpenClass[] types,
+                                                                      IBindingContext bindingContext) {
 
-        IMethodCaller om = bindingContext.findMethodCaller("org.openl.operators", methodName, types);
+        IMethodCaller methodCaller = bindingContext.findMethodCaller("org.openl.operators", methodName, types);
 
-        if (om != null) {
-            return om;
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
         IOpenClass[] types2 = { types[1] };
 
-        om = MethodSearch.getMethodCaller(methodName, types2, bindingContext, types[0]);
+        methodCaller = MethodSearch.getMethodCaller(methodName, types2, bindingContext, types[0]);
 
-        if (om != null) {
-            return om;
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
-        om = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[0]);
+        methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[0]);
 
-        if (om != null) {
-            return om;
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
-        om = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[1]);
+        methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[1]);
 
-        return om;
-
+        return methodCaller;
     }
 
-    static public IMethodCaller findWithSynonims(String methodName, IOpenClass[] types, IBindingContext bindingContext,
-            String[] synonims) {
-        IMethodCaller om = null;
+    private static IMethodCaller findWithSynonims(String methodName,
+                                                  IOpenClass[] types,
+                                                  IBindingContext bindingContext,
+                                                  String[] synonims) {
+
+        IMethodCaller methodCaller = null;
+
         if (synonims != null) {
             for (int i = 0; i < synonims.length; i++) {
-                om = findSingleBinaryOperatorMethodCaller(synonims[i], types, bindingContext);
-                if (om != null) {
-                    return om;
+
+                methodCaller = findSingleBinaryOperatorMethodCaller(synonims[i], types, bindingContext);
+
+                if (methodCaller != null) {
+                    return methodCaller;
                 }
             }
         }
-        return om;
+
+        return methodCaller;
     }
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode,
-     *      org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
+     * org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-            throw new BoundError(node, "Binary node must have 2 subnodes", null);
+            throw new BoundError("Binary node must have 2 subnodes", null, node);
         }
 
         int index = node.getType().lastIndexOf('.');
 
         String methodName = node.getType().substring(index + 1);
-
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        // IOpenClass[] types = getTypes(children);
-        //
-        // IMethodCaller om = findBinaryOperatorMethodCaller(methodName, types,
-        // bindingContext);
-        //
-        // if (om == null)
-        // throw new BoundError(node, errorMsg(methodName, types[0], types[1]));
-        //
-        // return new BinaryOpNode(node, children, om);
         return bindOperator(node, methodName, children[0], children[1], bindingContext);
-
     }
 
 }

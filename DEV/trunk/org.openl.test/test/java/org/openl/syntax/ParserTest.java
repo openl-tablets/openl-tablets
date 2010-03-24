@@ -9,10 +9,12 @@ package org.openl.syntax;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
+import org.openl.conf.OpenConfigurationException;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.LiteralNode;
@@ -78,9 +80,9 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(src, null));
 
-        ISyntaxError[] error = pc.getErrors();
+        ISyntaxNodeError[] error = pc.getErrors();
         if (error.length > 0) {
-            throw new SyntaxErrorException("Parsing Error:", error);
+            throw new SyntaxNodeException("Parsing Error:", error);
         }
 
         TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
@@ -116,9 +118,9 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        ISyntaxError[] error = pc.getErrors();
+        ISyntaxNodeError[] error = pc.getErrors();
         if (error.length > 0) {
-            throw new SyntaxErrorException("Parsing Error:", error);
+            throw new SyntaxNodeException("Parsing Error:", error);
         }
 
         TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);

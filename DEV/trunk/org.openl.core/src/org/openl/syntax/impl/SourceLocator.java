@@ -6,8 +6,8 @@
 
 package org.openl.syntax.impl;
 
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxError;
 import org.openl.util.text.AbsolutePosition;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;

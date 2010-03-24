@@ -28,7 +28,7 @@ public class ParameterNode extends ABoundNode {
      * @param children
      */
     public ParameterNode(ISyntaxNode syntaxNode, String name, IOpenClass type) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         this.name = name;
         this.type = type;
     }

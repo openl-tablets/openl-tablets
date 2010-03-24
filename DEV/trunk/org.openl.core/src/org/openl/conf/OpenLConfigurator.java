@@ -9,7 +9,6 @@ package org.openl.conf;
 import java.io.File;
 import java.util.Properties;
 
-import org.openl.OpenConfigurationException;
 import org.openl.util.Log;
 
 /**

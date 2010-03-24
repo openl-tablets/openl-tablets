@@ -11,46 +11,31 @@ package org.openl.util.text;
  *
  */
 public class TextInterval implements ILocation {
-    IPosition start;
-    IPosition end;
+    
+    private IPosition start;
+    private IPosition end;
 
     public TextInterval(IPosition start, IPosition end) {
         this.start = start;
         this.end = end;
     }
 
-    /**
-     * @return
-     */
     public IPosition getEnd() {
         return end;
     }
 
-    /**
-     * @return
-     */
     public IPosition getStart() {
         return start;
     }
-
-    /**
-     *
-     */
 
     public boolean isTextLocation() {
         return true;
     }
 
-    /**
-     * @param position
-     */
     public void setEnd(IPosition position) {
         end = position;
     }
 
-    /**
-     * @param position
-     */
     public void setStart(IPosition position) {
         start = position;
     }
@@ -59,5 +44,4 @@ public class TextInterval implements ILocation {
     public String toString() {
         return "[" + start + "," + end + "]";
     }
-
 }

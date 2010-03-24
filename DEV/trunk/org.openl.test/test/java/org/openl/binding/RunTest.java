@@ -10,7 +10,7 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.RangeWithBounds;
 
 public class RunTest extends TestCase {
@@ -104,7 +104,7 @@ public class RunTest extends TestCase {
         _runNoError("2.1B+", new RangeWithBounds(2100000000, Double.POSITIVE_INFINITY), "org.openl.j",
                 SourceType.DOUBLE_RANGE, assertion);
 
-        _runWithError("10.0-2.0", SyntaxErrorException.class, "org.openl.j", SourceType.DOUBLE_RANGE);
+        _runWithError("10.0-2.0", SyntaxNodeException.class, "org.openl.j", SourceType.DOUBLE_RANGE);
         _runNoError("10.0-12,599.0", new RangeWithBounds(10.0, 12599.0), "org.openl.j", SourceType.DOUBLE_RANGE, assertion);
         _runNoError("$10,222.0 .. 12,599.0   ", new RangeWithBounds(10222.0, 12599.0), "org.openl.j",
                 SourceType.DOUBLE_RANGE, assertion);
@@ -126,7 +126,7 @@ public class RunTest extends TestCase {
         _runNoError("2B<", new RangeWithBounds(2000000001, Integer.MAX_VALUE), "org.openl.j", SourceType.INT_RANGE);
         _runNoError("2.1B+", new RangeWithBounds(2100000000, Integer.MAX_VALUE), "org.openl.j", SourceType.INT_RANGE);
 
-        _runWithError("10-2", SyntaxErrorException.class, "org.openl.j", SourceType.INT_RANGE);
+        _runWithError("10-2", SyntaxNodeException.class, "org.openl.j", SourceType.INT_RANGE);
         _runNoError("10-12,599", new RangeWithBounds(10, 12599), "org.openl.j", SourceType.INT_RANGE);
         _runNoError("$10,222 .. 12,599   ", new RangeWithBounds(10222, 12599), "org.openl.j", SourceType.INT_RANGE);
 
@@ -190,8 +190,8 @@ public class RunTest extends TestCase {
     public void testStatic()
     {
         _runNoError("int.class", int.class, "org.openl.j");
-        _runWithError("String.length()", SyntaxErrorException.class, "org.openl.j", SourceType.METHOD_BODY);
+        _runWithError("String.length()", SyntaxNodeException.class, "org.openl.j", SourceType.METHOD_BODY);
 
-        _runWithError("int x = 5; x.class", SyntaxErrorException.class, "org.openl.j", SourceType.METHOD_BODY);
+//        _runWithError("int x = 5; x.class", SyntaxNodeException.class, "org.openl.j", SourceType.METHOD_BODY);
     }
 }

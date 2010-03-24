@@ -11,13 +11,14 @@ package org.openl.util;
  *
  */
 public interface ISelector<T> {
-    public ISelector<T> and(ISelector<T> isel);
+    
+    ISelector<T> and(ISelector<T> isel);
 
-    public ISelector<T> not();
+    ISelector<T> not();
 
-    public ISelector<T> or(ISelector<T> isel);
+    ISelector<T> or(ISelector<T> isel);
 
-    public boolean select(T obj);
+    boolean select(T obj);
 
-    public ISelector<T> xor(ISelector<T> isel);
+    ISelector<T> xor(ISelector<T> isel);
 }

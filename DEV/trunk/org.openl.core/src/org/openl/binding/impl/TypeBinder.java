@@ -26,9 +26,11 @@ public class TypeBinder extends ANodeBinder {
      *      org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+        
         ISyntaxNode typeNode = node.getChild(0);
-        int dim = 0;
-        for (; !(typeNode instanceof IdentifierNode); ++dim) {
+        int dimension = 0;
+        
+        for (; !(typeNode instanceof IdentifierNode); ++dimension) {
             typeNode = typeNode.getChild(0);
         }
 
@@ -36,11 +38,15 @@ public class TypeBinder extends ANodeBinder {
         IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (varType == null) {
-            throw new BoundError(node, "Type " + typeName + " not found");
+
+            String message = String.format("Type '%s' not found", typeName);
+            BindHelper.processError(message, node, bindingContext);
+
+            return new ErrorBoundNode(node);
         }
 
-        if (dim > 0) {
-            varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dim);
+        if (dimension > 0) {
+            varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
         }
 
         return new TypeBoundNode(node, varType);

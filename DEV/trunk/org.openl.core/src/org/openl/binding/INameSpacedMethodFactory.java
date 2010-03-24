@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 

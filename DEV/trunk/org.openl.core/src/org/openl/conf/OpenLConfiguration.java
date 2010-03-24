@@ -10,11 +10,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openl.OpenConfigurationException;
-import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
-import org.openl.conf.cache.CacheUtils;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.cache.CacheUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.types.IMethodCaller;

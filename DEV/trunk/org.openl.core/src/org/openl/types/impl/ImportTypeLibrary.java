@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openl.binding.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;
 import org.openl.util.AOpenIterator;

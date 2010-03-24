@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 

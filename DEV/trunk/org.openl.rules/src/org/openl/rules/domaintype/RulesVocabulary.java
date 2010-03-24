@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.binding.FieldNotFoundException;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
+import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.meta.IVocabulary;
 import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;

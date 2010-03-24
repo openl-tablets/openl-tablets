@@ -11,6 +11,9 @@ import org.openl.conf.IUserContext;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.code.impl.ParsedCode;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.SyntaxErrorUtils;
 import org.openl.util.PropertiesLocator;
 
 /**
@@ -35,11 +38,9 @@ public class XlsParser implements IOpenParser {
 
     protected String getSearchPath() {
 
-        if (searchPath != null) {
-            return searchPath;
+        if (searchPath == null) {
+            searchPath = PropertiesLocator.findPropertyValue(SEARCH_PROPERTY_NAME, SEARCH_FILE_NAME, resourceContext);
         }
-
-        searchPath = PropertiesLocator.findPropertyValue(SEARCH_PROPERTY_NAME, SEARCH_FILE_NAME, resourceContext);
 
         return searchPath;
     }
@@ -47,17 +48,15 @@ public class XlsParser implements IOpenParser {
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
 
         String message = ".xls files can not be parsed as a Method Body";
-        OpenLMessagesUtils.addError(message);
-        
-        throw new UnsupportedOperationException(message);
+
+        return getInvalidCode(message, source);
     }
 
     public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
 
         String message = ".xls files can not be parsed as a Method Header";
-        OpenLMessagesUtils.addError(message);
-        
-        throw new UnsupportedOperationException(message);
+
+        return getInvalidCode(message, source);
     }
 
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
@@ -70,25 +69,31 @@ public class XlsParser implements IOpenParser {
     public IParsedCode parseAsType(IOpenSourceCodeModule source) {
 
         String message = ".xls files can not be parsed as a Type";
-        OpenLMessagesUtils.addError(message);
-        
-        throw new UnsupportedOperationException(message);
+
+        return getInvalidCode(message, source);
     }
 
     public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
 
         String message = ".xls files can not be parsed as a float range";
-        OpenLMessagesUtils.addError(message);
-        
-        throw new UnsupportedOperationException(message);
+
+        return getInvalidCode(message, source);
     }
 
     public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
 
         String message = ".xls files can not be parsed as a integer range";
-        OpenLMessagesUtils.addError(message);
-        
-        throw new UnsupportedOperationException(message);
+
+        return getInvalidCode(message, source);
     }
 
+    private IParsedCode getInvalidCode(String message, IOpenSourceCodeModule source) {
+
+        ISyntaxError error = SyntaxErrorUtils.createError(message, source);
+        OpenLMessagesUtils.addError(error);
+
+        ISyntaxError[] errors = new ISyntaxError[] { error };
+
+        return new ParsedCode(null, source, errors);
+    }
 }

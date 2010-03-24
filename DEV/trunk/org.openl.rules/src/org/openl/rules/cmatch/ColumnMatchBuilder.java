@@ -31,7 +31,7 @@ public class ColumnMatchBuilder {
 
     public void build(ILogicalTable tableBody) throws Exception {
         if (tableBody.getLogicalHeight() < 4) {
-            throw new SyntaxError(tsn, "Unsufficient rows. At least 4 are expected!", null);
+            throw new SyntaxError("Unsufficient rows. At least 4 are expected!", null, tsn);
         }
 
         prepareColumns(tableBody);
@@ -47,7 +47,7 @@ public class ColumnMatchBuilder {
         try {
             algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
         } catch (Exception ex) {
-            throw new SyntaxError(columnMatch.getSyntaxNode(), null, ex);
+            throw new SyntaxError(null, ex, columnMatch.getSyntaxNode());
         }
 
         algorithm.compile(bindingContext, columnMatch);
@@ -71,7 +71,7 @@ public class ColumnMatchBuilder {
             ILogicalTable data;
             if (column.getColumnIndex() == 0) {
                 if (colTable.getLogicalWidth() != 1) {
-                    throw new SyntaxError(tsn, "First column must have width=1!", null);
+                    throw new SyntaxError("First column must have width=1!", null, tsn);
                 }
 
                 data = leftRows.rows(1);
@@ -138,7 +138,7 @@ public class ColumnMatchBuilder {
 
             if (addedIds.contains(id)) {
                 // duplicate ids
-                throw new SyntaxError(tsn, "Duplicate column '" + id + "'!", null);
+                throw new SyntaxError("Duplicate column '" + id + "'!", null, tsn);
             }
 
             columns.add(new TableColumn(id, c));

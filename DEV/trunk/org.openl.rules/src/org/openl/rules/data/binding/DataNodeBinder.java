@@ -10,7 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
+
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.ITable;
@@ -183,7 +184,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         String errMsg;
         if (parsedHeader.length < HEADER_NUM_TOKENS) {
             errMsg = getErrMsgFormat();
-            BoundError err = new BoundError(null, errMsg, null, src);
+            BoundError err = new BoundError( errMsg, null, null, src);
             throw err;
         }
     }
@@ -363,13 +364,13 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
             String errorMessage = String.format(
                     "Field \"%s\" not found in %s", fieldName,
                     loadedFieldType.getName());
-            throw new BoundError(currentFieldNameNode, errorMessage);
+            throw new BoundError(errorMessage, currentFieldNameNode);
         }
 
         if (!field.isWritable()) {
-            BoundError err = new BoundError(currentFieldNameNode,
+            BoundError err = new BoundError(
                     "Field " + fieldName + " is not Writable in "
-                            + loadedFieldType.getName());
+                            + loadedFieldType.getName(), currentFieldNameNode);
             throw err;
         }
         return field;
@@ -578,7 +579,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         if (tableType == null) {
             errMsg = "Type not found: " + typeName;
 
-            BoundError err = new BoundError(parsedHeader[TYPE_INDEX], errMsg, null);
+            BoundError err = new BoundError(errMsg, null, parsedHeader[TYPE_INDEX]);
             throw err;
         }
 

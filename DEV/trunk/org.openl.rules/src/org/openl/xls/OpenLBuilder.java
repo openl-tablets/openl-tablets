@@ -7,10 +7,10 @@
 package org.openl.xls;
 
 import org.openl.ICompileContext;
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.conf.BaseOpenLBuilder;
 import org.openl.conf.IConfigurableResourceContext;
+import org.openl.conf.OpenConfigurationException;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.XlsVM;

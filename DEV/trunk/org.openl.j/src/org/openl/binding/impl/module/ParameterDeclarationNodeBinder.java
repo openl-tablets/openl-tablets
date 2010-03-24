@@ -32,8 +32,6 @@ public class ParameterDeclarationNodeBinder extends ANodeBinder {
 
         IOpenClass type = typeNode.getType();
 
-        // bindingContext.addParameter("org.openl.this", name, type);
-
         return new ParameterNode(node, name, type);
 
     }

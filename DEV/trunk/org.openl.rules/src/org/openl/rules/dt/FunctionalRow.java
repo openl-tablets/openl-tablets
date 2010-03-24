@@ -14,8 +14,8 @@ import java.util.Set;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.IBoundError;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
+import org.openl.binding.error.IBoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
@@ -35,7 +35,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -239,7 +239,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 validateValue(res, paramType);
                 return res;
             } catch (Throwable t) {
-                throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell.getGridTable()));
+                throw new BoundError(null, t,  null, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor according to cell type.
@@ -440,19 +440,19 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
                 if (nodes.length != 2) {
                     errMsg = "Parameter Cell format: <type> <name>";
-                    BoundError err = new BoundError(null, errMsg, null, src);
+                    BoundError err = new BoundError(errMsg, null, null, src);
                     throw err;
                 }
 
                 String typeCode = nodes[0].getIdentifier();
                 IOpenClass ptype = getType(typeCode, cxt);
                 if (ptype == null) {
-                    throw new BoundError(nodes[0], "Type not found: " + typeCode);
+                    throw new BoundError( "Type not found: " + typeCode, nodes[0]);
                 }
 
                 String pname = nodes[1].getIdentifier();
                 if (paramNames.contains(pname)) {
-                    throw new BoundError(nodes[1], "Duplicated parameter name: " + pname);
+                    throw new BoundError("Duplicated parameter name: " + pname, nodes[1]);
                 }
 
                 paramNames.add(pname);
@@ -612,7 +612,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         }
 
         if (errors.size() > 0) {
-            throw new SyntaxErrorException("Error:", errors.toArray(new IBoundError[0]));
+            throw new SyntaxNodeException("Error:", errors.toArray(new IBoundError[0]));
         }
 
         return values;

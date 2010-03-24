@@ -8,7 +8,7 @@ package org.openl.types.impl;
 
 import java.util.Iterator;
 
-import org.openl.binding.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenSchema;
 import org.openl.util.AOpenIterator;

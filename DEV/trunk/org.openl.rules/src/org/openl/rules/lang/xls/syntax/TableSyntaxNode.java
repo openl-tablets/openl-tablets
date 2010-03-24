@@ -19,7 +19,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
 
@@ -41,7 +41,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     private Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
 
-    private ArrayList<ISyntaxError> errors;
+    private ArrayList<ISyntaxNodeError> errors;
 
     private Object validationResult;
 
@@ -57,9 +57,9 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         table = LogicalTable.logicalTable(gridTable);
     }
 
-    public void addError(ISyntaxError error) {
+    public void addError(ISyntaxNodeError error) {
         if (errors == null) {
-            errors = new ArrayList<ISyntaxError>();
+            errors = new ArrayList<ISyntaxNodeError>();
         }
         errors.add(error);
     }
@@ -73,8 +73,8 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         return table.getGridTable().getCell(0, 0).getStringValue();
     }
 
-    public ISyntaxError[] getErrors() {
-        return errors == null ? null : (ISyntaxError[]) errors.toArray(ISyntaxError.EMPTY);
+    public ISyntaxNodeError[] getErrors() {
+        return errors == null ? null : (ISyntaxNodeError[]) errors.toArray(new ISyntaxNodeError[0]);
     }
 
     // public IIndexElement getParent()

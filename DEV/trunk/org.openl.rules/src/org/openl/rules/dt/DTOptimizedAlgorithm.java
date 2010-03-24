@@ -6,7 +6,7 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
@@ -320,7 +320,7 @@ public class DTOptimizedAlgorithm {
                     Class<?> c = methodType.getInstanceClass();
                     if (c != int.class && c != long.class && c != double.class && c != float.class
                             && !Comparable.class.isAssignableFrom(c)) {
-                        throw new BoundError(null, "Type " + methodType.getName() + " is not Comparable", null,
+                        throw new BoundError("Type " + methodType.getName() + " is not Comparable",null,  null,
                                 condition.getSourceCodeModule());
                     }
 
@@ -347,8 +347,8 @@ public class DTOptimizedAlgorithm {
             paramStr += params[i].getType().getName();
         }
 
-        throw new BoundError(null, "Can not make a Condition Evaluator for parameter " + methodType.getName()
-                + " and [" + paramStr + "]", null, condition.getSourceCodeModule());
+        throw new BoundError("Can not make a Condition Evaluator for parameter " + methodType.getName()
+            + " and [" + paramStr + "]",null,  null, condition.getSourceCodeModule());
     }
 
     public DTOptimizedAlgorithm(IDTConditionEvaluator[] evaluators, DecisionTable table) {

@@ -8,7 +8,7 @@ package org.openl.types;
 
 import java.util.Iterator;
 
-import org.openl.binding.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousTypeException;
 
 /**
  * @author snshor

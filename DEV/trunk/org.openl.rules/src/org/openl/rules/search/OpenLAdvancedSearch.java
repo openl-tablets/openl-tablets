@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.util.AStringBoolOperator;
 import org.openl.util.ArrayTool;
 
@@ -293,7 +294,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodesWithoutErrors();
         for (TableSyntaxNode table : tables) {
-            ISyntaxError[] errors = table.getErrors();
+            ISyntaxNodeError[] errors = table.getErrors();
             if (errors == null) {
                 addResult(table, res, tableSelectors, columnSelectors);
             } else {

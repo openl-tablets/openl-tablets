@@ -15,8 +15,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 public interface IBoundNode {
 
-    static final IBoundNode[] EMPTY = {};
-
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException;
 
     public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException;

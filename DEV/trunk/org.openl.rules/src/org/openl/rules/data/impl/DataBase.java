@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.DuplicatedTableException;
 import org.openl.rules.data.IDataBase;

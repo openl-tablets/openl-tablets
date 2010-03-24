@@ -32,7 +32,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
      * @param children
      */
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
-        super(methodNode, IBoundNode.EMPTY);
+        super(methodNode, new IBoundNode[0]);
         this.header = header;
         this.openl = openl;
         this.module = module;

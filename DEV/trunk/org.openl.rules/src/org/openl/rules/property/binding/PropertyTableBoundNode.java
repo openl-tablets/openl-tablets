@@ -21,7 +21,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     private String tableName;
     
     public PropertyTableBoundNode(TableSyntaxNode syntaxNode, XlsModuleOpenClass module) {
-        super(syntaxNode, IBoundNode.EMPTY);        
+        super(syntaxNode, new IBoundNode[0]);        
     }
 
     public void addTo(ModuleOpenClass openClass) {             

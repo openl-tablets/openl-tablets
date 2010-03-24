@@ -73,7 +73,7 @@ public class AlgorithmBuilder {
 
     public void build(ILogicalTable tableBody) throws Exception {
         if (tableBody.getLogicalHeight() <= 2) {
-            throw new SyntaxError(tsn, "Unsufficient rows. Must be more than 2!", null);
+            throw new SyntaxError("Unsufficient rows. Must be more than 2!", null, tsn);
         }
 
         prepareColumns(tableBody);
@@ -150,7 +150,7 @@ public class AlgorithmBuilder {
 
             if (columns.get(id) != null) {
                 // duplicate ids
-                throw new SyntaxError(tsn, "Duplicate column '" + id + "'!", null);
+                throw new SyntaxError("Duplicate column '" + id + "'!", null, tsn);
             }
 
             columns.put(id, new AlgorithmColumn(id, c));
@@ -181,7 +181,7 @@ public class AlgorithmBuilder {
         } else if ("after".equalsIgnoreCase(column)) {
             row.setAfter(sv);
         } else {
-            throw new SyntaxError(tsn, "Invalid column id '" + column + "'!", null);
+            throw new SyntaxError("Invalid column id '" + column + "'!", null, tsn);
         }
     }
 }

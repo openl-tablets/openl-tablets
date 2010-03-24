@@ -3,25 +3,24 @@
  */
 package org.openl.binding.impl;
 
+import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TypeCastError extends BoundError {
+
     private static final long serialVersionUID = 5570752529258476343L;
-    IOpenClass from;
 
-    IOpenClass to;
+    private IOpenClass from;
+    private IOpenClass to;
 
-    /**
-     * @param node
-     * @param msg
-     */
     public TypeCastError(ISyntaxNode node, IOpenClass from, IOpenClass to) {
-        super(node, "Can not convert from " + from.getName() + " to " + to.getName());
+        super("Can not convert from " + from.getName() + " to " + to.getName(), node);
+
         this.from = from;
         this.to = to;
     }

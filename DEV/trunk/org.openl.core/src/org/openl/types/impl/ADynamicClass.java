@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openl.binding.DuplicatedMethodException;
-import org.openl.binding.DuplicatedVarException;
+import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;

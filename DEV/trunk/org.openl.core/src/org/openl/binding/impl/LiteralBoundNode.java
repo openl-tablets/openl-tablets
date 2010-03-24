@@ -25,7 +25,7 @@ public class LiteralBoundNode extends ABoundNode {
      * @param children
      */
     public LiteralBoundNode(ISyntaxNode syntaxNode, Object value, IOpenClass type) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         this.value = value;
         this.type = type;
     }

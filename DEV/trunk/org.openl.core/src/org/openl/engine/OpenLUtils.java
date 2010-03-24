@@ -9,8 +9,8 @@ package org.openl.engine;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.AmbiguousMethodException;
-import org.openl.binding.MethodNotFoundException;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.AOpenIterator;

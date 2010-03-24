@@ -1,7 +1,7 @@
 package org.openl.rules.cmatch.algorithm;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.rules.cmatch.ColumnMatch;
 
 public interface IMatchAlgorithmCompiler {

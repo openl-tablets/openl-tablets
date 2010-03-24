@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.ITable;

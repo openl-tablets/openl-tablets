@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Stack;
 
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxError;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -55,7 +55,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     }
 
     public ISyntaxError[] getSyntaxErrors() {
-        return parseErrors == null ? ISyntaxError.EMPTY : (SyntaxError[]) parseErrors
+        return parseErrors == null ? new ISyntaxError[0] : (SyntaxError[]) parseErrors
                 .toArray(new SyntaxError[parseErrors.size()]);
     }
 
@@ -77,8 +77,8 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
 
                 // grammar problem???
                 ISyntaxNode node = pop();
-                addError(new SyntaxError(node, "More than one syntax node on stack:\nSource:\n"
-                        + node.getModule().getCode(), null));
+                addError(new SyntaxError( "More than one syntax node on stack:\nSource:\n"
+                        + node.getModule().getCode(), null, node));
                 return node;
                 // throw new RuntimeException("More than one syntax node on
                 // stack");

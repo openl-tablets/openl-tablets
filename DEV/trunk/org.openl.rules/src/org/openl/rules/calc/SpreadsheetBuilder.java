@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.DoubleValue;
@@ -23,7 +23,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -72,7 +73,7 @@ public class SpreadsheetBuilder {
 
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
 
-    List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
+    List<ISyntaxNodeError> errors = new ArrayList<ISyntaxNodeError>();
 
     ILogicalTable rowNamesTable;
 
@@ -156,7 +157,7 @@ public class SpreadsheetBuilder {
             checkError(buildReturn());
         }
 
-        for (ISyntaxError e : errors) {
+        for (ISyntaxNodeError e : errors) {
 
             tsn.addError(e);
             cxt.addError(e);
@@ -262,11 +263,11 @@ public class SpreadsheetBuilder {
                     BoundError b = null;
                     IOpenClass type = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, sx.type.getIdentifier());
                     if (type == null) {
-                        b = new BoundError(sx.type, "Type not found: " + sx.type.getIdentifier());
+                        b = new BoundError("Type not found: " + sx.type.getIdentifier(), sx.type);
                     } else if (htype == null) {
                         htype = type;
                     } else if (htype != type) {
-                        b = new BoundError(sx.type, "Type redefinition");
+                        b = new BoundError("Type redefinition", sx.type);
                     }
                     if (b != null) {
                         tsn.addError(b);
@@ -315,25 +316,25 @@ public class SpreadsheetBuilder {
 
         if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
             if (returnHeaderDefinition != null) {
-                return new BoundError(sdef.name,
-                        "If Spreadsheet return type is SpreadsheetResult, no return type is allowed");
+                return new BoundError("If Spreadsheet return type is SpreadsheetResult, no return type is allowed", 
+                    sdef.name);
             }
 
             spreadsheet.setResultBuilder(DEFAULT_RESULT_BULDER);
 
         } else if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
-            return new BoundError(tsn, "Spreadsheet can not return 'void' type");
+            return new BoundError("Spreadsheet can not return 'void' type", tsn);
         } else // real return type
         {
             if (returnHeaderDefinition == null) {
-                return new BoundError(tsn, "There should be RETURN row or column for this return type");
+                return new BoundError("There should be RETURN row or column for this return type", tsn);
             }
 
             List<SCell> notEmpty = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
 
             switch (notEmpty.size()) {
                 case 0:
-                    return new BoundError(sdef.name, "There is no return expression cell");
+                    return new BoundError("There is no return expression cell", sdef.name);
                 case 1:
                     spreadsheet.setResultBuilder(new ScalarResultBuilder(notEmpty));
                     break;
@@ -423,8 +424,9 @@ public class SpreadsheetBuilder {
         if (aggr != null && aggr.getComponentType(retType) != null) {
             retType = aggr.getComponentType(retType);
         } else {
-            throw new BoundError(sdef.findVarDef(RETURN_NAME).name,
-                    "The return type is scalar, but there are more than one return cells");
+            throw new BoundError(
+                    "The return type is scalar, but there are more than one return cells",
+                    sdef.findVarDef(RETURN_NAME).name);
         }
         return retType;
     }
@@ -558,8 +560,9 @@ public class SpreadsheetBuilder {
         if (sdef.getType() == null) {
             sdef.setType(ctype);
         } else {
-            throw new BoundError(sdef.getVars().get(0).name, "RETURN " + sdef.rowOrColumn()
-                    + " derives it's type from the Spreadsheet return type and therefore must not be defined here");
+            throw new BoundError("RETURN " + sdef.rowOrColumn()
+                    + " derives it's type from the Spreadsheet return type and therefore must not be defined here",
+                    sdef.getVars().get(0).name);
         }
         returnHeaderDefinition = sdef;
 

@@ -6,18 +6,17 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class WhereExpressionNodeBinder extends ANodeBinder {
 
     public static IBoundNode makeLocalVar(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
         return bindChildNode(node, bindingContext);
-
     }
 
     private static IBoundNode[] makeLocalVarsFromWhere(ISyntaxNode whereNode, IBindingContext bindingContext)
-            throws Exception {
+        throws Exception {
+
         int n = whereNode.getNumberOfChildren();
 
         IBoundNode[] boundNodes = new IBoundNode[n + 1];

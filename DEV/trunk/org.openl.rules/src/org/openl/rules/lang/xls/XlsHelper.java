@@ -14,7 +14,7 @@ import org.openl.types.IOpenClass;
 import org.openl.util.PropertiesLocator;
 import org.openl.util.RuntimeExceptionWrapper;
 
-public class XlsHelper {
+public abstract class XlsHelper {
 
     public static XlsMetaInfo getXlsMetaInfo(String srcFile) {
         UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");

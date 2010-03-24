@@ -4,8 +4,6 @@
 
 package org.openl.rules.lang.xls;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,12 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.IOpenBinder;
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
-import org.openl.binding.IBoundError;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMemberBoundNode;
@@ -27,12 +23,15 @@ import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
+import org.openl.binding.error.BoundError;
+import org.openl.binding.error.BoundErrorUtils;
+import org.openl.binding.error.IBoundError;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BoundCode;
-import org.openl.binding.impl.BoundError;
-import org.openl.binding.impl.TooManyErrorsError;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IExecutable;
 import org.openl.conf.IUserContext;
+import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IVocabulary;
@@ -55,19 +54,16 @@ import org.openl.rules.property.binding.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.ASelector;
-import org.openl.util.AStringConvertor;
 import org.openl.util.ISelector;
-import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringTool;
 
 /**
  * Implements {@link IOpenBinder} abstraction for Excel files.
@@ -76,29 +72,6 @@ import org.openl.util.StringTool;
  * 
  */
 public class XlsBinder implements IOpenBinder {
-
-    private static class SyntaxConvertor extends AStringConvertor<ISyntaxNode> {
-
-        @Override
-        public String getStringValue(ISyntaxNode test) {
-
-            return test.getType();
-        }
-    }
-
-    private static Comparator<TableSyntaxNode> tableComparator = new Comparator<TableSyntaxNode>() {
-
-        public int compare(TableSyntaxNode ts1, TableSyntaxNode ts2) {
-
-            String s1 = ts1.getType();
-            String s2 = ts2.getType();
-
-            int i1 = ITableNodeTypes.XLS_TEST_METHOD.equals(s1) || ITableNodeTypes.XLS_RUN_METHOD.equals(s1) ? 1 : 0;
-            int i2 = ITableNodeTypes.XLS_TEST_METHOD.equals(s2) || ITableNodeTypes.XLS_RUN_METHOD.equals(s2) ? 1 : 0;
-
-            return i1 - i2;
-        }
-    };
 
     private static Map<String, AXlsTableBinder> binderFactory;
 
@@ -120,6 +93,7 @@ public class XlsBinder implements IOpenBinder {
             binderFactory = new HashMap<String, AXlsTableBinder>();
 
             for (int i = 0; i < binders.length; i++) {
+
                 try {
                     binderFactory.put(binders[i][0], (AXlsTableBinder) Class.forName(binders[i][1]).newInstance());
                 } catch (Exception ex) {
@@ -127,50 +101,49 @@ public class XlsBinder implements IOpenBinder {
                 }
             }
         }
+
         return binderFactory;
     }
 
     private IUserContext userContext;
 
-    public static String getModuleName(XlsModuleSyntaxNode node) {
-
-        String uri = node.getModule().getUri(0);
-
-        try {
-            URL url = new URL(uri);
-            String file = url.getFile();
-            int index = file.lastIndexOf('/');
-
-            file = index < 0 ? file : file.substring(index + 1);
-
-            index = file.lastIndexOf('.');
-
-            if (index > 0) {
-                file = file.substring(0, index);
-            }
-
-            return StringTool.makeJavaIdentifier(file);
-
-        } catch (MalformedURLException e) {
-
-            Log.error("Error URI to name conversion", e);
-            OpenLMessagesUtils.addError(e.getMessage());
-
-            return "UndefinedXlsType";
-        }
+    public XlsBinder(IUserContext userContext) {
+        this.userContext = userContext;
     }
 
-    public XlsBinder(IUserContext ucxt) {
+    public ICastFactory getCastFactory() {
+        return null;
+    }
 
-        this.userContext = ucxt;
+    public INameSpacedMethodFactory getMethodFactory() {
+        return null;
+    }
+
+    public INodeBinderFactory getNodeBinderFactory() {
+        return null;
+    }
+
+    public INameSpacedTypeFactory getTypeFactory() {
+        return null;
+    }
+
+    public INameSpacedVarFactory getVarFactory() {
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.openl.IOpenBinder#makeBindingContext()
+     */
+    public IBindingContext makeBindingContext() {
+        throw new UnsupportedOperationException("XlsBinder is top level Binder");
     }
 
     public IBoundCode bind(IParsedCode parsedCode) {
-
         return bind(parsedCode, null);
     }
 
-    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator) {
+    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator bindingContextDelegator) {
 
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
@@ -178,112 +151,95 @@ public class XlsBinder implements IOpenBinder {
 
         try {
             openl = makeOpenL(moduleNode);
-        } catch (OpenConfigurationException e) {
+        } catch (OpenConfigurationException ex) {
 
-            BoundError error = new BoundError(moduleNode.getOpenlNode(), "Error Creating OpenL", e);
-            OpenLMessagesUtils.addError(error.getMessage());
+            OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
 
-            IBoundError[] errors = new IBoundError[] { error };
+            IBoundError error = BoundErrorUtils.createError("Error Creating OpenL", ex, syntaxNode);
+            BindHelper.processError(error);
 
-            return new BoundCode(parsedCode, null, errors, 0);
+            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new IBoundError[] { error });
         }
 
         IOpenBinder openlBinder = openl.getBinder();
+        IBindingContext bindingContext = openlBinder.makeBindingContext();
+        bindingContext = BindHelper.delegateContext(bindingContext, bindingContextDelegator);
 
-        IBindingContext cxt = openlBinder.makeBindingContext();
+        IBoundNode topNode = bind(moduleNode, openl, bindingContext);
 
-        if (delegator != null) {
-            delegator.setTopDelegate(cxt);
-            cxt = delegator;
-        }
-
-        IBoundNode topNode = null;
-
-        try {
-            topNode = bind(moduleNode, openl, cxt);
-        } catch (TooManyErrorsError err) {
-            Log.error("Too many errors");
-
-            for (ISyntaxError error : cxt.getError()) {
-                OpenLMessagesUtils.addError(error.getMessage());
-            }
-        }
-
-        return new BoundCode(parsedCode, topNode, cxt.getError(), 0);
+        return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
     }
 
     /*
      * (non-Javadoc)
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
-    public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext cxt) {
+    public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
 
-        // TODO fix schema, name
         XlsModuleOpenClass module = new XlsModuleOpenClass(null,
-            getModuleName(moduleNode),
+            XlsSourceUtils.getModuleName(moduleNode),
             new XlsMetaInfo(moduleNode),
             openl);
 
-        // int nchildren = moduleNode.getNumberOfChildren();
+        processExtensions(module, moduleNode, moduleNode.getExtensionNodes());
 
-        proccessExtensions(module, moduleNode, moduleNode.getExtensionNodes());
+        RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(bindingContext, module);
 
-        // IMemberBoundNode[] children = new IMemberBoundNode[nchildren];
-        RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(cxt, module);
-
-        IVocabulary vocabulary = null;
-
-        try {
-            vocabulary = makeVocabulary(moduleNode);
-        } catch (BoundError error) {
-            OpenLMessagesUtils.addError(error.getMessage());
-            cxt.addError(error);
-        }
+        IVocabulary vocabulary = makeVocabulary(moduleNode);
 
         if (vocabulary != null) {
-
-            IOpenClass[] types = null;
-
-            try {
-                types = vocabulary.getVocabularyTypes();
-            } catch (BoundError error) {
-                OpenLMessagesUtils.addError(error.getMessage());
-                cxt.addError(error);
-            }
-
-            if (types != null) {
-                for (int i = 0; i < types.length; i++) {
-
-                    try {
-                        moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, types[i]);
-                    } catch (Throwable t) {
-                        IBoundError error = new BoundError(t, null);
-                        OpenLMessagesUtils.addError(error.getMessage());
-                        cxt.addError(error);
-                    }
-                }
-            }
+            processVocabulary(vocabulary, bindingContext, moduleContext);
         }
 
         ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_DATATYPE,
-            new SyntaxConvertor());
+            new SyntaxNodeConvertor());
 
         ASelector<ISyntaxNode> propertiesSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_PROPERTIES,
-            new SyntaxConvertor());
+            new SyntaxNodeConvertor());
 
         bindInternal(moduleNode, openl, moduleContext, module, propertiesSelector, null);
         bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector, null);
 
         ISelector<ISyntaxNode> notPropertiesSelector = propertiesSelector.not();
         ISelector<ISyntaxNode> notDataTypeSelector = dataTypeSelector.not();
-        ISelector<ISyntaxNode> notPropAnd_NotDatatypeSelectors = notDataTypeSelector.and(notPropertiesSelector);
+        ISelector<ISyntaxNode> notProp_And_NotDatatypeSelectors = notDataTypeSelector.and(notPropertiesSelector);
 
-        return bindInternal(moduleNode, openl, moduleContext, module, notPropAnd_NotDatatypeSelectors, tableComparator);
+        return bindInternal(moduleNode,
+            openl,
+            moduleContext,
+            module,
+            notProp_And_NotDatatypeSelectors,
+            new TableSyntaxNodeComparator());
     }
 
-    private void proccessExtensions(XlsModuleOpenClass module,
-                                    XlsModuleSyntaxNode moduleNode,
-                                    List<IdentifierNode> extensionNodes) {
+    private void processVocabulary(IVocabulary vocabulary,
+                                   IBindingContext bindingContext,
+                                   RulesModuleBindingContext moduleContext) {
+
+        IOpenClass[] types = null;
+
+        try {
+            types = vocabulary.getVocabularyTypes();
+        } catch (BoundError error) {
+            BindHelper.processError(error, bindingContext);
+        }
+
+        if (types != null) {
+
+            for (int i = 0; i < types.length; i++) {
+
+                try {
+                    moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, types[i]);
+                } catch (Throwable t) {
+                    BindHelper.processError(null, t, bindingContext);
+                }
+            }
+        }
+    }
+
+    private void processExtensions(XlsModuleOpenClass module,
+                                   XlsModuleSyntaxNode moduleNode,
+                                   List<IdentifierNode> extensionNodes) {
 
         for (int i = 0; i < extensionNodes.size(); i++) {
 
@@ -294,150 +250,6 @@ public class XlsBinder implements IOpenBinder {
                 binder.bind(module, moduleNode, identifierNode);
             }
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
-     */
-    protected IBoundNode bindInternal(ISyntaxNode moduleNode,
-                                      OpenL openl,
-                                      RulesModuleBindingContext moduleContext,
-                                      XlsModuleOpenClass module,
-                                      ISelector<ISyntaxNode> childSelector,
-                                      Comparator<TableSyntaxNode> tableComparator) {
-
-        XlsModuleSyntaxNode xmsn = (XlsModuleSyntaxNode) moduleNode;
-
-        ArrayList<ISyntaxNode> childSyntaxNodes = new ArrayList<ISyntaxNode>();
-
-        for (TableSyntaxNode tsn : xmsn.getXlsTableSyntaxNodes()) {
-
-            if (childSelector == null || childSelector.select(tsn)) {
-                childSyntaxNodes.add(tsn);
-            }
-        }
-
-        TableSyntaxNode[] chNodes = childSyntaxNodes.toArray(new TableSyntaxNode[0]);
-
-        if (tableComparator != null) {
-            Arrays.sort(chNodes, tableComparator);
-        }
-
-        IMemberBoundNode[] children = new IMemberBoundNode[chNodes.length];
-
-        for (int i = 0; i < chNodes.length; i++) {
-
-            try {
-
-                // ISyntaxNode childNode = moduleNode.getChild(i);
-                // if (childSelector.select(childNode))
-                children[i] = preBindXlsNode(chNodes[i], openl, moduleContext, module);
-
-                if (children[i] != null) {
-                    children[i].addTo(module);
-                }
-            } catch (BoundError error) {
-                moduleContext.addError(error);
-                error.setTopLevelSyntaxNode(chNodes[i]);
-                chNodes[i].addError(error);
-                OpenLMessagesUtils.addError(error.getMessage());
-            } catch (SyntaxErrorException se) {
-
-                ISyntaxError[] ee = se.getSyntaxErrors();
-
-                for (int j = 0; j < ee.length; j++) {
-                    ee[j].setTopLevelSyntaxNode(chNodes[i]);
-                    chNodes[i].addError(ee[j]);
-                    moduleContext.addError(ee[j]);
-
-                    OpenLMessagesUtils.addError(ee[j].getMessage());
-                }
-
-            } catch (Throwable e) {
-                BoundError error = new BoundError(chNodes[i], null, e);
-                error.setTopLevelSyntaxNode(chNodes[i]);
-                chNodes[i].addError(error);
-                moduleContext.addError(error);
-
-                OpenLMessagesUtils.addError(error.getMessage());
-            }
-        }
-
-        // if (moduleContext.getNumberOfErrors() == 0)
-        for (int i = 0; i < children.length; i++) {
-
-            if (children[i] != null) {
-
-                try {
-                    children[i].finalizeBind(moduleContext);
-                } catch (BoundError error) {
-                    error.setTopLevelSyntaxNode(chNodes[i]);
-                    chNodes[i].addError(error);
-                    moduleContext.addError(error);
-                    OpenLMessagesUtils.addError(error.getMessage());
-                } catch (SyntaxErrorException se) {
-                    ISyntaxError[] ee = se.getSyntaxErrors();
-
-                    for (int j = 0; j < ee.length; j++) {
-                        ee[j].setTopLevelSyntaxNode(chNodes[i]);
-                        chNodes[i].addError(ee[j]);
-                        moduleContext.addError(ee[j]);
-
-                        OpenLMessagesUtils.addError(ee[j].getMessage());
-                    }
-
-                } catch (Throwable e) {
-                    BoundError error = new BoundError(chNodes[i], null, e);
-                    error.setTopLevelSyntaxNode(chNodes[i]);
-                    chNodes[i].addError(error);
-                    moduleContext.addError(error);
-
-                    OpenLMessagesUtils.addError(error.getMessage());
-                }
-            }
-        }
-
-        return new ModuleNode(moduleNode, moduleContext.getModule());
-    }
-
-    public ICastFactory getCastFactory() {
-
-        return null;
-    }
-
-    public INameSpacedMethodFactory getMethodFactory() {
-
-        return null;
-    }
-
-    public INodeBinderFactory getNodeBinderFactory() {
-
-        return null;
-    }
-
-    private String getOpenLName(OpenlSyntaxNode osn) {
-
-        return osn == null ? "org.openl.rules.java" : osn.getOpenlName();
-    }
-
-    public INameSpacedTypeFactory getTypeFactory() {
-
-        return null;
-    }
-
-    public INameSpacedVarFactory getVarFactory() {
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.openl.IOpenBinder#makeBindingContext()
-     */
-    public IBindingContext makeBindingContext() {
-
-        throw new UnsupportedOperationException("XlsBinder is top level Binder");
     }
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
@@ -460,10 +272,9 @@ public class XlsBinder implements IOpenBinder {
         builder.setInheritExtendedConfigurationLoader(true);
 
         return OpenL.getInstance(category, userContext, builder);
-
     }
 
-    public IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode) throws BoundError {
+    private IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode) {
 
         final IdentifierNode vocabularyNode = moduleNode.getVocabularyNode();
 
@@ -471,58 +282,175 @@ public class XlsBinder implements IOpenBinder {
             return null;
         }
 
-        final ClassLoader cl = userContext.getUserClassLoader();
+        final ClassLoader userClassLoader = userContext.getUserClassLoader();
+        Thread.currentThread().setContextClassLoader(userClassLoader);
 
-        IVocabulary ivoc = null;
+        IVocabulary vocabulary = (IVocabulary) userContext.execute(new IExecutable() {
 
-        try {
-            Thread.currentThread().setContextClassLoader(cl);
-            ivoc = (IVocabulary) userContext.execute(new IExecutable() {
+            public Object execute() {
 
-                public Object execute() {
+                String vocabularyClassName = vocabularyNode.getIdentifier();
 
-                    IVocabulary voc;
-                    try {
-                        Class<?> vClass = cl.loadClass(vocabularyNode.getIdentifier());
-                        voc = (IVocabulary) vClass.newInstance();
-                        return voc;
-                    } catch (Throwable t) {
-                        throw RuntimeExceptionWrapper.wrap(t);
-                    }
+                try {
+                    Class<?> vClass = userClassLoader.loadClass(vocabularyClassName);
+
+                    return (IVocabulary) vClass.newInstance();
+                } catch (Throwable t) {
+                    String message = String.format("Vocabulary type '%s' cannot be loaded", vocabularyClassName);
+                    BindHelper.processError(message, vocabularyNode, t);
+
+                    return null;
                 }
-            });
+            }
+        });
 
-            return ivoc;
-        } catch (Throwable t) {
-            BoundError error = new BoundError(vocabularyNode, "Can't Load Vocabulary", t);
-            OpenLMessagesUtils.addError(error.getMessage());
-
-            throw error;
-        }
+        return vocabulary;
     }
 
     private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode,
                                             OpenL openl,
-                                            RulesModuleBindingContext cxt,
-                                            XlsModuleOpenClass module) throws Exception {
+                                            RulesModuleBindingContext bindingContext,
+                                            XlsModuleOpenClass moduleOpenClass) throws Exception {
 
         String type = syntaxNode.getType();
-
         AXlsTableBinder binder = getBinderFactory().get(type);
 
         if (binder == null) {
-            
+
             String message = String.format("Unknown table type '%s'", type);
             OpenLMessagesUtils.addWarn(message);
-            // throw new Exception("Unknown Table Type: " + type);
+
             return null;
         }
-        
-        TableSyntaxNode tsn = (TableSyntaxNode) syntaxNode;
 
-        PropertiesLoader propLoader = new PropertiesLoader(openl, cxt, module, binder);
-        propLoader.loadProperties(tsn);
+        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) syntaxNode;
 
-        return binder.preBind(tsn, openl, cxt, module);
+        PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, moduleOpenClass, binder);
+        propLoader.loadProperties(tableSyntaxNode);
+
+        return binder.preBind(tableSyntaxNode, openl, bindingContext, moduleOpenClass);
     }
+
+    private String getOpenLName(OpenlSyntaxNode osn) {
+        return osn == null ? "org.openl.rules.java" : osn.getOpenlName();
+    }
+
+    private TableSyntaxNode[] getChildTableSyntaxNodes(XlsModuleSyntaxNode moduleSyntaxNode,
+                                                       ISelector<ISyntaxNode> childSelector,
+                                                       Comparator<TableSyntaxNode> tableComparator) {
+
+        ArrayList<ISyntaxNode> childSyntaxNodes = new ArrayList<ISyntaxNode>();
+
+        for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
+
+            if (childSelector == null || childSelector.select(tsn)) {
+                childSyntaxNodes.add(tsn);
+            }
+        }
+
+        TableSyntaxNode[] tableSyntaxNodes = childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
+
+        if (tableComparator != null) {
+            Arrays.sort(tableSyntaxNodes, tableComparator);
+        }
+
+        return tableSyntaxNodes;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
+     */
+    private IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
+                                    OpenL openl,
+                                    RulesModuleBindingContext moduleContext,
+                                    XlsModuleOpenClass module,
+                                    ISelector<ISyntaxNode> childSelector,
+                                    Comparator<TableSyntaxNode> tableComparator) {
+
+        TableSyntaxNode[] tableSyntaxNodes = getChildTableSyntaxNodes(moduleSyntaxNode, childSelector, tableComparator);
+        IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length];
+
+        for (int i = 0; i < tableSyntaxNodes.length; i++) {
+
+            IMemberBoundNode child = beginBind(tableSyntaxNodes[i], module, openl, moduleContext);
+            children[i] = child;
+
+            if (child != null) {
+                child.addTo(module);
+            }
+        }
+
+        for (int i = 0; i < children.length; i++) {
+			if (children[i] != null) {
+				finilizeBind(children[i], tableSyntaxNodes[i], moduleContext);
+			}
+		}
+
+        return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
+    }
+
+    private void finilizeBind(IMemberBoundNode memberBoundNode,
+                              TableSyntaxNode tableSyntaxNode,
+                              RulesModuleBindingContext moduleContext) {
+
+        try {
+            memberBoundNode.finalizeBind(moduleContext);
+
+        } catch (BoundError error) {
+            processError(error, tableSyntaxNode, moduleContext);
+
+        } catch (SyntaxNodeException ex) {
+
+            for (ISyntaxNodeError error : ex.getErrors()) {
+                processError((IBoundError) error, tableSyntaxNode, moduleContext);
+            }
+
+        } catch (Throwable t) {
+
+            BoundError error = BoundErrorUtils.createError(t, tableSyntaxNode);
+            processError(error, tableSyntaxNode, moduleContext);
+        }
+    }
+
+    private IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
+                                       XlsModuleOpenClass module,
+                                       OpenL openl,
+                                       RulesModuleBindingContext moduleContext) {
+
+        try {
+            return preBindXlsNode(tableSyntaxNode, openl, moduleContext, module);
+
+        } catch (BoundError error) {
+            processError(error, tableSyntaxNode, moduleContext);
+
+            return null;
+
+        } catch (SyntaxNodeException ex) {
+
+            for (ISyntaxNodeError error : ex.getErrors()) {
+                processError((IBoundError) error, tableSyntaxNode, moduleContext);
+            }
+
+            return null;
+
+        } catch (Throwable t) {
+
+            BoundError error = BoundErrorUtils.createError(t, tableSyntaxNode);
+            processError(error, tableSyntaxNode, moduleContext);
+
+            return null;
+        }
+    }
+
+    private void processError(IBoundError error,
+                              TableSyntaxNode tableSyntaxNode,
+                              RulesModuleBindingContext moduleContext) {
+
+        error.setTopLevelSyntaxNode(tableSyntaxNode);
+
+        tableSyntaxNode.addError(error);
+        BindHelper.processError(error, moduleContext);
+    }
+
 }

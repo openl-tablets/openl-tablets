@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.OpenConfigurationException;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**

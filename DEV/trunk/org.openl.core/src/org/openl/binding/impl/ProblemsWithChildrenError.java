@@ -6,6 +6,7 @@
 
 package org.openl.binding.impl;
 
+import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
 
 /**
@@ -14,18 +15,10 @@ import org.openl.syntax.ISyntaxNode;
  */
 public class ProblemsWithChildrenError extends BoundError {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1296510383411584060L;
 
-    /**
-     * @param node
-     * @param msg
-     * @param t
-     */
     public ProblemsWithChildrenError(ISyntaxNode node) {
-        super(node, "Some Problems With Children", null);
+        super("Some Problems With Children", null, node);
     }
 
 }

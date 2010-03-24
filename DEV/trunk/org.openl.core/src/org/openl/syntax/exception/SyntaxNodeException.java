@@ -4,18 +4,21 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.syntax;
+package org.openl.syntax.exception;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.openl.syntax.error.ISyntaxNodeError;
+
+
 /**
- * <code>SyntaxErrorException</code> is the base exception class of those
+ * <code>SyntaxNodeException</code> is the base exception class of those
  * exceptions that can be thrown by engine during compilation process.
  * 
  * @author snshor
  */
-public class SyntaxErrorException extends RuntimeException {
+public class SyntaxNodeException extends RuntimeException {
 
     private static final long serialVersionUID = 6239517302604363701L;
 
@@ -27,19 +30,19 @@ public class SyntaxErrorException extends RuntimeException {
     /**
      * Syntax errors.
      */
-    private ISyntaxError[] syntaxErrors;
+    private ISyntaxNodeError[] errors;
 
     /**
      * Constructs new instance of the class.
      * 
      * @param message message of exception
-     * @param syntaxErrors syntax errors (reason of exception)
+     * @param errors syntax errors (reason of exception)
      */
-    public SyntaxErrorException(String message, ISyntaxError[] syntaxErrors) {
+    public SyntaxNodeException(String message, ISyntaxNodeError[] errors) {
         super(message);
 
         this.message = message;
-        this.syntaxErrors = syntaxErrors;
+        this.errors = errors;
     }
 
     /**
@@ -60,8 +63,8 @@ public class SyntaxErrorException extends RuntimeException {
             printWriter.println(message);
         }
 
-        for (int i = 0; i < syntaxErrors.length; ++i) {
-            printWriter.println(syntaxErrors[i]);
+        for (int i = 0; i < errors.length; ++i) {
+            printWriter.println(errors[i]);
         }
 
         printWriter.close();
@@ -74,7 +77,7 @@ public class SyntaxErrorException extends RuntimeException {
      * 
      * @return syntax errors
      */
-    public ISyntaxError[] getSyntaxErrors() {
-        return syntaxErrors;
+    public ISyntaxNodeError[] getErrors() {
+        return errors;
     }
 }
