@@ -104,7 +104,7 @@ public class ShowTableBean {
 
     public String getErrorString() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio.getModel().showErrors(uri);
+        return webStudio.getModel().showErrors(uri, FacesUtils.getSession());
     }
 
     public String getMode() {

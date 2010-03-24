@@ -1166,25 +1166,29 @@ public class ProjectModel {
 
     }
 
-    public Object showError(String nodeKey) {
+    public Object showError(String nodeKey, HttpSession session) {
         ProjectTreeNode pte = getTreeNodeById(nodeKey);
         if (pte == null) {
             return null;
         }
-
+        
         Object error = pte.getProblems();
-
-        return new ObjectViewer(this).displayResult(error);
+        ObjectViewer objViewer = new ObjectViewer(this); 
+        objViewer.setSession(session);
+        return objViewer.displayResult(error);
     }
 
-    public String showErrors(String elementUri) {
+    public String showErrors(String elementUri, HttpSession session) {
         TableSyntaxNode tsn = getNode(elementUri);
-        ISyntaxError[] se = tsn.getErrors();
+        ObjectViewer objViewer = new ObjectViewer(this);
+        objViewer.setSession(session);
+        ISyntaxError[] se = tsn.getErrors();        
         if (se != null) {
-            return new ObjectViewer(this).displayResult(se);
+            
+            return objViewer.displayResult(se);
         }
         if (tsn.getValidationResult() != null) {
-            return new ObjectViewer(this).displayResult(tsn.getValidationResult());
+            return objViewer.displayResult(tsn.getValidationResult());
         }
         return "";
     }
