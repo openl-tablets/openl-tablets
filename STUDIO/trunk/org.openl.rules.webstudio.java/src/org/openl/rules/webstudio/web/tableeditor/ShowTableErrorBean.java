@@ -17,7 +17,7 @@ public class ShowTableErrorBean {
 
     public String getError() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return (String) webStudio.getModel().showError(getElementKey());
+        return (String) webStudio.getModel().showError(getElementKey(), FacesUtils.getSession());
     }
 
 }

@@ -437,7 +437,7 @@ public class ObjectViewer {
      * @return true if user has the possibility to modify the tables in project.
      */
     private boolean canModifyCurrentProject() {
-        boolean canEditTable = false;
+        boolean canEditTable = false;        
         if (session != null) {
             WebStudio studio = WebStudioUtils.getWebStudio(session);
             UserWorkspaceProject currentProject = studio.getCurrentProject(session);
@@ -445,6 +445,8 @@ public class ObjectViewer {
             if (currentProject != null) {
                 canEditTable = (currentProject.isCheckedOut() || currentProject.isLocalOnly());
             }
+        } else {
+            LOG.warn("Session object is <null>. Not good for us!");
         }
         return canEditTable;
     }
