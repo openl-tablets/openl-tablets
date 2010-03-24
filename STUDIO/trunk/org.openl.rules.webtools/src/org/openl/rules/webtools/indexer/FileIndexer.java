@@ -306,7 +306,7 @@ public class FileIndexer extends WebTool {
      * @param times
      * @return
      */
-    boolean isFilesChanged(String[] xfiles, long[] times) {
+    public boolean isFilesChanged(String[] xfiles, long[] times) {
         boolean result = false;
         
         if(files == null || updateTimes == null || files.length != xfiles.length) {

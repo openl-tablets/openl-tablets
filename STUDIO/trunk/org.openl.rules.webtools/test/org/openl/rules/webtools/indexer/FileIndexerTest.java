@@ -1,10 +1,12 @@
 package org.openl.rules.webtools.indexer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.openl.rules.indexer.Index;
 import org.openl.rules.indexer.IndexQuery;
 import org.openl.rules.indexer.IndexQueryParser;
 import org.openl.rules.indexer.Index.TokenBucket;
+import org.openl.rules.webtools.indexer.FileIndexer;
 
 public class FileIndexerTest {
     

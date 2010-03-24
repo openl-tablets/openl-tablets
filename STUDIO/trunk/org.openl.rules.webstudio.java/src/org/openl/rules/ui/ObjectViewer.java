@@ -18,7 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.base.INamedThing;
 import org.openl.binding.OpenLRuntimeException;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
@@ -65,9 +65,10 @@ import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DynamicObject;
@@ -459,7 +460,7 @@ public class ObjectViewer {
             Throwable[] tt = ExceptionUtils.getThrowables(ort);
 
             for (int i = 1; i < tt.length; i++) {
-                if (tt[i] instanceof OpenLRuntimeException || tt[i] instanceof SyntaxErrorException
+                if (tt[i] instanceof OpenLRuntimeException || tt[i] instanceof SyntaxNodeException
                         || tt[i] instanceof BoundError || tt[i] instanceof OpenLRuntimeExceptionWithMetaInfo) {
                     return displayException(tt[i], buf);
                 }
@@ -481,16 +482,16 @@ public class ObjectViewer {
         if (t instanceof ISyntaxError) {
             ISyntaxError se = (ISyntaxError) t;
 
-            displayErrorAndCode(t, se.getLocation(), se.getModule(), buf);
+            displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
             return buf;
         }
 
-        if (t instanceof SyntaxErrorException) {
-            SyntaxErrorException se = (SyntaxErrorException) t;
-            ISyntaxError[] err = se.getSyntaxErrors();
+        if (t instanceof SyntaxNodeException) {
+            SyntaxNodeException se = (SyntaxNodeException) t;
+            ISyntaxNodeError[] err = se.getErrors();
 
             for (int i = 0; i < err.length; i++) {
-                displayErrorAndCode((Throwable) err[i], err[i].getLocation(), err[i].getModule(), buf);
+                displayErrorAndCode((Throwable) err[i], err[i].getLocation(), err[i].getSourceModule(), buf);
             }
 
             return buf;
