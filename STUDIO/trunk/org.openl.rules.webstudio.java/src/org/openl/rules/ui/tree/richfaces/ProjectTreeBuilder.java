@@ -1,18 +1,19 @@
-package org.openl.rules.ui.tree;
+package org.openl.rules.ui.tree.richfaces;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
 
-public class ProjectRichFacesTreeBuilder extends RichFacesTreeBuilder {
+public class ProjectTreeBuilder extends TreeBuilder {
 
     private ProjectModel projectModel;
 
-    public ProjectRichFacesTreeBuilder(ITreeElement<?> root, ProjectModel projectModel) {
+    public ProjectTreeBuilder(ITreeElement<?> root, ProjectModel projectModel) {
         super(root);
         this.projectModel = projectModel;
     }

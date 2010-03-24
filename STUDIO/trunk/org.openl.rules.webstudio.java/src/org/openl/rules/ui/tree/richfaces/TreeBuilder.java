@@ -1,18 +1,20 @@
-package org.openl.rules.ui.tree;
+package org.openl.rules.ui.tree.richfaces;
 
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
+import org.openl.rules.ui.tree.AbstractTreeBuilder;
+import org.openl.rules.ui.tree.TreeNodeData;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
-public class RichFacesTreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
+public class TreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
 
     private ITreeElement<?> root;
 
-    public RichFacesTreeBuilder(ITreeElement<?> root) {
+    public TreeBuilder(ITreeElement<?> root) {
         this.root = root;
     }
 

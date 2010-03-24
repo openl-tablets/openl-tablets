@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web;
 
 import org.openl.rules.ui.Explanation;
 import org.openl.rules.ui.Explanator;
-import org.openl.rules.ui.tree.ExplainRichFacesTreeBuilder;
-import org.openl.rules.ui.tree.RichFacesTreeBuilder;
+import org.openl.rules.ui.tree.richfaces.TreeBuilder;
+import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
@@ -24,7 +24,7 @@ public class ExplainTreeBean {
         Explanation explanation = explanator.getExplanation(rootID);
         ITreeElement<?> tree = explanation.getExplainTree();
         if (tree != null) {
-            RichFacesTreeBuilder treeBuilder = new ExplainRichFacesTreeBuilder(tree);
+            TreeBuilder treeBuilder = new ExplainTreeBuilder(tree);
             TreeNode<?> rfTree = treeBuilder.build(true);
             return rfTree;
         }

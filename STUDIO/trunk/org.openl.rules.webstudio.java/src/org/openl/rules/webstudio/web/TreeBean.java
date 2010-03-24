@@ -8,7 +8,7 @@ import javax.faces.model.SelectItem;
 import org.openl.base.INamedThing;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.ProjectRichFacesTreeBuilder;
+import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeStateManager;
 import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.web.jsf.util.FacesUtils;
@@ -100,7 +100,7 @@ public class TreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
-            TreeNode<?> rfTree = new ProjectRichFacesTreeBuilder(tree, studio.getModel()).build();
+            TreeNode<?> rfTree = new ProjectTreeBuilder(tree, studio.getModel()).build();
             return rfTree;
         }
         return null;

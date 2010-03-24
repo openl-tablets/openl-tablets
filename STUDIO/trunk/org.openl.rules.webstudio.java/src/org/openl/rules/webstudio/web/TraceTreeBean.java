@@ -4,8 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.RichFacesTreeBuilder;
-import org.openl.rules.ui.tree.TraceRichFacesTreeBuilder;
+import org.openl.rules.ui.tree.richfaces.TreeBuilder;
+import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -38,7 +38,7 @@ public class TraceTreeBean {
             
             ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
             if (tree != null) {
-                RichFacesTreeBuilder treeBuilder = new TraceRichFacesTreeBuilder(tree, traceHelper);
+                TreeBuilder treeBuilder = new TraceTreeBuilder(tree, traceHelper);
                 TreeNode<?> rfTree = treeBuilder.build();
                 return rfTree;
             }
