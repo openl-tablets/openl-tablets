@@ -34,7 +34,7 @@ public class MethodUtil {
         IMethodSignature signature = methodHeader.getSignature();
 
         for (int i = 0; i < signature.getNumberOfArguments(); i++) {
-            printParameterInfo(signature.getParameterType(i).getDisplayName(mode), signature.getParameterName(i), i > 0, buf);
+            printParameterInfo(signature.getParameterType(i).getDisplayName(mode), signature.getParameterName(i), i == 0, buf);
         }
         
         endPrintingMethodName(buf);
@@ -50,7 +50,7 @@ public class MethodUtil {
         startPrintingMethodName(name, buf);
         
         for (int i = 0; i < params.length; i++) {
-            printParameterInfo(params[i].getName(), null, i > 0, buf);
+            printParameterInfo(params[i].getName(), null, i == 0, buf);
         }
         
         endPrintingMethodName(buf);
@@ -61,7 +61,7 @@ public class MethodUtil {
         startPrintingMethodName(name, buf);
         
         for (int i = 0; i < signature.getNumberOfArguments(); i++) {
-            printParameterInfo(signature.getParameterType(i).getName(), signature.getParameterName(i), i > 0, buf);
+            printParameterInfo(signature.getParameterType(i).getName(), signature.getParameterName(i), i == 0, buf);
         }
         
         endPrintingMethodName(buf);
@@ -76,7 +76,7 @@ public class MethodUtil {
         startPrintingMethodName(name, buf);
         
         for (int i = 0; i < params.length; i++) {
-            printParameterInfo(params[i].getName(), null, i > 0, buf);
+            printParameterInfo(params[i].getName(), null, i == 0, buf);
         }
         endPrintingMethodName(buf);
         return buf;
@@ -87,7 +87,7 @@ public class MethodUtil {
 
         IMethodSignature signature = method.getSignature();
         for (int i = 0; i < params.length; i++) {
-            printParameterInfo(null, signature.getParameterName(i), params[i], i > 0, mode, buf);
+            printParameterInfo(null, signature.getParameterName(i), params[i], i == 0, mode, buf);
         }
 
         endPrintingMethodName(buf);
