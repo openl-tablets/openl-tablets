@@ -1,0 +1,134 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jstl/core"
+  xmlns:authz="http://rules.openl.org/taglibs/acegi">
+
+  <h:panelGroup rendered="#{node.type == 'repository'}">
+    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <input type="button" class="button" value="Create New Project" onclick="openNewProjectDialog();" />
+      <input type="button" class="button" value="Upload Project" onclick="openUploadProjectDialog();" />
+    </h:panelGrid>
+
+    <rich:tabPanel style="height:500px;">
+      <rich:tab label="Rules Projects">
+        <ui:include src="/facelets/repository/projects.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{node.type == 'file'}">
+    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <input type="button" class="#{artefact.canModify ? 'button':'disabledButton'}" value="Update" onclick="#{artefact.canModify} &amp;&amp; openUpdateFileDialog();" />
+      <input type="button" class="#{artefact.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();" />
+    </h:panelGrid>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{node.type == 'folder'}">
+    <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <input type="button" class="#{artefact.canModify ? 'button':'disabledButton'}" value="Add Folder" onclick="#{artefact.canModify} &amp;&amp; openNewFolderDialog();" />
+      <input type="button" class="#{artefact.canModify ? 'button':'disabledButton'}" value="Upload File" onclick="#{artefact.canModify} &amp;&amp; openNewFileDialog();" />
+      <input type="button" class="#{artefact.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();" />
+    </h:panelGrid>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{node.type == 'project'}">
+    <h:panelGroup rendered="#{artefact.deleted}">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <input type="button" class="#{artefact.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{artefact.canUndelete} &amp;&amp; confirmUndeleteProject();" />
+        <input type="button" class="#{artefact.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{artefact.canErase} &amp;&amp; confirmEraseProject();" />
+      </h:panelGrid>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{!artefact.deleted}">
+      <h:panelGrid columns="9" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{artefact.canOpen};"/>
+        <input type="button" class="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();" />
+        <h:commandButton styleClass="#{artefact.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.canClose};"/>
+        <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{artefact.canCheckOut};"/>
+        <input type="button" class="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();" />
+        <input type="button" class="button" value="Copy" onclick="openCopyProjectDialog();" />
+        <input type="button" class="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();" />
+        <input type="button" class="#{artefact.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" onclick="#{artefact.canRedeploy} &amp;&amp; openSmartRedeployDialog();" />
+        <input type="button" class="#{artefact.canCompare ? 'button':'disabledButton'}" value="Compare" onclick="#{artefact.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');" />
+      </h:panelGrid>
+      <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <input type="button" class="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();" />
+        <input type="button" class="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Upload File" onclick="#{artefact.checkedOut} &amp;&amp; openNewFileDialog();" />
+        <input type="button" class="#{artefact.canExport ? 'button':'disabledButton'}" value="Export Version" onclick="#{artefact.canExport} &amp;&amp; openExportVersionDialog();" />
+      </h:panelGrid>
+
+    </h:panelGroup>
+  </h:panelGroup>
+
+  <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;"
+    rendered="#{node.type != 'repository'
+   &amp;&amp; node.type != 'drepository'
+   &amp;&amp; node.type != 'deployment'}">
+    <rich:tab label="Properties">
+      <h:panelGroup rendered="#{node.type == 'file'}">
+        <ui:include src="/facelets/repository/node/fileProps.xhtml" />
+      </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'folder'}">
+        <ui:include src="/facelets/repository/node/folderProps.xhtml" />
+      </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'project'}">
+        <ui:include src="/facelets/repository/node/projectProps.xhtml" />
+      </h:panelGroup>
+    </rich:tab>
+    <rich:tab label="Versions">
+      <ui:include src="/facelets/repository/node/versions.xhtml" />
+    </rich:tab>
+    <rich:tab label="Elements" rendered="#{node.type != 'file'}">
+      <ui:include src="/facelets/repository/node/elements.xhtml" />
+    </rich:tab>
+    <rich:tab label="Dependencies" rendered="#{node.type == 'project'}">
+      <ui:include src="/facelets/repository/node/dependency.xhtml" />
+    </rich:tab>
+  </rich:tabPanel>
+
+  <h:panelGroup rendered="#{node.type == 'drepository'}">
+    <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <input type="button" class="button" value="Create New Deployment Project" onclick="openNewDeploymentProjectDialog();" />
+    </h:panelGrid>
+
+    <rich:tabPanel style="height:500px;">
+      <rich:tab label="Deployment Projects">
+        <ui:include src="/facelets/repository/projectsD.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{node.type == 'deployment'}">
+    <h:panelGroup rendered="#{artefact.deleted}">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <input type="button" class="#{artefact.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{artefact.canUndelete} &amp;&amp; confirmUndeleteProject();" />
+        <input type="button" class="#{artefact.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{artefact.canErase} &amp;&amp; confirmEraseProject();" />
+      </h:panelGrid>
+    </h:panelGroup>
+    <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
+      <h:commandButton styleClass="#{artefact.canDeploy ? 'button':'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{artefact.canDeploy}"/>
+      <input type="button" class="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();" />
+      <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
+      <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{artefact.canCheckOut};" />
+      <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
+      <input type="button" class="button" value="Copy" onclick="openCopyDeploymentProjectDialog();" />
+      <input type="button" class="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();"/>
+    </h:panelGrid>
+
+    <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;">
+      <rich:tab label="Properties">
+        <ui:include src="node/deployment.xhtml" />
+      </rich:tab>
+      <rich:tab label="Versions">
+        <ui:include src="/facelets/repository/node/versions.xhtml" />
+      </rich:tab>
+      <rich:tab label="Descriptors">
+        <ui:include src="/facelets/repository/node/descriptors.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
+  </h:panelGroup>
+
+</ui:composition>

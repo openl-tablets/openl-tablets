@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+"http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+    <tlib-version>1.0</tlib-version>
+    <jsp-version>1.2</jsp-version>
+    <short-name>tableEditor</short-name>
+    <uri>http://openl-tablets.sourceforge.net/jsf</uri>
+    <tag>
+        <name>tableViewer</name>
+        <tag-class>
+            org.openl.rules.tableeditor.taglib.TableViewerTag
+        </tag-class>
+        <attribute>
+            <name>id</name>
+            <rtexprvalue>true</rtexprvalue>
+            <description>The client id of this component</description>
+        </attribute>
+        <attribute>
+            <name>rendered</name>
+            <description>Is this component rendered?</description>
+        </attribute>
+        <attribute>
+            <name>table</name>
+            <required>true</required>
+            <description>The table grid</description>
+        </attribute>
+        <attribute>
+            <name>view</name>
+            <description>The table view - Business or Developer</description>
+        </attribute>
+        <attribute>
+            <name>filter</name>
+            <required>false</required>
+            <description>The table filter</description>
+        </attribute>
+        <attribute>
+            <name>showFormulas</name>
+            <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
+        </attribute>
+        <attribute>
+            <name>collapseProps</name>
+            <description>If true the table properties are collapsed. The default is 'false'.</description>
+        </attribute>
+    </tag>
+    <tag>
+        <name>tableEditor</name>
+        <tag-class>
+            org.openl.rules.tableeditor.taglib.TableEditorTag
+        </tag-class>
+        <attribute>
+            <name>id</name>
+            <rtexprvalue>true</rtexprvalue>
+            <description>The client id of this component</description>
+        </attribute>
+        <attribute>
+            <name>rendered</name>
+            <description>Is this component rendered?</description>
+        </attribute>
+        <attribute>
+            <name>table</name>
+            <required>true</required>
+            <description>The table grid</description>
+        </attribute>
+        <attribute>
+            <name>view</name>
+            <description>The table view - Business or Developer</description>
+        </attribute>
+        <attribute>
+            <name>filter</name>
+            <description>The table filter</description>
+        </attribute>
+        <attribute>
+            <name>mode</name>
+            <description>"view" or "edit" mode of representation</description>
+        </attribute>
+        <attribute>
+            <name>editable</name>
+            <description>If true the table is editable. The default is 'true'.</description>
+        </attribute>
+        <attribute>
+            <name>showFormulas</name>
+            <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
+        </attribute>
+        <attribute>
+            <name>collapseProps</name>
+            <description>If true the table properties are collapsed. The default is 'false'.</description>
+        </attribute>
+    </tag>
+</taglib>

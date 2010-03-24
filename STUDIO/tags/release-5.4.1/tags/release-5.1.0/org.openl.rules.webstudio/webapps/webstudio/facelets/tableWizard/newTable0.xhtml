@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/facelets/common/webstudioBase.xhtml"
+        >
+
+  <ui:define name="css">
+    <style type="text/css">
+
+    </style>
+  </ui:define>
+
+
+<ui:define name="page">
+    <h2>Select table type</h2>
+
+    <div align="left">
+      <input type="radio" name="group1" value="Milk" checked="checked"> Decision Table</input><br/>
+      <input type="radio" name="group1" value="Butter" disabled="true" > Data table</input><br/>
+      <input type="radio" name="group1" value="Cheese" disabled="true"> Method</input>
+      <hr/>
+    </div>
+  <h:form>
+    <h:inputHidden value="0" id="step" binding="#{tableWizard.hiddenStep}" />
+    <h:commandButton value="Next" action="#{tableWizard.next}"/>
+    <h:commandButton value="Cancel" action="#{tableWizard.cancel}"/>
+  </h:form>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL JCR Integration
+Bundle-SymbolicName: org.openl.rules.repository.jcr
+Bundle-Version: 5.0.5
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.openl.lib.springsource;visibility:=reexport,
+ org.openl.rules.repository;visibility:=reexport,
+ org.openl.lib.apache.jackrabbit;visibility:=reexport,
+ org.openl.lib.exigen.jcr;resolution:=optional
+Export-Package: org.openl.rules.repository.factories,
+ org.openl.rules.repository.jcr

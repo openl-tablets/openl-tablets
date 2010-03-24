@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Security
+Bundle-SymbolicName: org.openl.rules.security;singleton:=true
+Bundle-Version: 5.2.0
+Bundle-Vendor: OpenL
+Require-Bundle: org.openl.rules.webstudio.lib,
+ org.openl.lib.apache.tomcat,
+ org.openl.rules.util
+Export-Package: org.openl.rules.security

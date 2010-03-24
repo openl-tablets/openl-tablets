@@ -1,0 +1,43 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <rich:modalPanel id="modalUploadProject" width="400" minWidth="400" height="145" minHeight="145">
+    <f:facet name="header">
+      <h:outputText value="Upload Project" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUploadProject');" />
+    </f:facet>
+
+    <h:form id="uploadProjectForm" enctype="multipart/form-data">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputLabel for="file" styleClass="required" value="File" />
+        <t:inputFileUpload id="file" size="30" storage="file" value="#{repositoryTreeController.file}" required="true" />
+        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" required="true" onkeypress="return modalInputKeyPress(event, this)"/>
+      </h:panelGrid>
+
+      <br />
+      <rich:separator height="1" />
+      <br/>
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
+        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalUploadProject');" />
+      </h:panelGrid>
+    </h:form>
+  </rich:modalPanel>
+
+  <script>
+    function openUploadProjectDialog() {
+      Richfaces.showModalPanel('modalUploadProject');
+      focusElement("uploadProjectForm:file");
+    }
+  </script>
+</ui:composition>

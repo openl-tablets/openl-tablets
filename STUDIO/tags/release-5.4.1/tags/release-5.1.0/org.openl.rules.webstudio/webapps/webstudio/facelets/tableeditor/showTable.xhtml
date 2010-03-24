@@ -1,0 +1,179 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+        xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jstl/core"
+        template="/facelets/common/webstudioBase.xhtml">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+
+<ui:define name="header">
+  <script type="text/javascript">
+    function open_win(url) {
+      window.open(url, "_blank", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+    }
+  </script>
+
+  <style type="text/css">
+    img {border: 0;}
+  </style>
+</ui:define>
+
+<ui:define name="page">
+<f:view>
+<table>
+<tr>
+  <td>
+    <img src="#{contextPath}/webresource/images/excel-workbook.png"/>
+    <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}" title="#{showTableBean.uri}"
+                  target="show_app_hidden">
+      <h:outputText value="#{showTableBean.text}:#{showTableBean.name}"/>
+    </h:outputLink>
+
+    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
+      <h:outputLink value="#{contextPath}/jsp/runMethod.jsp?elementID=#{showTableBean.elementID}" title="Run">
+        <h:graphicImage url="/webresource/images/test.gif" alt="test"/>
+      </h:outputLink>
+
+      <c:set var="tgUrl" value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=tracetree.jsp&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;elementID=#{showTableBean.elementID}&amp;first=true" />
+      <a onClick="open_win('#{tgUrl}', 800, 600)" href="#"  title="Trace"><img border="0" src="webresource/images/trace.gif" alt="trace"/></a>
+
+      <h:outputLink value="#{contextPath}/jsp/benchmarkMethod.jsp?elementID=#{showTableBean.elementID}" title="Benchmark">
+        <h:graphicImage url="/webresource/images/clock-icon.png" alt="benchmark" style="padding-left:5px;"/>
+      </h:outputLink>
+    </c:if>
+
+    <c:if test="#{showTableBean.testable and !showTableBean.hasErrors}">
+      <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp?elementID=#{showTableBean.elementID}" title="Test">
+        <h:graphicImage url="/webresource/images/test_ok.gif" alt="test"/>
+      </h:outputLink>
+    </c:if>
+  </td><td>
+
+  <h:outputLink value="?#{showTableBean.notViewParams}">
+    <f:param value="view.business" name="view"/>
+    <h:graphicImage url="/webresource/images/business-view.png" title="Business View" alt="Business View"/>
+  </h:outputLink>
+
+  <h:outputLink value="?#{showTableBean.notViewParams}">
+    <f:param value="view.developer" name="view"/>
+    <h:graphicImage url="/webresource/images/developer-view.png" title="Developer (Full) View" alt="Full View" style="padding-left:5px;"/>
+  </h:outputLink>
+  </td></tr>
+</table>
+
+<ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml"/>
+
+  <c:if test="#{showTableBean.tsnHasErrors}">
+    <h3>Problems</h3>
+    <table border="1"><tr><td><h:outputText value="#{showTableBean.errorString}" escape="false"/></td></tr></table>
+    <p/>
+  </c:if>
+
+  <p/>
+  <c:if test="#{showTableBean.editable}">
+    <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTableEditor.xhtml">
+      <f:param name="elementID" value="#{showTableBean.elementID}" />
+      Edit Table
+    </h:outputLink>
+  </c:if>
+
+  <f:verbatim>&amp;nbsp;</f:verbatim>
+  
+  <c:if test="#{showTableBean.copyable}">
+    <h:outputLink value="#{contextPath}/jsp/copyTable.jsf">
+      <f:param name="elementID" value="#{showTableBean.elementID}" />
+      Copy Table
+    </h:outputLink>
+  </c:if>
+
+
+<a4j:loadScript src="resource:///javascript/popup/popupmenu.js" />
+<f:verbatim>
+<script type="text/javascript">
+    function cellMouseOver(td, event) {
+        PopupMenu.sheduleShowMenu('contextMenu', event, 700);
+    }
+
+    function cellMouseOut(td) {
+        PopupMenu.cancelShowMenu();
+    }
+    function triggerEdit(f) {
+        var uri = $(PopupMenu.lastTarget).down('input').value;
+        f.cell.value = uri.toQueryParams().cell;
+        f.submit();
+    }
+    function triggerEditXls(f) {
+        f.uri.value = $(PopupMenu.lastTarget).down('input').value;
+        f.submit();
+    }
+    function triggerSearch(f) {
+        f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {return s.nodeName == "#text"})
+                .nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+                .reject(function(s) {return !s}).join(" ");
+       f.submit();
+    }
+</script>
+
+<form name="editForm" action="../tableeditor/showTableEditor.xhtml">
+<input type="hidden" name="elementID" value="#{showTableBean.elementID}"> </input>
+<input type="hidden" name="cell" value=""> </input>
+<input type="hidden" name="view" value="#{showTableBean.view}" />
+</form>
+<form name="editFormXls" action="#{contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
+    <input type="hidden" name="uri" value=""> </input>
+</form>
+<form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
+    <input type="hidden" name="searchQuery" value=""> </input>
+</form>
+</f:verbatim>
+<div id="contextMenu" style="display:none;">
+    <table cellpadding="1px">
+        <c:if test="#{showTableBean.editable}"><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr></c:if>
+        <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+        <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+    </table>
+</div>
+
+<p/><div><h:outputText value="#{tableViewController.tableView}" escape="false"/></div>
+
+<c:set value="#{showTableBean.testRunResults}" var="testResult"/>
+<c:if test="#{testResult.notEmpty}">
+  <h1>Select one of the available runs by clicking on it:</h1>
+  <c:forEach var="test" items="#{testResult.tests}">
+    <c:forEach var="description" items="#{test.descriptions}" varStatus="status">
+      <p><f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+      <h:outputLink value="#{contextPath}/jsp/runMethod.jsp" title="Run">
+        <f:param value="#{showTableBean.elementID}" name="elementID"/>
+        <f:param value="#{test.testName}" name="testName"/>
+        <f:param value="#{status.index}" name="testID"/>
+        <f:param value="#{description}" name="testDescr"/>
+        <h:graphicImage url="/webresource/images/test.gif" alt="test"/>
+      </h:outputLink>
+      <f:verbatim>&amp;nbsp;</f:verbatim>
+      <h:outputLink value="#{contextPath}/jsp/benchmarkMethod.jsp" title="Benchmark">
+        <f:param value="#{showTableBean.elementID}" name="elementID"/>
+        <f:param value="#{test.testName}" name="testName"/>
+        <f:param value="#{status.index}" name="testID"/>
+        <f:param value="#{description}" name="testDescr"/>
+        <h:graphicImage url="/webresource/images/clock-icon.png" alt="test"/>
+      </h:outputLink>
+      <f:verbatim>&amp;nbsp;</f:verbatim>
+      <h:outputLink value="#{contextPath}/jsp/runMethod.jsp">
+        <f:param value="#{showTableBean.elementID}" name="elementID"/>
+        <f:param value="#{test.testName}" name="testName"/>
+        <f:param value="#{status.index}" name="testID"/>
+        <f:param value="#{description}" name="testDescr"/>
+        <h:outputText value="#{description}" />
+      </h:outputLink>
+      </p>
+    </c:forEach>
+  </c:forEach>
+</c:if>
+
+</f:view>
+  </ui:define>
+
+</ui:composition>
