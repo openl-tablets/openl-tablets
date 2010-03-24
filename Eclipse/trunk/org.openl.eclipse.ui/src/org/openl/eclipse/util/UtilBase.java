@@ -27,7 +27,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.openl.eclipse.base.OpenlBasePlugin;
 import org.openl.eclipse.builder.OpenlBuilder;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -125,12 +125,12 @@ public class UtilBase implements IUtilBase {
         return MessageFormat.format(getString(key), args);
     }
 
-    public String getMessage(ISyntaxError error) {
+    public String getMessage(ISyntaxNodeError error) {
         StringBuffer sb = new StringBuffer();
 
         appendErrorMessage(sb, error.getMessage());
 
-        appendErrorMessage(sb, getMessage(error.getThrowable()));
+        appendErrorMessage(sb, getMessage(error.getOriginalCause()));
 
         return sb.toString();
     }
