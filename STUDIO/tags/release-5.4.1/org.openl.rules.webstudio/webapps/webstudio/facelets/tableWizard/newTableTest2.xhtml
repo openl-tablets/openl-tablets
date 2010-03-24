@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                template="/facelets/common/wizardBase.xhtml">
+
+  <ui:define name="page">
+  	<h2>Input technical testmethod name</h2>
+  	<h:form>  		
+	  	<h:panelGrid columns="2">
+	    	<h:outputText value="Technical Name" />
+	        <h:inputText id="technicalName"
+	                    value="#{tableWizard.technicalName}" />
+	    </h:panelGrid> 
+	    <hr/>
+	    <h:inputHidden value="2" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
+	    <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
+	    <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>
+	    <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
+    </h:form>
+  </ui:define>
+
+</ui:composition>
