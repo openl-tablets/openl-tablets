@@ -20,8 +20,8 @@ import org.openl.eclipse.base.OpenlBasePlugin;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
@@ -51,14 +51,14 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
         addMarker(resource, url, message, severity, start, end, line);
     }
 
-    public static void addMarker(IResource resource, ISyntaxError error, String openl, int severity) {
-        Throwable t = error.getThrowable();
+    public static void addMarker(IResource resource, ISyntaxNodeError error, String openl, int severity) {
+        Throwable t = error.getOriginalCause();
 
         String message;
 
         if (t != null) {
-            if (t instanceof SyntaxErrorException) {
-                addMarkers(resource, (SyntaxErrorException) t, openl);
+            if (t instanceof SyntaxNodeException) {
+                addMarkers(resource, (SyntaxNodeException) t, openl);
                 return;
             }
 
@@ -67,7 +67,7 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
             message = error.getMessage();
         }
 
-        addMarker(resource, error.getLocation(), error.getModule(), openl, message, severity);
+        addMarker(resource, error.getLocation(), error.getSourceModule(), openl, message, severity);
     }
 
     public static void addMarker(IResource resource, String url, String message, int severity, String start,
@@ -102,8 +102,8 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
         }
     }
 
-    public static void addMarkers(IResource resource, SyntaxErrorException sex, String openl) {
-        ISyntaxError[] errors = sex.getSyntaxErrors();
+    public static void addMarkers(IResource resource, SyntaxNodeException sex, String openl) {
+        ISyntaxNodeError[] errors = sex.getErrors();
 
         for (int i = 0; i < errors.length; i++) {
             // TODO severity
