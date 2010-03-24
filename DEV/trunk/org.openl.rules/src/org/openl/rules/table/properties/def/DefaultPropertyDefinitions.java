@@ -316,7 +316,7 @@ public class DefaultPropertyDefinitions
 		definitions[20].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[21] = new TablePropertyDefinition();
 		definitions[21].setBusinessSearch(false);
-		definitions[21].setDefaultValue("true");
+		definitions[21].setDefaultValue("false");
 		definitions[21].setDescription("Raises an error if no rules were matched. The error will display at least parame"
 		 + "ter set, if possible trace(not complete)");
 		definitions[21].setDimensional(false);
