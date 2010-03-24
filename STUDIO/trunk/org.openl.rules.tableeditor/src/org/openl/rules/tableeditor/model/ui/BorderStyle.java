@@ -4,29 +4,46 @@
 package org.openl.rules.tableeditor.model.ui;
 
 public class BorderStyle {
-    /**
-     * @param w
-     * @param style2
-     * @param rgb2
-     */
 
-    static public final BorderStyle NONE = new BorderStyle(1, "solid", new short[] { 0xBB, 0xBB, 0xDD });
+    public static final BorderStyle NONE = new BorderStyle(1, "solid", new short[] { 0xBB, 0xBB, 0xDD });
 
-    int width = 0;
+    private int width = 0;
 
-    String style = "none";
+    private String style = "none";
 
-    short[] rgb = { 0, 0, 0 };
+    private short[] rgb = { 0, 0, 0 };
 
-    /**
-     *
-     */
     public BorderStyle() {
     }
 
-    public BorderStyle(int w, String style, short[] rgb) {
-        width = w;
+    public BorderStyle(int width, String style, short[] rgb) {
+        this.width = width;
         this.style = style;
         this.rgb = rgb;
     }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
+    public short[] getRgb() {
+        return rgb;
+    }
+
+    public void setRgb(short[] rgb) {
+        this.rgb = rgb;
+    }
+
 }

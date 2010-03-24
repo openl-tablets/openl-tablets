@@ -4,7 +4,8 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.filters.IColorFilter;
 
 public class CellModelDelegator implements ICellModel {
-    CellModel model;
+
+    private CellModel model;
 
     public CellModelDelegator(CellModel model) {
         this.model = model;

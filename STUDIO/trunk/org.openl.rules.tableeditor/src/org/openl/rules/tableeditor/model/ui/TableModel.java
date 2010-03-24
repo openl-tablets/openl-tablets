@@ -9,21 +9,28 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 
 public class TableModel {
-    static String EMPTY = "<td width=50 style=\"border-style: dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    static String EMPTY_TR = "<td style=\"border-style: dashed dashed none none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+    private static final String EMPTY =
+        "<td width=50 style=\"border-style: dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    static String EMPTY_TRB = "<td width=50 style=\"border-style: dashed dashed dashed none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+    private static final String EMPTY_TR =
+        "<td style=\"border-style: dashed dashed none none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    static String EMPTY_BL = "<td width=50 style=\"border-style: none none dashed dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+    private static final String EMPTY_TRB =
+        "<td width=50 style=\"border-style: dashed dashed dashed none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    static String EMPTY_RB = "<td width=50 style=\"border-style: none dashed dashed none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+    private static final String EMPTY_BL =
+        "<td width=50 style=\"border-style: none none dashed dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    static String EMPTY_RBL = "<td width=50 style=\"border-style: none dashed dashed dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+    private static final String EMPTY_RB =
+        "<td width=50 style=\"border-style: none dashed dashed none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    ICellModel[][] cells;
+    private static final String EMPTY_RBL =
+        "<td width=50 style=\"border-style: none dashed dashed dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
 
-    String attributes = "cellspacing=0 cellpadding=1";
+    private ICellModel[][] cells;
+
+    private String attributes = "cellspacing=0 cellpadding=1";
 
     private IGridTable gridTable;
 

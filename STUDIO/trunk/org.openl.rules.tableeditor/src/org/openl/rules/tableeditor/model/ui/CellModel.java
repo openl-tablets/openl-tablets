@@ -67,7 +67,7 @@ public class CellModel implements ICellModel {
 
         buf.append(" border-style: ");
         for (int i = 0; i < borderStyle.length; i++) {
-            buf.append((borderStyle[i] == null) ? "none" : borderStyle[i].style);
+            buf.append((borderStyle[i] == null) ? "none" : borderStyle[i].getStyle());
             buf.append(' ');
         }
         buf.append(';');
@@ -75,7 +75,7 @@ public class CellModel implements ICellModel {
         buf.append(" border-width:");
 
         for (int i = 0; i < borderStyle.length; i++) {
-            int w = (borderStyle[i] == null) ? 0 : borderStyle[i].width;
+            int w = (borderStyle[i] == null) ? 0 : borderStyle[i].getWidth();
 
             buf.append(' ').append(w).append("px");
         }
@@ -84,7 +84,7 @@ public class CellModel implements ICellModel {
         buf.append(" border-color:");
 
         for (int i = 0; i < borderStyle.length; i++) {
-            short[] rgb = (borderStyle[i] == null) ? new short[] { 0, 0, 0 } : borderStyle[i].rgb;
+            short[] rgb = (borderStyle[i] == null) ? new short[] { 0, 0, 0 } : borderStyle[i].getRgb();
 
             buf.append(' ').append(WebTool.toHexString(rgb));
         }

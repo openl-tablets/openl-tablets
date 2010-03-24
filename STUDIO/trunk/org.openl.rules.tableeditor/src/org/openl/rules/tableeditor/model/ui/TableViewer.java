@@ -10,11 +10,11 @@ import org.openl.util.Log;
 
 public class TableViewer {
 
-    IGrid grid;
+    private IGrid grid;
 
-    IGridRegion reg;
+    private IGridRegion reg;
 
-    private static void setStyle(ICell cell, CellModel cm) {
+    private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
 
         if (style == null) {
@@ -53,7 +53,6 @@ public class TableViewer {
         cm.setRgbBackground(rgb);
 
         cm.setFont(cell.getFont());
-
     }
 
     public static String showTable(TableModel tm, boolean showGrid) {
@@ -157,46 +156,46 @@ public class TableViewer {
         rgb = rgbb == null ? new short[] { 0, 0, 0 } : rgbb[side];
 
         BorderStyle bs = new BorderStyle();
-        bs.rgb = rgb;
+        bs.setRgb(rgb);
         switch (xlsStyle) {
             case ICellStyle.BORDER_NONE:
                 return BorderStyle.NONE;
             case ICellStyle.BORDER_DASH_DOT_DOT:
             case ICellStyle.BORDER_DASH_DOT:
             case ICellStyle.BORDER_DASHED:
-                bs.width = 1;
-                bs.style = "dashed";
+                bs.setWidth(1);
+                bs.setStyle("dashed");
                 break;
 
             case ICellStyle.BORDER_DOTTED:
-                bs.width = 1;
-                bs.style = "dotted";
+                bs.setWidth(1);
+                bs.setStyle("dotted");
                 break;
             case ICellStyle.BORDER_DOUBLE:
-                bs.width = 1;
-                bs.style = "double";
+                bs.setWidth(1);
+                bs.setStyle("double");
                 break;
             case ICellStyle.BORDER_THIN:
-                bs.width = 1;
-                bs.style = "solid";
+                bs.setWidth(1);
+                bs.setStyle("solid");
                 break;
             case ICellStyle.BORDER_THICK:
-                bs.width = 2;
-                bs.style = "solid";
+                bs.setWidth(2);
+                bs.setStyle("solid");
                 break;
             case ICellStyle.BORDER_HAIR:
-                bs.width = 1;
-                bs.style = "dotted";
+                bs.setWidth(1);
+                bs.setStyle("dotted");
                 break;
             case ICellStyle.BORDER_MEDIUM:
-                bs.width = 2;
-                bs.style = "solid";
+                bs.setWidth(2);
+                bs.setStyle("solid");
                 break;
             case ICellStyle.BORDER_MEDIUM_DASH_DOT:
             case ICellStyle.BORDER_MEDIUM_DASH_DOT_DOT:
             case ICellStyle.BORDER_MEDIUM_DASHED:
-                bs.width = 2;
-                bs.style = "dashed";
+                bs.setWidth(2);
+                bs.setStyle("dashed");
                 break;
             default:
                 Log.warn("Unknown border style: " + xlsStyle);
@@ -240,7 +239,9 @@ public class TableViewer {
             return new short[] { 0, 0, 0 };
         }
 
-        return bs1 == null ? bs2.rgb : (bs2 == null ? bs1.rgb : (bs1 == BorderStyle.NONE ? bs2.rgb : bs1.rgb));
+        return bs1 == null ? bs2.getRgb()
+                : (bs2 == null ? bs1.getRgb()
+                        : (bs1 == BorderStyle.NONE ? bs2.getRgb() : bs1.getRgb()));
     }
 
     void setGrid(TableModel tm) {
@@ -300,7 +301,7 @@ public class TableViewer {
                     } else if (cmBottom == null) {
                         cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
                     } else {
-                        bstyle.width = 1;
+                        bstyle.setWidth(1);
                         cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
                         cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
                     }
@@ -352,7 +353,7 @@ public class TableViewer {
                     } else if (cmRight == null) {
                         cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
                     } else {
-                        bstyle.width = 1;
+                        bstyle.setWidth(1);
                         cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
                         cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
                     }
@@ -367,7 +368,9 @@ public class TableViewer {
             return "none";
         }
 
-        return bs1 == null ? bs2.style : (bs2 == null ? bs1.style : (bs1 == BorderStyle.NONE ? bs2.style : bs1.style));
+        return bs1 == null ? bs2.getStyle()
+                : (bs2 == null ? bs1.getStyle()
+                        : (bs1 == BorderStyle.NONE ? bs2.getStyle() : bs1.getStyle()));
     }
 
     int width(BorderStyle bs1, BorderStyle bs2) {
@@ -375,7 +378,7 @@ public class TableViewer {
             return 0;
         }
 
-        return bs1 == null ? bs2.width : (bs2 == null ? bs1.width : Math.max(bs1.width, bs2.width));
+        return bs1 == null ? bs2.getWidth() : (bs2 == null ? bs1.getWidth() : Math.max(bs1.getWidth(), bs2.getWidth()));
     }
 
 }
