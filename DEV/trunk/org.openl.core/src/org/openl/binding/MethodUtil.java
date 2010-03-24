@@ -112,15 +112,19 @@ public class MethodUtil {
     
     private static void printParameterInfo(String type, String name, Object value, boolean isFirst, int displayMode, StringBuffer buf){
         if (!isFirst){
-            buf.append(',');
+            buf.append(", ");
         }
         
         if (type != null){
-            buf.append(' ').append(type);
+            buf.append(type);
+        }
+        
+        if (type != null && name != null){
+            buf.append(' ');
         }
         
         if (name != null){
-            buf.append(' ').append(name);
+            buf.append(name);
         }
         
         if (value != null){
