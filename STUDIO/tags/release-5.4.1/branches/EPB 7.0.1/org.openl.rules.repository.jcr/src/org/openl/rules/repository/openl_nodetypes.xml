@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * TODO: Add License information
+ *
+ *      http://www.openl.org/
+ *
+ * TODO: place something similar here...
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ -->
+<nodeTypes 
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0" 
+    xmlns:jcr="http://www.jcp.org/jcr/1.0" 
+    xmlns:rep="internal" 
+    xmlns:sv="http://www.jcp.org/jcr/sv/1.0" 
+    xmlns:openl="http://www.openl.org/jcr/1.0" 
+    xmlns:mix="http://www.jcp.org/jcr/mix/1.0">
+
+    <!-- 
+        "openl:repository" is a fiction node.
+        It is used to track schema version only.
+     -->
+    <nodeType name="openl:repository" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+
+        <propertyDefinition name="schema-version" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
+            <defaultValues>
+                <defaultValue>5.0.5</defaultValue>
+            </defaultValues>
+        </propertyDefinition>
+    </nodeType>
+    
+    <nodeType name="openl:project" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+        <childNodeDefinition name="*" defaultPrimaryType="" autoCreated="false" mandatory="false" onParentVersion="VERSION" protected="false" sameNameSiblings="false">
+            <requiredPrimaryTypes>
+                <requiredPrimaryType>nt:base</requiredPrimaryType>
+            </requiredPrimaryTypes>
+        </childNodeDefinition>
+        
+        <propertyDefinition name="openl:marked4Deletion" requiredType="Boolean" autoCreated="false" mandatory="false" onParentVersion="ABORT" protected="false" multiple="false"/>
+        <propertyDefinition name="description" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="modifiedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+    
+    <nodeType name="openl:file">
+        <supertypes>
+            <supertype>nt:file</supertype>
+        </supertypes>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="modifiedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+    
+    <nodeType name="openl:folder">
+        <supertypes>
+            <supertype>nt:folder</supertype>
+        </supertypes>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="modifiedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+    
+    <nodeType name="openl:files" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>openl:folder</supertype>
+        </supertypes>
+    </nodeType>
+
+	<!-- Abstract OpenL Project -->
+
+    <nodeType name="openl:aproject" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+        <childNodeDefinition name="*" defaultPrimaryType="" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" sameNameSiblings="false" />
+        
+        <propertyDefinition name="openl:marked4Deletion" requiredType="Boolean" autoCreated="false" mandatory="false" onParentVersion="ABORT" protected="false" multiple="false"/>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="modifiedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+
+	<!-- Deployment Descriptor Project -->
+
+    <nodeType name="openl:deploymentProject" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>openl:aproject</supertype>
+        </supertypes>
+        <childNodeDefinition name="*" defaultPrimaryType="" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" sameNameSiblings="false">
+            <requiredPrimaryTypes>
+                <requiredPrimaryType>openl:projectDescriptor</requiredPrimaryType>
+            </requiredPrimaryTypes>
+        </childNodeDefinition>
+    </nodeType>
+
+    <nodeType name="openl:projectDescriptor" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="modifiedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+
+	<!-- Locks -->
+
+    <nodeType name="openl:lock" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+        <propertyDefinition name="lockedAt" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="IGNORE" protected="false" multiple="false"/>
+        <propertyDefinition name="lockedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="IGNORE" protected="false" multiple="false"/>
+    </nodeType>
+
+	<!-- Dependencies -->
+
+	<nodeType name="openl:dependencies" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>nt:unstructured</supertype>
+		</supertypes>
+		<childNodeDefinition name="*" defaultPrimaryType="openl:dependency" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" sameNameSiblings="false">
+			<requiredPrimaryTypes>
+				<requiredPrimaryType>openl:dependency</requiredPrimaryType>
+			</requiredPrimaryTypes>
+		</childNodeDefinition>
+	</nodeType>
+
+	<nodeType name="openl:dependency" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+        <propertyDefinition name="lowVersion" requiredType="String" autoCreated="false" mandatory="true" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="highVersion" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+
+</nodeTypes>

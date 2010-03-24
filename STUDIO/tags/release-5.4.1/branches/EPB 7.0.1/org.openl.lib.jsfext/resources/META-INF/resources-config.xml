@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource-config>
+	<resource>
+		<name>scripts/popupmenu.js</name>
+		<path>org/openl/rules/ui/jsf/custom/scripts/popupmenu.js</path>
+	</resource>
+</resource-config>

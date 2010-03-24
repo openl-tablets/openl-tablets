@@ -1,0 +1,292 @@
+form {
+    margin: 0px;
+}
+
+.lblSearch {
+  font-size: 13px;
+}
+
+.columnTree {
+  vertical-align: top;
+}
+
+.columnProps {
+  vertical-align: top;
+  width: 100%;
+}
+
+.containerWrapper {
+    background-image: url(../webresource/images/header.png);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.masthead {
+  width: 100%;
+  height: 70px;
+  background-image: url(../webresource/images/print-logo.gif);
+  background-repeat: no-repeat;
+  min-width: 800px;
+  max-width: 1400px;
+  position: relative;
+  border: medium none;
+  margin: 0px 0px -2px 0px;
+}
+
+.logo {
+  position: absolute;
+  top: 0px;
+  right: 7px;
+}
+
+span#userName {
+  background: url(../webresource/images/user.gif) no-repeat right;
+  color: black;
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  padding-right: 17px;
+  padding-top: 2px;
+  position: absolute;
+  top: 52px;
+  right: 85px;
+}
+
+div#iconbar {
+  border: 0px solid gray;
+  display: block;
+  float: right;
+  height: 16px;
+  position: absolute;
+  top: 51px;
+  right: 10px;
+}
+
+#iconbar a {
+  text-decoration: none;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+div#colorScheme {
+  border: 0px solid gray;
+  position: absolute;
+  top: 76px;
+  right: 10px;
+  font-size: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+img.actionImage {
+  border: 0;
+}
+
+body {
+  font-family: verdana, helvetica, arial, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  color: black;
+  background: #eceef8;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* ------------------------------------------- */
+.colDiff {
+  width: 50%;
+  height: 100%;
+  padding: 10px;
+}
+
+.panelDiff {
+  width: 100%;
+  height: 100%;
+}
+
+/* ------------------------------------------- */
+  /* form elements styles */
+form .formfields {
+  vertical-align: top;
+  border: none;
+  width: 99%;
+}
+
+.label {
+  color: #002276;
+  padding-right: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  width: 150px;
+  vertical-align: top;
+  font-family: verdana, helvetica, arial, sans-serif;
+}
+
+.required {
+  color: #002276;
+  background: url(../webresource/images/required.gif) top right no-repeat;
+  padding-right: 5px;
+}
+
+input {
+  font-family: verdana, helvetica, arial, sans-serif;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+input.readonlyRowInput {
+  border: none;
+}
+
+select {
+  font-family: verdana, helvetica, arial, sans-serif;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+textarea {
+  font-family: verdana, helvetica, arial, sans-serif;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+input.button, input.disabledButton {
+    border: 0px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    height: 18px;
+    background-color: #7c99b6;
+}
+
+input.button {
+    background: url(../webresource/images/button_DEFAULT.gif) repeat-x;
+}
+
+input.disabledButton {
+    background: url(../webresource/images/disabledButton.gif) repeat-x;
+}
+
+a {
+  text-decoration: underlined;
+  color: rgb(5, 38, 121);
+}
+
+form.standard table.buttonPanel {
+  margin-top: 10px;
+  margin-left: -4px;
+}
+
+.actionButton {
+  display: ;
+}
+
+.actionLabel {
+  vertical-align: top;
+  text-align: center;
+  display: screen;
+  font-size: 8pt;
+}
+
+.readonly {
+  color: #888888;
+  background-color: #bbbbbb;
+}
+
+/* message styles */
+.messages ul {
+  margin: 0px 0px 10px 5px;
+  padding: 0px;
+  list-style-type: none;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+}
+
+.noEntries {
+  color: #002276;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+/* Standard table that should be used to display any tabular data */
+table.standard {
+  border: none;
+  border-bottom: 1px solid gray;
+}
+
+table.standard caption {
+  background-color: #BFC0CE;
+  color: black;
+  font-weight: bold;
+  text-align: left;
+  padding: 5px;
+}
+
+table.standard thead td {
+  border-color: gray white;
+  border-style: solid;
+  border-width: 1px 1px 0px 0px;
+  color: #052679;
+  padding: 5px 8px 6px;
+}
+
+table.standard thead td a {
+  color: rgb(5, 38, 121);
+  text-decoration: none;
+}
+
+table.standard td {
+  border-right: 1px solid white;
+  border-bottom: none;
+  padding: 5px 5px 5px 2px;
+}
+
+table.standard td .right {
+  text-align: right;
+}
+
+table.standard td .left {
+  text-align: left;
+}
+
+/* for verticale table header */
+table.standard td.header {
+  padding: 0px 5px 5px 2px;
+  font-weight: bold;
+}
+
+table.standard tr.even {
+  background-color: rgb(235, 238, 247);
+}
+
+table.standard tr.odd {
+  background-color: white;
+}
+
+/* Header */
+table.header {
+  border-bottom: medium none !important;
+}
+
+table.header thead td {
+  padding: 1px 8px 1px !important;
+}
+
+/* RichFaces tree styles */
+.dr-pnl-b {
+  padding: 2px !important;
+}
+
+.text-warning {
+  color: brown;
+}
+
+.text-error {
+  color: red;
+}

@@ -1,0 +1,34 @@
+<!--
+  XML file for importing Catalina jmx ant tasks.
+  <import file="${catalina.home}/bin/jmxaccessor-tasks.xml"/>
+-->
+
+<project name="jmxaccessor-tasks" >
+  <description>Catalina Ant JMX Accessor Tasks</description>
+  <!-- set catalina.home if it's not already set -->
+  <dirname property="catalina.home.bin.dir" file="${ant.file.jmxaccessor-tasks}"/>
+  <property name="catalina.home" value="${catalina.home.bin.dir}/.."/>
+  <taskdef resource="org/apache/catalina/ant/jmx/jmxaccessor.tasks">
+    <classpath>
+      <fileset file="${catalina.home}/server/lib/catalina-ant.jar"/>
+      <fileset file="${catalina.home}/server/lib/catalina-ant-jmx.jar"/>
+    </classpath>
+  </taskdef>
+  <typedef
+        name="jmxEquals"
+        classname="org.apache.catalina.ant.jmx.JMXAccessorEqualsCondition">
+    <classpath>
+      <fileset file="${catalina.home}/server/lib/catalina-ant.jar"/>
+      <fileset file="${catalina.home}/server/lib/catalina-ant-jmx.jar"/>
+    </classpath>
+  </typedef>
+  <typedef
+        name="jmxCondition"
+        classname="org.apache.catalina.ant.jmx.JMXAccessorCondition">
+    <classpath>
+      <fileset file="${catalina.home}/server/lib/catalina-ant.jar"/>
+      <fileset file="${catalina.home}/server/lib/catalina-ant-jmx.jar"/>
+    </classpath>
+  </typedef>
+
+</project>
