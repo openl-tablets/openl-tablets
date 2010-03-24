@@ -1,6 +1,5 @@
 package org.openl.rules.java;
 
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;
@@ -9,6 +8,7 @@ import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
 import org.openl.conf.NameSpacedTypeConfiguration;
 import org.openl.conf.NoAntOpenLTask;
+import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
 

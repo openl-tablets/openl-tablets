@@ -9,7 +9,7 @@ package org.openl.rules.data;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

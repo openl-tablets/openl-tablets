@@ -1,7 +1,5 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -18,62 +16,63 @@ import org.openl.types.IOpenClass;
 
 public class UnaryOperatorNodeBinder extends ANodeBinder {
 
-    static public String errorMsg(String methodName, IOpenClass t1) {
+    public static String errorMsg(String methodName, IOpenClass t1) {
         return "Operator not defined: " + methodName + "(" + t1.getName() + ")";
 
     }
 
-    static public IMethodCaller findUnaryOperatorMethodCaller(String methodName, IOpenClass[] types,
-            IBindingContext bindingContext) {
+    public static IMethodCaller findUnaryOperatorMethodCaller(String methodName,
+                                                              IOpenClass[] types,
+                                                              IBindingContext bindingContext) {
 
-        IMethodCaller om = bindingContext.findMethodCaller("org.openl.operators", methodName, types);
+        IMethodCaller methodCaller = bindingContext.findMethodCaller("org.openl.operators", methodName, types);
 
-        if (om != null) {
-            return om;
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
-        // IOpenClass[] types2 = { types[1] };
+        methodCaller = MethodSearch.getMethodCaller(methodName, IOpenClass.EMPTY, bindingContext, types[0]);
 
-        om = MethodSearch.getMethodCaller(methodName, IOpenClass.EMPTY, bindingContext, types[0]);
-
-        if (om != null) {
-            return om;
+        if (methodCaller != null) {
+            return methodCaller;
         }
 
-        om = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[0]);
+        methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[0]);
 
-        return om;
-
+        return methodCaller;
     }
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode,
-     *      org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
+     * org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
-            throw new BoundError(node, "Unary node should have 1 subnode");
+
+            BindHelper.processError("Unary node should have 1 subnode", node, bindingContext);
+
+            return new ErrorBoundNode(node);
         }
 
         int index = node.getType().lastIndexOf('.');
-
         String methodName = node.getType().substring(index + 1);
 
         IBoundNode[] children = bindChildren(node, bindingContext);
-
         IOpenClass[] types = getTypes(children);
 
-        IMethodCaller om = findUnaryOperatorMethodCaller(methodName, types, bindingContext);
+        IMethodCaller methodCaller = findUnaryOperatorMethodCaller(methodName, types, bindingContext);
 
-        if (om == null) {
-            throw new BoundError(node, errorMsg(methodName, types[0]));
+        if (methodCaller == null) {
+
+            String message = errorMsg(methodName, types[0]);
+            BindHelper.processError(message, node, bindingContext);
+
+            return new ErrorBoundNode(node);
         }
 
-        return new UnaryOpNode(node, children, om);
-
+        return new UnaryOpNode(node, children, methodCaller);
     }
 
 }

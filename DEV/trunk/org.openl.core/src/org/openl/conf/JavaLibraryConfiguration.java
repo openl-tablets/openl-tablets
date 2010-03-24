@@ -6,7 +6,6 @@
 
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
 import org.openl.binding.IOpenLibrary;
 import org.openl.binding.impl.StaticClassLibrary;
 import org.openl.types.java.JavaOpenClass;

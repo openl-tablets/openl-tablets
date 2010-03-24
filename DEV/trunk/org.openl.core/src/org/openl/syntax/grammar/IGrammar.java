@@ -7,8 +7,8 @@ package org.openl.syntax.grammar;
 import java.io.Reader;
 
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxError;
 
 /**
  * @author snshor

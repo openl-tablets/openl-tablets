@@ -2,7 +2,7 @@ package org.openl.types.impl;
 
 import java.util.Iterator;
 
-import org.openl.binding.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;

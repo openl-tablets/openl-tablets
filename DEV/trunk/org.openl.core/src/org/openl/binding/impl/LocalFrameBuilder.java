@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 
-import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;

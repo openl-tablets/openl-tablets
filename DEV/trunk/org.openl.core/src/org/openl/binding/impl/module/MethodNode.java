@@ -38,7 +38,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
     public MethodNode(ISyntaxNode syntaxNode,
     // IBoundNode[] children,// int localFrameSize, int parametersSize,
             DeferredMethod deferredMethod) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         // this.localFrameSize = localFrameSize;
         // this.parametersSize = parametersSize;
         this.deferredMethod = deferredMethod;

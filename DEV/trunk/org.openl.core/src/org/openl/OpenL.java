@@ -9,12 +9,13 @@ package org.openl;
 import java.io.File;
 import java.util.HashMap;
 
+import org.openl.cache.CacheUtils;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
+import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
-import org.openl.conf.cache.CacheUtils;
 
 /**
  * This class describes OpenL engine context abstraction that used during

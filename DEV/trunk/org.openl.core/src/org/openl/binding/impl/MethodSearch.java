@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;

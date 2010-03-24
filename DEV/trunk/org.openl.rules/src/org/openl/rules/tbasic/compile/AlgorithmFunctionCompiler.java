@@ -3,7 +3,7 @@ package org.openl.rules.tbasic.compile;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.rules.tbasic.AlgorithmFunction;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;

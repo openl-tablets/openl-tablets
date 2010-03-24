@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  *
@@ -29,7 +29,7 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("2   +"));
     }
 
-    @Test(expected = SyntaxErrorException.class)
+    @Test(expected = SyntaxNodeException.class)
     public void testFailureParse() {
         new IntRange("--1");
     }

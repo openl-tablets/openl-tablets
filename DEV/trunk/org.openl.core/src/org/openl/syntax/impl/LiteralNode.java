@@ -14,16 +14,14 @@ import org.openl.util.text.TextInterval;
  *
  */
 public class LiteralNode extends TerminalNode {
-    String image;
+    
+    private String image;
 
-    public LiteralNode(String type, TextInterval pos, String image, IOpenSourceCodeModule module) {
-        super(type, pos, module);
+    public LiteralNode(String type, TextInterval location, String image, IOpenSourceCodeModule module) {
+        super(type, location, module);
         this.image = image;
     }
 
-    /**
-     * @return
-     */
     public String getImage() {
         return image;
     }

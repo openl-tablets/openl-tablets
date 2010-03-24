@@ -5,8 +5,8 @@
 package org.openl.syntax.grammar.impl;
 
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxError;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.syntax.impl.SyntaxTreeBuilder;
 

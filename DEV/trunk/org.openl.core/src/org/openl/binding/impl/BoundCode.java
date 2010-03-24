@@ -8,8 +8,8 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.error.ISyntaxNodeError;
 
 /**
  * @author snshor
@@ -17,15 +17,15 @@ import org.openl.syntax.code.IParsedCode;
  */
 public class BoundCode implements IBoundCode {
 
-    IParsedCode parsedCode;
-    IBoundNode topNode;
-    ISyntaxError[] error;
+    private IParsedCode parsedCode;
+    private IBoundNode topNode;
+    private ISyntaxNodeError[] error;
     // TODO this mekes sense only in context of a single method, once we move
     // further into more sophisticated types of code
     // bound code will be split int class hierarchy
-    int localFrameSize;
+    private int localFrameSize;
 
-    public BoundCode(IParsedCode parsedCode, IBoundNode topNode, ISyntaxError[] error, int localFrameSize) {
+    public BoundCode(IParsedCode parsedCode, IBoundNode topNode, ISyntaxNodeError[] error, int localFrameSize) {
         this.parsedCode = parsedCode;
         this.topNode = topNode;
         this.error = error;
@@ -37,7 +37,7 @@ public class BoundCode implements IBoundCode {
      *
      * @see org.openl.binding.IBoundCode#getError()
      */
-    public ISyntaxError[] getErrors() {
+    public ISyntaxNodeError[] getErrors() {
         return error;
     }
 

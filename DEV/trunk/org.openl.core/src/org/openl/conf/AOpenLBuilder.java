@@ -7,7 +7,6 @@ import java.util.Properties;
 import java.util.Stack;
 
 import org.openl.ICompileContext;
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
 import org.openl.impl.DefaultCompileContext;

@@ -6,9 +6,8 @@
 
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
-import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.MethodSearch;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;

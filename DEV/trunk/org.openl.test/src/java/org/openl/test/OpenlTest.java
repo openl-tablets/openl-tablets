@@ -18,8 +18,8 @@ import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -89,7 +89,6 @@ public class OpenlTest {
             Object expected) throws Exception {
 
         Object res = evaluateFile(moduleFile, openl, methodName, params);
-
         Assert.assertEquals(expected, res);
 
     }
@@ -103,7 +102,7 @@ public class OpenlTest {
 
         IParsedCode pc = parser.parseAsModule(scm);
 
-        ISyntaxError[] err = pc.getErrors();
+        ISyntaxNodeError[] err = pc.getErrors();
         for (int i = 0; i < err.length; i++) {
             System.out.println(err[i].getLocation() + " -- " + err[i]);
         }

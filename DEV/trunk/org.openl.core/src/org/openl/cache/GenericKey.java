@@ -1,4 +1,4 @@
-package org.openl.conf.cache;
+package org.openl.cache;
 
 public final class GenericKey {
     

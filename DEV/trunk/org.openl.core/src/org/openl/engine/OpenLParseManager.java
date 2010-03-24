@@ -6,6 +6,9 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.code.impl.ParsedCode;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.SyntaxErrorUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for parsing operations.
@@ -19,7 +22,6 @@ public class OpenLParseManager extends OpenLHolder {
      * @param openl {@link OpenL} instance
      */
     public OpenLParseManager(OpenL openl) {
-
         super(openl);
     }
 
@@ -49,11 +51,7 @@ public class OpenLParseManager extends OpenLHolder {
                 return parser.parseAsFloatRange(source);
 
             default:
-
-                String message = String.format("Invalid source type: %s", source.getUri(0));
-                OpenLMessagesUtils.addError(message);
-
-                throw new IllegalArgumentException(message);
+                return getInvalidCode(source);
         }
     }
 
@@ -65,6 +63,22 @@ public class OpenLParseManager extends OpenLHolder {
     private IOpenParser getParser() {
 
         return getOpenL().getParser();
+    }
+
+    /**
+     * Gets code that cannot be parsed by parser.
+     * 
+     * @param source source
+     * @return {@link IParsedCode} instance
+     */
+    private IParsedCode getInvalidCode(IOpenSourceCodeModule source) {
+
+        String message = String.format("Invalid source type: %s", source.getUri(0));
+        ISyntaxError error = SyntaxErrorUtils.createError(message, source);
+
+        OpenLMessagesUtils.addError(error);
+
+        return new ParsedCode(null, source, new ISyntaxError[] { error });
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;

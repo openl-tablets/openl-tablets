@@ -9,7 +9,6 @@ package org.openl.conf;
 import java.io.File;
 import java.net.URL;
 
-import org.openl.OpenConfigurationException;
 import org.openl.types.IOpenFactory;
 import org.openl.types.IOpenSchema;
 import org.openl.types.ITypeLibrary;

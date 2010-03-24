@@ -1,7 +1,5 @@
 /*
- * Created on Mar 8, 2004
- *
- * Developed by OpenRules Inc. 2003-2004
+ * Created on Mar 8, 2004 Developed by OpenRules Inc. 2003-2004
  */
 
 package org.openl.rules.datatype.binding;
@@ -10,7 +8,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -24,7 +22,7 @@ import org.openl.types.impl.DynamicObjectField;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
@@ -41,8 +39,10 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
      * @param class1
      * @param table
      */
-    public DatatypeTableMethodBoundNode(TableSyntaxNode xlsDatatypeNode, ModuleOpenClass module, ILogicalTable table,
-            OpenL openl) {
+    public DatatypeTableMethodBoundNode(TableSyntaxNode xlsDatatypeNode,
+        ModuleOpenClass module,
+        ILogicalTable table,
+        OpenL openl) {
 
         this.xlsDatatypeNode = xlsDatatypeNode;
         this.module = module;
@@ -71,13 +71,15 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);
 
             if (fieldType == null) {
-                BoundError err = new BoundError(null, "Type " + src.getCode() + " not found", null, src);
+                BoundError err = new BoundError("Type " + src.getCode() + " not found", null, null, src);
                 throw err;
             }
 
             if (row.getLogicalWidth() < 2) {
-                BoundError err = new BoundError(null, "Bad table structure: must be {header} / {type | name}", null,
-                        src);
+                BoundError err = new BoundError("Bad table structure: must be {header} / {type | name}",
+                    null,
+                    null,
+                    src);
                 throw err;
             }
 
@@ -85,7 +87,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
             IdentifierNode[] idn = TokenizerParser.tokenize(src, " \r\n");
             if (idn.length != 1) {
-                BoundError err = new BoundError(null, "Bad field name: \"" + src.getCode() + "\"", null, src);
+                BoundError err = new BoundError("Bad field name: \"" + src.getCode() + "\"", null, null, src);
                 throw err;
             }
 
@@ -101,8 +103,10 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
                     module.setIndexField(field);
                 }
             } catch (Throwable t) {
-                BoundError err = new BoundError(null, "Can not add field " + fieldName + ": " + t.getMessage(), null,
-                        src);
+                BoundError err = new BoundError("Can not add field " + fieldName + ": " + t.getMessage(),
+                    null,
+                    null,
+                    src);
                 throw err;
             }
 

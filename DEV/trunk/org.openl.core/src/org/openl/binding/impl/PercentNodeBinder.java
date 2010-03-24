@@ -1,7 +1,5 @@
 /*
- * Created on Jun 6, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on Jun 6, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -14,11 +12,12 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class PercentNodeBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
+
         String s = ((LiteralNode) node).getImage();
 
         int len = s.length();
@@ -32,7 +31,7 @@ public class PercentNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
-            throws Exception {
+        throws Exception {
 
         IBoundNode thisNode = bind(node, bindingContext);
 

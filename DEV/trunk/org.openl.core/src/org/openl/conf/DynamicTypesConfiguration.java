@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.OpenConfigurationException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenSchema;
 import org.openl.types.ITypeLibrary;

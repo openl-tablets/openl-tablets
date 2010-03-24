@@ -5,10 +5,10 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
-import org.openl.syntax.ISyntaxError;
-import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * Class that defines OpenL engine manager implementation for source processing operations.
@@ -62,18 +62,18 @@ public class OpenLSourceManager extends OpenLHolder {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
 
-        ISyntaxError[] parsingErrors = parsedCode.getErrors();
+        ISyntaxNodeError[] parsingErrors = parsedCode.getErrors();
 
         if (!ignoreErrors && parsingErrors.length > 0) {
-            throw new SyntaxErrorException("Parsing Error:", parsingErrors);
+            throw new SyntaxNodeException("Parsing Error:", parsingErrors);
         }
 
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
 
-        ISyntaxError[] bindingErrors = boundCode.getErrors();
+        ISyntaxNodeError[] bindingErrors = boundCode.getErrors();
 
         if (!ignoreErrors && bindingErrors.length > 0) {
-            throw new SyntaxErrorException("Binding Error:", bindingErrors);
+            throw new SyntaxNodeException("Binding Error:", bindingErrors);
         }
 
         ProcessedCode processedCode = new ProcessedCode();

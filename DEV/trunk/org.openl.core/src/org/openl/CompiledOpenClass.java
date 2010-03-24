@@ -3,8 +3,8 @@
  */
 package org.openl;
 
-import org.openl.syntax.ISyntaxError;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 
 /**
@@ -15,19 +15,19 @@ import org.openl.types.IOpenClass;
  */
 public class CompiledOpenClass {
 
-    private ISyntaxError[] parsingErrors;
+    private ISyntaxNodeError[] parsingErrors;
 
-    private ISyntaxError[] bindingErrors;
+    private ISyntaxNodeError[] bindingErrors;
 
     private IOpenClass openClass;
 
-    public CompiledOpenClass(IOpenClass openClass, ISyntaxError[] parsingErrors, ISyntaxError[] bindingErrors) {
+    public CompiledOpenClass(IOpenClass openClass, ISyntaxNodeError[] parsingErrors, ISyntaxNodeError[] bindingErrors) {
         this.openClass = openClass;
         this.parsingErrors = parsingErrors;
         this.bindingErrors = bindingErrors;
     }
 
-    public ISyntaxError[] getBindingErrors() {
+    public ISyntaxNodeError[] getBindingErrors() {
         return bindingErrors;
     }
 
@@ -43,7 +43,7 @@ public class CompiledOpenClass {
         return openClass;
     }
 
-    public ISyntaxError[] getParsingErrors() {
+    public ISyntaxNodeError[] getParsingErrors() {
         return parsingErrors;
     }
 
@@ -53,11 +53,11 @@ public class CompiledOpenClass {
 
     public void throwErrorExceptionsIfAny() {
         if (parsingErrors.length > 0) {
-            throw new SyntaxErrorException("Parsing Error(s):", parsingErrors);
+            throw new SyntaxNodeException("Parsing Error(s):", parsingErrors);
         }
 
         if (bindingErrors.length > 0) {
-            throw new SyntaxErrorException("Binding Error(s):", bindingErrors);
+            throw new SyntaxNodeException("Binding Error(s):", bindingErrors);
         }
 
     }

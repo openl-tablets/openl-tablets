@@ -1,6 +1,6 @@
 package org.openl.meta;
 
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.types.IOpenClass;
 
 /**

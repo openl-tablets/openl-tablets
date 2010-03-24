@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.NaryNode;
 
@@ -19,7 +19,7 @@ import org.openl.syntax.impl.NaryNode;
  * @author snshor
  *
  */
-public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
+public class XlsModuleSyntaxNode extends NaryNode  {
 	
 	private List<IdentifierNode> extensionNodes;
 
@@ -29,7 +29,7 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode, String allImportString, List<IdentifierNode> extensionNodes) {
-        super(XLS_MODULE, null, nodes, module);
+        super(ITableNodeTypes.XLS_MODULE, null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;
@@ -50,7 +50,7 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
     }
 
     public WorkbookSyntaxNode[] getWorkbookSyntaxNodes() {
-        return (WorkbookSyntaxNode[]) nodes;
+        return (WorkbookSyntaxNode[]) getNodes();
     }
     
     public TableSyntaxNode[] getXlsTableSyntaxNodes() {
@@ -74,7 +74,7 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
 	public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
         List<TableSyntaxNode> resultNodes = new ArrayList<TableSyntaxNode>();
             for (TableSyntaxNode node : getXlsTableSyntaxNodes()) {
-                ISyntaxError[] errors = node.getErrors();
+            	ISyntaxNodeError[] errors = node.getErrors();
                 if (errors != null && errors.length > 0) {
                     continue;
                 }

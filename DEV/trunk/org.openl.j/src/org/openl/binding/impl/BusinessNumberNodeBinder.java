@@ -9,9 +9,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.LiteralNode;
 import org.openl.syntax.impl.SyntaxError;
 
-/**
- *
- */
 public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
     private static Map<Character, Integer> multiplierSuffixes = new HashMap<Character, Integer>();
@@ -24,11 +21,10 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
-     *      org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws SyntaxError {
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+
         assert node instanceof LiteralNode;
 
         String literal = ((LiteralNode) node).getImage();

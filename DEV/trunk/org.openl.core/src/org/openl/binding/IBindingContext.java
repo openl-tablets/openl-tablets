@@ -9,8 +9,11 @@ package org.openl.binding;
 import java.util.List;
 
 import org.openl.OpenL;
-import org.openl.syntax.ISyntaxError;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -24,7 +27,7 @@ public interface IBindingContext extends ICastFactory {
 
     void addAlias(String name, String value);
 
-    void addError(ISyntaxError error);
+    void addError(ISyntaxNodeError error);
 
     // public void addAllErrors(Vector errors);
 
@@ -68,7 +71,7 @@ public interface IBindingContext extends ICastFactory {
 
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
-    ISyntaxError[] getError();
+    ISyntaxNodeError[] getErrors();
 
     int getLocalVarFrameSize();
 
@@ -80,7 +83,7 @@ public interface IBindingContext extends ICastFactory {
 
     IOpenClass getReturnType();
 
-    List<ISyntaxError> popErrors();
+    List<ISyntaxNodeError> popErrors();
 
     void popLocalVarContext();
 

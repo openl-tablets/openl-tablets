@@ -4,8 +4,9 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.binding;
+package org.openl.binding.exception;
 
+import org.openl.binding.MethodUtil;
 import org.openl.types.IOpenClass;
 
 /**

@@ -13,9 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.openl.error.IOpenLError;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ISyntaxError;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -183,8 +184,8 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
     }
 
-    static public void printSourceLocation(ISyntaxError error, PrintWriter pw) {
-        printSourceLocation(error.getLocation(), error.getModule(), pw);
+    static public void printSourceLocation(IOpenLError error, PrintWriter pw) {
+        printSourceLocation(error.getLocation(), error.getSourceModule(), pw);
     }
 
     static public void printSourceLocation(ISyntaxNode node, PrintWriter pw) {

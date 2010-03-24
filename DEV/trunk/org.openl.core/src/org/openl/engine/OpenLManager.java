@@ -4,11 +4,11 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.MethodNotFoundException;
 import org.openl.binding.OpenLRuntimeException;
+import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
-import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -166,11 +166,11 @@ public class OpenLManager {
      * @return result of method execution
      * @throws OpenLRuntimeException
      * @throws MethodNotFoundException
-     * @throws SyntaxErrorException
+     * @throws SyntaxNodeException
      */
     public static Object runMethod(OpenL openl, IOpenSourceCodeModule source, String methodName,
             IOpenClass[] paramTypes, Object[] params) throws OpenLRuntimeException, MethodNotFoundException,
-            SyntaxErrorException {
+            SyntaxNodeException {
 
         OpenLRunManager runManager = new OpenLRunManager(openl);
 

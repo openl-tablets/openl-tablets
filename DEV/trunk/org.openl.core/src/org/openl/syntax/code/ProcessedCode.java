@@ -1,14 +1,13 @@
 package org.openl.syntax.code;
 
 import org.openl.binding.IBoundCode;
-import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.error.ISyntaxNodeError;
 
 /**
  * Class that used as a container and provides information about processed code.
  */
 public class ProcessedCode {
-
-    private static final ISyntaxError[] EMPTY_ERRORS_ARRAY = new ISyntaxError[0];
 
     /**
      * {@link IParsedCode} instance.
@@ -61,10 +60,10 @@ public class ProcessedCode {
      * 
      * @return {@link ISyntaxError}s array
      */
-    public ISyntaxError[] getParsingErrors() {
+    public ISyntaxNodeError[] getParsingErrors() {
 
         if (parsedCode == null) {
-            return EMPTY_ERRORS_ARRAY;
+            return new ISyntaxNodeError[0];
         }
 
         return parsedCode.getErrors();
@@ -75,10 +74,10 @@ public class ProcessedCode {
      * 
      * @return {@link ISyntaxError}s array
      */
-    public ISyntaxError[] getBindingErrors() {
+    public ISyntaxNodeError[] getBindingErrors() {
 
         if (boundCode == null) {
-            return EMPTY_ERRORS_ARRAY;
+            return new ISyntaxNodeError[0];
         }
 
         return boundCode.getErrors();

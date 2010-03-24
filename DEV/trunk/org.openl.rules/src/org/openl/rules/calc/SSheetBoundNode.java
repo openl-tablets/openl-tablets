@@ -3,7 +3,7 @@ package org.openl.rules.calc;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -28,14 +28,15 @@ public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNod
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         if (tableBody == null) {
-            throw new BoundError(getTableSyntaxNode(),
-                    "Table has no body! Try to merge header cell horizontally to identify table.");
+            throw new BoundError(
+                    "Table has no body! Try to merge header cell horizontally to identify table.", 
+                    getTableSyntaxNode());
         }
         int h = tableBody.getLogicalHeight();
         int w = tableBody.getLogicalWidth();
         if (h < 2 || w < 2) {
-            throw new BoundError(getTableSyntaxNode(), String.format(
-                    "Spreadsheet must have at least 2x2 cells! Actual size %dx%d.", w, h));
+            throw new BoundError(String.format(
+                "Spreadsheet must have at least 2x2 cells! Actual size %dx%d.", w, h), getTableSyntaxNode());
         }
 
         getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody);

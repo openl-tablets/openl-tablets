@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.openl.binding.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.conf.ClassFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;

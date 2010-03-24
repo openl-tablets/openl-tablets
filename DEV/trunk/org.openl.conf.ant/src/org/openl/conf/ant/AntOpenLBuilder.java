@@ -14,13 +14,13 @@ import java.util.Properties;
 import java.util.Stack;
 
 import org.openl.ICompileContext;
-import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
 import org.openl.conf.BaseOpenLBuilder;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
+import org.openl.conf.OpenConfigurationException;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.Log;

@@ -9,8 +9,7 @@ package org.openl.conf;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.OpenConfigurationException;
-import org.openl.binding.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionsUtil;
 

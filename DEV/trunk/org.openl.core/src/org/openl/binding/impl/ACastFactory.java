@@ -8,10 +8,10 @@ package org.openl.binding.impl;
 
 import java.util.HashMap;
 
-import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
-import org.openl.conf.cache.CacheUtils;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.cache.CacheUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;

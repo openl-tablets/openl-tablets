@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl;
+package org.openl.conf;
 
 // import org.apache.commons.lang.exception.NestableException;
 import org.apache.commons.lang.exception.NestableRuntimeException;

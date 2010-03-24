@@ -16,11 +16,14 @@ import org.openl.util.text.ILocation;
  */
 public class NaryNode extends ASyntaxNode {
 
-    protected ISyntaxNode[] nodes;
+    private ISyntaxNode[] nodes;
 
     public NaryNode(String type, ILocation pos, ISyntaxNode[] nodes, IOpenSourceCodeModule module) {
+        
         super(type, pos, module);
+        
         this.nodes = nodes == null ? EMPTY : nodes;
+        
         for (int i = 0; i < this.nodes.length; i++) {
             if (this.nodes[i] != null) {
                 this.nodes[i].setParent(this);
@@ -29,17 +32,12 @@ public class NaryNode extends ASyntaxNode {
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.parser.SyntaxNode#getChild(int)
-     */
-    public ISyntaxNode getChild(int i) {
-        return nodes[i];
-    }
-
     public ISyntaxNode[] getNodes() {
         return nodes;
+    }
+    
+    public void setNodes(ISyntaxNode[] nodes) {
+        this.nodes = nodes;
     }
 
     /*
@@ -51,8 +49,13 @@ public class NaryNode extends ASyntaxNode {
         return nodes.length;
     }
 
-    public void setNodes(ISyntaxNode[] nodes) {
-        this.nodes = nodes;
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.openl.parser.SyntaxNode#getChild(int)
+     */
+    public ISyntaxNode getChild(int i) {
+        return nodes[i];
     }
 
 }

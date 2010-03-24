@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.conf.cache;
+package org.openl.cache;
 
 /**
  * @author snshor

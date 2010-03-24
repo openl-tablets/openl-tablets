@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

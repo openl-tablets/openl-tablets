@@ -3,7 +3,7 @@ package org.openl.rules.helpers.scope;
 import org.openl.OpenL;
 import org.openl.base.NamedThing;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BoundError;
+import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;

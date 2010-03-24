@@ -25,7 +25,7 @@ public class TypeBoundNode extends ABoundNode {
      * @param children
      */
     public TypeBoundNode(ISyntaxNode syntaxNode, IOpenClass type) {
-        super(syntaxNode, IBoundNode.EMPTY);
+        super(syntaxNode, new IBoundNode[0]);
         this.type = type;
     }
 

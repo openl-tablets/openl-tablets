@@ -8,7 +8,6 @@ package org.openl.conf;
 
 import java.util.Iterator;
 
-import org.openl.OpenConfigurationException;
 import org.openl.types.IOpenClass;
 import org.openl.util.CategorizedMap;
 

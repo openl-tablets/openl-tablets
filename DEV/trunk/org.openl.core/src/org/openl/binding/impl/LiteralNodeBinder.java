@@ -1,7 +1,5 @@
 /*
- * Created on May 29, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 29, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -15,11 +13,12 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class LiteralNodeBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
+
         String s = ((LiteralNode) node).getImage();
 
         if (s.equals("null")) {
@@ -34,7 +33,10 @@ public class LiteralNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Boolean.FALSE, JavaOpenClass.BOOLEAN);
         }
 
-        throw new RuntimeException("Literal <" + s + "> can not be resolved");
+        String message = String.format("Literal <%s> can not be resolved", s);
+        BindHelper.processError(message, node, bindingContext);
+
+        return new ErrorBoundNode(node);
     }
 
 }

@@ -1,7 +1,5 @@
 /*
- * Created on May 20, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 20, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -13,18 +11,19 @@ import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
+ * Defines bound node that cannot be bound successfully.
+ * 
  * @author snshor
- *
+ * 
  */
 public class ErrorBoundNode extends ABoundNode {
 
     public ErrorBoundNode(ISyntaxNode node) {
-        super(node, IBoundNode.EMPTY);
+        super(node, new IBoundNode[0]);
     }
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#assign(java.lang.Object)
      */
     @Override
@@ -34,7 +33,6 @@ public class ErrorBoundNode extends ABoundNode {
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#evaluateRuntime(org.openl.vm.IRuntimeEnv)
      */
     public Object evaluateRuntime(IRuntimeEnv env) {
@@ -43,23 +41,11 @@ public class ErrorBoundNode extends ABoundNode {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#invoke(java.lang.Object[])
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // throw new UnsupportedOperationException();
-    // }
-    //
-
-    /*
-     * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#getChild()
      */
     @Override
     public IBoundNode[] getChildren() {
-        return IBoundNode.EMPTY;
+        return new IBoundNode[0];
     }
 
     @Override
@@ -69,7 +55,6 @@ public class ErrorBoundNode extends ABoundNode {
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#getType()
      */
     public IOpenClass getType() {
@@ -78,7 +63,6 @@ public class ErrorBoundNode extends ABoundNode {
 
     /*
      * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#isLvalue()
      */
     @Override

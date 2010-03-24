@@ -37,8 +37,8 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertEquals("There is one binding error", 1, getJavaWrapper().getCompiledClass().getBindingErrors().length);
             
             assertEquals("Property with name [scope] can`t be defined on the " +
-            		"[Table] level. : org.openl.rules.table.properties.inherit.InvalidPropertyLevelException", 
-            		getJavaWrapper().getCompiledClass().getBindingErrors()[0].getMessage());
+            		"[Table] level.", 
+            		getJavaWrapper().getCompiledClass().getBindingErrors()[0].getOriginalCause().getMessage());
             
             } else {
                 fail();

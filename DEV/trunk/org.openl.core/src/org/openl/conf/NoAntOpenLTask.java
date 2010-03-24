@@ -1,6 +1,5 @@
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.util.RuntimeExceptionWrapper;
 

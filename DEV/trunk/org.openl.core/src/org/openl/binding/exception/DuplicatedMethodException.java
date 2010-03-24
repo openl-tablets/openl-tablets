@@ -4,23 +4,26 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.binding;
+package org.openl.binding.exception;
+
+import org.openl.binding.MethodUtil;
+import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
  *
  */
-public class DuplicatedVarException extends RuntimeException {
+public class DuplicatedMethodException extends RuntimeException {
     /**
      *
      */
-    private static final long serialVersionUID = 2754037692502108330L;
+    private static final long serialVersionUID = 4145939391957085009L;
     String msg;
-    String fieldName;
+    IOpenMethod method;
 
-    public DuplicatedVarException(String msg, String fieldName) {
+    public DuplicatedMethodException(String msg, IOpenMethod method) {
         this.msg = msg;
-        this.fieldName = fieldName;
+        this.method = method;
     }
 
     @Override
@@ -30,7 +33,8 @@ public class DuplicatedVarException extends RuntimeException {
             buf.append(msg);
         }
 
-        buf.append("Var ").append(fieldName);
+        buf.append("Method ");
+        MethodUtil.printMethod(method, buf);
         buf.append(" has already been defined");
         return buf.toString();
     }

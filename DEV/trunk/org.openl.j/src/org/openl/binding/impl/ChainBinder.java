@@ -1,7 +1,5 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -21,6 +19,7 @@ import org.openl.types.IOpenField;
 public class ChainBinder extends ANodeBinder {
 
     static class LongNameBuilder {
+
         ISyntaxNode node;
         IBindingContext bindingContext;
         int cnt = 0;
@@ -64,23 +63,26 @@ public class ChainBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode,
-     *      org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
+     * org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         LongNameBuilder builder = new LongNameBuilder(node, bindingContext);
-
         builder.bindName();
-
         int n = node.getNumberOfChildren();
 
         IBoundNode target = builder.targetNode;
 
         if (target == null) {
+
             if (builder.cnt > 0) {
-                throw new BoundError(node, "Can not resolve: " + builder.name, null);
+
+                String message = "Can not resolve: " + builder.name;
+                BindHelper.processError(message, node, bindingContext);
+
+                return new ErrorBoundNode(node);
+
             } else {
                 target = bindChildNode(node.getChild(0), bindingContext);
                 builder.cnt = 1;
@@ -94,7 +96,6 @@ public class ChainBinder extends ANodeBinder {
         }
 
         return target;
-
     }
 
 }

@@ -6,7 +6,6 @@
 
 package org.openl.conf;
 
-import org.openl.OpenConfigurationException;
 import org.openl.types.ITypeLibrary;
 import org.openl.types.impl.ImportTypeLibrary;
 import org.openl.util.CollectionsUtil;

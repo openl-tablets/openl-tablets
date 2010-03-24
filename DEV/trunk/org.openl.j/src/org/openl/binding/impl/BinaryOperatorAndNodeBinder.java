@@ -1,7 +1,5 @@
 /*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
+ * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
  */
 
 package org.openl.binding.impl;
@@ -22,30 +20,36 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-            throw new BoundError(node, "Binary node must have 2 subnodes", null);
+
+            BindHelper.processError("Binary node must have 2 subnodes", node, bindingContext);
+
+            return new ErrorBoundNode(node);
+            //            throw new BoundError("Binary node must have 2 subnodes", null, node);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext);
-
         IOpenClass[] types = getTypes(children);
 
         if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class)
-                && (types[1].getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
+            && (types[1].getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
+
             return new BinaryOpNodeAnd(node, children);
         }
 
         int index = node.getType().lastIndexOf('.');
-
         String methodName = node.getType().substring(index + 1);
+        IMethodCaller methodCaller = findBinaryOperatorMethodCaller(methodName, types, bindingContext);
 
-        IMethodCaller om = findBinaryOperatorMethodCaller(methodName, types, bindingContext);
+        if (methodCaller == null) {
 
-        if (om == null) {
-            throw new BoundError(node, errorMsg(methodName, types[0], types[1]));
+            String message = errorMsg(methodName, types[0], types[1]);
+            BindHelper.processError(message, node, bindingContext);
+
+            return new ErrorBoundNode(node);
+            //            throw new BoundError(errorMsg(methodName, types[0], types[1]), node);
         }
 
-        return new BinaryOpNode(node, children, om);
-
+        return new BinaryOpNode(node, children, methodCaller);
     }
 
 }
