@@ -40,13 +40,14 @@ public class ValidationAlgorithm {
     private IDTValidatedObject dtValidatedObject;
 
     private Constrainer constrainer = new Constrainer("Validation");
-    private IDTCondition[] dtCondition;
-    private IOpenMethod[] cmethods;
+    private IDTCondition[] dtConditions;
+    private IOpenMethod[] condMethods;
     private IntExpArray vars;
     private OpenL openl;    
 
     public ValidationAlgorithm(IDTValidatedObject dtValidatedObject, OpenL openl) {
         this.dtValidatedObject = dtValidatedObject;
+        this.dtConditions = dtValidatedObject.getDT().getConditionRows();
         this.openl = openl;
     }
     
@@ -65,38 +66,38 @@ public class ValidationAlgorithm {
         return null;
     }
     
-    private IOpenMethod makeCMethod(IDTCondition condition, DTAnalyzer dtan) {
+    private IOpenMethod makeConditionMethod(IDTCondition condition, DTAnalyzer dtAnalyzer) {
 
         // IOpenSourceCodeModule src = condition.getSourceCodeModule();
 
         // DecisionTable dt = dtan.getDt();
-        IOpenSourceCodeModule src = condition.getConditionEvaluator()
+        IOpenSourceCodeModule formulaSourceCode = condition.getConditionEvaluator()
                 .getFormalSourceCode(condition);
 
-        IParameterDeclaration[] pd = condition.getParams();
+        IParameterDeclaration[] paramDeclarations = condition.getParams();
 
-        IParameterDeclaration[] dtpd = dtan
+        IParameterDeclaration[] referencedSignatureParams = dtAnalyzer
                 .referencedSignatureParams(condition);
         // IMethodSignature dtsignature = dt.getSignature();
 
-        IMethodSignature newSignature = makeNewSignature(pd, dtpd, dtan);
+        IMethodSignature newSignature = makeNewSignature(paramDeclarations, referencedSignatureParams, dtAnalyzer);
 
         IOpenClass methodType = JavaOpenClass
                 .getOpenClass(IntBoolExp.class);
 
-        IOpenClass declaringClass = dtan.getDt().getDeclaringClass();
+        IOpenClass declaringClass = dtAnalyzer.getDt().getDeclaringClass();
 
         OpenMethodHeader methodHeader = new OpenMethodHeader(condition
                 .getName(), methodType, newSignature, declaringClass);
 
         IBindingContext cxt = new ModuleBindingContext(openl.getBinder()
                 .makeBindingContext(), (ModuleOpenClass) declaringClass);
-        return OpenLManager.makeMethod(openl, src, methodHeader, cxt);
+        return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, cxt);
 
     }
     
     private IntBoolExp makeExpression(int rule, int cnum, DTAnalyzer dtan) {
-        IDTCondition cond = dtCondition[cnum];
+        IDTCondition cond = dtConditions[cnum];
 
         Object[] values = cond.getParamValues()[rule];
 
@@ -104,7 +105,7 @@ public class ValidationAlgorithm {
             return new IntBoolExpConst(constrainer, true);
         }
 
-        int nargs = cmethods[cnum].getSignature().getNumberOfArguments();
+        int nargs = condMethods[cnum].getSignature().getNumberOfArguments();
 
         // /make params from vars and values
 
@@ -114,30 +115,30 @@ public class ValidationAlgorithm {
         int ndtArgs = nargs - values.length;
 
         for (int i = 0; i < nargs; i++) {
-            String name = cmethods[cnum].getSignature().getParameterName(i);
+            String name = condMethods[cnum].getSignature().getParameterName(i);
             if (i < ndtArgs) {
                 args[i] = findVar(vars, name);
             } else {
-                args[i] = transformValue(name, dtCondition[cnum],
+                args[i] = transformValue(name, dtConditions[cnum],
                         values[i - ndtArgs], dtan);
             }
 
         }
 
         Object instance = getInstance();
-        return (IntBoolExp) cmethods[cnum].invoke(instance, args, openl
+        return (IntBoolExp) condMethods[cnum].invoke(instance, args, openl
                 .getVm().getRuntimeEnv());
     }
     
     private IntBoolExp[][] makeExpressions(DTAnalyzer dtan) {
         int nrules = dtValidatedObject.getDT().getNumberOfRules();
-        IntBoolExp[][] ary = new IntBoolExp[nrules][cmethods.length];
+        IntBoolExp[][] ary = new IntBoolExp[nrules][condMethods.length];
 
         for (int i = 0; i < nrules; i++) {
-            IntBoolExp[] ruleExp = new IntBoolExp[cmethods.length];
+            IntBoolExp[] ruleExp = new IntBoolExp[condMethods.length];
             ary[i] = ruleExp;
 
-            for (int j = 0; j < cmethods.length; j++) {
+            for (int j = 0; j < condMethods.length; j++) {
                 ruleExp[j] = makeExpression(i, j, dtan);
             }
 
@@ -146,33 +147,34 @@ public class ValidationAlgorithm {
         return ary;
     }
 
-    private IMethodSignature makeNewSignature(IParameterDeclaration[] pd,
-            IParameterDeclaration[] dtpd, DTAnalyzer dtan) {
+    private IMethodSignature makeNewSignature(IParameterDeclaration[] paramDeclarations,
+            IParameterDeclaration[] referencedSignatureParams, DTAnalyzer dtan) {
+        
+        List<IParameterDeclaration> parameters = new ArrayList<IParameterDeclaration>();
+        
+        for (IParameterDeclaration paramDecl : referencedSignatureParams) {
+            IOpenClass newType = dtan.transformSignatureType(paramDecl, dtValidatedObject);
 
-        IParameterDeclaration[] pdd = new ParameterDeclaration[dtpd.length
-                + pd.length];
-
-        for (int i = 0; i < dtpd.length; i++) {
-            IOpenClass newType = dtan.transformSignatureType(dtpd[i], dtValidatedObject);
-
-            // IOpenClass newType = dtvo.getTransformer()
-            // .transformSignatureType(dtpd[i]);
             if (newType == null) {
-                newType = dtpd[i].getType();
+                newType = paramDecl.getType();
             }
-            pdd[i] = new ParameterDeclaration(newType, dtpd[i].getName(),
-                    dtpd[i].getDirection());
+            parameters.add(new ParameterDeclaration(newType, paramDecl.getName(),
+                    paramDecl.getDirection()));
         }
 
-        for (int i = 0; i < pd.length; i++) {
+        for (IParameterDeclaration paramDecl : paramDeclarations) {
             IOpenClass newType = dtValidatedObject.getTransformer()
-                    .transformParameterType(pd[i]);
-            pdd[i + dtpd.length] = newType == null ? pd[i]
-                    : new ParameterDeclaration(newType, pd[i].getName(),
-                            pd[i].getDirection());
+                    .transformParameterType(paramDecl);
+            
+            if (newType == null) {
+                parameters.add(paramDecl);
+            } else {
+                parameters.add(new ParameterDeclaration(newType, paramDecl.getName(),
+                        paramDecl.getDirection()));
+            }
         }
-
-        return new MethodSignature(pdd);
+        
+        return new MethodSignature(parameters.toArray(new IParameterDeclaration[parameters.size()]));
     }
     
     private IntExpArray makeVars(DTAnalyzer dtan) {
@@ -210,36 +212,33 @@ public class ValidationAlgorithm {
     }
 
     public DTValidationResult validateDT() {
-        DecisionTable dt = dtValidatedObject.getDT();
-
-        dtCondition = dt.getConditionRows();
-
+        DecisionTable decisionTable = dtValidatedObject.getDT();
+        
         IConditionSelector conditionSelector = dtValidatedObject.getSelector();
 
         if (conditionSelector != null) {
-            dtCondition = OpenIterator.fromArray(dtCondition).select(conditionSelector).asList().toArray(
+            dtConditions = OpenIterator.fromArray(dtConditions).select(conditionSelector).asList().toArray(
                     new IDTCondition[0]);
         }
 
-        if (dtCondition.length == 0) {
-            return new DTValidationResult(dt, new DTOverlapping[0],
+        if (dtConditions.length == 0) {
+            return new DTValidationResult(decisionTable, new DTOverlapping[0],
                     new DTUncovered[0]);
         }
 
-        DTAnalyzer dtAnalyzer = new DTAnalyzer(dt);
+        DTAnalyzer dtAnalyzer = new DTAnalyzer(decisionTable);
 
-        for (int i = 0; i < dtCondition.length; i++) {
-            if (dtAnalyzer.containsFormula(dtCondition[i])) {
-                return new DTValidationResult(dt, new DTOverlapping[0],
+        for (IDTCondition dtCondition :dtConditions) {
+            if (dtAnalyzer.containsFormula(dtCondition)) {
+                return new DTValidationResult(decisionTable, new DTOverlapping[0],
                         new DTUncovered[0]);
             }
-
         }
 
-        cmethods = new IOpenMethod[dtCondition.length];
+        condMethods = new IOpenMethod[dtConditions.length];
 
-        for (int i = 0; i < dtCondition.length; i++) {
-            cmethods[i] = makeCMethod(dtCondition[i], dtAnalyzer);
+        for (int i = 0; i < dtConditions.length; i++) {
+            condMethods[i] = makeConditionMethod(dtConditions[i], dtAnalyzer);
         }
 
         vars = makeVars(dtAnalyzer);
