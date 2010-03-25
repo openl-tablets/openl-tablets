@@ -387,7 +387,7 @@ public class TableEditorModel {
             }
         }
 
-        othertables = v.toArray(new GridTable[0]);
+        othertables = v.toArray(new GridTable[v.size()]);
     }
     
     /**     

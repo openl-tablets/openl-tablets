@@ -20,8 +20,4 @@ public class IntRangeCellEditor implements ICellEditor {
         return typeResponse;
     }
 
-    public ICellEditorServerPart getServerPart() {
-        return null;
-    }
-
 }

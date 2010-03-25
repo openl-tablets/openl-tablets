@@ -1,11 +1,13 @@
 package org.openl.rules.ui;
 
 public interface IProjectTypes {
-    static final String PT_WORKSHEET = "worksheet",
-                        PT_WORKBOOK = "workbook", 
-                        PT_WORDDOC = "word document", 
-                        PT_TABLE = "table", 
-                        PT_TABLE_GROUP = "table group",
-                        PT_PROBLEM = "problem", 
-                        PT_FOLDER = "folder";
+
+    String PT_WORKSHEET = "worksheet";
+    String PT_WORKBOOK = "workbook";
+    String PT_WORDDOC = "word document";
+    String PT_TABLE = "table";
+    String PT_TABLE_GROUP = "table group";
+    String PT_PROBLEM = "problem";
+    String PT_FOLDER = "folder";
+
 }
