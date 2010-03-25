@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.base.INamedThing;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.error.BoundError;
+import org.openl.binding.error.IBoundError;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
@@ -66,6 +67,7 @@ import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.error.ASyntaxNodeError;
 import org.openl.syntax.error.ISyntaxError;
 import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -481,6 +483,13 @@ public class ObjectViewer {
 
         if (t instanceof ISyntaxError) {
             ISyntaxError se = (ISyntaxError) t;
+
+            displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
+            return buf;
+        }
+        
+        if (t instanceof ASyntaxNodeError) {
+            IBoundError se = (IBoundError) t;
 
             displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
             return buf;
