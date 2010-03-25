@@ -124,6 +124,19 @@
     </resources>
   </build>
 
+  <reporting>
+     <plugins>
+       <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>findbugs-maven-plugin</artifactId>
+         <configuration>
+            <timeout>6000000</timeout>
+            <excludeFilterFile>${basedir}/findbugs-exclude.xml</excludeFilterFile>
+         </configuration>
+        </plugin>
+      </plugins>
+  </reporting> 
+
   <dependencies>
     <dependency>
       <groupId>org.openl</groupId>
