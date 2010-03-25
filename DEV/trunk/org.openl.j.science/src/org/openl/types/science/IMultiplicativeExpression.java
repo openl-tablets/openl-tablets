@@ -15,40 +15,40 @@ import java.util.Iterator;
  */
 
 public interface IMultiplicativeExpression {
-    public IMultiplicativeExpression add(IMultiplicativeExpression im) throws RuntimeException;
+    IMultiplicativeExpression add(IMultiplicativeExpression im) throws RuntimeException;
 
-    public IMultiplicativeExpression changeScalar(double newScalar);
+    IMultiplicativeExpression changeScalar(double newScalar);
 
-    public IMultiplicativeExpression divide(IMultiplicativeExpression im);
+    IMultiplicativeExpression divide(IMultiplicativeExpression im);
 
     /**
      * Returns number of different dimensions it has
      *
      * @return
      */
-    public int getDimensionCount();
+    int getDimensionCount();
 
-    public IDimensionPower getDimensionPower(IDimension id);
+    IDimensionPower getDimensionPower(IDimension id);
 
-    public Iterator getDimensionsPowers();
+    Iterator getDimensionsPowers();
 
     /**
      * Return scalar part of the expression
      *
      * @return
      */
-    public double getScalar();
+    double getScalar();
 
-    public IMultiplicativeExpression multiply(IMultiplicativeExpression im);
+    IMultiplicativeExpression multiply(IMultiplicativeExpression im);
 
-    public IMultiplicativeExpression negate();
+    IMultiplicativeExpression negate();
 
-    public String printAs(IMultiplicativeExpression asUnit, String image);
+    String printAs(IMultiplicativeExpression asUnit, String image);
 
-    public String printAs(IMultiplicativeExpression asUnit, String image, int doubleDidgits);
+    String printAs(IMultiplicativeExpression asUnit, String image, int doubleDidgits);
 
-    public String printInSystem(IMeasurementSystem system, int doubleDigits);
+    String printInSystem(IMeasurementSystem system, int doubleDigits);
 
-    public IMultiplicativeExpression subtract(IMultiplicativeExpression im) throws RuntimeException;
+    IMultiplicativeExpression subtract(IMultiplicativeExpression im) throws RuntimeException;
 
 }

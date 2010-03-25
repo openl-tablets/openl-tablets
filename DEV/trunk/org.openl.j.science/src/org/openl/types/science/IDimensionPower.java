@@ -12,8 +12,9 @@ package org.openl.types.science;
  * Interface for providing rational dimension powers
  */
 public interface IDimensionPower {
-    public IDimension getDimension();
+    
+    IDimension getDimension();
 
-    public int getPower();
+    int getPower();
 
 }

@@ -11,5 +11,5 @@ package org.openl.types.science;
  *
  */
 public interface IUnit extends IMultiplicativeExpression {
-    public String getName();
+    String getName();
 }
