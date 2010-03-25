@@ -5,12 +5,7 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
 public class TextCellEditor implements ICellEditor {
 
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        EditorTypeResponse typeResponse = new EditorTypeResponse(CE_TEXT);
-        return typeResponse;
-    }
-
-    public ICellEditorServerPart getServerPart() {
-        return null;
+        return new EditorTypeResponse(CE_TEXT);
     }
 
 }

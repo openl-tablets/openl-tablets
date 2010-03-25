@@ -39,10 +39,6 @@ public class ComboBoxCellEditor implements ICellEditor {
         return typeResponse;
     }
 
-    public ICellEditorServerPart getServerPart() {
-        return null;
-    }
-    
     public static class ComboBoxParam {
 
         private String[] choices;

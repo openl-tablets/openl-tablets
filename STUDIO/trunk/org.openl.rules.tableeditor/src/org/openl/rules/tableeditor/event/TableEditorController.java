@@ -56,7 +56,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 }
             } catch (Exception e) {
                 tmResponse.setStatus("Internal server error");
-                e.printStackTrace();
+                LOG.error("Internal server error", e);
             }
             return pojo2json(tmResponse);
         }
@@ -79,7 +79,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 }
             } catch (Exception e) {
                 tmResponse.setStatus("Internal server error");
-                e.printStackTrace();
+                LOG.error("Internal server error", e);
             }
             return pojo2json(tmResponse);
         }
@@ -114,7 +114,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 param = Integer.parseInt(requestParam);
             }
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            LOG.error("Error when trying to get param", e);
         }
         return param;
     }
@@ -143,11 +143,10 @@ public class TableEditorController extends BaseTableEditorController implements 
         int col = getCol();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            if (row >= 0 && col >= 0) {
-                editorModel.removeRows(1, row, col);
-                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
-            }
+        if (editorModel != null
+                && row >= 0 && col >= 0) {
+            editorModel.removeRows(1, row, col);
+            return pojo2json(new TableModificationResponse(render(editorId), editorModel));
         }
         return null;
     }
@@ -157,11 +156,10 @@ public class TableEditorController extends BaseTableEditorController implements 
         int row = getRow();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            if (col >= 0 && row >= 0) {
-                editorModel.removeColumns(1, col, row);
-                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
-            }
+        if (editorModel != null
+                && col >= 0 && row >= 0) {
+            editorModel.removeColumns(1, col, row);
+            return pojo2json(new TableModificationResponse(render(editorId), editorModel));
         }
         return null;
     }
