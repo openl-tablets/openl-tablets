@@ -11,14 +11,14 @@ package org.openl.types.science;
  *
  */
 public interface IDerivedConstants extends IBasicConstants {
-    public static final IMultiplicativeExpression mph = mi.divide(h);
+    IMultiplicativeExpression MPH = MI.divide(H);
 
-    public static final IMultiplicativeExpression m2 = m.multiply(m);
+    IMultiplicativeExpression M2 = M.multiply(M);
 
-    public static final IMultiplicativeExpression m3 = m.multiply(m.multiply(m));
+    IMultiplicativeExpression M3 = M.multiply(M.multiply(M));
 
-    public static final IMultiplicativeExpression l = cm.multiply(cm.multiply(cm)).changeScalar(1000);
+    IMultiplicativeExpression L = CM.multiply(CM.multiply(CM)).changeScalar(1000);
 
-    public static final IMeasurementSystem METRIC = MeasurementSystem.METRIC;
+    IMeasurementSystem METRIC = MeasurementSystem.METRIC;
 
 }

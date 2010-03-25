@@ -12,33 +12,24 @@ package org.openl.types.science;
  */
 public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
     static class MetricSystem extends MeasurementSystem {
-
-        /**
-         * @param name
-         * @param baseMassUnit
-         * @param baseDistanceUnit
-         * @param baseTimeUnit
-         * @param massUnits
-         * @param distanceUnits
-         * @param timeUnits
-         */
+        
         public MetricSystem() {
-            super("metric", kg, m, s, new MassUnit[] { t, kg, g, mg }, new DistanceUnit[] { km, m, cm, mm },
-                    new TimeUnit[] { week, day, h, min, s, ms, mks });
+            super("metric", kg, M, S, new MassUnit[] { t, kg, g, mg }, new DistanceUnit[] { KM, M, CM, MM },
+                    new TimeUnit[] { WEEK, DAY, H, MIN, S, MS, MKS });
         }
 
     }
-    static public final MeasurementSystem METRIC = new MetricSystem();
-    String name;
-    MassUnit baseMassUnit;
+    public static final MeasurementSystem METRIC = new MetricSystem();
+    private String name;
+    private MassUnit baseMassUnit;
 
-    DistanceUnit baseDistanceUnit;
-    TimeUnit baseTimeUnit;
-    MassUnit[] massUnits;
+    private DistanceUnit baseDistanceUnit;
+    private TimeUnit baseTimeUnit;
+    private MassUnit[] massUnits;
 
-    DistanceUnit[] distanceUnits;
+    private DistanceUnit[] distanceUnits;
 
-    TimeUnit[] timeUnits;
+    private TimeUnit[] timeUnits;
 
     public MeasurementSystem(String name, MassUnit baseMassUnit, DistanceUnit baseDistanceUnit, TimeUnit baseTimeUnit,
             MassUnit[] massUnits, DistanceUnit[] distanceUnits, TimeUnit[] timeUnits) {
@@ -51,23 +42,14 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
         this.distanceUnits = distanceUnits;
     }
 
-    /**
-     * @return
-     */
     public DistanceUnit getBaseDistanceUnit() {
         return baseDistanceUnit;
     }
-
-    /**
-     * @return
-     */
+    
     public MassUnit getBaseMassUnit() {
         return baseMassUnit;
     }
-
-    /**
-     * @return
-     */
+    
     public TimeUnit getBaseTimeUnit() {
         return baseTimeUnit;
     }
@@ -75,31 +57,19 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
     public String getDisplayName(int mode) {
         return name;
     }
-
-    /**
-     * @return
-     */
+    
     public DistanceUnit[] getDistanceUnits() {
         return distanceUnits;
     }
-
-    /**
-     * @return
-     */
+    
     public MassUnit[] getMassUnits() {
         return massUnits;
     }
-
-    /**
-     * @return
-     */
+    
     public String getName() {
         return name;
     }
 
-    /**
-     * @return
-     */
     public TimeUnit[] getTimeUnits() {
         return timeUnits;
     }
