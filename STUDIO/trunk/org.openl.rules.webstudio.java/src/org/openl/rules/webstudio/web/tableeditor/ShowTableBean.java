@@ -28,7 +28,6 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.syntax.error.ISyntaxError;
 import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.util.StringTool;
 
