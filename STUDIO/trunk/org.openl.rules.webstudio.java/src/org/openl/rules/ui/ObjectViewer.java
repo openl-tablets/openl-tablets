@@ -19,11 +19,10 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.base.INamedThing;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.error.BoundError;
-import org.openl.binding.error.IBoundError;
+import org.openl.error.IOpenLError;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
-import org.openl.meta.OpenLRuntimeExceptionWithMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.data.String2DataConvertorFactory;
@@ -67,8 +66,6 @@ import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ASyntaxNodeError;
-import org.openl.syntax.error.ISyntaxError;
 import org.openl.syntax.error.ISyntaxNodeError;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -83,77 +80,11 @@ import org.openl.util.text.TextInfo;
  * @author snshor
  */
 public class ObjectViewer {
+
     private static final Log LOG = LogFactory.getLog(ObjectViewer.class);
-    
-    private static class GridWithNode {
-        IGridTable gridTable;
-        TableSyntaxNode tableSyntaxNode;
-
-        private GridWithNode(IGridTable gridTable, TableSyntaxNode tableSyntaxNode) {
-            this.gridTable = gridTable;
-            this.tableSyntaxNode = tableSyntaxNode;
-        }
-    }
-
-    private static class LinkMaker implements IGridFilter, IGridSelector {
-
-        private String url;
-
-        private TableValueFilter dataAdapter;
-
-        public LinkMaker(TableValueFilter dataAdapter) {
-            super();
-            this.dataAdapter = dataAdapter;
-        }
-
-        public FormattedCell filterFormat(FormattedCell cell) {
-
-            String fontStyle = WebTool.fontToHtml(cell.getFont(), new StringBuilder()).toString();
-
-            cell.setFormattedValue("<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
-                    + cell.getFormattedValue() + "</a>");
-            return cell;
-        }
-        public IGridSelector getGridSelector() {
-            return this;
-        }
-
-        private String makeUrl(int col, int row, TableValueFilter dataAdapter) {
-            Object obj = dataAdapter.getCellValue(col, row);
-
-            if (obj == null || !(obj instanceof DoubleValue)) {
-                return null;
-            }
-
-            DoubleValue dv = (DoubleValue) obj;
-            if (Math.abs(dv.doubleValue()) < 0.005) {
-                return null;
-            }
-
-            return getURL(dv);
-        }
-
-        public Object parse(String value) {
-            return value;
-        }
-
-        public boolean selectCoords(int col, int row) {
-            url = makeUrl(col, row, dataAdapter);
-
-            return url != null;
-        }
-
-        public AXlsFormatter getFormatter() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-    }
-
-    // public ObjectViewer() {}
 
     private ProjectModel projectModel;
-    
+
     /**
      * session is needed for method {@link #canModifyCurrentProject()}
      */
@@ -296,8 +227,6 @@ public class ObjectViewer {
     public String displayDoubleValueWithExplanation(DoubleValue dv, String clazz) {
         NumberFormat format = new DecimalFormat(dv.getFormat());
         return "<a href=\"" + getURL(dv) + "\"" + (clazz == null ? "" : " class=\"" + clazz + "\"") + ">"
-        // + new
-                // String2DataConvertorFactory.String2DoubleConvertor().format(dv,dv.getFormat())
                 + format.format(dv) + "</a>";
     }
 
@@ -312,8 +241,6 @@ public class ObjectViewer {
         if (res.getOverlappings().length == 0 && res.getUncovered().length == 0) {
             return makeExcelLink(gt, "<b>Table is Complete and has no Overlappings</b>", buf).toString();
         }
-
-        // makeExcelLink(gt, "Show Table In Excel", buf);
 
         buf.append("<p/>");
 
@@ -463,7 +390,7 @@ public class ObjectViewer {
 
             for (int i = 1; i < tt.length; i++) {
                 if (tt[i] instanceof OpenLRuntimeException || tt[i] instanceof SyntaxNodeException
-                        || tt[i] instanceof BoundError || tt[i] instanceof OpenLRuntimeExceptionWithMetaInfo) {
+                        || tt[i] instanceof BoundError) {
                     return displayException(tt[i], buf);
                 }
             }
@@ -474,22 +401,13 @@ public class ObjectViewer {
 
             Throwable cause = ExceptionUtils.getRootCause(ort);
 
-            // String msg = tt.getMessage();
-
             displayErrorAndCode(cause, srcLocation, syntaxNode.getModule(), buf);
             return buf;
 
         }
 
-        if (t instanceof ISyntaxError) {
-            ISyntaxError se = (ISyntaxError) t;
-
-            displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
-            return buf;
-        }
-        
-        if (t instanceof ASyntaxNodeError) {
-            IBoundError se = (IBoundError) t;
+        if (t instanceof IOpenLError) {
+            IOpenLError se = (IOpenLError) t;
 
             displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
             return buf;
@@ -501,20 +419,6 @@ public class ObjectViewer {
 
             for (int i = 0; i < err.length; i++) {
                 displayErrorAndCode((Throwable) err[i], err[i].getLocation(), err[i].getSourceModule(), buf);
-            }
-
-            return buf;
-        }
-
-        if (t instanceof OpenLRuntimeExceptionWithMetaInfo) {
-            displayNonOpenlException(t, buf);
-            OpenLRuntimeExceptionWithMetaInfo omi = (OpenLRuntimeExceptionWithMetaInfo) t;
-            IMetaHolder[] holders = omi.getHolders();
-            String[] descrs = omi.optionalDescriptions();
-            for (int i = 0; i < holders.length; i++) {
-                buf.append("<p/>");
-                String descr = descrs == null ? String.valueOf(holders[i]) : descrs[i];
-                displayMetaHolder(holders[i], descr, buf);
             }
 
             return buf;
@@ -761,8 +665,6 @@ public class ObjectViewer {
                     buf.append("<img src='webresource/images/test_ok.gif'/>").append(displayResult(tt.getResult(i)));
                     break;
                 case TestResult.TR_EXCEPTION:
-                    // buf.append("<img
-                    // src='webresource/images/test_exception.gif'>");
                     displayException((Throwable) tt.getResult(i), buf);
                     break;
                 case TestResult.TR_NEQ:
@@ -770,7 +672,6 @@ public class ObjectViewer {
                     break;
             }
 
-            // .append(displayResult(tt.getResult(i), expl))
             buf.append("</td>");
 
             buf.append("</tr>\n");
@@ -829,12 +730,6 @@ public class ObjectViewer {
 
         ColorFilterHolder cf = projectModel == null ? new ColorFilterHolder() : projectModel.getFilterHolder();
         return new ColorGridFilter(new RegionGridSelector(regions, true), cf.makeFilter());
-
-        // return ColorGridFilter.makeTransparentFilter(new RegionGridSelector(
-        // regions, true), 0.7, 0x00ff00);
-
-        // return new RuleTracerCellFilter(rtt);
-
     }
 
     private void makeXlsOrDocUrl(String uri, StringBuffer buf) {
@@ -854,6 +749,71 @@ public class ObjectViewer {
 
     public void setSession(HttpSession session) {
         this.session = session;
+    }
+
+    private static class GridWithNode {
+        IGridTable gridTable;
+        TableSyntaxNode tableSyntaxNode;
+
+        private GridWithNode(IGridTable gridTable, TableSyntaxNode tableSyntaxNode) {
+            this.gridTable = gridTable;
+            this.tableSyntaxNode = tableSyntaxNode;
+        }
+    }
+
+    private static class LinkMaker implements IGridFilter, IGridSelector {
+
+        private String url;
+
+        private TableValueFilter dataAdapter;
+
+        public LinkMaker(TableValueFilter dataAdapter) {
+            super();
+            this.dataAdapter = dataAdapter;
+        }
+
+        public FormattedCell filterFormat(FormattedCell cell) {
+
+            String fontStyle = WebTool.fontToHtml(cell.getFont(), new StringBuilder()).toString();
+
+            cell.setFormattedValue("<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
+                    + cell.getFormattedValue() + "</a>");
+            return cell;
+        }
+        public IGridSelector getGridSelector() {
+            return this;
+        }
+
+        private String makeUrl(int col, int row, TableValueFilter dataAdapter) {
+            Object obj = dataAdapter.getCellValue(col, row);
+
+            if (obj == null || !(obj instanceof DoubleValue)) {
+                return null;
+            }
+
+            DoubleValue dv = (DoubleValue) obj;
+            if (Math.abs(dv.doubleValue()) < 0.005) {
+                return null;
+            }
+
+            return getURL(dv);
+        }
+
+        public Object parse(String value) {
+            return value;
+        }
+
+        public boolean selectCoords(int col, int row) {
+            url = makeUrl(col, row, dataAdapter);
+
+            return url != null;
+        }
+
+        public AXlsFormatter getFormatter() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
 
 }

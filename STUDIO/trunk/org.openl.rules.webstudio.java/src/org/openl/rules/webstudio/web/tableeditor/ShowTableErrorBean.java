@@ -11,8 +11,7 @@ public class ShowTableErrorBean {
     }
 
     private String getElementKey() {
-        String elementKey = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        return elementKey;
+        return FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
     }
 
     public String getError() {
