@@ -14,6 +14,7 @@ import org.openl.rules.dt.IDTCondition;
 import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 
@@ -59,7 +60,7 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         return this;
     }
 
-    private IDomainAdaptor makeDomain(IDomain<?> domain) {
+    private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {
         if (domain instanceof EnumDomain) {
             return new EnumDomainAdaptor(((EnumDomain<?>) domain));
         }
@@ -69,6 +70,11 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
             return new IntRangeDomainAdaptor(irange);
 
         }
+        
+        if (domain instanceof JavaEnumDomain)
+        {
+            return new JavaEnumDomainAdaptor((JavaEnumDomain)domain);
+        }    
 
         return null;
     }
@@ -77,18 +83,18 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         return new HashMap<String, IDomainAdaptor>();
     }
 
-    public IntVar makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
+    public IntVar makeSignatureVar(String parameterName, IOpenClass class1, Constrainer c) {
         IDomainAdaptor domain = getDomains().get(parameterName);
         if (domain == null) {
-            if (paramType.getDomain() != null) {
-                domain = makeDomain(paramType.getDomain());
-            } else if (paramType.getInstanceClass() == boolean.class || paramType.getInstanceClass() == Boolean.class) {
-                return constrainer.addIntBoolVar(parameterName);
+            if (class1.getDomain() != null) {
+                domain = makeDomainAdaptor(class1.getDomain());
+            } else if (class1.getInstanceClass() == boolean.class || class1.getInstanceClass() == Boolean.class) {
+                return c.addIntBoolVar(parameterName);
             }
         }
 
         if (domain != null) {
-            return constrainer.addIntVar(domain.getMin(), domain.getMax(), parameterName);
+            return c.addIntVar(domain.getMin(), domain.getMax(), parameterName);
         }
 
         Log.warn("Parameter " + parameterName + " has no domain");
@@ -98,13 +104,21 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
     }
 
     public IOpenClass transformParameterType(IParameterDeclaration pd) {
-        if (pd.getType().getInstanceClass() == String.class) {
+        Class<?> c = pd.getType().getInstanceClass();
+        
+        if (c == String.class) {
             return JavaOpenClass.INT;
         }
 
-        if (pd.getType().getInstanceClass() == IntRange.class) {
+        if (c == IntRange.class) {
             return JavaOpenClass.getOpenClass(CtrIntRange.class);
         }
+        
+        if (c.isEnum()) {
+            return JavaOpenClass.INT;
+        }
+
+        
         return null;
     }
 
@@ -126,7 +140,7 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         // }
 
         if (domain != null) {
-            IDomainAdaptor domainAdaptor = makeDomain(domain);
+            IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
             return new Integer(domainAdaptor.getIndex(value));
         }
 
@@ -146,6 +160,10 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
 
         if (c == boolean.class || c == Boolean.class) {
             return JavaOpenClass.getOpenClass(IntBoolVar.class);
+        }
+        
+        if (c.isEnum()) {
+            return JavaOpenClass.getOpenClass(IntExp.class);
         }
 
         return null;
@@ -167,7 +185,7 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
             return intValue;
         }
 
-        IDomainAdaptor domainAdaptor = makeDomain(domain);
+        IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
 
         if (domain != null) {
             return domainAdaptor.getValue(intValue);

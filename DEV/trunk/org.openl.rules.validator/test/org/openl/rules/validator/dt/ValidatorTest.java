@@ -1,13 +1,15 @@
 package org.openl.rules.validator.dt;
 
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.Test;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 
-@Ignore
+
 public class ValidatorTest extends TestHelperValidator{
     
     private static String __src = "test/rules/Test.xls";
@@ -17,8 +19,16 @@ public class ValidatorTest extends TestHelperValidator{
     }
     
     @Test
-    public void test() {
+    public void testOk()
+    {
         String tableName = "Rules String validationOK(TestValidationEnum1 value1, TestValidationEnum2 value2)";
+        __testTable(tableName);
+        tableName = "Rules String validationGap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
+        __testTable(tableName);
+    }
+    
+    
+    private void __testTable(String tableName) {
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -29,6 +39,7 @@ public class ValidatorTest extends TestHelperValidator{
             
             DecisionTable dt = (DecisionTable) resultTsn.getMember();
             try {
+                System.out.println("Validating " + tableName);
                 DTValidationResult dtr = DTValidator.validateDT(dt, null, getJavaWrapper().getOpenClass());
                 
                 if (dtr.hasProblems()) {
@@ -44,4 +55,5 @@ public class ValidatorTest extends TestHelperValidator{
             fail();
         }
     }
+
 }
