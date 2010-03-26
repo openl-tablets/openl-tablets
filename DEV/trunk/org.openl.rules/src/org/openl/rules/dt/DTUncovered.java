@@ -11,12 +11,8 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DTUncovered {
 
-    ArrayOfNamedValues values;
+    private ArrayOfNamedValues values;
 
-    /**
-     * @param values
-     *
-     */
     public DTUncovered(ArrayOfNamedValues values) {
         this.values = values;
     }

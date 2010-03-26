@@ -77,18 +77,18 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         return new HashMap<String, IDomainAdaptor>();
     }
 
-    public IntVar makeSignatureVar(String parameterName, IOpenClass class1, Constrainer c) {
+    public IntVar makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
         IDomainAdaptor domain = getDomains().get(parameterName);
         if (domain == null) {
-            if (class1.getDomain() != null) {
-                domain = makeDomain(class1.getDomain());
-            } else if (class1.getInstanceClass() == boolean.class || class1.getInstanceClass() == Boolean.class) {
-                return c.addIntBoolVar(parameterName);
+            if (paramType.getDomain() != null) {
+                domain = makeDomain(paramType.getDomain());
+            } else if (paramType.getInstanceClass() == boolean.class || paramType.getInstanceClass() == Boolean.class) {
+                return constrainer.addIntBoolVar(parameterName);
             }
         }
 
         if (domain != null) {
-            return c.addIntVar(domain.getMin(), domain.getMax(), parameterName);
+            return constrainer.addIntVar(domain.getMin(), domain.getMax(), parameterName);
         }
 
         Log.warn("Parameter " + parameterName + " has no domain");

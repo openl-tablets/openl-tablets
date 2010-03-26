@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
@@ -30,10 +31,10 @@ import com.exigen.ie.constrainer.IntBoolExpConst;
 import com.exigen.ie.constrainer.IntExp;
 import com.exigen.ie.constrainer.IntExpArray;
 import com.exigen.ie.constrainer.IntVar;
+import com.exigen.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
 import com.exigen.ie.constrainer.consistencyChecking.DTCheckerImpl;
 import com.exigen.ie.constrainer.consistencyChecking.Overlapping;
 import com.exigen.ie.constrainer.consistencyChecking.Uncovered;
-import com.exigen.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
 
 public class ValidationAlgorithm {
     
@@ -57,7 +58,6 @@ public class ValidationAlgorithm {
                 return vars2.elementAt(i);
             }
         }
-
         return null;
     }
     
@@ -66,37 +66,30 @@ public class ValidationAlgorithm {
         return null;
     }
     
-    private IOpenMethod makeConditionMethod(IDTCondition condition, DTAnalyzer dtAnalyzer) {
+    private IOpenMethod makeConditionMethod(IDTCondition condition, DTAnalyzer dtAnalyzer) {        
+        IMethodSignature newSignature = getNewSignature(condition, dtAnalyzer);
+        IOpenClass methodType = JavaOpenClass.getOpenClass(IntBoolExp.class);
+        IOpenClass declaringClass = dtAnalyzer.getDt().getDeclaringClass();
+        String conditionName = condition.getName();
 
-        // IOpenSourceCodeModule src = condition.getSourceCodeModule();
+        OpenMethodHeader methodHeader = new OpenMethodHeader(conditionName, methodType, newSignature, declaringClass);
 
-        // DecisionTable dt = dtan.getDt();
-        IOpenSourceCodeModule formulaSourceCode = condition.getConditionEvaluator()
-                .getFormalSourceCode(condition);
+        IBindingContext cxt = new ModuleBindingContext(openl.getBinder().makeBindingContext(), 
+                (ModuleOpenClass) declaringClass);
+        
+        IOpenSourceCodeModule formulaSourceCode = condition.getConditionEvaluator().getFormalSourceCode(condition);
+        return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, cxt);
+    }
 
+    private IMethodSignature getNewSignature(IDTCondition condition, DTAnalyzer dtAnalyzer) {
         IParameterDeclaration[] paramDeclarations = condition.getParams();
 
-        IParameterDeclaration[] referencedSignatureParams = dtAnalyzer
-                .referencedSignatureParams(condition);
-        // IMethodSignature dtsignature = dt.getSignature();
-
-        IMethodSignature newSignature = makeNewSignature(paramDeclarations, referencedSignatureParams, dtAnalyzer);
-
-        IOpenClass methodType = JavaOpenClass
-                .getOpenClass(IntBoolExp.class);
-
-        IOpenClass declaringClass = dtAnalyzer.getDt().getDeclaringClass();
-
-        OpenMethodHeader methodHeader = new OpenMethodHeader(condition
-                .getName(), methodType, newSignature, declaringClass);
-
-        IBindingContext cxt = new ModuleBindingContext(openl.getBinder()
-                .makeBindingContext(), (ModuleOpenClass) declaringClass);
-        return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, cxt);
-
+        IParameterDeclaration[] referencedSignatureParams = dtAnalyzer.referencedSignatureParams(condition);
+                
+        return makeNewSignature(paramDeclarations, referencedSignatureParams, dtAnalyzer);
     }
     
-    private IntBoolExp makeExpression(int rule, int cnum, DTAnalyzer dtan) {
+    private IntBoolExp makeExpression(int rule, int cnum, DTAnalyzer dtAnalyzer) {
         IDTCondition cond = dtConditions[cnum];
 
         Object[] values = cond.getParamValues()[rule];
@@ -120,30 +113,26 @@ public class ValidationAlgorithm {
                 args[i] = findVar(vars, name);
             } else {
                 args[i] = transformValue(name, dtConditions[cnum],
-                        values[i - ndtArgs], dtan);
+                        values[i - ndtArgs], dtAnalyzer);
             }
-
         }
-
         Object instance = getInstance();
         return (IntBoolExp) condMethods[cnum].invoke(instance, args, openl
                 .getVm().getRuntimeEnv());
     }
     
-    private IntBoolExp[][] makeExpressions(DTAnalyzer dtan) {
-        int nrules = dtValidatedObject.getDT().getNumberOfRules();
-        IntBoolExp[][] ary = new IntBoolExp[nrules][condMethods.length];
+    private IntBoolExp[][] makeExpressions(DTAnalyzer dtAnalyzer) {
+        int numRules = dtValidatedObject.getDT().getNumberOfRules();
+        IntBoolExp[][] ary = new IntBoolExp[numRules][condMethods.length];
 
-        for (int i = 0; i < nrules; i++) {
+        for (int i = 0; i < numRules; i++) {
             IntBoolExp[] ruleExp = new IntBoolExp[condMethods.length];
             ary[i] = ruleExp;
 
             for (int j = 0; j < condMethods.length; j++) {
-                ruleExp[j] = makeExpression(i, j, dtan);
+                ruleExp[j] = makeExpression(i, j, dtAnalyzer);
             }
-
         }
-
         return ary;
     }
 
@@ -172,36 +161,27 @@ public class ValidationAlgorithm {
                 parameters.add(new ParameterDeclaration(newType, paramDecl.getName(),
                         paramDecl.getDirection()));
             }
-        }
-        
+        }        
         return new MethodSignature(parameters.toArray(new IParameterDeclaration[parameters.size()]));
     }
     
-    private IntExpArray makeVars(DTAnalyzer dtan) {
-
-        List<IntExp> v = new ArrayList<IntExp>();
-
-        // IMethodSignature dtsign = dtvo.getDT().getSignature();
-
-        // int nargs = dtan.getNumberOfDTSignatureParams();
-
-        for (Iterator<DTParamDescription> iterator = dtan.dtparams(); iterator
-                .hasNext();) {
-            DTParamDescription dtp = iterator.next();
-
-            String vname = dtp.getOriginalDeclaration().getName();
-
-            IntVar var = dtValidatedObject.getTransformer().makeSignatureVar(vname,
-                    dtp.getOriginalDeclaration().getType(), constrainer);
+    private IntExpArray makeVars(DTAnalyzer dtAnalyzer) {
+        List<IntExp> vars = new ArrayList<IntExp>();
+        
+        for (Iterator<DTParamDescription> iterator = dtAnalyzer.dtparams(); iterator.hasNext();) {
+            DTParamDescription dtParamDescr = iterator.next();
+            String varName = dtParamDescr.getOriginalDeclaration().getName();            
+            IOpenClass varType = dtParamDescr.getOriginalDeclaration().getType();
+            
+            IntVar var = dtValidatedObject.getTransformer().makeSignatureVar(varName, varType, constrainer);
+            
             if (var != null) {
-                v.add(var);
+                vars.add(var);
             } else {
-                throw new RuntimeException("Could not create domain for "
-                        + vname);
+                throw new OpenLRuntimeException(String.format("Could not create domain for %s", varName));
             }
         }
-
-        IntExpArray iary = new IntExpArray(constrainer, v);
+        IntExpArray iary = new IntExpArray(constrainer, vars);
         return iary;
     }
     
