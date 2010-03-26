@@ -313,7 +313,9 @@ public class JavaOpenClass extends AOpenClass {
         if (res == null) {
             if (c.isInterface()) {
                 res = new JavaOpenInterface(c, null);
-            } else {
+            } else if (c.isEnum())
+                res = new JavaOpenEnum(c, null);
+            else {
                 res = new JavaOpenClass(c, null);
             }
 
