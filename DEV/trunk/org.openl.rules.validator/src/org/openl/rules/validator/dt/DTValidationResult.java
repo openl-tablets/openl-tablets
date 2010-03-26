@@ -38,32 +38,32 @@ public class DTValidationResult implements IValidationResult {
         uncovered = convertUncovered(un, transformer, dtan);
     }
     
-    private DTOverlapping[] convertOverlappings(Overlapping[] ov, IConditionTransformer transformer, DTAnalyzer dtan) {
-        DTOverlapping[] ov2 = new DTOverlapping[ov.length];
-        for (int i = 0; i < ov.length; i++) {
-            String[] names = ov[i].getSolutionNames();
+    private DTOverlapping[] convertOverlappings(Overlapping[] overlaps, IConditionTransformer transformer, DTAnalyzer dtAnalyzer) {
+        DTOverlapping[] dtOverlaps = new DTOverlapping[overlaps.length];
+        for (int i = 0; i < overlaps.length; i++) {
+            String[] names = overlaps[i].getSolutionNames();
             Object[] values = new Object[names.length];
             for (int j = 0; j < values.length; j++) {
-                values[j] = transformer.transformSignatureValueBack(names[j], ov[i].getSolutionValues()[j], dtan);
+                values[j] = transformer.transformSignatureValueBack(names[j], overlaps[i].getSolutionValues()[j], dtAnalyzer);
             }
 
-            ov2[i] = new DTOverlapping(ov[i].getOverlapped(), new ArrayOfNamedValues(names, values));
+            dtOverlaps[i] = new DTOverlapping(overlaps[i].getOverlapped(), new ArrayOfNamedValues(names, values));
         }
-        return ov2;
+        return dtOverlaps;
     }
     
-    private DTUncovered[] convertUncovered(Uncovered[] un, IConditionTransformer transformer, DTAnalyzer dtan) {
-        DTUncovered[] un2 = new DTUncovered[un.length];
-        for (int i = 0; i < un.length; i++) {
-            String[] names = un[i].getSolutionNames();
+    private DTUncovered[] convertUncovered(Uncovered[] uncovered, IConditionTransformer transformer, DTAnalyzer dtan) {
+        DTUncovered[] dtUncovered = new DTUncovered[uncovered.length];
+        for (int i = 0; i < uncovered.length; i++) {
+            String[] names = uncovered[i].getSolutionNames();
             Object[] values = new Object[names.length];
             for (int j = 0; j < values.length; j++) {
-                values[j] = transformer.transformSignatureValueBack(names[j], un[i].getSolutionValues()[j], dtan);
+                values[j] = transformer.transformSignatureValueBack(names[j], uncovered[i].getSolutionValues()[j], dtan);
             }
 
-            un2[i] = new DTUncovered(new ArrayOfNamedValues(names, values));
+            dtUncovered[i] = new DTUncovered(new ArrayOfNamedValues(names, values));
         }
-        return un2;
+        return dtUncovered;
     }
 
     public DecisionTable getDT() {

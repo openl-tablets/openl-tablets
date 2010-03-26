@@ -12,10 +12,10 @@ public class ConditionAnalyzer {
     }
 
     public IDomain<?> getParameterDomain(String parameterName) {
-        IParameterDeclaration[] pdd = condition.getParams();
-        for (int i = 0; i < pdd.length; i++) {
-            if (pdd[i].getName().equals(parameterName)) {
-                return pdd[i].getType().getDomain();
+        IParameterDeclaration[] parametersDeclaration = condition.getParams();
+        for (IParameterDeclaration paramDeclaration : parametersDeclaration) {        
+            if (paramDeclaration.getName().equals(parameterName)) {
+                return paramDeclaration.getType().getDomain();
             }
         }
         return null;

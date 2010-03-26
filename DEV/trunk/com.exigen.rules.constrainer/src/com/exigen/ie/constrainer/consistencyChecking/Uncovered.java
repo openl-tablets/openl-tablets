@@ -1,5 +1,9 @@
 package com.exigen.ie.constrainer.consistencyChecking;
 
+import java.util.HashMap;
+import com.exigen.ie.constrainer.IntExpArray;
+import com.exigen.ie.constrainer.consistencyChecking.DTChecker.Utils;
+
 /**
  * <p>Title: </p>
  * <p>Description: Representation of a point in the space of states not covered by any rule</p>
@@ -8,12 +12,6 @@ package com.exigen.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-
-import java.util.HashMap;
-
-import com.exigen.ie.constrainer.IntExpArray;
-import com.exigen.ie.constrainer.consistencyChecking.DTChecker.Utils;
-
 public class Uncovered {
     protected String[] _solutionNames = null;
     protected int[] _solutionValues = null;

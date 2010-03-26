@@ -82,16 +82,13 @@ public class DTAnalyzer {
     }
 
     public IParameterDeclaration[] referencedSignatureParams(IDecisionRow row) {
-        IMethodSignature methodSignature = decisionTable.getSignature();
-
         CompositeMethod method = (CompositeMethod) row.getMethod();
-
         BindingDependencies bindingDependecies = new BindingDependencies();
-
         method.updateDependency(bindingDependecies);
-
+        
+        IMethodSignature methodSignature = decisionTable.getSignature();
         List<IParameterDeclaration> paramDeclarations = new ArrayList<IParameterDeclaration>();
-
+        
         for (Iterator<IOpenField> iter = bindingDependecies.getFieldsMap().values().iterator(); iter.hasNext();) {
             IOpenField openField = iter.next();
 

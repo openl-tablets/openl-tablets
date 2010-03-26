@@ -22,69 +22,69 @@ public interface IntBoolExp extends IntExp {
     /**
      * Returns the boolean expression: <code>(this && value)</code>
      */
-    public IntBoolExp and(boolean value);
+    IntBoolExp and(boolean value);
 
     /**
      * Returns the boolean expression: <code>(this && exp)</code>
      */
-    public IntBoolExp and(IntBoolExp exp);
+    IntBoolExp and(IntBoolExp exp);
 
     /**
      * Returns the Constraint that corresponds to this expression.
      */
-    public Constraint asConstraint();
+    Constraint asConstraint();
 
-    public IntBoolExp eq(boolean b);
+    IntBoolExp eq(boolean b);
 
     /**
      * Returns the boolean expression: <code>(this -> value)</code>
      */
-    public IntBoolExp implies(boolean value);
+    IntBoolExp implies(boolean value);
 
     /**
      * Returns the boolean expression: <code>(this -> exp)</code>
      */
-    public IntBoolExp implies(IntBoolExp exp);
+    IntBoolExp implies(IntBoolExp exp);
 
     /**
      * Returns true if the expression is false. Note: this is not equals to
      * <code>!isTrue()</code>
      */
-    public boolean isFalse();
+    boolean isFalse();
 
     /**
      * Returns true if the expression is true. Note: this is not equals to
      * <code>!isFalse()</code>
      */
-    public boolean isTrue();
+    boolean isTrue();
 
     /**
      * Returns the boolean expression: <code>(!this)</code>
      */
-    public IntBoolExp not();
+    IntBoolExp not();
 
     /**
      * Returns the boolean expression: <code>(this || value)</code>
      */
-    public IntBoolExp or(boolean value);
+    IntBoolExp or(boolean value);
 
     /**
      * Returns the boolean expression: <code>(this || exp)</code>
      */
-    public IntBoolExp or(IntBoolExp exp);
+    IntBoolExp or(IntBoolExp exp);
 
     /**
      * Sets the expression to be false.
      *
      * @throws Failure if expression is bound to be true.
      */
-    public void setFalse() throws Failure;
+    void setFalse() throws Failure;
 
     /**
      * Sets the expression to be true.
      *
      * @throws Failure if expression is bound to be false.
      */
-    public void setTrue() throws Failure;
+    void setTrue() throws Failure;
 
 } // ~IntBoolExp
