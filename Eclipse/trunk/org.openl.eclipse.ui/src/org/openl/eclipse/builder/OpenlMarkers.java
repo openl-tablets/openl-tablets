@@ -20,7 +20,7 @@ import org.openl.eclipse.base.OpenlBasePlugin;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
@@ -51,14 +51,14 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
         addMarker(resource, url, message, severity, start, end, line);
     }
 
-    public static void addMarker(IResource resource, ISyntaxNodeError error, String openl, int severity) {
+    public static void addMarker(IResource resource, SyntaxNodeException error, String openl, int severity) {
         Throwable t = error.getOriginalCause();
 
         String message;
 
         if (t != null) {
-            if (t instanceof SyntaxNodeException) {
-                addMarkers(resource, (SyntaxNodeException) t, openl);
+            if (t instanceof CompositeSyntaxNodeException) {
+                addMarkers(resource, (CompositeSyntaxNodeException) t, openl);
                 return;
             }
 
@@ -102,8 +102,8 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
         }
     }
 
-    public static void addMarkers(IResource resource, SyntaxNodeException sex, String openl) {
-        ISyntaxNodeError[] errors = sex.getErrors();
+    public static void addMarkers(IResource resource, CompositeSyntaxNodeException sex, String openl) {
+        SyntaxNodeException[] errors = sex.getErrors();
 
         for (int i = 0; i < errors.length; i++) {
             // TODO severity

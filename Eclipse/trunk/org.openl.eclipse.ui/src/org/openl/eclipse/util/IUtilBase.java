@@ -7,7 +7,7 @@
 package org.openl.eclipse.util;
 
 import org.eclipse.core.runtime.CoreException;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 
@@ -44,7 +44,7 @@ public interface IUtilBase extends IUtilConstants {
     /**
      * Generic message extractor.
      */
-    public String getMessage(ISyntaxNodeError error);
+    public String getMessage(SyntaxNodeException error);
 
     /**
      * Generic message extractor.
