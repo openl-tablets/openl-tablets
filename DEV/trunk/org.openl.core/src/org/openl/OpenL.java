@@ -8,6 +8,7 @@ package org.openl;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.cache.CacheUtils;
 import org.openl.conf.IOpenLBuilder;
@@ -40,15 +41,13 @@ public class OpenL {
 
     private static OpenLConfigurator config = new OpenLConfigurator();
 
-    private static HashMap<Object, OpenL> openlCache = new HashMap<Object, OpenL>();
+    private static Map<Object, OpenL> openlCache = new HashMap<Object, OpenL>();
 
     private IOpenParser parser;
 
     private IOpenBinder binder;
 
     private IOpenVM vm;
-
-    private IUserContext userContext;
 
     private ICompileContext compileContext;
 
@@ -159,7 +158,6 @@ public class OpenL {
     private static OpenL createInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
 
         OpenL openl = builder.build(name);
-        openl.userContext = userContext;
         openl.setName(name);
 
         return openl;
@@ -260,15 +258,6 @@ public class OpenL {
      */
     public void setParser(IOpenParser parser) {
         this.parser = parser;
-    }
-
-    /**
-     * Gets user context which associated with current OpenL instance.
-     * 
-     * @return {@link IUserContext} instance
-     */
-    public IUserContext getUserContext() {
-        return userContext;
     }
 
     /**

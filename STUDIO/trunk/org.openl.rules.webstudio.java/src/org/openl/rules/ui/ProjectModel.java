@@ -1127,7 +1127,7 @@ public class ProjectModel {
 
         try {
 
-            cl = wrapperInfo.getProjectInfo().getClassLoader(this.getClass().getClassLoader(), reload);
+            cl = wrapperInfo.getProjectInfo().getClassLoader(this.getClass().getClassLoader());
 
             c = cl.loadClass(wrapperInfo.getWrapperClassName());
         } catch (Throwable t) {
