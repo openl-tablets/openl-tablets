@@ -1,5 +1,8 @@
 package org.openl.cache;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 public final class GenericKey {
     
     private Object[] objects;
@@ -8,36 +11,25 @@ public final class GenericKey {
         this.objects = obj;
     }
 
-    public boolean compare(Object[] anObj) {
-    
-        for (int i = 0; i < anObj.length; i++) {
-            
-            if (!objects[i].equals(anObj[i])) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-
     @Override
     public boolean equals(Object x) {
-        
-        if (x != null && x instanceof GenericKey) {
-            return objects.length == ((GenericKey) x).objects.length && compare(((GenericKey) x).objects);
+        if(!(x instanceof GenericKey)){
+            return false;
         }
-        
-        return false;
+        GenericKey anotherKey = (GenericKey)x;
+        EqualsBuilder equalsBuilder = new EqualsBuilder();
+        for (int i = 0; i < objects.length; i++) {
+            equalsBuilder.append(objects[i], anotherKey.objects[i]);
+        }
+        return equalsBuilder.isEquals();
     }
 
     @Override
     public int hashCode() {
-        
-        int x = 17;
-
+        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
         for (int i = 0; i < objects.length; i++) {
-            x += objects[i].hashCode() + 37;
+            hashCodeBuilder.append(objects[i]);
         }
-        return x;
+        return hashCodeBuilder.toHashCode();
     }
 }
