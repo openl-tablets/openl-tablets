@@ -59,8 +59,7 @@ import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ASyntaxNodeError;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -196,11 +195,11 @@ public class ProjectModel {
         root.getElements().put(new NodeKey(0, errName), errorFolder);
         
         for (int i = 0; i < parsingErrorsNum; i++) {
-            addError((ASyntaxNodeError) comp.getParsingErrors()[i], errorFolder, i);
+            addError((SyntaxNodeException) comp.getParsingErrors()[i], errorFolder, i);
         }
         
         for (int i = 0; i < bindingErrorsNum; i++) {
-            addError((ASyntaxNodeError) comp.getBindingErrors()[i], errorFolder, i + parsingErrorsNum);
+            addError((SyntaxNodeException) comp.getBindingErrors()[i], errorFolder, i + parsingErrorsNum);
         }
         
         int parsAndBindErrorsSum = parsingErrorsNum + bindingErrorsNum;
@@ -208,12 +207,12 @@ public class ProjectModel {
             for (int i = 0; i < validationErrorsNum; ++i) {
                 Throwable t = validationExceptions.get(i);
 
-                if (t instanceof SyntaxNodeException) {
-                    SyntaxNodeException se = (SyntaxNodeException) t;
-                    ISyntaxNodeError[] errors = se.getErrors();
+                if (t instanceof CompositeSyntaxNodeException) {
+                    CompositeSyntaxNodeException se = (CompositeSyntaxNodeException) t;
+                    SyntaxNodeException[] errors = se.getErrors();
 
                     for (int j = 0; j < errors.length; j++) {
-                        addError((ASyntaxNodeError) errors[j], errorFolder, ++parsAndBindErrorsSum);
+                        addError((SyntaxNodeException) errors[j], errorFolder, ++parsAndBindErrorsSum);
                     }
 
                 } else {
@@ -525,21 +524,21 @@ public class ProjectModel {
         return displayName;
     }
 
-    public ISyntaxNodeError[] getErrors(String elementUri) {
+    public SyntaxNodeException[] getErrors(String elementUri) {
         
         TableSyntaxNode tsn = getNode(elementUri);
-        ISyntaxNodeError[] se = null;
+        SyntaxNodeException[] se = null;
 
         if (tsn != null) {
             se = tsn.getErrors();
         }
 
-        return se == null ? new ISyntaxNodeError[0] : se;
+        return se == null ? new SyntaxNodeException[0] : se;
     }
     
     public boolean hasErrors(String elementUri) {
         
-        ISyntaxNodeError[] se = getErrors(elementUri);
+        SyntaxNodeException[] se = getErrors(elementUri);
         
         return se.length > 0;
     }
@@ -1183,7 +1182,7 @@ public class ProjectModel {
         TableSyntaxNode tsn = getNode(elementUri);
         ObjectViewer objViewer = new ObjectViewer(this);
         objViewer.setSession(session);
-        ISyntaxNodeError[] se = tsn.getErrors();
+        SyntaxNodeException[] se = tsn.getErrors();
         if (se != null) {
             return objViewer.displayResult(se);
         }
