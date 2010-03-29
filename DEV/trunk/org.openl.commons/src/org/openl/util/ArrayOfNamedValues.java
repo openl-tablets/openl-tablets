@@ -8,8 +8,8 @@ package org.openl.util;
  */
 public class ArrayOfNamedValues {
 
-    String[] names;
-    Object[] values;
+    private String[] names;
+    private Object[] values;
 
     public ArrayOfNamedValues(String[] names, Object[] values) {
         this.names = names;

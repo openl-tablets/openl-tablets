@@ -20,7 +20,7 @@ import org.openl.base.NameSpacedThing;
  */
 public interface IType extends INameSpacedThing {
 
-    static public class AnyThing extends NameSpacedThing implements IType {
+    class AnyThing extends NameSpacedThing implements IType {
 
         private AnyThing() {
             super("Any", "http://domain.openl.org");
@@ -39,15 +39,14 @@ public interface IType extends INameSpacedThing {
         }
     }
 
-    static public final AnyThing ANY = new AnyThing();
+    AnyThing ANY = new AnyThing();
 
     /**
      * Provides type validation(usually by constraining type)
      *
      * @return
      */
-
-    public IDomain<?> getDomain();
+    IDomain<?> getDomain();
 
     /**
      *
@@ -56,7 +55,6 @@ public interface IType extends INameSpacedThing {
      *         (T1.isAssignableFrom(T2) AND T2.isInstance(x)) ->
      *         T1.isInstance(x)
      */
-
     boolean isAssignableFrom(IType type);
 
     /**
@@ -66,7 +64,6 @@ public interface IType extends INameSpacedThing {
      * Please note how it is similar to selector or domain methods
      *
      */
-
     boolean isInstance(Object obj);
 
     // TODO static public class JavaType implements IType

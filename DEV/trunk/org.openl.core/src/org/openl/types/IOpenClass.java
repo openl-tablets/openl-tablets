@@ -26,16 +26,16 @@ import org.openl.vm.IRuntimeEnv;
 
 public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMetaHolder {
 
-    public static final IOpenClass[] EMPTY = {};
+    IOpenClass[] EMPTY = {};
 
     /**
      * @return an iterator of all the fieldValues
      */
-    public Iterator<IOpenField> fields();
+    Iterator<IOpenField> fields();
 
-    public IAggregateInfo getAggregateInfo();
+    IAggregateInfo getAggregateInfo();
 
-    public IOpenField getField(String name);
+    IOpenField getField(String name);
 
     /**
      * This method returns a class field by it's name; in case of strictMatch
@@ -50,7 +50,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @return
      * @since 5.0
      */
-    public IOpenField getField(String name, boolean strictMatch);
+    IOpenField getField(String name, boolean strictMatch);
 
     IOpenField getIndexField();
 
@@ -58,36 +58,35 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @return the actual Java implementation of the instance, should return
      *         primitive classes in case of int, char etc.
      */
+    Class<?> getInstanceClass();
 
-    public Class<?> getInstanceClass();
-
-    public IOpenMethod getMethod(String name, IOpenClass[] classes);
+    IOpenMethod getMethod(String name, IOpenClass[] classes);
 
     /**
      * @return the schema it has been created with
      */
-    public IOpenSchema getSchema();
+    IOpenSchema getSchema();
 
     // ********* instance related methods ***********//
 
     /**
      * @return true if the instance of the class can not be created
      */
-    public boolean isAbstract();
+    boolean isAbstract();
 
     /**
      * @param c Class to check
      * @return true if the instance of corresponding Class class belongs to the
      *         open class.
      */
-    public boolean isAssignableFrom(Class<?> c);
+    boolean isAssignableFrom(Class<?> c);
 
     /**
      * @param ioc IOpenClass to check
      * @return true if the instance of corresponding IOpenClass class belongs to
      *         the open class.
      */
-    public boolean isAssignableFrom(IOpenClass ioc);
+    boolean isAssignableFrom(IOpenClass ioc);
 
     /**
      * @return true if instance is one of the class or it's superclasses.
@@ -95,7 +94,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      *         Java spec says that a corresponding method of java.lang.Class
      *         will return false in case of primitive types.
      */
-    public boolean isInstance(Object instance);
+    boolean isInstance(Object instance);
 
     /**
      * This is analog of Java Class.isPrimitive(). We have a little bit
@@ -115,23 +114,19 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      *
      * @return
      */
+    boolean isSimple();
 
-    public boolean isSimple();
+    Iterator<IOpenMethod> methods();
 
-    /**
-     * @return
-     */
-    public Iterator<IOpenMethod> methods();
+    Object newInstance(IRuntimeEnv env);
 
-    public Object newInstance(IRuntimeEnv env);
-
-    public Object nullObject();
+    Object nullObject();
 
     /**
      * We do not have a limitation on number of superclasses. This feature is
      * not fully supported yet
      */
-    public Iterator<IOpenClass> superClasses();
+    Iterator<IOpenClass> superClasses();
     
     /**
 	 * Add new type to internal types list. If the type with the same name

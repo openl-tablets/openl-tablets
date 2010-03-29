@@ -11,14 +11,14 @@ import java.util.Iterator;
  *
  */
 public interface IFiniteDomain<T> extends IDomain<T> {
-    static final public int UNKNOWN_SIZE = -1;
+    int UNKNOWN_SIZE = -1;
 
-    static final public int REALLY_BIG = Integer.MAX_VALUE;
+    int REALLY_BIG = Integer.MAX_VALUE;
 
     /**
      * @return iterator over domain
      */
-    public Iterator<T> iterator();
+    Iterator<T> iterator();
 
     /**
      * @return the maximum size of the domain, guaranteed to be no less than
@@ -26,21 +26,19 @@ public interface IFiniteDomain<T> extends IDomain<T> {
      *         presented as a positive integer, return REALLY_BIG
      *
      */
-
-    public int maxSize();
+    int maxSize();
 
     /**
      * @return the minimum size of the domain, guaranteed to be no more than
      *         actual size; in case when min size is not known return 0
      *
      */
-
-    public int minSize();
+    int minSize();
 
     /**
      *
      * @return the exact size of the domain, or UNKNOWN_SIZE
      */
-    public int size();
+    int size();
 
 }

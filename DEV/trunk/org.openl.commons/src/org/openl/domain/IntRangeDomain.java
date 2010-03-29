@@ -11,24 +11,16 @@ import java.util.Iterator;
  * @author snshor
  */
 public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDomain {
-    class RangeIterator extends AIntIterator {
-        int current;
+    private class RangeIterator extends AIntIterator {
+        private int current;
 
         RangeIterator() {
             current = min - 1;
         }
 
-        /**
-         *
-         */
-
         public boolean hasNext() {
             return current < max;
         }
-
-        /**
-         *
-         */
 
         public int nextInt() {
             return ++current;
@@ -38,7 +30,6 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
         public int size() {
             return max - min + 1;
         }
-
     }
 
     protected int min, max;
@@ -75,16 +66,10 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
         return null;
     }
 
-    /**
-     * @return
-     */
     public int getMax() {
         return max;
     }
 
-    /**
-     * @return
-     */
     public int getMin() {
         return min;
     }
@@ -98,10 +83,6 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
 
         return hashCode;
     }
-
-    /**
-     *
-     */
 
     public IIntIterator intIterator() {
         return new RangeIterator();
@@ -133,10 +114,6 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
     protected void setMin(int min) {
         this.min = min;
     }
-
-    /**
-     *
-     */
 
     public int size() {
         return max - min + 1;

@@ -14,5 +14,5 @@ import org.openl.base.INamedThing;
  */
 public interface IOpenClassHolder extends INamedThing {
 
-    public IOpenClass getOpenClass();
+    IOpenClass getOpenClass();
 }

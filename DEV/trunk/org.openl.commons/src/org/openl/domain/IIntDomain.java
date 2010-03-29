@@ -9,14 +9,14 @@ package org.openl.domain;
  * @author snshor
  */
 public interface IIntDomain {
-    public boolean contains(int value);
+    boolean contains(int value);
 
-    public int getMax();
+    int getMax();
 
-    public int getMin();
+    int getMin();
 
     IIntIterator intIterator();
 
-    public int size();
+    int size();
 
 }

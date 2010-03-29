@@ -6,10 +6,9 @@ import org.openl.domain.FixedSizeDomain;
 import org.openl.domain.IType;
 import org.openl.util.OpenIterator;
 
-public class JavaEnumDomain extends  FixedSizeDomain<Object> {
-
+public class JavaEnumDomain extends FixedSizeDomain<Object> {
     
-    JavaOpenEnum enumClass;
+    private JavaOpenEnum enumClass;
     
     public JavaEnumDomain(JavaOpenEnum enumClass) {
         this.enumClass = enumClass;
@@ -39,10 +38,5 @@ public class JavaEnumDomain extends  FixedSizeDomain<Object> {
     public Object getValue(int index) {
         return enumClass.getInstanceClass().getEnumConstants()[index];
     }
-
-
-
-
-
 
 }

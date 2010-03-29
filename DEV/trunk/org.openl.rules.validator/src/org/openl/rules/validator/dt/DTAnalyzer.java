@@ -45,18 +45,17 @@ public class DTAnalyzer {
         this.decisionTable = decisionTable;
         conditionAnalyzers = new HashMap<IDecisionRow, ConditionAnalyzer>();
         IDTCondition[] dtConditionRows = decisionTable.getConditionRows();
-        for (int i = 0; i < dtConditionRows.length; i++) {
-            conditionAnalyzers.put(dtConditionRows[i], new ConditionAnalyzer(dtConditionRows[i]));
+        for (IDTCondition dtConditionRow : dtConditionRows) {
+            conditionAnalyzers.put(dtConditionRow, new ConditionAnalyzer(dtConditionRow));
         }
     }
 
-    public boolean containsFormula(IDecisionRow row) {
+    public boolean containsFormula(IDecisionRow row) {        
         Object[][] paramValues = row.getParamValues();
         for (int i = 0; i < paramValues.length; i++) {
-            if (paramValues[i] != null) {
-                Object[] paramvalue = paramValues[i];
-                for (int j = 0; j < paramvalue.length; j++) {
-                    if (paramvalue[j] != null && paramvalue[j] instanceof IOpenMethod) {
+            if (paramValues[i] != null) {                
+                for (Object paramValue : paramValues[i]) {
+                    if (paramValue instanceof IOpenMethod) {
                         return true;
                     }
                 }
