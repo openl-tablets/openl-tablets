@@ -17,19 +17,11 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
 
     class EnumDomainIterator extends AOpenIterator<T> {
 
-        BitSetIterator bsi = new BitSetIterator(bits);
-
-        /**
-         *
-         */
+        private BitSetIterator bsi = new BitSetIterator(bits);
 
         public boolean hasNext() {
             return bsi.hasNext();
         }
-
-        /**
-         *
-         */
 
         public T next() {
             int idx = bsi.nextInt();
@@ -37,9 +29,9 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
         }
 
     }
-    BitSet bits;
+    private BitSet bits;
 
-    Enum<T> enumeration;
+    private Enum<T> enumeration;
 
     public EnumDomain(Enum<T> enumeration, BitSet bits) {
         this.bits = bits;
@@ -59,10 +51,6 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
     public EnumDomain(T[] elements) {
         this(new Enum<T>(elements), elements);
     }
-
-    /**
-     *
-     */
 
     public EnumDomain<T> and(EnumDomain<T> sd) {
         checkOperand(sd);
@@ -90,18 +78,10 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
 
     }
 
-    /**
-     *
-     */
-
     public boolean contains(T obj) {
         int idx = enumeration.getIndex(obj);
         return bits.get(idx);
     }
-
-    /**
-     *
-     */
 
     @Override
     @SuppressWarnings("unchecked")
@@ -120,33 +100,18 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
         return null;
     }
 
-    /**
-     * @return
-     */
     public Enum<T> getEnum() {
         return enumeration;
     }
-
-    /**
-     *
-     */
 
     @Override
     public int hashCode() {
         return enumeration.hashCode() * 37 + bits.hashCode();
     }
 
-    /**
-     *
-     */
-
     public Iterator<T> iterator() {
         return new EnumDomainIterator();
     }
-
-    /**
-     *
-     */
 
     public EnumDomain<T> not() {
         int size = enumeration.size();
@@ -157,10 +122,6 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
 
         return new EnumDomain<T>(enumeration, bs);
     }
-
-    /**
-     *
-     */
 
     public EnumDomain<T> or(EnumDomain<T> sd) {
         checkOperand(sd);
@@ -186,10 +147,6 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
     public int size() {
         return bits.cardinality();
     }
-
-    /**
-     *
-     */
 
     public EnumDomain<T> sub(EnumDomain<T> sd) {
         checkOperand(sd);

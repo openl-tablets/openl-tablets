@@ -11,7 +11,7 @@ public class JavaOpenEnum extends JavaOpenClass {
     }
 
     
-    IDomain<?> domain; 
+    private IDomain<?> domain; 
     
     @Override
     public IDomain<?> getDomain() {

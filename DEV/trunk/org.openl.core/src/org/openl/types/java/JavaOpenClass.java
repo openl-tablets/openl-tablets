@@ -45,13 +45,13 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenClass extends AOpenClass {
     @SuppressWarnings("unchecked")
-    static class Class2JavaOpenClassCollector implements IConvertor<Class, IOpenClass> {
+    private static class Class2JavaOpenClassCollector implements IConvertor<Class, IOpenClass> {
         public IOpenClass convert(Class c) {
             return getOpenClass(c);
         }
     }
 
-    static class JavaArrayLengthField extends ArrayLengthOpenField {
+    private static class JavaArrayLengthField extends ArrayLengthOpenField {
         @Override
         public int getLength(Object target) {
             return Array.getLength(target);
@@ -59,8 +59,8 @@ public class JavaOpenClass extends AOpenClass {
 
     }
 
-    static class JavaClassClassField implements IOpenField {
-        Class<?> instanceClass;
+    private static class JavaClassClassField implements IOpenField {
+        private Class<?> instanceClass;
 
         public JavaClassClassField(Class<?> instanceClass) {
             this.instanceClass = instanceClass;

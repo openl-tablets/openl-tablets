@@ -2,8 +2,8 @@ package org.openl.util;
 
 public class RangeWithBounds {
 
-    Number min;
-    Number max;
+    private Number min;
+    private Number max;
 
     public RangeWithBounds(Number min, Number max) {
         super();

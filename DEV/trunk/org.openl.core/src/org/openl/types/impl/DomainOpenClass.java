@@ -7,7 +7,7 @@ import org.openl.types.IOpenClass;
 public class DomainOpenClass extends OpenClassDelegator {
 
     @SuppressWarnings("unchecked")
-    IDomain domain;
+    private IDomain domain;
 
     @SuppressWarnings("unchecked")
     public DomainOpenClass(String name, IOpenClass baseClass, IDomain domain, IMetaInfo metaInfo) {

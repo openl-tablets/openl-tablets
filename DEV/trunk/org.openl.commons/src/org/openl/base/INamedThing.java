@@ -14,42 +14,42 @@ import org.openl.util.AStringConvertor;
  *
  * Wow, almost everything has a name.
  */
-
 public interface INamedThing {
 
-    static class NameConverter<T extends INamedThing> extends AStringConvertor<INamedThing> {
-
+    class NameConverter<T extends INamedThing> extends AStringConvertor<INamedThing> {
         @Override
         public String getStringValue(INamedThing nt) {
             return nt.getName();
         }
     }
 
-    public static class NameSelector extends ASelector.StringValueSelector<INamedThing> {
+    class NameSelector extends ASelector.StringValueSelector<INamedThing> {
         public NameSelector(String value) {
             super(value, NAME_CONVERTOR);
         }
     }
 
-    static public class Tool {
-        static public INamedThing find(INamedThing[] ary, String name) {
-            for (int i = 0; i < ary.length; i++) {
-                if (ary[i].getName().equals(name)) {
-                    return ary[i];
+    class Tool {
+        public static INamedThing find(INamedThing[] ary, String name) {
+            for (INamedThing namedThing : ary) {
+                if (namedThing.getName().equals(name)) {
+                    return namedThing;
                 }
             }
             return null;
         }
     }
 
-    public static final INamedThing[] EMPTY = {};
+    INamedThing[] EMPTY = {};
 
-    static public final int SHORT = 0, REGULAR = 1, LONG = 2;
+    int SHORT = 0;
+    int REGULAR = 1;
+    int LONG = 2;
 
-    public static final NameConverter<INamedThing> NAME_CONVERTOR = new NameConverter<INamedThing>();
+    NameConverter<INamedThing> NAME_CONVERTOR = new NameConverter<INamedThing>();
 
-    public String getDisplayName(int mode);
+    String getDisplayName(int mode);
 
-    public String getName();
+    String getName();
 
 }

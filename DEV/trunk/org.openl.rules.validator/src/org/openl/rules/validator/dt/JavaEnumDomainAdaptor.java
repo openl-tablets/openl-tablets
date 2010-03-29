@@ -6,7 +6,7 @@ import com.exigen.ie.constrainer.IntVar;
 
 public class JavaEnumDomainAdaptor implements IDomainAdaptor {
 
-    JavaEnumDomain domain;
+    private JavaEnumDomain domain;
     
     public JavaEnumDomainAdaptor(JavaEnumDomain domain) {
         this.domain = domain;

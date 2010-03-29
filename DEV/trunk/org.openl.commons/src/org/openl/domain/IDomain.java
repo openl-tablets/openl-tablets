@@ -27,7 +27,7 @@ public interface IDomain<T> {
      * @param obj
      * @return true if object belongs to this domain
      */
-    public boolean selectObject(T obj);
+    boolean selectObject(T obj);
 
     /**
      *
@@ -36,6 +36,6 @@ public interface IDomain<T> {
      *         is strictly a type check, the method does not take into
      *         consideration the domain of the type
      */
-    public boolean selectType(IType type);
+    boolean selectType(IType type);
 
 }

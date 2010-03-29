@@ -29,27 +29,27 @@ import com.exigen.ie.constrainer.IntVar;
  */
 public class DTValidatedObject implements IDTValidatedObject, IConditionTransformer {
 
-    DecisionTable dt;
-    Map<String, IDomainAdaptor> domainMap;
+    private DecisionTable decisionTable;
+    private Map<String, IDomainAdaptor> domainMap;
 
-    public DTValidatedObject(DecisionTable dt) {
-        this.dt = dt;
+    public DTValidatedObject(DecisionTable decisionTable) {
+        this.decisionTable = decisionTable;
     }
 
-    public DTValidatedObject(DecisionTable dt, Map<String, IDomainAdaptor> domainMap) {
-        this.dt = dt;
+    public DTValidatedObject(DecisionTable decisionTable, Map<String, IDomainAdaptor> domainMap) {
+        this.decisionTable = decisionTable;
         this.domainMap = domainMap;
     }
 
     public synchronized Map<String, IDomainAdaptor> getDomains() {
         if (domainMap == null) {
-            domainMap = makeDomains(dt);
+            domainMap = makeDomains(decisionTable);
         }
         return domainMap;
     }
 
     public DecisionTable getDT() {
-        return dt;
+        return decisionTable;
     }
 
     public IConditionSelector getSelector() {
@@ -60,41 +60,35 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         return this;
     }
 
-    private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {
+    private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {        
+        IDomainAdaptor result = null;
         if (domain instanceof EnumDomain) {
-            return new EnumDomainAdaptor(((EnumDomain<?>) domain));
-        }
-
-        if (domain instanceof IntRangeDomain) {
+            result = new EnumDomainAdaptor(((EnumDomain<?>) domain));
+        } else if (domain instanceof IntRangeDomain) {
             IntRangeDomain irange = (IntRangeDomain) domain;
-            return new IntRangeDomainAdaptor(irange);
-
+            result = new IntRangeDomainAdaptor(irange);
+        } else if (domain instanceof JavaEnumDomain) {
+            result = new JavaEnumDomainAdaptor((JavaEnumDomain)domain);
         }
-        
-        if (domain instanceof JavaEnumDomain)
-        {
-            return new JavaEnumDomainAdaptor((JavaEnumDomain)domain);
-        }    
-
-        return null;
+        return result;
     }
 
     private Map<String, IDomainAdaptor> makeDomains(DecisionTable dt2) {
         return new HashMap<String, IDomainAdaptor>();
     }
 
-    public IntVar makeSignatureVar(String parameterName, IOpenClass class1, Constrainer c) {
+    public IntVar makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
         IDomainAdaptor domain = getDomains().get(parameterName);
         if (domain == null) {
-            if (class1.getDomain() != null) {
-                domain = makeDomainAdaptor(class1.getDomain());
-            } else if (class1.getInstanceClass() == boolean.class || class1.getInstanceClass() == Boolean.class) {
-                return c.addIntBoolVar(parameterName);
+            if (paramType.getDomain() != null) {
+                domain = makeDomainAdaptor(paramType.getDomain());
+            } else if (paramType.getInstanceClass() == boolean.class || paramType.getInstanceClass() == Boolean.class) {
+                return constrainer.addIntBoolVar(parameterName);
             }
         }
 
         if (domain != null) {
-            return c.addIntVar(domain.getMin(), domain.getMax(), parameterName);
+            return constrainer.addIntVar(domain.getMin(), domain.getMax(), parameterName);
         }
 
         Log.warn("Parameter " + parameterName + " has no domain");
@@ -147,22 +141,22 @@ public class DTValidatedObject implements IDTValidatedObject, IConditionTransfor
         return value;
     }
 
-    public IOpenClass transformSignatureType(IParameterDeclaration pd) {
+    public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration) {
 
-        Class<?> c = pd.getType().getInstanceClass();
-        if (c == String.class) {
+        Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
+        if (instanceClass == String.class) {
             return JavaOpenClass.getOpenClass(IntExp.class);
         }
 
-        if (c == int.class || c == Integer.class) {
+        if (instanceClass == int.class || instanceClass == Integer.class) {
             return JavaOpenClass.getOpenClass(IntExp.class);
         }
 
-        if (c == boolean.class || c == Boolean.class) {
+        if (instanceClass == boolean.class || instanceClass == Boolean.class) {
             return JavaOpenClass.getOpenClass(IntBoolVar.class);
         }
         
-        if (c.isEnum()) {
+        if (instanceClass.isEnum()) {
             return JavaOpenClass.getOpenClass(IntExp.class);
         }
 

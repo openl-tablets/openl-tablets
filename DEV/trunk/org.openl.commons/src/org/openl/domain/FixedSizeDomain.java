@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.openl.domain;
 
 public abstract class FixedSizeDomain<T> implements IFiniteDomain<T> {
