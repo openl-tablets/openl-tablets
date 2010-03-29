@@ -1,34 +1,34 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.table.ITable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.service.TableServiceException;
+import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.service.TableServiceException;
-import org.openl.rules.service.TableServiceImpl;
+import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.StringTool;
 
 /**
@@ -43,7 +43,7 @@ public class ShowTableBean {
     private String name;
     private boolean runnable;
     private boolean testable;
-    private ISyntaxNodeError[] se;
+    private SyntaxNodeException[] se;
     private String uri;
     private String notViewParams;
     private String paramsWithoutShowFormulas;
@@ -127,7 +127,7 @@ public class ShowTableBean {
         return paramsWithoutShowFormulas;
     }
 
-    public ISyntaxNodeError[] getSe() {
+    public SyntaxNodeException[] getSe() {
         return se;
     }
 

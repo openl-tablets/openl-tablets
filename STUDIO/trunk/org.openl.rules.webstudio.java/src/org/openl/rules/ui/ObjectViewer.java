@@ -18,8 +18,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.base.INamedThing;
 import org.openl.binding.OpenLRuntimeException;
-import org.openl.binding.error.BoundError;
-import org.openl.error.IOpenLError;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
@@ -66,7 +64,7 @@ import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -389,8 +387,8 @@ public class ObjectViewer {
             Throwable[] tt = ExceptionUtils.getThrowables(ort);
 
             for (int i = 1; i < tt.length; i++) {
-                if (tt[i] instanceof OpenLRuntimeException || tt[i] instanceof SyntaxNodeException
-                        || tt[i] instanceof BoundError) {
+                if (tt[i] instanceof OpenLRuntimeException || tt[i] instanceof CompositeSyntaxNodeException
+                        || tt[i] instanceof SyntaxNodeException) {
                     return displayException(tt[i], buf);
                 }
             }
@@ -406,16 +404,16 @@ public class ObjectViewer {
 
         }
 
-        if (t instanceof IOpenLError) {
-            IOpenLError se = (IOpenLError) t;
+        if (t instanceof SyntaxNodeException) {
+            SyntaxNodeException se = (SyntaxNodeException) t;
 
             displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
             return buf;
         }
 
-        if (t instanceof SyntaxNodeException) {
-            SyntaxNodeException se = (SyntaxNodeException) t;
-            ISyntaxNodeError[] err = se.getErrors();
+        if (t instanceof CompositeSyntaxNodeException) {
+            CompositeSyntaxNodeException se = (CompositeSyntaxNodeException) t;
+            SyntaxNodeException[] err = se.getErrors();
 
             for (int i = 0; i < err.length; i++) {
                 displayErrorAndCode((Throwable) err[i], err[i].getLocation(), err[i].getSourceModule(), buf);
