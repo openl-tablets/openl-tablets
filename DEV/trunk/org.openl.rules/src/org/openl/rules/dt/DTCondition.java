@@ -14,6 +14,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.java.JavaOpenClass;
@@ -45,7 +46,7 @@ public class DTCondition extends FunctionalRow implements IDTCondition {
     }
 
     public IMethodCaller getEvaluator() {
-        return evaluator == null ? method : evaluator;
+        return evaluator == null ? getMethod() : evaluator;
     }
 
     public boolean isAction() {
@@ -61,7 +62,7 @@ public class DTCondition extends FunctionalRow implements IDTCondition {
 
         BindingDependencies deps = new BindingDependencies();
 
-        method.updateDependency(deps);
+        ((CompositeMethod)getMethod()).updateDependency(deps);
 
         for (Iterator<IOpenField> iter = deps.getFieldsMap().values().iterator(); iter.hasNext();) {
             IOpenField f = iter.next();
@@ -82,12 +83,12 @@ public class DTCondition extends FunctionalRow implements IDTCondition {
 
     IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature) {
 
-        String code = method.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+        String code = ((CompositeMethod)getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
 
         for (int i = 0; i < signature.getNumberOfArguments(); i++) {
             String pname = signature.getParameterName(i);
             if (pname.equals(code)) {
-                return new ParameterMethodCaller(method, i);
+                return new ParameterMethodCaller(getMethod(), i);
             }
         }
 
@@ -122,7 +123,7 @@ public class DTCondition extends FunctionalRow implements IDTCondition {
             IBindingContextDelegator cxtd, RuleRow ruleRow) throws Exception {
 
         super.prepare(NullOpenClass.the, signature, openl, dtModule, cxtd, ruleRow);
-        IOpenClass methodType = method.getBodyType();
+        IOpenClass methodType = ((CompositeMethod)getMethod()).getBodyType();
         if (isDependentOnAnyParams()) {
             if (methodType != JavaOpenClass.BOOLEAN) {
                 throw new Exception("Condition must have boolean type if it depends on it's parameters");

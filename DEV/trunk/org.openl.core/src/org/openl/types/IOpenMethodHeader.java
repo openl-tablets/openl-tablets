@@ -11,5 +11,5 @@ package org.openl.types;
  *
  */
 public interface IOpenMethodHeader extends IOpenMember {
-    public IMethodSignature getSignature();
+    IMethodSignature getSignature();
 }

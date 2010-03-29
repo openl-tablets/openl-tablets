@@ -23,9 +23,6 @@ public abstract class AMethod implements IOpenMethod {
         this.header = header;
     }
 
-    /**
-     * @return
-     */
     public IOpenClass getDeclaringClass() {
         return header.getDeclaringClass();
     }
@@ -34,16 +31,10 @@ public abstract class AMethod implements IOpenMethod {
         return MethodUtil.printMethod(this, mode, false);
     }
 
-    /**
-     * @return
-     */
     public IOpenMethodHeader getHeader() {
         return header;
     }
 
-    /**
-     * @return
-     */
     public IMemberMetaInfo getInfo() {
         return header.getInfo();
     }
@@ -52,30 +43,18 @@ public abstract class AMethod implements IOpenMethod {
         return this;
     }
 
-    /**
-     * @return
-     */
     public String getName() {
         return header.getName();
     }
 
-    /**
-     * @return
-     */
     public IMethodSignature getSignature() {
         return header.getSignature();
     }
 
-    /**
-     * @return
-     */
     public IOpenClass getType() {
         return header.getType();
     }
 
-    /**
-     * @return
-     */
     public boolean isStatic() {
         return header.isStatic();
     }

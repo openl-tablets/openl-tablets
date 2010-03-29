@@ -11,7 +11,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
-public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBoundNode, IXlsTableNames {
+public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
     public AlgorithmBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(tsn, openl, header, module);
@@ -28,7 +28,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);
 
-        getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody.rows(1));
+        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.rows(1));
     }
 
     public Algorithm getAlgorithm() {

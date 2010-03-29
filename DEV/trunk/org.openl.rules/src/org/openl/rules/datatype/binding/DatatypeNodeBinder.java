@@ -8,7 +8,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -25,7 +24,7 @@ import org.openl.syntax.impl.TokenizerParser;
  * @author snshor
  * 
  */
-public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableNames {
+public class DatatypeNodeBinder extends AXlsTableBinder {
 
     static final int TYPE_INDEX = 1, TABLE_NAME_INDEX = 2;
 

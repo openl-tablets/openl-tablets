@@ -257,16 +257,18 @@ public class JavaOpenClass extends AOpenClass {
     static Map<Class<?>, IOpenClass> javaClassCache = null;
 
     @SuppressWarnings("hiding")
-    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, new Integer(0)),
-            LONG = new JavaPrimitiveClass(long.class, Long.class, new Long(0)), DOUBLE = new JavaPrimitiveClass(
-                    double.class, Double.class, new Double(0)), FLOAT = new JavaPrimitiveClass(float.class,
-                    Float.class, new Float(0)), SHORT = new JavaPrimitiveClass(short.class, Short.class, new Short(
-                    (short) 0)), CHAR = new JavaPrimitiveClass(char.class, Character.class, new Character('\0')),
-            BYTE = new JavaPrimitiveClass(byte.class, Byte.class, new Byte((byte) 0)),
-            BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE),
-            VOID = new JavaPrimitiveClass(void.class, Void.class, null), STRING = new JavaOpenClass(String.class, null,
-                    true), OBJECT = new JavaOpenClass(Object.class, null, true), CLASS = new JavaOpenClass(Class.class,
-                    null, true);
+    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, new Integer(0));
+    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, new Long(0));
+    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, new Double(0));
+    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, new Float(0));
+    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, Short.class, new Short((short) 0));
+    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class, new Character('\0'));
+    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, new Byte((byte) 0));
+    public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE);
+    public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, Void.class, null);
+    public static final JavaOpenClass STRING = new JavaOpenClass(String.class, null, true);
+    public static final JavaOpenClass OBJECT = new JavaOpenClass(Object.class, null, true);
+    public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, null, true);
 
     protected Class<?> instanceClass;
 

@@ -20,31 +20,31 @@ import org.openl.types.IParameterDeclaration;
  *
  */
 public interface IDecisionRow {
-    public DTParameterInfo findParameterInfo(String name);
+    DTParameterInfo findParameterInfo(String name);
 
-    public IOpenMethod getMethod();
+    IOpenMethod getMethod();
 
-    public String getName();
+    String getName();
 
-    public DTParameterInfo getParameterInfo(int i);
+    DTParameterInfo getParameterInfo(int i);
 
-    public String[] getParamPresentation();
+    String[] getParamPresentation();
 
     IParameterDeclaration[] getParams();
 
     // public IOpenMethod getCode();
 
-    public Object[][] getParamValues();
+    Object[][] getParamValues();
 
-    public IOpenSourceCodeModule getSourceCodeModule();
+    IOpenSourceCodeModule getSourceCodeModule();
 
-    public boolean isAction();
+    boolean isAction();
 
-    public boolean isCondition();
+    boolean isCondition();
 
-    public int numberOfParams();
+    int numberOfParams();
 
-    public void prepare(IOpenClass methodType, IMethodSignature signature, OpenL openl, ModuleOpenClass dtModule,
+    void prepare(IOpenClass methodType, IMethodSignature signature, OpenL openl, ModuleOpenClass dtModule,
             IBindingContextDelegator cxtd, RuleRow ruleRow) throws Exception;
 
 }

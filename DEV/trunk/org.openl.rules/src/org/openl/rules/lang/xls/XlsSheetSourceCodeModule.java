@@ -10,11 +10,11 @@ import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
-    String sheetName;
+    private String sheetName;
 
-    XlsWorkbookSourceCodeModule workbookSource;
+    private XlsWorkbookSourceCodeModule workbookSource;
 
-	Sheet sheet;
+	private Sheet sheet;
 
     public XlsSheetSourceCodeModule(Sheet sheet, String sheetName, XlsWorkbookSourceCodeModule workbookSource) {
         this.sheet = sheet;

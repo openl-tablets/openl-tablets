@@ -50,7 +50,8 @@ public interface IWritableGrid extends IGrid {
 
         private static final String PROPERTIES_SECTION_NAME = "properties";
         static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;        
-
+        
+        @Deprecated
         public static IExporter createExporter(IWritableGrid wGrid) {
             if (wGrid instanceof XlsSheetGridModel) {
                 return new XlsSheetGridExporter((XlsSheetGridModel) wGrid);

@@ -10,27 +10,27 @@ package org.openl.rules.lang.xls;
  */
 public interface IXlsTableNames {
 
-    static final String DECISION_TABLE = "DT";
-    static final String DECISION_TABLE2 = "Rules";
-    static final String SPREADSHEET_TABLE = "Spreadsheet";
-    static final String SPREADSHEET_TABLE2 = "Calc";
-    static final String TBASIC_TABLE = "TBasic";
-    static final String TBASIC_TABLE2 = "Algorithm";
-    static final String COLUMN_MATCH = "ColumnMatch";
-    static final String PROPERTY_TABLE = "Properties";
-    static final String METHOD_TABLE = "Code";
-    static final String METHOD_TABLE2 = "Method";
-    static final String DATA_TABLE = "Data";
-    static final String DATATYPE_TABLE = "Datatype";
-    static final String LANG_PROPERTY = "language";
-    static final String INCLUDE_TABLE = "include";
-    static final String IMPORT_PROPERTY = "import";
-    static final String VOCABULARY_PROPERTY = "vocabulary";
-    static final String ENVIRONMENT_TABLE = "Environment";
-    static final String TEST_METHOD_TABLE = "Testmethod";
-    static final String RUN_METHOD_TABLE = "Runmethod";
-    static final String PERSISTENCE_TABLE = "Persistent";
+    String DECISION_TABLE = "DT";
+    String DECISION_TABLE2 = "Rules";
+    String SPREADSHEET_TABLE = "Spreadsheet";
+    String SPREADSHEET_TABLE2 = "Calc";
+    String TBASIC_TABLE = "TBasic";
+    String TBASIC_TABLE2 = "Algorithm";
+    String COLUMN_MATCH = "ColumnMatch";
+    String PROPERTY_TABLE = "Properties";
+    String METHOD_TABLE = "Code";
+    String METHOD_TABLE2 = "Method";
+    String DATA_TABLE = "Data";
+    String DATATYPE_TABLE = "Datatype";
+    String LANG_PROPERTY = "language";
+    String INCLUDE_TABLE = "include";
+    String IMPORT_PROPERTY = "import";
+    String VOCABULARY_PROPERTY = "vocabulary";
+    String ENVIRONMENT_TABLE = "Environment";
+    String TEST_METHOD_TABLE = "Testmethod";
+    String RUN_METHOD_TABLE = "Runmethod";
+    String PERSISTENCE_TABLE = "Persistent";
 
-    static final String VIEW_BUSINESS = "view.business";
-    static final String VIEW_DEVELOPER = "view.developer";
+    String VIEW_BUSINESS = "view.business";
+    String VIEW_DEVELOPER = "view.developer";
 }

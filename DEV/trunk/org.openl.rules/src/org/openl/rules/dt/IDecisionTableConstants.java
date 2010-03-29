@@ -12,28 +12,25 @@ package org.openl.rules.dt;
  */
 public interface IDecisionTableConstants {
 
-    static final String CONDITION = "C", ACTION = "A", RULE = "RULE", RETURN = "RET";
+    String CONDITION = "C";
+    String ACTION = "A";
+    String RULE = "RULE";
+    String RETURN = "RET";
 
-    static final int INFO_COLUMN = 0, CODE_COLUMN = 1, PARAM_COLUMN = 2, PRESENTATION_COLUMN = 3, DATA_COLUMN = 4;
+    int INFO_COLUMN = 0;
+    int CODE_COLUMN = 1;
+    int PARAM_COLUMN = 2;
+    int PRESENTATION_COLUMN = 3;
+    int DATA_COLUMN = 4;
 
     /**
      * Value type constants
      */
-
-    public static final int NA_VALUE = 0, BOOLEAN_VALUE = 1, PARAMETER_VALUE = 2, DEFAULT_VALUE = 3, // true
-                                                                                                        // if
-                                                                                                        // all
-                                                                                                        // conditions
-                                                                                                        // to
-                                                                                                        // the
-                                                                                                        // left,
-                                                                                                        // except
-                                                                                                        // for
-                                                                                                        // special
-                                                                                                        // cases
-                                                                                                        // are
-                                                                                                        // false
-            NOT_VALUE = 4, // inverses previous non-special cell
-            REPEAT_VALUE = 5; // same as previous non-special cell
+    int NA_VALUE = 0;
+    int BOOLEAN_VALUE = 1;
+    int PARAMETER_VALUE = 2;
+    int DEFAULT_VALUE = 3; // true if all conditions to the left, except for special cases are false
+    int NOT_VALUE = 4; // inverses previous non-special cell
+    int REPEAT_VALUE = 5; // same as previous non-special cell
 
 }

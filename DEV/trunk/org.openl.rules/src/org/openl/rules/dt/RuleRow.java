@@ -3,8 +3,10 @@ package org.openl.rules.dt;
 import org.openl.rules.table.ILogicalTable;
 
 public class RuleRow implements IDecisionTableConstants {
-    int row;
-    ILogicalTable decisionTable;
+    
+    private int row;
+    
+    private ILogicalTable decisionTable;
 
     public RuleRow(int row, ILogicalTable table) {
         this.row = row;
@@ -15,7 +17,7 @@ public class RuleRow implements IDecisionTableConstants {
         return getValueCell(col).getGridTable().getCell(0, 0).getStringValue();
     }
 
-    ILogicalTable getValueCell(int col) {
+    private ILogicalTable getValueCell(int col) {
         return decisionTable.getLogicalRegion(col + DATA_COLUMN, row, 1, 1);
     }
 

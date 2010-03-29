@@ -26,7 +26,6 @@ import org.openl.types.IOpenMember;
 /**
  * @author snshor
  */
-
 public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     private ILogicalTable table;
@@ -47,7 +46,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
-        super(type,  pos, null, module);
+        super(type, pos, null, module);
         table = LogicalTable.logicalTable(gridtable);
         headerNode = header;
         header.setParent(this);
@@ -86,9 +85,6 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         return (GridLocation) getLocation();
     }
 
-    /**
-     * @return
-     */
     public HeaderSyntaxNode getHeader() {
         return headerNode;
     }
@@ -116,10 +112,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public Map<String, ILogicalTable> getSubTables() {
         return subTables;
     }
-
-    /**
-     * @return
-     */
+    
     public ILogicalTable getTable() {
         return table;
     }

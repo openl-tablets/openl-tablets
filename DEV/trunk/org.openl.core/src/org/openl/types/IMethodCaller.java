@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public interface IMethodCaller {
-    public IOpenMethod getMethod();
+    IOpenMethod getMethod();
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env);
+    Object invoke(Object target, Object[] params, IRuntimeEnv env);
 }

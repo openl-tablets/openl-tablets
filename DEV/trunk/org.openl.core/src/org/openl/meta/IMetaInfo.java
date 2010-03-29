@@ -1,10 +1,13 @@
 package org.openl.meta;
 
 public interface IMetaInfo {
-    static public final int SHORT = 0, REGULAR = 1, LONG = 2;
+    
+    int SHORT = 0;
+    int REGULAR = 1;
+    int LONG = 2;
 
-    public String getDisplayName(int mode);
+    String getDisplayName(int mode);
 
-    public String getSourceUrl();
+    String getSourceUrl();
 
 }

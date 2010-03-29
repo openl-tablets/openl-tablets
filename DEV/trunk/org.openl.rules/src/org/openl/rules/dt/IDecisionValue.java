@@ -11,50 +11,20 @@ package org.openl.rules.dt;
  *
  */
 public interface IDecisionValue {
+    
+    int UNDEFINED = 0;
+    int FALSE = 1;
+    int TRUE = 2;
+    int NA = 3;
+    int SPECIAL_FALSE = 4;
+    int SPECIAL_TRUE = 5;
 
-    static public class Value implements IDecisionValue {
-        int type;
-        boolean booleanValue;
-
-        boolean special;
-
-        public Value(int type, boolean booleanValue, boolean special) {
-            this.type = type;
-            this.booleanValue = booleanValue;
-            this.special = special;
-        }
-
-        /**
-         * @return
-         */
-        public boolean getBooleanValue() {
-            return booleanValue;
-        }
-
-        /**
-         * @return
-         */
-        public int getType() {
-            return type;
-        }
-
-        /**
-         * @return
-         */
-        public boolean isSpecial() {
-            return special;
-        }
-
-    }
-
-    static final public int
-
-    UNDEFINED = 0, FALSE = 1, TRUE = 2, NA = 3, SPECIAL_FALSE = 4, SPECIAL_TRUE = 5;
-
-    static final public IDecisionValue Undefined = new Value(UNDEFINED, true, true),
-
-    False = new Value(FALSE, false, false), True = new Value(TRUE, true, false), NxA = new Value(NA, true, true),
-            SpecialFalse = new Value(SPECIAL_FALSE, false, true), SpecialTrue = new Value(SPECIAL_TRUE, true, true);
+    IDecisionValue UNDEFINED_VALUE = new DecisionValue(UNDEFINED, true, true);
+    IDecisionValue FALSE_VALUE = new DecisionValue(FALSE, false, false);
+    IDecisionValue TRUE_VALUE = new DecisionValue(TRUE, true, false);
+    IDecisionValue NxA_VALUE = new DecisionValue(NA, true, true);
+    IDecisionValue SPECIAL_FALSE_VALUE = new DecisionValue(SPECIAL_FALSE, false, true);
+    IDecisionValue SPECIAL_TRUE_VALUE = new DecisionValue(SPECIAL_TRUE, true, true);
 
     boolean getBooleanValue();
 
@@ -62,4 +32,29 @@ public interface IDecisionValue {
 
     boolean isSpecial();
 
+    class DecisionValue implements IDecisionValue {
+        private int type;
+        private boolean booleanValue;
+
+        private boolean special;
+
+        public DecisionValue(int type, boolean booleanValue, boolean special) {
+            this.type = type;
+            this.booleanValue = booleanValue;
+            this.special = special;
+        }
+       
+        public boolean getBooleanValue() {
+            return booleanValue;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public boolean isSpecial() {
+            return special;
+        }
+
+    }
 }

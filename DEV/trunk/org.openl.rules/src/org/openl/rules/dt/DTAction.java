@@ -7,12 +7,13 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class DTAction extends FunctionalRow implements IDTAction {
-    boolean isReturnAction = false;
+    private boolean isReturnAction = false;
 
-    boolean isSingleReturnParam = false;
+    private boolean isSingleReturnParam = false;
 
     public DTAction(String name, int row, ILogicalTable decisionTable, boolean isReturAction) {
         super(name, row, decisionTable);
@@ -22,7 +23,7 @@ public class DTAction extends FunctionalRow implements IDTAction {
     @Override
     public Object executeAction(int col, Object target, Object[] dtParams, IRuntimeEnv env) {
         if (isSingleReturnParam) {
-            Object[] values = paramValues[col];
+            Object[] values = getParamValues()[col];
             if (values == null) {
                 return null;
             }
@@ -54,7 +55,7 @@ public class DTAction extends FunctionalRow implements IDTAction {
         IParameterDeclaration[] params = getParams();
 
         isSingleReturnParam = (params.length == 1 && params[0].getName().equals(
-                method.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode()));
+                ((CompositeMethod)getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode()));
     }
 
 }

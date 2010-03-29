@@ -22,19 +22,11 @@ public class FilteredGrid extends GridDelegator {
 
     private HashMap<CellKey, FormattedCell> formattedCells = new HashMap<CellKey, FormattedCell>();
 
-    /**
-     * @param delegate
-     */
     public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {
         super(delegate);
         this.formatFilters = formatFilters;
     }
 
-    /**
-     * @param fcell
-     * @param col
-     * @param row
-     */
     private void formatCell(FormattedCell fcell, int col, int row) {
         if (formatFilters != null) {
             for (int i = 0; i < formatFilters.length; i++) {

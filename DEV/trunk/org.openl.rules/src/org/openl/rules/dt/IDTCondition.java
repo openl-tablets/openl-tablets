@@ -8,16 +8,14 @@ import org.openl.types.IMethodSignature;
 import org.openl.vm.IRuntimeEnv;
 
 public interface IDTCondition extends IDecisionRow {
+    
     IDecisionValue calculateCondition(int col, Object target, Object[] dtParams, IRuntimeEnv env);
 
     IDTConditionEvaluator getConditionEvaluator();
-
-    /**
-     * @return
-     */
+    
     IMethodCaller getEvaluator();
 
-    public IDTConditionEvaluator prepareCondition(IMethodSignature signature, OpenL openl, ModuleOpenClass dtModule,
+    IDTConditionEvaluator prepareCondition(IMethodSignature signature, OpenL openl, ModuleOpenClass dtModule,
             IBindingContextDelegator cxtd, RuleRow ruleRow) throws Exception;
 
 }
