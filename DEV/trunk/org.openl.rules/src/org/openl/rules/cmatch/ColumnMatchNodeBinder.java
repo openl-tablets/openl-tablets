@@ -12,13 +12,14 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.impl.SyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.OpenMethodHeader;
 
 public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     private SubTextSourceCodeModule nameOfAlgorithm;
     private SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn, IOpenSourceCodeModule src,
-            int headerTokenLength) throws SyntaxError {
+            int headerTokenLength) throws SyntaxNodeException {
         String s = src.getCode();
 
         // parse '<ALGORITHM>' if it exists
@@ -37,7 +38,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
         }
 
         if (p1 < 0 || p1 > p2) {
-            throw new SyntaxError("Illegal header format!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Illegal header format!", null, tsn);
         }
 
         return new SubTextSourceCodeModule(src, p1 + 1, p2);

@@ -1,83 +1,55 @@
-/*
- * Created on Jun 9, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.syntax.exception;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.main.SourceCodeURLTool;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.util.text.ILocation;
 
-import org.openl.syntax.error.ISyntaxNodeError;
+public class SyntaxNodeException extends OpenLCompilationException {
 
+    private static final long serialVersionUID = 4448924727461016950L;
 
-/**
- * <code>SyntaxNodeException</code> is the base exception class of those
- * exceptions that can be thrown by engine during compilation process.
- * 
- * @author snshor
- */
-public class SyntaxNodeException extends RuntimeException {
+    private ISyntaxNode syntaxNode;
+    private ISyntaxNode topLevelSyntaxNode;
+//    private String phase;
 
-    private static final long serialVersionUID = 6239517302604363701L;
-
-    /**
-     * Exception message.
-     */
-    private String message;
-
-    /**
-     * Syntax errors.
-     */
-    private ISyntaxNodeError[] errors;
-
-    /**
-     * Constructs new instance of the class.
-     * 
-     * @param message message of exception
-     * @param errors syntax errors (reason of exception)
-     */
-    public SyntaxNodeException(String message, ISyntaxNodeError[] errors) {
-        super(message);
-
-        this.message = message;
-        this.errors = errors;
+    public SyntaxNodeException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
+        super(message, cause, location, source);
     }
 
-    /**
-     * Gets the exception message.
-     * 
-     * Note. Class hides the original exception message that contains error
-     * stack trace and returns his own message.
-     * 
-     * @return exception message
-     */
-    @Override
-    public String getMessage() {
+    public SyntaxNodeException(String message, Throwable cause, ISyntaxNode syntaxNode) {
+        this(message, cause, syntaxNode == null ? null : syntaxNode.getSourceLocation(), null);
 
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-
-        if (message != null) {
-            printWriter.println(message);
-        }
-
-        for (int i = 0; i < errors.length; ++i) {
-            printWriter.println(errors[i]);
-        }
-
-        printWriter.close();
-
-        return stringWriter.toString();
+        this.syntaxNode = syntaxNode;
     }
 
-    /**
-     * Gets syntax errors.
-     * 
-     * @return syntax errors
-     */
-    public ISyntaxNodeError[] getErrors() {
-        return errors;
+    public IOpenSourceCodeModule getSourceModule() {
+
+        IOpenSourceCodeModule source = super.getSourceModule();
+
+        if (source != null) {
+            return source;
+        } else if (syntaxNode != null) {
+            return syntaxNode.getModule();
+        }
+
+        return null;
+    }
+
+    public ISyntaxNode getSyntaxNode() {
+        return syntaxNode;
+    }
+
+    public void setTopLevelSyntaxNode(ISyntaxNode topLevelSyntaxNode) {
+        this.topLevelSyntaxNode = topLevelSyntaxNode;
+    }
+
+    public ISyntaxNode getTopLevelSyntaxNode() {
+        return topLevelSyntaxNode;
+    }
+
+    public String getUri() {
+        return SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule(), "");
     }
 }

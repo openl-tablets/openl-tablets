@@ -3,10 +3,11 @@ package org.openl.rules.tbasic.compile;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.error.BoundError;
 import org.openl.rules.tbasic.AlgorithmFunction;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 
 /**
@@ -37,14 +38,14 @@ public class AlgorithmFunctionCompiler {
         this.compiler = compiler;
     }
 
-    private void analyzeReturnCorrectness() throws BoundError {
+    private void analyzeReturnCorrectness() throws SyntaxNodeException {
         if (functionBody.size() > 0) {
             SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler).analyze(functionBody.get(0)
                     .getChildren());
             if (status == SuitablityAsReturn.NONE) {
                 IOpenSourceCodeModule errorSource = functionBody.get(functionBody.size() - 1).getAlgorithmRow()
                         .getOperation().asSourceCodeModule();
-                throw new BoundError("The method must return value of type '"
+                throw SyntaxNodeExceptionUtils.createError("The method must return value of type '"
                         + getReturnType().getDisplayName(INamedThing.REGULAR) + "'", errorSource);
             }
         }

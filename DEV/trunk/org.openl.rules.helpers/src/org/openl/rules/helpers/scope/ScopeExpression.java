@@ -3,11 +3,11 @@ package org.openl.rules.helpers.scope;
 import org.openl.OpenL;
 import org.openl.base.NamedThing;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -113,7 +113,7 @@ public class ScopeExpression extends NamedThing {
         return methodType;
     }
 
-    public void makeMethod(ModuleOpenClass scope, IParameterDeclaration[] params) throws BoundError {
+    public void makeMethod(ModuleOpenClass scope, IParameterDeclaration[] params) throws SyntaxNodeException {
 
         if (expression == null) {
             Log.warn("{0} does not have an expression", getName());
@@ -138,7 +138,7 @@ public class ScopeExpression extends NamedThing {
 
     }
 
-    protected IParameterDeclaration[] makeParams(IParameterDeclaration[] params) throws BoundError {
+    protected IParameterDeclaration[] makeParams(IParameterDeclaration[] params) throws SyntaxNodeException {
         return params;
     }
 
@@ -158,11 +158,11 @@ public class ScopeExpression extends NamedThing {
         this.methodType = methodType;
     }
 
-    public void validatePostconditions() throws BoundError {
+    public void validatePostconditions() throws SyntaxNodeException {
 
     }
 
-    public void validatePreconditions() throws BoundError {
+    public void validatePreconditions() throws SyntaxNodeException {
 
     }
 }

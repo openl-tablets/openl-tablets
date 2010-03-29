@@ -8,7 +8,7 @@ package org.openl.syntax.code;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * The <code>IParsedCode</code> interface is designed to provide a common
@@ -24,7 +24,7 @@ public interface IParsedCode {
      * 
      * @return syntax errors
      */
-    ISyntaxNodeError[] getErrors();
+    SyntaxNodeException[] getErrors();
 
     /**
      * Gets link to source code that was used in parsing process.

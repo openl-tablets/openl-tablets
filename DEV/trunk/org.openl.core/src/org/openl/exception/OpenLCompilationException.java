@@ -1,4 +1,4 @@
-package org.openl.error;
+package org.openl.exception;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -8,7 +8,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
-public abstract class AOpenLError extends Exception implements IOpenLError {
+public class OpenLCompilationException extends Exception {
 
     private static final long serialVersionUID = -8075090606797764194L;
 
@@ -17,21 +17,22 @@ public abstract class AOpenLError extends Exception implements IOpenLError {
     private ILocation location;
     private IOpenSourceCodeModule source;
 
-    public AOpenLError(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
+    public OpenLCompilationException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
         this.message = message;
         this.cause = cause;
         this.location = location;
         this.source = source;
     }
 
-    public AOpenLError(String message, Throwable cause, ILocation location) {
+    public OpenLCompilationException(String message, Throwable cause, ILocation location) {
         this(message, cause, location, null);
     }
 
-    public ILocation getLocation() {
-        return location;
-    }
-
+    /**
+     * Gets error message.
+     * 
+     * @return error message
+     */
     public String getMessage() {
 
         Throwable originalCause = getOriginalCause();
@@ -51,6 +52,13 @@ public abstract class AOpenLError extends Exception implements IOpenLError {
         return StringUtils.join(new Object[] { message, errorMessage }, "\n");
     }
 
+    /**
+     * Gets original cause of error. It can be <code>null</code> if cause is not
+     * java exception or java error.
+     * 
+     * @return {@link Throwable} object if cause of error is java exception or
+     *         java error; <code>null</code> - otherwise
+     */
     public Throwable getOriginalCause() {
 
         if (cause == null) {
@@ -66,6 +74,20 @@ public abstract class AOpenLError extends Exception implements IOpenLError {
         return cause;
     }
 
+    /**
+     * Gets error cause location.
+     * 
+     * @return error cause location
+     */
+    public ILocation getLocation() {
+        return location;
+    }
+
+    /**
+     * Gets source code module where the error was occurred.
+     * 
+     * @return source code module
+     */
     public IOpenSourceCodeModule getSourceModule() {
         return source;
     }
@@ -76,7 +98,7 @@ public abstract class AOpenLError extends Exception implements IOpenLError {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
-        OpenLErrorUtils.printError(this, printWriter);
+        OpenLExceptionUtils.printError(this, printWriter);
 
         printWriter.close();
 

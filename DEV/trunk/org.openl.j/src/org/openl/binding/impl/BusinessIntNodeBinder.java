@@ -5,7 +5,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.SyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -13,20 +13,20 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
 
-    private int getIntValue(Long number, ISyntaxNode node) throws SyntaxError {
+    private int getIntValue(Long number, ISyntaxNode node) throws SyntaxNodeException {
         if (number > Integer.MAX_VALUE || number < Integer.MIN_VALUE) {
             String message = String.format("Number %d is outside the valid range %d - %d",
                 number.longValue(),
                 Integer.MIN_VALUE,
                 Integer.MAX_VALUE);
-            throw new SyntaxError(message, null, node);
+            throw new SyntaxNodeException(message, null, node);
         }
 
         return number.intValue();
     }
 
     @Override
-    protected IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxError {
+    protected IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxNodeException {
         final char FRACTION_DELIMITER = '.';
 
         Long parsedNumber;

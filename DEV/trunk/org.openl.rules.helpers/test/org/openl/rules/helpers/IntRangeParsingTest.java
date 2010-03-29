@@ -3,11 +3,11 @@
  */
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 /**
  *
@@ -29,7 +29,7 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("2   +"));
     }
 
-    @Test(expected = SyntaxNodeException.class)
+    @Test(expected = CompositeSyntaxNodeException.class)
     public void testFailureParse() {
         new IntRange("--1");
     }

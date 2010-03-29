@@ -6,7 +6,7 @@ package org.openl.syntax.grammar.impl;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.syntax.impl.SyntaxTreeBuilder;
 
@@ -22,7 +22,7 @@ public abstract class Grammar implements IGrammar {
      * (non-Javadoc)
      * @see org.openl.syntax.IGrammar#getErrors()
      */
-    public ISyntaxError[] getErrors() {
+    public SyntaxNodeException[] getErrors() {
 
         return syntaxBuilder.getSyntaxErrors();
     }

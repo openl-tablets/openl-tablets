@@ -4,11 +4,12 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 
 /**
@@ -107,7 +108,7 @@ public class AlgoritmNodesCompiler {
             if (hasUnreachableCode(nodesToProcess, i)) {
                 IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1).getAlgorithmRow().getOperation()
                         .asSourceCodeModule();
-                throw new BoundError("Unreachable code. Operations after BREAK,CONTINUE not allowed.", errorSource);
+                throw SyntaxNodeExceptionUtils.createError("Unreachable code. Operations after BREAK,CONTINUE not allowed.", errorSource);
             }
 
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
@@ -133,7 +134,7 @@ public class AlgoritmNodesCompiler {
     }
 
     private Object convertParam(List<AlgorithmTreeNode> nodesToCompile, Class<? extends Object> clazz,
-            String operationParam) throws BoundError {
+            String operationParam) throws SyntaxNodeException {
         // FIXME !!!!
 
         if (clazz.equals(String.class)) {
@@ -165,7 +166,7 @@ public class AlgoritmNodesCompiler {
         } else {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
-            throw new BoundError(String.format("Compilation failure. Can't convert parameter %s to type %s",
+            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't convert parameter %s to type %s",
                     operationParam, clazz.toString()), errorSource);
         }
     }
@@ -272,7 +273,7 @@ public class AlgoritmNodesCompiler {
             if (!currentCompileContext.isLabelRegistered(labelName)) {
                 IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                         .asSourceCodeModule();
-                throw new BoundError("Such label is not available from this place: \"" + labelName + "\".", errorSource);
+                throw SyntaxNodeExceptionUtils.createError("Such label is not available from this place: \"" + labelName + "\".", errorSource);
             }
         }
         if (emittedOperations.size() > 0 && label != null) {

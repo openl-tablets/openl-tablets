@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -49,7 +49,7 @@ public class ColumnDescriptor {
     }
 
     private Object getArrayValues(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType)
-            throws BoundError {
+            throws SyntaxNodeException {
 
         if (valuesTable.getLogicalHeight() == 1 && valuesTable.getLogicalWidth() == 1) {
             return loadSingleRowArray(valuesTable, ota, paramType);
@@ -64,13 +64,13 @@ public class ColumnDescriptor {
     }
 
     private Object loadSingleRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
-            throws BoundError {
+            throws SyntaxNodeException {
 
             return getValuesArrayCommaSeparated(logicalTable, openlAdaptor, paramType);
     }
 
     private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
-            throws BoundError {
+            throws SyntaxNodeException {
 
         int valuesTableHeight = logicalTable.getLogicalHeight();
         ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
@@ -97,7 +97,7 @@ public class ColumnDescriptor {
     }
 
     private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType)
-            throws BoundError {
+            throws SyntaxNodeException {
         Object res = FunctionalRow.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable
                 .getLogicalRow(0), ota);
         return res;
@@ -172,7 +172,7 @@ public class ColumnDescriptor {
         return field.getType();
     }
 
-    public synchronized Map<String, Integer> getUniqueIndex(ITable table, int idx) throws BoundError {
+    public synchronized Map<String, Integer> getUniqueIndex(ITable table, int idx) throws SyntaxNodeException {
         if (uniqueIndex == null) {
             uniqueIndex = table.makeUniqueIndex(idx);
         }

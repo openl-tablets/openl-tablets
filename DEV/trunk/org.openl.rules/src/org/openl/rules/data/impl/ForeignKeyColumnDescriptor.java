@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.error.BoundError;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.data.IDataBase;
@@ -17,6 +16,8 @@ import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -66,7 +67,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                                          IBindingContext cxt,
                                                          ITable foreignTable,
                                                          int foreignKeyIndex,
-                                                         DomainOpenClass domainClass) throws BoundError {
+                                                         DomainOpenClass domainClass) throws SyntaxNodeException {
         int valuesHeight = valuesTable.getLogicalHeight();
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
@@ -117,11 +118,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                              ITable foreignTable,
                                              int foreignKeyIndex,
                                              ILogicalTable valueTable,
-                                             String s) throws BoundError {
+                                             String s) throws SyntaxNodeException {
         Object res = null;
         try {
             res = foreignTable.findObject(foreignKeyIndex, s, cxt);
-        } catch (BoundError ex) {
+        } catch (SyntaxNodeException ex) {
             throwIndexNotFound(valueTable, s, ex);
         }
         if (res == null) {
@@ -130,8 +131,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return res;
     }
 
-    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex) throws BoundError {
-        throw new BoundError(String.format("Index Key %s not found", src),
+    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
+        throw SyntaxNodeExceptionUtils.createError(String.format("Index Key %s not found", src),
             ex,
             null,
             new GridCellSourceCodeModule(valuesTable.getGridTable()));
@@ -160,8 +161,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         String foreignKeyTableName = foreignKeyTable.getIdentifier();
         ITable foreignTable = db.getTable(foreignKeyTableName);
         if (foreignTable == null) {
-            BoundError err = new BoundError("Table " + foreignKeyTableName + " not found", null, foreignKeyTable);
-            throw err;
+            throw SyntaxNodeExceptionUtils.createError("Table " + foreignKeyTableName + " not found", null, foreignKeyTable);
         }
 
         int foreignKeyIndex = 0;
@@ -173,8 +173,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
 
         if (foreignKeyIndex == -1) {
-            BoundError err = new BoundError("Column " + columnName + " not found", null, foreignKey);
-            throw err;
+            throw SyntaxNodeExceptionUtils.createError("Column " + columnName + " not found", null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
@@ -227,8 +226,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String foreignKeyTableName = foreignKeyTable.getIdentifier();
             ITable foreignTable = db.getTable(foreignKeyTableName);
             if (foreignTable == null) {
-                BoundError err = new BoundError("Table " + foreignKeyTableName + " not found", null, foreignKeyTable);
-                throw err;
+                throw SyntaxNodeExceptionUtils.createError("Table " + foreignKeyTableName + " not found", null, foreignKeyTable);
             }
 
             int foreignKeyIndex = 0;
@@ -240,8 +238,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
 
             if (foreignKeyIndex == -1) {
-                BoundError err = new BoundError("Column " + columnName + " not found", null, foreignKey);
-                throw err;
+                throw SyntaxNodeExceptionUtils.createError("Column " + columnName + " not found", null, foreignKey);
             }
 
             Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);

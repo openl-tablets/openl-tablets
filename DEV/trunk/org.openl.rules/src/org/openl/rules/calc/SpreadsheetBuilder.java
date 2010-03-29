@@ -8,7 +8,6 @@ import java.util.Map;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -23,8 +22,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.error.ISyntaxError;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -73,7 +72,7 @@ public class SpreadsheetBuilder {
 
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
 
-    List<ISyntaxNodeError> errors = new ArrayList<ISyntaxNodeError>();
+    List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
     ILogicalTable rowNamesTable;
 
@@ -147,7 +146,7 @@ public class SpreadsheetBuilder {
 
         try {
             processReturnCells();
-        } catch (BoundError e) {
+        } catch (SyntaxNodeException e) {
             errors.add(e);
         }
 
@@ -157,7 +156,7 @@ public class SpreadsheetBuilder {
             checkError(buildReturn());
         }
 
-        for (ISyntaxNodeError e : errors) {
+        for (SyntaxNodeException e : errors) {
 
             tsn.addError(e);
             cxt.addError(e);
@@ -239,7 +238,7 @@ public class SpreadsheetBuilder {
                 try {
                     Object cellvalue = loader.loadSingleParam(src, meta);
                     scell.setValue(cellvalue);
-                } catch (BoundError e) {
+                } catch (SyntaxNodeException e) {
                     tsn.addError(e);
                     cxt.addError(e);
                 }
@@ -260,14 +259,14 @@ public class SpreadsheetBuilder {
             for (SymbolicTypeDef sx : h.vars) {
 
                 if (sx.type != null) {
-                    BoundError b = null;
+                    SyntaxNodeException b = null;
                     IOpenClass type = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, sx.type.getIdentifier());
                     if (type == null) {
-                        b = new BoundError("Type not found: " + sx.type.getIdentifier(), sx.type);
+                        b = SyntaxNodeExceptionUtils.createError("Type not found: " + sx.type.getIdentifier(), sx.type);
                     } else if (htype == null) {
                         htype = type;
                     } else if (htype != type) {
-                        b = new BoundError("Type redefinition", sx.type);
+                        b = SyntaxNodeExceptionUtils.createError("Type redefinition", sx.type);
                     }
                     if (b != null) {
                         tsn.addError(b);
@@ -308,7 +307,7 @@ public class SpreadsheetBuilder {
 
     }
 
-    private BoundError buildReturn() {
+    private SyntaxNodeException buildReturn() {
         SymbolicTypeDef sdef = null;
         if (returnHeaderDefinition != null) {
             sdef = returnHeaderDefinition.findVarDef(RETURN_NAME);
@@ -316,25 +315,25 @@ public class SpreadsheetBuilder {
 
         if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
             if (returnHeaderDefinition != null) {
-                return new BoundError("If Spreadsheet return type is SpreadsheetResult, no return type is allowed", 
+                return  SyntaxNodeExceptionUtils.createError("If Spreadsheet return type is SpreadsheetResult, no return type is allowed", 
                     sdef.name);
             }
 
             spreadsheet.setResultBuilder(DEFAULT_RESULT_BULDER);
 
         } else if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
-            return new BoundError("Spreadsheet can not return 'void' type", tsn);
+            return SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tsn);
         } else // real return type
         {
             if (returnHeaderDefinition == null) {
-                return new BoundError("There should be RETURN row or column for this return type", tsn);
+                return SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type", tsn);
             }
 
             List<SCell> notEmpty = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
 
             switch (notEmpty.size()) {
                 case 0:
-                    return new BoundError("There is no return expression cell", sdef.name);
+                    return SyntaxNodeExceptionUtils.createError("There is no return expression cell", sdef.name);
                 case 1:
                     spreadsheet.setResultBuilder(new ScalarResultBuilder(notEmpty));
                     break;
@@ -376,7 +375,7 @@ public class SpreadsheetBuilder {
         return cnt;
     }
 
-    void checkError(BoundError err) {
+    void checkError(SyntaxNodeException err) {
         if (err != null) {
             errors.add(err);
         }
@@ -413,7 +412,7 @@ public class SpreadsheetBuilder {
      * @throws BoundError
      */
 
-    private IOpenClass deriveSingleCellReturnType(int ncells, SpreadsheetHeaderDefinition sdef) throws BoundError {
+    private IOpenClass deriveSingleCellReturnType(int ncells, SpreadsheetHeaderDefinition sdef) throws SyntaxNodeException {
         IOpenClass retType = spreadsheet.getHeader().getType();
 
         if (ncells < 2) {
@@ -424,7 +423,7 @@ public class SpreadsheetBuilder {
         if (aggr != null && aggr.getComponentType(retType) != null) {
             retType = aggr.getComponentType(retType);
         } else {
-            throw new BoundError(
+            throw SyntaxNodeExceptionUtils.createError(
                     "The return type is scalar, but there are more than one return cells",
                     sdef.findVarDef(RETURN_NAME).name);
         }
@@ -522,11 +521,11 @@ public class SpreadsheetBuilder {
             h.addVarHeader(parsed);
 
         } catch (Throwable t) {
-            BoundError b = null;
-            if (t instanceof BoundError) {
-                b = (BoundError) t;
+            SyntaxNodeException b = null;
+            if (t instanceof SyntaxNodeException) {
+                b = (SyntaxNodeException) t;
             } else {
-                b = new BoundError(t, sv.asSourceCodeModule());
+                b = SyntaxNodeExceptionUtils.createError(null, t, null, sv.asSourceCodeModule());
             }
             tsn.addError(b);
             cxt.addError(b);
@@ -534,7 +533,7 @@ public class SpreadsheetBuilder {
 
     }
 
-    SymbolicTypeDef parseHeaderElement(StringValue sv) throws BoundError {
+    SymbolicTypeDef parseHeaderElement(StringValue sv) throws SyntaxNodeException {
         IdentifierNode[] nodes = TokenizerParser.tokenize(sv.asSourceCodeModule(), ":");
         switch (nodes.length) {
             case 1:
@@ -542,11 +541,11 @@ public class SpreadsheetBuilder {
             case 2:
                 return new SymbolicTypeDef(nodes[0], nodes[1]);
             default:
-                throw new BoundError("Valid header format: name [: type]", sv.asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError("Valid header format: name [: type]", sv.asSourceCodeModule());
         }
     }
 
-    protected BoundError processReturnCells() throws BoundError {
+    protected SyntaxNodeException processReturnCells() throws SyntaxNodeException {
 
         SpreadsheetHeaderDefinition sdef = varDefinitions.get(RETURN_NAME);
 
@@ -560,7 +559,7 @@ public class SpreadsheetBuilder {
         if (sdef.getType() == null) {
             sdef.setType(ctype);
         } else {
-            throw new BoundError("RETURN " + sdef.rowOrColumn()
+            throw SyntaxNodeExceptionUtils.createError("RETURN " + sdef.rowOrColumn()
                     + " derives it's type from the Spreadsheet return type and therefore must not be defined here",
                     sdef.getVars().get(0).name);
         }

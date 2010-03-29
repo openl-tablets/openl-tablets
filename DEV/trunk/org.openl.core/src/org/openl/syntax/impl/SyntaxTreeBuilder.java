@@ -12,7 +12,8 @@ import java.util.Stack;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -23,15 +24,15 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     static class Marker {
     }
 
-    List<ISyntaxError> parseErrors;
+    List<SyntaxNodeException> parseErrors;
 
     IOpenSourceCodeModule module;
 
     Stack<Object> stack = new Stack<Object>();
 
-    public void addError(SyntaxError exc) {
+    public void addError(SyntaxNodeException exc) {
         if (parseErrors == null) {
-            parseErrors = new ArrayList<ISyntaxError>();
+            parseErrors = new ArrayList<SyntaxNodeException>();
         }
         parseErrors.add(exc);
     }
@@ -54,9 +55,9 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         return module;
     }
 
-    public ISyntaxError[] getSyntaxErrors() {
-        return parseErrors == null ? new ISyntaxError[0] : (SyntaxError[]) parseErrors
-                .toArray(new SyntaxError[parseErrors.size()]);
+    public SyntaxNodeException[] getSyntaxErrors() {
+        return parseErrors == null ? new SyntaxNodeException[0] : (SyntaxNodeException[]) parseErrors
+                .toArray(new SyntaxNodeException[parseErrors.size()]);
     }
 
     public ISyntaxNode getTopnode() {
@@ -77,7 +78,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
 
                 // grammar problem???
                 ISyntaxNode node = pop();
-                addError(new SyntaxError( "More than one syntax node on stack:\nSource:\n"
+                addError(SyntaxNodeExceptionUtils.createError( "More than one syntax node on stack:\nSource:\n"
                         + node.getModule().getCode(), null, node));
                 return node;
                 // throw new RuntimeException("More than one syntax node on

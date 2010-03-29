@@ -4,11 +4,13 @@
 package org.openl.rules.test;
 
 import org.openl.OpenL;
+import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLUtils;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
@@ -29,7 +31,7 @@ public class Tools {
         return xmo;
     }
 
-    static public Object run(String file, String methodName, Object[] params) throws MethodNotFoundException {
+    static public Object run(String file, String methodName, Object[] params) throws MethodNotFoundException, OpenLRuntimeException, SyntaxNodeException {
         Object res = OpenLManager.runMethod(getOpenL(), new FileSourceCodeModule(file, null), methodName, null, params);
         return res;
     }

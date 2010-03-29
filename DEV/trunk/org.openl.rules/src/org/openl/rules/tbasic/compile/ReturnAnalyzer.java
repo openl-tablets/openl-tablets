@@ -3,11 +3,12 @@ package org.openl.rules.tbasic.compile;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -42,7 +43,7 @@ public class ReturnAnalyzer {
      * @throws BoundError If function contains unreachable code or incorrect
      *             return type.
      */
-    public SuitablityAsReturn analyze(List<AlgorithmTreeNode> nodesToAnalyze) throws BoundError {
+    public SuitablityAsReturn analyze(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
         SuitablityAsReturn result = analyzeSequence(nodesToAnalyze);
         if (returnType == JavaOpenClass.VOID) {
             // not requires result
@@ -51,7 +52,7 @@ public class ReturnAnalyzer {
         return result;
     }
 
-    private SuitablityAsReturn analyzeGroup(List<AlgorithmTreeNode> nodesToAnalyze) throws BoundError {
+    private SuitablityAsReturn analyzeGroup(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
         if (nodesToAnalyze.get(0).getSpecification().getKeyword().equals("IF")
                 && nodesToAnalyze.get(1).getSpecification().getKeyword().equals("ELSE")) {
             return analyzeIFOperation(nodesToAnalyze, nodesToAnalyze.get(0).getSpecification().isMultiline());
@@ -61,7 +62,7 @@ public class ReturnAnalyzer {
     }
 
     private SuitablityAsReturn analyzeIFOperation(List<AlgorithmTreeNode> nodesToAnalyze, boolean isMultiline)
-            throws BoundError {
+            throws SyntaxNodeException {
         SuitablityAsReturn result = SuitablityAsReturn.RETURN;
         // checks only IF and ELSE branches
         for (int i = 0; i < 2; i++) {
@@ -80,13 +81,13 @@ public class ReturnAnalyzer {
         return result;
     }
 
-    private SuitablityAsReturn analyzeNode(AlgorithmTreeNode nodeToAnalyze) throws BoundError {
+    private SuitablityAsReturn analyzeNode(AlgorithmTreeNode nodeToAnalyze) throws SyntaxNodeException {
         if (nodeToAnalyze.getSpecification().getKeyword().equals("RETURN")) {
             if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getCondition())) {
                 return SuitablityAsReturn.RETURN;
             } else {
                 IOpenSourceCodeModule errorSource = nodeToAnalyze.getAlgorithmRow().getCondition().asSourceCodeModule();
-                throw new BoundError("Incorrect return type. Return type of function declared as '"
+                throw SyntaxNodeExceptionUtils.createError("Incorrect return type. Return type of function declared as '"
                         + returnType.getDisplayName(INamedThing.REGULAR) + "'", errorSource);
             }
         } else if (canBeGrouped(nodeToAnalyze)) {
@@ -99,7 +100,7 @@ public class ReturnAnalyzer {
         }
     }
 
-    private SuitablityAsReturn analyzeSequence(List<AlgorithmTreeNode> nodesToAnalyze) throws BoundError {
+    private SuitablityAsReturn analyzeSequence(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
         SuitablityAsReturn result = SuitablityAsReturn.RETURN;
         for (int i = 0, linkedNodesGroupSize; i < nodesToAnalyze.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToAnalyze, i);
@@ -113,7 +114,7 @@ public class ReturnAnalyzer {
             if (result == SuitablityAsReturn.RETURN && i + linkedNodesGroupSize < nodesToAnalyze.size()) {
                 IOpenSourceCodeModule errorSource = nodesToAnalyze.get(i + linkedNodesGroupSize).getAlgorithmRow()
                         .getOperation().asSourceCodeModule();
-                throw new BoundError("Unreachable code. Operations after RETURN not allowed.", errorSource);
+                throw SyntaxNodeExceptionUtils.createError("Unreachable code. Operations after RETURN not allowed.", errorSource);
             }
         }
         return result;

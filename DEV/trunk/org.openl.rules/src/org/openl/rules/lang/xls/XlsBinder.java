@@ -23,9 +23,6 @@ import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
-import org.openl.binding.error.BoundError;
-import org.openl.binding.error.BoundErrorUtils;
-import org.openl.binding.error.IBoundError;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.module.ModuleNode;
@@ -56,8 +53,9 @@ import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -155,10 +153,10 @@ public class XlsBinder implements IOpenBinder {
 
             OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
 
-            IBoundError error = BoundErrorUtils.createError("Error Creating OpenL", ex, syntaxNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
             BindHelper.processError(error);
 
-            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new IBoundError[] { error });
+            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error });
         }
 
         IOpenBinder openlBinder = openl.getBinder();
@@ -220,7 +218,7 @@ public class XlsBinder implements IOpenBinder {
 
         try {
             types = vocabulary.getVocabularyTypes();
-        } catch (BoundError error) {
+        } catch (SyntaxNodeException error) {
             BindHelper.processError(error, bindingContext);
         }
 
@@ -397,18 +395,18 @@ public class XlsBinder implements IOpenBinder {
         try {
             memberBoundNode.finalizeBind(moduleContext);
 
-        } catch (BoundError error) {
+        } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, moduleContext);
 
-        } catch (SyntaxNodeException ex) {
+        } catch (CompositeSyntaxNodeException ex) {
 
-            for (ISyntaxNodeError error : ex.getErrors()) {
-                processError((IBoundError) error, tableSyntaxNode, moduleContext);
+            for (SyntaxNodeException error : ex.getErrors()) {
+                processError( error, tableSyntaxNode, moduleContext);
             }
 
         } catch (Throwable t) {
 
-            BoundError error = BoundErrorUtils.createError(t, tableSyntaxNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, moduleContext);
         }
     }
@@ -421,29 +419,29 @@ public class XlsBinder implements IOpenBinder {
         try {
             return preBindXlsNode(tableSyntaxNode, openl, moduleContext, module);
 
-        } catch (BoundError error) {
+        } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, moduleContext);
 
             return null;
 
-        } catch (SyntaxNodeException ex) {
+        } catch (CompositeSyntaxNodeException ex) {
 
-            for (ISyntaxNodeError error : ex.getErrors()) {
-                processError((IBoundError) error, tableSyntaxNode, moduleContext);
+            for (SyntaxNodeException error : ex.getErrors()) {
+                processError( error, tableSyntaxNode, moduleContext);
             }
 
             return null;
 
         } catch (Throwable t) {
 
-            BoundError error = BoundErrorUtils.createError(t, tableSyntaxNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, moduleContext);
 
             return null;
         }
     }
 
-    private void processError(IBoundError error,
+    private void processError(SyntaxNodeException error,
                               TableSyntaxNode tableSyntaxNode,
                               RulesModuleBindingContext moduleContext) {
 

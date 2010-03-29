@@ -19,8 +19,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxError;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -41,11 +40,11 @@ public class BindingContext implements IBindingContext {
 
     private LocalFrameBuilder localFrame = new LocalFrameBuilder();
 
-    private List<ISyntaxNodeError> errors = new ArrayList<ISyntaxNodeError>();
+    private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
     private Map<String, String> aliases = new HashMap<String, String>();
 
-    private Stack<List<ISyntaxNodeError>> errorStack = new Stack<List<ISyntaxNodeError>>();
+    private Stack<List<SyntaxNodeException>> errorStack = new Stack<List<SyntaxNodeException>>();
 
     public BindingContext(Binder binder, IOpenClass returnType, OpenL openl) {
         this.binder = binder;
@@ -64,7 +63,7 @@ public class BindingContext implements IBindingContext {
 
     }
 
-    public void addError(ISyntaxNodeError error) {
+    public void addError(SyntaxNodeException error) {
         // if (errors.size() > 100)
         // throw new TooManyErrorsError();
         errors.add(error);
@@ -159,8 +158,8 @@ public class BindingContext implements IBindingContext {
         return binder.getCastFactory().getCast(from, to);
     }
 
-    public ISyntaxNodeError[] getErrors() {
-        return errors == null ? new ISyntaxNodeError[0] : ((ISyntaxNodeError[]) errors.toArray(new ISyntaxNodeError[0]));
+    public SyntaxNodeException[] getErrors() {
+        return errors == null ? new SyntaxNodeException[0] : ((SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]));
     }
 
     /*
@@ -168,7 +167,7 @@ public class BindingContext implements IBindingContext {
      *
      * @see org.openl.binding.IBindingContext#getError(int)
      */
-    public ISyntaxNodeError getError(int i) {
+    public SyntaxNodeException getError(int i) {
         return errors.get(i);
     }
 
@@ -201,8 +200,8 @@ public class BindingContext implements IBindingContext {
         return returnType;
     }
 
-    public List<ISyntaxNodeError> popErrors() {
-        List<ISyntaxNodeError> tmp = errors;
+    public List<SyntaxNodeException> popErrors() {
+        List<SyntaxNodeException> tmp = errors;
         errors = errorStack.pop();
         return tmp;
     }
@@ -218,7 +217,7 @@ public class BindingContext implements IBindingContext {
 
     public void pushErrors() {
         errorStack.push(errors);
-        errors = new ArrayList<ISyntaxNodeError>();
+        errors = new ArrayList<SyntaxNodeException>();
     }
 
     /*

@@ -3,7 +3,6 @@ package org.openl.rules.cmatch.algorithm;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.binding.error.BoundError;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.SubValue;
@@ -12,6 +11,8 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.java.JavaOpenClass;
 
 public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
@@ -37,7 +38,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws BoundError {
+    protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         MatchNode rootNode = new MatchNode(-1);
 
         for (int i = getSpecialRowCount(); i < rows.size(); i++) {
@@ -50,7 +51,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
                 rootNode.add(node);
             } else {
                 String msg = "Sub node are prohibited here!";
-                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
         }
 
@@ -58,7 +59,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected void checkSpecialRows(ColumnMatch columnMatch) throws BoundError {
+    protected void checkSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
         super.checkSpecialRows(columnMatch);
 
         List<TableRow> rows = columnMatch.getRows();
@@ -77,7 +78,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected void parseSpecialRows(ColumnMatch columnMatch) throws BoundError {
+    protected void parseSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
         super.parseSpecialRows(columnMatch);
 
         int retValuesCount = columnMatch.getReturnValues().length;
@@ -91,7 +92,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
                 .getOpenClass(Integer.class));
         if (totalScoreMatcher == null) {
             String msg = "Column " + OPERATION + " of special row " + ROW_TOTAL_SCORE + " must be defined!";
-            throw new BoundError(msg, operationSV.getStringValue().asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
         totalScore.setMatcher(totalScoreMatcher);
 
@@ -104,7 +105,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
         operationSV = scoreRow.get(OPERATION)[0];
         if (!"".equals(operationSV.getString())) {
             String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty!";
-            throw new BoundError(msg, operationSV.getStringValue().asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
 
         // score(s)
@@ -119,7 +120,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
 
     @Override
     protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
-            throws BoundError {
+            throws SyntaxNodeException {
         MatchNode[] nodes = super.prepareNodes(columnMatch, argumentsHelper, retValuesCount);
 
         List<TableRow> rows = columnMatch.getRows();
@@ -143,7 +144,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
      * @see #buildTree
      */
     @Override
-    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws BoundError {
+    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         // DO NOTHING!!!
     }
 }

@@ -1,6 +1,7 @@
 package org.openl.message;
 
-import org.openl.error.IOpenLError;
+import org.openl.exception.OpenLCompilationException;
+
 
 public class OpenLMessagesUtils {
 
@@ -8,17 +9,17 @@ public class OpenLMessagesUtils {
         addMessage(message, Severity.ERROR);
     }
 
-    public static void addError(IOpenLError error) {
+    public static void addError(OpenLCompilationException error) {
 
         OpenLErrorMessage message = new OpenLErrorMessage(error);
         addMessage(message);
     }
 
-    public static void addErrors(IOpenLError[] errors) {
+    public static void addErrors(OpenLCompilationException[] errors) {
 
         if (errors != null) {
 
-            for (IOpenLError error : errors) {
+            for (OpenLCompilationException error : errors) {
                 addError(error);
             }
         }

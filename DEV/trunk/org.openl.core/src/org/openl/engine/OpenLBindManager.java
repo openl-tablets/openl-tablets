@@ -7,11 +7,10 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.ANodeBinder;
 import org.openl.binding.impl.MethodCastNode;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -70,8 +69,8 @@ public class OpenLBindManager extends OpenLHolder {
                 header.getType());
         } catch (Exception ex) {
 
-            BoundError boundError = new BoundError(StringUtils.EMPTY, ex, boundCode.getTopNode().getSyntaxNode());
-            throw new SyntaxNodeException(StringUtils.EMPTY, new ISyntaxNodeError[] { boundError });
+            SyntaxNodeException boundError = new SyntaxNodeException(StringUtils.EMPTY, ex, boundCode.getTopNode().getSyntaxNode());
+            throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { boundError });
         }
 
         return boundMethodNode;

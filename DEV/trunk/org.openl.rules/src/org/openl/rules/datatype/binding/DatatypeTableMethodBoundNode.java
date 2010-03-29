@@ -8,12 +8,12 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.types.IOpenClass;
@@ -71,24 +71,21 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);
 
             if (fieldType == null) {
-                BoundError err = new BoundError("Type " + src.getCode() + " not found", null, null, src);
-                throw err;
+                throw SyntaxNodeExceptionUtils.createError("Type " + src.getCode() + " not found", null, null, src);
             }
 
             if (row.getLogicalWidth() < 2) {
-                BoundError err = new BoundError("Bad table structure: must be {header} / {type | name}",
+                throw SyntaxNodeExceptionUtils.createError("Bad table structure: must be {header} / {type | name}",
                     null,
                     null,
                     src);
-                throw err;
             }
 
             src = new GridCellSourceCodeModule(row.getLogicalColumn(1).getGridTable());
 
             IdentifierNode[] idn = TokenizerParser.tokenize(src, " \r\n");
             if (idn.length != 1) {
-                BoundError err = new BoundError("Bad field name: \"" + src.getCode() + "\"", null, null, src);
-                throw err;
+                throw SyntaxNodeExceptionUtils.createError("Bad field name: \"" + src.getCode() + "\"", null, null, src);
             }
 
             // String fieldName =
@@ -103,11 +100,10 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
                     module.setIndexField(field);
                 }
             } catch (Throwable t) {
-                BoundError err = new BoundError("Can not add field " + fieldName + ": " + t.getMessage(),
+                throw SyntaxNodeExceptionUtils.createError("Can not add field " + fieldName + ": " + t.getMessage(),
                     null,
                     null,
                     src);
-                throw err;
             }
 
         }

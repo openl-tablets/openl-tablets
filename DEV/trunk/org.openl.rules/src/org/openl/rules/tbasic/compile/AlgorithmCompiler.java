@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
@@ -19,6 +18,8 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -81,7 +82,7 @@ public class AlgorithmCompiler {
     }
 
     private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile, IOpenClass returnType,
-            CompileContext methodContext) throws BoundError {
+            CompileContext methodContext) throws SyntaxNodeException {
         // method name will be at every label
         for (StringValue label : nodesToCompile.get(0).getLabels()) {
             String methodName = label.getValue();
@@ -111,7 +112,7 @@ public class AlgorithmCompiler {
     }
 
     private void declareFunction(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep convertionStep)
-            throws BoundError {
+            throws SyntaxNodeException {
         String returnValueInstruction = convertionStep.getOperationParam1();
 
         IOpenClass returnType = JavaOpenClass.VOID;
@@ -125,7 +126,7 @@ public class AlgorithmCompiler {
 
     }
 
-    private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+    private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
         CompileContext subroutineContext = new CompileContext();
         // add all labels from main
         subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables());
@@ -134,7 +135,7 @@ public class AlgorithmCompiler {
     }
 
     private void declareVariable(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
-            throws BoundError {
+            throws SyntaxNodeException {
         String variableNameParameter = conversionStep.getOperationParam1();
         String variableAssignmentParameter = conversionStep.getOperationParam2();
         StringValue variableName = AlgorithmCompilerTool.getCellContent(nodesToCompile, variableNameParameter);
@@ -144,7 +145,7 @@ public class AlgorithmCompiler {
     }
 
     private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, String returnValueInstruction)
-            throws BoundError {
+            throws SyntaxNodeException {
         // find first RETURN operation
         List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
 
@@ -210,7 +211,7 @@ public class AlgorithmCompiler {
         return filedType;
     }
 
-    private void initialization(Algorithm algorithm) throws BoundError {
+    private void initialization(Algorithm algorithm) throws SyntaxNodeException {
         labelManager = new LabelManager();
         thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL());
 
@@ -246,11 +247,11 @@ public class AlgorithmCompiler {
      * Main precompile, compile, postprocess logic
      **************************************************************************/
 
-    private void precompile(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+    private void precompile(List<AlgorithmTreeNode> nodesToProcess) throws SyntaxNodeException {
         precompileNestedNodes(nodesToProcess);
     }
 
-    private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+    private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
         assert nodesToCompile.size() > 0;
 
         ConversionRuleBean conversionRule = ConversionRulesController.getInstance().getConvertionRule(nodesToCompile);
@@ -260,7 +261,7 @@ public class AlgorithmCompiler {
         }
     }
 
-    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws SyntaxNodeException {
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
@@ -277,7 +278,7 @@ public class AlgorithmCompiler {
      * @throws BoundError
      */
     private void preprocessConversionStep(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
-            throws BoundError {
+            throws SyntaxNodeException {
         assert nodesToCompile.size() > 0;
         assert conversionStep != null;
 
@@ -299,7 +300,7 @@ public class AlgorithmCompiler {
         } else {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
-            throw new BoundError(String.format("Unknown compilation instruction %s", operationType), errorSource);
+            throw SyntaxNodeExceptionUtils.createError(String.format("Unknown compilation instruction %s", operationType), errorSource);
         }
     }
 

@@ -14,7 +14,8 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.impl.SyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 public class ColumnMatchBuilder {
     private final IBindingContext bindingContext;
@@ -31,7 +32,7 @@ public class ColumnMatchBuilder {
 
     public void build(ILogicalTable tableBody) throws Exception {
         if (tableBody.getLogicalHeight() < 4) {
-            throw new SyntaxError("Unsufficient rows. At least 4 are expected!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. At least 4 are expected!", null, tsn);
         }
 
         prepareColumns(tableBody);
@@ -47,13 +48,13 @@ public class ColumnMatchBuilder {
         try {
             algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
         } catch (Exception ex) {
-            throw new SyntaxError(null, ex, columnMatch.getSyntaxNode());
+            throw SyntaxNodeExceptionUtils.createError(null, ex, columnMatch.getSyntaxNode());
         }
 
         algorithm.compile(bindingContext, columnMatch);
     }
 
-    private List<TableRow> buildRows(ILogicalTable tableBody) throws SyntaxError {
+    private List<TableRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
         ILogicalTable leftRows = tableBody.getLogicalColumn(0).rows(2);
 
         int dataRowsCount = leftRows.getLogicalHeight();
@@ -71,7 +72,7 @@ public class ColumnMatchBuilder {
             ILogicalTable data;
             if (column.getColumnIndex() == 0) {
                 if (colTable.getLogicalWidth() != 1) {
-                    throw new SyntaxError("First column must have width=1!", null, tsn);
+                    throw SyntaxNodeExceptionUtils.createError("First column must have width=1!", null, tsn);
                 }
 
                 data = leftRows.rows(1);
@@ -122,7 +123,7 @@ public class ColumnMatchBuilder {
         return values;
     }
 
-    private void prepareColumns(ILogicalTable tableBody) throws SyntaxError {
+    private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new ArrayList<TableColumn>();
         Set<String> addedIds = new HashSet<String>();
 
@@ -138,7 +139,7 @@ public class ColumnMatchBuilder {
 
             if (addedIds.contains(id)) {
                 // duplicate ids
-                throw new SyntaxError("Duplicate column '" + id + "'!", null, tsn);
+                throw SyntaxNodeExceptionUtils.createError("Duplicate column '" + id + "'!", null, tsn);
             }
 
             columns.add(new TableColumn(id, c));

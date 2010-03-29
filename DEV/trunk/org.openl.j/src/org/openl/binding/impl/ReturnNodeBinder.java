@@ -6,7 +6,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;

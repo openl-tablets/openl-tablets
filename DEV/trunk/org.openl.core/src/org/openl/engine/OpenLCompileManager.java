@@ -13,7 +13,7 @@ import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.ProcessedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.validation.ValidationResult;
@@ -66,8 +66,8 @@ public class OpenLCompileManager extends OpenLHolder {
         ProcessedCode processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true);
 
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        ISyntaxNodeError[] parsingErrors = processedCode.getParsingErrors();
-        ISyntaxNodeError[] bindingErrors = processedCode.getBindingErrors();
+        SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
+        SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
 
         List<ValidationResult> validationResults = validationManager.validate(openClass);
         List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);

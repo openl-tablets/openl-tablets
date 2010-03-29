@@ -14,12 +14,9 @@ import java.util.Set;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.error.BoundError;
-import org.openl.binding.error.IBoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
-import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
@@ -32,10 +29,11 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -156,7 +154,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
     }
 
     public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
-            OpenlToolAdaptor ota) throws BoundError {
+            OpenlToolAdaptor ota) throws SyntaxNodeException {
         String src = cell.getGridTable().getCell(0, 0).getStringValue();
         Object value = cell.getGridTable().getCell(0, 0).getObjectValue();
          
@@ -174,7 +172,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 //    }
     
     private static Object loadSingleParamInternal(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
-            OpenlToolAdaptor ota, String src, Object value, boolean isPartOfArray) throws BoundError {
+            OpenlToolAdaptor ota, String src, Object value, boolean isPartOfArray) throws SyntaxNodeException {
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
@@ -239,7 +237,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 validateValue(res, paramType);
                 return res;
             } catch (Throwable t) {
-                throw new BoundError(null, t,  null, new GridCellSourceCodeModule(cell.getGridTable()));
+                throw SyntaxNodeExceptionUtils.createError(null, t,  null, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor according to cell type.
@@ -440,19 +438,18 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
                 if (nodes.length != 2) {
                     errMsg = "Parameter Cell format: <type> <name>";
-                    BoundError err = new BoundError(errMsg, null, null, src);
-                    throw err;
+                    throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, src);
                 }
 
                 String typeCode = nodes[0].getIdentifier();
                 IOpenClass ptype = getType(typeCode, cxt);
                 if (ptype == null) {
-                    throw new BoundError( "Type not found: " + typeCode, nodes[0]);
+                    throw SyntaxNodeExceptionUtils.createError( "Type not found: " + typeCode, nodes[0]);
                 }
 
                 String pname = nodes[1].getIdentifier();
                 if (paramNames.contains(pname)) {
-                    throw new BoundError("Duplicated parameter name: " + pname, nodes[1]);
+                    throw SyntaxNodeExceptionUtils.createError("Duplicated parameter name: " + pname, nodes[1]);
                 }
 
                 paramNames.add(pname);
@@ -486,7 +483,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
     }
 
     Object loadParam(ILogicalTable dataTable, IOpenClass paramType, String paramName, String ruleName,
-            OpenlToolAdaptor ota) throws BoundError {
+            OpenlToolAdaptor ota) throws SyntaxNodeException {
         boolean indexed = paramType.getAggregateInfo().isAggregate(paramType);
 
 
@@ -569,7 +566,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
         IParameterDeclaration[] paramDecl = getParams(ota.getBindingContext());
 
-        ArrayList<IBoundError> errors = new ArrayList<IBoundError>();
+        ArrayList<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
         for (int col = 0; col < len; col++) {
             ILogicalTable valueCell = getValueCell(col);
@@ -594,7 +591,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 try {
                     v = loadParam(LogicalTable.logicalTable(singleParamGridTable), paramDecl[j].getType(), paramDecl[j]
                             .getName(), ruleName, ota);
-                } catch (BoundError error) {
+                } catch (SyntaxNodeException error) {
                     errors.add(error);
                 }
 
@@ -612,7 +609,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         }
 
         if (errors.size() > 0) {
-            throw new SyntaxNodeException("Error:", errors.toArray(new IBoundError[0]));
+            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
         }
 
         return values;
@@ -631,7 +628,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
      * @throws BoundError
      */
     public static Object loadCommaSeparatedParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
-            OpenlToolAdaptor ota) throws BoundError {
+            OpenlToolAdaptor ota) throws SyntaxNodeException {
         Object arrayValues = null;
         String[] tokens = null;
         tokens = extractElementsFromCommaSeparatedArray(cell);

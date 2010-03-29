@@ -6,8 +6,8 @@ import java.util.Map;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.LiteralNode;
-import org.openl.syntax.impl.SyntaxError;
 
 public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
@@ -55,5 +55,5 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
         return parsedNumber;
     }
 
-    protected abstract IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxError;
+    protected abstract IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxNodeException;
 }

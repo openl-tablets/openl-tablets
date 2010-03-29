@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
@@ -36,7 +37,7 @@ public class AlgorithmCompilerTool {
      * @throws BoundError
      */
     public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes, String instruction)
-            throws BoundError {
+            throws SyntaxNodeException {
         AlgorithmTreeNode executionNode = null;
         String operationName = extractOperationName(instruction);
 
@@ -49,7 +50,7 @@ public class AlgorithmCompilerTool {
         if (executionNode == null) {
             IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
-            throw new BoundError(String.format("Compilation failure. Can't find %s in operations sequence %s",
+            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find %s in operations sequence %s",
                     operationName, candidateNodes), errorSource);
         }
         return executionNode;
@@ -73,7 +74,7 @@ public class AlgorithmCompilerTool {
      * @throws BoundError
      */
     public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String instruction)
-            throws BoundError {
+            throws SyntaxNodeException {
         String fieldName = extractFieldName(instruction);
 
         AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
@@ -83,7 +84,7 @@ public class AlgorithmCompilerTool {
         if (codeField == null) {
             IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
-            throw new BoundError(String.format("Compilation failure. Can't find %s field", fieldName), errorSource);
+            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find %s field", fieldName), errorSource);
         }
 
         StringValue openLCode = (StringValue) codeField.get(executionNode.getAlgorithmRow(), null);
@@ -141,7 +142,7 @@ public class AlgorithmCompilerTool {
      * @throws BoundError
      */
     public static List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes,
-            String instruction) throws BoundError {
+            String instruction) throws SyntaxNodeException {
 
         AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
 
@@ -155,7 +156,7 @@ public class AlgorithmCompilerTool {
      * @throws BoundError
      */
     public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile, String instruction)
-            throws BoundError {
+            throws SyntaxNodeException {
 
         AlgorithmTreeNode sourceNode;
         String operationValueName = null;

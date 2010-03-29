@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.error.BoundError;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.DuplicatedTableException;
 import org.openl.rules.data.IDataBase;
@@ -22,6 +21,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.BiMap;
 
@@ -69,7 +70,7 @@ public class DataBase implements IDataBase {
          *
          */
 
-        public Object findObject(int columnIndex, String skey, IBindingContext cxt) throws BoundError {
+        public Object findObject(int columnIndex, String skey, IBindingContext cxt) throws SyntaxNodeException {
 
             Map<String, Integer> index = getUniqueIndex(columnIndex);
 
@@ -216,7 +217,7 @@ public class DataBase implements IDataBase {
             return tsn;
         }
 
-        public Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError {
+        public Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException {
             ColumnDescriptor cd = dataModel.getDescriptor()[columnIndex];
 
             return cd.getUniqueIndex(this, columnIndex);
@@ -229,7 +230,7 @@ public class DataBase implements IDataBase {
             return colObject;
         }
 
-        public Map<String, Integer> makeUniqueIndex(int colIdx) throws BoundError {
+        public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
             int rows = data.getLogicalHeight();
 
             Map<String, Integer> index = new HashMap<String, Integer>();
@@ -242,13 +243,13 @@ public class DataBase implements IDataBase {
                 String key = gridTable.getCell(0, 0).getStringValue();
 
                 if (key == null) {
-                    throw new BoundError("Empty key in an unique index", new GridCellSourceCodeModule(gridTable));
+                    throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index", new GridCellSourceCodeModule(gridTable));
                 }
 
                 key = key.trim();
 
                 if (index.containsKey(key)) {
-                    throw new BoundError("Duplicated key in an unique index: " + key, new GridCellSourceCodeModule(
+                    throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key, new GridCellSourceCodeModule(
                             gridTable));
                 }
 

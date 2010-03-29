@@ -16,7 +16,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
-import org.openl.syntax.impl.SyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -73,7 +74,7 @@ public class AlgorithmBuilder {
 
     public void build(ILogicalTable tableBody) throws Exception {
         if (tableBody.getLogicalHeight() <= 2) {
-            throw new SyntaxError("Unsufficient rows. Must be more than 2!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2!", null, tsn);
         }
 
         prepareColumns(tableBody);
@@ -90,7 +91,7 @@ public class AlgorithmBuilder {
         compiler.compile(algorithm);
     }
 
-    private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxError {
+    private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
         List<AlgorithmRow> result = new ArrayList<AlgorithmRow>();
 
         IGridTable grid = tableBody.rows(2).getGridTable();
@@ -135,7 +136,7 @@ public class AlgorithmBuilder {
         return result;
     }
 
-    private void prepareColumns(ILogicalTable tableBody) throws SyntaxError {
+    private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new HashMap<String, AlgorithmColumn>();
 
         ILogicalTable ids = tableBody.getLogicalRow(0);
@@ -150,7 +151,7 @@ public class AlgorithmBuilder {
 
             if (columns.get(id) != null) {
                 // duplicate ids
-                throw new SyntaxError("Duplicate column '" + id + "'!", null, tsn);
+                throw SyntaxNodeExceptionUtils.createError("Duplicate column '" + id + "'!", null, tsn);
             }
 
             columns.put(id, new AlgorithmColumn(id, c));
@@ -165,7 +166,7 @@ public class AlgorithmBuilder {
         return id;
     }
 
-    private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxError {
+    private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxNodeException {
         if ("label".equalsIgnoreCase(column)) {
             row.setLabel(sv);
         } else if ("description".equalsIgnoreCase(column)) {
@@ -181,7 +182,7 @@ public class AlgorithmBuilder {
         } else if ("after".equalsIgnoreCase(column)) {
             row.setAfter(sv);
         } else {
-            throw new SyntaxError("Invalid column id '" + column + "'!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Invalid column id '" + column + "'!", null, tsn);
         }
     }
 }
