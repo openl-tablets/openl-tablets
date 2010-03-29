@@ -6,11 +6,12 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.openl.binding.error.BoundError;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -289,7 +290,7 @@ public class DTOptimizedAlgorithm {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static IDTConditionEvaluator makeEvaluator(IDTCondition condition, IOpenClass methodType) throws BoundError {
+    public static IDTConditionEvaluator makeEvaluator(IDTCondition condition, IOpenClass methodType) throws SyntaxNodeException {
         IParameterDeclaration[] params = condition.getParams();
 
         switch (params.length) {
@@ -320,7 +321,7 @@ public class DTOptimizedAlgorithm {
                     Class<?> c = methodType.getInstanceClass();
                     if (c != int.class && c != long.class && c != double.class && c != float.class
                             && !Comparable.class.isAssignableFrom(c)) {
-                        throw new BoundError("Type " + methodType.getName() + " is not Comparable",null,  null,
+                        throw SyntaxNodeExceptionUtils.createError("Type " + methodType.getName() + " is not Comparable",null,  null,
                                 condition.getSourceCodeModule());
                     }
 
@@ -347,7 +348,7 @@ public class DTOptimizedAlgorithm {
             paramStr += params[i].getType().getName();
         }
 
-        throw new BoundError("Can not make a Condition Evaluator for parameter " + methodType.getName()
+        throw SyntaxNodeExceptionUtils.createError("Can not make a Condition Evaluator for parameter " + methodType.getName()
             + " and [" + paramStr + "]",null,  null, condition.getSourceCodeModule());
     }
 

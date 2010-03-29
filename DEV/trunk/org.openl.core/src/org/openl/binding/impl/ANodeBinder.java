@@ -7,8 +7,8 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -71,13 +71,13 @@ public abstract class ANodeBinder implements INodeBinder {
         }
     }
 
-    public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext) throws BoundError {
+    public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext) throws SyntaxNodeException {
 
         return bindChildren(parentNode, bindingContext, 0, parentNode.getNumberOfChildren());
     }
 
     public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext, int from, int to)
-        throws BoundError {
+        throws SyntaxNodeException {
 
         int n = to - from;
 
@@ -186,7 +186,7 @@ public abstract class ANodeBinder implements INodeBinder {
         IOpenClass from = node.getType();
 
         if (from == null) {
-            throw new TypeCastError(node.getSyntaxNode(), NullOpenClass.the, to);
+            throw new TypeCastException(node.getSyntaxNode(), NullOpenClass.the, to);
         }
 
         if (from.equals(to)) {
@@ -196,7 +196,7 @@ public abstract class ANodeBinder implements INodeBinder {
         IOpenCast cast = bindingContext.getCast(from, to);
 
         if (cast == null || !cast.isImplicit()) {
-            throw new TypeCastError(node.getSyntaxNode(), from, to);
+            throw new TypeCastException(node.getSyntaxNode(), from, to);
         }
 
         return cast;

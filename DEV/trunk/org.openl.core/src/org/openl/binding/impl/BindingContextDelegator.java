@@ -17,7 +17,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -46,7 +46,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /**
      * @param error
      */
-    public void addError(ISyntaxNodeError error) {
+    public void addError(SyntaxNodeException error) {
         delegate.addError(error);
     }
 
@@ -143,7 +143,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /**
      * @return
      */
-    public ISyntaxNodeError[] getErrors() {
+    public SyntaxNodeException[] getErrors() {
         return delegate.getErrors();
     }
 
@@ -189,7 +189,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /**
      * @return
      */
-    public List<ISyntaxNodeError> popErrors() {
+    public List<SyntaxNodeException> popErrors() {
         return delegate.popErrors();
     }
 

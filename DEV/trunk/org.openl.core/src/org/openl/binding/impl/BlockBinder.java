@@ -6,8 +6,8 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
@@ -27,7 +27,7 @@ public class BlockBinder extends ANodeBinder {
         try {
             bindingContext.pushLocalVarContext();
             children = bindChildren(node, bindingContext);
-        } catch (BoundError error) {
+        } catch (SyntaxNodeException error) {
             BindHelper.processError(error);
         } finally {
             bindingContext.popLocalVarContext();

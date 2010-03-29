@@ -7,7 +7,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
@@ -62,18 +62,18 @@ public class OpenLSourceManager extends OpenLHolder {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
 
-        ISyntaxNodeError[] parsingErrors = parsedCode.getErrors();
+        SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
 
         if (!ignoreErrors && parsingErrors.length > 0) {
-            throw new SyntaxNodeException("Parsing Error:", parsingErrors);
+            throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
 
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
 
-        ISyntaxNodeError[] bindingErrors = boundCode.getErrors();
+        SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 
         if (!ignoreErrors && bindingErrors.length > 0) {
-            throw new SyntaxNodeException("Binding Error:", bindingErrors);
+            throw new CompositeSyntaxNodeException("Binding Error:", bindingErrors);
         }
 
         ProcessedCode processedCode = new ProcessedCode();

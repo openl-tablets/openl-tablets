@@ -1,21 +1,24 @@
-package org.openl.error;
+package org.openl.exception;
 
 import java.io.PrintWriter;
 
 import org.openl.main.SourceCodeURLTool;
-import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
-public abstract class OpenLErrorUtils {
+public class OpenLExceptionUtils {
 
-    public static void printError(IOpenLError error, PrintWriter writer) {
+    private OpenLExceptionUtils() {
+    }
+
+    public static void printError(OpenLCompilationException error, PrintWriter writer) {
 
         Throwable cause = error.getOriginalCause();
 
         String message;
 
-        if (cause != null && cause instanceof SyntaxNodeException) {
+        if (cause != null && cause instanceof CompositeSyntaxNodeException) {
 
-            SyntaxNodeException syntaxErrorException = (SyntaxNodeException) cause;
+            CompositeSyntaxNodeException syntaxErrorException = (CompositeSyntaxNodeException) cause;
 
             for (int i = 0; i < syntaxErrorException.getErrors().length; i++) {
                 printError(syntaxErrorException.getErrors()[i], writer);

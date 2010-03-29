@@ -7,7 +7,6 @@ package org.openl.rules.datatype.binding;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -17,6 +16,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -43,8 +43,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableName
 
         if (parsedHeader.length < 2) {
             errMsg = "Datatype table format: Datatype <typename> [tablename]";
-            BoundError err = new BoundError(errMsg, null, null, src);
-            throw err;
+            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, src);
         }
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
@@ -57,8 +56,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableName
         if (cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
             errMsg = "Duplicated Type Definition: " + typeName;
 
-            BoundError err = new BoundError(errMsg, null, parsedHeader[TYPE_INDEX]);
-            throw err;
+            throw SyntaxNodeExceptionUtils.createError(errMsg, null, parsedHeader[TYPE_INDEX]);
         }
 
         ModuleOpenClass tableType = new ModuleOpenClass(module.getSchema(), typeName, cxt.getOpenL());

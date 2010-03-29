@@ -1,8 +1,7 @@
 package org.openl.syntax.code;
 
 import org.openl.binding.IBoundCode;
-import org.openl.syntax.error.ISyntaxError;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * Class that used as a container and provides information about processed code.
@@ -60,10 +59,10 @@ public class ProcessedCode {
      * 
      * @return {@link ISyntaxError}s array
      */
-    public ISyntaxNodeError[] getParsingErrors() {
+    public SyntaxNodeException[] getParsingErrors() {
 
         if (parsedCode == null) {
-            return new ISyntaxNodeError[0];
+            return new SyntaxNodeException[0];
         }
 
         return parsedCode.getErrors();
@@ -74,10 +73,10 @@ public class ProcessedCode {
      * 
      * @return {@link ISyntaxError}s array
      */
-    public ISyntaxNodeError[] getBindingErrors() {
+    public SyntaxNodeException[] getBindingErrors() {
 
         if (boundCode == null) {
-            return new ISyntaxNodeError[0];
+            return new SyntaxNodeException[0];
         }
 
         return boundCode.getErrors();

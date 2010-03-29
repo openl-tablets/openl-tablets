@@ -10,8 +10,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.error.ISyntaxError;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
@@ -54,7 +53,7 @@ public class BinderTest extends TestCase {
         int errnum = pc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxNodeError err = pc.getErrors()[i];
+            SyntaxNodeException err = pc.getErrors()[i];
             System.out.println(err);
         }
 
@@ -67,7 +66,7 @@ public class BinderTest extends TestCase {
         errnum = bc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxNodeError err = bc.getErrors()[i];
+            SyntaxNodeException err = bc.getErrors()[i];
             System.out.println(err);
         }
 
@@ -86,7 +85,7 @@ public class BinderTest extends TestCase {
         int errnum = pc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxNodeError err = pc.getErrors()[i];
+            SyntaxNodeException err = pc.getErrors()[i];
             System.out.println(err);
         }
 
@@ -99,7 +98,7 @@ public class BinderTest extends TestCase {
         errnum = bc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxNodeError err = bc.getErrors()[i];
+            SyntaxNodeException err = bc.getErrors()[i];
             System.out.println(err);
         }
 

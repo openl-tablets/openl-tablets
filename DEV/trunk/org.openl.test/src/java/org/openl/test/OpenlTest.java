@@ -19,7 +19,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -102,7 +102,7 @@ public class OpenlTest {
 
         IParsedCode pc = parser.parseAsModule(scm);
 
-        ISyntaxNodeError[] err = pc.getErrors();
+        SyntaxNodeException[] err = pc.getErrors();
         for (int i = 0; i < err.length; i++) {
             System.out.println(err[i].getLocation() + " -- " + err[i]);
         }

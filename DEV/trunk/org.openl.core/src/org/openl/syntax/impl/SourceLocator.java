@@ -7,7 +7,7 @@
 package org.openl.syntax.impl;
 
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.text.AbsolutePosition;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -65,7 +65,7 @@ public class SourceLocator {
     /**
      * Returns bounding box for a given syntax error.
      */
-    public TextInterval getSourceLocation(ISyntaxError error) {
+    public TextInterval getSourceLocation(SyntaxNodeException error) {
         // TODO replace int[] with TextInterval.expand()
         ILocation loc = error.getLocation();
 

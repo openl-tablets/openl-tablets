@@ -10,8 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.error.BoundError;
-
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.data.ITable;
@@ -27,6 +25,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
@@ -179,13 +179,12 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @param src
      * @throws BoundError if length of header is less than {@link #HEADER_NUM_TOKENS}.
      */
-    private void checkParsedHeader(IOpenSourceCodeModule src) throws BoundError {
+    private void checkParsedHeader(IOpenSourceCodeModule src) throws SyntaxNodeException {
         parsedHeader = TokenizerParser.tokenize(src, " \n\r");
         String errMsg;
         if (parsedHeader.length < HEADER_NUM_TOKENS) {
             errMsg = getErrMsgFormat();
-            BoundError err = new BoundError( errMsg, null, null, src);
-            throw err;
+            throw SyntaxNodeExceptionUtils.createError( errMsg, null, null, src);
         }
     }
 
@@ -356,7 +355,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      */
     private IOpenField getWritableField(IdentifierNode currentFieldNameNode, ITable table,
             IOpenClass loadedFieldType)
-            throws BoundError {
+            throws SyntaxNodeException {
         String fieldName = currentFieldNameNode.getIdentifier();
         IOpenField field = findField(fieldName, table, loadedFieldType);
 
@@ -364,14 +363,13 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
             String errorMessage = String.format(
                     "Field \"%s\" not found in %s", fieldName,
                     loadedFieldType.getName());
-            throw new BoundError(errorMessage, currentFieldNameNode);
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
         }
 
         if (!field.isWritable()) {
-            BoundError err = new BoundError(
+           throw SyntaxNodeExceptionUtils.createError(
                     "Field " + fieldName + " is not Writable in "
                             + loadedFieldType.getName(), currentFieldNameNode);
-            throw err;
         }
         return field;
     }
@@ -579,8 +577,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         if (tableType == null) {
             errMsg = "Type not found: " + typeName;
 
-            BoundError err = new BoundError(errMsg, null, parsedHeader[TYPE_INDEX]);
-            throw err;
+            throw SyntaxNodeExceptionUtils.createError(errMsg, null, parsedHeader[TYPE_INDEX]);
         }
 
         ITable dataTable = makeTable(module, tsn, tableName, tableType, cxt, openl);

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.openl.binding.error.BoundError;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 public class ConversionRulesController {
     private static ConversionRulesController instance;
@@ -27,7 +28,7 @@ public class ConversionRulesController {
     /**
      * @throws BoundError
      */
-    public ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+    public ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
         assert nodesToCompile.size() > 0;
 
         List<String> groupedOperationNames = new ArrayList<String>(nodesToCompile.size());
@@ -58,7 +59,7 @@ public class ConversionRulesController {
                 "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s", predecessorOperations,
                 groupedOperationNames);
         IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
-        throw new BoundError(errorMessage, errorSource);
+        throw SyntaxNodeExceptionUtils.createError(errorMessage, errorSource);
     }
 
 }

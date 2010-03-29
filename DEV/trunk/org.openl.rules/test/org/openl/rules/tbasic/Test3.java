@@ -1,10 +1,12 @@
 package org.openl.rules.tbasic;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.openl.rules.TestUtils;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 public class Test3 extends Test0 {
@@ -32,14 +34,14 @@ public class Test3 extends Test0 {
     @Test
     public void test4() {
         Exception ex = catchEx(new File("test/rules/tbasic0/Algorithm3-4.xls"));
-        assertTrue(ex instanceof SyntaxNodeException);
+        assertTrue(ex instanceof CompositeSyntaxNodeException);
 //        TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
     }
 
     @Test
     public void test5() {
         Exception ex = catchEx(new File("test/rules/tbasic0/Algorithm3-4.xls"));
-        assertTrue(ex instanceof SyntaxNodeException);
+        assertTrue(ex instanceof CompositeSyntaxNodeException);
 //        TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
     }
 

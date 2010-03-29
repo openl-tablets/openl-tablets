@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.binding.error.BoundError;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.meta.IVocabulary;
 import org.openl.meta.StringValue;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
@@ -30,7 +31,7 @@ public class RulesVocabulary implements IVocabulary {
         return new DomainCreator[] {};
     }
 
-    public IOpenClass[] getVocabularyTypes() throws BoundError {
+    public IOpenClass[] getVocabularyTypes() throws SyntaxNodeException {
         ArrayList<IOpenClass> list = makeBaseTypes();
         makeDomains(list);
 
@@ -58,7 +59,7 @@ public class RulesVocabulary implements IVocabulary {
         return list;
     }
 
-    void makeDomainAttributes(ArrayList<IOpenClass> list) throws BoundError {
+    void makeDomainAttributes(ArrayList<IOpenClass> list) throws SyntaxNodeException {
         DomainAttribute[] attributes = getAttributes();
 
         for (int i = 0; i < attributes.length; i++) {
@@ -69,7 +70,7 @@ public class RulesVocabulary implements IVocabulary {
                 try {
                     throw new FieldNotFoundException("Can not find attribute", fieldName.getValue(), null);
                 } catch (FieldNotFoundException e) {
-                    throw new BoundError(e, fieldName.asSourceCodeModule());
+                    throw SyntaxNodeExceptionUtils.createError(null, e, null, fieldName.asSourceCodeModule());
                 }
             }
 
@@ -84,7 +85,7 @@ public class RulesVocabulary implements IVocabulary {
                 try {
                     throw new Exception("Type not found: " + typeName);
                 } catch (Exception e) {
-                    throw new BoundError(e, typeName.asSourceCodeModule());
+                    throw SyntaxNodeExceptionUtils.createError(null, e, null, typeName.asSourceCodeModule());
                 }
 
             }

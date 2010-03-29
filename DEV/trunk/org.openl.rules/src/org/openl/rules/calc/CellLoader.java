@@ -1,13 +1,14 @@
 package org.openl.rules.calc;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.error.BoundError;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenMethodHeader;
 
 public class CellLoader {
@@ -37,7 +38,7 @@ public class CellLoader {
         this.conv = conv;
     }
 
-    public Object loadSingleParam(IOpenSourceCodeModule srcModule, IMetaInfo meta) throws BoundError {
+    public Object loadSingleParam(IOpenSourceCodeModule srcModule, IMetaInfo meta) throws SyntaxNodeException {
         String src = srcModule.getCode();
 
         if (src == null || (src = src.trim()).length() == 0) {
@@ -68,7 +69,7 @@ public class CellLoader {
             // validateValue(res, paramType);
             return res;
         } catch (Throwable t) {
-            throw new BoundError(null, t, null, srcModule);
+            throw SyntaxNodeExceptionUtils.createError(null, t, null, srcModule);
         }
     }
 

@@ -20,7 +20,7 @@ import org.openl.binding.IBoundCode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.test.OpenlTest;
 import org.openl.xls.OpenLBuilder;
 
@@ -41,7 +41,7 @@ public class TestParser extends TestCase {
 
         IParsedCode pc = parser.parseAsModule(scm);
 
-        ISyntaxNodeError[] err = pc.getErrors();
+        SyntaxNodeException[] err = pc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
             printSyntaxError(err[i]);
@@ -56,7 +56,7 @@ public class TestParser extends TestCase {
         IOpenParser parser = openl.getParser();
         IOpenSourceCodeModule scm = new FileSourceCodeModule(new File(fileName), null);
         IParsedCode pc = parser.parseAsModule(scm);
-        ISyntaxNodeError[] err = pc.getErrors();
+        SyntaxNodeException[] err = pc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
             printSyntaxError(err[i]);
@@ -74,7 +74,7 @@ public class TestParser extends TestCase {
         return err.length;
     }
 
-    private void printSyntaxError(ISyntaxNodeError err) {
+    private void printSyntaxError(SyntaxNodeException err) {
 
         System.out.println(err.getMessage());
         ((Throwable) err).printStackTrace();

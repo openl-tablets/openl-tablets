@@ -43,10 +43,9 @@ import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
-import org.openl.syntax.error.ISyntaxError;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.SyntaxError;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.util.Log;
 import org.openl.util.PathTool;
@@ -102,7 +101,7 @@ public class XlsLoader {
 
     private List<ISyntaxNode> nodesList = new ArrayList<ISyntaxNode>();
 
-    private List<ISyntaxNodeError> errors = new ArrayList<ISyntaxNodeError>();
+    private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
     private List<IdentifierNode> extensionNodes = new ArrayList<IdentifierNode>();
 
@@ -121,7 +120,7 @@ public class XlsLoader {
         return tableHeaders;
     }
 
-    public void addError(ISyntaxError error) {
+    public void addError(SyntaxNodeException error) {
 
         errors.add(error);
     }
@@ -200,7 +199,7 @@ public class XlsLoader {
             openl,
             vocabulary,
             allImportString,
-            extensionNodes), source, errors.toArray(new ISyntaxError[0]));
+            extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -294,7 +293,7 @@ public class XlsLoader {
 
                 if (src == null) {
 
-                    ISyntaxError se = new SyntaxError(
+                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError(
                         "Include " + include + " not found",
                         null, null,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
@@ -312,7 +311,7 @@ public class XlsLoader {
                     String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
                     src = new URLSourceCodeModule(new URL(newURL));
                 } catch (Throwable t) {
-                    ISyntaxError se = new SyntaxError(
+                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError(
                         "Include " + include + " not found",
                         t, null,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
@@ -326,7 +325,7 @@ public class XlsLoader {
             try {
                 preprocessWorkbook(src);
             } catch (Throwable t) {
-                ISyntaxError se = new SyntaxError(
+                SyntaxNodeException se = SyntaxNodeExceptionUtils.createError(
                     "Include " + include + " not found",
                     t, null,
                     new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
@@ -468,7 +467,7 @@ public class XlsLoader {
             this.openl = openl;
         } else {
             if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
-                SyntaxError error = new SyntaxError("Only one openl statement is allowed", null, openl);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one openl statement is allowed", null, openl);
                 OpenLMessagesUtils.addError(error.getMessage());
                 addError(error);
             }
@@ -480,7 +479,7 @@ public class XlsLoader {
         if (this.vocabulary == null) {
             this.vocabulary = vocabulary;
         } else {
-            SyntaxError error = new SyntaxError("Only one vocabulary is allowed", null, vocabulary);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one vocabulary is allowed", null, vocabulary);
             OpenLMessagesUtils.addError(error.getMessage());
             addError(error);
         }

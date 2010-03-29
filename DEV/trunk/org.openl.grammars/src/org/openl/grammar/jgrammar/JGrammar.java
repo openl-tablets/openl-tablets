@@ -91,7 +91,7 @@ public void parseTopNode(String type)
                 //pe.printStackTrace();
                 //throw pe;
                 syntaxBuilder.addError(
-                        new org.openl.syntax.impl.SyntaxError(
+                        new org.openl.syntax.exception.SyntaxNodeException(
                                 pe.getMessage(),
                                 null,
                                 pos(pe.currentToken),
@@ -104,15 +104,15 @@ public void parseTopNode(String type)
                         pos(err.getMessage(), token, buf);
 
                 syntaxBuilder.addError(
-                        new org.openl.syntax.impl.SyntaxError(buf.toString(), null, loc, syntaxBuilder.getModule()));
+                        new org.openl.syntax.exception.SyntaxNodeException(buf.toString(), null, loc, syntaxBuilder.getModule()));
         }
         catch (Exception e)
         {
-                syntaxBuilder.addError(new org.openl.syntax.impl.SyntaxError("", e, pos(token), syntaxBuilder.getModule()));
+                syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
         }
         catch (Throwable t)
         {
-                syntaxBuilder.addError(new org.openl.syntax.impl.SyntaxError("", t, pos(token), syntaxBuilder.getModule()));
+                syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException("", t, pos(token), syntaxBuilder.getModule()));
         }
 }
 

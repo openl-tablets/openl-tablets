@@ -11,13 +11,14 @@ import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.error.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 /**
  * @author snshor
@@ -167,7 +168,7 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
         return dt;
     }
 
-    void loadRow(int row, ILogicalTable table) throws BoundError {
+    void loadRow(int row, ILogicalTable table) throws SyntaxNodeException {
 
         String headerStr = table.getLogicalRow(row).getGridTable().getCell(INFO_COLUMN, 0).getStringValue();
         if (headerStr == null) {
@@ -188,7 +189,7 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
             ;
 
         else {
-             throw new BoundError("Invalid Decision Table header:" + headerStr, new GridCellSourceCodeModule(table.getLogicalRow(row).
+             throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header:" + headerStr, new GridCellSourceCodeModule(table.getLogicalRow(row).
                      getGridTable(), INFO_COLUMN, 0));
             // ignore for now
         }

@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.openl.binding.error.BoundError;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 public class CompileContext {
     /***************************************************************************
@@ -47,7 +48,7 @@ public class CompileContext {
         return existingLables.containsKey(labelName);
     }
 
-    public void registerGroupOfLabels(Map<String, AlgorithmTreeNode> labelToAdd) throws BoundError {
+    public void registerGroupOfLabels(Map<String, AlgorithmTreeNode> labelToAdd) throws SyntaxNodeException {
         for (Entry<String, AlgorithmTreeNode> label : labelToAdd.entrySet()) {
             registerNewLabel(label.getKey(), label.getValue());
         }
@@ -59,21 +60,21 @@ public class CompileContext {
      * @param labeledOperation
      * @throws BoundError
      */
-    public void registerNewLabel(String labelName, AlgorithmTreeNode sourceNode) throws BoundError {
+    public void registerNewLabel(String labelName, AlgorithmTreeNode sourceNode) throws SyntaxNodeException {
         if (isLabelRegistered(labelName)) {
             IOpenSourceCodeModule errorSource = sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
-            throw new BoundError("Such label has been already declared : \"" + labelName + "\".", errorSource);
+            throw SyntaxNodeExceptionUtils.createError("Such label has been already declared : \"" + labelName + "\".", errorSource);
         } else {
             existingLables.put(labelName, sourceNode);
         }
     }
 
-    public void setLabel(String labelName, RuntimeOperation labeledOperation) throws BoundError {
+    public void setLabel(String labelName, RuntimeOperation labeledOperation) throws SyntaxNodeException {
         if (isLabelRegistered(labelName)) {
             localLabelsRegister.put(labelName, labeledOperation);
         } else {
             IOpenSourceCodeModule errorSource = labeledOperation.getSourceCode().getSourceModule();
-            throw new BoundError("Such lablel isn't declared : \"" + labelName + "\".", errorSource);
+            throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : \"" + labelName + "\".", errorSource);
         }
     }
 }

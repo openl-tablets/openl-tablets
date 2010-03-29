@@ -13,7 +13,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -27,7 +27,7 @@ public interface IBindingContext extends ICastFactory {
 
     void addAlias(String name, String value);
 
-    void addError(ISyntaxNodeError error);
+    void addError(SyntaxNodeException error);
 
     // public void addAllErrors(Vector errors);
 
@@ -71,7 +71,7 @@ public interface IBindingContext extends ICastFactory {
 
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
-    ISyntaxNodeError[] getErrors();
+    SyntaxNodeException[] getErrors();
 
     int getLocalVarFrameSize();
 
@@ -83,7 +83,7 @@ public interface IBindingContext extends ICastFactory {
 
     IOpenClass getReturnType();
 
-    List<ISyntaxNodeError> popErrors();
+    List<SyntaxNodeException> popErrors();
 
     void popLocalVarContext();
 

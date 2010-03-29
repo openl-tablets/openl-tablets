@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.error.BoundError;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.SubValue;
@@ -19,6 +18,8 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -106,7 +107,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @return root of tree
      * @throws BoundError
      */
-    protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws BoundError {
+    protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         MatchNode rootNode = new MatchNode(-1);
 
         MatchNode[] lastForIndent = new MatchNode[nodes.length];
@@ -125,7 +126,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 } else if (indent > (prevIndent + 1)) {
                     // can increase by +1 only
                     String msg = MessageFormat.format("Illegal indent! 0..{0} expected.", prevIndent + 1);
-                    throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
+                    throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
                 } else {
                     // if (indent == prevIndent)
                     // if (indent 1..prevIndent-1)
@@ -172,11 +173,11 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         }
     }
 
-    protected void checkRowName(TableRow row, String expectedName) throws BoundError {
+    protected void checkRowName(TableRow row, String expectedName) throws SyntaxNodeException {
         SubValue sv = row.get(NAMES)[0];
         if (!expectedName.equalsIgnoreCase(sv.getString())) {
             String msg = "Expects " + expectedName + " here!";
-            throw new BoundError(msg, sv.getStringValue().asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(msg, sv.getStringValue().asSourceCodeModule());
         }
     }
 
@@ -190,12 +191,12 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         }
     }
 
-    protected void checkSpecialRows(ColumnMatch columnMatch) throws BoundError {
+    protected void checkSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
         List<TableRow> rows = columnMatch.getRows();
         checkRowName(rows.get(0), ROW_RET_VALUE);
     }
 
-    private void checkTreeChildren(MatchNode parent, List<TableRow> rows) throws BoundError {
+    private void checkTreeChildren(MatchNode parent, List<TableRow> rows) throws SyntaxNodeException {
         int childCount = 0;
         int childLeafs = 0;
         for (MatchNode child : parent.getChildren()) {
@@ -214,12 +215,12 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             }
         } else {
             String msg = "All sub nodes must be leaves! Sub nodes are allowed for single child only.";
-            throw new BoundError(msg, rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue()
+            throw SyntaxNodeExceptionUtils.createError(msg, rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue()
                     .asSourceCodeModule());
         }
     }
 
-    public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws BoundError {
+    public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws SyntaxNodeException {
         int minRows = getSpecialRowCount() + 1;
         if (columnMatch.getRows().size() < minRows) {
             String msg = "Expects at least " + minRows + " rows!";
@@ -301,7 +302,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      *
      * @param columnMatch
      */
-    protected void parseSpecialRows(ColumnMatch columnMatch) throws BoundError {
+    protected void parseSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
         IOpenClass returnType = columnMatch.getHeader().getType();
 
         TableRow row0 = columnMatch.getRows().get(0);
@@ -311,7 +312,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         bindMetaInfo(columnMatch, "Return Values", row0.get(VALUES), retValues);
     }
 
-    protected Object[] parseValues(TableRow row, Class<?> clazz) throws BoundError {
+    protected Object[] parseValues(TableRow row, Class<?> clazz) throws SyntaxNodeException {
         IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(clazz);
 
         SubValue[] subValues = row.get(VALUES);
@@ -324,7 +325,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             try {
                 result[i] = converter.parse(s, null, null);
             } catch (Exception ex) {
-                throw new BoundError(ex, sv.getStringValue().asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError(null, ex, null, sv.getStringValue().asSourceCodeModule());
             }
         }
 
@@ -343,7 +344,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @throws BoundError
      */
     protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
-            throws BoundError {
+            throws SyntaxNodeException {
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = new MatchNode[rows.size()];
 
@@ -354,13 +355,13 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             if (varName.length() == 0) {
                 String msg = "Name cannot be empty!";
-                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
             Argument arg = argumentsHelper.getTypeByName(varName);
             if (arg == null) {
                 String msg = "Failed to bind name '" + varName + "'!";
-                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
             SubValue operationSV = row.get(OPERATION)[0];
@@ -369,7 +370,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             IMatcher matcher = MatcherFactory.getMatcher(operationName, arg.getType());
             if (matcher == null) {
                 String msg = "No matcher was found for operation " + operationName + " and type " + arg.getType();
-                throw new BoundError(msg, operationSV.getStringValue().asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
             }
 
             MatchNode node = new MatchNode(i);
@@ -393,7 +394,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @param rows rows to point out errors
      * @throws BoundError
      */
-    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws BoundError {
+    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         for (MatchNode node : rootNode.getChildren()) {
             if (node.isLeaf()) {
                 // ok

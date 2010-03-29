@@ -8,7 +8,7 @@ import java.io.Reader;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.error.ISyntaxError;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
@@ -16,7 +16,7 @@ import org.openl.syntax.error.ISyntaxError;
  */
 public interface IGrammar {
 
-    public ISyntaxError[] getErrors();
+    public SyntaxNodeException[] getErrors();
 
     public ISyntaxNode getTopNode();
 

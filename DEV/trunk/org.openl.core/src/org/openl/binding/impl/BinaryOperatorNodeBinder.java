@@ -6,8 +6,8 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.error.BoundError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 
@@ -20,7 +20,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                                           String operatorName,
                                           IBoundNode b1,
                                           IBoundNode b2,
-                                          IBindingContext bindingContext) throws BoundError {
+                                          IBindingContext bindingContext) throws SyntaxNodeException {
 
         IOpenClass[] types = { b1.getType(), b2.getType() };
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
@@ -157,7 +157,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-            throw new BoundError("Binary node must have 2 subnodes", null, node);
+            throw new SyntaxNodeException("Binary node must have 2 subnodes", null, node);
         }
 
         int index = node.getType().lastIndexOf('.');

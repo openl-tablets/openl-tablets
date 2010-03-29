@@ -14,10 +14,9 @@ import org.openl.IOpenVM;
 import org.openl.IRunTime;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.error.ISyntaxNodeError;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
@@ -29,17 +28,17 @@ public class OpenLImpl implements IOpenL {
 
     IRunTime runTime;
 
-    public Object evaluate(IOpenSourceCodeModule code) throws OpenLRuntimeException {
+    public Object evaluate(IOpenSourceCodeModule code)  {
         IParsedCode pc = getParser().parseAsMethodBody(code);
-        ISyntaxNodeError[] error = pc.getErrors();
+        SyntaxNodeException[] error = pc.getErrors();
         if (error.length > 0) {
-            throw new SyntaxNodeException("Parsing Error:", error);
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
         }
 
         IBoundCode bc = getBinder().bind(pc);
         error = bc.getErrors();
         if (error.length > 0) {
-            throw new SyntaxNodeException("Binding Error:", error);
+            throw new CompositeSyntaxNodeException("Binding Error:", error);
         }
         return getVM().getRunner().run((IBoundMethodNode) bc.getTopNode(), new Object[0]);
     }

@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.binding.error.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 public class RowParser implements IRowParser {
     private static final String COMMENTS_REGEXP = "^(//)(.*)|^(/\\*)(.*)(\\*/)$";
@@ -23,20 +24,20 @@ public class RowParser implements IRowParser {
     }
 
     private void checkRowValue(String columnName, StringValue columnValue, ValueNecessity columnNecessity)
-            throws BoundError {
+            throws SyntaxNodeException {
 
         if (columnNecessity == ValueNecessity.REQUIRED && columnValue.isEmpty()) {
             String errMsg = String.format("Operation must have value in %s!", columnName);
-            throw new BoundError(errMsg, columnValue.asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(errMsg, columnValue.asSourceCodeModule());
         }
 
         if (columnNecessity == ValueNecessity.PROHIBITED && !columnValue.isEmpty()) {
             String errMsg = String.format("Operation must not have value in %s!", columnName);
-            throw new BoundError(errMsg, columnValue.asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(errMsg, columnValue.asSourceCodeModule());
         }
     }
 
-    private TableParserSpecificationBean getSpecification(StringValue operation, boolean multiline) throws BoundError {
+    private TableParserSpecificationBean getSpecification(StringValue operation, boolean multiline) throws SyntaxNodeException {
         String operationName = operation.getValue();
         boolean foundButNotMatch = false;
         for (TableParserSpecificationBean specification : specifications) {
@@ -52,11 +53,11 @@ public class RowParser implements IRowParser {
         if (foundButNotMatch) {
             String errMsg = String.format("Operation %s can not be multiline! Nested operations are not allowed here.",
                     operationName);
-            throw new BoundError(errMsg, operation.asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
         }
 
         String errMsg = "No such operation: " + operation.getValue();
-        throw new BoundError(errMsg, operation.asSourceCodeModule());
+        throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
     }
 
     private boolean[] guessMuliline(List<AlgorithmTreeNode> nodes) {
@@ -77,7 +78,7 @@ public class RowParser implements IRowParser {
         return multilines;
     }
 
-    public List<AlgorithmTreeNode> parse() throws BoundError {
+    public List<AlgorithmTreeNode> parse() throws SyntaxNodeException {
         List<AlgorithmTreeNode> nodes = prepareNodes();
         boolean[] guessedMultilines = guessMuliline(nodes);
 
@@ -100,11 +101,11 @@ public class RowParser implements IRowParser {
                 StringValue operation = row.getOperation();
                 if (indent > (prevIndent + 1)) {
                     String errMsg = String.format("Incorrect operation indention! Expected %d.", (prevIndent + 1));
-                    throw new BoundError(errMsg, operation.asSourceCodeModule());
+                    throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
                 }
                 if (parentTree.isEmpty()) {
                     String errMsg = "Incorrect operation indention! Could not find parent operation with 0 indention.";
-                    throw new BoundError(errMsg, operation.asSourceCodeModule());
+                    throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
                 }
 
                 parentTree.get(indent - 1).add(node);
@@ -158,7 +159,7 @@ public class RowParser implements IRowParser {
     }
 
     private TableParserSpecificationBean validateNode(AlgorithmTreeNode node, boolean guessedMultiline)
-            throws BoundError {
+            throws SyntaxNodeException {
         AlgorithmRow row = node.getAlgorithmRow();
         StringValue operation = row.getOperation();
         TableParserSpecificationBean spec = getSpecification(operation, guessedMultiline);
@@ -166,7 +167,7 @@ public class RowParser implements IRowParser {
         // check Label
         if (spec.getLabel() == ValueNecessity.REQUIRED && row.getLabel().isEmpty()) {
             String errMsg = "Label is obligatory for this operation!";
-            throw new BoundError(errMsg, row.getLabel().asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError(errMsg, row.getLabel().asSourceCodeModule());
         }
 
         checkRowValue("Condition", row.getCondition(), spec.getCondition());
@@ -178,11 +179,11 @@ public class RowParser implements IRowParser {
         int indent = row.getOperationLevel();
         ValueNecessity specTopLevel = spec.getTopLevel();
         if (specTopLevel == ValueNecessity.PROHIBITED && indent == 0) {
-            throw new BoundError("Operation can not be a top level element! It should be nested.", operation
+            throw SyntaxNodeExceptionUtils.createError("Operation can not be a top level element! It should be nested.", operation
                     .asSourceCodeModule());
         }
         if (specTopLevel == ValueNecessity.REQUIRED && indent > 0) {
-            throw new BoundError("Operation can be a top level only!", operation.asSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError("Operation can be a top level only!", operation.asSourceCodeModule());
         }
 
         // passed

@@ -1,6 +1,6 @@
 package org.openl.meta;
 
-import org.openl.binding.error.BoundError;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 
 /**
@@ -57,6 +57,6 @@ public interface IVocabulary {
      * @throws BoundError
      *
      */
-    IOpenClass[] getVocabularyTypes() throws BoundError;
+    IOpenClass[] getVocabularyTypes() throws SyntaxNodeException;
 
 }
