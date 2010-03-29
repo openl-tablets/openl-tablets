@@ -18,17 +18,17 @@ public interface IGrid {
      * Same as in HSSFCell - no conversion requires for POI
      */
 
-    public final static int CELL_TYPE_NUMERIC = 0;
+    int CELL_TYPE_NUMERIC = 0;
 
-    public final static int CELL_TYPE_STRING = 1;
+    int CELL_TYPE_STRING = 1;
 
-    public final static int CELL_TYPE_FORMULA = 2;
+    int CELL_TYPE_FORMULA = 2;
 
-    public final static int CELL_TYPE_BLANK = 3;
+    int CELL_TYPE_BLANK = 3;
 
-    public final static int CELL_TYPE_BOOLEAN = 4;
+    int CELL_TYPE_BOOLEAN = 4;
 
-    public final static int CELL_TYPE_ERROR = 5;
+    int CELL_TYPE_ERROR = 5;
 
     // This type is not supported by HSSF, so it can be used only for read-only
     // grids (filters)

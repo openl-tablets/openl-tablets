@@ -12,7 +12,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
-public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode, IXlsTableNames {
+public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode {
     private final IOpenSourceCodeModule nameOfAlgorithm;
 
     public ColumnMatchBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module,
@@ -31,7 +31,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         ColumnMatchBuilder builder = new ColumnMatchBuilder(cxt, getColumnMatch(), getTableSyntaxNode());
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);
-        getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody.rows(1));
+        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.rows(1));
     }
 
     public IOpenSourceCodeModule getAlgorithm() {

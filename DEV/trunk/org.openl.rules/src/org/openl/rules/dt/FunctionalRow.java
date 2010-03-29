@@ -55,67 +55,41 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConstants {
+public abstract class FunctionalRow implements IDecisionRow {
 
     public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
 
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
 //    public final static Object EMPTY_CELL = new Object();
-    
-    static class ArrayHolder {
-        Object ary;
-        CompositeMethod[] methods;
-
-        public ArrayHolder(Object ary, CompositeMethod[] methods) {
-            this.ary = ary;
-            this.methods = methods;
-        }
-
-        /**
-         * @param target
-         * @param dtParams
-         * @param env
-         * @return
-         */
-        public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i] != null) {
-                    Object res = methods[i].invoke(target, dtParams, env);
-                    Array.set(ary, i, res);
-                }
-            }
-
-            return ary;
-        }
-    }
 
     private static String NO_PARAM = "___NO_PARAM___";
     
     public static String CONSTRUCTOR = "constructor";
-    int row;
+    
+    private int row;
 
-    ILogicalTable decisionTable;
+    private ILogicalTable decisionTable;
 
-    ILogicalTable paramsTable;
+    private ILogicalTable paramsTable;
 
-    ILogicalTable codeTable;
+    private ILogicalTable codeTable;
 
-    ILogicalTable presentationTable;
+    private ILogicalTable presentationTable;
 
-    String name;
+    private String name;
 
-    IParameterDeclaration[] params;
+    private IParameterDeclaration[] params;
 
-    int np_idx = 0;
+    private int np_idx = 0;
 
-    Boolean hasNoParams = null;
+    private Boolean hasNoParams = null;
 
-    CompositeMethod method;
+    private CompositeMethod method;
 
-    Object[][] paramValues;
-
-    static public IOpenClass getType(String typeCode, IBindingContext cxt) throws Exception {
+    private Object[][] paramValues;    
+    
+    public static IOpenClass getType(String typeCode, IBindingContext cxt) throws Exception {
         if (typeCode.endsWith("[]")) {
             String baseCode = typeCode.substring(0, typeCode.length() - 2);
             // IOpenClass baseType = OpenlTool.getType(baseCode, openl);
@@ -134,7 +108,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return type;
     }
 
-    static public void loadParams(Object[] ary, int from, Object[] params, Object target, Object[] dtparams,
+    public static void loadParams(Object[] ary, int from, Object[] params, Object target, Object[] dtparams,
             IRuntimeEnv env) {
         for (int i = 0; i < params.length; i++) {
             Object x = params[i];
@@ -246,7 +220,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return null;
     }
 
-    static public Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, Object[] params) {
+    public static Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, Object[] params) {
         Object[] newParams = new Object[dtParams.length + params.length];
 
         System.arraycopy(dtParams, 0, newParams, 0, dtParams.length);
@@ -256,16 +230,12 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return newParams;
     }
 
-    static Object notNull(Object x) {
+    @Deprecated
+    private static Object notNull(Object x) {
         return x == null ? "" : x;
     }
 
-    /**
-     * @param cell
-     * @param paramName
-     * @param paramType
-     */
-    static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean multivalue) {        
+    public static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean multivalue) {        
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, multivalue);
         IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
     }
@@ -294,13 +264,13 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
     public FunctionalRow(String name, int row, ILogicalTable decisionTable) {
         this.row = row;
         this.decisionTable = decisionTable;
-        paramsTable = decisionTable.getLogicalRegion(PARAM_COLUMN, row, 1, 1);
-        codeTable = decisionTable.getLogicalRegion(CODE_COLUMN, row, 1, 1);
-        presentationTable = decisionTable.getLogicalRegion(PRESENTATION_COLUMN, row, 1, 1);
+        paramsTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PARAM_COLUMN, row, 1, 1);
+        codeTable = decisionTable.getLogicalRegion(IDecisionTableConstants.CODE_COLUMN, row, 1, 1);
+        presentationTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PRESENTATION_COLUMN, row, 1, 1);
         this.name = name;
     }
     
-   static public int calcHeight(ILogicalTable table) {
+    public static int calcHeight(ILogicalTable table) {
         int h = table.getLogicalHeight();
 
         int last = -1;
@@ -310,16 +280,14 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             if (src != null && src.trim().length() != 0) {
                 last = i;
             }
-
         }
-
         return  last + 1;
     }
 
     public IDecisionValue calculateCondition(int rule, Object target, Object[] dtParams, IRuntimeEnv env) {
         Object value = paramValues[rule];
         if (value == null) {
-            return IDecisionValue.NxA;
+            return IDecisionValue.NxA_VALUE;
         }
         if (value instanceof IDecisionValue) {
             return (IDecisionValue) value;
@@ -333,7 +301,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
         Boolean res = (Boolean) method.invoke(target, params, env);
 
-        return res == null || res.booleanValue() ? IDecisionValue.True : IDecisionValue.False;
+        return res == null || res.booleanValue() ? IDecisionValue.TRUE_VALUE : IDecisionValue.FALSE_VALUE;
 
     }
 
@@ -366,7 +334,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return null;
     }
 
-    CompositeMethod generateMethod(IMethodSignature signature, OpenL openl, IBindingContextDelegator cxt,
+    private CompositeMethod generateMethod(IMethodSignature signature, OpenL openl, IBindingContextDelegator cxt,
             IOpenClass declaringClass, IOpenClass methodType) throws Exception {
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(codeTable.getGridTable());
@@ -416,7 +384,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return params;
     }
 
-    IParameterDeclaration[] getParams(IBindingContext cxt) throws Exception {
+    private IParameterDeclaration[] getParams(IBindingContext cxt) throws Exception {
         if (params == null) {
 
             Set<String> paramNames = new HashSet<String>();
@@ -471,8 +439,8 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return method == null ? null : method.getMethodBodyBoundNode().getSyntaxNode().getModule();
     }
 
-    ILogicalTable getValueCell(int col) {
-        return decisionTable.getLogicalRegion(col + DATA_COLUMN, row, 1, 1);
+    private ILogicalTable getValueCell(int col) {
+        return decisionTable.getLogicalRegion(col + IDecisionTableConstants.DATA_COLUMN, row, 1, 1);
     }
 
     protected boolean hasNoParams() {
@@ -482,7 +450,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return hasNoParams.booleanValue();
     }
 
-    Object loadParam(ILogicalTable dataTable, IOpenClass paramType, String paramName, String ruleName,
+    private Object loadParam(ILogicalTable dataTable, IOpenClass paramType, String paramName, String ruleName,
             OpenlToolAdaptor ota) throws SyntaxNodeException {
         boolean indexed = paramType.getAggregateInfo().isAggregate(paramType);
 
@@ -535,7 +503,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
     }
 
-    IParameterDeclaration no_parameter() {
+    private IParameterDeclaration no_parameter() {
         return new ParameterDeclaration(JavaOpenClass.STRING, NO_PARAM + np_idx++);
     }
 
@@ -543,8 +511,8 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return params.length;
     }
 
-    int nValues() {
-        return decisionTable.getLogicalWidth() - DATA_COLUMN;
+    private int nValues() {
+        return decisionTable.getLogicalWidth() - IDecisionTableConstants.DATA_COLUMN;
     }
 
     public void prepare(IOpenClass methodType, IMethodSignature signature, OpenL openl, ModuleOpenClass dtModule,
@@ -560,7 +528,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
     }
 
-    Object[][] prepareParamValues(OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
+    private Object[][] prepareParamValues(OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
         int len = nValues();
         Object[][] values = new Object[len][];
 
@@ -674,5 +642,26 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             result = false;
         } 
         return result;
+    }
+    
+    private static class ArrayHolder {
+        private Object ary;
+        private CompositeMethod[] methods;
+
+        public ArrayHolder(Object ary, CompositeMethod[] methods) {
+            this.ary = ary;
+            this.methods = methods;
+        }
+
+        public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i] != null) {
+                    Object res = methods[i].invoke(target, dtParams, env);
+                    Array.set(ary, i, res);
+                }
+            }
+
+            return ary;
+        }
     }
 }

@@ -13,18 +13,20 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class DecisionTableAlgorithm {
+    
+    @Deprecated
+    private static final int COLUMN_MODE = 0, ROW_MODE = 1;
 
-    static final int COLUMN_MODE = 0, ROW_MODE = 1;
+    private int nCond;
+    private int nCol;
+    private IDecisionValue[][] table;
+    private IDTCondition[] elements;
 
-    int nCond, nCol;
-    IDecisionValue[][] table;
-    IDTCondition[] elements;
+    private Object[] dtparams;
 
-    Object[] dtparams;
+    private Object target;
 
-    Object target;
-
-    IRuntimeEnv env;
+    private IRuntimeEnv env;
 
     public DecisionTableAlgorithm(int nCond, int nCol, IDTCondition[] elements, Object target, Object[] dtparams,
             IRuntimeEnv env) {
@@ -37,7 +39,7 @@ public class DecisionTableAlgorithm {
         table = new IDecisionValue[nCond][nCol];
     }
 
-    boolean calcColumn(int col) {
+    public boolean calcColumn(int col) {
         for (int j = 0; j < nCond; j++) {
             IDecisionValue value = getDecisionValue(col, j);
             if (!value.getBooleanValue()) {
@@ -47,7 +49,8 @@ public class DecisionTableAlgorithm {
         return true;
     }
 
-    boolean[] calculateTable() {
+    @Deprecated
+    public boolean[] calculateTable() {
         boolean[] res = new boolean[nCol];
 
         for (int i = 0; i < res.length; i++) {
@@ -56,7 +59,7 @@ public class DecisionTableAlgorithm {
         return res;
     }
 
-    IDecisionValue getDecisionValue(int col, int row) {
+    private IDecisionValue getDecisionValue(int col, int row) {
         IDecisionValue value = table[row][col];
         if (value == null) {
             value = elements[row].calculateCondition(col, target, dtparams, env);

@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class GridSplitter {
 
-    List<GridTable> tables = new ArrayList<GridTable>();
+    private List<GridTable> tables = new ArrayList<GridTable>();
 
-    IGrid grid;
+    private IGrid grid;
 
     public GridSplitter(IGrid grid) {
         this.grid = grid;

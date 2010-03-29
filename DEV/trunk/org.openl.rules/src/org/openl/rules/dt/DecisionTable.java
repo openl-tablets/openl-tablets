@@ -14,9 +14,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ATableTracerLeaf;
-import org.openl.rules.table.ATableTracerNode;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -33,120 +30,28 @@ import org.openl.vm.Tracer;
  * @author snshor
  *
  */
-public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTableConstants, IMemberMetaInfo,
-        IXlsTableNames {
-    static public class DecisionTableTraceObject extends ATableTracerNode {
-        public class RuleTracer extends ATableTracerLeaf {
-            int ruleIdx;
+public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
+    
+    private IOpenMethodHeader header;
 
-            public RuleTracer(int idx) {
-                ruleIdx = idx;
-            }
+    private IDTCondition[] conditionRows;
 
-            public String getDisplayName(int mode) {
-                return "Rule: " + getDT().getRuleName(ruleIdx);
-            }
+    private IDTAction[] actionRows;
 
-            public IGridRegion getGridRegion() {
-                return getRuleTable().getGridTable().getRegion();
-            }
-
-            public DecisionTableTraceObject getParentTraceObject() {
-                return DecisionTableTraceObject.this;
-            }
-
-            public ILogicalTable getRuleTable() {
-                return getDT().getRuleTable(ruleIdx);
-            }
-
-            public TableSyntaxNode getTableSyntaxNode() {
-                return getParentTraceObject().getDT().getTableSyntaxNode();
-            }
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see org.openl.util.ITreeElement#getType()
-             */
-            public String getType() {
-                return "rule";
-            }
-
-            @Override
-            public String getUri() {
-                return getRuleTable().getGridTable().getUri();
-            }
-        }
-
-        public DecisionTableTraceObject(DecisionTable dt, Object[] params) {
-            super(dt, params);
-        }
-
-        public String getDisplayName(int mode) {
-            return "DT " + asString((IOpenMethod) getTraceObject(), mode);
-        }
-
-        public DecisionTable getDT() {
-            return (DecisionTable) getTraceObject();
-        }
-
-        public IGridRegion getGridRegion() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.util.ITreeElement#getType()
-         */
-        public String getType() {
-            return "decisiontable";
-        }
-
-        @Override
-        public String getUri() {
-            return getDT().getTableSyntaxNode().getUri();
-        }
-
-        public RuleTracer traceRule(int i) {
-            return new RuleTracer(i);
-        }
-    }
-
-    static final int UNDEFINED = 0, FALSE = 1, TRUE = 2, NA = 3, SPECIAL_FALSE = 4, SPECIAL_TRUE = 5;
-
-    static final int COLUMN_MODE = 0, ROW_MODE = 1;
-
-    IOpenMethodHeader header;
-
-    IDTCondition[] conditionRows;
-
-    IDTAction[] actionRows;
-
-    RuleRow ruleRow;
-
-    // IDecisionTableStructure structure;
-    int columns;
+    private RuleRow ruleRow;
+    
+    private int columns;
+    
+    //private IDecisionTableStructure structure; 
 
     private TableSyntaxNode tableSyntaxNode;
 
-    DTOptimizedAlgorithm algorithm;
+    private DTOptimizedAlgorithm algorithm;
 
-    /**
-     * @param header2
-     * @return
-     */
     public static DecisionTable createTable(IOpenMethodHeader header) {
         return new DecisionTable(header);
     }
 
-    /**
-     * @param name
-     * @param typeClass
-     * @param parameterTypes
-     * @param declaringClass
-     */
     private DecisionTable(IOpenMethodHeader header) {
         this.header = header;
     }
@@ -170,7 +75,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         return algorithm;
     }
 
-    int getColumns() {
+    public int getColumns() {
         return columns;
     }
 
@@ -193,7 +98,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
     }
 
     public ILogicalTable getDisplayTable() {
-        ILogicalTable bView = tableSyntaxNode.getSubTables().get(VIEW_BUSINESS);
+        ILogicalTable bView = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
         return bView.getLogicalColumn(0);
     }
 
@@ -232,7 +137,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
     }
 
     public ILogicalTable getRuleTable(int col) {
-        ILogicalTable bView = tableSyntaxNode.getSubTables().get(VIEW_BUSINESS);
+        ILogicalTable bView = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
         return bView.getLogicalColumn(col + 1);
     }
 
@@ -290,9 +195,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         }
         
         return returnValue;
-    }
-
-    
+    }    
     
     /**
      * Check whether execution of decision table should be failed if no rule fired.  
@@ -408,9 +311,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
         return header.isStatic();
     }
 
-    /**
-     * @param evs
-     */
     protected void makeAlgorithm(IDTConditionEvaluator[] evs) {
         algorithm = new DTOptimizedAlgorithm(evs, this);
         algorithm.buildIndex();
@@ -435,8 +335,9 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
             actionRows[i].prepareAction(methodType, signature, openl, dtModule, cxtd, ruleRow);
         }
     }
-
-    String printMask(boolean[] mask) {
+    
+    @Deprecated
+    private String printMask(boolean[] mask) {
         StringBuffer buf = new StringBuffer();
         buf.append('[');
         for (int i = 0; i < mask.length; i++) {
@@ -505,5 +406,4 @@ public class DecisionTable implements IOpenMethod, IDecisionTable, IDecisionTabl
             }
         }
     }
-
 }

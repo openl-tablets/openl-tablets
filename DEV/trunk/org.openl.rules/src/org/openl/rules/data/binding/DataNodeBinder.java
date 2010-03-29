@@ -39,7 +39,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
+public class DataNodeBinder extends AXlsTableBinder {
 
     private static final int HEADER_NUM_TOKENS = 3;
 
@@ -550,7 +550,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         ILogicalTable tableBody = getTableBody(tsn);
         ILogicalTable horizDataTable = getHorizontalTable(tableBody, tableType);
         ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTable);
-        tsn.getSubTables().put(VIEW_BUSINESS, dataWithTitleRows);
+        tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, dataWithTitleRows);
     }      
     
     @Override

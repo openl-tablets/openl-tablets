@@ -15,7 +15,8 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 public class CompositeMethod extends AMethod {
-    IBoundMethodNode methodBodyBoundNode;
+    
+    private IBoundMethodNode methodBodyBoundNode;
 
     public CompositeMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode) {
         super(header);
@@ -25,10 +26,7 @@ public class CompositeMethod extends AMethod {
     public IOpenClass getBodyType() {
         return methodBodyBoundNode.getType();
     }
-
-    /**
-     * @return
-     */
+   
     public IBoundMethodNode getMethodBodyBoundNode() {
         return methodBodyBoundNode;
     }
@@ -47,16 +45,10 @@ public class CompositeMethod extends AMethod {
 
     }
 
-    /**
-     * @param node
-     */
     public void setMethodBodyBoundNode(IBoundMethodNode node) {
         methodBodyBoundNode = node;
     }
 
-    /**
-     * @param dependencies
-     */
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.visit(getMethodBodyBoundNode());
     }

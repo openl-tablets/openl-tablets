@@ -11,15 +11,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode
-
-{
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return false;
-    }
-
+public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
+    
     protected OpenL openl;
     protected IOpenMethodHeader header;
 
@@ -27,15 +20,16 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     protected ModuleOpenClass module;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
+    
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(methodNode, new IBoundNode[0]);
         this.header = header;
         this.openl = openl;
         this.module = module;
+    }    
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return false;
     }
 
     public void addTo(ModuleOpenClass openClass) {
@@ -52,5 +46,4 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     public IOpenClass getType() {
         return header.getType();
     }
-
 }

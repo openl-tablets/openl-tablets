@@ -12,7 +12,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
-public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNode, IXlsTableNames {
+public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
     public SSheetBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(tsn, openl, header, module);
@@ -39,7 +39,7 @@ public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNod
                 "Spreadsheet must have at least 2x2 cells! Actual size %dx%d.", w, h), getTableSyntaxNode());
         }
 
-        getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody);
+        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         builder.build(tableBody);
     }
 

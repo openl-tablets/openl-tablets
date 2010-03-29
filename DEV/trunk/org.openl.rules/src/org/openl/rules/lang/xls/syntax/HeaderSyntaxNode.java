@@ -7,7 +7,7 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
 
     public static final String HEADER_TYPE = "org.openl.celltype.header";
 
-    IdentifierNode headerToken;
+    private IdentifierNode headerToken;
 
     public HeaderSyntaxNode(GridCellSourceCodeModule module, IdentifierNode headerToken) {
         super(HEADER_TYPE, module);

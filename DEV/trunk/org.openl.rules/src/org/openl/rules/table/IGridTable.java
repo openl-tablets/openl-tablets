@@ -15,7 +15,8 @@ package org.openl.rules.table;
  */
 public interface IGridTable extends ILogicalTable {
 
-    public static final boolean ORIENTATION_NORMAL = true, ORIENTATION_TRANSPOSED = false;
+    boolean ORIENTATION_NORMAL = true;
+    boolean ORIENTATION_TRANSPOSED = false;
 
     ICell getCell(int column, int row);
 
@@ -29,10 +30,6 @@ public interface IGridTable extends ILogicalTable {
 
     int getGridWidth();
 
-    /**
-     *
-     * @return
-     */
     IGridRegion getRegion();
 
     String getUri();

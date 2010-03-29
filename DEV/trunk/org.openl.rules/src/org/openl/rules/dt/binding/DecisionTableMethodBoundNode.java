@@ -24,10 +24,6 @@ import org.openl.types.IOpenMethodHeader;
  */
 public class DecisionTableMethodBoundNode extends AMethodBasedNode {
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
     public DecisionTableMethodBoundNode(TableSyntaxNode dtNode, OpenL openl, IOpenMethodHeader header,
             ModuleOpenClass module) {
         super(dtNode, openl, header, module);
