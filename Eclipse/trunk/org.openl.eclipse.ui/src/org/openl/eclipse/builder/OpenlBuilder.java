@@ -31,7 +31,7 @@ import org.openl.eclipse.util.UrlUtil;
 import org.openl.engine.OpenLManager;
 import org.openl.main.OpenlMain;
 import org.openl.rules.lang.xls.XlsLoader;
-import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -152,7 +152,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
         }
     }
 
-    private void addMarker(IResource resource, SyntaxNodeException se, String openl) {
+    private void addMarker(IResource resource, CompositeSyntaxNodeException se, String openl) {
         OpenlMarkers.addMarkers(resource, se, openl);
     }
 
@@ -201,7 +201,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
                 if (openl != null) {
                     OpenLManager.compileModule(openl, new EclipseFileSourceCodeModule(file));
                 }
-            } catch (SyntaxNodeException se) {
+            } catch (CompositeSyntaxNodeException se) {
                 addMarker(file, se, openl.getName());
             } catch (Throwable t) {
 
