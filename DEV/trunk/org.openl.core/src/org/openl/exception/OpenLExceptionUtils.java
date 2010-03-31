@@ -2,8 +2,12 @@ package org.openl.exception;
 
 import java.io.PrintWriter;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.main.SourceCodeURLTool;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.util.text.ILocation;
+import org.openl.util.text.TextInfo;
 
 public class OpenLExceptionUtils {
 
@@ -38,6 +42,37 @@ public class OpenLExceptionUtils {
         if (error.getOriginalCause() != null) {
             error.getOriginalCause().printStackTrace(writer);
         }
+    }
+
+    public static String[] getErrorCode(OpenLCompilationException error) {
+        ILocation location = error.getLocation();
+        IOpenSourceCodeModule sourceModule = error.getSourceModule();
+
+        String code = null;
+        if (sourceModule != null) {
+            code = sourceModule.getCode();
+            if (StringUtils.isBlank(code)) {
+                code = StringUtils.EMPTY;
+            }
+        }
+
+        int pstart = 0;
+        int pend = code.length();
+    
+        if (!code.isEmpty() && location != null && location.isTextLocation()) {
+            TextInfo info = new TextInfo(code);
+            pstart = location.getStart().getAbsolutePosition(info);
+            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
+        }
+
+        if (pend != 0) {
+            return new String[] {
+                    code.substring(0, pstart),
+                    code.substring(pstart, pend),
+                    code.substring(pend, code.length())};
+        }
+
+        return new String[0];
     }
 
 }
