@@ -5,6 +5,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
@@ -90,6 +91,10 @@ public class OpenLCompilationException extends Exception {
      */
     public IOpenSourceCodeModule getSourceModule() {
         return source;
+    }
+
+    public String getUri() {
+        return SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule(), "");
     }
 
     @Override
