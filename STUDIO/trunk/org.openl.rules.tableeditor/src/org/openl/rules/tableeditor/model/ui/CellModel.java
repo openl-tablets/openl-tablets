@@ -47,7 +47,7 @@ public class CellModel implements ICellModel {
         hasFormula = false;
     }
 
-    public void atttributesToHtml(StringBuilder buf, TableModel table) {
+    public void atttributesToHtml(StringBuilder buf, TableModel table, boolean selectErrorCell) {
         if (colspan != 1) {
             buf.append(" colspan=").append(colspan);
         }
@@ -55,9 +55,13 @@ public class CellModel implements ICellModel {
             buf.append(" rowspan=").append(rowspan);
         }
 
-        String style = getHtmlStyle(table);
+        String style = getHtmlStyle(table, selectErrorCell);
 
         buf.append(" style=\"" + style + "\"");
+    }
+
+    public void atttributesToHtml(StringBuilder buf, TableModel table) {
+        atttributesToHtml(buf, table, false);
     }
 
     private void borderToHtml(StringBuilder buf, TableModel table) {
@@ -148,7 +152,7 @@ public class CellModel implements ICellModel {
      *
      * @return style string for cell
      */
-    public String getHtmlStyle(TableModel tm) {
+    public String getHtmlStyle(TableModel tm, boolean selectErrorCell) {
         StringBuilder sb = new StringBuilder();
         if (halign != null) {
             sb.append("text-align:" + halign + ";");
@@ -171,7 +175,11 @@ public class CellModel implements ICellModel {
 
         if (borderStyle != null || font != null) {
             sb.append("padding:" + String.valueOf(cellPadding) + "px" + ";");
-            borderToHtml(sb, tm);
+            if (selectErrorCell) {
+                sb.append(" border: 2px solid red;");
+            } else {
+                borderToHtml(sb, tm);
+            }
             WebTool.fontToHtml(font, sb);
         }
 

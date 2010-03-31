@@ -7,7 +7,6 @@ public interface IProjectTypes {
     String PT_WORDDOC = "word document";
     String PT_TABLE = "table";
     String PT_TABLE_GROUP = "table group";
-    String PT_PROBLEM = "problem";
     String PT_FOLDER = "folder";
 
 }

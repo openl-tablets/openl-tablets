@@ -227,8 +227,14 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>showTableErrorBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.ShowTableErrorBean</managed-bean-class>
+    <managed-bean-name>showMessageBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.ShowMessageBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>messagesBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.MessagesBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
@@ -245,6 +251,12 @@
   <managed-bean>
     <managed-bean-name>treeBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.TreeBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>problemsBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.ProblemsBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 

@@ -14,8 +14,15 @@ table,input,textarea {
 }
 
 .error_box {
-    background: #ffeeee;
+    padding: 8px 3px 8px 42px;
+    background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;
     border: 1px solid #DC6E6E;
+}
+
+.warning_box {
+    padding: 8px 3px 8px 42px;
+    background: url(webresource/images/warning32.png) no-repeat 5px #FFF4AD;
+    border: 1px solid #DFA660;
 }
 
 .data_cell {
@@ -387,8 +394,9 @@ table.main {
     padding: 3px;
 }
 
-code {
-    font-size: 150%;
+.code {
+    font-family: Courier New, monospace;
+    font-size: 110%;
 }
 
 span.codeerror {

@@ -39,7 +39,6 @@
 </head>
 
 <body>
-<%@include file="/WEB-INF/include/errorDisplay.inc"%>
 
 <h3> Results of running <%=name%> <%=testDescr == null ? "" : " ("+testDescr + ")"%> </h3>
 <p>  

@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -28,47 +30,48 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.StringTool;
 
 /**
- * Request scope managed bean for showTable facelet.
+ * Request scope managed bean for showTable page.
  */
 public class ShowTableBean {
 
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
 
     private String url;
-    private String text;
-    private String name;
     private boolean runnable;
     private boolean testable;
-    private SyntaxNodeException[] se;
     private String uri;
+    private ITable table;
+    private List<OpenLMessage> errors;
+
     private String notViewParams;
     private String paramsWithoutShowFormulas;
     private String paramsWithoutUri;
 
-    private boolean switchParam;
-
     @SuppressWarnings("unchecked")
     public ShowTableBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        if (uri != null) {
-            switchParam = Boolean.valueOf(FacesUtils.getRequestParameter("switch"));
-            studio.setTableUri(uri);
-        } else {
+        if (uri == null) {
             uri = studio.getTableUri();
+        } else {
+            studio.setTableUri(uri);
         }
+
         final ProjectModel model = studio.getModel();
+
+        table = model.getTable(uri);
+
+        List<OpenLMessage> messages = table.getMessages();
+        errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+
         url = model.makeXlsUrl(uri);
-        text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
-        name = model.getDisplayNameFull(uri);
         runnable = model.isRunnable(uri);
         testable = model.isTestable(uri);
-        se = model.getErrors(uri);
 
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
@@ -76,43 +79,30 @@ public class ShowTableBean {
                 entry.setValue(new String[] { (String) entry.getValue() });
             }
         }
+
         notViewParams = WebTool.listRequestParams(paramMap, new String[] { "transparency", "filterType", "view" });
         paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
         paramsWithoutShowFormulas = WebTool.listRequestParams(
                 paramMap, new String[] { "transparency", "filterType", "showFormulas" });
     }
-    
+
     public boolean canModifyCurrentProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         UserWorkspaceProject currentProject = studio.getCurrentProject();
-        if (currentProject != null) {
-            return (currentProject.isCheckedOut() || currentProject.isLocalOnly());
-        }
-        return false;
-    }
 
-    public String getEditCell() {
-        if (switchParam) {
-            return "";
+        if (currentProject != null) {
+            return currentProject.isCheckedOut() || currentProject.isLocalOnly();
         }
-        return FacesUtils.getRequestParameter("cell");
+
+        return false;
     }
 
     public String getEncodedUri() {
         return StringTool.encodeURL(uri);
     }
 
-    public String getErrorString() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio.getModel().showErrors(uri, FacesUtils.getSession());
-    }
-
     public String getMode() {
         return FacesUtils.getRequestParameter("mode");
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getNotViewParams() {
@@ -127,14 +117,12 @@ public class ShowTableBean {
         return paramsWithoutShowFormulas;
     }
 
-    public SyntaxNodeException[] getSe() {
-        return se;
+    public ITable getTable() {
+        return table;
     }
 
-    public ITable getTable() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        TableSyntaxNode tsn = studio.getModel().getNode(getUri());
-        return new TableSyntaxNodeAdapter(tsn);
+    public List<OpenLMessage> getErrors() {
+        return errors;
     }
 
     public TestRunsResultBean getTestRunResults() {
@@ -144,10 +132,6 @@ public class ShowTableBean {
             tests = atr.getTests();
         }
         return new TestRunsResultBean(tests);
-    }
-
-    public String getText() {
-        return text;
     }
 
     public String getUri() {
@@ -166,19 +150,15 @@ public class ShowTableBean {
     public boolean isCopyable() {        
         return canModifyCurrentProject() && !isServiceNode();
     }
-    
+
     private boolean isServiceNode() {
-        boolean result = false;
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        TableSyntaxNode tsn = studio.getModel().getNode(getUri());
-        if (tsn != null) {
-            String tableType = tsn.getType();
-            if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) || ITableNodeTypes.XLS_OTHER.equals(tableType) 
-                    || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
-                result = true;
-            }        
+        String tableType = table.getType();
+        if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType)
+                || ITableNodeTypes.XLS_OTHER.equals(tableType)
+                || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
+            return true;
         }
-        return result;
+        return false;
     }
 
     public boolean isEditable() {
@@ -190,7 +170,7 @@ public class ShowTableBean {
     }
 
     public boolean isHasErrors() {
-        return se != null && se.length > 0;
+        return CollectionUtils.isNotEmpty(errors);
     }
 
     public boolean isRunnable() {
@@ -199,11 +179,6 @@ public class ShowTableBean {
 
     public boolean isTestable() {
         return testable;
-    }
-
-    public boolean isTsnHasErrors() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio != null && webStudio.getModel().hasErrors(uri);
     }
 
     public boolean isShowFormulas() {
@@ -228,9 +203,9 @@ public class ShowTableBean {
 
     public String removeTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        IGridTable table = studio.getModel().getTableWithMode(uri, IXlsTableNames.VIEW_DEVELOPER);
+        IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
         try {
-            new TableServiceImpl(true).removeTable(table);
+            new TableServiceImpl(true).removeTable(gridTable);
             studio.rebuildModel();
         } catch (TableServiceException e) {
             e.printStackTrace();
@@ -269,15 +244,17 @@ public class ShowTableBean {
     private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
         boolean result = false;
         String systemValue = null;
+
         if (sysProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-            systemValue = SystemValuesManager.instance().getSystemValueString(sysProperty.getSystemValueDescriptor());
+            systemValue = SystemValuesManager.getInstance().getSystemValueString(
+                    sysProperty.getSystemValueDescriptor());
             if (systemValue != null) {
                 try {
                     editorModel.setProperty(sysProperty.getName(), systemValue);
                     result = true;
                 } catch (Exception e) {
                     LOG.error(String.format("Can`t update system property %s with value %s", sysProperty.getName(),
-                                                    systemValue), e);                   
+                            systemValue), e);
                 }
             }
         }
@@ -305,30 +282,6 @@ public class ShowTableBean {
     }
 
     public static class TestRunsResultBean {
-        public class TestProxy {
-            int index;
-
-            public TestProxy(int index) {
-                this.index = index;
-            }
-
-            public String[] getDescriptions() {
-                AllTestsRunResult.Test test = getTest();
-                String[] descriptions = new String[test.ntests()];
-                for (int i = 0; i < descriptions.length; i++) {
-                    descriptions[i] = test.getTestDescription(i);
-                }
-                return descriptions;
-            }
-
-            private AllTestsRunResult.Test getTest() {
-                return tests[index];
-            }
-
-            public String getTestName() {
-                return StringTool.encodeURL(getTest().getTestName());
-            }
-        }
 
         private AllTestsRunResult.Test[] tests;
 
@@ -354,5 +307,32 @@ public class ShowTableBean {
         public boolean isNotEmpty() {
             return tests != null && tests.length > 0;
         }
+
+        public class TestProxy {
+
+            int index;
+
+            public TestProxy(int index) {
+                this.index = index;
+            }
+
+            public String[] getDescriptions() {
+                AllTestsRunResult.Test test = getTest();
+                String[] descriptions = new String[test.ntests()];
+                for (int i = 0; i < descriptions.length; i++) {
+                    descriptions[i] = test.getTestDescription(i);
+                }
+                return descriptions;
+            }
+
+            private AllTestsRunResult.Test getTest() {
+                return tests[index];
+            }
+
+            public String getTestName() {
+                return StringTool.encodeURL(getTest().getTestName());
+            }
+        }
+
     }
 }

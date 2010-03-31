@@ -36,22 +36,18 @@ public class SystemValuesManager {
             }            
         }
     }
-    
-    private static void init() {
-        if (instance == null) {
-            synchronized (SystemValuesManager.class) {        
+
+    public static SystemValuesManager getInstance() {
+        if (instance == null) { // Double-checked locking
+            synchronized (SystemValuesManager.class) {
                 if (instance == null) {
                     instance = new SystemValuesManager();
-                }                   
+                }
             }
-        }        
-    }
-    
-    public static SystemValuesManager instance() {
-        init();
+        }
         return instance;
     }
-    
+
     public Object getSystemValue(String descriptor) {
         Object result = null;
         ISystemValue systemValue = systemValues.get(descriptor);

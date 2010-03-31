@@ -96,7 +96,7 @@ public class TestTableCreationWizard extends WizardBase {
                     .getSystemProperties();
             for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
                 if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
-                    Object systemValue = SystemValuesManager.instance().
+                    Object systemValue = SystemValuesManager.getInstance().
                         getSystemValue(systemPropDef.getSystemValueDescriptor());
                     if (systemValue != null) {
                         result.put(systemPropDef.getName(), systemValue);                        

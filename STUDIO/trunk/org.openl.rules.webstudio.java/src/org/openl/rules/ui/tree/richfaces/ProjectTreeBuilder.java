@@ -52,9 +52,6 @@ public class ProjectTreeBuilder extends TreeBuilder {
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
             String uri = ((ProjectTreeNode) element).getUri();
             return "tableeditor/showTable.xhtml?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
-        } else if (elementType.startsWith(IProjectTypes.PT_PROBLEM)) {
-            return "tableeditor/showError.xhtml?" + Constants.REQUEST_PARAM_ID + "="
-                + projectModel.getTreeNodeId(element);
         }
         return null;
     }
