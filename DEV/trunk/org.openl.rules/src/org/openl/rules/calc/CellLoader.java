@@ -4,7 +4,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.data.IString2DataConvertor;
+import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;

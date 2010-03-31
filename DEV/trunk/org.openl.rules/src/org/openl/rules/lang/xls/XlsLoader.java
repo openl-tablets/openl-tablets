@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.conf.IConfigurableResourceContext;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DTLoader;
 import org.openl.rules.extension.load.IExtensionLoader;
@@ -46,7 +47,7 @@ import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.Log;
 import org.openl.util.PathTool;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -344,15 +345,14 @@ public class XlsLoader {
         setOpenl(new OpenlSyntaxNode(openlName, new GridLocation(table), source));
     }
 
-    private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source) {
+    private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
 
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
-        IdentifierNode headerToken = TokenizerParser.firstToken(src, " \n\r");
+        IdentifierNode headerToken = Tokenizer.firstToken(src, " \n\r");
+        HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);
 
         String header = headerToken.getIdentifier();
-
-        HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);
 
         String xls_type = getTableHeaders().get(header);
 

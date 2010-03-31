@@ -1,4 +1,4 @@
-package org.openl.rules.data.impl;
+package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -9,9 +9,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
-import org.openl.rules.data.IDataBase;
-import org.openl.rules.data.ITable;
-import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
@@ -25,7 +22,8 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
- * Handles column descriptors that are represented as foreign keys to data from other tables.
+ * Handles column descriptors that are represented as foreign keys to data from
+ * other tables.
  * 
  * @author DLiauchuk
  * 
@@ -36,163 +34,205 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private IdentifierNode foreignKeyTable;
     private IdentifierNode foreignKey;
 
+    public ForeignKeyColumnDescriptor(IOpenField field,
+            IdentifierNode foreignKeyTable,
+            IdentifierNode foreignKey,
+            StringValue displayValue,
+            OpenL openl) {
+
+        super(field, displayValue, openl);
+
+        this.foreignKeyTable = foreignKeyTable;
+        this.foreignKey = foreignKey;
+    }
+
     /**
-     * Gets the value as <code>String</code> from the cell. If there is no value, returns <code>NULL</code>.
+     * Gets the value as <code>String</code> from the cell. If there is no
+     * value, returns <code>NULL</code>.
      * 
      * @param cellTable
      * @return
      */
     private String getCellStringValue(ILogicalTable cellTable) {
-        String s = null;
-        s = cellTable.getGridTable().getCell(0, 0).getStringValue();
-        if (s != null) {
-            s = s.trim();
+
+        String value = cellTable.getGridTable().getCell(0, 0).getStringValue();
+
+        if (value != null) {
+            value = value.trim();
         }
-        return s;
+
+        return value;
     }
 
     /**
-     * Goes through the values as foreign keys, finds all info about this objects in foreign table and puts it to array.
-     * Can process array value presented as {@link FunctionalRow#ARRAY_ELEMENTS_SEPARATOR} array.
+     * Goes through the values as foreign keys, finds all info about this
+     * objects in foreign table and puts it to array. Can process array value
+     * presented as {@link FunctionalRow#ARRAY_ELEMENTS_SEPARATOR} array.
      * 
-     * @param valuesTable Logical table representing array values for current table.
-     * @param cxt
-     * @param foreignTable Foreign table with stored info about dependent values.
+     * @param valuesTable Logical table representing array values for current
+     *            table.
+     * @param bindingContext
+     * @param foreignTable Foreign table with stored info about dependent
+     *            values.
      * @param foreignKeyIndex
      * @param domainClass
      * @return
      * @throws BoundError
      */
     private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
-                                                         IBindingContext cxt,
-                                                         ITable foreignTable,
-                                                         int foreignKeyIndex,
-                                                         DomainOpenClass domainClass) throws SyntaxNodeException {
+            IBindingContext bindingContext,
+            ITable foreignTable,
+            int foreignKeyIndex,
+            DomainOpenClass domainClass) throws SyntaxNodeException {
+
         int valuesHeight = valuesTable.getLogicalHeight();
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
 
         boolean multiValue = false;
+
         if (valuesHeight == 1 && FunctionalRow.isCommaSeparatedArray(valuesTable)) {
+
             multiValue = true;
             FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+
             // load array of values as comma separated parameters
             String[] tokens = FunctionalRow.extractElementsFromCommaSeparatedArray(valuesTable);
+
             if (tokens != null) {
                 for (String token : tokens) {
-                    Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, token);
+                    Object res = getValueByForeignKeyIndex(bindingContext,
+                        foreignTable,
+                        foreignKeyIndex,
+                        valuesTable,
+                        token);
                     values.add(res);
                 }
             }
         } else {
+
             for (int i = 0; i < valuesHeight; i++) {
-                //we take the appropriate cell for the current value. 
+                // we take the appropriate cell for the current value.
                 ILogicalTable valueTable = valuesTable.getLogicalRow(i);
-                String s = getCellStringValue(valueTable);
-                if (s == null || s.length() == 0) {
+                String value = getCellStringValue(valueTable);
+
+                if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
                     FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                     values.add(null);
                     continue;
                 }
+
                 FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
-                Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valueTable, s);
+                Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
                 values.add(res);
             }
         }
+
         return values;
     }
 
     /**
-     * Tries to find value by its key in foreign table. If no, throws an exception.
+     * Tries to find value by its key in foreign table. If no, throws an
+     * exception.
      * 
-     * @param cxt
+     * @param bindingContext
      * @param foreignTable
      * @param foreignKeyIndex
      * @param valueTable
-     * @param s
+     * @param key
      * @return
      * @throws BoundError
      */
-    private Object getValueByForeignKeyIndex(IBindingContext cxt,
-                                             ITable foreignTable,
-                                             int foreignKeyIndex,
-                                             ILogicalTable valueTable,
-                                             String s) throws SyntaxNodeException {
-        Object res = null;
+    private Object getValueByForeignKeyIndex(IBindingContext bindingContext,
+            ITable foreignTable,
+            int foreignKeyIndex,
+            ILogicalTable valueTable,
+            String key) throws SyntaxNodeException {
+
+        Object result = null;
+
         try {
-            res = foreignTable.findObject(foreignKeyIndex, s, cxt);
+            result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
         } catch (SyntaxNodeException ex) {
-            throwIndexNotFound(valueTable, s, ex);
+            throwIndexNotFound(valueTable, key, ex);
         }
-        if (res == null) {
-            throwIndexNotFound(valueTable, s, null);
+
+        if (result == null) {
+            throwIndexNotFound(valueTable, key, null);
         }
-        return res;
+
+        return result;
     }
 
     private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
-        throw SyntaxNodeExceptionUtils.createError(String.format("Index Key %s not found", src),
+
+        String message = String.format("Index Key %s not found", src);
+
+        throw SyntaxNodeExceptionUtils.createError(message,
             ex,
             null,
             new GridCellSourceCodeModule(valuesTable.getGridTable()));
     }
 
-    public ForeignKeyColumnDescriptor(IOpenField field,
-        IdentifierNode foreignKeyTable,
-        IdentifierNode foreignKey,
-        StringValue displayValue,
-        OpenL openl) {
-        super(field, displayValue, openl);
-        this.foreignKeyTable = foreignKeyTable;
-        this.foreignKey = foreignKey;
-    }
-
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is represents <b>AS</b> a constructor (see
-     * {@link #isConstructor()}).
+     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
+     * represents <b>AS</b> a constructor (see {@link #isConstructor()}).
      */
     public Object getLiteralByForeignKey(IOpenClass fieldType,
-                                         ILogicalTable valuesTable,
-                                         IDataBase db,
-                                         IBindingContext cxt) throws Exception {
-        Object result = null;
+            ILogicalTable valuesTable,
+            IDataBase db,
+            IBindingContext bindingContext) throws Exception {
+
         String foreignKeyTableName = foreignKeyTable.getIdentifier();
         ITable foreignTable = db.getTable(foreignKeyTableName);
+        Object result = null;
+
         if (foreignTable == null) {
-            throw SyntaxNodeExceptionUtils.createError("Table " + foreignKeyTableName + " not found", null, foreignKeyTable);
+
+            String message = "Table " + foreignKeyTableName + " not found";
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         }
 
         int foreignKeyIndex = 0;
         String columnName = NOT_INITIALIZED;
+
         if (foreignKey != null) {
             columnName = foreignKey.getIdentifier();
-
             foreignKeyIndex = foreignTable.getColumnIndex(columnName);
         }
 
         if (foreignKeyIndex == -1) {
-            throw SyntaxNodeExceptionUtils.createError("Column " + columnName + " not found", null, foreignKey);
+            String message = "Column " + columnName + " not found";
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
 
         if (!valuesAnArray) {
-            String s = getCellStringValue(valuesTable);
-            if (s != null && s.length() > 0) {
-                result = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
+
+            String value = getCellStringValue(valuesTable);
+
+            if (value != null && value.length() > 0) {
+                result = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valuesTable, value);
             }
+
         } else {
+
             List<Object> values = new ArrayList<Object>();
             int valuesHeight = valuesTable.getLogicalHeight();
+
             for (int i = 0; i < valuesHeight; i++) {
+
                 ILogicalTable valueTable = valuesTable.getLogicalRow(i);
-                String s = getCellStringValue(valueTable);
-                if (s == null || s.length() == 0) {
+                String value = getCellStringValue(valueTable);
+
+                if (value == null || value.length() == 0) {
                     break;
                 }
-                Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valueTable, s);
+
+                Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
                 values.add(res);
             }
 
@@ -202,6 +242,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             for (int i = 0; i < values.size(); i++) {
                 Array.set(ary, i, values.get(i));
             }
+
             result = ary;
         }
 
@@ -217,40 +258,42 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is represents as <b>NOT</b> a constructor
-     * (see {@link #isConstructor()}).
+     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
+     * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
-    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt)
-                                                                                                                        throws Exception {
+    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt) throws Exception {
+
         if (foreignKeyTable != null) {
+
             String foreignKeyTableName = foreignKeyTable.getIdentifier();
             ITable foreignTable = db.getTable(foreignKeyTableName);
+
             if (foreignTable == null) {
-                throw SyntaxNodeExceptionUtils.createError("Table " + foreignKeyTableName + " not found", null, foreignKeyTable);
+                String message = "Table " + foreignKeyTableName + " not found";
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
 
             int foreignKeyIndex = 0;
             String columnName = NOT_INITIALIZED;
+
             if (foreignKey != null) {
                 columnName = foreignKey.getIdentifier();
-
                 foreignKeyIndex = foreignTable.getColumnIndex(columnName);
             }
 
             if (foreignKeyIndex == -1) {
-                throw SyntaxNodeExceptionUtils.createError("Column " + columnName + " not found", null, foreignKey);
+                String message = "Column " + columnName + " not found";
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
             }
 
             Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
-
             String[] domainStrings = index.keySet().toArray(new String[0]);
 
             EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
-
             DomainOpenClass domainClass = new DomainOpenClass(getField().getName(), JavaOpenClass.STRING, domain, null);
-            /**
-             * table will have 1xN size
-             */
+
+            // table will have 1xN size
+            //
             valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
             IOpenClass fieldType = getField().getType();
@@ -259,9 +302,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
 
             if (!valueAnArray && !isList) {
+
                 String s = getCellStringValue(valuesTable);
+
                 if (s == null || s.length() == 0) {
-                    //Set meta info for empty cells
+                    // Set meta info for empty cells
                     FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                 } else {
                     if (s.length() > 0) {
@@ -277,7 +322,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     foreignTable,
                     foreignKeyIndex,
                     domainClass);
+
                 int size = values.size();
+
                 IOpenClass componentType = valueAnArray ? fieldType.getAggregateInfo().getComponentType(fieldType)
                                                        : JavaOpenClass.OBJECT;
                 Object ary = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
@@ -288,10 +335,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (isList) {
                     int len = Array.getLength(ary);
+
                     List<Object> list = new ArrayList<Object>(len);
+
                     for (int i = 0; i < len; i++) {
                         list.add(Array.get(ary, i));
                     }
+
                     getField().set(target, list, getRuntimeEnv());
                 } else {
                     getField().set(target, ary, getRuntimeEnv());

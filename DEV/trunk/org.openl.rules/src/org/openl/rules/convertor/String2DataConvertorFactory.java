@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.data;
+package org.openl.rules.convertor;
 
 import java.lang.reflect.Constructor;
 import java.text.DateFormat;

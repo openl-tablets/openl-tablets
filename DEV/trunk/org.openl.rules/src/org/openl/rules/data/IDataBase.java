@@ -7,26 +7,19 @@
 package org.openl.rules.data;
 
 import org.openl.rules.OpenlToolAdaptor;
-import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IDataBase {
-
-    // ITable addTable(IDataTableModel dataModel, ILogicalTable data,
-    // OpenlToolAdaptor ota) throws Exception;
-
-    // void validate() throws Exception;
 
     ITable addNewTable(String tableName, TableSyntaxNode tsn);
 
     ITable getTable(String name);
 
-    void preLoadTable(ITable t, OpenlBasedDataTableModel dataModel, ILogicalTable dataWithHeader, OpenlToolAdaptor ota)
-            throws Exception;
+    void preLoadTable(ITable table, ITableModel dataModel, ILogicalTable dataWithHeader, OpenlToolAdaptor ota) throws Exception;
 
 }

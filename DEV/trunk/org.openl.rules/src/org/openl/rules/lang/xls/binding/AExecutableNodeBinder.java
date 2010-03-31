@@ -6,7 +6,6 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.data.DuplicatedTableException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;

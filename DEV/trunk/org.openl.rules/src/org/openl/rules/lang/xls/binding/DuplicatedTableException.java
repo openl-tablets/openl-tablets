@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.data;
+package org.openl.rules.lang.xls.binding;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -28,23 +28,13 @@ public class DuplicatedTableException extends RuntimeException{
         this.duplicatedTable = duplicatedTable;
     }
 
-    /**
-     * @return
-     */
     public TableSyntaxNode getDuplicatedTable() {
         return duplicatedTable;
     }
 
-    /**
-     * @return
-     */
     public TableSyntaxNode getExistingTable() {
         return existingTable;
     }
-
-    /**
-     *
-     */
 
     @Override
     public String getMessage() {

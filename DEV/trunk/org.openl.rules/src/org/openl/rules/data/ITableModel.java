@@ -6,14 +6,13 @@
 
 package org.openl.rules.data;
 
-import org.openl.rules.data.impl.ColumnDescriptor;
 import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
  *
  */
-public interface IDataTableModel {
+public interface ITableModel {
     
     ColumnDescriptor[] getDescriptor();
 
@@ -25,6 +24,6 @@ public interface IDataTableModel {
 
     Object newInstance();
     
-    boolean hasColumnTytleRow();
+    boolean hasColumnTitleRow();
 
 }

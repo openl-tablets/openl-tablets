@@ -7,7 +7,6 @@ import java.io.File;
 import org.junit.Test;
 import org.openl.rules.TestUtils;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 
 public class Test3 extends Test0 {
     @Test

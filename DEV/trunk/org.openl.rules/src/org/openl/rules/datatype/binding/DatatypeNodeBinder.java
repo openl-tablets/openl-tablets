@@ -18,7 +18,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 
 /**
  * @author snshor
@@ -36,7 +36,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
 
-        IdentifierNode[] parsedHeader = TokenizerParser.tokenize(src, " \n\r");
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
         String errMsg;
 

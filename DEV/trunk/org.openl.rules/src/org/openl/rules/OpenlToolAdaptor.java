@@ -13,42 +13,43 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
 /**
+ * The purpose of this class is to simplify compiling of OpenL objects in
+ * complex structured environments where context is defined on top and must be
+ * propagated down without having to transfer many of the elements required to
+ * do the validation and compilation.
+ * 
  * @author snshor
  */
-public class OpenlToolAdaptor implements IOpenlAdaptor {
-    OpenL openl;
-    IBindingContext bindingContext;
-    IOpenMethodHeader header;
+public class OpenlToolAdaptor {
+
+    private OpenL openl;
+    private IOpenMethodHeader header;
+    private IBindingContext bindingContext;
 
     public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext) {
         this.openl = openl;
         this.bindingContext = bindingContext;
     }
 
-    /**
-     * @return
-     */
     public IBindingContext getBindingContext() {
         return bindingContext;
     }
 
-    /**
-     * @return
-     */
     public IOpenMethodHeader getHeader() {
         return header;
     }
 
-    /**
-     * @return
-     */
     public OpenL getOpenl() {
         return openl;
     }
 
-    /**
-     *
-     */
+    public void setHeader(IOpenMethodHeader header) {
+        this.header = header;
+    }
+
+    public void setOpenl(OpenL openL) {
+        openl = openL;
+    }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
         return OpenLManager.makeMethod(openl, src, header, bindingContext);
@@ -56,20 +57,6 @@ public class OpenlToolAdaptor implements IOpenlAdaptor {
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2) {
         return OpenLManager.makeMethod(openl, src, h2, bindingContext);
-    }
-
-    /**
-     * @param header
-     */
-    public void setHeader(IOpenMethodHeader header) {
-        this.header = header;
-    }
-
-    /**
-     * @param openL
-     */
-    public void setOpenl(OpenL openL) {
-        openl = openL;
     }
 
 }

@@ -8,7 +8,7 @@ package org.openl.syntax;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -28,7 +28,7 @@ public class TokenizerParserTest extends TestCase {
         super(name);
     }
 
-    public void testPerformance() {
+    public void testPerformance() throws Exception {
         long start = System.currentTimeMillis();
         String test = "a123344 b1233468474 c238746374";
         int n = 1000000;
@@ -36,7 +36,7 @@ public class TokenizerParserTest extends TestCase {
         IOpenSourceCodeModule src = new StringSourceCodeModule(test, null);
         // TokenizerParser tp = new TokenizerParser(delim);
         for (int i = 0; i < n; ++i) {
-            TokenizerParser.tokenize(src, " \n\r");
+            Tokenizer.tokenize(src, " \n\r");
             // tp.parse(new StringSourceCodeModule(test, null));
         }
         long end = System.currentTimeMillis();
@@ -46,8 +46,8 @@ public class TokenizerParserTest extends TestCase {
 
     }
 
-    public void testTokenize() {
-        IdentifierNode[] idn = TokenizerParser.tokenize(new StringSourceCodeModule("vehicle   ", null), ". \n\r");
+    public void testTokenize() throws Exception {
+        IdentifierNode[] idn = Tokenizer.tokenize(new StringSourceCodeModule("vehicle   ", null), ". \n\r");
 
         Assert.assertEquals("vehicle", idn[0].getIdentifier());
     }

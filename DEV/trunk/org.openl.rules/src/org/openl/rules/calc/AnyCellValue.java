@@ -4,7 +4,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
-import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 
 public class AnyCellValue implements IMetaHolder {
 

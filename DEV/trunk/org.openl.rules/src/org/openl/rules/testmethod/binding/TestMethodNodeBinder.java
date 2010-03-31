@@ -4,8 +4,8 @@
 package org.openl.rules.testmethod.binding;
 
 import org.openl.binding.IBindingContext;
-import org.openl.rules.data.binding.DataNodeBinder;
-import org.openl.rules.data.binding.DataTableBoundNode;
+import org.openl.rules.data.DataNodeBinder;
+import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -16,27 +16,28 @@ import org.openl.types.impl.AOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TestMethodNodeBinder extends DataNodeBinder {
 
-    // TestMethodHelper tmNode = null;
+    private static final String FORMAT_ERROR_MESSAGE = "Testmethod table format: Testmethod <methodname> <testname>";
 
-    /**
-     *
-     */
-    public TestMethodNodeBinder() {
-        super();
+    @Override
+    protected String getFormatErrorMessage() {
+        return FORMAT_ERROR_MESSAGE;
     }
 
     @Override
-    protected String getErrMsgFormat() {
-        return "Testmethod table format: Testmethod <methodname> <testname>";
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
+        return new TestMethodBoundNode(tsn, module);
     }
 
     @Override
-    protected synchronized IOpenClass getTableType(String typeName, IBindingContext cxt, XlsModuleOpenClass module,
-            DataTableBoundNode dataNode, String tableName) {
+    protected synchronized IOpenClass getTableType(String typeName,
+            IBindingContext bindingContext,
+            XlsModuleOpenClass module,
+            DataTableBoundNode dataNode,
+            String tableName) {
 
         TestMethodHelper tmNode = ((TestMethodBoundNode) dataNode).getTmhelper();
 
@@ -49,11 +50,6 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         return tmNode.getMethodBasedClass();
-    }
-
-    @Override
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
-        return new TestMethodBoundNode(tsn, module);
     }
 
 }
