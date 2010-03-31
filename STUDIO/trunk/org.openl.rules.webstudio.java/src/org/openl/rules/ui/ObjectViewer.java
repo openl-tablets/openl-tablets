@@ -23,7 +23,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.DTOverlapping;
 import org.openl.rules.dt.DTRule;
 import org.openl.rules.dt.DTUncovered;
