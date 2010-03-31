@@ -28,7 +28,7 @@
 </head>
 
 <body>
-<%@include file="/WEB-INF/include/errorDisplay.inc"%>
+
 <table>
 <tr>
 <td>Tests:</td><td align="right"><%=ntests%><%if (ntestsF > 0){ %> <span class="red"> (<%=ntestsF%>)</span> <%}%> </td>

@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.base.INamedThing;
 import org.openl.binding.OpenLRuntimeException;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
@@ -82,6 +83,10 @@ public class ObjectViewer {
     private static final Log LOG = LogFactory.getLog(ObjectViewer.class);
 
     private ProjectModel projectModel;
+
+    public ObjectViewer(ProjectModel projectModel) {
+        this.projectModel = projectModel;
+    }
 
     /**
      * session is needed for method {@link #canModifyCurrentProject()}
@@ -187,10 +192,6 @@ public class ObjectViewer {
 
         return buf;
 
-    }
-
-    public ObjectViewer(ProjectModel projectModel) {
-        this.projectModel = projectModel;
     }
 
     private String displayArray(Object res) {
@@ -313,10 +314,12 @@ public class ObjectViewer {
     private void displayErrorAndCode(Throwable tt, ILocation srcLocation, IOpenSourceCodeModule module, 
             StringBuffer buf) {
         buf.append("<table><tr><td class='error_box'>");
+
         displayNonOpenlException(tt, buf).append("<p/>\n");
+
+        printCodeAndErrorToHtml(srcLocation, module, buf);
+
         String errorUri = SourceCodeURLTool.makeSourceLocationURL(srcLocation, module, "");
-        String errorUrl = errorUri == null || "NO_MODULE".equals(errorUri) ? "NO+URL" : WebTool
-                .makeXlsOrDocUrl(errorUri);
         String tableUri = null;
         TableSyntaxNode tableSyntaxNode = projectModel.findNode(errorUri);
         if (tableSyntaxNode != null) {
@@ -324,42 +327,23 @@ public class ObjectViewer {
         }
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
-        buf.append("\n" + "<table><tr><td class='javacode'>");
 
-        printCodeAndErrorToHtml(srcLocation, module, buf);
-        
+        buf.append(" ");
+
         boolean canEditTable = canModifyCurrentProject();
-        
+
         if (canEditTable) {
             buf.append("<a href='javascript:editError(\"").append(
                     tableUri != null ? tableUri : "").append("\"").append(",")
                     .append("\"").append(uriParser.range).append(
                             "\")' title='Edit cell containing error'>");
-            buf.append("Edit Table");
+            buf.append("Edit...");
             buf.append(" </a>");
-            
-            buf.append("<br />");
-
-            buf.append(
-                    "<a href='" + WebContext.getContextPath()
-                            + "/jsp/showLinks.jsp?").append(errorUrl).append(
-                    "' target='show_app_hidden' title='").append(errorUri)
-                    .append("'>");
-            buf.append("Edit in Excel");
-            buf.append(" </a>");
-        } else {
-            buf.append("<a class='left' href='javascript:viewError(\"").append(
-                    tableUri != null ? tableUri : "").append("\"").append(",")
-                    .append("\"").append(uriParser.range).append(
-                            "\")' title='View table containing error'>");
-            buf.append("View Table");
-            buf.append("</a>");
         }
-        
-        buf.append("</td></tr></table>");
+
         buf.append("</td></tr></table>");
     }
-    
+
     /**     
      * 
      * @return true if user has the possibility to modify the tables in project.
@@ -404,8 +388,8 @@ public class ObjectViewer {
 
         }
 
-        if (t instanceof SyntaxNodeException) {
-            SyntaxNodeException se = (SyntaxNodeException) t;
+        if (t instanceof OpenLCompilationException) {
+            OpenLCompilationException se = (OpenLCompilationException) t;
 
             displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
             return buf;
@@ -470,13 +454,13 @@ public class ObjectViewer {
     }
 
     private StringBuffer displayNonOpenlException(Throwable t, StringBuffer buf) {
-        buf.append("<span class=\"codeerror\"><b>");
-        buf.append(t.getClass().getName()).append(": ").append("</b></span>");
+        //buf.append("<span class=\"codeerror\"><b>");
+        //buf.append(t.getClass().getName()).append(": ").append("</b></span>");
 
         toHtml(t.getMessage(), buf);
         return buf;
     }
-    
+
     public String displayResult(Object res) {
         if (res == null) {
             return "<b>null</b>";
@@ -527,7 +511,7 @@ public class ObjectViewer {
                     HTMLRenderer.TableRenderer renderer = new HTMLRenderer.TableRenderer(tableModel);
                     renderer.setCellIdPrefix("cell-" + nodeKey + "-");
                     //FIXME: should formulas be displayed?
-                    return renderer.renderWithMenu(null, false);
+                    return renderer.renderWithMenu(null, false, null);
                 }
             }
 

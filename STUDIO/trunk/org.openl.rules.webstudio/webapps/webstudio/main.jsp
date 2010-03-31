@@ -103,7 +103,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
 
-
+<frameset rows="*,100" border="4">
 <%if (validateErrors != null) { if (validateErrors.size() > 0){%>
 <frame src="${pageContext.request.contextPath}/html/yesValidateErrors.html" name="mainFrame" scrolling="auto"/>
 <%} else { %>
@@ -115,6 +115,9 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 <frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webresource/html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
 <%}} %>
 
+<frame src="${pageContext.request.contextPath}/faces/facelets/footerPanel.xhtml" name="footerFrame" scrolling="auto" />
+
+</frameset>
 
 </frameset>
 

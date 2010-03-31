@@ -34,10 +34,11 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String edit() {
         String editorId = getEditorId();
         String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
+        String errorCell = getRequestParam(Constants.REQUEST_PARAM_ERROR_CELL);
         TableEditorModel editorModel = getEditorModel(editorId);
         TableEditor editor = editorModel.getTableEditor();
         editor.setMode("edit");
-        return new HTMLRenderer().render(editor, true, cellToEdit, null);
+        return new HTMLRenderer().render(editor, true, cellToEdit, null, errorCell);
     }
 
     public String insertRowBefore() throws Exception {

@@ -12,7 +12,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.CompiledOpenClass;
+//import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.dt.DecisionTable;
@@ -48,7 +48,7 @@ import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
-import org.openl.rules.ui.tree.NodeKey;
+//import org.openl.rules.ui.tree.NodeKey;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
@@ -59,7 +59,7 @@ import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+//import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -78,13 +78,9 @@ import org.openl.vm.Tracer;
 
 public class ProjectModel {
 
-    private static final String ERRORS_FOLDER_NAME = "All Errors";
-
     private OpenLWrapper wrapper;
 
     private OpenLWrapperInfo wrapperInfo;
-
-    private Throwable projectProblem;
 
     private ProjectIndexer indexer;
 
@@ -102,7 +98,9 @@ public class ProjectModel {
 
     private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
 
-    private List<Throwable> validationExceptions;
+    public ProjectModel(WebStudio studio) {
+        this.studio = studio;
+    }
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
@@ -122,7 +120,7 @@ public class ProjectModel {
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
     }
 
-    static public boolean intersects(XlsUrlParser p1, String url2) {
+    public static boolean intersects(XlsUrlParser p1, String url2) {
         XlsUrlParser p2 = new XlsUrlParser();
         p2.parse(url2);
 
@@ -134,7 +132,7 @@ public class ProjectModel {
                 .makeRegion(p2.range));
     }
 
-    static private boolean intersectsByLocation(XlsUrlParser parser, String url) {
+    private static boolean intersectsByLocation(XlsUrlParser parser, String url) {
         XlsUrlParser p2 = new XlsUrlParser();
         p2.parse(url);
 
@@ -163,68 +161,6 @@ public class ProjectModel {
             throw new RuntimeException("Using older version of OpenL Wrapper, please run Generate ... Wrapper");
         }
     }
-
-    public ProjectModel(WebStudio studio) {
-        this.studio = studio;
-    }
-
-    private void addError(Throwable se, ProjectTreeNode errorFolder, int i) {
-        String uri = null;
-        /*
-         * if (se instanceof SyntaxError) { uri = ((SyntaxError) se).getUri(); }
-         */
-        String name = se.getMessage();
-        String[] names = { name, name, name };
-        errorFolder.getElements().put(new NodeKey(i, names), new ProjectTreeNode(names, IProjectTypes.PT_PROBLEM, uri, 
-                se, 0, null));
-    }
-
-    private void addErrors(CompiledOpenClass comp, ProjectTreeNode root) {
-        int parsingErrorsNum = comp.getParsingErrors().length;
-        int bindingErrorsNum = comp.getBindingErrors().length;
-        int validationErrorsNum = 0;
-        if (validationExceptions != null) {
-            validationErrorsNum = validationExceptions.size();
-        }
-        int errorsSum = parsingErrorsNum + bindingErrorsNum + validationErrorsNum;
-        String finalErrorFolderName = ERRORS_FOLDER_NAME + " [" + errorsSum + "]";
-        
-        String[] errName = { finalErrorFolderName, finalErrorFolderName, finalErrorFolderName };
-
-        ProjectTreeNode errorFolder = new ProjectTreeNode(errName, IProjectTypes.PT_FOLDER, null, null, 0, null);
-        root.getElements().put(new NodeKey(0, errName), errorFolder);
-        
-        for (int i = 0; i < parsingErrorsNum; i++) {
-            addError((SyntaxNodeException) comp.getParsingErrors()[i], errorFolder, i);
-        }
-        
-        for (int i = 0; i < bindingErrorsNum; i++) {
-            addError((SyntaxNodeException) comp.getBindingErrors()[i], errorFolder, i + parsingErrorsNum);
-        }
-        
-        int parsAndBindErrorsSum = parsingErrorsNum + bindingErrorsNum;
-        if (validationExceptions != null) {
-            for (int i = 0; i < validationErrorsNum; ++i) {
-                Throwable t = validationExceptions.get(i);
-
-                if (t instanceof CompositeSyntaxNodeException) {
-                    CompositeSyntaxNodeException se = (CompositeSyntaxNodeException) t;
-                    SyntaxNodeException[] errors = se.getErrors();
-
-                    for (int j = 0; j < errors.length; j++) {
-                        addError((SyntaxNodeException) errors[j], errorFolder, ++parsAndBindErrorsSum);
-                    }
-
-                } else {
-                    addError(t, errorFolder, ++parsAndBindErrorsSum);
-                }
-            }
-        }
-    }
-
-    // public ProjectModel(OpenLWrapper wrapper) {
-    // this.wrapper = wrapper;
-    // }
 
     public BenchmarkInfo benchmarkElement(String elementUri, final String testName, String testID,
             final String testDescr, int ms) throws Exception {
@@ -351,10 +287,6 @@ public class ProjectModel {
 
     }
 
-    /**
-     * @param res
-     * @return
-     */
     private Object convertResult(Object res) {
         if (res == null) {
             return null;
@@ -375,7 +307,7 @@ public class ProjectModel {
 
     public String displayResult(Object res, HttpSession session) {
         ObjectViewer objViewer = new ObjectViewer(this);
-        // when this method is called form .jsp we need to set a session object.
+        // When this method is called form .jsp we need to set a session object.
         objViewer.setSession(session);
         return objViewer.displayResult(res);
     }
@@ -402,6 +334,16 @@ public class ProjectModel {
         }
 
         return findNode(parsedUrl);
+    }
+
+    public String findTableUri(String partialUri) {
+        TableSyntaxNode tableSyntaxNode = findNode(partialUri);
+
+        if (tableSyntaxNode != null) {
+            return tableSyntaxNode.getUri();
+        }
+
+        return null;
     }
 
     public TableSyntaxNode findNode(XlsUrlParser p1) {        
@@ -472,7 +414,6 @@ public class ProjectModel {
     }
 
     public String getDisplayName(String elementUri) {
-        //ProjectTreeNode pte = ptr.getElement(elementUri);
         ProjectTreeNode pte = getTreeNodeByUri(elementUri);
         if (pte == null) {
             return "";
@@ -525,7 +466,7 @@ public class ProjectModel {
     }
 
     public SyntaxNodeException[] getErrors(String elementUri) {
-        
+
         TableSyntaxNode tsn = getNode(elementUri);
         SyntaxNodeException[] se = null;
 
@@ -633,7 +574,6 @@ public class ProjectModel {
     public TableSyntaxNode getNode(String elementUri) {
         TableSyntaxNode tsn = null;
         if (elementUri != null) {
-            //ProjectTreeNode pte = ptr.getElement(elementUri);
             ProjectTreeNode pte = getTreeNodeByUri(elementUri);
             if (pte != null) {
                 tsn = (TableSyntaxNode) pte.getObject();
@@ -703,7 +643,15 @@ public class ProjectModel {
         return studio;
     }
 
-    public IGridTable getTable(String elementUri) {
+    public ITable getTable(String elementUri) {
+        TableSyntaxNode tsn = getNode(elementUri);
+        if (tsn != null) {
+            return new TableSyntaxNodeAdapter(tsn);
+        }
+        return null;
+    }
+
+    public IGridTable getGridTable(String elementUri) {
         TableSyntaxNode tsn = getNode(elementUri);
         return tsn == null ? null : tsn.getTable().getGridTable();
     }
@@ -772,7 +720,7 @@ public class ProjectModel {
     }
 
     public String getUri(String elementUri) {
-        IGridTable table = getTable(elementUri);
+        IGridTable table = getGridTable(elementUri);
 
         if (table == null) {
             return "file://NO_FILE";
@@ -858,7 +806,6 @@ public class ProjectModel {
         }
 
         ProjectTreeNode root = makeProjectTreeRoot();
-        buildErrorsFolder(root);
 
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
         
@@ -902,7 +849,7 @@ public class ProjectModel {
         }
 
         if (!treeEnlarged) {
-            // no selection have been made (usually in a business mode)
+            // No selection have been made (usually in a business mode)
             for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
                     if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
                             && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
@@ -922,14 +869,6 @@ public class ProjectModel {
         XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
         TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
         return tableSyntaxNodes;
-    }
-
-    private void buildErrorsFolder(ProjectTreeNode root) {
-        CompiledOpenClass comp = wrapper.getCompiledOpenClass();
-
-        if (comp.hasErrors() || validationExceptions != null && validationExceptions.size() > 0) {
-            addErrors(comp, root);
-        }
     }
 
     private void cacheTree(String key, ProjectTreeNode treeNode) {
@@ -973,16 +912,6 @@ public class ProjectModel {
         return new ProjectTreeNode(new String[] { name, name, name }, "root", null, null, 0, null);
     }
 
-    /*private OpenMethodInstancesGroupTreeNodeBuilder[] findGroupSorters(BaseTableTreeNodeBuilder[] sorters) {
-        List<OpenMethodInstancesGroupTreeNodeBuilder> groupSorters = new ArrayList<OpenMethodInstancesGroupTreeNodeBuilder>();
-        for (BaseTableTreeNodeBuilder sorter : sorters) {
-            if (sorter instanceof OpenMethodInstancesGroupTreeNodeBuilder) {
-                groupSorters.add((OpenMethodInstancesGroupTreeNodeBuilder) sorter);
-            }
-        }
-        return groupSorters.toArray(new OpenMethodInstancesGroupTreeNodeBuilder[groupSorters.size()]);
-    }*/
-
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
         List<TableSyntaxNode> executableNodes = new ArrayList<TableSyntaxNode>();
         for (TableSyntaxNode node : nodes) {
@@ -1012,7 +941,6 @@ public class ProjectModel {
             wrapper.reload();
         }
 
-        validationExceptions = null;
         savedSearches = null;
         projectRoot = null;
     }
@@ -1119,10 +1047,8 @@ public class ProjectModel {
         indexer = new ProjectIndexer(wrapperInfo.getProjectInfo().projectHome());
         Class<?> c = null;
         ClassLoader cl = null;
-        validationExceptions = null;
         wrapper = null;
         projectRoot = null;
-        projectProblem = null;
         savedSearches = null;
 
         try {
@@ -1132,9 +1058,7 @@ public class ProjectModel {
             c = cl.loadClass(wrapperInfo.getWrapperClassName());
         } catch (Throwable t) {
             Log.error("Error instantiating wrapper", t);
-            projectProblem = t;
             return;
-            // errorMsg = "Most probably ";
         }
 
         Field f = c.getField("__userHome");
@@ -1157,39 +1081,11 @@ public class ProjectModel {
 
             } catch (Throwable t) {
                 Log.error("Problem Loading OpenLWrapper", t);
-                projectProblem = t;
             }
         } finally {
             Thread.currentThread().setContextClassLoader(threadClassLoader);
         }
 
-    }
-
-    public Object showError(String nodeKey, HttpSession session) {
-        ProjectTreeNode pte = getTreeNodeById(nodeKey);
-        if (pte == null) {
-            return null;
-        }
-
-        Object error = pte.getProblems();
-
-        ObjectViewer objViewer = new ObjectViewer(this); 
-        objViewer.setSession(session);
-        return objViewer.displayResult(error);
-    }
-
-    public String showErrors(String elementUri, HttpSession session) {
-        TableSyntaxNode tsn = getNode(elementUri);
-        ObjectViewer objViewer = new ObjectViewer(this);
-        objViewer.setSession(session);
-        SyntaxNodeException[] se = tsn.getErrors();
-        if (se != null) {
-            return objViewer.displayResult(se);
-        }
-        if (tsn.getValidationResult() != null) {
-            return objViewer.displayResult(tsn.getValidationResult());
-        }
-        return "";
     }
 
     public String showProperty(String elementUri, String propertyName) {
@@ -1220,8 +1116,6 @@ public class ProjectModel {
             view = studio.getMode().getTableMode();
         }
 
-//        boolean showGrid = studio.getMode().showTableGrid();
-
         if (view != null) {
             ILogicalTable gtx = tsn.getSubTables().get(view);
             if (gtx != null) {
@@ -1229,8 +1123,6 @@ public class ProjectModel {
             }
         }
 
-        // return new TableViewer().showTable(gt, new
-        // ICellFilter[]{cellFilter});
         return showTable(gt, false);
     }
 
@@ -1299,7 +1191,6 @@ public class ProjectModel {
             validateNode(nodes.get(i), ve);
         }
 
-        // validationExceptions = ve;
         return ve;
     }
 
@@ -1323,8 +1214,7 @@ public class ProjectModel {
     }
 
     public TableEditorModel getTableEditorModel(String tableUri) {
-        TableSyntaxNode tableNode = getNode(tableUri);
-        ITable table = new TableSyntaxNodeAdapter(tableNode);
+        ITable table = getTable(tableUri);
         String tableView = getTableView(null);
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;

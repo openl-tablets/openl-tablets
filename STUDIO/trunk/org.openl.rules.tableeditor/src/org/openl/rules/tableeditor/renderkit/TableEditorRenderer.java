@@ -23,17 +23,18 @@ public class TableEditorRenderer extends TableViewerRenderer {
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         ResponseWriter writer = context.getResponseWriter();
         TableEditor tableEditor = new TableEditor(context, component);
-        if (tableEditor.getTable() == null) { // required attribute
+        if (tableEditor.getTable() == null) { // Required attribute
             return;
         }
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
+        String errorCell = requestMap.get(Constants.REQUEST_PARAM_ERROR_CELL);
         List<ActionLink> actionLinks = getActionLinks(component);
         if (tableEditor.isEditable()) {
             initEditorModel(externalContext, tableEditor);
         }
-        writer.write(new HTMLRenderer().render(tableEditor, false, cellToEdit, actionLinks));
+        writer.write(new HTMLRenderer().render(tableEditor, false, cellToEdit, actionLinks, errorCell));
     }
 
     private List<ActionLink> getActionLinks(UIComponent component) {

@@ -22,6 +22,7 @@ public final class Constants {
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
     public static final String REQUEST_PARAM_MODE = "mode";
     public static final String REQUEST_PARAM_CELL = "cell";
+    public static final String REQUEST_PARAM_ERROR_CELL = "errorCell";
     public static final String REQUEST_PARAM_URI = "uri";
     public static final String REQUEST_PARAM_VALUE = "value";
     //public static final String REQUEST_PARAM_MOVE = "move";

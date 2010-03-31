@@ -69,7 +69,7 @@ public abstract class TableCopier extends WizardBase {
      */   
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
         throws CreateTableException {
-        IGridTable originalTable = model.getTable(elementUri);
+        IGridTable originalTable = model.getGridTable(elementUri);
         TableSyntaxNode baseNode = model.getNode(elementUri);
         String baseTableType = baseNode.getType();
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
@@ -144,7 +144,7 @@ public abstract class TableCopier extends WizardBase {
      * @return new properties
      */
     protected abstract Map<String, Object> buildProperties();
-    
+
     /**
      * Creates system properties for new table.
      * 
@@ -153,9 +153,11 @@ public abstract class TableCopier extends WizardBase {
     protected Map<String, Object> buildSystemProperties() {
         Map<String, Object> result = new HashMap<String, Object>();
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
+
         for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
-                Object systemValue = SystemValuesManager.instance().getSystemValue(systemPropDef.getSystemValueDescriptor());
+                Object systemValue = SystemValuesManager.getInstance().getSystemValue(
+                        systemPropDef.getSystemValueDescriptor());
                 if (systemValue != null){
                     result.put(systemPropDef.getName(), systemValue);                    
                 }
@@ -163,7 +165,7 @@ public abstract class TableCopier extends WizardBase {
         }
         return result;
     }
-    
+
     /**
      * Creates new header.
      *

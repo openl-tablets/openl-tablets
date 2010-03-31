@@ -761,9 +761,9 @@ TableEditor.parseXlsCell = function (s) {
         var col = 0;
         var Acode = "A".charCodeAt(0) - 1;
         for (var i = 0; i < h.length; ++i) col = 26 * col + h.charCodeAt(i) - Acode;
-        return [Number(m[2]), col]
+        return [Number(m[2]), col];
     }
-    return null
+    return null;
 }
 
 /**

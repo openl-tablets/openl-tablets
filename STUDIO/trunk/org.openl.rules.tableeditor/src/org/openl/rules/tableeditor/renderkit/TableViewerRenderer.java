@@ -15,7 +15,7 @@ public class TableViewerRenderer extends BaseRenderer {
         if (tableEditor.getTable() == null) { // required attribute
             return;
         }
-        writer.write(new HTMLRenderer().render(tableEditor, false, null, null));
+        writer.write(new HTMLRenderer().render(tableEditor));
     }
 
     @Override
