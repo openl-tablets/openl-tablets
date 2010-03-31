@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/.svn/" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="apache-tomcat-6.0.20/lib/annotations-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="apache-tomcat-6.0.20/lib/el-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="apache-tomcat-6.0.20/bin/bootstrap.jar"/>
