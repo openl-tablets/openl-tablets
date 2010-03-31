@@ -20,8 +20,8 @@ import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
-import org.openl.rules.data.IString2DataConvertor;
-import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.IGridTable;
@@ -36,7 +36,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -395,7 +395,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
                 ILogicalTable paramTable = paramsTable.getLogicalRow(i);
                 IOpenSourceCodeModule src = new GridCellSourceCodeModule(paramTable.getGridTable());
-                IdentifierNode[] nodes = TokenizerParser.tokenize(src, " \n\r");
+                IdentifierNode[] nodes = Tokenizer.tokenize(src, " \n\r");
                 if (nodes.length == 0) {
                     // no parameters
                     params[i] = no_parameter();

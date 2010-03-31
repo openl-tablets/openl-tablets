@@ -15,7 +15,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DynamicObjectField;
@@ -83,7 +83,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
             src = new GridCellSourceCodeModule(row.getLogicalColumn(1).getGridTable());
 
-            IdentifierNode[] idn = TokenizerParser.tokenize(src, " \r\n");
+            IdentifierNode[] idn = Tokenizer.tokenize(src, " \r\n");
             if (idn.length != 1) {
                 throw SyntaxNodeExceptionUtils.createError("Bad field name: \"" + src.getCode() + "\"", null, null, src);
             }

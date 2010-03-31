@@ -1,12 +1,14 @@
 package org.openl.rules.data;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.data.binding.DataTableBoundNode.DataOpenField;
-
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**

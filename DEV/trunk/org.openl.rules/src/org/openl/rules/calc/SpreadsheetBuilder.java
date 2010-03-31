@@ -11,11 +11,12 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
-import org.openl.rules.data.IString2DataConvertor;
-import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -26,7 +27,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -534,14 +535,22 @@ public class SpreadsheetBuilder {
     }
 
     SymbolicTypeDef parseHeaderElement(StringValue sv) throws SyntaxNodeException {
-        IdentifierNode[] nodes = TokenizerParser.tokenize(sv.asSourceCodeModule(), ":");
+        
+        IOpenSourceCodeModule source = sv.asSourceCodeModule();
+        IdentifierNode[] nodes;
+        try {
+            nodes = Tokenizer.tokenize(source, ":");
+        } catch (OpenLCompilationException e) {
+            throw SyntaxNodeExceptionUtils.createError("Cannot parse header", source);
+        }
+        
         switch (nodes.length) {
             case 1:
                 return new SymbolicTypeDef(nodes[0], null);
             case 2:
                 return new SymbolicTypeDef(nodes[0], nodes[1]);
             default:
-                throw SyntaxNodeExceptionUtils.createError("Valid header format: name [: type]", sv.asSourceCodeModule());
+                throw SyntaxNodeExceptionUtils.createError("Valid header format: name [: type]", source);
         }
     }
 

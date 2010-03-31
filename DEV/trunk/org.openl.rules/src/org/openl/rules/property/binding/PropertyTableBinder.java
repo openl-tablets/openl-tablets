@@ -4,8 +4,8 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
-import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -19,11 +19,11 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.TablePropertiesException;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TokenizerParser;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -80,15 +80,16 @@ public class PropertyTableBinder extends DataNodeBinder {
      * 
      * @param tsn <code>{@link TableSyntaxNode}</code>
      * @return table name if exists.
+     * @throws Exception 
      */
-    private String parseHeader(TableSyntaxNode tsn) {
+    private String parseHeader(TableSyntaxNode tsn) throws Exception {
         String tableName = null;
         
         ILogicalTable table = LogicalTable.logicalTable(tsn.getTable());
         
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
 
-        IdentifierNode[] parsedHeader = TokenizerParser.tokenize(src, " \n\r");
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
         if (parsedHeader.length > 1) {
             tableName = parsedHeader[1].getIdentifier();            

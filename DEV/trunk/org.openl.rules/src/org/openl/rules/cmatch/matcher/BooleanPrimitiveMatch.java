@@ -1,7 +1,7 @@
 package org.openl.rules.cmatch.matcher;
 
-import org.openl.rules.data.IString2DataConvertor;
-import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.IOpenClass;
 
 public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {

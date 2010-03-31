@@ -1,15 +1,12 @@
-package org.openl.rules.data.binding;
+package org.openl.rules.data;
 
-import org.openl.rules.data.ITable;
-import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class PrimaryKeyField extends AOpenField implements IOpenField {
+public class PrimaryKeyField extends AOpenField {
 
-    String name;
-    ITable table;
+    private ITable table;
 
     public PrimaryKeyField(String name, ITable table) {
         super(name, JavaOpenClass.STRING);
@@ -17,9 +14,10 @@ public class PrimaryKeyField extends AOpenField implements IOpenField {
     }
 
     public Object get(Object target, IRuntimeEnv env) {
+
         int row = table.getRowIndex(target);
+
         return table.getPrimaryIndexKey(row);
-        // throw new UnsupportedOperationException();
     }
 
     @Override
@@ -28,6 +26,7 @@ public class PrimaryKeyField extends AOpenField implements IOpenField {
     }
 
     public void set(Object target, Object value, IRuntimeEnv env) {
+
         int row = table.getRowIndex(target);
         table.setPrimaryIndexKey(row, (String) value);
     }

@@ -35,7 +35,7 @@ import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SSheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
-import org.openl.rules.data.binding.DataNodeBinder;
+import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.binding.DTNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;

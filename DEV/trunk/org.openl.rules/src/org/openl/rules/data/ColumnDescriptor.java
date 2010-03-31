@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.data.impl;
+package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import java.util.Map;
 import org.openl.OpenL;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
-import org.openl.rules.data.ITable;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
@@ -34,6 +33,12 @@ public class ColumnDescriptor {
 
     private Map<String, Integer> uniqueIndex = null;
 
+    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl) {
+        this.field = field;
+        this.displayValue = displayValue;
+        this.openl = openl;
+    }
+
     protected IRuntimeEnv getRuntimeEnv() {
         return openl.getVm().getRuntimeEnv();
     }
@@ -46,67 +51,6 @@ public class ColumnDescriptor {
      */
     protected boolean isValuesAnArray(IOpenClass paramType) {
         return paramType.getAggregateInfo().isAggregate(paramType);
-    }
-
-    private Object getArrayValues(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType)
-            throws SyntaxNodeException {
-
-        if (valuesTable.getLogicalHeight() == 1 && valuesTable.getLogicalWidth() == 1) {
-            return loadSingleRowArray(valuesTable, ota, paramType);
-        }
-
-        if (valuesTable.getLogicalHeight() != 1) {
-            valuesTable.transpose();
-            return loadMultiRowArray(valuesTable, ota, paramType);
-        }
-        
-        return loadMultiRowArray(valuesTable, ota, paramType);
-    }
-
-    private Object loadSingleRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
-            throws SyntaxNodeException {
-
-            return getValuesArrayCommaSeparated(logicalTable, openlAdaptor, paramType);
-    }
-
-    private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
-            throws SyntaxNodeException {
-
-        int valuesTableHeight = logicalTable.getLogicalHeight();
-        ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
-
-        for (int i = 0; i < valuesTableHeight; i++) {
-
-            Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, logicalTable.getLogicalRow(i),
-                    openlAdaptor);
-
-            if (res == null) {
-                res = paramType.nullObject();
-            }
-
-            values.add(res);
-        }
-
-        Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
-
-        for (int i = 0; i < values.size(); i++) {
-            Array.set(arrayValues, i, values.get(i));
-        }
-
-        return arrayValues;
-    }
-
-    private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType)
-            throws SyntaxNodeException {
-        Object res = FunctionalRow.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable
-                .getLogicalRow(0), ota);
-        return res;
-    }
-
-    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl) {
-        this.field = field;
-        this.displayValue = displayValue;
-        this.openl = openl;
     }
 
     protected IOpenField getField() {
@@ -136,8 +80,11 @@ public class ColumnDescriptor {
         valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
         if (!valuesAnArray) {
-            resultLiteral = FunctionalRow.loadSingleParam(paramType, field == null ? FunctionalRow.CONSTRUCTOR : field
-                    .getName(), null, valuesTable, ota);
+            resultLiteral = FunctionalRow.loadSingleParam(paramType,
+                field == null ? FunctionalRow.CONSTRUCTOR : field.getName(),
+                null,
+                valuesTable,
+                ota);
         } else {
 
             // FIXME:SEEMS we don`t need it. And it was copy-pasted. Always
@@ -188,8 +135,7 @@ public class ColumnDescriptor {
      * <b>NOT</b> a constructor (see {@link #isConstructor()}). Support loading
      * single value, array of values.
      */
-    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter)
-            throws Exception {
+    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws Exception {
         IOpenClass paramType = field.getType();
         boolean valuesAnArray = isValuesAnArray(paramType);
 
@@ -213,6 +159,61 @@ public class ColumnDescriptor {
 
     public boolean isReference() {
         return false;
+    }
+
+    private Object getArrayValues(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
+
+        if (valuesTable.getLogicalHeight() == 1 && valuesTable.getLogicalWidth() == 1) {
+            return loadSingleRowArray(valuesTable, ota, paramType);
+        }
+
+        if (valuesTable.getLogicalHeight() != 1) {
+            valuesTable.transpose();
+            return loadMultiRowArray(valuesTable, ota, paramType);
+        }
+
+        return loadMultiRowArray(valuesTable, ota, paramType);
+    }
+
+    private Object loadSingleRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType) throws SyntaxNodeException {
+        return getValuesArrayCommaSeparated(logicalTable, openlAdaptor, paramType);
+    }
+
+    private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType) throws SyntaxNodeException {
+
+        int valuesTableHeight = logicalTable.getLogicalHeight();
+        ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
+
+        for (int i = 0; i < valuesTableHeight; i++) {
+
+            Object res = FunctionalRow.loadSingleParam(paramType,
+                field.getName(),
+                null,
+                logicalTable.getLogicalRow(i),
+                openlAdaptor);
+
+            if (res == null) {
+                res = paramType.nullObject();
+            }
+
+            values.add(res);
+        }
+
+        Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
+
+        for (int i = 0; i < values.size(); i++) {
+            Array.set(arrayValues, i, values.get(i));
+        }
+
+        return arrayValues;
+    }
+
+    private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
+        return FunctionalRow.loadCommaSeparatedParam(paramType,
+            field.getName(),
+            null,
+            valuesTable.getLogicalRow(0),
+            ota);
     }
 
 }

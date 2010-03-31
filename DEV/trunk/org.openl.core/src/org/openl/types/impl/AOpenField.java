@@ -45,16 +45,10 @@ public abstract class AOpenField implements IOpenField {
         return null;
     }
 
-    /**
-     * @return
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @return
-     */
     public IOpenClass getType() {
         return type;
     }
@@ -95,9 +89,6 @@ public abstract class AOpenField implements IOpenField {
         return false;
     }
 
-    /**
-     * @param class1
-     */
     public void setType(IOpenClass class1) {
         type = class1;
     }
@@ -106,5 +97,4 @@ public abstract class AOpenField implements IOpenField {
     public String toString() {
         return name;
     }
-
 }
