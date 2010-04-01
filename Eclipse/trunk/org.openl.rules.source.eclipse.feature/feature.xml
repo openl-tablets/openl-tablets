@@ -53,13 +53,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.validator.source"
-         download-size="0"
-         install-size="0"
-         version="5.5.0"
-         unpack="false"/>
-
-   <plugin
          id="org.openl.j.science.source"
          download-size="0"
          install-size="0"

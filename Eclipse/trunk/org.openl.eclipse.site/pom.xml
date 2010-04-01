@@ -77,11 +77,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.validator</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j.science</artifactId>
     </dependency>
@@ -288,12 +283,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.helpers</artifactId>
-      <classifier>sources</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.validator</artifactId>
       <classifier>sources</classifier>
     </dependency>
 
