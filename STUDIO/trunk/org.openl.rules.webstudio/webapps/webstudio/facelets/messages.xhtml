@@ -13,7 +13,8 @@
 
             <c:set var="messageBoxClass" value="#{message.severity == 'ERROR' ? 'error_box' : 'warning_box'}" />
 
-            <table class="#{messageBoxClass}" style="margin-top: 3px"><tr><td>
+            <table style="margin-top: 3px"><tr><td>
+            <div class="#{messageBoxClass}">
 
                 <h:outputText value="#{message.summary}" />
 
@@ -39,7 +40,7 @@
                     </h:panelGroup>
 
                 </h:panelGroup>
-
+            </div>
             </td></tr></table>
 
         </a4j:repeat>
