@@ -36,7 +36,7 @@ public class DecisionTableMethodBoundNode extends AMethodBasedNode {
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
 
-        new DTLoader().load(getTableSyntaxNode(), getDecisionTable(), openl, module, (IBindingContextDelegator) cxt);
+        new DTLoader().loadAndBind(getTableSyntaxNode(), getDecisionTable(), openl, module, (IBindingContextDelegator) cxt);
 
     }
 

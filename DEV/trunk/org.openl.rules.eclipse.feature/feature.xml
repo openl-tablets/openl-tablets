@@ -548,13 +548,6 @@ That&apos;s all there is to it!
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.validator"
-         download-size="0"
-         install-size="0"
-         version="5.5.0"
-         unpack="false"/>
-
-   <plugin
          id="com.exigen.rules.constrainer"
          download-size="0"
          install-size="0"

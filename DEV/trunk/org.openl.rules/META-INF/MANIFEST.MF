@@ -7,7 +7,8 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.rules.helpers;visibility:=reexport,
  org.openl.lib,
- org.openl.j;visibility:=reexport
+ org.openl.j;visibility:=reexport,
+ com.exigen.rules.constrainer;visibility:=reexport
 Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.rules,
  org.openl.rules.binding,
@@ -66,6 +67,8 @@ Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.rules.types,
  org.openl.rules.types.impl,
  org.openl.rules.validation,
+ org.openl.rules.validator,
+ org.openl.rules.validator.dt,
  org.openl.rules.word,
  org.openl.tablets,
  org.openl.xls

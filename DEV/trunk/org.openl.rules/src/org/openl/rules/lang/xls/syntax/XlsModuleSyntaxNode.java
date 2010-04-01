@@ -23,9 +23,11 @@ public class XlsModuleSyntaxNode extends NaryNode  {
 	
 	private List<IdentifierNode> extensionNodes;
 
-    OpenlSyntaxNode openlNode;
-    IdentifierNode vocabularyNode;
-    String allImportString;
+    private OpenlSyntaxNode openlNode;
+    
+    private IdentifierNode vocabularyNode;
+    
+    private String allImportString;
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode, String allImportString, List<IdentifierNode> extensionNodes) {
@@ -60,11 +62,9 @@ public class XlsModuleSyntaxNode extends NaryNode  {
         for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
             for (TableSyntaxNode tableSyntaxNode : wbsn.getTableSyntaxNodes()) {
                 tsnodes.add(tableSyntaxNode);
-            }
-            
-        }
-        
-        return tsnodes.toArray(new TableSyntaxNode[0]);
+            }            
+        }        
+        return tsnodes.toArray(new TableSyntaxNode[tsnodes.size()]);
     }
     
     public List<IdentifierNode> getExtensionNodes() {
@@ -80,7 +80,7 @@ public class XlsModuleSyntaxNode extends NaryNode  {
                 }
                 resultNodes.add(node);
             }
-        return resultNodes.toArray(new TableSyntaxNode[0]);
+        return resultNodes.toArray(new TableSyntaxNode[resultNodes.size()]);
     }
 
 }

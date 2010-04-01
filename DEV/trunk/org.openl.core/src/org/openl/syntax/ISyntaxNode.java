@@ -27,17 +27,9 @@ public interface ISyntaxNode {
 
     String getType();
 
-    /**
-     * @param i
-     * @param buf
-     */
     void print(int i, StringBuffer buf);
 
-    // public Map<String, String> getProperties();
-
     void setParent(ISyntaxNode node);
-
-    // public String getNamespace();
 
     ISyntaxNode[] EMPTY = {};
     

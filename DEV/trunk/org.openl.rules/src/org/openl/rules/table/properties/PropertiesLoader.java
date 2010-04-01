@@ -43,15 +43,12 @@ public class PropertiesLoader {
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
     private OpenL openl;
     private RulesModuleBindingContext cxt;
-    private XlsModuleOpenClass module; 
-    private AXlsTableBinder binder;
+    private XlsModuleOpenClass module;
     
-    public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module, 
-            AXlsTableBinder binder) {    
+    public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module) {    
         this.openl = openl;
         this.cxt = cxt;
-        this.module = module;
-        this.binder = binder;
+        this.module = module;        
     }    
     
     /**
@@ -66,7 +63,7 @@ public class PropertiesLoader {
         DataNodeBinder bb = new DataNodeBinder();
         ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
-        ILogicalTable propertiesSection = binder.getPropertiesTableSection(tsn.getTable());        
+        ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tsn.getTable());        
         
         if (propertiesSection != null) {
             propertiesSection = LogicalTable.logicalTable(propertiesSection);
@@ -192,7 +189,10 @@ public class PropertiesLoader {
      * 
      * @param tsn Tsn to load properties.
      */
-    private void loadDefaultProperties(TableSyntaxNode tsn) {
+    public void loadDefaultProperties(TableSyntaxNode tsn) {
+        if (tsn.getTableProperties() == null) {
+            createTableProperties(tsn);
+        }
         ITableProperties properties = tsn.getTableProperties();
         List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
                                                                             .getPropertiesToBeSetByDefault();    

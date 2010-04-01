@@ -17,12 +17,12 @@ import java.util.Properties;
  */
 public interface IUserContext {
 
-    public Object execute(IExecutable run);
+    Object execute(IExecutable run);
 
-    public ClassLoader getUserClassLoader();
+    ClassLoader getUserClassLoader();
 
-    public String getUserHome();
+    String getUserHome();
 
-    public Properties getUserProperties();
+    Properties getUserProperties();
 
 }

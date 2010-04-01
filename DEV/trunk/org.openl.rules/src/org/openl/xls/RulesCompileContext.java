@@ -16,4 +16,9 @@ public class RulesCompileContext extends DefaultCompileContext {
         addValidator(new org.openl.rules.validation.ActivePropertyValidator());
 	}
     // <<< END INSERT >>>
+	
+	// implicit validators
+	{
+	    addValidator(new org.openl.rules.validation.DimensionPropertiesValidator());
+	}
 }

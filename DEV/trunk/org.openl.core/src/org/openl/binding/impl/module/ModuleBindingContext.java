@@ -29,19 +29,16 @@ public class ModuleBindingContext extends BindingContextDelegator {
 
     // DeferredMethod[] method;
 
-    ModuleOpenClass module;
+    private ModuleOpenClass module;
 
-    Map<String, IOpenClass> internalTypes = null;
+    private Map<String, IOpenClass> internalTypes = null;
 
     // public void addMethod(DeferredMethod dm)
     // {
     // module.addMethod(dm);
     // }
 
-    /**
-     * @param delegate
-     */
-    public ModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
+   public ModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
         super(delegate);
         this.module = module;
     }

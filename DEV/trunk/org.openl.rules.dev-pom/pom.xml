@@ -25,8 +25,7 @@
     <module>../org.openl.rules.helpers</module>
     <module>../org.openl.rules</module>
     <module>../com.exigen.rules.constrainer</module>
-    <module>../org.openl.conf.ant</module>
-    <module>../org.openl.rules.validator</module>
+    <module>../org.openl.conf.ant</module>    
     <module>../org.openl.lib</module>
     <module>../org.openl.rules.eclipse.feature</module>
     <module>../org.openl.lib.eclipse.feature</module>
@@ -102,8 +101,7 @@
                     <include name="org.openl.j\target\cobertura\cobertura.ser" />
                     <include name="org.openl.j.science\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.validator\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />                    
                   </fileset>
                 </cobertura-merge>
 
@@ -137,10 +135,7 @@
                   </fileset>
                   <fileset dir="..\org.openl.rules.helpers\src\">
                     <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.validator\src\">
-                    <include name="**\*.java" />
-                  </fileset>
+                  </fileset>                  
                 </cobertura-report>
               </tasks>
             </configuration>
@@ -201,12 +196,6 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.helpers</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.validator</artifactId>
         <version>${version}</version>
       </dependency>
 

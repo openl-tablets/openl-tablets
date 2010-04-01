@@ -75,6 +75,11 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.helpers</artifactId>
     </dependency>
+	
+	<dependency>
+      <groupId>com.exigen.rules</groupId>
+      <artifactId>com.exigen.rules.constrainer</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>

@@ -20,10 +20,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
     private Map<String, TableSyntaxNode> bindedTables = new HashMap<String, TableSyntaxNode>();
     
-    /**
-     * @param delegate
-     * @param module
-     */
     public RulesModuleBindingContext(IBindingContext delegate,
             ModuleOpenClass module) {
         super(delegate, module);

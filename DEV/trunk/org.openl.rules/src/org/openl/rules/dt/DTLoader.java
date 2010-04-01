@@ -30,7 +30,7 @@ public class DTLoader {
 
     private List<DTAction> actions = new ArrayList<DTAction>();
 
-    private int columns;
+    private int columnsNum;
 
     private List<DTCondition> conditions = new ArrayList<DTCondition>();
 
@@ -118,9 +118,18 @@ public class DTLoader {
     	return isValidConditionHeader(s) || DTLookupConvertor.isValidHConditionHeader(s);
     }
     
-    public DecisionTable load(TableSyntaxNode tsn, DecisionTable dt, OpenL openl, ModuleOpenClass module,
+    public DecisionTable loadAndBind(TableSyntaxNode tsn, DecisionTable dt, OpenL openl, ModuleOpenClass module,
             IBindingContextDelegator cxtd) throws Exception {
 
+        loadDTStructure(tsn, dt);
+
+        dt.bindTable(conditions.toArray(new IDTCondition[conditions.size()]), 
+                actions.toArray(new IDTAction[actions.size()]), ruleRow, openl, module, cxtd, columnsNum);
+
+        return dt;
+    }
+
+    private void loadDTStructure(TableSyntaxNode tsn, DecisionTable dt) throws Exception, SyntaxNodeException {
         dt.setTableSyntaxNode(tsn);
         ILogicalTable tableBody = tsn.getTableBody();
         
@@ -140,7 +149,7 @@ public class DTLoader {
             throw new Exception("Invalid structure of decision table");
         }
 
-        columns = toParse.getLogicalWidth() - IDecisionTableConstants.DATA_COLUMN;
+        columnsNum = toParse.getLogicalWidth() - IDecisionTableConstants.DATA_COLUMN;
 
         ILogicalTable businessView = tableBody.columns(IDecisionTableConstants.DATA_COLUMN - 1);
         tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
@@ -148,19 +157,8 @@ public class DTLoader {
         for (int i = 0; i < toParse.getLogicalHeight(); i++) {
             loadRow(i, toParse);
         }
-
-        // DecisionTableStructure dts = new DecisionTableStructure();
-        // dts.setCondition(makeTemplates(conditions));
-        // dts.setAction(makeTemplates(actions));
-
-        dt.bindTable(conditions.toArray(new IDTCondition[0]), actions
-                .toArray(new IDTAction[0]), ruleRow,
-        // null,
-                openl, module, cxtd, columns);
-
-        return dt;
     }
-
+    
     private void loadRow(int row, ILogicalTable table) throws SyntaxNodeException {
 
         String headerStr = table.getLogicalRow(row).getGridTable().getCell(IDecisionTableConstants.INFO_COLUMN, 0)
