@@ -18,13 +18,13 @@ import org.openl.rules.table.IWritableGrid;
  */
 public class XlsUndoGrid implements IUndoGrid {
 
-    static final int CELLS_IN_A_ROW = 250;
-    Workbook wb;
-    Sheet sheet;
+    private static final int CELLS_IN_A_ROW = 250;
+    private Workbook wb;
+    private Sheet sheet;
 
-    XlsSheetGridModel grid;
+    private XlsSheetGridModel grid;
 
-    int cnt;
+    private int cnt;
 
 	public XlsUndoGrid(XlsSheetGridModel originalGrid) {
 		Workbook originalWorkbook = originalGrid.getSheetSource().getWorkbookSource().getWorkbook();

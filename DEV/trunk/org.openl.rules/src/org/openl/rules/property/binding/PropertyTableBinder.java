@@ -212,15 +212,4 @@ public class PropertyTableBinder extends DataNodeBinder {
         return new PropertyTableBoundNode(tsn, module);
     }   
     
-    @Override
-    public ILogicalTable getPropertiesTableSection(ILogicalTable table) {
-        if (table.getLogicalHeight() < 1) {
-            return null;
-        }
-
-        ILogicalTable propTable = table.rows(1);
-        
-        
-        return propTable;
-    }
 }

@@ -7,6 +7,7 @@ import org.openl.OpenL;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationUtils;
 
@@ -19,7 +20,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
     }
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes) {
+    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
         Map<Object, TableSyntaxNode> values = new HashMap<Object, TableSyntaxNode>();
         ValidationResult validationResult = null;

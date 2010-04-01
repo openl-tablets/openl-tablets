@@ -51,6 +51,7 @@ import org.openl.rules.property.binding.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
+import org.openl.rules.validation.DispatcherTableBuilder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -162,12 +163,12 @@ public class XlsBinder implements IOpenBinder {
         IOpenBinder openlBinder = openl.getBinder();
         IBindingContext bindingContext = openlBinder.makeBindingContext();
         bindingContext = BindHelper.delegateContext(bindingContext, bindingContextDelegator);
-
-        IBoundNode topNode = bind(moduleNode, openl, bindingContext);
-
+        
+        IBoundNode topNode = bind(moduleNode, openl, bindingContext);        
+        
         return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
     }
-
+    
     /*
      * (non-Javadoc)
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
@@ -180,9 +181,9 @@ public class XlsBinder implements IOpenBinder {
             openl);
 
         processExtensions(module, moduleNode, moduleNode.getExtensionNodes());
-
+                
         RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(bindingContext, module);
-
+        
         IVocabulary vocabulary = makeVocabulary(moduleNode);
 
         if (vocabulary != null) {
@@ -201,13 +202,19 @@ public class XlsBinder implements IOpenBinder {
         ISelector<ISyntaxNode> notPropertiesSelector = propertiesSelector.not();
         ISelector<ISyntaxNode> notDataTypeSelector = dataTypeSelector.not();
         ISelector<ISyntaxNode> notProp_And_NotDatatypeSelectors = notDataTypeSelector.and(notPropertiesSelector);
-
-        return bindInternal(moduleNode,
-            openl,
-            moduleContext,
-            module,
-            notProp_And_NotDatatypeSelectors,
-            new TableSyntaxNodeComparator());
+        
+        IBoundNode topNode = bindInternal(moduleNode,
+                openl,
+                moduleContext,
+                module,
+                notProp_And_NotDatatypeSelectors,
+                new TableSyntaxNodeComparator());
+        
+        // temporary is commited till the functionality will be ready
+        //DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass)topNode.getType(), moduleContext);
+        //dispTableBuilder.buildTable();
+        
+        return topNode;
     }
 
     private void processVocabulary(IVocabulary vocabulary,
@@ -323,7 +330,7 @@ public class XlsBinder implements IOpenBinder {
 
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) syntaxNode;
 
-        PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, moduleOpenClass, binder);
+        PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, moduleOpenClass);
         propLoader.loadProperties(tableSyntaxNode);
 
         return binder.preBind(tableSyntaxNode, openl, bindingContext, moduleOpenClass);

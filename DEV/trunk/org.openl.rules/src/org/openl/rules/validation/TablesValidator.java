@@ -20,7 +20,7 @@ public abstract class TablesValidator implements IOpenLValidator {
             XlsMetaInfo xlsMetaInfo = ((XlsModuleOpenClass) openClass).getXlsMetaInfo();
             TableSyntaxNode[] tableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
 
-            return validateTables(openl, tableSyntaxNodes);
+            return validateTables(openl, tableSyntaxNodes, openClass);
         }
 
         // Skip validation if passed open class is not instance of
@@ -29,5 +29,5 @@ public abstract class TablesValidator implements IOpenLValidator {
         return ValidationUtils.validationSuccess();
     }
 
-    public abstract ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes);
+    public abstract ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass);
 }

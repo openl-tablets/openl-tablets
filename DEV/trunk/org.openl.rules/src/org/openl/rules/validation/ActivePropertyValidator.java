@@ -9,6 +9,7 @@ import org.openl.OpenL;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -26,7 +27,7 @@ public class ActivePropertyValidator extends TablesValidator {
     public static final String ODD_ACTIVE_TABLE_MESSAGE = "There is only one active table allowed";
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes) {
+    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;
         Map<TableSyntaxNodeKey, List<TableSyntaxNode>> groupedTables = groupExecutableTables(tableSyntaxNodes);
         for (TableSyntaxNodeKey key : groupedTables.keySet()) {
