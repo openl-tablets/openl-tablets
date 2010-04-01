@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.indexer.DefaultIndexer;
@@ -55,11 +56,14 @@ public class FileIndexer extends WebTool {
     }
 
     static String getFileName(String path) {
+        String fileName = StringUtils.EMPTY;
+        if (StringUtils.isNotBlank(path)) {
+            int index = path.lastIndexOf('/');
 
-        int index = path.lastIndexOf('/');
+            fileName = index > 0 ? path.substring(index + 1) : path;
+        }
 
-        return index > 0 ? path.substring(index + 1) : path;
-
+        return fileName;
     }
 
     public static void main(String[] args) {
