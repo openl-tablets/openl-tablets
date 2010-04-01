@@ -301,20 +301,6 @@ public class StringTool {
         return buf;
     }
 
-    /**
-     * <p>
-     * Returns an upper case hexadecimal <code>String</code> for the given
-     * character.
-     * </p>
-     * 
-     * @param ch The character to convert.
-     * @return An upper case hexadecimal <code>String</code>
-     */
-    private static String hex(char ch) {
-        return Integer.toHexString(ch).toUpperCase();
-    }
-
-
     public static String encodeURL(String url) {
         String encodedUrl = null;
         try {
@@ -523,16 +509,6 @@ public class StringTool {
         return buf.toString();
     }
 
-    // ########################### Helper classes
-    // ##################################
-
-    // static public String transform(String src, Selector ignore, Convertor
-    // append)
-    // {
-    //
-    // }
-    //
-
     public static String replace(String src, String toFind, String toReplace) {
         return replace(src, toFind, toReplace, true, false, new StringBuffer()).toString();
     }
@@ -688,17 +664,6 @@ public class StringTool {
         String[] res = new String[cnt];
         for (int i = 0; i < res.length; i++) {
             res[i] = st.nextToken();
-        }
-        return res;
-    }
-
-    public static String[][] tokenize2(String src, String delim1, String delim2) {
-        StringTokenizer st = new StringTokenizer(src, delim1);
-        int cnt = st.countTokens();
-        String[][] res = new String[cnt][];
-
-        for (int i = 0; i < res.length; i++) {
-            res[i] = tokenize(st.nextToken(), delim2);
         }
         return res;
     }

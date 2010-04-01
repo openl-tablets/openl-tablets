@@ -350,14 +350,6 @@ public class StringToolTest extends TestCase {
     }
 
     /*
-     * Test method for 'org.openl.util.StringTool.tokenize2(String, String,
-     * String)'
-     */
-    public void testTokenize2() {
-
-    }
-
-    /*
      * Test method for 'java.lang.Object.toString()'
      */
     public void testToString() {
