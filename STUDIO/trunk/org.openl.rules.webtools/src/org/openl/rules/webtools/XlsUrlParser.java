@@ -103,12 +103,18 @@ public class XlsUrlParser implements XlsURLConstants {
         File f = null;
         try {
             f = new File(file).getCanonicalFile();
+            wbPath = f.getParent();
+            wbName = f.getName();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
+        } catch (NullPointerException ex) {
+            // there is no file representation
+            // FIXME tempory hack to support generated dispatch tables
+            wbPath = "/unexistingPath/";
+            wbName = "unexistingSourceFile.xls";
         }
 
-        wbPath = f.getParent();
-        wbName = f.getName();
+        
 
         // wsName = url.substring(iPound + 1, iAt);
 
