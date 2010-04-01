@@ -10,9 +10,12 @@
     final String TREE_PAGE = contextPath + "/faces/facelets/tree.xhtml";
     final String TABLE_PAGE = contextPath + "/faces/facelets/tableeditor/showTable.xhtml";
     final String INTRO_PAGE = contextPath + "/html/ws-intro.html";
+    final String FOOTER_PAGE = contextPath + "/faces/facelets/footerPanel.xhtml";
 
     String leftFramePageToOpen = TREE_PAGE;
     String mainFramePageToOpen = INTRO_PAGE;
+
+    String renderFooter = request.getParameter("renderFooter");
 
     WebStudio studio = WebStudioUtils.getWebStudio(session);
     String reload = request.getParameter("reload");
@@ -40,4 +43,7 @@
 <script type="text/javascript">
     window.parent.frames.leftFrame.location.href = "<%=leftFramePageToOpen%>";
     window.parent.frames.mainFrame.location.href = "<%=mainFramePageToOpen%>";
+    <% if (!"false".equals(renderFooter)) { %>
+        window.parent.frames.footerFrame.location.href = "<%=FOOTER_PAGE%>";
+    <%}%>
 </script>

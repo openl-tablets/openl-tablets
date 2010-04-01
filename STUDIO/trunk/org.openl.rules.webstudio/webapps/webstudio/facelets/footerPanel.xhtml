@@ -4,9 +4,17 @@
     xmlns:rich="http://richfaces.org/rich"
     template="/facelets/common/studioBase.xhtml">
 
+    <ui:define name="header">
+        <style type="text/css">
+            html, body, #tab {
+                height: 100%;
+            }
+        </style>
+    </ui:define>
+
     <ui:define name="page">
 
-        <rich:tabPanel>
+        <rich:tabPanel id="tab" switchType="client">
             <rich:tab label="Problems">
                 <ui:include src="/facelets/problems.xhtml" />
             </rich:tab>

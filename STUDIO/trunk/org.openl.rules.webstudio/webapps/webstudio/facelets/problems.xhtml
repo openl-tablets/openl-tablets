@@ -7,11 +7,10 @@
     xmlns:rich="http://richfaces.org/rich"
     template="/facelets/common/studioBase.xhtml">
 
-    <ui:define name="header">
-        <a4j:loadStyle src="resource:///css/tree.css" />
-    </ui:define>
-
     <ui:define name="page">
+
+        <a4j:loadStyle src="resource:///css/tree.css" />
+
         <!-- Tree BEGIN -->
         <rich:tree styleClass="tree" value="#{problemsBean.tree}" switchType="client" toggleOnClick="true"
             var="node" nodeFace="#{node.type}" selectedClass="treeNodeSelected">

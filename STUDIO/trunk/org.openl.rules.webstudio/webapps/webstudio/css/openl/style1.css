@@ -14,13 +14,13 @@ table,input,textarea {
 }
 
 .error_box {
-    padding: 8px 3px 8px 42px;
+    padding: 12px 7px 12px 43px;
     background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;
     border: 1px solid #DC6E6E;
 }
 
 .warning_box {
-    padding: 8px 3px 8px 42px;
+    padding: 12px 7px 12px 43px;
     background: url(webresource/images/warning32.png) no-repeat 5px #FFF4AD;
     border: 1px solid #DFA660;
 }
