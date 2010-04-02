@@ -28,8 +28,8 @@
                     <td style="text-align: right;">
                         <h:outputLink value="#{contextPath}/main.jsp?reload=true" target="top"
                             title="Refresh Project"><img src="webresource/images/refresh.gif" /></h:outputLink>
-                        <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp" target="mainFrame"
-                            title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" target="mainFrame"
+                            title="Run All Tests New" rendered="#{treeBean.projectHasTests}"><img
                             src="webresource/images/test_ok.gif" /></h:outputLink>
                         <h:outputLink value="#{contextPath}/main.jsp?validate=true&amp;reload=true" target="top"
                             title="Validate Project" rendered="#{treeBean.projectCanBeValidated}"><img
