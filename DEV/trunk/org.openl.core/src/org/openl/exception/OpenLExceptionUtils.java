@@ -14,7 +14,7 @@ public class OpenLExceptionUtils {
     private OpenLExceptionUtils() {
     }
 
-    public static void printError(OpenLCompilationException error, PrintWriter writer) {
+    public static void printError(OpenLException error, PrintWriter writer) {
 
         Throwable cause = error.getOriginalCause();
 
@@ -31,7 +31,7 @@ public class OpenLExceptionUtils {
             return;
 
         } else {
-            message = error.getMessage();
+            message = error.getOriginalMessage();
         }
 
         writer.println("Error: " + message);
@@ -44,7 +44,7 @@ public class OpenLExceptionUtils {
         }
     }
 
-    public static String[] getErrorCode(OpenLCompilationException error) {
+    public static String[] getErrorCode(OpenLException error) {
         ILocation location = error.getLocation();
         IOpenSourceCodeModule sourceModule = error.getSourceModule();
 

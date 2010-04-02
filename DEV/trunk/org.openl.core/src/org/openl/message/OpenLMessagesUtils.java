@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLCompilationException;
-
+import org.openl.exception.OpenLException;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 public class OpenLMessagesUtils {
 
@@ -45,14 +47,39 @@ public class OpenLMessagesUtils {
         OpenLMessages.getCurrentInstance().addMessage(message);
     }
 
-    public static List<OpenLMessage> newMessages(OpenLCompilationException[] errors) {
+    public static List<OpenLMessage> newMessages(OpenLException[] exceptions) {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
-        if (ArrayUtils.isNotEmpty(errors)) {
-            for (OpenLCompilationException error : errors) {
-                OpenLMessage message = new OpenLErrorMessage(error);
-                messages.add(message);
+        if (ArrayUtils.isNotEmpty(exceptions)) {
+            for (OpenLException error : exceptions) {
+                OpenLMessage errorMessage = new OpenLErrorMessage(error);
+                messages.add(errorMessage);
             }
+        }
+
+        return messages;
+    }
+
+    public static List<OpenLMessage> newMessages(Throwable exception) {
+        List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+
+        if (exception instanceof OpenLException) {
+            OpenLException openLException = (OpenLException) exception;
+            OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
+            messages.add(errorMessage);
+
+        } else if (exception instanceof CompositeSyntaxNodeException) {
+            CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
+            OpenLException[] exceptions = compositeException.getErrors();
+            for (OpenLException openLException : exceptions) {
+                OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
+                messages.add(errorMessage);
+            }
+
+        } else {
+            OpenLMessage message = new OpenLMessage(
+                    exception.getMessage(), StringUtils.EMPTY, Severity.ERROR);
+            messages.add(message);
         }
 
         return messages;
