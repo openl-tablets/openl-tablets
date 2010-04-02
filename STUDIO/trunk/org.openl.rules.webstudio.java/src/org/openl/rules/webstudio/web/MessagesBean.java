@@ -1,8 +1,9 @@
 package org.openl.rules.webstudio.web;
 
 import org.ajax4jsf.component.UIRepeat;
-import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLExceptionUtils;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.ui.WebStudio;
@@ -30,7 +31,7 @@ public class MessagesBean {
 
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
-            OpenLCompilationException error = errorMessage.getError();
+            OpenLException error = errorMessage.getError();
 
             return OpenLExceptionUtils.getErrorCode(error);
         }
@@ -40,9 +41,9 @@ public class MessagesBean {
 
     public String getTableUri() {
         OpenLErrorMessage message = (OpenLErrorMessage) messages.getRowData();
-        OpenLCompilationException error = message.getError();
+        OpenLException error = message.getError();
 
-        String errorUri = error.getUri();
+        String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
 
         WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -51,9 +52,9 @@ public class MessagesBean {
 
     public String getErrorCell() {
         OpenLErrorMessage message = (OpenLErrorMessage) messages.getRowData();
-        OpenLCompilationException error = message.getError();
+        OpenLException error = message.getError();
 
-        String errorUri = error.getUri();
+        String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
 
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);

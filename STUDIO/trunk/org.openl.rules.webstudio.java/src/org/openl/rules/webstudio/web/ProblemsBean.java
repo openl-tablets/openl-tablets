@@ -4,7 +4,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenLException;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
@@ -81,8 +82,8 @@ public class ProblemsBean {
         String url = null;
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
-            OpenLCompilationException error = errorMessage.getError();
-            String errorUri = error.getUri();
+            OpenLException error = errorMessage.getError();
+            String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
             String tableUri = WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
             if (StringUtils.isNotBlank(tableUri)) {
                 XlsUrlParser uriParser = new XlsUrlParser();

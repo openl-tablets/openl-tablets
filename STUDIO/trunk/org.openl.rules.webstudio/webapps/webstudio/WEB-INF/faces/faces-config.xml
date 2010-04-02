@@ -239,6 +239,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>runAllTestsBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.test.RunAllTestsBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>headerBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.HeaderBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
