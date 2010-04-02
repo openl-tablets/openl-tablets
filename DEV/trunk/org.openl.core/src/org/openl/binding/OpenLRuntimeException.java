@@ -11,18 +11,18 @@ import java.io.PrintWriter;
 import java.util.Stack;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.exception.OpenLException;
 import org.openl.main.SourceCodeURLTool;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
  *
  */
-public class OpenLRuntimeException extends RuntimeException {
+public class OpenLRuntimeException extends RuntimeException implements OpenLException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -8422089115244904493L;
 
     private IBoundNode node;
@@ -55,33 +55,54 @@ public class OpenLRuntimeException extends RuntimeException {
         this.node = node;
     }
 
-        
-    /**
-     * @return
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getOriginalMessage()
      */
+    public String getOriginalMessage() {
+        return ExceptionUtils.getRootCauseMessage(this);
+    }
+
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getOriginalCause()
+     */
+    public Throwable getOriginalCause() {
+        return ExceptionUtils.getRootCause(this);
+    }
+
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getLocation()
+     */
+    public ILocation getLocation() {
+        if (node != null) {
+            ISyntaxNode syntaxNode = node.getSyntaxNode();
+            return syntaxNode.getSourceLocation();
+        }
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getSourceModule()
+     */
+    public IOpenSourceCodeModule getSourceModule() {
+        if (node != null) {
+            ISyntaxNode syntaxNode = node.getSyntaxNode();
+            return syntaxNode.getModule();
+        }
+        return null;
+    }
+
     public IBoundNode getNode() {
         return node;
     }
 
-    /**
-     * @return
-     */
     public Stack<IBoundNode> getOpenlCallStack() {
         return openlCallStack;
     }
-
-    /**
-     *
-     */
 
     @Override
     public void printStackTrace() {
         printStackTrace(System.err);
     }
-
-    /**
-     *
-     */
 
     @Override
     public void printStackTrace(PrintStream s) {
@@ -90,17 +111,13 @@ public class OpenLRuntimeException extends RuntimeException {
         }
     }
 
-    /**
-     *
-     */
-
     @Override
     public void printStackTrace(PrintWriter stream) {
 
         Throwable rootCause = this;
 
         if (getCause() != null) {
-            rootCause = ExceptionUtils.getRootCause(this);
+            rootCause = getOriginalCause();
         }
 
         stream.println(rootCause.getClass().getName() + ": " + rootCause.getMessage());

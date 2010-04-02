@@ -9,7 +9,7 @@ import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
-public class OpenLCompilationException extends Exception {
+public class OpenLCompilationException extends Exception implements OpenLException {
 
     private static final long serialVersionUID = -8075090606797764194L;
 
@@ -29,19 +29,17 @@ public class OpenLCompilationException extends Exception {
         this(message, cause, location, null);
     }
 
-    /**
-     * Gets error message.
-     * 
-     * @return error message
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getOriginalMessage()
      */
-    public String getMessage() {
+    public String getOriginalMessage() {
 
         Throwable originalCause = getOriginalCause();
 
         String errorMessage = StringUtils.EMPTY;
 
         if (originalCause != null) {
-            errorMessage = String.format("%s [%s]", originalCause.getMessage(), originalCause.getClass().getName());
+            errorMessage = originalCause.getMessage();
         }
 
         if (StringUtils.isEmpty(message)) {
@@ -53,12 +51,8 @@ public class OpenLCompilationException extends Exception {
         return StringUtils.join(new Object[] { message, errorMessage }, "\n");
     }
 
-    /**
-     * Gets original cause of error. It can be <code>null</code> if cause is not
-     * java exception or java error.
-     * 
-     * @return {@link Throwable} object if cause of error is java exception or
-     *         java error; <code>null</code> - otherwise
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getOriginalCause()
      */
     public Throwable getOriginalCause() {
 
@@ -75,19 +69,15 @@ public class OpenLCompilationException extends Exception {
         return cause;
     }
 
-    /**
-     * Gets error cause location.
-     * 
-     * @return error cause location
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getLocation()
      */
     public ILocation getLocation() {
         return location;
     }
 
-    /**
-     * Gets source code module where the error was occurred.
-     * 
-     * @return source code module
+    /* (non-Javadoc)
+     * @see org.openl.exception.OpenLException#getSourceModule()
      */
     public IOpenSourceCodeModule getSourceModule() {
         return source;

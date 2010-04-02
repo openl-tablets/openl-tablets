@@ -12,17 +12,30 @@ import org.openl.types.impl.DynamicObject;
 
 public class TestResult implements INamedThing {
 
-    static class TestStruct {
+    public static class TestStruct {
 
-        DynamicObject testObj;
-        Object res;
-        Throwable ex;
+        private DynamicObject testObj;
+        private Object res;
+        private Throwable ex;
 
         public TestStruct(DynamicObject obj, Object res, Throwable ex) {
             this.ex = ex;
             this.res = res;
             testObj = obj;
         }
+
+        public DynamicObject getTestObj() {
+            return testObj;
+        }
+
+        public Object getRes() {
+            return res;
+        }
+
+        public Throwable getEx() {
+            return ex;
+        }
+
     }
 
     static final public int TR_EXCEPTION = 2, TR_NEQ = 1, TR_OK = 0;
@@ -30,6 +43,10 @@ public class TestResult implements INamedThing {
     TestMethodHelper helper;
 
     ArrayList<TestStruct> tests = new ArrayList<TestStruct>();
+
+    public ArrayList<TestStruct> getTests() {
+        return tests;
+    }
 
     private static boolean compareArrays(Object res, Object expected) {
 
