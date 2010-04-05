@@ -1,6 +1,6 @@
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.dt.FunctionalRow;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.tableeditor.event.TableEditorController;
 import org.openl.util.StringTool;
 
@@ -38,7 +38,7 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
         String[] insertedEscChoices = new String[choices.length];
         for (int i=0; i<choices.length; i++) {
             insertedEscChoices[i] = StringTool.insertStringToString(choices[i], 
-                    FunctionalRow.ARRAY_ELEMENTS_SEPARATOR, FunctionalRow.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+                    RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR, RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
         }
         super.setChoices(insertedEscChoices);
     }
@@ -48,8 +48,8 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
         TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
                 CE_MULTISELECT);
         typeResponse.setParams(new MultiChoiceParam(getChoices(), getDisplayValues(),
-                FunctionalRow.ARRAY_ELEMENTS_SEPARATOR,
-                FunctionalRow.ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
+            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
+            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
         return typeResponse;
     }
 }
