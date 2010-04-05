@@ -22,7 +22,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.dt.DTLoader;
+import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.extension.load.NameConventionLoaderFactory;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -59,8 +59,7 @@ import org.openl.util.StringTool;
  */
 public class XlsLoader {
 
-    private static final String[][] headerMapping = {
-            { IXlsTableNames.DECISION_TABLE, ITableNodeTypes.XLS_DT },
+    private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, ITableNodeTypes.XLS_DT },
             { IXlsTableNames.DECISION_TABLE2, ITableNodeTypes.XLS_DT },
             { IXlsTableNames.SPREADSHEET_TABLE, ITableNodeTypes.XLS_SPREADSHEET },
             { IXlsTableNames.SPREADSHEET_TABLE2, ITableNodeTypes.XLS_SPREADSHEET },
@@ -223,7 +222,7 @@ public class XlsLoader {
                 preprocessImportTable(row.getGridTable(), source);
             } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getGridTable(), source);
-            } else if (name == null || StringUtils.isEmpty(name) || DTLoader.isValidCommentHeader(name)) {
+            } else if (name == null || StringUtils.isEmpty(name) || DecisionTableHelper.isValidCommentHeader(name)) {
                 ;// ignore comment
             } else {
                 // TODO: why do we consider everything else an extension?
@@ -267,8 +266,8 @@ public class XlsLoader {
     }
 
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
-                                        IGridTable table,
-                                        XlsSheetSourceCodeModule sheetSource) {
+            IGridTable table,
+            XlsSheetSourceCodeModule sheetSource) {
 
         int height = table.getLogicalHeight();
 
@@ -294,9 +293,9 @@ public class XlsLoader {
 
                 if (src == null) {
 
-                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError(
-                        "Include " + include + " not found",
-                        null, null,
+                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
+                        null,
+                        null,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
 
                     addError(se);
@@ -312,9 +311,9 @@ public class XlsLoader {
                     String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
                     src = new URLSourceCodeModule(new URL(newURL));
                 } catch (Throwable t) {
-                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError(
-                        "Include " + include + " not found",
-                        t, null,
+                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
+                        t,
+                        null,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
                     addError(se);
                     tableSyntaxNode.addError(se);
@@ -326,9 +325,9 @@ public class XlsLoader {
             try {
                 preprocessWorkbook(src);
             } catch (Throwable t) {
-                SyntaxNodeException se = SyntaxNodeExceptionUtils.createError(
-                    "Include " + include + " not found",
-                    t, null,
+                SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
+                    t,
+                    null,
                     new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
                 addError(se);
                 tableSyntaxNode.addError(se);
@@ -457,7 +456,7 @@ public class XlsLoader {
     private XlsSheetSourceCodeModule preprocessSheet(Sheet sheet, XlsWorkbookSourceCodeModule workbookSourceModule) {
 
         String sheetName = sheet.getSheetName();
-     
+
         return new XlsSheetSourceCodeModule(sheet, sheetName, workbookSourceModule);
     }
 
@@ -467,7 +466,9 @@ public class XlsLoader {
             this.openl = openl;
         } else {
             if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one openl statement is allowed", null, openl);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one openl statement is allowed",
+                    null,
+                    openl);
                 OpenLMessagesUtils.addError(error.getMessage());
                 addError(error);
             }
@@ -479,7 +480,9 @@ public class XlsLoader {
         if (this.vocabulary == null) {
             this.vocabulary = vocabulary;
         } else {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one vocabulary is allowed", null, vocabulary);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one vocabulary is allowed",
+                null,
+                vocabulary);
             OpenLMessagesUtils.addError(error.getMessage());
             addError(error);
         }

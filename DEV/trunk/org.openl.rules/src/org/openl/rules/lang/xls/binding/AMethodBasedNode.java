@@ -12,32 +12,39 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
-    
-    protected OpenL openl;
-    protected IOpenMethodHeader header;
 
-    protected IOpenMethod method;
+    private OpenL openl;
+    private IOpenMethodHeader header;
+    private IOpenMethod method;
+    private ModuleOpenClass module;
 
-    protected ModuleOpenClass module;
-
-    
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(methodNode, new IBoundNode[0]);
         this.header = header;
         this.openl = openl;
         this.module = module;
-    }    
+    }
+
+    public OpenL getOpenl() {
+        return openl;
+    }
+
+    public IOpenMethodHeader getHeader() {
+        return header;
+    }
+
+    public IOpenMethod getMethod() {
+        return method;
+    }
+
+    public ModuleOpenClass getModule() {
+        return module;
+    }
+
     @Override
     public boolean isLiteralExpressionParent() {
         return false;
     }
-
-    public void addTo(ModuleOpenClass openClass) {
-        openClass.addMethod(method = createMethodShell());
-        getTableSyntaxNode().setMember(method);
-    }
-
-    protected abstract IOpenMethod createMethodShell();
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         throw new UnsupportedOperationException("Should not be called");
@@ -46,4 +53,14 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     public IOpenClass getType() {
         return header.getType();
     }
+
+    public void addTo(ModuleOpenClass openClass) {
+
+        method = createMethodShell();
+        openClass.addMethod(method);
+        getTableSyntaxNode().setMember(method);
+    }
+
+    protected abstract IOpenMethod createMethodShell();
+
 }

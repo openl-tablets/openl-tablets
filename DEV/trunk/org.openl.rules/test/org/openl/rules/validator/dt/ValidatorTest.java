@@ -8,6 +8,10 @@ import org.junit.Test;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.type.IDomainAdaptor;
+import org.openl.rules.dt.type.IntRangeDomainAdaptor;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 
@@ -33,21 +37,21 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
 //        EnumDomainAdaptor enumDomainAdaptor2 = new EnumDomainAdaptor(enumDomain2);
 //        domains.put("value2", enumDomainAdaptor2);
         
-        DTValidationResult dtValidResult = testTable(tableName, domains);
+        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }    
     
     @Test
     public void testGap() {
         String tableName = "Rules String validationGap(TestValidationEnum1 value1, TestValidationEnum2 value2)";        
-        DTValidationResult dtValidResult = testTable(tableName, null);
+        DesionTableValidationResult dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getUncovered().length);
     }
     
     @Test
     public void testOverlap() {
         String tableName = "Rules String validationOverlap(TestValidationEnum1 value1, TestValidationEnum2 value2)";        
-        DTValidationResult dtValidResult = testTable(tableName, null);
+        DesionTableValidationResult dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getOverlappings().length);
     }
     
@@ -59,13 +63,13 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("hour", intRangeDomainAdaptor);
         
-        DTValidationResult dtValidResult = testTable(tableName, domains);
+        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertEquals(1, dtValidResult.getUncovered().length);
         assertEquals("Param value missing", "hour=24", dtValidResult.getUncovered()[0].getValues().toString());
     }
         
-    private DTValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
-        DTValidationResult result = null;
+    private DesionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
+        DesionTableValidationResult result = null;
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
@@ -77,7 +81,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
             DecisionTable dt = (DecisionTable) resultTsn.getMember();
             try {
                 //System.out.println("Validating <" + tableName+ ">");
-                result = DTValidator.validateDT(dt, domains, getJavaWrapper().getOpenClass());
+                result = DecisionTableValidator.validateTable(dt, domains, getJavaWrapper().getOpenClass());
                 
                 if (result.hasProblems()) {
                     resultTsn.setValidationResult(result);
@@ -102,7 +106,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("currentValue", intRangeDomainAdaptor);
         
-        DTValidationResult dtValidResult = testTable(tableName, domains);
+        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     } 
             

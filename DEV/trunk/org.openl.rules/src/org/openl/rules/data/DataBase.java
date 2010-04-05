@@ -26,7 +26,7 @@ public class DataBase implements IDataBase {
         return tables.get(name);
     }
 
-    public ITable addNewTable(String tableName, TableSyntaxNode tsn) {
+    public ITable addNewTable(String tableName, TableSyntaxNode tsn) throws DuplicatedTableException {
 
         ITable table = getTable(tableName);
 

@@ -24,7 +24,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
 
     @Override
     protected IOpenMethod createMethodShell() {
-        return new ColumnMatch(header, this);
+        return new ColumnMatch(getHeader(), this);
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
@@ -39,6 +39,6 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     public ColumnMatch getColumnMatch() {
-        return (ColumnMatch) method;
+        return (ColumnMatch) getMethod();
     }
 }

@@ -23,7 +23,6 @@ public abstract class ATableBoundNode extends ABoundNode {
     }
 
     public void parseComponents(IBindingContext cxt) {
-        // TODO make abstract, implement in specific nodes
     }
 
 }

@@ -76,7 +76,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
     @Override
     protected IOpenMethod createMethodShell() {
-        return new TableMethod(header, null);
+        return new TableMethod(getHeader(), null);
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
@@ -107,19 +107,19 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         
         IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources);
 
-        OpenLManager.compileMethod(openl, src, getTableMethod(), cxt);
+        OpenLManager.compileMethod(getOpenl(), src, getTableMethod(), cxt);
 
         // method.setMethodBodyBoundNode(methodBody.getMethodBodyBoundNode());
 
     }
 
     final public TableMethod getTableMethod() {
-        return (TableMethod) method;
+        return (TableMethod) getMethod();
     }
 
     @Override
     public IOpenClass getType() {
-        return header.getType();
+        return getHeader().getType();
     }
 
     @Override

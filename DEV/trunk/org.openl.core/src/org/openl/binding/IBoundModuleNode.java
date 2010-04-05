@@ -12,6 +12,6 @@ package org.openl.binding;
  */
 public interface IBoundModuleNode extends IBoundNode {
 
-    public IBoundMethodNode getMethodNode(String name);
+    IBoundMethodNode getMethodNode(String name);
 
 }

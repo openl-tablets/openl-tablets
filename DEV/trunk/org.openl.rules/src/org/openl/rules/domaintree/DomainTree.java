@@ -14,8 +14,8 @@ import java.util.Comparator;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.IDTAction;
-import org.openl.rules.dt.IDTCondition;
+import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -221,13 +221,13 @@ public class DomainTree {
             addType(paramType);
         }
 
-        for (IDTCondition condition : decisionTable.getConditionRows()) {
+        for (ICondition condition : decisionTable.getConditionRows()) {
             for (IParameterDeclaration param : condition.getParams()) {
                 addType(param.getType());
             }
         }
 
-        for (IDTAction action : decisionTable.getActionRows()) {
+        for (IAction action : decisionTable.getActionRows()) {
             for (IParameterDeclaration param : action.getParams()) {
                 addType(param.getType());
             }

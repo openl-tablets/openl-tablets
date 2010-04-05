@@ -19,7 +19,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
 
     @Override
     protected IOpenMethod createMethodShell() {
-        return Algorithm.createAlgorithm(header, this);
+        return Algorithm.createAlgorithm(getHeader(), this);
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
@@ -32,6 +32,6 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     }
 
     public Algorithm getAlgorithm() {
-        return (Algorithm) method;
+        return (Algorithm) getMethod();
     }
 }

@@ -9,7 +9,8 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
-import org.openl.rules.dt.FunctionalRow;
+import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -91,13 +92,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         boolean multiValue = false;
 
-        if (valuesHeight == 1 && FunctionalRow.isCommaSeparatedArray(valuesTable)) {
+        if (valuesHeight == 1 && RuleRowHelper.isCommaSeparatedArray(valuesTable)) {
 
             multiValue = true;
-            FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
 
             // load array of values as comma separated parameters
-            String[] tokens = FunctionalRow.extractElementsFromCommaSeparatedArray(valuesTable);
+            String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
 
             if (tokens != null) {
                 for (String token : tokens) {
@@ -118,12 +119,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
-                    FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                     values.add(null);
                     continue;
                 }
 
-                FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
                 values.add(res);
             }
@@ -307,10 +308,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (s == null || s.length() == 0) {
                     // Set meta info for empty cells
-                    FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                    RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                 } else {
                     if (s.length() > 0) {
-                        FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                         Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
                         getField().set(target, res, getRuntimeEnv());
                     }
