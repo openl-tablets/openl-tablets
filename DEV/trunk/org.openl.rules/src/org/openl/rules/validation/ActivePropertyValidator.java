@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
+import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
@@ -39,9 +42,8 @@ public class ActivePropertyValidator extends TablesValidator {
                         if (validationResult == null) {
                             validationResult = new ValidationResult(ValidationStatus.FAIL);
                         }
-                        // TODO: specify source of error in OpenlMessage
-                        ValidationUtils
-                                .addValidationMessage(validationResult, ODD_ACTIVE_TABLE_MESSAGE, Severity.ERROR);
+                        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(
+                                new SyntaxNodeException(ODD_ACTIVE_TABLE_MESSAGE, null, tsn)));
                     } else {
                         activeTableWasFound = true;
                     }
@@ -51,8 +53,9 @@ public class ActivePropertyValidator extends TablesValidator {
                 if (validationResult == null) {
                     validationResult = new ValidationResult(ValidationStatus.SUCCESS);
                 }
-                // TODO: Specify source of error in OpenlMessage .
-                ValidationUtils.addValidationMessage(validationResult, NO_ACTIVE_TABLE_MESSAGE, Severity.WARN);
+                // warning is attached to any table syntax node
+                ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE,
+                        tablesGroup.get(0)));
             }
         }
         if (validationResult != null) {
