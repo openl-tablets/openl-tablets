@@ -287,7 +287,7 @@ public class ProjectModel {
 
     }
 
-    private Object convertResult(Object res) {
+    private Object convertTestResult(Object res) {
         if (res == null) {
             return null;
         }
@@ -964,7 +964,7 @@ public class ProjectModel {
     public Object runElement(String elementUri, String testName, String testID) {
         if (testName == null) {
             IOpenMethod m = getMethod(elementUri);
-            return convertResult(runMethod(m));
+            return convertTestResult(runMethod(m));
         }
 
         AllTestsRunResult atr = getRunMethods(elementUri);
