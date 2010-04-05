@@ -6,11 +6,11 @@ import org.openl.OpenL;
 
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.type.IDomainAdaptor;
+import org.openl.rules.dt.type.IntRangeDomainAdaptor;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.validator.dt.DTValidationResult;
-import org.openl.rules.validator.dt.DTValidator;
-import org.openl.rules.validator.dt.IDomainAdaptor;
-import org.openl.rules.validator.dt.IntRangeDomainAdaptor;
 import org.openl.types.IOpenClass;
 
 import org.openl.validation.ValidationResult;
@@ -26,10 +26,10 @@ public class DimensionPropertiesValidator extends TablesValidator {
             if ("Rules void valdateGapOverlap(int currentValue)".equals(tsn.getDisplayName())) {                
                 Map<String, IDomainAdaptor> domains = makeParamDomains();
                 
-                DTValidationResult dtValidResult = null;
+                DesionTableValidationResult dtValidResult = null;
                 try {
                     //System.out.println("Validating <" + tableName+ ">");
-                    dtValidResult = DTValidator.validateDT((DecisionTable)tsn.getMember(), domains, openClass);
+                    dtValidResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), domains, openClass);
                   
                     if (dtValidResult.hasProblems()) {
                         tsn.setValidationResult(dtValidResult);

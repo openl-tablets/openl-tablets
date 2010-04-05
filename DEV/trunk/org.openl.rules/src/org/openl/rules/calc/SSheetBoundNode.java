@@ -20,7 +20,7 @@ public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNod
 
     @Override
     protected IOpenMethod createMethodShell() {
-        return Spreadsheet.createSpreadsheet(header, this);
+        return Spreadsheet.createSpreadsheet(getHeader(), this);
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
@@ -44,7 +44,7 @@ public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNod
     }
 
     public Spreadsheet getSpreadsheet() {
-        return (Spreadsheet) method;
+        return (Spreadsheet) getMethod();
     }
 
 }

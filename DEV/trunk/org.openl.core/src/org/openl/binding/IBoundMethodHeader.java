@@ -10,8 +10,10 @@ import org.openl.types.IOpenMethodHeader;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IBoundMethodHeader extends IBoundNode {
+
     IOpenMethodHeader getMethodHeader();
+    
 }

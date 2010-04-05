@@ -6,6 +6,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -28,7 +29,8 @@ public class OpenLManager {
      * @param bindingContextDelegator binding context
      * @return {@link IOpenClass} instance
      */
-    public static IOpenClass makeType(OpenL openl, IOpenSourceCodeModule source,
+    public static IOpenClass makeType(OpenL openl,
+            IOpenSourceCodeModule source,
             IBindingContextDelegator bindingContextDelegator) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
@@ -46,7 +48,9 @@ public class OpenLManager {
      * @param bindingContext binding context
      * @return {@link CompositeMethod} instance
      */
-    public static CompositeMethod makeMethod(OpenL openl, IOpenSourceCodeModule source, IOpenMethodHeader methodHeader,
+    public static CompositeMethod makeMethod(OpenL openl,
+            IOpenSourceCodeModule source,
+            IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
@@ -62,7 +66,8 @@ public class OpenLManager {
      * @param bindingContextDelegator binding context
      * @return {@link IOpenMethodHeader} instance
      */
-    public static IOpenMethodHeader makeMethodHeader(OpenL openl, IOpenSourceCodeModule source,
+    public static IOpenMethodHeader makeMethodHeader(OpenL openl,
+            IOpenSourceCodeModule source,
             IBindingContextDelegator bindingContextDelegator) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
@@ -84,8 +89,12 @@ public class OpenLManager {
      * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
      */
-    public static CompositeMethod makeMethodWithUnknownType(OpenL openl, IOpenSourceCodeModule source,
-            String methodName, IMethodSignature signature, IOpenClass declaringClass, IBindingContext bindingContext) {
+    public static CompositeMethod makeMethodWithUnknownType(OpenL openl,
+            IOpenSourceCodeModule source,
+            String methodName,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
@@ -101,7 +110,9 @@ public class OpenLManager {
      * @param compositeMethod {@link CompositeMethod} instance
      * @param bindingContext binding context
      */
-    public static void compileMethod(OpenL openl, IOpenSourceCodeModule source, CompositeMethod compositeMethod,
+    public static void compileMethod(OpenL openl,
+            IOpenSourceCodeModule source,
+            CompositeMethod compositeMethod,
             IBindingContext bindingContext) {
 
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
@@ -134,6 +145,7 @@ public class OpenLManager {
      */
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
 
+        init ();
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
         return compileManager.compileModuleWithErrors(source);
@@ -168,9 +180,11 @@ public class OpenLManager {
      * @throws MethodNotFoundException
      * @throws SyntaxNodeException
      */
-    public static Object runMethod(OpenL openl, IOpenSourceCodeModule source, String methodName,
-            IOpenClass[] paramTypes, Object[] params) throws OpenLRuntimeException, MethodNotFoundException,
-            SyntaxNodeException {
+    public static Object runMethod(OpenL openl,
+            IOpenSourceCodeModule source,
+            String methodName,
+            IOpenClass[] paramTypes,
+            Object[] params) throws OpenLRuntimeException, MethodNotFoundException, SyntaxNodeException {
 
         OpenLRunManager runManager = new OpenLRunManager(openl);
 
@@ -187,13 +201,19 @@ public class OpenLManager {
      * @return result of execution
      * @throws OpenLRuntimeException
      */
-    public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType)
-            throws OpenLRuntimeException {
+    public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType) throws OpenLRuntimeException {
 
         OpenLRunManager runManager = new OpenLRunManager(openl);
 
         return runManager.run(source, sourceType);
 
+    }
+
+    /**
+     * Makes initialization actions before compilation will be started.
+     */
+    private static void init() {
+        OpenLMessages.getCurrentInstance().clear();
     }
 
 }

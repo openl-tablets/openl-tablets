@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.openl.OpenL;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.dt.DTLoader;
+import org.openl.rules.dt.DecisionTableLoader;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -83,7 +83,7 @@ public class DispatcherTableBuilder {
         PropertiesLoader propLoader = new PropertiesLoader(openl, moduleContext, (XlsModuleOpenClass)moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
         
-        DTLoader dtLoader = new DTLoader();
+        DecisionTableLoader dtLoader = new DecisionTableLoader();
         try {
             dtLoader.loadAndBind(tsn, decTable, openl, null, moduleContext);
             addNewTsnToTopNode(tsn);
@@ -121,7 +121,7 @@ public class DispatcherTableBuilder {
         IOpenClass declaringClass = null; // can be null.        
         
         IOpenMethodHeader methodHeader = new OpenMethodHeader("valdateGapOverlap", returnType, signature, declaringClass);
-        DecisionTable decTable = DecisionTable.createTable(methodHeader);
+        DecisionTable decTable = new DecisionTable(methodHeader);
         return decTable;        
     }
     

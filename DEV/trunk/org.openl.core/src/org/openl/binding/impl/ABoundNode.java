@@ -16,14 +16,13 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class ABoundNode implements IBoundNode {
 
     protected ISyntaxNode syntaxNode;
-
     protected IBoundNode[] children;
-    
+
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         this.syntaxNode = syntaxNode;
         this.children = children;
@@ -43,10 +42,10 @@ public abstract class ABoundNode implements IBoundNode {
         } catch (Throwable t) {
             throw new OpenLRuntimeException(t, this);
         }
-
     }
 
     public Object[] evaluateChildren(IRuntimeEnv env) throws OpenLRuntimeException {
+
         if (children == null) {
             return null;
         }
@@ -64,11 +63,6 @@ public abstract class ABoundNode implements IBoundNode {
         return children;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#getSyntaxNode()
-     */
     public ISyntaxNode getSyntaxNode() {
         return syntaxNode;
     }
@@ -82,58 +76,52 @@ public abstract class ABoundNode implements IBoundNode {
     }
 
     public void updateAssignFieldDependency(BindingDependencies dependencies) {
-        // do nothing
-
     }
-    
-    public boolean isLiteralExpression()
-    {
+
+    public boolean isLiteralExpression() {
         return isLiteralExpressionParent() && hasAllLiteralExpressionChildren(this);
     }
-    
 
-     private boolean hasAllLiteralExpressionChildren(IBoundNode boundNode) {
-        IBoundNodeVisitor checkLiteral = new IBoundNodeVisitor(){
+    private boolean hasAllLiteralExpressionChildren(IBoundNode boundNode) {
+        
+        IBoundNodeVisitor checkLiteral = new IBoundNodeVisitor() {
 
             public boolean visit(IBoundNode node) {
                 return node == ABoundNode.this || node.isLiteralExpression();
-            }};
-   
-            
-            
+            }
+        };
+
         return boundNode.visit(checkLiteral);
     }
 
-    public boolean isLiteralExpressionParent()
-    {
+    public boolean isLiteralExpressionParent() {
         return false;
     }
-    
-
 
     public void updateDependency(BindingDependencies dependencies) {
-        // do nothing
-
     }
 
     public boolean visit(IBoundNodeVisitor visitor) {
+
         if (!visitor.visit(this)) {
             return false;
         }
+        
         if (children == null) {
             return true;
         }
+        
         for (int i = 0; i < children.length; i++) {
             if (!children[i].visit(visitor)) {
                 return false;
             }
         }
+        
         return true;
     }
 
     public boolean isStaticTarget() {
         return false;
     }
-
 
 }

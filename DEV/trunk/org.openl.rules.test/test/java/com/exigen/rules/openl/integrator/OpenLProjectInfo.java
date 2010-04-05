@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.openl.rules.dt.DTAction;
-import org.openl.rules.dt.DTCondition;
-import org.openl.rules.dt.DTParameterInfo;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.FunctionalRow;
-import org.openl.rules.dt.IDTAction;
-import org.openl.rules.dt.IDTCondition;
-import org.openl.rules.dt.IDecisionRow;
+import org.openl.rules.dt.element.Action;
+import org.openl.rules.dt.element.Condition;
+import org.openl.rules.dt.element.DecisionTableParameterInfo;
+import org.openl.rules.dt.element.FunctionalRow;
+import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -79,14 +79,14 @@ public class OpenLProjectInfo {
 
     private boolean loadConditions(DecisionTable dt) {
 
-        IDTCondition[] cc = dt.getConditionRows();
+        ICondition[] cc = dt.getConditionRows();
 
         for (int i = 0; i < cc.length; i++) {
-            if (!(cc[i] instanceof DTCondition)) {
+            if (!(cc[i] instanceof Condition)) {
                 System.out.println("WARNING: Condition is not a DTCondition: " + cc[i].getName());
                 return false;
             }
-            if (!loadConditionOrAction((DTCondition) cc[i]))
+            if (!loadConditionOrAction((Condition) cc[i]))
                 return false;
         }
 
@@ -95,15 +95,15 @@ public class OpenLProjectInfo {
 
     private boolean loadActions(DecisionTable dt) {
 
-        IDTAction[] cc = dt.getActionRows();
+        IAction[] cc = dt.getActionRows();
 
         for (int i = 0; i < cc.length; i++) {
-            if (!(cc[i] instanceof DTAction)) {
+            if (!(cc[i] instanceof Action)) {
                 System.out.println("WARNING: Action is not a DTAction: " + cc[i].getName());
                 return false;
             }
 
-            if (!loadConditionOrAction((DTAction) cc[i]))
+            if (!loadConditionOrAction((Action) cc[i]))
                 return false;
         }
 
@@ -141,7 +141,7 @@ public class OpenLProjectInfo {
             for (int i = 0; i < params.length; i++) {
 
                 // Object[] paramRow = paramValues[i];
-                DTParameterInfo pi = ca.getParameterInfo(i);
+                DecisionTableParameterInfo pi = ca.getParameterInfo(i);
 
                 System.out.print("   " + pi.getValue(j));
             }

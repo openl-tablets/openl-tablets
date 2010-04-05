@@ -6,24 +6,23 @@
 
 package org.openl.rules.lang.xls.binding;
 
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-
 
 /**
  * @author snshor
- * TODO - make it syntax error
- *
  */
-public class DuplicatedTableException extends RuntimeException{
+public class DuplicatedTableException extends OpenLCompilationException {
 
     private static final long serialVersionUID = -6269440215951548170L;
 
     private TableSyntaxNode existingTable;
     private TableSyntaxNode duplicatedTable;
-    private String tableName;
 
     public DuplicatedTableException(String tableName, TableSyntaxNode existingTable, TableSyntaxNode duplicatedTable) {
-        this.tableName = tableName;
+
+        super("The table already exists: " + tableName, null, null, duplicatedTable.getModule());
+
         this.existingTable = existingTable;
         this.duplicatedTable = duplicatedTable;
     }
@@ -34,11 +33,6 @@ public class DuplicatedTableException extends RuntimeException{
 
     public TableSyntaxNode getExistingTable() {
         return existingTable;
-    }
-
-    @Override
-    public String getMessage() {
-        return "The table already exists: " + tableName;
     }
 
 }

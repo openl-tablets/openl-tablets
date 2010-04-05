@@ -15,33 +15,28 @@ import org.openl.vm.IRuntimeEnv;
  */
 public interface IBoundNode {
 
-    public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException;
+    void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException;
 
-    public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException;
+    Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException;
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException;
+    Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException;
 
-    public IBoundNode[] getChildren();
+    IBoundNode[] getChildren();
 
-    public ISyntaxNode getSyntaxNode();
+    ISyntaxNode getSyntaxNode();
 
-    public IBoundNode getTargetNode();
+    IBoundNode getTargetNode();
 
-    // run-time
-
-    // public String evaluate(Object target, Object[] pars, IRuntimeEnv env);
-
-    public IOpenClass getType();
+    IOpenClass getType();
 
     // Lvalue operations
-    public boolean isLvalue();
-    
+    boolean isLvalue();
     
     /**
      * Static target will accept only static methods; vice-versa is not necessarily true, but should produce at least a warning
      * @return
      */
-    public boolean isStaticTarget();
+    boolean isStaticTarget();
     
     /**
      * 
@@ -52,21 +47,12 @@ public interface IBoundNode {
      * constraint on some methods. The literal constraint on parameter or method will imply that 
      * this parameter or all parameters of the method are literal expressions. 
      */
-    public boolean isLiteralExpression();
+    boolean isLiteralExpression();
 
-    /**
-     * @param dependencies
-     */
-    public void updateAssignFieldDependency(BindingDependencies dependencies);
+    void updateAssignFieldDependency(BindingDependencies dependencies);
 
-    /**
-     * @param dependencies
-     */
-    public void updateDependency(BindingDependencies dependencies);
+    void updateDependency(BindingDependencies dependencies);
 
-    public boolean visit(IBoundNodeVisitor visitor);
-
-    // TODO generate code
-    // public void generateCode(Writer writer, CodeGenSchema cgSchema);
+    boolean visit(IBoundNodeVisitor visitor);
 
 }

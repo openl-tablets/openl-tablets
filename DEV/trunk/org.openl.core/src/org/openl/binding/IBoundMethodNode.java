@@ -8,12 +8,12 @@ package org.openl.binding;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IBoundMethodNode extends IBoundNode {
 
-    public int getLocalFrameSize();
+    int getLocalFrameSize();
 
-    public int getParametersSize();
+    int getParametersSize();
 
 }

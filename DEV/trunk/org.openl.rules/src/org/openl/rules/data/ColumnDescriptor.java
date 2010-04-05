@@ -13,7 +13,8 @@ import java.util.Map;
 import org.openl.OpenL;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
-import org.openl.rules.dt.FunctionalRow;
+import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -80,8 +81,8 @@ public class ColumnDescriptor {
         valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
         if (!valuesAnArray) {
-            resultLiteral = FunctionalRow.loadSingleParam(paramType,
-                field == null ? FunctionalRow.CONSTRUCTOR : field.getName(),
+            resultLiteral = RuleRowHelper.loadSingleParam(paramType,
+                field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
                 null,
                 valuesTable,
                 ota);
@@ -146,7 +147,7 @@ public class ColumnDescriptor {
         valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
         if (!valuesAnArray) {
-            Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
+            Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
             if (res != null) {
                 field.set(literal, res, getRuntimeEnv());
             }
@@ -186,7 +187,7 @@ public class ColumnDescriptor {
 
         for (int i = 0; i < valuesTableHeight; i++) {
 
-            Object res = FunctionalRow.loadSingleParam(paramType,
+            Object res = RuleRowHelper.loadSingleParam(paramType,
                 field.getName(),
                 null,
                 logicalTable.getLogicalRow(i),
@@ -209,7 +210,7 @@ public class ColumnDescriptor {
     }
 
     private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
-        return FunctionalRow.loadCommaSeparatedParam(paramType,
+        return RuleRowHelper.loadCommaSeparatedParam(paramType,
             field.getName(),
             null,
             valuesTable.getLogicalRow(0),
