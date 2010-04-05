@@ -25,10 +25,10 @@ import org.openl.meta.IMetaHolder;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.rules.dt.DTOverlapping;
-import org.openl.rules.dt.DTRule;
-import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.validator.DecisionTableOverlapping;
+import org.openl.rules.dt.validator.DecisionTableUncovered;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -57,7 +57,6 @@ import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.search.TableSearch;
-import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
@@ -229,9 +228,9 @@ public class ObjectViewer {
                 + format.format(dv) + "</a>";
     }
 
-    private String displayDTValidationResult(DTValidationResult res) {
+    private String displayDTValidationResult(DesionTableValidationResult res) {
 
-        DecisionTable dt = res.getDT();
+        DecisionTable dt = res.getDecisionTable();
         TableSyntaxNode tsn = (TableSyntaxNode) dt.getSyntaxNode();
         IGridTable gt = tsn.getTable().getGridTable();
 
@@ -244,7 +243,7 @@ public class ObjectViewer {
         buf.append("<p/>");
 
         if (res.getOverlappings().length > 0) {
-            DTOverlapping ov = res.getOverlappings()[0];
+            DecisionTableOverlapping ov = res.getOverlappings()[0];
             buf.append("<p>").append("The following sample input data will trigger overlapping rules ");
 
             int[] rules = ov.getRules();
@@ -268,7 +267,7 @@ public class ObjectViewer {
 
             buf.append("</tr></table><p/>");
 
-            IGridFilter cf = makeFilter(ov.getRules(), res.getDT());
+            IGridFilter cf = makeFilter(ov.getRules(), res.getDecisionTable());
 
             String type = IXlsTableNames.VIEW_BUSINESS;
             ILogicalTable gtx = tsn.getSubTables().get(type);
@@ -284,7 +283,7 @@ public class ObjectViewer {
 
             buf.append("</p>");
 
-            DTUncovered un = res.getUncovered()[0];
+            DecisionTableUncovered un = res.getUncovered()[0];
             buf.append("<table style='border: 1px solid'><tr>");
             int size = un.getValues().size();
 
@@ -466,10 +465,6 @@ public class ObjectViewer {
             return "<b>null</b>";
         }
 
-        if (res.getClass().equals(new DTRule[0].getClass())) {
-            return displayRuleArray((DTRule[]) res);
-        }
-
         if (res.getClass().isArray()) {
             return displayArray(res);
         }
@@ -487,12 +482,8 @@ public class ObjectViewer {
             return displayTestResult(tt);
         }
 
-        if (res instanceof DTValidationResult) {
-            return displayDTValidationResult((DTValidationResult) res);
-        }
-
-        if (res instanceof DTRule) {
-            return displayRule((DTRule) res);
+        if (res instanceof DesionTableValidationResult) {
+            return displayDTValidationResult((DesionTableValidationResult) res);
         }
 
         if (res instanceof IGridTable) {
@@ -544,28 +535,28 @@ public class ObjectViewer {
         return value;
     }
 
-    public String displayRule(DTRule rule) {
-        StringBuffer buf = new StringBuffer(300);
-
-        buf.append("<a class='left' ");
-        makeXlsOrDocUrl(rule.getUri(), buf);
-        buf.append(">");
-
-        rule.display(buf, "html");
-        buf.append("</a>");
-        return buf.toString();
-    }
-
-    public String displayRuleArray(DTRule[] rules) {
-        IGridTable[] tables = new IGridTable[rules.length];
-        for (int i = 0; i < tables.length; i++) {
-            tables[i] = rules[i].getGridTable();
-        }
-
-        CompositeGrid cg = new CompositeGrid(tables, true);
-        GridTable gt = new GridTable(0, 0, cg.getHeight() - 1, cg.getWidth() - 1, cg);
-        return displayResult(gt);
-    }
+//    public String displayRule(DTRule rule) {
+//        StringBuffer buf = new StringBuffer(300);
+//
+//        buf.append("<a class='left' ");
+//        makeXlsOrDocUrl(rule.getUri(), buf);
+//        buf.append(">");
+//
+//        rule.display(buf, "html");
+//        buf.append("</a>");
+//        return buf.toString();
+//    }
+//
+//    public String displayRuleArray(DTRule[] rules) {
+//        IGridTable[] tables = new IGridTable[rules.length];
+//        for (int i = 0; i < tables.length; i++) {
+//            tables[i] = rules[i].getGridTable();
+//        }
+//
+//        CompositeGrid cg = new CompositeGrid(tables, true);
+//        GridTable gt = new GridTable(0, 0, cg.getHeight() - 1, cg.getWidth() - 1, cg);
+//        return displayResult(gt);
+//    }
     
     public String displaySearch(OpenLAdvancedSearchResult searchRes) {
         TableAndRows[] tr = searchRes.tablesAndRows();

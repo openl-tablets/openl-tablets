@@ -16,6 +16,8 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -54,8 +56,6 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.validator.dt.DTValidationResult;
-import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.syntax.ISyntaxNode;
@@ -1199,7 +1199,7 @@ public class ProjectModel {
         DecisionTable dt = (DecisionTable) tsn.getMember();
 
         try {
-            DTValidationResult dtr = DTValidator.validateDT(dt, null, wrapper.getOpenClass());
+            DesionTableValidationResult dtr = DecisionTableValidator.validateTable(dt, null, wrapper.getOpenClass());
 
             if (dtr.hasProblems()) {
                 tsn.setValidationResult(dtr);
