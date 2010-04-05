@@ -72,9 +72,9 @@
                 </h:commandLink>
 
                 <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
-                    <h:outputLink value="#{contextPath}/jsp/runMethod.jsp" title="Run">
+                    <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml" title="Run">
                         <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/test.gif" alt="test" />
+                        <h:graphicImage url="/webresource/images/test.gif" alt="Test" />
                     </h:outputLink>
 
                     <c:set var="traceUrl"
@@ -91,7 +91,7 @@
                 </c:if>
 
                 <c:if test="#{showTableBean.testable and !showTableBean.hasErrors}">
-                    <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp" title="Test">
+                    <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" title="Test">
                         <f:param value="#{showTableBean.uri}" name="uri" />
                         <h:graphicImage url="/webresource/images/test_ok.gif" alt="test" />
                     </h:outputLink>
@@ -219,7 +219,7 @@
                     items="#{test.descriptions}" varStatus="status">
                     <p>
                         <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-                        <h:outputLink value="#{contextPath}/jsp/runMethod.jsp" title="Run">
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml" title="Run">
                             <f:param value="#{showTableBean.uri}" name="uri" />
                             <f:param value="#{test.testName}" name="testName" />
                             <f:param value="#{status.index}" name="testID" />
@@ -237,7 +237,7 @@
                             <h:graphicImage url="/webresource/images/clock-icon.png" alt="test" />
                         </h:outputLink>
                         <f:verbatim>&amp;nbsp;</f:verbatim>
-                        <h:outputLink value="#{contextPath}/jsp/runMethod.jsp">
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
                             <f:param value="#{showTableBean.uri}" name="uri" />
                             <f:param value="#{test.testName}" name="testName" />
                             <f:param value="#{status.index}" name="testID" />

@@ -9,7 +9,12 @@
 
     <ui:define name="page">
 
-        <!--<ui:include src="#{contextPath}/jsp/common.jspf" />  -->
+        <script type="text/javascript">
+            function open_explain_win(url) {
+               window.open('#{contextPath}/treeview.jsp' + url
+                   + '&amp;relwidth=60%&amp;title=Explanation&amp;treejsp=jsp/explain.jsp&amp;mainjsp=jsp/showExplainTable.jsp',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+            }
+        </script>
 
         <h:panelGrid columns="2">
             <h:outputText value="Tests:" />
@@ -63,11 +68,17 @@
                                     rendered="#{runAllTestsBean.compareResult == 0}" />
                                 <h:graphicImage value="webresource/images/test_neq.gif"
                                     rendered="#{runAllTestsBean.compareResult == 1}" />
-                                <h:outputText value=" #{runAllTestsBean.result}" />
+                                <h:outputText value=" #{runAllTestsBean.result}"
+                                    rendered="#{empty runAllTestsBean.doubleValueResult}" />
+                                <h:outputLink
+                                    value="javascript: open_explain_win('?rootID=#{runAllTestsBean.explanatorId}&amp;header=Explanation')"
+                                    rendered="#{not empty runAllTestsBean.doubleValueResult}">
+                                    <h:outputText value="#{runAllTestsBean.formattedDoubleValueResult}" />
+                                </h:outputLink>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
                                 <ui:include src="/facelets/messages.xhtml">
-                                    <ui:param name="messages" value="#{runAllTestsBean.messages}" />
+                                    <ui:param name="messages" value="#{runAllTestsBean.errors}" />
                                 </ui:include>
                             </h:panelGroup>
                         </td>

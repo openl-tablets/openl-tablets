@@ -1,10 +1,14 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
+import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.meta.DoubleValue;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult;
@@ -32,14 +36,19 @@ public class RunAllTestsBean {
 
     public RunAllTestsBean() {
         String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+
+        Explanator explanator = (Explanator) FacesUtils.getSessionParam("explanator");
+        if (explanator == null) {
+            explanator = new Explanator();
+            FacesUtils.getSessionMap().put("explanator", explanator);
+        }
+        Explanator.setCurrent(explanator);
+
         runAllTests(tableUri);
     }
 
     private void runAllTests(String tableUri) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam("explanator");
-        Explanator.setCurrent(explanator);
 
         testsResult =  studio.getModel().runAllTests(tableUri);
 
@@ -85,7 +94,7 @@ public class RunAllTestsBean {
         this.headers = headers;
     }
 
-    public List<OpenLMessage> getMessages() {
+    public List<OpenLMessage> getErrors() {
         TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
         Throwable exception = ts.getEx();
 
@@ -100,6 +109,29 @@ public class RunAllTestsBean {
     public Object getResult() {
         TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
         return ts.getRes();
+    }
+
+    public DoubleValue getDoubleValueResult() {
+        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
+        Object result = ts.getRes();
+        if (result instanceof DoubleValue) {
+            return (DoubleValue) result;
+        }
+        return null;
+    }
+
+    public String getFormattedDoubleValueResult() {
+        DoubleValue doubleValueResult = getDoubleValueResult();
+        if (doubleValueResult != null) {
+            NumberFormat format = new DecimalFormat(doubleValueResult.getFormat());
+            return format.format(doubleValueResult);
+        }
+        return StringUtils.EMPTY;
+    }
+
+    public int getExplanatorId() {
+        DoubleValue doubleValue = getDoubleValueResult();
+        return Explanator.getCurrent().getUniqueId(doubleValue);
     }
 
     public int getCompareResult() {

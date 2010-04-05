@@ -22,11 +22,6 @@
     String testDescr = request.getParameter("testDescr");
 %>
 
-
-
-
-
-
 <html>
 
 <head>
