@@ -3,7 +3,9 @@
  */
 package org.openl.rules.tbasic.runtime.debug;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.Result;
@@ -74,9 +76,11 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         return fields.toString();
     }
 
-    public IGridRegion getGridRegion() {
+    public List<IGridRegion> getGridRegions() {
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
-        return operation.getSourceCode().getGridRegion();
+        regions.add(operation.getSourceCode().getGridRegion());
+        return regions;
     }
 
     /**

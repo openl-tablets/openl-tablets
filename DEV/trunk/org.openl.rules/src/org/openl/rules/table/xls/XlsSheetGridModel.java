@@ -87,6 +87,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             return getCellStyle(column, row, cell);
         }
 
+        public int getAbsoluteColumn() {
+            return getColumn();
+        }
+
+        public int getAbsoluteRow() {
+            return getRow();
+        }
+
         public int getColumn() {
             return column;
         }

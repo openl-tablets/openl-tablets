@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -39,9 +40,9 @@ public class TraceHelper {
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
-            IGridRegion r = child.getGridRegion();
-            if (r != null) {
-                regions.add(r);
+            List<IGridRegion> r = child.getGridRegions();
+            if (CollectionUtils.isNotEmpty(r)) {
+                regions.addAll(r);
             } else if (!child.isLeaf()) {
                 fillRegions(child, regions);
             }
@@ -88,9 +89,9 @@ public class TraceHelper {
     IGridFilter makeFilter(ITableTracerObject tto, ProjectModel model) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        IGridRegion r = tto.getGridRegion();
-        if (r != null) {
-            regions.add(r);
+        List<IGridRegion> r = tto.getGridRegions();
+        if (CollectionUtils.isNotEmpty(r)) {
+            regions.addAll(r);
         } else {
             fillRegions(tto, regions);
         }
@@ -155,7 +156,6 @@ public class TraceHelper {
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
 
         ITable table = new TableSyntaxNodeAdapter(tsn);
-        view = model.getTableView(view);
         IGridTable gt = new TableEditorModel(table, view, false).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });

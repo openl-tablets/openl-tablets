@@ -89,6 +89,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private Object[][] paramValues;    
     
+    public ILogicalTable getDecisionTable() {
+        return decisionTable;
+    }
+
     public static IOpenClass getType(String typeCode, IBindingContext cxt) throws Exception {
         if (typeCode.endsWith("[]")) {
             String baseCode = typeCode.substring(0, typeCode.length() - 2);

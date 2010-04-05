@@ -17,6 +17,14 @@ class CompositeCell implements ICell {
         this.delegate = delegate;  
     }
 
+    public int getAbsoluteColumn() {
+        return delegate.getAbsoluteColumn();
+    }
+
+    public int getAbsoluteRow() {
+        return delegate.getAbsoluteRow();
+    }
+
     public int getColumn() {
         return column;
     }

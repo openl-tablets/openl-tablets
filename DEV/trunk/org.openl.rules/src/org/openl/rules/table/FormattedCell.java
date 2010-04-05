@@ -78,6 +78,14 @@ public class FormattedCell implements ICell {
         this.formattedValue = formattedValue;
     }
 
+    public int getAbsoluteColumn() {
+        return delegate.getAbsoluteColumn();
+    }
+
+    public int getAbsoluteRow() {
+        return delegate.getAbsoluteRow();
+    }
+    
     public int getRow() {
         return delegate.getRow();
     }

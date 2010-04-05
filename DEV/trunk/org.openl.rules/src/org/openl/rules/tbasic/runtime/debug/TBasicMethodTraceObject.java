@@ -3,6 +3,8 @@
  */
 package org.openl.rules.tbasic.runtime.debug;
 
+import java.util.List;
+
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.types.IOpenClass;
@@ -43,7 +45,7 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
         return String.format("Algorithm Method %s %s", returnValue, displayName);
     }
 
-    public IGridRegion getGridRegion() {
+    public List<IGridRegion> getGridRegions() {
         // regions of sub-elements should be combined
         return null;
     }

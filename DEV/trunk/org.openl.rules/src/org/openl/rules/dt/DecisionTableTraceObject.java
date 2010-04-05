@@ -1,5 +1,8 @@
 package org.openl.rules.dt;
 
+import java.util.List;
+
+import org.openl.meta.IMetaHolder;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.types.IOpenMethod;
@@ -18,7 +21,7 @@ public class DecisionTableTraceObject extends ATableTracerNode {
         return (DecisionTable) getTraceObject();
     }
 
-    public IGridRegion getGridRegion() {
+    public List<IGridRegion> getGridRegions() {
         return null;
     }
 

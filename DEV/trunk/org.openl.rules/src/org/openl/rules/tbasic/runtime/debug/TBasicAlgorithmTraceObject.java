@@ -3,6 +3,8 @@
  */
 package org.openl.rules.tbasic.runtime.debug;
 
+import java.util.List;
+
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.Algorithm;
@@ -29,7 +31,7 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
         return String.format("Algorithm %s", asString(algorithm, mode));
     }
 
-    public IGridRegion getGridRegion() {
+    public List<IGridRegion> getGridRegions() {
         // regions of sub-elements should be combined
         return null;
     }
