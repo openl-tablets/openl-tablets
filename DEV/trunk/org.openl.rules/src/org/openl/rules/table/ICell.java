@@ -12,6 +12,16 @@ public interface ICell {
 
     int getColumn();
 
+    /**
+     * @return Absolute row index inside the sheet.
+     */
+    int getAbsoluteRow();
+
+    /**
+     * @return Absolute column index inside the sheet.
+     */
+    int getAbsoluteColumn();
+
     int getWidth();
 
     int getHeight();

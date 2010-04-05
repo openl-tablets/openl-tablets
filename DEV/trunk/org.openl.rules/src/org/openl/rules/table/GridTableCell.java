@@ -25,6 +25,14 @@ class GridTableCell implements ICell {
         return row;
     }
 
+    public int getAbsoluteColumn() {
+        return cell.getAbsoluteColumn();
+    }
+
+    public int getAbsoluteRow() {
+        return cell.getAbsoluteRow();
+    }
+
     public IGridRegion getRegion() {
         return cell.getRegion();
     }
@@ -64,5 +72,4 @@ class GridTableCell implements ICell {
     public String getUri() {
         return cell.getUri();
     }
-
 }

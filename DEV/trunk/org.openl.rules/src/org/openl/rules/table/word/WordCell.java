@@ -57,6 +57,14 @@ public class WordCell implements ICell{
         this.merged = merged;
     }
 
+    public int getAbsoluteColumn() {
+        return getColumn();
+    }
+
+    public int getAbsoluteRow() {
+        return getRow();
+    }
+
     public int getColumn() {
         return column;
     }

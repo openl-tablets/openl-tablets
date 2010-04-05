@@ -9,6 +9,7 @@ package org.openl.rules.dt;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -47,4 +48,8 @@ public interface IDecisionRow {
     void prepare(IOpenClass methodType, IMethodSignature signature, OpenL openl, ModuleOpenClass dtModule,
             IBindingContextDelegator cxtd, RuleRow ruleRow) throws Exception;
 
+    /**
+     * @return Parsed table that contains this decision row.
+     */
+    ILogicalTable getDecisionTable();
 }

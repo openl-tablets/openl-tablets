@@ -29,6 +29,14 @@ public class Cell implements ICell {
     public Cell() {
     }
 
+    public int getAbsoluteColumn() {
+        return getColumn();
+    }
+
+    public int getAbsoluteRow() {
+        return getRow();
+    }
+
     public int getRow() {
         return row;
     }
@@ -124,5 +132,4 @@ public class Cell implements ICell {
     public void setUri(String uri) {
         this.uri = uri;
     }
-
 }

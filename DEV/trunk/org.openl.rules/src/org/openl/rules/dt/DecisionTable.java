@@ -38,6 +38,9 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
 
     private IDTAction[] actionRows;
 
+    /**
+     * Optional non-functional row with rule indexes.
+     */
     private RuleRow ruleRow;
     
     private int columns;
@@ -139,6 +142,19 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
     public ILogicalTable getRuleTable(int col) {
         ILogicalTable bView = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
         return bView.getLogicalColumn(col + 1);
+    }
+    
+    /**
+     * Returns logical table that contains rule column. The column will contain
+     * all return, action and condition cells for rule specified by index.
+     * 
+     * @param ruleNumber Index of rule.
+     * @return ILogicalTable that contains rule column.
+     */
+    public ILogicalTable getRuleByIndex(int ruleNumber) {
+        ILogicalTable dt = actionRows[0].getDecisionTable();
+        int starColumn = dt.getLogicalWidth() - columns;
+        return dt.getLogicalColumn(starColumn + ruleNumber);
     }
 
     public IMethodSignature getSignature() {

@@ -1,5 +1,8 @@
 package org.openl.rules.cmatch.algorithm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.SubValue;
 import org.openl.rules.cmatch.TableRow;
@@ -26,9 +29,11 @@ public class MatchTraceObject extends ATableTracerLeaf {
         return "Match: " + operation + " " + checkValue;
     }
 
-    public IGridRegion getGridRegion() {
+    public List<IGridRegion> getGridRegions() {
         TableRow row = columnMatch.getRows().get(rowIndex);
-        return row.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getGridRegion();
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        regions.add(row.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getGridRegion());
+        return regions;
     }
 
     protected int getResultIndex() {

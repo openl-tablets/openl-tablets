@@ -1,5 +1,7 @@
 package org.openl.rules.cmatch.algorithm;
 
+import java.util.List;
+
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerNode;
@@ -19,7 +21,7 @@ public class ColumnMatchTraceObject extends ATableTracerNode {
         return "CM " + asString((IOpenMethod) getTraceObject(), mode);
     }
 
-    public IGridRegion getGridRegion() {
+    public List<IGridRegion> getGridRegions() {
         // TODO Auto-generated method stub
         return null;
     }
