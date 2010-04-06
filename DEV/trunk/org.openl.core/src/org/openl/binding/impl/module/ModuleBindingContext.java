@@ -43,14 +43,10 @@ public class ModuleBindingContext extends BindingContextDelegator {
         this.module = module;
     }
 
-    /**
-     *
-     */
-
     @Override
     public synchronized void addType(String namespace, IOpenClass type) throws Exception {
         String key = typeKey(namespace, type.getName());
-        Map<String, IOpenClass> map = internalTypes();
+        Map<String, IOpenClass> map = initInternalTypes();
         if (map.containsKey(key)) {
             throw new Exception("Type " + key + " has been defined already");
         }
@@ -109,14 +105,11 @@ public class ModuleBindingContext extends BindingContextDelegator {
         return res != null ? res : super.findVar(namespace, name, strictMatch);
     }
 
-    /**
-     * @return
-     */
     public ModuleOpenClass getModule() {
         return module;
     }
 
-    synchronized Map<String, IOpenClass> internalTypes() {
+    private synchronized Map<String, IOpenClass> initInternalTypes() {
         if (internalTypes == null) {
             internalTypes = new HashMap<String, IOpenClass>();
         }

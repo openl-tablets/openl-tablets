@@ -17,7 +17,7 @@ import org.openl.types.IOpenMethodHeader;
  */
 public abstract class AMethod implements IOpenMethod {
 
-    protected IOpenMethodHeader header;
+    private IOpenMethodHeader header;
 
     public AMethod(IOpenMethodHeader header) {
         this.header = header;

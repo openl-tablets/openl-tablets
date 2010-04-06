@@ -1,5 +1,8 @@
 package org.openl.rules.java;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;
@@ -27,6 +30,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.setCategory("org.openl.rules.java");
 
         LibraryFactoryConfiguration libraries = op.createLibraries();
+        
         NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
         library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
@@ -52,24 +56,25 @@ public class OpenLBuilder extends AOpenLBuilder {
          */
 
         TypeFactoryConfiguration types = op.createTypes();
+        
         NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
         typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
         JavaImportTypeConfiguration javaimport1 = new JavaImportTypeConfiguration();
-        javaimport1.setAll("org.openl.rules.helpers");
-        typelibrary.addJavaImport(javaimport1);
+        javaimport1.setImport("org.openl.rules.helpers");
+        typelibrary.addConfiguration(javaimport1);
 
-        JavaImportTypeConfiguration javaimport2 = new JavaImportTypeConfiguration();
-        javaimport2.setAll("org.openl.meta");
-        typelibrary.addJavaImport(javaimport2);
+        JavaImportTypeConfiguration javaimport2 = new JavaImportTypeConfiguration();        
+        javaimport2.setImport("org.openl.meta");
+        typelibrary.addConfiguration(javaimport2);
 
-        JavaImportTypeConfiguration javaimport3 = new JavaImportTypeConfiguration();
-        javaimport3.setAll("org.openl.rules.helpers.scope");
-        typelibrary.addJavaImport(javaimport3);
+        JavaImportTypeConfiguration javaimport3 = new JavaImportTypeConfiguration();        
+        javaimport3.setImport("org.openl.rules.helpers.scope");
+        typelibrary.addConfiguration(javaimport3);
 
-        JavaImportTypeConfiguration javaimport4 = new JavaImportTypeConfiguration();
-        javaimport4.setAll("org.openl.rules.calc");
-        typelibrary.addJavaImport(javaimport4);
+        JavaImportTypeConfiguration javaimport4 = new JavaImportTypeConfiguration();                
+        javaimport4.setImport("org.openl.rules.calc");
+        typelibrary.addConfiguration(javaimport4);
 
         types.addConfiguredTypeLibrary(typelibrary);
 

@@ -27,30 +27,28 @@ import org.openl.types.IOpenField;
  *
  */
 public class OpenLConfiguration implements IOpenLConfiguration {
+    
+    private static HashMap<Object, IOpenLConfiguration> configurations = new HashMap<Object, IOpenLConfiguration>();
 
-    // static WeakCache configurations = new WeakCache();
-    static HashMap<Object, IOpenLConfiguration> configurations = new HashMap<Object, IOpenLConfiguration>();
+    private String uri;
 
-    // static HashMap sharedConfigurations = new HashMap();
+    private IOpenLConfiguration parent;
 
-    String uri;
+    private IConfigurableResourceContext configurationContext;
 
-    IOpenLConfiguration parent;
+    private ClassFactory grammarFactory;
 
-    IConfigurableResourceContext configurationContext;
+    private NodeBinderFactoryConfiguration binderFactory;
 
-    ClassFactory grammarFactory;
+    private LibraryFactoryConfiguration methodFactory;
+    
+    private TypeCastFactory typeCastFactory;
 
-    NodeBinderFactoryConfiguration binderFactory;
+    private TypeFactoryConfiguration typeFactory;
 
-    LibraryFactoryConfiguration methodFactory;
-    TypeCastFactory typeCastFactory;
+    private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
-    TypeFactoryConfiguration typeFactory;
-
-    Map<String, IOpenFactoryConfiguration> openFactories = null;
-
-    static public IOpenLConfiguration getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
+    public static IOpenLConfiguration getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
         IOpenLConfiguration opc = configurations.get(name);
 
         if (opc != null) {
@@ -63,7 +61,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
-    static synchronized public void register(String name, IUserContext ucxt, IOpenLConfiguration oplc, boolean shared)
+    public static synchronized  void register(String name, IUserContext ucxt, IOpenLConfiguration oplc, boolean shared)
             throws OpenConfigurationException {
         Object key = null;
 
@@ -81,11 +79,11 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
-    static public void reset() {
+    public static void reset() {
         configurations = new HashMap<Object, IOpenLConfiguration>();
     }
 
-    static synchronized public void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
+    public static synchronized void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
         Object key = CacheUtils.makeKey(name, ucxt);
 
         // IOpenLConfiguration old =
@@ -115,10 +113,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         openFactories.put(opfc.getName(), opfc);
     }
 
-    /**
-     * @return
-     */
-    public NodeBinderFactoryConfiguration getBinderFactory() {
+   public NodeBinderFactoryConfiguration getBinderFactory() {
         return binderFactory;
     }
 
@@ -136,10 +131,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getCast(from, to);
     }
 
-    /**
-     * @return
-     */
-    public IConfigurableResourceContext getConfigurationContext() {
+   public IConfigurableResourceContext getConfigurationContext() {
         return configurationContext;
     }
 
@@ -148,9 +140,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                 .getResource(configurationContext);
     }
 
-    /**
-     * @return
-     */
     public ClassFactory getGrammarFactory() {
         return grammarFactory;
     }
@@ -168,9 +157,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
-    /**
-     * @return
-     */
     public LibraryFactoryConfiguration getMethodFactory() {
         return methodFactory;
     }
@@ -206,16 +192,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getType(namespace, name);
     }
 
-    /**
-     * @return
-     */
     public TypeCastFactory getTypeCastFactory() {
         return typeCastFactory;
     }
 
-    /**
-     * @return
-     */
     public String getUri() {
         return uri;
     }
@@ -229,58 +209,34 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getVar(namespace, name, strictMatch);
     }
 
-    /**
-     * @param factory
-     */
     public void setBinderFactory(NodeBinderFactoryConfiguration factory) {
         binderFactory = factory;
     }
 
-    /**
-     * @param context
-     */
     public void setConfigurationContext(IConfigurableResourceContext context) {
         configurationContext = context;
     }
 
-    /**
-     * @param factory
-     */
     public void setGrammarFactory(ClassFactory factory) {
         grammarFactory = factory;
     }
 
-    /**
-     * @param factory
-     */
     public void setMethodFactory(LibraryFactoryConfiguration factory) {
         methodFactory = factory;
     }
 
-    /**
-     * @param configuration
-     */
     public void setParent(IOpenLConfiguration configuration) {
         parent = configuration;
     }
 
-    /**
-     * @param factory
-     */
     public void setTypeCastFactory(TypeCastFactory factory) {
         typeCastFactory = factory;
     }
 
-    /**
-     * @param configuration
-     */
     public void setTypeFactory(TypeFactoryConfiguration configuration) {
         typeFactory = configuration;
     }
 
-    /**
-     * @param string
-     */
     public void setUri(String string) {
         uri = string;
     }

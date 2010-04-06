@@ -76,7 +76,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IMethodSignature#getNumberOfParameters()
      */
-    public int getNumberOfArguments() {
+    public int getNumberOfParameters() {
         return getParameterTypes().length;
     }
 

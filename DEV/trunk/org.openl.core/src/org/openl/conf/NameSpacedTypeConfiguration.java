@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
-import org.openl.util.CollectionsUtil;
 
 /**
  * @author snshor
@@ -19,38 +18,14 @@ import org.openl.util.CollectionsUtil;
  */
 public class NameSpacedTypeConfiguration extends AConfigurationElement {
 
-    String namespace;
+    private String namespace;
 
-    ITypeFactoryConfigurationElement[] factories = {};
+    private List<ITypeFactoryConfigurationElement> factories = new ArrayList<ITypeFactoryConfigurationElement>();
 
-    public void addAnyType(GenericTypeLibraryConfiguration glb) {
-        factories = (ITypeFactoryConfigurationElement[]) CollectionsUtil.add(factories, glb);
-    }
+    public void addConfiguration(ITypeFactoryConfigurationElement factory) {
+        factories.add(factory);
+    }    
 
-    public void addDynamicTypes(DynamicTypesConfiguration factory) {
-        factories = (ITypeFactoryConfigurationElement[]) CollectionsUtil.add(factories, factory);
-    }
-
-    public void addImport(ImportTypeConfiguration factory) {
-        factories = (ITypeFactoryConfigurationElement[]) CollectionsUtil.add(factories, factory);
-    }
-
-    public void addJavaImport(JavaImportTypeConfiguration factory) {
-        factories = (ITypeFactoryConfigurationElement[]) CollectionsUtil.add(factories, factory);
-    }
-
-    public void addJavaType(JavaTypeConfiguration factory) {
-        factories = (ITypeFactoryConfigurationElement[]) CollectionsUtil.add(factories, factory);
-    }
-
-    public void addSchema(OpenSchemaConfiguration opSchema) {
-        factories = (ITypeFactoryConfigurationElement[]) CollectionsUtil.add(factories, opSchema);
-
-    }
-
-    /**
-     * @return
-     */
     public String getNamespace() {
         return namespace;
     }
@@ -58,8 +33,8 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
     public IOpenClass getType(String name, IConfigurableResourceContext cxt) throws AmbiguousTypeException {
         List<IOpenClass> foundTypes = new ArrayList<IOpenClass>(2);
 
-        for (int i = 0; i < factories.length; i++) {
-            IOpenClass type = factories[i].getLibrary(cxt).getType(name);
+        for (ITypeFactoryConfigurationElement confElem : factories) {
+            IOpenClass type = confElem.getLibrary(cxt).getType(name);
             if (type != null) {
                 foundTypes.add(type);
             }
@@ -73,24 +48,15 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
             default:
                 throw new AmbiguousTypeException(name, foundTypes);
         }
-
     }
 
-    /**
-     * @param string
-     */
     public void setNamespace(String string) {
         namespace = string;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
-     */
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        for (int i = 0; i < factories.length; i++) {
-            factories[i].validate(cxt);
+        for (ITypeFactoryConfigurationElement confElem : factories) {
+            confElem.validate(cxt);
         }
     }
 

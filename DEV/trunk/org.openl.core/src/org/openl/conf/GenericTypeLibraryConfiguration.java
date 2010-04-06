@@ -14,7 +14,7 @@ import org.openl.types.ITypeLibrary;
  */
 public class GenericTypeLibraryConfiguration extends AGenericConfiguration implements ITypeFactoryConfigurationElement {
 
-    ITypeLibrary library;
+    private ITypeLibrary library;
 
     @Override
     public Class<?> getImplementingClass() {

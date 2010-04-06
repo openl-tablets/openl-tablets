@@ -16,27 +16,20 @@ import org.openl.util.CollectionsUtil;
  */
 public class ImportTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
 
-    public static class StringHolder {
-        String value;
+    private String[] classes = {};
 
-        public void addText(String x) {
-            value = x;
-        }
-    }
-    String[] classes = {};
+    private String[] imports = {};
 
-    String[] imports = {};
+    private ITypeLibrary library = null;
 
-    ITypeLibrary library = null;
+    private OpenSchemaConfiguration config = null;
 
-    OpenSchemaConfiguration config = null;
-
-    public void addConfiguredClassName(StringHolder className) {
-        classes = (String[]) CollectionsUtil.add(classes, className.value);
+    public void addConfiguredClassName(String className) {
+        classes = (String[]) CollectionsUtil.add(classes, className);
     }
 
-    public void addConfiguredImport(StringHolder anImport) {
-        imports = (String[]) CollectionsUtil.add(imports, anImport.value);
+    public void addConfiguredImport(String anImport) {
+        imports = (String[]) CollectionsUtil.add(imports, anImport);
     }
 
     public void addSchema(OpenSchemaConfiguration schema) {

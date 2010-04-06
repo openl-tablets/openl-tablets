@@ -28,6 +28,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -37,9 +38,7 @@ import org.openl.vm.Tracer;
  * @author snshor
  * 
  */
-public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
-
-    private IOpenMethodHeader header;
+public class DecisionTable extends AMethod implements IMemberMetaInfo {    
     private ICondition[] conditionRows;
     private IAction[] actionRows;
     /**
@@ -53,7 +52,7 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
     private DecisionTableOptimizedAlgorithm algorithm;
 
     public DecisionTable(IOpenMethodHeader header) {
-        this.header = header;
+        super(header);
     }
 
     public IAction[] getActionRows() {
@@ -72,12 +71,8 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
         return conditionRows;
     }
 
-    public IOpenClass getDeclaringClass() {
-        return header.getDeclaringClass();
-    }
-
     public String getDisplayName(int mode) {
-        return header.getInfo().getDisplayName(mode);
+        return getHeader().getInfo().getDisplayName(mode);
     }
 
     public ILogicalTable getDisplayTable() {
@@ -86,20 +81,12 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
         return table.getLogicalColumn(0);
     }
 
-    public IOpenMethodHeader getHeader() {
-        return header;
-    }
-
     public IMemberMetaInfo getInfo() {
         return this;
     }
 
     public IOpenMethod getMethod() {
         return this;
-    }
-
-    public String getName() {
-        return header.getName();
     }
 
     public int getNumberOfRules() {
@@ -143,24 +130,12 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
         return dt.getLogicalColumn(starColumn + ruleNumber);
     }
 
-    public IMethodSignature getSignature() {
-        return header.getSignature();
-    }
-
     public String getSourceUrl() {
         return tableSyntaxNode.getUri();
     }
 
     public TableSyntaxNode getSyntaxNode() {
         return tableSyntaxNode;
-    }
-
-    public IOpenClass getType() {
-        return header.getType();
-    }
-
-    public boolean isStatic() {
-        return header.isStatic();
     }
 
     public void setActionRows(IAction[] actionRows) {
@@ -173,10 +148,6 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
 
     public void setConditionRows(ICondition[] conditionRows) {
         this.conditionRows = conditionRows;
-    }
-
-    public void setHeader(IOpenMethodHeader header) {
-        this.header = header;
     }
 
     public void setRuleRow(RuleRow ruleRow) {
@@ -200,7 +171,7 @@ public class DecisionTable implements IOpenMethod, IMemberMetaInfo {
         this.ruleRow = ruleRow;
         this.columns = columns;
 
-        prepare(header, openl, module, cxtd);
+        prepare(getHeader(), openl, module, cxtd);
     }
 
     public BindingDependencies getDependencies() {

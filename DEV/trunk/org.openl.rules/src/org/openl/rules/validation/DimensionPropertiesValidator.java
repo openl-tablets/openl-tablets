@@ -23,7 +23,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;        
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if ("Rules void valdateGapOverlap(int currentValue)".equals(tsn.getDisplayName())) {                
+            if (tsn.getDisplayName() != null && tsn.getDisplayName().contains(DispatcherTableBuilder.DEFAULT_METHOD_NAME)) {                
                 Map<String, IDomainAdaptor> domains = makeParamDomains();
                 
                 DesionTableValidationResult dtValidResult = null;

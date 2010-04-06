@@ -1,5 +1,8 @@
 package org.openl.conf;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;
@@ -13,13 +16,13 @@ import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilderImpl extends AOpenLBuilder {
 
-    String extendsCategory = "org.openl.j";
+    private String extendsCategory = "org.openl.j";
 
-    String category;
+    private String category;
 
-    String imports;
+    private List<String> imports = new ArrayList<String>();
 
-    String libName;
+    private String libName;
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
@@ -35,7 +38,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         return extendsCategory;
     }
 
-    public String getImports() {
+    public List<String> getImports() {
         return imports;
     }
 
@@ -67,7 +70,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
          * classname="org.openl.rules.helpers.Util"/> </library> </libraries>
          */
 
-        if (imports != null) {
+        if (!imports.isEmpty()) {
             TypeFactoryConfiguration types = op.createTypes();
             NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
             typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
@@ -77,9 +80,9 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             // typelibrary.addJavaImport(javaimport);
 
             javaimport = new JavaImportTypeConfiguration();
-            javaimport.setAll(imports);
+            javaimport.setAllImports(imports);
 
-            typelibrary.addJavaImport(javaimport);
+            typelibrary.addConfiguration(javaimport);
 
             types.addConfiguredTypeLibrary(typelibrary);
         }
@@ -103,7 +106,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.extendsCategory = extendsCategory;
     }
 
-    public void setImports(String imports) {
+    public void setImports(List<String> imports) {
         this.imports = imports;
     }
 

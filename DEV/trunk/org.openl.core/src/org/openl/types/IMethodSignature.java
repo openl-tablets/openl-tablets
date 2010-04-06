@@ -13,7 +13,7 @@ package org.openl.types;
 public interface IMethodSignature {
 
     final class VoidSignature implements IMethodSignature {
-        public int getNumberOfArguments() {
+        public int getNumberOfParameters() {
             return 0;
         }
 
@@ -37,7 +37,7 @@ public interface IMethodSignature {
 
     IMethodSignature VOID = new VoidSignature();
 
-    int getNumberOfArguments();
+    int getNumberOfParameters();
 
     int getParameterDirection(int i);
 

@@ -130,23 +130,17 @@ public class OpenLBuilder extends AOpenLBuilder {
         nstc.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
         JavaTypeConfiguration javatype = new JavaTypeConfiguration();
         javatype.setClassName(org.openl.types.java.JavaPrimitiveTypeLibrary.class.getName());
-        nstc.addJavaType(javatype);
+        nstc.addConfiguration(javatype);
         javatype = new JavaTypeConfiguration();
         javatype.setClassName(org.openl.types.java.JavaLang.class.getName());
-        nstc.addJavaType(javatype);
+        nstc.addConfiguration(javatype);
 
         JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
+        
+        javaimport.addConfiguredImport("java.util");
+        javaimport.addConfiguredImport("java.math");
 
-        JavaImportTypeConfiguration.StringHolder anImport = new JavaImportTypeConfiguration.StringHolder();
-        anImport.addText("java.util");
-        javaimport.addConfiguredImport(anImport);
-
-        JavaImportTypeConfiguration.StringHolder anImport2 = new JavaImportTypeConfiguration.StringHolder();
-        anImport2.addText("java.math");
-
-        javaimport.addConfiguredImport(anImport2);
-
-        nstc.addJavaImport(javaimport);
+        nstc.addConfiguration(javaimport);
 
         types.addConfiguredTypeLibrary(nstc);
 

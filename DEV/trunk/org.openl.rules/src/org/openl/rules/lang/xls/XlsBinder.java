@@ -38,6 +38,12 @@ import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.DecisionTableNodeBinder;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
+import org.openl.rules.enumeration.RegionsEnum;
+import org.openl.rules.enumeration.UsregionsEnum;
+import org.openl.rules.enumeration.UsstatesEnum;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -60,6 +66,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -210,9 +217,9 @@ public class XlsBinder implements IOpenBinder {
                 notProp_And_NotDatatypeSelectors,
                 new TableSyntaxNodeComparator());
         
-        // temporary is commited till the functionality will be ready
-        //DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass)topNode.getType(), moduleContext);
-        //dispTableBuilder.buildTable();
+        // temporary is commited till the functionality will be ready        
+        DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass)topNode.getType(), moduleContext);
+        dispTableBuilder.buildTable();
         
         return topNode;
     }
@@ -260,7 +267,7 @@ public class XlsBinder implements IOpenBinder {
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
 
         String openlName = getOpenLName(moduleNode.getOpenlNode());
-        String allImports = moduleNode.getAllImportString();
+        List<String> allImports = moduleNode.getAllImports();
 
         if (allImports == null) {
             return OpenL.getInstance(openlName, userContext);

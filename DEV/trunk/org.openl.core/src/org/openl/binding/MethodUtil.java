@@ -33,7 +33,7 @@ public class MethodUtil {
 
         IMethodSignature signature = methodHeader.getSignature();
 
-        for (int i = 0; i < signature.getNumberOfArguments(); i++) {
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             printParameterInfo(signature.getParameterType(i).getDisplayName(mode), signature.getParameterName(i), i == 0, buf);
         }
         
@@ -60,7 +60,7 @@ public class MethodUtil {
     public static StringBuffer printMethod(String name, IMethodSignature signature, StringBuffer buf) {
         startPrintingMethodName(name, buf);
         
-        for (int i = 0; i < signature.getNumberOfArguments(); i++) {
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             printParameterInfo(signature.getParameterType(i).getName(), signature.getParameterName(i), i == 0, buf);
         }
         

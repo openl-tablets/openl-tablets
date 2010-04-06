@@ -16,12 +16,12 @@ import java.util.Iterator;
  */
 public class CategorizedMap {
 
-    static class Category {
-        Category parent = null;
+    private static class Category {
+        private Category parent = null;
 
         int parentDistance = 0;
 
-        String category;
+        private String category;
 
         Category(String category) {
             this.category = category;
@@ -32,23 +32,14 @@ public class CategorizedMap {
             return category.equals(((Category) obj).category);
         }
 
-        /**
-         * @return
-         */
         public String getCategory() {
             return category;
         }
 
-        /**
-         * @return
-         */
         public Category getParent() {
             return parent;
         }
 
-        /**
-         * @return
-         */
         public int getParentDistance() {
             return parentDistance;
         }
@@ -58,16 +49,10 @@ public class CategorizedMap {
             return category.hashCode();
         }
 
-        /**
-         * @param category
-         */
         public void setParent(Category category) {
             parent = category;
         }
 
-        /**
-         * @param i
-         */
         public void setParentDistance(int i) {
             parentDistance = i;
         }

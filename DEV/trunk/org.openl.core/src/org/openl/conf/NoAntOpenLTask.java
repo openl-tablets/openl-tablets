@@ -12,7 +12,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 public class NoAntOpenLTask {
 
-    static public IOpenLConfiguration lastConfiguration;
+    public static IOpenLConfiguration lastConfiguration;
 
     boolean inheritExtendedConfigurationLoader = false;
     String uri = "java://source_code";

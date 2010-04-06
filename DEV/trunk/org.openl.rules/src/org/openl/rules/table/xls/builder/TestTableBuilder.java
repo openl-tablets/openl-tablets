@@ -124,7 +124,7 @@ public class TestTableBuilder extends TableBuilder {
         if (decisionTable != null) {
             Map<String, String> params = new LinkedHashMap<String, String>();
             IMethodSignature tableHeaderSignature = decisionTable.getHeader().getSignature();
-            for (int i = 0; i < tableHeaderSignature.getNumberOfArguments(); i++) {
+            for (int i = 0; i < tableHeaderSignature.getNumberOfParameters(); i++) {
                 String paramName = tableHeaderSignature.getParameterName(i);
                 params.put(paramName, id2title(paramName));
             }

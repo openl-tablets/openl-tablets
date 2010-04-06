@@ -115,7 +115,7 @@ public class TestMethodHelper {
             for (int i = 0; i < res.length; i++) {
                 String descr = (String) dd[i].getFieldValue(DESCRIPTION_NAME);
                 if (descr == null) {
-                    if (testedMethod.getSignature().getNumberOfArguments() > 0) {
+                    if (testedMethod.getSignature().getNumberOfParameters() > 0) {
                         String pname = testedMethod.getSignature().getParameterName(0);
                         Object pvalue = dd[i].getFieldValue(pname);
                         descr = Formatter.format(pvalue, INamedThing.REGULAR, new StringBuffer()).toString();

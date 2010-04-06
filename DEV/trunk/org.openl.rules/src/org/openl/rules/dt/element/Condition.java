@@ -163,7 +163,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
         String code = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
 
-        for (int i = 0; i < signature.getNumberOfArguments(); i++) {
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
             if (pname.equals(code)) {
                 return new ParameterMethodCaller(getMethod(), i);

@@ -98,7 +98,7 @@ public class DecisionTableAnalyzer {
 
             if (openField instanceof ILocalVar) {
 
-                for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
+                for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
 
                     if (methodSignature.getParameterName(i).equals(openField.getName())) {
                         ParameterDeclaration parameterDeclaration = new ParameterDeclaration(methodSignature.getParameterTypes()[i],
