@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard.jsf;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,8 +9,11 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
  * @author Aliaksandr Antonik.
  */
 public abstract class BaseWizardBean {
+
     private int step;
     private int maxVisitedStep;
+    private int stepsCount;
+
     private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
 
     public void cancel() {
@@ -35,10 +37,16 @@ public abstract class BaseWizardBean {
     }
 
     public String next() {
+        setStep(getStep() + 1);
         if (getStep() == getMaxVisitedStep()) {
             onStepFirstVisit(getStep() + 1);
         }
         return "next";
+    }
+
+    public String prev() {
+        step--;
+        return "prev";
     }
 
     protected abstract void onCancel();
@@ -58,13 +66,17 @@ public abstract class BaseWizardBean {
     protected void onStepFirstVisit(int step) {
     }
 
-    public String prev() {
-        return "prev";
-    }
-
     public void setStep(int step) {
         this.step = step;
         maxVisitedStep = Math.max(step, maxVisitedStep);
+    }
+
+    public int getStepsCount() {
+        return stepsCount;
+    }
+
+    public void setStepsCount(int stepsCount) {
+        this.stepsCount = stepsCount;
     }
 
     public String start() {

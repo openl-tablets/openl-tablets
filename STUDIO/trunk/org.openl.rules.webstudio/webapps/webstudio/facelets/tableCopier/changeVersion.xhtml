@@ -4,13 +4,13 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:rich="http://richfaces.org/rich"
                 xmlns:c="http://java.sun.com/jstl/core"
-                template="/facelets/common/wizardBase.xhtml">
+                template="/facelets/common/copyWizardBase.xhtml">
 
     <ui:define name="page">
         <c:set var="minVersion" value="#{tableCopierWizard.minNextVersion}" />
         <h2>Change version</h2>
         <h:form id="changeVersionForm">
-	    <ui:include src="/facelets/tableCopier/selectVersionForm.xhtml"/>
+	        <ui:include src="/facelets/tableCopier/selectVersionForm.xhtml"/>
 
             <h:commandButton value="Next" action="#{tableCopierWizardManager.next}" />
             <h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" immediate="true" />

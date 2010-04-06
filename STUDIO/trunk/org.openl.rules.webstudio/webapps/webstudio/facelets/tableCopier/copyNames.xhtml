@@ -5,11 +5,12 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"    
-    template="/facelets/common/wizardBase.xhtml"
-    >
+    template="/facelets/common/copyWizardBase.xhtml">
+
     <ui:define name="header">
         <a4j:loadScript src="resource:///javascript/validator.js" />
     </ui:define>
+
     <ui:define name="page">
         <h:form id="copyTableForm">
 
@@ -22,8 +23,7 @@
                     value="#{tableCopierWizard.tableTechnicalName}" />
             </h:panelGrid>
             <br />
-      
-            <h:inputHidden value="1" id="step" binding="#{tableCopierWizardManager.hiddenStep}"/>
+
       		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}"/>
       		<h:commandButton value="Next" action="#{tableCopierWizardManager.next}" 
       			onclick="return validateForm()"/>

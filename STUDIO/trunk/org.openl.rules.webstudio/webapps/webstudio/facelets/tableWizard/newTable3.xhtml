@@ -3,8 +3,7 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
-                template="/facelets/common/wizardBase.xhtml"
-        >
+                template="/facelets/common/wizardBase.xhtml">
 
   <ui:define name="page">
     <h2>Actions configuration</h2>
@@ -20,7 +19,7 @@
           <h:column>
             <f:facet name="header"><h:outputText value="Name"/></f:facet>
             <h:outputText value="#{row.name}"
-                          styleClass="#{tableWizard.selectedAction == counter.current ? 'wz_selected_list_item' : 'wz_list_item'}"/>
+              styleClass="#{tableWizard.selectedAction == counter.current ? 'wz_selected_list_item' : 'wz_list_item'}"/>
           </h:column>
           <h:column>
             <h:commandLink action="#{tableWizard.removeAction}">
@@ -78,8 +77,6 @@
 
       <hr/>
 
-
-      <h:inputHidden value="3" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
       <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
       <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>
       <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
