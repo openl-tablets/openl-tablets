@@ -30,7 +30,7 @@ public class GameInterface
 		IOpenMethod m = AOpenClass.getSingleMethod(methodName,
 				((DynamicObject) thizz).getType().methods());
 		DecisionTable dt = (DecisionTable) m;
-		TableSyntaxNode tsn = dt.getTableSyntaxNode();
+		TableSyntaxNode tsn = dt.getSyntaxNode();
 
 		IGridTable gt = (IGridTable) tsn.getSubTables().get(
 				IXlsTableNames.VIEW_BUSINESS);
