@@ -2,9 +2,11 @@ package org.openl.rules.validation;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
+@Ignore
 public class DimensionalPropValidTest extends BaseOpenlBuilderHelper {
     
     private static String __src = "test/rules/validation/Dimensional_Prop_Valid.xls";
