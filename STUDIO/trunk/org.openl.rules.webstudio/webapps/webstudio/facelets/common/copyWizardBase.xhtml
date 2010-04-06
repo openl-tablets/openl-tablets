@@ -10,10 +10,11 @@
    xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
-  <c:set var="tableWizard" value="#{tableCreatorWizardManager.wizard}"/>
+  <c:set var="tableCopierWizard" value="#{tableCopierWizardManager.wizard}"/>
 
   <head>
     <a4j:loadStyle src="resource:///css/openl/style1.css" />
+    <a4j:loadScript src="resource:///javascript/prototype/prototype-1.5.1.js" />
     <style type="text/css">
       .error {color:red;}
       .wz_selected_list_item {background-color: yellow;}
@@ -23,16 +24,6 @@
   </head>
 
   <body>
-    <h:panelGroup rendered="#{tableWizard.stepsCount > 0}">
-        <br />
-        <ui:include src="/facelets/tableWizard/wizardSteps.xhtml">
-            <ui:param name="current" value="#{tableWizard.step}" />
-            <ui:param name="max" value="#{tableWizard.stepsCount}" />
-        </ui:include>
-        <br />
-        <br />
-    </h:panelGroup>
-
     <ui:insert name="page" />
   </body>
 </html>

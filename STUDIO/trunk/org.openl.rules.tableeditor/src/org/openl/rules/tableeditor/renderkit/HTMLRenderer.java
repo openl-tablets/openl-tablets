@@ -361,15 +361,20 @@ public class HTMLRenderer {
                         continue;
                     }
 
-                    String cellUri = table.getUri(j, i);
+                    String cellUri = null;
+                    if (table != null) {
+                        cellUri = table.getUri(j, i);
+                    }
 
                     s.append(tdPrefix);
                     if (cell instanceof CellModel) {
-                        XlsUrlParser uriParser = new XlsUrlParser();
-                        uriParser.parse(cellUri);
                         boolean selectErrorCell = false;
-                        if (uriParser.range.equals(errorCell)) {
-                            selectErrorCell = true;
+                        if (cellUri != null) {
+                            XlsUrlParser uriParser = new XlsUrlParser();
+                            uriParser.parse(cellUri);
+                            if (uriParser.range.equals(errorCell)) {
+                                selectErrorCell = true;
+                            }
                         }
                         ((CellModel) (cell)).atttributesToHtml(s, tableModel, selectErrorCell);
                     }

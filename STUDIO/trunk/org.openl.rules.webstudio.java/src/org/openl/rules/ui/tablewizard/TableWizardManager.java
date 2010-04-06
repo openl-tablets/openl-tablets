@@ -46,12 +46,15 @@ public class TableWizardManager extends TableWizard{
         switch (tableType) {
             case DECISION:
                 wizard = new DecisionTableCreationWizard();
+                wizard.setStepsCount(6);
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
+                wizard.setStepsCount(3);
                 break;
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
+                wizard.setStepsCount(3);
                 break;
             default:
                 return null;

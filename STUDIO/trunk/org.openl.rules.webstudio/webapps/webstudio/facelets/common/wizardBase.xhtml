@@ -11,7 +11,6 @@
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
   <c:set var="tableWizard" value="#{tableCreatorWizardManager.wizard}"/>
-  <c:set var="tableCopierWizard" value="#{tableCopierWizardManager.wizard}"/>
 
   <head>
     <a4j:loadStyle src="resource:///css/openl/style1.css" />
@@ -25,6 +24,16 @@
   </head>
 
   <body>
+    <h:panelGroup rendered="#{tableWizard.stepsCount > 0}">
+        <br />
+        <ui:include src="/facelets/tableWizard/wizardSteps.xhtml">
+            <ui:param name="current" value="#{tableWizard.step}" />
+            <ui:param name="max" value="#{tableWizard.stepsCount}" />
+        </ui:include>
+        <br />
+        <br />
+    </h:panelGroup>
+
     <ui:insert name="page" />
   </body>
 </html>

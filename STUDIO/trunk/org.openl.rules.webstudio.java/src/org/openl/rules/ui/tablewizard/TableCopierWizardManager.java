@@ -50,7 +50,7 @@ public class TableCopierWizardManager extends TableWizard {
         reload();
         switch (copyType) {
             case CHANGE_NAMES:
-                wizard = new TableNamesCopier(elementUri);                
+                wizard = new TableNamesCopier(elementUri); 
                 break;
             case CHANGE_PROPERTIES:
                 wizard = new TablePropertyCopier(elementUri);

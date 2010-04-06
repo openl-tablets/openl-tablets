@@ -90,8 +90,8 @@ public class PropertyTableCreationWizard extends WizardBase {
     
     @Override
     public String next() {
-        if(getStep() == 1){
-            //after step two we create PropertiesBean according to specified scope
+        if (getStep() == 1){
+            // After step two we create PropertiesBean according to specified scope
             propertiesManager = new PropertiesBean(getPropertyNamesList());
         }
         return super.next();

@@ -4,7 +4,7 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:a4j="http://richfaces.org/a4j"
-                template="/facelets/common/wizardBase.xhtml"
+                template="/facelets/common/copyWizardBase.xhtml"
         >
     <ui:define name="header">
         <a4j:loadScript src="resource:///javascript/validator.js" />
@@ -41,7 +41,7 @@
       </fieldset>
 
       <hr/>
-      <h:inputHidden value="2" id="step" binding="#{tableCopierWizardManager.hiddenStep}"/>
+
       <h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" onclick="enableControls()"/>
       <h:commandButton value="Finish" action="#{tableCopierWizard.finish}" onclick="return validateForm()"/>
       <h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" immediate="true"/>

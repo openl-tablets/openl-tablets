@@ -3,8 +3,7 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
-                template="/facelets/common/wizardBase.xhtml"
-        >
+                template="/facelets/common/wizardBase.xhtml">
 
   <ui:define name="page">
     <h2>Return configuration</h2>
@@ -35,7 +34,7 @@
         </h:column>
         <h:column>
           <h:commandLink action="#{tableWizard.removeReturnParameter}"
-                         rendered="#{tableWizard.return.paramsCount > 1}">
+            rendered="#{tableWizard.return.paramsCount > 1}">
             <f:param name="index" value="#{counter.count}"/>
             <h:graphicImage value="/images/delete.gif"/>
           </h:commandLink>
@@ -43,15 +42,13 @@
           <h:graphicImage value="/images/moveup.gif" rendered="#{counter.prev &gt; 0}" onclick='wiz_moveup(this, #{counter.prev})'/>
             <h:graphicImage value="/images/empty.gif" rendered="#{counter.prev == 0}" width="16"/>
             <h:graphicImage value="/images/movedown.gif" rendered="#{tableWizard.return.paramsCount > 1 and counter.current &lt; tableWizard.return.paramsCount}"
-                            onclick='wiz_moveup(this, #{counter.current})'/>
+              onclick='wiz_moveup(this, #{counter.current})'/>
         </h:column>
         <h:column><h:message for="pname" errorClass="error" showSummary="true" showDetail="true"/></h:column>
       </h:dataTable>
 
-
       <hr/>
 
-      <h:inputHidden value="4" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
       <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
       <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>
       <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
