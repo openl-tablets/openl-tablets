@@ -13,7 +13,7 @@
 
             <c:set var="messageBoxClass" value="#{message.severity == 'ERROR' ? 'error_box' : 'warning_box'}" />
 
-            <table style="margin-top: 3px"><tr><td>
+            <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
             <div class="#{messageBoxClass}">
 
                 <h:outputText value="#{message.summary}" />

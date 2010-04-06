@@ -4,27 +4,16 @@
 package org.openl.rules.ui;
 
 import java.lang.reflect.Array;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.openl.base.INamedThing;
-import org.openl.binding.OpenLRuntimeException;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.validator.DecisionTableOverlapping;
 import org.openl.rules.dt.validator.DecisionTableUncovered;
@@ -55,42 +44,21 @@ import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
-import org.openl.rules.webtools.XlsUrlParser;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.impl.DynamicObject;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInfo;
 
 /**
  * @author snshor
  */
 public class ObjectViewer {
 
-    private static final Log LOG = LogFactory.getLog(ObjectViewer.class);
-
     private ProjectModel projectModel;
 
     public ObjectViewer(ProjectModel projectModel) {
         this.projectModel = projectModel;
     }
-
-    /**
-     * session is needed for method {@link #canModifyCurrentProject()}
-     */
-    private HttpSession session;
 
     public static Object displaySpreadsheetResult(final SpreadsheetResult res) {
 
@@ -130,11 +98,6 @@ public class ObjectViewer {
         return new GridTable(gt.getRegion(), fg);
     }
 
-    public static String getURL(DoubleValue dv) {
-        int rootID = Explanator.getCurrent().getUniqueId(dv);
-        return "javascript: open_explain_win(\'?rootID=" + rootID + "&header=Explanation')";
-    }
-
     public static StringBuffer makeExcelLink(IGridTable table, String text, StringBuffer buf) {
         String uri = table.getUri();
         String url = WebTool.makeXlsOrDocUrl(table.getUri());
@@ -144,53 +107,6 @@ public class ObjectViewer {
                 + "&nbsp;" + text + "</a>");
 
         return buf;
-
-    }
-
-    public static StringBuffer printCodeAndErrorToHtml(ILocation location,
-            IOpenSourceCodeModule module, StringBuffer buf) {
-        String src = null;
-        int pstart = 0;
-        int pend = 0;
-        
-        if (location == null || !location.isTextLocation()) {
-            try {
-                src = module.getCode();
-            } catch (NullPointerException e) {
-                LOG.info("Can't get code with error", e);
-                // suppress if we can't show code with error
-            } catch (UnsupportedOperationException e) {
-                LOG.info("Showing code with error is not supported", e);
-                // suppress if we can't show code with error
-            }
-            if (src == null || src.trim().length() == 0) {
-                src = StringUtils.EMPTY;
-            }
-            pstart = 0;
-            pend = src.length();
-        } else {
-            src = module.getCode();
-            TextInfo info = new TextInfo(src);
-            pstart = location.getStart().getAbsolutePosition(info);
-            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1,
-                    src.length());
-        }
-
-        buf.append("\n<pre>\n");
-        buf.append(StringEscapeUtils.escapeHtml(src.substring(0, pstart)));
-
-        buf.append("<span class='codeerror'>");
-        buf.append(StringEscapeUtils.escapeHtml(src.substring(pstart, pend)));
-        buf.append("</span>");
-        if (pend < src.length()) {
-            ;
-        }
-        buf.append(StringEscapeUtils.escapeHtml(src.substring(pend, src.length())));
-
-        buf.append("</pre>\n");
-
-        return buf;
-
     }
 
     private String displayArray(Object res) {
@@ -216,16 +132,6 @@ public class ObjectViewer {
         }
 
         return buf.toString();
-    }
-
-    public String displayDoubleValueWithExplanation(DoubleValue dv) {
-        return displayDoubleValueWithExplanation(dv, null);
-    }
-
-    public String displayDoubleValueWithExplanation(DoubleValue dv, String clazz) {
-        NumberFormat format = new DecimalFormat(dv.getFormat());
-        return "<a href=\"" + getURL(dv) + "\"" + (clazz == null ? "" : " class=\"" + clazz + "\"") + ">"
-                + format.format(dv) + "</a>";
     }
 
     private String displayDTValidationResult(DesionTableValidationResult res) {
@@ -310,104 +216,6 @@ public class ObjectViewer {
         return buf.toString();
     }
 
-    private void displayErrorAndCode(Throwable tt, ILocation srcLocation, IOpenSourceCodeModule module, 
-            StringBuffer buf) {
-        buf.append("<table><tr><td class='error_box'>");
-
-        displayNonOpenlException(tt, buf).append("<p/>\n");
-
-        printCodeAndErrorToHtml(srcLocation, module, buf);
-
-        String errorUri = SourceCodeURLTool.makeSourceLocationURL(srcLocation, module, "");
-        String tableUri = null;
-        TableSyntaxNode tableSyntaxNode = projectModel.findNode(errorUri);
-        if (tableSyntaxNode != null) {
-            tableUri = tableSyntaxNode.getUri();
-        }
-        XlsUrlParser uriParser = new XlsUrlParser();
-        uriParser.parse(errorUri);
-
-        buf.append(" ");
-
-        boolean canEditTable = canModifyCurrentProject();
-
-        if (canEditTable) {
-            buf.append("<a href='javascript:editError(\"").append(
-                    tableUri != null ? tableUri : "").append("\"").append(",")
-                    .append("\"").append(uriParser.range).append(
-                            "\")' title='Edit cell containing error'>");
-            buf.append("Edit...");
-            buf.append(" </a>");
-        }
-
-        buf.append("</td></tr></table>");
-    }
-
-    /**     
-     * 
-     * @return true if user has the possibility to modify the tables in project.
-     */
-    private boolean canModifyCurrentProject() {
-        boolean canEditTable = false;        
-        if (session != null) {
-            WebStudio studio = WebStudioUtils.getWebStudio(session);
-            UserWorkspaceProject currentProject = studio.getCurrentProject(session);
-            
-            if (currentProject != null) {
-                canEditTable = (currentProject.isCheckedOut() || currentProject.isLocalOnly());
-            }
-        } else {
-            LOG.warn("Session object is <null>. Not good for us!");
-        }
-        return canEditTable;
-    }
-
-    private StringBuffer displayException(Throwable t, StringBuffer buf) {
-
-        if (t instanceof OpenLRuntimeException) {
-            OpenLRuntimeException ort = (OpenLRuntimeException) t;
-
-            Throwable[] tt = ExceptionUtils.getThrowables(ort);
-
-            for (int i = 1; i < tt.length; i++) {
-                if (tt[i] instanceof OpenLRuntimeException || tt[i] instanceof CompositeSyntaxNodeException
-                        || tt[i] instanceof SyntaxNodeException) {
-                    return displayException(tt[i], buf);
-                }
-            }
-
-            ISyntaxNode syntaxNode = ort.getNode().getSyntaxNode();
-
-            ILocation srcLocation = syntaxNode.getSourceLocation();
-
-            Throwable cause = ExceptionUtils.getRootCause(ort);
-
-            displayErrorAndCode(cause, srcLocation, syntaxNode.getModule(), buf);
-            return buf;
-
-        }
-
-        if (t instanceof OpenLCompilationException) {
-            OpenLCompilationException se = (OpenLCompilationException) t;
-
-            displayErrorAndCode(t, se.getLocation(), se.getSourceModule(), buf);
-            return buf;
-        }
-
-        if (t instanceof CompositeSyntaxNodeException) {
-            CompositeSyntaxNodeException se = (CompositeSyntaxNodeException) t;
-            SyntaxNodeException[] err = se.getErrors();
-
-            for (int i = 0; i < err.length; i++) {
-                displayErrorAndCode((Throwable) err[i], err[i].getLocation(), err[i].getSourceModule(), buf);
-            }
-
-            return buf;
-        }
-
-        return displayNonOpenlException(t, buf);
-    }
-
     private String displayMatrix(Object res) {
         int len = Array.getLength(res);
 
@@ -452,14 +260,6 @@ public class ObjectViewer {
 
     }
 
-    private StringBuffer displayNonOpenlException(Throwable t, StringBuffer buf) {
-        //buf.append("<span class=\"codeerror\"><b>");
-        //buf.append(t.getClass().getName()).append(": ").append("</b></span>");
-
-        toHtml(t.getMessage(), buf);
-        return buf;
-    }
-
     public String displayResult(Object res) {
         if (res == null) {
             return "<b>null</b>";
@@ -469,17 +269,8 @@ public class ObjectViewer {
             return displayArray(res);
         }
 
-        if (res instanceof DoubleValue) {
-            return displayDoubleValueWithExplanation((DoubleValue) res);
-        }
-
         if (res instanceof IMetaHolder) {
             return displayMetaHolder((IMetaHolder) res, String.valueOf(res), new StringBuffer()).toString();
-        }
-
-        if (res instanceof TestResult) {
-            TestResult tt = (TestResult) res;
-            return displayTestResult(tt);
         }
 
         if (res instanceof DesionTableValidationResult) {
@@ -514,13 +305,6 @@ public class ObjectViewer {
             return displaySearch(srch);
         }
 
-        if (res instanceof Throwable) {
-            Throwable t = (Throwable) res;
-            StringBuffer buf = new StringBuffer(1000);
-            displayException(t, buf);
-            return buf.toString();
-        }
-
         if (res instanceof INamedThing) {
             return ((INamedThing) res).getName();
         }
@@ -535,29 +319,6 @@ public class ObjectViewer {
         return value;
     }
 
-//    public String displayRule(DTRule rule) {
-//        StringBuffer buf = new StringBuffer(300);
-//
-//        buf.append("<a class='left' ");
-//        makeXlsOrDocUrl(rule.getUri(), buf);
-//        buf.append(">");
-//
-//        rule.display(buf, "html");
-//        buf.append("</a>");
-//        return buf.toString();
-//    }
-//
-//    public String displayRuleArray(DTRule[] rules) {
-//        IGridTable[] tables = new IGridTable[rules.length];
-//        for (int i = 0; i < tables.length; i++) {
-//            tables[i] = rules[i].getGridTable();
-//        }
-//
-//        CompositeGrid cg = new CompositeGrid(tables, true);
-//        GridTable gt = new GridTable(0, 0, cg.getHeight() - 1, cg.getWidth() - 1, cg);
-//        return displayResult(gt);
-//    }
-    
     public String displaySearch(OpenLAdvancedSearchResult searchRes) {
         TableAndRows[] tr = searchRes.tablesAndRows();
 
@@ -576,84 +337,6 @@ public class ObjectViewer {
         }
 
         return displayResult(res);
-    }
-
-    public String displayShortParamValue(Object x) {
-        if (x == null) {
-            return "null";
-        }
-
-        try {
-            return String2DataConvertorFactory.getConvertor(x.getClass()).format(x, null);
-        } catch (Throwable t) {
-        }
-
-        IOpenClass ioc = null;
-        if (x instanceof DynamicObject) {
-            ioc = ((DynamicObject) x).getType();
-        } else {
-            ioc = JavaOpenClass.getOpenClass(x.getClass());
-        }
-
-        IOpenField f = ioc.getField("name", true);
-
-        String type = StringTool.lastToken(ioc.getName(), ".");
-
-        Object fvalue = f == null ? null : f.get(x, null);
-
-        return type + (fvalue == null ? "" : String.valueOf(fvalue));
-
-    }
-   
-    private String displayTestResult(TestResult tt) {
-
-        StringBuffer buf = new StringBuffer();
-        buf.append("<table class=\"testtable\">\n");
-        int nrows = tt.getNumberOfTests();
-
-        buf.append("<tr>");
-
-        String[] hh = tt.getTestHeaders();
-        for (int i = 0; i < hh.length; i++) {
-            buf.append("<th  class=\"testtable\">").append(hh[i]).append("</th>");
-        }
-        buf.append("<th class=\"testtable\">").append("Expected").append("</th>");
-        buf.append("<th class=\"testtable\">").append("Result").append("</th>");
-
-        buf.append("</tr>\n");
-
-        for (int i = 0; i < nrows; i++) {
-
-            buf.append("<tr>\n");
-
-            for (int j = 0; j < hh.length; j++) {
-                buf.append("<td class=\"testtable\">").append(displayResult(tt.getTestValue(hh[j], i))).append("</td>");
-            }
-
-            buf.append("<td class=\"testtable\">").append(displayResult(tt.getExpected(i))).append("</td>");
-
-            buf.append("<td  class=\"testtable\">");
-            switch (tt.getCompareResult(i)) {
-                case TestResult.TR_OK:
-                    buf.append("<img src='webresource/images/test_ok.gif'/>").append(displayResult(tt.getResult(i)));
-                    break;
-                case TestResult.TR_EXCEPTION:
-                    displayException((Throwable) tt.getResult(i), buf);
-                    break;
-                case TestResult.TR_NEQ:
-                    buf.append("<img src='webresource/images/test_neq.gif'/>").append(displayResult(tt.getResult(i)));
-                    break;
-            }
-
-            buf.append("</td>");
-
-            buf.append("</tr>\n");
-
-        }
-
-        buf.append("</table>\n");
-
-        return buf.toString();
     }
 
     public List<TableSearch> getSearchList(Object searchRes) {
@@ -706,22 +389,9 @@ public class ObjectViewer {
     }
 
     private void makeXlsOrDocUrl(String uri, StringBuffer buf) {
-
         String url = WebTool.makeXlsOrDocUrl(uri);
         buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
         buf.append(" target='show_app_hidden'");
-    }
-
-    private StringBuffer toHtml(String msg, StringBuffer buf) {
-        return StringTool.prepareXMLAttributeValue(msg, buf);
-    }
-
-    public HttpSession getSession() {
-        return session;
-    }
-
-    public void setSession(HttpSession session) {
-        this.session = session;
     }
 
     private static class GridWithNode {
@@ -753,6 +423,7 @@ public class ObjectViewer {
                     + cell.getFormattedValue() + "</a>");
             return cell;
         }
+
         public IGridSelector getGridSelector() {
             return this;
         }
@@ -772,6 +443,11 @@ public class ObjectViewer {
             return getURL(dv);
         }
 
+        public static String getURL(DoubleValue dv) {
+            int rootID = Explanator.getCurrent().getUniqueId(dv);
+            return "javascript: open_explain_win(\'?rootID=" + rootID + "&header=Explanation')";
+        }
+
         public Object parse(String value) {
             return value;
         }
@@ -783,7 +459,6 @@ public class ObjectViewer {
         }
 
         public AXlsFormatter getFormatter() {
-            // TODO Auto-generated method stub
             return null;
         }
 
