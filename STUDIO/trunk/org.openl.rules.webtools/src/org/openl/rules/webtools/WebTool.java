@@ -120,7 +120,7 @@ public class WebTool extends StringTool {
 
         short[] color = font.getFontColor();
 
-        buf.append("; color: " + toHexString(color));
+        buf.append("; color: " + toHexString(color) + ";");
 
         return buf;
     }
