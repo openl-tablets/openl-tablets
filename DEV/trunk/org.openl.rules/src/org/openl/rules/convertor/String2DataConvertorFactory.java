@@ -19,8 +19,6 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
-import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
