@@ -43,32 +43,33 @@
             <table class="testtable">
                 <tr>
                     <a4j:repeat value="#{result.testHeaders}" var="testHeader">
-                        <th class="testtable">
+                        <th>
                             <h:outputText value="#{testHeader}" />
                         </th>
                     </a4j:repeat>
-                    <th class="testtable">Expected</th>
-                    <th class="testtable">Result</th>
+                    <th>Expected</th>
+                    <th>Result</th>
 
                 </tr>
                 <a4j:repeat value="#{result.tests}" binding="#{runAllTestsBean.testItems}">
                     <tr>
                         <a4j:repeat value="#{result.testHeaders}" var="testHeader" binding="#{runAllTestsBean.headers}">
-                            <td class="testtable">
+                            <td>
                                 <h:outputText value="#{runAllTestsBean.testValue}" />
                             </td>
                         </a4j:repeat>
-                        <td class="testtable">
+                        <td>
                             <h:outputText value="#{runAllTestsBean.expected}" />
                         </td>
-                        <td class="testtable">
+                        <td>
                             <h:panelGroup
                                 rendered="#{runAllTestsBean.compareResult == 0 or runAllTestsBean.compareResult == 1}">
                                 <h:graphicImage value="webresource/images/ok.png"
                                     rendered="#{runAllTestsBean.compareResult == 0}" />
                                 <h:graphicImage value="webresource/images/test_neq.gif"
                                     rendered="#{runAllTestsBean.compareResult == 1}" />
-                                <h:outputText value=" #{runAllTestsBean.result}"
+                                <h:outputText value=" " />
+                                <h:outputText value="#{runAllTestsBean.result}"
                                     rendered="#{empty runAllTestsBean.doubleValueResult}" />
                                 <h:outputLink
                                     value="javascript: open_explain_win('?rootID=#{runAllTestsBean.explanatorId}&amp;header=Explanation')"

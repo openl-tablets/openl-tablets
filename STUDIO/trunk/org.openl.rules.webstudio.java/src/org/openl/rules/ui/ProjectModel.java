@@ -307,8 +307,6 @@ public class ProjectModel {
 
     public String displayResult(Object res, HttpSession session) {
         ObjectViewer objViewer = new ObjectViewer(this);
-        // When this method is called form .jsp we need to set a session object.
-        objViewer.setSession(session);
         return objViewer.displayResult(res);
     }
 

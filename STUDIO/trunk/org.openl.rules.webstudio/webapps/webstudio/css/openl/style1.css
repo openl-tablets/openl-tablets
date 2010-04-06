@@ -56,20 +56,25 @@ table.tip {
 }
 
 table.testtable {
-    color: #000000;
+    color: #222222;
     background-color: #ffffff;
     font-size: 100%;
-    border: 1px solid black;
+    border: 1px solid #888895;
     empty-cells: show;
     border-collapse: collapse;
 }
 
-.testtable {
-    border: 1px solid black;
+table.testtable th {
+    border-left: 1px dotted #777777;
+    border-right: 1px dotted #777777;
+    border-bottom: 1px solid #BBBBBB;
+    background-color: rgb(247,247,250);
+    padding: 5px 4px;
 }
 
-th.testtable {
-    border: 1px solid black;
+table.testtable td {
+    border: 1px dotted #BBBBBB;
+    padding: 2px 4px;
 }
 
 table.db {

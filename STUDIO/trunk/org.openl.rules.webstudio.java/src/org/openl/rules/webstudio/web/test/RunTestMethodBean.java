@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.meta.DoubleValue;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;
@@ -38,18 +41,26 @@ public class RunTestMethodBean {
             tableUri = studio.getTableUri();
         }
 
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam("explanator");
-        Explanator.setCurrent(explanator);
+        initExplanator();
 
         tableName = studio.getModel().getDisplayNameFull(tableUri);
-        testName = FacesUtils.getRequestParameter("testName");
+        testName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_NAME);
         if (testName != null) {
             testName = StringTool.decodeURL(testName);
         }
-        testId = FacesUtils.getRequestParameter("testID");
-        testDescription = FacesUtils.getRequestParameter("testDescr");
+        testId = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_ID);
+        testDescription = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_DESCRIPTION);
 
         runTestMethod(tableUri, testId, testName);
+    }
+
+    private void initExplanator() {
+        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
+        if (explanator == null) {
+            explanator = new Explanator();
+            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR, explanator);
+        }
+        Explanator.setCurrent(explanator);
     }
 
     private void runTestMethod(String tableUri, String testId, String testName) {
@@ -96,6 +107,28 @@ public class RunTestMethodBean {
 
     public void setResultItems(UIRepeat resultItems) {
         this.resultItems = resultItems;
+    }
+
+    public DoubleValue getDoubleValueResult() {
+        Object result = resultItems.getRowData();
+        if (result instanceof DoubleValue) {
+            return (DoubleValue) result;
+        }
+        return null;
+    }
+
+    public String getFormattedDoubleValueResult() {
+        DoubleValue doubleValueResult = getDoubleValueResult();
+        if (doubleValueResult != null) {
+            NumberFormat format = new DecimalFormat(doubleValueResult.getFormat());
+            return format.format(doubleValueResult);
+        }
+        return StringUtils.EMPTY;
+    }
+
+    public int getExplanatorId() {
+        DoubleValue doubleValue = getDoubleValueResult();
+        return Explanator.getCurrent().getUniqueId(doubleValue);
     }
 
     public List<OpenLMessage> getErrors() {

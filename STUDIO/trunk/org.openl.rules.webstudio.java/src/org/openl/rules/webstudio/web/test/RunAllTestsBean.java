@@ -37,14 +37,18 @@ public class RunAllTestsBean {
     public RunAllTestsBean() {
         String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam("explanator");
-        if (explanator == null) {
-            explanator = new Explanator();
-            FacesUtils.getSessionMap().put("explanator", explanator);
-        }
-        Explanator.setCurrent(explanator);
+        initExplanator();
 
         runAllTests(tableUri);
+    }
+
+    private void initExplanator() {
+        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
+        if (explanator == null) {
+            explanator = new Explanator();
+            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR, explanator);
+        }
+        Explanator.setCurrent(explanator);
     }
 
     private void runAllTests(String tableUri) {
