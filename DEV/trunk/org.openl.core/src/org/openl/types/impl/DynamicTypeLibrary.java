@@ -20,7 +20,7 @@ import org.openl.types.ITypeLibrary;
  */
 public class DynamicTypeLibrary implements ITypeLibrary {
 
-    Map<String, IOpenClass> types = new HashMap<String, IOpenClass>();
+    private Map<String, IOpenClass> types = new HashMap<String, IOpenClass>();
 
     public void addType(String name, IOpenClass type) {
         types.put(name, type);

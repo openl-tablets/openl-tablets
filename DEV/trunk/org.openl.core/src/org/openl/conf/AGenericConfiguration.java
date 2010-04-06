@@ -25,30 +25,18 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
         String name;
         String value;
 
-        /**
-         * @return
-         */
-        public String getName() {
+       public String getName() {
             return name;
         }
 
-        /**
-         * @return
-         */
         public String getValue() {
             return value;
         }
 
-        /**
-         * @param string
-         */
         public void setName(String string) {
             name = string;
         }
 
-        /**
-         * @param string
-         */
         public void setValue(String string) {
             value = string;
         }
@@ -74,11 +62,6 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
         properties.add(prop);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IMethodFactoryConfigurationElement#getLibrary(org.openl.conf.IConfigurableResourceContext)
-     */
     public Object createResource(IConfigurableResourceContext cxt) {
 
         try {

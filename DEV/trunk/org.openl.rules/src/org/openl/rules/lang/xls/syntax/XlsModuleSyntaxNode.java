@@ -27,20 +27,20 @@ public class XlsModuleSyntaxNode extends NaryNode  {
     
     private IdentifierNode vocabularyNode;
     
-    private String allImportString;
+    private List<String> allImports = new ArrayList<String>();
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
-            IdentifierNode vocabularyNode, String allImportString, List<IdentifierNode> extensionNodes) {
+            IdentifierNode vocabularyNode, List<String> allImports, List<IdentifierNode> extensionNodes) {
         super(ITableNodeTypes.XLS_MODULE, null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;
-        this.allImportString = allImportString;
+        this.allImports = allImports;
         this.extensionNodes = extensionNodes;
     }
 
-    public String getAllImportString() {
-        return allImportString;
+    public List<String> getAllImports() {
+        return allImports;
     }
 
     public OpenlSyntaxNode getOpenlNode() {

@@ -6,43 +6,37 @@
 
 package org.openl.conf;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.openl.types.ITypeLibrary;
 import org.openl.types.java.JavaImportTypeLibrary;
-import org.openl.util.CollectionsUtil;
-import org.openl.util.StringTool;
 
 /**
  * @author snshor
  *
  */
 public class JavaImportTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
+    
+    private List<String> classes = new ArrayList<String>();
 
-    public static class StringHolder {
-        String value;
+    private List<String> imports = new ArrayList<String>();
 
-        public void addText(String x) {
-            value = x;
+    private ITypeLibrary library = null;
+
+    public void addConfiguredClassName(String className) {
+        if (StringUtils.isNotEmpty(className)) {
+            classes.add(className);
         }
     }
-    String[] classes = {};
 
-    String[] imports = {};
-
-    ITypeLibrary library = null;
-
-    public void addConfiguredClassName(StringHolder className) {
-        classes = (String[]) CollectionsUtil.add(classes, className.value);
+    public void addConfiguredImport(String anImport) {
+        if (StringUtils.isNotEmpty(anImport)) {
+            imports.add(anImport);
+        }   
     }
 
-    public void addConfiguredImport(StringHolder anImport) {
-        imports = (String[]) CollectionsUtil.add(imports, anImport.value);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.newconf.IMethodFactoryConfigurationElement#getFactory()
-     */
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
             library = new JavaImportTypeLibrary(classes, imports, cxt.getClassLoader());
@@ -50,15 +44,18 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
         return library;
     }
 
-    public void setAll(String all) {
-        imports = StringTool.tokenize(all, ";:");
+    public void setAllImports(List<String> allImports) {
+        if (allImports != null && !allImports.isEmpty()) {
+            imports = new ArrayList<String>(allImports);
+        }
+    }
+    
+    public void setImport(String singleImport) {
+        if (StringUtils.isNotEmpty(singleImport)) {
+            imports.add(singleImport);
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
-     */
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
     }
 

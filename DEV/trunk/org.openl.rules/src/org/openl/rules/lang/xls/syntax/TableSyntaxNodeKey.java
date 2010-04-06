@@ -39,8 +39,8 @@ public class TableSyntaxNodeKey {
                 .getMember()));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), key.getTableSyntaxNode()
-                    .getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
+            equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), 
+                    key.getTableSyntaxNode().getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
         }
         return equalsBuilder.isEquals();
     }

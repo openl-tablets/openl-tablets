@@ -167,7 +167,7 @@ public class ValidationAlgorithm {
             return new IntBoolExpConst(constrainer, true);
         }
 
-        int argsCount = conditionMethods[conditionIndex].getSignature().getNumberOfArguments();
+        int argsCount = conditionMethods[conditionIndex].getSignature().getNumberOfParameters();
 
         Object[] args = new Object[argsCount];
 

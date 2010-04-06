@@ -19,6 +19,8 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
+import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -516,7 +518,11 @@ public class String2DataConvertorFactory {
         if (convertor == null) {
             if (clazz.isEnum()) {
                 convertor = new String2EnumConvertor(clazz);
-            } else {
+            } else  if (clazz.isArray()) {
+                Class<?> componentType = clazz.getComponentType();
+                IString2DataConvertor componentConvertor = getConvertor(componentType);
+                convertor = new String2ArrayConvertor((String2EnumConvertor) componentConvertor);
+            }else {
                 try {
                     Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[] { String.class });
                     convertor = new String2ConstructorConvertor(ctr);

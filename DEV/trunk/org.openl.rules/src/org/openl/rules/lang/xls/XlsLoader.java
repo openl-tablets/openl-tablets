@@ -89,7 +89,7 @@ public class XlsLoader {
         }
     }
 
-    private String allImportString;
+    private List<String> imports = new ArrayList<String>();
 
     private String searchPath;
 
@@ -198,7 +198,7 @@ public class XlsLoader {
             source,
             openl,
             vocabulary,
-            allImportString,
+            imports,
             extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
     }
 
@@ -237,32 +237,24 @@ public class XlsLoader {
     }
 
     private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
-
         int height = table.getLogicalHeight();
-
-        String concat = null;
+        List<String> importsList = new ArrayList<String>();
 
         for (int i = 0; i < height; i++) {
-
-            String imports = table.getCell(1, i).getStringValue();
-
-            if (imports == null) {
-                continue;
-            }
-            imports = imports.trim();
-
-            if (imports.length() == 0) {
-                continue;
-            }
-
-            if (concat == null) {
-                concat = imports;
-            } else {
-                concat += ";" + imports;
+            String singleImport = table.getCell(1, i).getStringValue();   
+            if (StringUtils.isNotBlank(singleImport)) {
+                singleImport = singleImport.trim();
+            }            
+            if (StringUtils.isNotEmpty(singleImport)) {
+                importsList.add(singleImport);
             }
         }
-
-        allImportString = concat;
+        imports = importsList;
+        addInnerImports();
+    }
+    
+    private void addInnerImports() {
+        imports.add("org.openl.rules.enumeration");
     }
 
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,

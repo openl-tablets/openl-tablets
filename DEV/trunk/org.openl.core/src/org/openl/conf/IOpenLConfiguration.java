@@ -21,10 +21,10 @@ import org.openl.types.IOpenFactory;
 public interface IOpenLConfiguration extends IGrammarFactory, INodeBinderFactory, INameSpacedMethodFactory,
         ICastFactory, INameSpacedVarFactory, INameSpacedTypeFactory {
 
-    public void addOpenFactory(IOpenFactoryConfiguration opfc) throws OpenConfigurationException;
+    void addOpenFactory(IOpenFactoryConfiguration opfc) throws OpenConfigurationException;
 
-    public IConfigurableResourceContext getConfigurationContext();
+    IConfigurableResourceContext getConfigurationContext();
 
-    public IOpenFactory getOpenFactory(String name);
+    IOpenFactory getOpenFactory(String name);
 
 }

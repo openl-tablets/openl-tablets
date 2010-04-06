@@ -6,9 +6,11 @@
 
 package org.openl.types.java;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -22,23 +24,23 @@ import org.openl.types.ITypeLibrary;
  */
 public class JavaImportTypeLibrary implements ITypeLibrary {
 
-    HashMap<String, IOpenClass> aliases = new HashMap<String, IOpenClass>();
+    private HashMap<String, IOpenClass> aliases = new HashMap<String, IOpenClass>();
 
-    Set<String> notFound = new HashSet<String>();
+    private Set<String> notFound = new HashSet<String>();
 
-    String[] importPackages;
+    private List<String> importPackages = new ArrayList<String>();
 
-    ClassLoader loader;
+    private ClassLoader loader;
 
-    public JavaImportTypeLibrary(String[] importClasses, String[] importPackages, ClassLoader loader) {
+    public JavaImportTypeLibrary(List<String> importClasses, List<String> importPackages, ClassLoader loader) {
         this.loader = loader;
         this.importPackages = importPackages;
         if (importClasses != null) {
-            for (int i = 0; i < importClasses.length; i++) {
-                int index = importClasses[i].lastIndexOf('.');
-                String alias = importClasses[i].substring(index + 1);
+            for (String importClass : importClasses) {
+                int index = importClass.lastIndexOf('.');
+                String alias = importClass.substring(index + 1);
 
-                Class<?> c = ClassFactory.forName(importClasses[i], loader);
+                Class<?> c = ClassFactory.forName(importClass, loader);
                 aliases.put(alias, JavaOpenClass.getOpenClass(c));
 
             }
@@ -59,16 +61,15 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
             return null;
         }
         // TODO use imports
-        for (int i = 0; i < importPackages.length; i++) {
+        for (String singleImport : importPackages) {
             try {
-                Class<?> c = ClassFactory.forName(importPackages[i] + "." + typename, getClassLoader());
+                Class<?> c = ClassFactory.forName(singleImport + "." + typename, getClassLoader());
                 oc = JavaOpenClass.getOpenClass(c);
                 aliases.put(typename, oc);
                 return oc;
             } catch (Throwable t) {
             }
         }
-
         notFound.add(typename);
         return null;
 

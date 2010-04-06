@@ -32,7 +32,7 @@ class ArgumentsHelper {
         argName = argName.replace(" ", "");
 
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
+        for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             // TODO add source
             // String paramName = methodSignature.getParameterName(i);
 
@@ -55,7 +55,7 @@ class ArgumentsHelper {
         argNames.addAll(argTypes.keySet());
 
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
+        for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             IOpenClass type = paramTypes[i];
             if (type.isSimple()) {
                 // ignore, already added
@@ -92,7 +92,7 @@ class ArgumentsHelper {
 
     private void initSimpleArgs() {
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();
-        for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
+        for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             String name = methodSignature.getParameterName(i);
 
             IOpenClass type = paramTypes[i];

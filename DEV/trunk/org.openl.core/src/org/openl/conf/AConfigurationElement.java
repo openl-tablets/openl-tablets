@@ -13,16 +13,10 @@ package org.openl.conf;
 public abstract class AConfigurationElement implements IConfigurationElement {
     protected String uri;
 
-    /**
-     * @return
-     */
     public String getUri() {
         return uri;
     }
 
-    /**
-     * @param string
-     */
     public void setUri(String string) {
         uri = string;
     }

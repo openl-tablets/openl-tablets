@@ -12,26 +12,26 @@ package org.openl.rules.lang.xls;
  */
 public interface ITableNodeTypes {
 
-    static final String WORKBOOK = "Workbook";
-    static final String WORKSHEET = "Worksheet";
-    static final String TABLE = "Table";
-    static final String CELL = "Cell";
+    String WORKBOOK = "Workbook";
+    String WORKSHEET = "Worksheet";
+    String TABLE = "Table";
+    String CELL = "Cell";
 
-    static final String XLS_MODULE = "xls.module";
-    static final String XLS_WORKBOOK = "xls.workbook";
-    static final String XLS_WORKSHEET = "xls.worksheet";
-    static final String XLS_DT = "xls.dt";
-    static final String XLS_SPREADSHEET = "xls.spreadsheet";
-    static final String XLS_TBASIC = "xls.tbasic";
-    static final String XLS_COLUMN_MATCH = "xls.columnmatch";
-    static final String XLS_METHOD = "xls.method";
-    static final String XLS_DATA = "xls.data";
-    static final String XLS_TEST_METHOD = "xls.test.method";
-    static final String XLS_RUN_METHOD = "xls.run.method";
-    static final String XLS_DATATYPE = "xls.datatype";
-    static final String XLS_OPENL = "xls.openl";
-    static final String XLS_ENVIRONMENT = "xls.environment";
-    static final String XLS_PERSISTENT = "xls.persistent";
-    static final String XLS_OTHER = "xls.other";
-    static final String XLS_PROPERTIES = "xls.properties";
+    String XLS_MODULE = "xls.module";
+    String XLS_WORKBOOK = "xls.workbook";
+    String XLS_WORKSHEET = "xls.worksheet";
+    String XLS_DT = "xls.dt";
+    String XLS_SPREADSHEET = "xls.spreadsheet";
+    String XLS_TBASIC = "xls.tbasic";
+    String XLS_COLUMN_MATCH = "xls.columnmatch";
+    String XLS_METHOD = "xls.method";
+    String XLS_DATA = "xls.data";
+    String XLS_TEST_METHOD = "xls.test.method";
+    String XLS_RUN_METHOD = "xls.run.method";
+    String XLS_DATATYPE = "xls.datatype";
+    String XLS_OPENL = "xls.openl";
+    String XLS_ENVIRONMENT = "xls.environment";
+    String XLS_PERSISTENT = "xls.persistent";
+    String XLS_OTHER = "xls.other";
+    String XLS_PROPERTIES = "xls.properties";
 }

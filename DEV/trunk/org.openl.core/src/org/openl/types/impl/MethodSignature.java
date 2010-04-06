@@ -53,7 +53,7 @@ public class MethodSignature implements IMethodSignature {
         this.parameters = parameters;
     }
 
-    public int getNumberOfArguments() {
+    public int getNumberOfParameters() {
         return parameters.length;
     }
 
