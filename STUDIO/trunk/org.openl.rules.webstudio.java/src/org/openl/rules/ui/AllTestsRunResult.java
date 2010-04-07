@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.openl.rules.testmethod.TestResult;
-import org.openl.rules.testmethod.TestMethodHelper.TestMethodTestAll;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
@@ -18,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 public class AllTestsRunResult {
 
     public static class Test {
-        TestMethodTestAll method;
+        TestSuiteMethod method;
         TestResult result;
         String testName;
 
@@ -54,7 +54,7 @@ public class AllTestsRunResult {
         tests = new Test[methods.length];
         for (int i = 0; i < names.length; i++) {
             tests[i] = new Test();
-            tests[i].method = (TestMethodTestAll) methods[i];
+            tests[i].method = (TestSuiteMethod) methods[i];
             tests[i].testName = names[i];
 
         }

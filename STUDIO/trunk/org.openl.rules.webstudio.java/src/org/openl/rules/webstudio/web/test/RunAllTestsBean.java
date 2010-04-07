@@ -8,6 +8,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestResult;
+import org.openl.rules.testmethod.TestStruct;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.WebStudio;
@@ -96,14 +97,14 @@ public class RunAllTestsBean {
     }
 
     public List<OpenLMessage> getErrors() {
-        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
+        TestStruct ts = (TestStruct) testItems.getRowData();
         Throwable exception = ts.getEx();
 
         return OpenLMessagesUtils.newMessages(exception);
     }
 
     public Object getExpected() {
-        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
+        TestStruct ts = (TestStruct) testItems.getRowData();
         return ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
     }
 
@@ -116,7 +117,7 @@ public class RunAllTestsBean {
     }
 
     public Object getResult() {
-        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
+        TestStruct ts = (TestStruct) testItems.getRowData();
         return ts.getRes();
     }
 
@@ -139,13 +140,13 @@ public class RunAllTestsBean {
     }
 
     public int getCompareResult() {
-        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
+        TestStruct ts = (TestStruct) testItems.getRowData();
         return ts.getEx() != null ? TestResult.TR_EXCEPTION :
             (TestResult.compareResult(getResult(), getExpected())) ? TestResult.TR_OK : TestResult.TR_NEQ;
     }
 
     public Object getTestValue() {
-        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
+        TestStruct ts = (TestStruct) testItems.getRowData();
         String header = (String) headers.getRowData();
         return ts.getTestObj().getFieldValue(header);
     }

@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.openl.rules.testmethod.TestMethodHelper.TestMethodTestAll;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -36,21 +36,21 @@ public class ProjectHelper {
     }
 
     public static boolean isMethodRunnedBy(IOpenMethod tested, IOpenMethod runner) {
-        if (!(runner instanceof TestMethodTestAll)) {
+        if (!(runner instanceof TestSuiteMethod)) {
             return false;
         }
         if (runner == tested) {
             return true;
         }
-        IOpenMethod toTest = ((TestMethodTestAll) runner).getTested();
-        return toTest == tested && ((TestMethodTestAll) runner).isRunmethod();
+        IOpenMethod toTest = ((TestSuiteMethod) runner).getTestedMethod();
+        return toTest == tested && ((TestSuiteMethod) runner).isRunmethod();
     }
 
     public static boolean isMethodTestedBy(IOpenMethod tested, IOpenMethod tester) {
-        if (!(tester instanceof TestMethodTestAll)) {
+        if (!(tester instanceof TestSuiteMethod)) {
             return false;
         }
-        IOpenMethod toTest = ((TestMethodTestAll) tester).getTested();
+        IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
         return toTest == tested && isTester(tester);
     }
 
@@ -76,7 +76,7 @@ public class ProjectHelper {
      * @return
      */
     private static boolean isTester(IOpenMethod tester) {
-        return (tester instanceof TestMethodTestAll) && ((TestMethodTestAll) tester).isRunmethodTestable();
+        return (tester instanceof TestSuiteMethod) && ((TestSuiteMethod) tester).isRunmethodTestable();
     }
 
     static public IOpenMethod[] runners(IOpenMethod tested) {
