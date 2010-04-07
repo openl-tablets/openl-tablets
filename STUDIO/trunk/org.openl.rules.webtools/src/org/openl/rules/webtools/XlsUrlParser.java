@@ -33,6 +33,8 @@ public class XlsUrlParser implements XlsURLConstants {
 
     public String range;
 
+    public String cell;
+
     static boolean endsWithSlash(String s) {
         return s.length() > 0 && isSlash(s.charAt(s.length() - 1));
     }
@@ -99,6 +101,8 @@ public class XlsUrlParser implements XlsURLConstants {
             // TODO line, col
             range = urlMap.get(CELL);
         }
+
+        cell = urlMap.get(CELL);
 
         File f = null;
         try {

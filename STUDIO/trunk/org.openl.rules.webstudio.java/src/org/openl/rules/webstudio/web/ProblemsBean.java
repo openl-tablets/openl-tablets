@@ -98,7 +98,7 @@ public class ProblemsBean {
                 uriParser.parse(errorUri);
                 url = "tableeditor/showTable.xhtml"
                     + "?uri=" + StringTool.encodeURL(tableUri)
-                    + "&errorCell=" + uriParser.range;
+                    + "&errorCell=" + uriParser.cell;
             }
         }
         if (StringUtils.isBlank(url)) {

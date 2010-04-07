@@ -59,7 +59,7 @@ public class MessagesBean {
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
 
-        return uriParser.range;
+        return uriParser.cell;
     }
 
     public boolean isEditable() {
