@@ -10,11 +10,11 @@
         <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
         <a4j:loadScript src="resource:///javascript/validator.js" />
     </ui:define>
-  
+
+    <ui:define name="title">Select destination</ui:define>
+
   <ui:define name="page">
     <h:messages errorClass="error" />
-
-    <h2>Select destination</h2>
 
     <h:form id="destForm">
       <fieldset><legend>Workbook</legend>
@@ -41,6 +41,7 @@
       </h:panelGrid>
       </fieldset>
 
+      <br />
       <hr/>
       <ui:insert name="controlButtons" />
     </h:form>

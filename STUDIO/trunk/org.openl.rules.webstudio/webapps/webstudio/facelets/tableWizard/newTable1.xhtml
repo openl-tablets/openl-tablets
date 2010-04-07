@@ -6,9 +6,9 @@
     xmlns:f="http://java.sun.com/jsf/core"
     template="/facelets/common/wizardBase.xhtml">
 
-    <ui:define name="page">
-        <h2>Enter Decision Table Information</h2>
+    <ui:define name="title">Enter Decision Table Information</ui:define>
 
+    <ui:define name="page">
         <h:form id="newTableWiz1">
             <h:panelGroup style="text-align:left;">
                 <h:messages showDetail="true" globalOnly="true" tooltip="true" errorClass="error" />
@@ -66,7 +66,8 @@
                 </h:dataTable>
             </h:panelGroup>
 
-            <hr/>
+            <br />
+            <hr />
 
             <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
             <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>

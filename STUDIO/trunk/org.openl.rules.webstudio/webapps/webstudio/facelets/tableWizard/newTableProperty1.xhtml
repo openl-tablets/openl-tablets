@@ -17,40 +17,41 @@
         </style>
     </ui:define>
 
+    <ui:define name="title">Select scope</ui:define>
+
     <ui:define name="page">
 
-    <h2>Select scope</h2>
-  	<h:form id="scopeForm">
-        <h:outputText value="Table Scope: " />
-        <h:selectOneMenu id="scopeType" value="#{tableWizard.scopeType}"
-           onchange="updateCategoryNameModule()">
-	       <f:selectItems value="#{tableWizard.scopeTypes}" />
-	    </h:selectOneMenu>
-        <br/><br/>
-	   	<fieldset id="categoryNameModule">
-            <legend>Category Name</legend>
-            <h:panelGrid columns="2">
-                <h:selectOneRadio id="categoryNameSelector" value="#{tableWizard.categoryNameSelector}"
-                    layout="pageDirection" onchange="updateCategoryNameControls()">
-    			    <f:selectItem itemValue="existing" itemLabel="Existing" />
-    			    <f:selectItem itemValue="new" itemLabel="New" />
-    			    <f:selectItem itemValue="sheetName" itemLabel="As sheet name" />
-    			</h:selectOneRadio>
-                <h:panelGrid>
-                    <h:selectOneMenu id="categoryNamesList" value="#{tableWizard.categoryName}">
-                        <f:selectItems value="#{tableWizard.categoryNamesList}" />
-                    </h:selectOneMenu>
-                    <h:inputText id="newCategoryName" value="#{tableWizard.newCategoryName}" />
-                </h:panelGrid>
-            </h:panelGrid>
-	   	</fieldset>
-
-	    <hr />
-
-	    <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />
-	    <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" onclick="return validate();" />
+    	<h:form id="scopeForm">
+          <h:outputText value="Table Scope: " />
+          <h:selectOneMenu id="scopeType" value="#{tableWizard.scopeType}"
+             onchange="updateCategoryNameModule()">
+  	       <f:selectItems value="#{tableWizard.scopeTypes}" />
+  	    </h:selectOneMenu>
+          <br/><br/>
+  	   	<fieldset id="categoryNameModule">
+              <legend>Category Name</legend>
+              <h:panelGrid columns="2">
+                  <h:selectOneRadio id="categoryNameSelector" value="#{tableWizard.categoryNameSelector}"
+                      layout="pageDirection" onchange="updateCategoryNameControls()">
+      			    <f:selectItem itemValue="existing" itemLabel="Existing" />
+      			    <f:selectItem itemValue="new" itemLabel="New" />
+      			    <f:selectItem itemValue="sheetName" itemLabel="As sheet name" />
+      			</h:selectOneRadio>
+                  <h:panelGrid>
+                      <h:selectOneMenu id="categoryNamesList" value="#{tableWizard.categoryName}">
+                          <f:selectItems value="#{tableWizard.categoryNamesList}" />
+                      </h:selectOneMenu>
+                      <h:inputText id="newCategoryName" value="#{tableWizard.newCategoryName}" />
+                  </h:panelGrid>
+              </h:panelGrid>
+  	   	</fieldset>
+  
+  	    <hr />
+  
+  	    <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />
+  	    <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" onclick="return validate();" />
         <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" />
-    </h:form>    
+      </h:form>
 
     <f:verbatim>
     <script type="text/javascript">
