@@ -4,13 +4,15 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLException;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.TreeNodeData;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.XlsUrlParser;
@@ -35,8 +37,14 @@ public class ProblemsBean {
     }
 
     public TreeNode<?> getTree() {
+        
         int nodeCount = 1;
-        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
+        
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+        CompiledOpenClass compiledOpenClass = model.getWrapper().getCompiledOpenClass();
+        
+        List<OpenLMessage> messages = compiledOpenClass.getMessages();
 
         TreeNode<TreeNodeData> root = new TreeNodeImpl<TreeNodeData>();
 
