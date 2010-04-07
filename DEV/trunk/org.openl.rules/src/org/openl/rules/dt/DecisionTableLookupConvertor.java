@@ -3,7 +3,6 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.table.CompositeTableGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
@@ -11,6 +10,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.TransformedGridTable;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup
@@ -64,19 +64,7 @@ public class DecisionTableLookupConvertor {
 
         validateHCHeaders(hcHeaderTable);
 
-        // Create CompositeGrid, build header first, then add
-        // conditions/lookups.
-        //
-        // 1) header
-        int rightColumn = retTable.getGridTable().getRegion().getRight();
-
-        ILogicalTable origHeaderTable = originaltable.rows(0, DISPLAY_ROW);
-        IGridRegion origHeaderRegion = origHeaderTable.getGridTable().getRegion();
-
-        IGridRegion modifiedHeaderRegion = new GridRegion(origHeaderRegion, IGridRegion.RIGHT, rightColumn);
-        IGridTable modifiedHeaderTable = new GridTable(modifiedHeaderRegion, grid);
-
-        // 2) lookups
+        // 2) lookup values
         //
         ILogicalTable valueTable = originaltable.rows(DISPLAY_ROW + 1);
 
@@ -86,45 +74,9 @@ public class DecisionTableLookupConvertor {
 
         IGridTable lookupValuesTable = new GridTable(lookupValuesRegion, grid);
 
-        // vertical condition values
-        //
-        IGridRegion vcValuesRegion = new GridRegion(valueTable.getGridTable().getRegion(),
-            IGridRegion.RIGHT,
-            firstLookupGridColumn - 1);
-        IGridTable vcValuesTable = new GridTable(vcValuesRegion, grid);
 
-        // Combine all tables together now
-        //
-        int height = lookupValuesTable.getGridHeight();
-        int width = lookupValuesTable.getGridWidth();
-
-        List<ILogicalTable> vtables = new ArrayList<ILogicalTable>();
-
-        for (int col = 0; col < width; col++) {
-
-            List<ILogicalTable> htables = new ArrayList<ILogicalTable>();
-            htables.add(vcValuesTable);
-            htables.add(makeHCTable(hcHeaderTable, col, height));
-            htables.add(lookupValuesTable.getLogicalColumn(col));
-
-            vtables.add(new CompositeTableGrid(htables, false).asGridTable());
-        }
-
-        return new CompositeTableGrid(new IGridTable[] { modifiedHeaderTable,
-                new CompositeTableGrid(vtables, true).asGridTable() }, true).asGridTable();
-
-    }
-
-    private ILogicalTable makeHCTable(ILogicalTable hcHeaderTable, int col, int h) {
-
-        List<ILogicalTable> list = new ArrayList<ILogicalTable>();
-        ILogicalTable table = hcHeaderTable.getGridTable().getLogicalColumn(col).transpose();
-
-        for (int i = 0; i < h; i++) {
-            list.add(table);
-        }
-
-        return new CompositeTableGrid(list, true).asGridTable();
+        return new TransformedGridTable(table.getGridTable(), new TwoDimensionDecisionTableTranformer(table
+                .getGridTable(), lookupValuesTable)).asGridTable();
     }
 
     private void validateHCHeaders(ILogicalTable hcHeaderTable) throws Exception {
