@@ -53,10 +53,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return IDocumentType.WORKSHEET_CELL.getCategory();
     }
 
-    /**
-     *
-     */
-
     public Reader getCharacterStream() {
 
         return new StringReader(getCode());
@@ -85,18 +81,9 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return 0;
     }
 
-    /**
-     *
-     */
-
     public int getTabSize() {
         return 2;
     }
-
-    // public IIndexElement getParent()
-    // {
-    // return parent;
-    // }
 
     public String getType() {
         return IDocumentType.WORKSHEET_CELL.getCategory();
@@ -108,10 +95,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         }
         return uri;
     }
-
-    /**
-     *
-     */
 
     public String getUri(int textpos) {
         return table.getUri(column, row);

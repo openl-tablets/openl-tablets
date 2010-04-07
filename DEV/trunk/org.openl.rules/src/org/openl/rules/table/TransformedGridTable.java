@@ -60,7 +60,12 @@ public class TransformedGridTable extends AGridModel {
     }
 
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
-        return null;
+        if (colStart == colEnd && rowStart == rowEnd) {
+            return getUri() + "&" + "cell=" + getCell(colStart, rowStart).getUri();
+        }
+
+        return getUri() + "&" + "range=" + getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR
+            + getCell(colEnd, rowEnd).getUri();
     }
 
     public String getUri() {

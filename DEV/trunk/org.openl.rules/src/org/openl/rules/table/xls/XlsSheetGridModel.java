@@ -52,17 +52,15 @@ import org.openl.util.StringTool;
  */
 public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         XlsWorkbookSourceCodeModule.WorkbookListener {
-    
-    private static final String RANGE_SEPARATOR = ":";
 
     private XlsSheetSourceCodeModule sheetSource;
 
     private Sheet sheet;
 
     private Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
-    
+
     private Map<String, AXlsCellWriter> cellWriters = new HashMap<String, AXlsCellWriter>();
-    
+
    // private final static Log LOG = LogFactory.getLog(XlsSheetGridModel.class);
 
     class XlsCell implements ICell {
