@@ -4,14 +4,14 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.binding;
+package org.openl.exception;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Stack;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.openl.exception.OpenLException;
+import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;

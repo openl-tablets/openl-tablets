@@ -7,7 +7,7 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.OpenLRuntimeException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.vm.IRuntimeEnv;
