@@ -59,7 +59,13 @@
                             </td>
                         </a4j:repeat>
                         <td>
-                            <h:outputText value="#{runAllTestsBean.expected}" />
+                            <h:outputText value="#{runAllTestsBean.expected}"
+                                rendered="#{empty runAllTestsBean.doubleValueExpected}" />
+                            <h:outputLink
+                                value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
+                                rendered="#{not empty runAllTestsBean.doubleValueExpected}">
+                                <h:outputText value="#{runAllTestsBean.doubleValueExpected}" />
+                            </h:outputLink>
                         </td>
                         <td>
                             <h:panelGroup
@@ -72,9 +78,9 @@
                                 <h:outputText value="#{runAllTestsBean.result}"
                                     rendered="#{empty runAllTestsBean.doubleValueResult}" />
                                 <h:outputLink
-                                    value="javascript: open_explain_win('?rootID=#{runAllTestsBean.explanatorId}&amp;header=Explanation')"
+                                    value="javascript: open_explain_win('?rootID=#{runAllTestsBean.resultExplanatorId}&amp;header=Explanation')"
                                     rendered="#{not empty runAllTestsBean.doubleValueResult}">
-                                    <h:outputText value="#{runAllTestsBean.formattedDoubleValueResult}" />
+                                    <h:outputText value="#{runAllTestsBean.doubleValueResult}" />
                                 </h:outputLink>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">

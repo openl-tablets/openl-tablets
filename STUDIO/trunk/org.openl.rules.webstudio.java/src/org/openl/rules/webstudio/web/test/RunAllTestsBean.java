@@ -1,11 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
-import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
@@ -110,31 +107,34 @@ public class RunAllTestsBean {
         return ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
     }
 
+    public DoubleValue getDoubleValueExpected() {
+        Object expected = getExpected();
+        if (expected instanceof DoubleValue) {
+            return (DoubleValue) expected;
+        }
+        return null;
+    }
+
     public Object getResult() {
         TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
         return ts.getRes();
     }
 
     public DoubleValue getDoubleValueResult() {
-        TestResult.TestStruct ts = (TestResult.TestStruct) testItems.getRowData();
-        Object result = ts.getRes();
+        Object result = getResult();
         if (result instanceof DoubleValue) {
             return (DoubleValue) result;
         }
         return null;
     }
 
-    public String getFormattedDoubleValueResult() {
-        DoubleValue doubleValueResult = getDoubleValueResult();
-        if (doubleValueResult != null) {
-            NumberFormat format = new DecimalFormat(doubleValueResult.getFormat());
-            return format.format(doubleValueResult);
-        }
-        return StringUtils.EMPTY;
+    public int getResultExplanatorId() {
+        DoubleValue doubleValue = getDoubleValueResult();
+        return Explanator.getCurrent().getUniqueId(doubleValue);
     }
 
-    public int getExplanatorId() {
-        DoubleValue doubleValue = getDoubleValueResult();
+    public int getExpectedExplanatorId() {
+        DoubleValue doubleValue = getDoubleValueExpected();
         return Explanator.getCurrent().getUniqueId(doubleValue);
     }
 
