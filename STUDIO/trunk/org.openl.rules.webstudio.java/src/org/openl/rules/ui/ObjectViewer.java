@@ -26,13 +26,13 @@ import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
 import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
-import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Table;
+import org.openl.rules.table.CompositeTableGrid;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -332,7 +332,7 @@ public class ObjectViewer {
             res[2 * i] = tname;
 
             ISearchTableRow[] trows = tr[i].getRows();
-            CompositeGrid cg = sviewer.makeGrid(trows);
+            CompositeTableGrid cg = sviewer.makeGrid(trows);
             res[2 * i + 1] = cg != null ? new GridWithNode(cg.asGridTable(), tsn) : "No rows selected";
         }
 
@@ -351,7 +351,7 @@ public class ObjectViewer {
                     TableSyntaxNode tsn = tr[i].getTsn();
                     StringValue tableName = TableSyntaxNodeUtils.getTableSyntaxNodeName(tsn);
                     String tableUri = tsn.getUri();
-                    CompositeGrid cg = sviewer.makeGrid(rows);
+                    CompositeTableGrid cg = sviewer.makeGrid(rows);
                     IGridTable gridTable = cg != null ? cg.asGridTable() : null;
                     Table newTable = new Table();
                     newTable.setGridTable(gridTable);

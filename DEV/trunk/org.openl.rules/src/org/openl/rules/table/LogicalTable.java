@@ -62,7 +62,11 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         return new LogicalTable(gridTable, columnOffsets, rowOffsets);
     }
 
-    static public ILogicalTable logicalTable(ILogicalTable table) {
+    /**
+     * @param table Original table.
+     * @return Another logical table with correctly calculated height and width.
+     */
+    public static ILogicalTable logicalTable(ILogicalTable table) {
         IGridTable gridTable = table.getGridTable();
         int width = calcLogicalColumns(gridTable);
         int height = calcLogicalRows(gridTable);

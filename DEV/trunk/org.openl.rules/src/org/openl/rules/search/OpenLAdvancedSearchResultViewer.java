@@ -3,10 +3,10 @@
  */
 package org.openl.rules.search;
 
-import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.TransposedGridTable;
+import org.openl.rules.table.CompositeTableGrid;
 
 /**
  * @author snshor
@@ -28,7 +28,7 @@ public class OpenLAdvancedSearchResultViewer {
         return IGridRegion.Tool.width(t.getRegion()) >= IGridRegion.Tool.height(t.getRegion());
     }
 
-    public CompositeGrid makeGrid(ISearchTableRow[] rows) {
+    public CompositeTableGrid makeGrid(ISearchTableRow[] rows) {
         if (rows.length == 0) {
             return null;
         }
@@ -47,7 +47,7 @@ public class OpenLAdvancedSearchResultViewer {
             tables[(header != null ? 1 : 0) + i] = align(rows[i].getRowTable(), isVertical);
         }
 
-        return new CompositeGrid(tables, isVertical);
+        return new CompositeTableGrid(tables, isVertical);
     }
 
 }
