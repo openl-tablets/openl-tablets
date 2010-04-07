@@ -1,7 +1,7 @@
 /**
  * Created Jan 2, 2007
  */
-package org.openl.rules.testmethod.binding;
+package org.openl.rules.testmethod;
 
 import org.openl.binding.IBindingContext;
 import org.openl.rules.data.DataNodeBinder;
@@ -9,14 +9,12 @@ import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 
 /**
  * @author snshor
- * 
  */
 public class TestMethodNodeBinder extends DataNodeBinder {
 
@@ -28,8 +26,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     }
 
     @Override
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
-        return new TestMethodBoundNode(tsn, module);
+    protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
+        return new TestMethodBoundNode(tableSyntaxNode, module);
     }
 
     @Override
@@ -39,17 +37,12 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             DataTableBoundNode dataNode,
             String tableName) {
 
-        TestMethodHelper tmNode = ((TestMethodBoundNode) dataNode).getTmhelper();
+        TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) dataNode;
+        IOpenMethod testedMethod = AOpenClass.getSingleMethod(typeName, module.methods());
+        TestSuiteMethod testSuite = new TestSuiteMethod(tableName, testedMethod, testMethodBoundNode);
+        testMethodBoundNode.setTestSuite(testSuite);
 
-        if (tmNode == null) {
-            IOpenMethod m = AOpenClass.getSingleMethod(typeName, module.methods());
-
-            tmNode = new TestMethodHelper(m, tableName);
-
-            ((TestMethodBoundNode) dataNode).setTmhelper(tmNode);
-        }
-
-        return tmNode.getMethodBasedClass();
+        return testSuite.getMethodBasedClass();
     }
 
 }

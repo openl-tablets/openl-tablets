@@ -56,7 +56,7 @@ import org.openl.rules.method.binding.MethodTableNodeBinder;
 import org.openl.rules.property.binding.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
-import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
+import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.validation.DispatcherTableBuilder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
