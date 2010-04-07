@@ -17,8 +17,9 @@
         <a4j:loadScript src="resource:///js/validation.js" />
 	</ui:define>
 
+    <ui:define name="title">Select Properties</ui:define>
+
 	<ui:define name="page">
-        <h2><ui:insert name="pageTitle" /></h2>
 		<h:form>
 			<h:outputLabel value="Table Name : " for="techName" />
 			<ui:insert name="tableTitle" />
@@ -93,7 +94,9 @@
 				<h:graphicImage value="/images/add_obj.gif" alt="Add property"
 					title="Add property" />
 			</a4j:commandLink>
-			<hr />
+		    <br />
+            <br />
+            <hr />
 			<ui:insert name="commandButtons" />
 		</h:form>
 

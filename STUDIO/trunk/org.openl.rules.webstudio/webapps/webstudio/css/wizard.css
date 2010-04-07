@@ -29,7 +29,7 @@
 }
 
 .line_current {
-    border-top-color: orange;
+    border-top-color: rgb(255,190,20);
 }
 
 .line_not_passed {

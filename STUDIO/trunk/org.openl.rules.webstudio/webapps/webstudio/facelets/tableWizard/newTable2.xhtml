@@ -6,12 +6,11 @@
                 xmlns:c="http://java.sun.com/jstl/core"
                 xmlns:a4j="http://richfaces.org/a4j"
                 xmlns:rich="http://richfaces.org/rich"
-                template="/facelets/common/wizardBase.xhtml"
-        >
+                template="/facelets/common/wizardBase.xhtml">
+
+    <ui:define name="title">Conditions configuration</ui:define>
 
   <ui:define name="page">
-    <h2>Conditions configuration</h2>
-
     <h:form id="newTableWiz2">
 
       <h:panelGroup>
@@ -118,6 +117,7 @@
         </h:dataTable>
       </h:panelGroup>
 
+      <br />
       <hr/>
 
       <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>

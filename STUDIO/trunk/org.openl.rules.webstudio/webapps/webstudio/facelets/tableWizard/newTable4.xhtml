@@ -5,9 +5,9 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 template="/facelets/common/wizardBase.xhtml">
 
-  <ui:define name="page">
-    <h2>Return configuration</h2>
+    <ui:define name="title">Return configuration</ui:define>
 
+  <ui:define name="page">
     <h:form id="newTableWiz4">
 
       <h3>Return Logic:</h3>
@@ -47,6 +47,7 @@
         <h:column><h:message for="pname" errorClass="error" showSummary="true" showDetail="true"/></h:column>
       </h:dataTable>
 
+      <br />
       <hr/>
 
       <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>

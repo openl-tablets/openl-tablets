@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://java.sun.com/jstl/core"
-                template="/facelets/common/wizardBase.xhtml">
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jstl/core"
+    template="/facelets/common/wizardBase.xhtml">
 
-  <ui:define name="page">
-    <h2>Select decision table</h2>
-    <h:form>
+    <ui:define name="title">Select decision table</ui:define>
 
-      <h:selectOneMenu value="#{tableWizard.selectedTable}">
-        <f:selectItems value="#{tableWizard.decisionTables}"/>
-      </h:selectOneMenu>
+    <ui:define name="page">
+        <h:form>
+            <h:outputText value="Table: " />
+            <h:selectOneMenu value="#{tableWizard.selectedTable}">
+                <f:selectItems value="#{tableWizard.decisionTables}"/>
+            </h:selectOneMenu>
 
-      <hr/>
+            <br />
+            <br />
+            <hr />
 
-      <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
-      <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>
-      <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
-    </h:form>
-  </ui:define>
+            <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />
+            <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" />
+            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" />
+        </h:form>
+    </ui:define>
 
 </ui:composition>

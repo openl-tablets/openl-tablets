@@ -5,14 +5,15 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 template="/facelets/common/wizardBase.xhtml">
 
-  <ui:define name="page">
-    <h2>Actions configuration</h2>
+    <ui:define name="title">Actions configuration</ui:define>
 
+  <ui:define name="page">
     <h:form id="newTableWiz3">
 
       <h:panelGroup>
         <h:outputText value="Actions: #{tableWizard.actionCount}"/>
-        <h:commandLink action="#{tableWizard.addAction}"><h:graphicImage value="/images/add_obj.gif" alt="Add more" /></h:commandLink>
+        <h:commandLink action="#{tableWizard.addAction}"><h:graphicImage
+            value="/images/add_obj.gif" alt="Add more" /></h:commandLink>
         <br/>
 
         <h:dataTable var="row" id="actionTable" value="#{tableWizard.actions}">
@@ -75,6 +76,7 @@
         </h:dataTable>
       </h:panelGroup>
 
+      <br />
       <hr/>
 
       <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
