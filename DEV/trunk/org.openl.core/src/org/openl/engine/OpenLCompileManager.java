@@ -73,8 +73,9 @@ public class OpenLCompileManager extends OpenLHolder {
         List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
 
         OpenLMessages.getCurrentInstance().addMessages(validationMessages);
+        OpenLMessages messages = OpenLMessages.getCurrentInstance();
 
-        return new CompiledOpenClass(openClass, parsingErrors, bindingErrors);
+        return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
     }
 
     /**

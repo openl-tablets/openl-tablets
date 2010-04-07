@@ -10,7 +10,7 @@ import org.openl.IOpenDebugger;
 import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.OpenLRuntimeException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.util.fast.FastStack;
 

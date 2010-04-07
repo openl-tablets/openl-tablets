@@ -13,8 +13,8 @@ import junit.framework.Assert;
 
 import org.openl.IOpenParser;
 import org.openl.OpenL;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;

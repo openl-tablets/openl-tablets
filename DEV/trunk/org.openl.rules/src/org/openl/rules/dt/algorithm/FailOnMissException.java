@@ -1,6 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
-import org.openl.binding.OpenLRuntimeException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.DecisionTable;
 
 public class FailOnMissException extends OpenLRuntimeException {

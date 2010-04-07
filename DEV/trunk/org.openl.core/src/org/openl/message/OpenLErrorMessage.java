@@ -13,7 +13,7 @@ public class OpenLErrorMessage extends OpenLMessage {
     private OpenLException error;
 
     public OpenLErrorMessage(String summary, String details) {
-        super(summary, details, null);
+        super(summary, details, Severity.ERROR);
     }
 
     public OpenLErrorMessage(String summary, String details, OpenLException error) {

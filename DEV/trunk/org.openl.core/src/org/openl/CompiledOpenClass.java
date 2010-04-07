@@ -3,6 +3,9 @@
  */
 package org.openl;
 
+import java.util.List;
+
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -11,7 +14,7 @@ import org.openl.types.IOpenClass;
  * Handles <code>{@link IOpenClass}</code> with parsing and compiled errors.
  * 
  * @author snshor
- *
+ * 
  */
 public class CompiledOpenClass {
 
@@ -19,14 +22,22 @@ public class CompiledOpenClass {
 
     private SyntaxNodeException[] bindingErrors;
 
+    private List<OpenLMessage> messages;
+
     private IOpenClass openClass;
 
-    public CompiledOpenClass(IOpenClass openClass, SyntaxNodeException[] parsingErrors, SyntaxNodeException[] bindingErrors) {
+    public CompiledOpenClass(IOpenClass openClass,
+            List<OpenLMessage> messages,
+            SyntaxNodeException[] parsingErrors,
+            SyntaxNodeException[] bindingErrors) {
+        
         this.openClass = openClass;
         this.parsingErrors = parsingErrors;
         this.bindingErrors = bindingErrors;
+        this.messages = messages;
     }
 
+    @Deprecated
     public SyntaxNodeException[] getBindingErrors() {
         return bindingErrors;
     }
@@ -43,6 +54,7 @@ public class CompiledOpenClass {
         return openClass;
     }
 
+    @Deprecated
     public SyntaxNodeException[] getParsingErrors() {
         return parsingErrors;
     }
@@ -62,4 +74,8 @@ public class CompiledOpenClass {
 
     }
 
+    public List<OpenLMessage> getMessages() {
+        return messages;
+    }
+    
 }

@@ -4,10 +4,10 @@
 package org.openl.rules.test;
 
 import org.openl.OpenL;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLUtils;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;

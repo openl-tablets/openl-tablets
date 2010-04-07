@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.UserContext;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;

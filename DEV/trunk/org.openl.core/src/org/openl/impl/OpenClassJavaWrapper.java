@@ -13,6 +13,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -25,99 +26,93 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  */
 public class OpenClassJavaWrapper {
-    
-    private CompiledOpenClass __compiledClass;
-    
-    private IRuntimeEnv __env;
 
-    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, IOpenSourceCodeModule src) {
-        OpenL openl = OpenL.getInstance(openlName, ucxt);
+    private CompiledOpenClass compiledClass;
+    private IRuntimeEnv env;
 
-        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, src);
+    public OpenClassJavaWrapper(CompiledOpenClass compiledClass, IRuntimeEnv env) {
+        this.compiledClass = compiledClass;
+        this.env = env;
+    }
+
+    public CompiledOpenClass getCompiledClass() {
+        return compiledClass;
+    }
+
+    public IRuntimeEnv getEnv() {
+        return env;
+    }
+
+    public IOpenClass getOpenClass() {
+        return compiledClass.getOpenClass();
+    }
+
+    public IOpenClass getOpenClassWithErrors() {
+        return compiledClass.getOpenClassWithErrors();
+    }
+
+    public Object newInstance() {
+        return getOpenClass().newInstance(env);
+    }
+
+    public static OpenClassJavaWrapper createWrapper(String openlName,
+            IUserContext userContext,
+            IOpenSourceCodeModule source) {
+
+        OpenL openl = OpenL.getInstance(openlName, userContext);
+        OpenLMessages.getCurrentInstance().clear();
+        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source);
 
         return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
     }
 
-    static public OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, String srcFile) {
-        OpenL openl = OpenL.getInstance(openlName, ucxt);
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, String filename) {
 
-        IOpenSourceCodeModule src = null;
-
-        String fileOrURL = PropertiesLocator.locateFileOrURL(srcFile, ucxt.getUserClassLoader(), new String[] { ucxt
-                .getUserHome() });
+        String fileOrURL = PropertiesLocator.locateFileOrURL(filename,
+            userContext.getUserClassLoader(),
+            new String[] { userContext.getUserHome() });
 
         if (fileOrURL == null) {
-            throw new RuntimeException("File " + srcFile + " is not found");
+            throw new RuntimeException("File " + filename + " is not found");
         }
 
+        IOpenSourceCodeModule source = null;
+
         try {
+
             if (fileOrURL.indexOf(':') < 2) {
-                src = new FileSourceCodeModule(fileOrURL, null);
+                source = new FileSourceCodeModule(fileOrURL, null);
             } else {
-                src = new URLSourceCodeModule(new URL(fileOrURL));
+                source = new URLSourceCodeModule(new URL(fileOrURL));
             }
         } catch (MalformedURLException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
 
-        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, src);
-
-        return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
-
+        return createWrapper(openlName, userContext, source);
     }
 
     @SuppressWarnings("unchecked")
-    public static OpenClassJavaWrapper createWrapper(String name, IUserContext ucxt, String __src, String srcClass) {
+    public static OpenClassJavaWrapper createWrapper(String openlName,
+            IUserContext userContext,
+            String filename,
+            String srcClass) {
+
         if (srcClass == null) {
-            return createWrapper(name, ucxt, __src);
+            return createWrapper(openlName, userContext, filename);
         }
 
-        Class<?> clazz = null;
         try {
-            clazz = Class.forName(srcClass);
-            Class<IOpenSourceCodeModule> src = (Class<IOpenSourceCodeModule>) clazz;
-            Constructor<IOpenSourceCodeModule> ctr = src.getConstructor(String.class, IUserContext.class);
-            IOpenSourceCodeModule module = ctr.newInstance(__src, ucxt);
-            return createWrapper(name, ucxt, module);
+            Class<IOpenSourceCodeModule> sourceModuleClass = (Class<IOpenSourceCodeModule>) Class.forName(srcClass);
+            Constructor<IOpenSourceCodeModule> constructor = sourceModuleClass.getConstructor(String.class,
+                IUserContext.class);
+            IOpenSourceCodeModule module = constructor.newInstance(filename, userContext);
 
+            return createWrapper(openlName, userContext, module);
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Can not instantiate source code module class(String source, IUserContext cxt):", e);
+            throw new RuntimeException("Can not instantiate source code module class(String source, IUserContext cxt):",
+                e);
         }
-
-    }
-
-    public OpenClassJavaWrapper(CompiledOpenClass compiledClass, IRuntimeEnv env) {
-        __compiledClass = compiledClass;
-        __env = env;
-    }
-
-    // /factory methods
-
-    /**
-     * @return
-     */
-    public CompiledOpenClass getCompiledClass() {
-        return __compiledClass;
-    }
-
-    public IRuntimeEnv getEnv() {
-        return __env;
-    }
-
-    public IOpenClass getOpenClass() {
-        return __compiledClass.getOpenClass();
-    }
-
-    /**
-     * @return
-     */
-    public IOpenClass getOpenClassWithErrors() {
-        return __compiledClass.getOpenClassWithErrors();
-    }
-
-    public Object newInstance() {
-        return getOpenClass().newInstance(__env);
     }
 
 }

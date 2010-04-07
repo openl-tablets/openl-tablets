@@ -1,7 +1,7 @@
 package org.openl.rules.table.properties;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.OpenLRuntimeException;
+import org.openl.exception.OpenLRuntimeException;
 
 /**
  * As we have error gathering mechanism based on exceptions, this is a parent class for all error situations linked 

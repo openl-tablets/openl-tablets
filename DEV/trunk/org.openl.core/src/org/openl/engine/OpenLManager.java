@@ -4,9 +4,8 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.message.OpenLMessages;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -145,7 +144,6 @@ public class OpenLManager {
      */
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
 
-        init ();
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
         return compileManager.compileModuleWithErrors(source);
@@ -207,13 +205,6 @@ public class OpenLManager {
 
         return runManager.run(source, sourceType);
 
-    }
-
-    /**
-     * Makes initialization actions before compilation will be started.
-     */
-    private static void init() {
-        OpenLMessages.getCurrentInstance().clear();
     }
 
 }
