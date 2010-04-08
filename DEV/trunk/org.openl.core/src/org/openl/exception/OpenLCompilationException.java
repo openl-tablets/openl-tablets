@@ -5,7 +5,6 @@ import java.io.StringWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
@@ -36,29 +35,20 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
         Throwable originalCause = getOriginalCause();
 
-        String errorMessage = StringUtils.EMPTY;
-
         if (originalCause != null) {
-            errorMessage = originalCause.getMessage();
+            String message = originalCause.getMessage();
+            if (StringUtils.isNotBlank(message)) {
+                return message;
+            }
         }
 
-        if (StringUtils.isEmpty(message)) {
-            return errorMessage;
-        } else if (StringUtils.isEmpty(errorMessage)) {
-            return message;
-        }
-
-        return StringUtils.join(new Object[] { message, errorMessage }, "\n");
+        return message;
     }
 
     /* (non-Javadoc)
      * @see org.openl.exception.OpenLException#getOriginalCause()
      */
     public Throwable getOriginalCause() {
-
-        if (cause == null) {
-            return null;
-        }
 
         Throwable rootCause = ExceptionUtils.getRootCause(cause);
 
@@ -81,10 +71,6 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
      */
     public IOpenSourceCodeModule getSourceModule() {
         return source;
-    }
-
-    public String getUri() {
-        return SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule(), "");
     }
 
     @Override
