@@ -3,6 +3,7 @@
  */
 package org.openl.rules.dt.validator;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,7 +106,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
         
-        if (instanceClass == String.class) {
+        if (instanceClass == String.class || instanceClass == Date.class) {
             return JavaOpenClass.INT;
         }
 
@@ -134,7 +135,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         IDomain<?> domain = dtan.getParameterDomain(name, condition);
         
-        if (value instanceof String) {
+        if (value instanceof String || value instanceof Date) {
             IDomainAdaptor domainAdaptor = getDomains().get(name);
             return new Integer(domainAdaptor.getIndex(value));
         }
@@ -150,7 +151,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration) {
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
-        if (instanceClass == String.class) {
+        if (instanceClass == String.class || instanceClass == Date.class) {
             return JavaOpenClass.getOpenClass(IntExp.class);
         }
 
