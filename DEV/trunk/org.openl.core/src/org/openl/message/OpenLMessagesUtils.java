@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -78,7 +79,7 @@ public class OpenLMessagesUtils {
 
         } else {
             OpenLMessage message = new OpenLMessage(
-                    exception.getMessage(), StringUtils.EMPTY, Severity.ERROR);
+                    ExceptionUtils.getRootCauseMessage(exception), StringUtils.EMPTY, Severity.ERROR);
             messages.add(message);
         }
 

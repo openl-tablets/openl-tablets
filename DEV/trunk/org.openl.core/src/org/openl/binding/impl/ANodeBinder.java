@@ -181,7 +181,8 @@ public abstract class ANodeBinder implements INodeBinder {
         return new CastNode(null, node, cast, type);
     }
 
-    public static IOpenCast getCast(IBoundNode node, IOpenClass to, IBindingContext bindingContext) throws Exception {
+    public static IOpenCast getCast(IBoundNode node, IOpenClass to, IBindingContext bindingContext)
+        throws TypeCastException {
 
         IOpenClass from = node.getType();
 

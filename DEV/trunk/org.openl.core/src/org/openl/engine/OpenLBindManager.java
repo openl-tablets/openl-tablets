@@ -9,6 +9,7 @@ import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ANodeBinder;
 import org.openl.binding.impl.MethodCastNode;
+import org.openl.binding.impl.TypeCastException;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -65,12 +66,9 @@ public class OpenLBindManager extends OpenLHolder {
 
         try {
             boundMethodNode = bindMethodType((IBoundMethodNode) boundCode.getTopNode(),
-                bindingContext,
-                header.getType());
-        } catch (Exception ex) {
-
-            SyntaxNodeException boundError = new SyntaxNodeException(StringUtils.EMPTY, ex, boundCode.getTopNode().getSyntaxNode());
-            throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { boundError });
+                    bindingContext, header.getType());
+        } catch (TypeCastException ex) {
+            throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { ex });
         }
 
         return boundMethodNode;
@@ -78,7 +76,7 @@ public class OpenLBindManager extends OpenLHolder {
 
     private IBoundMethodNode bindMethodType(IBoundMethodNode boundMethodNode,
                                             IBindingContext bindingContext,
-                                            IOpenClass type) throws Exception {
+                                            IOpenClass type) throws TypeCastException {
 
         if (type == JavaOpenClass.VOID || type == NullOpenClass.the) {
             return boundMethodNode;
