@@ -1,15 +1,19 @@
 package org.openl.rules.validator.dt;
 
 import static org.junit.Assert.*;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.openl.domain.DateRangeDomain;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.type.DateRangeDomainAdaptor;
 import org.openl.rules.dt.type.EnumDomainAdaptor;
 import org.openl.rules.dt.type.IDomainAdaptor;
 import org.openl.rules.dt.type.IntRangeDomainAdaptor;
@@ -125,6 +129,25 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         
         DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertTrue(dtValidResult.hasProblems());
+    }
+
+    @Test
+    public void testDate() {
+        String tableName = "Rules void testDate(Date currentDate)";
+        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        DateRangeDomain dateRangeDomain = new DateRangeDomain(new Date(0, 0, 1), new Date(150, 0, 1));//[01.01.1900 .. 01.01.2050]
+        DateRangeDomainAdaptor adaptor = new DateRangeDomainAdaptor(dateRangeDomain);
+
+        domains.put("currentDate", adaptor);
+        domains.put("min", adaptor);
+        domains.put("max", adaptor);
+
+        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        assertTrue(!dtValidResult.hasProblems());
+        
+        dateRangeDomain.setMax(new Date(250, 0, 1));//01.01.2150
+        dtValidResult = testTable(tableName, domains);
+        assertTrue(dtValidResult.getUncovered().length == 1);
     }
 
 }
