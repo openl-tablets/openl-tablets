@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.method.binding;
+package org.openl.rules.method;
 
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
@@ -15,12 +15,16 @@ import org.openl.types.impl.OpenMethodHeader;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class MethodTableNodeBinder extends AExecutableNodeBinder {
+
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tsn, OpenL openl, OpenMethodHeader header,
+    protected IMemberBoundNode createNode(TableSyntaxNode tableSyntaxNode,
+            OpenL openl,
+            OpenMethodHeader header,
             XlsModuleOpenClass module) {
-        return new MethodTableBoundNode(tsn, openl, header, module);
+        
+        return new MethodTableBoundNode(tableSyntaxNode, openl, header, module);
     }
 }
