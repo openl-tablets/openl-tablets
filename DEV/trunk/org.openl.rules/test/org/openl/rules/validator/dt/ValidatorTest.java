@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
+import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.type.EnumDomainAdaptor;
 import org.openl.rules.dt.type.IDomainAdaptor;
 import org.openl.rules.dt.type.IntRangeDomainAdaptor;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
@@ -109,7 +112,19 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     } 
-            
-
+    
+    @Test
+    public void testString() {
+        String tableName = "Rules void helloString(String stringValue)";        
+        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        StringDomain stringDomain = new StringDomain(new String[]{"value1", "value2", "value3"});
+        EnumDomainAdaptor enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
+        
+        domains.put("stringValue", enumDomainStrAdaptor);
+        domains.put("localValue", enumDomainStrAdaptor);
+        
+        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        assertTrue(dtValidResult.hasProblems());
+    }
 
 }

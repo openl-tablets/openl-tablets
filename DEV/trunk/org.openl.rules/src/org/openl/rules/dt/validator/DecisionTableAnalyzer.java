@@ -26,7 +26,7 @@ public class DecisionTableAnalyzer {
     private DecisionTable decisionTable;
 
     private Map<IDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<IDecisionRow, ConditionAnalyzer>();
-    private Map<String, DecisionTableParamDescription> usedParams = new HashMap<String, DecisionTableParamDescription>();
+    private Map<String, DecisionTableParamDescription> usedParamsFromSignature = new HashMap<String, DecisionTableParamDescription>();
 
     public DecisionTableAnalyzer(DecisionTable decisionTable) {
 
@@ -63,7 +63,7 @@ public class DecisionTableAnalyzer {
     }
 
     public Iterator<DecisionTableParamDescription> tableParams() {
-        return usedParams.values().iterator();
+        return usedParamsFromSignature.values().iterator();
     }
 
     public DecisionTable getDecisionTable() {
@@ -75,9 +75,17 @@ public class DecisionTableAnalyzer {
     }
 
     public IDomain<?> getSignatureParameterDomain(String parameterName) {
-        return usedParams.get(parameterName).getDomain();
+        return usedParamsFromSignature.get(parameterName).getDomain();
     }
-
+    
+    /**
+     * Goes through the condition in algorithm column and search the params that are income parameters from 
+     * the signature.
+     * 
+     * @param row Full row of the each condition. It includes condition name, algorithm, initialization, and all rule
+     * cells. 
+     * @return parameters that are income(from the signature) that are using in current row. 
+     */
     public IParameterDeclaration[] referencedSignatureParams(IDecisionRow row) {
 
         CompositeMethod method = (CompositeMethod) row.getMethod();
@@ -89,18 +97,15 @@ public class DecisionTableAnalyzer {
 
         List<IParameterDeclaration> paramDeclarations = new ArrayList<IParameterDeclaration>();
 
-        Iterator<IOpenField> iterator = bindingDependecies.getFieldsMap().values().iterator();
+         for (IOpenField openField : bindingDependecies.getFieldsMap().values()) {
 
-        while (iterator.hasNext()) {
+             IOpenField anotherOpenField = getLocalField(openField);
 
-            IOpenField openField = iterator.next();
-            openField = getLocalField(openField);
-
-            if (openField instanceof ILocalVar) {
+            if (anotherOpenField instanceof ILocalVar) {
 
                 for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
 
-                    if (methodSignature.getParameterName(i).equals(openField.getName())) {
+                    if (methodSignature.getParameterName(i).equals(anotherOpenField.getName())) {
                         ParameterDeclaration parameterDeclaration = new ParameterDeclaration(methodSignature.getParameterTypes()[i],
                             methodSignature.getParameterName(i));
                         
@@ -112,24 +117,32 @@ public class DecisionTableAnalyzer {
 
         return paramDeclarations.toArray(new IParameterDeclaration[paramDeclarations.size()]);
     }
+    
+    /**
+     * Takes the paramDeclarationFromSignature and transform its type to appropriate for validating.
+     * see {@link DecisionTableValidatedObject.#transformParameterType(IParameterDeclaration)}.
+     * 
+     * @param paramDeclarationFromSignature parameter declaration from the signature. 
+     * @param decisionTableToValidate decision table that is being validated.
+     * @return new type for paramDeclarationFromSignature appropriate for validation.
+     */
+    public IOpenClass transformSignatureType(IParameterDeclaration paramDeclarationFromSignature,
+            IDecisionTableValidatedObject decisionTableToValidate) {
 
-    public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration,
-            IDecisionTableValidatedObject objectToValidate) {
-
-        DecisionTableParamDescription paramDescription = usedParams.get(parameterDeclaration.getName());
+        DecisionTableParamDescription paramDescription = usedParamsFromSignature.get(paramDeclarationFromSignature.getName());
  
         if (paramDescription == null) {
-            IOpenClass newType = objectToValidate.getTransformer().transformSignatureType(parameterDeclaration);
-            paramDescription = new DecisionTableParamDescription(parameterDeclaration, newType);
+            IOpenClass newType = decisionTableToValidate.getTransformer().transformSignatureType(paramDeclarationFromSignature);
+            paramDescription = new DecisionTableParamDescription(paramDeclarationFromSignature, newType);
             
-            usedParams.put(parameterDeclaration.getName(), paramDescription);
+            usedParamsFromSignature.put(paramDeclarationFromSignature.getName(), paramDescription);
         }
 
         return paramDescription.getNewType();
     }
 
     public Map<String, DecisionTableParamDescription> getUsedParams() {
-        return usedParams;
+        return usedParamsFromSignature;
     }
 
     private IOpenField getLocalField(IOpenField field) {

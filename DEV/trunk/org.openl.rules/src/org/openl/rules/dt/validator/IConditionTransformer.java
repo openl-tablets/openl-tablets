@@ -22,8 +22,7 @@ public interface IConditionTransformer {
 
     Object transformParameterValue(String name,
             ICondition condition,
-            Object value,
-            Constrainer constrainer,
+            Object value,            
             DecisionTableAnalyzer analyzer);
 
     IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration);

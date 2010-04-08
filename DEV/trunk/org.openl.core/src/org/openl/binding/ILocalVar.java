@@ -20,7 +20,7 @@ public interface ILocalVar extends IOpenField {
      *
      * @return
      */
-    public int getIndexInLocalFrame();
+    int getIndexInLocalFrame();
 
-    public String getNamespace();
+    String getNamespace();
 }

@@ -22,13 +22,11 @@ public class DesionTableValidationResult implements IValidationResult {
     private DecisionTableOverlapping[] overlappings;
     private DecisionTableUncovered[] uncovered;
 
-    public DesionTableValidationResult(DecisionTable decisionTable,
-            DecisionTableOverlapping[] overlappings,
-            DecisionTableUncovered[] uncovered) {
+    public DesionTableValidationResult(DecisionTable decisionTable) {
 
         this.decisionTable = decisionTable;
-        this.overlappings = overlappings;
-        this.uncovered = uncovered;
+        this.overlappings = new DecisionTableOverlapping[]{};
+        this.uncovered = new DecisionTableUncovered[]{};
     }
 
     public DesionTableValidationResult(DecisionTable decisionTable,
