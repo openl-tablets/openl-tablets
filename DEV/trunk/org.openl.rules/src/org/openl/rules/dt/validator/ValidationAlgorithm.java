@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.source.IOpenSourceCodeModule;
@@ -21,7 +21,6 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenIterator;
 
 import com.exigen.ie.constrainer.Constrainer;
 import com.exigen.ie.constrainer.IntBoolExp;
