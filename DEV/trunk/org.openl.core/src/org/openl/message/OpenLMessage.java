@@ -1,5 +1,7 @@
 package org.openl.message;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The <code>OpenLMessage</code> class defines a message abstraction. Messages
  * used in the OpenL engine as warnings, errors or information statements to
@@ -71,6 +73,11 @@ public class OpenLMessage {
      */
     public Severity getSeverity() {
         return severity;
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.defaultString(summary);
     }
 
 }
