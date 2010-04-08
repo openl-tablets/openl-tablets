@@ -103,25 +103,28 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     public IOpenClass transformParameterType(IParameterDeclaration parameterDeclaration) {
 
-        Class<?> c = parameterDeclaration.getType().getInstanceClass();
+        Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
         
-        if (c == String.class) {
+        if (instanceClass == String.class) {
             return JavaOpenClass.INT;
         }
 
-        if (c == IntRange.class) {
+        if (instanceClass == IntRange.class) {
             return JavaOpenClass.getOpenClass(CtrIntRange.class);
         }
         
-        if (c.isEnum()) {
+        if (instanceClass == boolean.class || instanceClass == Boolean.class) {
+            return JavaOpenClass.getOpenClass(IntBoolVar.class);
+        }
+        
+        if (instanceClass.isEnum()) {
             return JavaOpenClass.INT;
         }
 
         return null;
     }
 
-    public Object transformParameterValue(String name, ICondition condition, Object value, Constrainer C,
-            DecisionTableAnalyzer dtan) {
+    public Object transformParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
 
         if (value instanceof IntRange) {
             IntRange intr = (IntRange) value;
@@ -130,7 +133,12 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         }
 
         IDomain<?> domain = dtan.getParameterDomain(name, condition);
-
+        
+        if (value instanceof String) {
+            IDomainAdaptor domainAdaptor = getDomains().get(name);
+            return new Integer(domainAdaptor.getIndex(value));
+        }
+        
         if (domain != null) {
             IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
             return new Integer(domainAdaptor.getIndex(value));
