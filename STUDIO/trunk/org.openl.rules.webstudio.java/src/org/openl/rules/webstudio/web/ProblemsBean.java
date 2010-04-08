@@ -108,7 +108,7 @@ public class ProblemsBean {
         if (StringUtils.isBlank(url)) {
             url = "tableeditor/showMessage.xhtml"
                 + "?type" + "=" + message.getSeverity().name()
-                + "&summary" + "=" + message.getSummary();
+                + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
         }
 
         return url;
