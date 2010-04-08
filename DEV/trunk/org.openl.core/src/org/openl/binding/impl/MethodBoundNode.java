@@ -44,6 +44,7 @@ public class MethodBoundNode extends ATargetBoundNode {
         try {
             Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
             Object[] pars = evaluateChildren(env);
+            
             return boundMethod.invoke(target, pars, env);
         } catch (ControlSignalReturn signal) {
             return signal.getReturnValue();

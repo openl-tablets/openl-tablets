@@ -21,7 +21,7 @@ public class Util {
     static final String DEFAULT_DOUBLE_FORMAT = "#,##0.00";
 
     static public boolean contains(Object[] ary, Object obj) {
-        if (obj == null) {
+        if (obj == null || ary == null) {
             return false;
         }
 
