@@ -88,6 +88,7 @@ public class ProblemsBean {
 
     private String getNodeUrl(OpenLMessage message) {
         String url = null;
+
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
             OpenLException error = errorMessage.getError();
@@ -97,15 +98,19 @@ public class ProblemsBean {
                 XlsUrlParser uriParser = new XlsUrlParser();
                 uriParser.parse(errorUri);
                 url = "tableeditor/showTable.xhtml"
-                    + "?uri=" + StringTool.encodeURL(tableUri)
-                    + "&errorCell=" + uriParser.cell;
+                    + "?uri=" + StringTool.encodeURL(tableUri);
+                if (StringUtils.isNotBlank(uriParser.cell)) {
+                    url += "&errorCell=" + uriParser.cell;
+                }
             }
         }
+
         if (StringUtils.isBlank(url)) {
             url = "tableeditor/showMessage.xhtml"
                 + "?type" + "=" + message.getSeverity().name()
                 + "&summary" + "=" + message.getSummary();
         }
+
         return url;
     }
 
