@@ -1,13 +1,10 @@
 package org.openl.rules.table.properties.inherit;
 
 import java.util.Arrays;
-import java.util.Set;
-
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.table.properties.TablePropertiesException;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;

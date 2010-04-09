@@ -12,31 +12,31 @@ public class AnyCellValue implements IMetaHolder {
 
     private StringValue stringValue;
 
-    static public DoubleValue autocast(AnyCellValue x, DoubleValue y) {
-        return x.getDoubleValue();
-    }
-
-    static public StringValue autocast(AnyCellValue x, StringValue y) {
-        return x.getStringValue();
-    }
-    static public AnyCellValue autocast(DoubleValue x, AnyCellValue y) {
-        return new AnyCellValue(x);
-    }
+    // static public DoubleValue autocast(AnyCellValue x, DoubleValue y) {
+    // return x.getDoubleValue();
+    // }
+    //
+    // static public StringValue autocast(AnyCellValue x, StringValue y) {
+    // return x.getStringValue();
+    // }
+    // static public AnyCellValue autocast(DoubleValue x, AnyCellValue y) {
+    // return new AnyCellValue(x);
+    // }
 
     public AnyCellValue(DoubleValue x) {
-        doubleValue = x;
+        this.doubleValue = x;
     }
 
     public AnyCellValue(String src) {
+
         try {
             double dx = (Double) new String2DataConvertorFactory.String2DoubleConvertor().parse(src, null, null);
-            doubleValue = new DoubleValue(dx);
+            this.doubleValue = new DoubleValue(dx);
             return;
         } catch (Throwable t) {
-
         }
 
-        stringValue = new StringValue(src);
+        this.stringValue = new StringValue(src);
     }
 
     public DoubleValue getDoubleValue() {
@@ -44,12 +44,7 @@ public class AnyCellValue implements IMetaHolder {
     }
 
     public IMetaInfo getMetaInfo() {
-        // TODO Auto-generated method stub
         return null;
-    }
-
-    private StringValue getStringValue() {
-        return stringValue;
     }
 
     public Object getValue() {
@@ -66,7 +61,6 @@ public class AnyCellValue implements IMetaHolder {
         } else if (stringValue != null) {
             stringValue.setMetaInfo(info);
         }
-
     }
 
     @Override

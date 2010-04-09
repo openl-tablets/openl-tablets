@@ -14,7 +14,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;

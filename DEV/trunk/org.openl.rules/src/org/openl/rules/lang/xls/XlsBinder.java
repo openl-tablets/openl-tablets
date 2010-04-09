@@ -47,7 +47,7 @@ import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.MethodTableNodeBinder;
-import org.openl.rules.property.binding.PropertyTableBinder;
+import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;

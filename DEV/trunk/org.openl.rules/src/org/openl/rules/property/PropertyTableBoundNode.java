@@ -1,4 +1,4 @@
-package org.openl.rules.property.binding;
+package org.openl.rules.property;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
