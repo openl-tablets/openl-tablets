@@ -10,7 +10,10 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
-public abstract class BindHelper {
+public class BindHelper {
+    
+    private BindHelper() {
+    }
 
     public static void processError(ISyntaxNode syntaxNode, Throwable throwable, IBindingContext bindingContext) {
 
@@ -42,6 +45,12 @@ public abstract class BindHelper {
     public static void processError(String message, ISyntaxNode syntaxNode, Throwable throwable) {
 
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, throwable, syntaxNode);
+        processError(error);
+    }
+    
+    public static void processError(String message, ISyntaxNode syntaxNode) {
+
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
         processError(error);
     }
 

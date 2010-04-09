@@ -7,19 +7,22 @@ import org.openl.types.IOpenClass;
 
 public class ArrayResultBuilder implements IResultBuilder {
 
-    List<SCell> cells;
-    IOpenClass type;
+    private List<SCell> cells;
+    private IOpenClass type;
 
     public ArrayResultBuilder(List<SCell> notEmpty, IOpenClass type) {
-        cells = notEmpty;
+        this.cells = notEmpty;
         this.type = type;
     }
 
     public Object makeResult(SpreadsheetResult res) {
+        
         int size = cells.size();
+        
         Object ary = type.getAggregateInfo().makeIndexedAggregate(type, new int[] { size });
 
         for (int i = 0; i < size; ++i) {
+        
             SCell cell = cells.get(i);
 
             Object value = res.getValue(cell.getRow(), cell.getColumn());

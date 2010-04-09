@@ -5,10 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
+import org.openl.binding.impl.BindHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -16,7 +14,6 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -25,113 +22,123 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
- * Loads all kinds of properties to tsn. 
- * At first load all properties defined in source table. Then load category, module and default properties.
- *  
+ * Loads all kinds of properties to tsn. At first load all properties defined in
+ * source table. Then load category, module and default properties.
+ * 
  * @author DLiauchuk
- *
+ * 
  */
 public class PropertiesLoader {
-    
-    private final Log LOG = LogFactory.getLog(PropertiesLoader.class);
-    
+
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
+
     private OpenL openl;
     private RulesModuleBindingContext cxt;
     private XlsModuleOpenClass module;
-    
-    public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module) {    
+
+    public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module) {
         this.openl = openl;
         this.cxt = cxt;
-        this.module = module;        
-    }    
-    
+        this.module = module;
+    }
+
     /**
      * Load properties from source table as data table.
      * 
-     * @param tsn Tsn to load properties.
-     * @throws Exception when there problems loading properties with data table mechanism.
-     * @throws InvalidPropertyLevelException if any property can`t be defined on table level.
+     * @param tableSyntaxNode Tsn to load properties.
+     * @throws Exception when there problems loading properties with data table
+     *             mechanism.
      */
-    private void loadPropertiesAsDataTable(TableSyntaxNode tsn) throws Exception {
-        String propertySectionName = PROPERTIES_SECTION_NAME + tsn.getUri();
-        DataNodeBinder bb = new DataNodeBinder();
+    private void loadPropertiesAsDataTable(TableSyntaxNode tableSyntaxNode) throws Exception {
+
+        String propertySectionName = PROPERTIES_SECTION_NAME + tableSyntaxNode.getUri();
+        DataNodeBinder dataNodeBinder = new DataNodeBinder();
+
         ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
-        ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tsn.getTable());        
-        
+        ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
+
         if (propertiesSection != null) {
             propertiesSection = LogicalTable.logicalTable(propertiesSection);
-            bb.processTable(module, propertyTable, propertiesSection, propertySectionName, propetiesClass, cxt, openl,
-                    false);
-            TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 
-            
-            propertiesInstance.setPropertiesSection(propertiesSection);   
-            
-            String tableType = tsn.getType();
-            
+            dataNodeBinder.processTable(module,
+                propertyTable,
+                propertiesSection,
+                propertySectionName,
+                propetiesClass,
+                cxt,
+                openl,
+                false);
+
+            TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
+            propertiesInstance.setPropertiesSection(propertiesSection);
+
+            String tableType = tableSyntaxNode.getType();
             Set<String> propertyNamesToCheck = propertiesInstance.getPropertiesDefinedInTable().keySet();
-            
-            checkProperties(propertyNamesToCheck, tableType);
-            
+
+            checkProperties(propertyNamesToCheck, tableSyntaxNode);
+
             propertiesInstance.setCurrentTableType(tableType);
-            
-            tsn.setTableProperties(propertiesInstance);
+
+            tableSyntaxNode.setTableProperties(propertiesInstance);
         }
-    }
-    
-    /**
-     * We need to check loaded properties that all values are appropriate for this table. If there is any problem an 
-     * error should be thrown. Now we check 2 situations:<br>
-     *              1) properties can be defined on TABLE level.<br>
-     *              2) properties can be defined for current type of table.   
-     * 
-     * @param propertyNamesToCheck properties names that are physically defined in table.
-     * @param tableType type of he table. Shows whether it is a decision table or a data or some other.
-     * 
-     * @throws TablePropertiesException if there is any problem in loaded properties.
-     */
-    private void checkProperties(Set<String> propertyNamesToCheck, String tableType) 
-        throws TablePropertiesException {        
-        
-        checkPropertiesLevel(propertyNamesToCheck);
-        
-        checkPropertiesForTableType(propertyNamesToCheck, tableType);        
     }
 
-    private void checkPropertiesLevel(Set<String> propertyNamesToCheck) throws InvalidPropertyLevelException {
+    /**
+     * We need to check loaded properties that all values are appropriate for
+     * this table. If there is any problem an error should be thrown. Now we
+     * check 2 situations:<br>
+     * 1) properties can be defined on TABLE level.<br>
+     * 2) properties can be defined for current type of table.
+     * 
+     * @param propertyNamesToCheck properties names that are physically defined
+     *            in table.
+     * @param tableType type of he table. Shows whether it is a decision table
+     *            or a data or some other.
+     */
+    private void checkProperties(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+
+        checkPropertiesLevel(propertyNamesToCheck, tableSyntaxNode);
+        checkPropertiesForTableType(propertyNamesToCheck, tableSyntaxNode);
+    }
+
+    private void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+
         InheritanceLevel currentLevel = InheritanceLevel.TABLE;
-        for (String propertyNameToCheck : propertyNamesToCheck) { 
+
+        for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
-                String msg = String.format("Property with name [%s] can`t be defined on the [%s] level.", 
-                        propertyNameToCheck, currentLevel.getDisplayName());                
-                throw new InvalidPropertyLevelException(msg);
+
+                String message = String.format("Property with name [%s] can`t be defined on the [%s] level.",
+                    propertyNameToCheck,
+                    currentLevel.getDisplayName());
+
+                BindHelper.processError(message, tableSyntaxNode);
             }
         }
-        
     }
-    
+
     /**
      * Checks if properties can be defined for given type of table.
      * 
      * @param propertyNamesToCheck
      * @param tableType
      * 
-     * @throws TablePropertiesException if there is any problem in loaded properties.
      */
-    private void checkPropertiesForTableType(Set<String> propertyNamesToCheck, String tableType) 
-        throws TablePropertiesException {
-        
+    private void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+
+        String tableType = tableSyntaxNode.getType();
+
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.canSetPropertyForTableType(propertyNameToCheck, tableType)) {
-                throw new TablePropertiesException(String
-                      .format("Property [%s] can`t be defined in table of type [%s].", propertyNameToCheck
-                              , tableType));
+                String message = String.format("Property [%s] can`t be defined in table of type [%s].",
+                    propertyNameToCheck,
+                    tableType);
+
+                BindHelper.processError(message, tableSyntaxNode);
             }
         }
     }
@@ -139,46 +146,45 @@ public class PropertiesLoader {
     /**
      * Load to tsn category properties from context.
      * 
-     * @param tsn Tsn to load properties.
-     * @throws InvalidPropertyLevelException if any property can`t be defined on category level.
+     * @param tableSyntaxNode Tsn to load properties.
      */
-    private void loadCategoryProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
-        ITableProperties tableProperties = tsn.getTableProperties();        
-        String category = getCategory(tsn); 
-        TableSyntaxNode categoryPropertiesTsn = cxt
-                .getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+    private void loadCategoryProperties(TableSyntaxNode tableSyntaxNode) {
+
+        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
+        String category = getCategory(tableSyntaxNode);
+        TableSyntaxNode categoryPropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
-            
             tableProperties.setPropertiesAppliedForCategory(categoryProperties.getAllProperties());
             tableProperties.setCategoryPropertiesTable(categoryProperties.getPropertiesSection());
         }
     }
-    
+
     private String getCategory(TableSyntaxNode tsn) {
-        String result = null;
+
         ITableProperties tableProperties = tsn.getTableProperties();
         String category = tableProperties.getCategory();
+
         if (category != null) {
-            result = category;
+            return category;
         } else {
-            result = ((XlsSheetSourceCodeModule) tsn.getModule()).getSheetName();
+            return ((XlsSheetSourceCodeModule) tsn.getModule()).getSheetName();
         }
-        return result;
     }
 
     /**
      * Load to tsn module properties from context.
      * 
-     * @param tsn Tsn to load properties.
-     * @throws InvalidPropertyLevelException if any property can`t be defined on module level. 
+     * @param tableSyntaxNode Tsn to load properties.
      */
-    private void loadModuleProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
-        ITableProperties tableProperties = tsn.getTableProperties();
+    private void loadModuleProperties(TableSyntaxNode tableSyntaxNode) {
+
+        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         TableSyntaxNode modulePropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+
         if (tableProperties != null && modulePropertiesTsn != null) {
             ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
-            
             tableProperties.setPropertiesAppliedForModule(moduleProperties.getAllProperties());
             tableProperties.setModulePropertiesTable(moduleProperties.getPropertiesSection());
         }
@@ -187,52 +193,62 @@ public class PropertiesLoader {
     /**
      * Load to tsn default properties.
      * 
-     * @param tsn Tsn to load properties.
+     * @param tableSyntaxNode Tsn to load properties.
      */
-    public void loadDefaultProperties(TableSyntaxNode tsn) {
-        if (tsn.getTableProperties() == null) {
-            createTableProperties(tsn);
+    public void loadDefaultProperties(TableSyntaxNode tableSyntaxNode) {
+
+        if (tableSyntaxNode.getTableProperties() == null) {
+            createTableProperties(tableSyntaxNode);
         }
-        ITableProperties properties = tsn.getTableProperties();
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
-                                                                            .getPropertiesToBeSetByDefault();    
+
+        ITableProperties properties = tableSyntaxNode.getTableProperties();
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils.getPropertiesToBeSetByDefault();
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
-        for(TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues){            
-            String defaultPropertyName = propertyWithDefaultValue.getName();            
-            Class<?> defaultPropertyValueType = TablePropertyDefinitionUtils.getPropertyByName(defaultPropertyName).getType()
-            .getInstanceClass();
+
+        for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
+            String defaultPropertyName = propertyWithDefaultValue.getName();
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(defaultPropertyName);
+            Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
+
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
             Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
-                    propertyWithDefaultValue.getFormat(), null);
+                propertyWithDefaultValue.getFormat(),
+                null);
+
             defaultProperties.put(defaultPropertyName, defaultValue);
         }
+
         properties.setPropertiesAppliedByDefault(defaultProperties);
     }
-    
-    private void createTableProperties(TableSyntaxNode tsn) {       
-        ITableProperties properties = tsn.getTableProperties();
-        properties = new TableProperties();  
-        properties.setCurrentTableType(tsn.getType());
-        tsn.setTableProperties(properties);
+
+    private void createTableProperties(TableSyntaxNode tableSyntaxNode) {
+
+        ITableProperties properties = new TableProperties();
+        properties.setCurrentTableType(tableSyntaxNode.getType());
+
+        tableSyntaxNode.setTableProperties(properties);
     }
-    
+
     public void loadProperties(TableSyntaxNode tsn) throws Exception {
+
         // don`t need to load properties for tables with type XLS_PROPERTIES,
         // it will be processed during its binding.
         // author: DLiauchuk
         if (!ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())) {
             try {
                 loadPropertiesAsDataTable(tsn);
+
                 if (tsn.getTableProperties() == null) {
                     createTableProperties(tsn);
                 }
-            } catch(Exception ex) {                
+            } catch (Exception ex) {
                 createTableProperties(tsn);
                 throw ex;
-            }            
+            }
+
             loadCategoryProperties(tsn);
             loadModuleProperties(tsn);
-            loadDefaultProperties(tsn);        
+            loadDefaultProperties(tsn);
         }
     }
 }
