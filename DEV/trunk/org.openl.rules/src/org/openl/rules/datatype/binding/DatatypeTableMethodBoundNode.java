@@ -18,6 +18,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DynamicObjectField;
 
 /**
@@ -70,7 +71,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
             IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);
 
-            if (fieldType == null) {
+            if (fieldType == null || fieldType instanceof NullOpenClass) {
                 throw SyntaxNodeExceptionUtils.createError("Type " + src.getCode() + " not found", null, null, src);
             }
 

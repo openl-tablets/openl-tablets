@@ -9,7 +9,6 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.Binder;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BindingContextDelegator;
-import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
@@ -67,7 +66,7 @@ public class OpenLCodeManager extends OpenLHolder {
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
-            return ((TypeBoundNode) boundCode.getTopNode()).getType();
+            return boundCode.getTopNode().getType();
 
         } finally {
             bindingContextDelegator.popErrors();
