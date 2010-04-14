@@ -191,8 +191,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         Object result = null;
 
         if (foreignTable == null) {
-
-            String message = "Table " + foreignKeyTableName + " not found";
+            String message = String.format("Table '%s' not found", foreignKeyTableName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
+            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         }
 
@@ -270,7 +272,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             ITable foreignTable = db.getTable(foreignKeyTableName);
 
             if (foreignTable == null) {
-                String message = "Table " + foreignKeyTableName + " not found";
+                String message = String.format("Table '%s' not found", foreignKeyTableName);
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+
+            } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
+                String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
                 throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
 

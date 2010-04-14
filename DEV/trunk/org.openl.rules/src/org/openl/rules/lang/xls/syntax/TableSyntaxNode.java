@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openl.meta.StringValue;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -74,6 +75,10 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     public SyntaxNodeException[] getErrors() {
         return errors == null ? null : (SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]);
+    }
+
+    public boolean hasErrors() {
+        return CollectionUtils.isNotEmpty(errors);
     }
 
     // public IIndexElement getParent()
