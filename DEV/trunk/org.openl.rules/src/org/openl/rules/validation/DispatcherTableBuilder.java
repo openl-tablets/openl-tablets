@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.dt.DecisionTable;
@@ -61,13 +60,7 @@ public class DispatcherTableBuilder {
     }
 
     private void buildTableForGroup(List<TableSyntaxNode> tablesGroup) {
-        String[] dimensionalTableProp = TablePropertyDefinitionUtils.getDimensionalTableProperties();        
-        String[] dimensionalAndActive = null;
-        if (TablePropertyDefinitionUtils.getPropertyByName("active") != null) {
-            dimensionalAndActive = (String[])ArrayUtils.add(dimensionalTableProp, "active");            
-        } else {
-            dimensionalAndActive = dimensionalTableProp;
-        }
+        String[] dimensionalTableProp = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
         TableSyntaxNode groupMember = tablesGroup.get(0);
         String originalTableName = ((AMethod)groupMember.getMember()).getHeader().getName();
         
@@ -76,7 +69,7 @@ public class DispatcherTableBuilder {
         IOpenClass originalReturnType = getOtiginalTableReturnType(groupMember);
         
         DecisionTableCreator dtTableWriter = new DecisionTableCreator(originalTableName, 
-                originalParameters, tablesGroup, dimensionalAndActive, originalReturnType);
+                originalParameters, tablesGroup, dimensionalTableProp, originalReturnType);
         GridTable createdGridTable = dtTableWriter.createGridTable();        
         
         DecisionTable decisionTable = dtTableWriter.getCreatedDecTable(); 

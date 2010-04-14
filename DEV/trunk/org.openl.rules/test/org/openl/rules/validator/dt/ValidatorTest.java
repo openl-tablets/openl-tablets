@@ -2,8 +2,13 @@ package org.openl.rules.validator.dt;
 
 import static org.junit.Assert.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -135,7 +140,18 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
     public void testDate() {
         String tableName = "Rules void testDate(Date currentDate)";
         Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
-        DateRangeDomain dateRangeDomain = new DateRangeDomain(new Date(0, 0, 1), new Date(150, 0, 1));//[01.01.1900 .. 01.01.2050]
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = dateFormat.parse("01/01/1900");
+            endDate = dateFormat.parse("01/01/2050");
+        } catch (ParseException e) {            
+            e.printStackTrace();
+        }
+        
+        DateRangeDomain dateRangeDomain = new DateRangeDomain(startDate, endDate);
         DateRangeDomainAdaptor adaptor = new DateRangeDomainAdaptor(dateRangeDomain);
 
         domains.put("currentDate", adaptor);
@@ -149,5 +165,5 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         dtValidResult = testTable(tableName, domains);
         assertTrue(dtValidResult.getUncovered().length == 1);
     }
-
+ 
 }

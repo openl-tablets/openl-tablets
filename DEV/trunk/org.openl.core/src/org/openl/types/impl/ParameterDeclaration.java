@@ -6,6 +6,8 @@
 
 package org.openl.types.impl;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 
@@ -14,9 +16,9 @@ import org.openl.types.IParameterDeclaration;
  *
  */
 public class ParameterDeclaration implements IParameterDeclaration {
-    IOpenClass type;
-    String name;
-    int direction;
+    private IOpenClass type;
+    private String name;
+    private int direction;
 
     public ParameterDeclaration(IOpenClass type, String name) {
         this(type, name, IN);
@@ -28,9 +30,6 @@ public class ParameterDeclaration implements IParameterDeclaration {
         this.direction = direction;
     }
 
-    /**
-     * @return
-     */
     public int getDirection() {
         return direction;
     }
@@ -39,18 +38,30 @@ public class ParameterDeclaration implements IParameterDeclaration {
         return name;
     }
 
-    /**
-     * @return
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @return
-     */
     public IOpenClass getType() {
         return type;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ParameterDeclaration)) {
+            return false;
+        }
+        ParameterDeclaration paramDecl = (ParameterDeclaration) obj;
+
+        return new EqualsBuilder().append(name, paramDecl.name).append(type, paramDecl.getType())
+            .append(direction, paramDecl.getDirection()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = new HashCodeBuilder().append(name).append(type)
+            .append(direction).toHashCode();
+        return hashCode;
     }
 
 }

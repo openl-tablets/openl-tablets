@@ -121,12 +121,12 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         }
 
         stream.println(rootCause.getClass().getName() + ": " + rootCause.getMessage());
+        if (getNode() != null) {
+            ISyntaxNode syntaxNode = getNode().getSyntaxNode();
+            SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), stream);
 
-        ISyntaxNode syntaxNode = getNode().getSyntaxNode();
-
-        SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), stream);
-
-        SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), stream);
+            SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), stream);
+        }
 
         Stack<IBoundNode> nodes = getOpenlCallStack();
 

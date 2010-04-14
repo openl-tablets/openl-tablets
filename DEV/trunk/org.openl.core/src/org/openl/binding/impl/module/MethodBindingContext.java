@@ -69,7 +69,7 @@ public class MethodBindingContext extends BindingContextDelegator {
             try {
                 addParameter(ISyntaxConstants.THIS_NAMESPACE, signature.getParameterName(i), params[i]);
             } catch (DuplicatedVarException e) {
-                throw RuntimeExceptionWrapper.wrap("", e);
+                throw RuntimeExceptionWrapper.wrap(e.getMessage(), e);
             }
         }
 

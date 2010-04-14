@@ -10,6 +10,7 @@ import java.util.Map;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.EnumDomainAdaptor;
@@ -126,7 +127,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     public Object transformParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
-
+         
         if (value instanceof IntRange) {
             IntRange intr = (IntRange) value;
             return new CtrIntRange(intr.getMin(), intr.getMax());
@@ -137,7 +138,11 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         
         if (value instanceof String || value instanceof Date) {
             IDomainAdaptor domainAdaptor = getDomains().get(name);
-            return new Integer(domainAdaptor.getIndex(value));
+            if (domainAdaptor == null) {
+                throw new OpenLRuntimeException(String.format("Could not create domain for %s", name));
+            } else {
+                return new Integer(domainAdaptor.getIndex(value));
+            }
         }
         
         if (domain != null) {
