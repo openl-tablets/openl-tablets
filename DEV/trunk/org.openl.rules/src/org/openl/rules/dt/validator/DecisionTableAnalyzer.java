@@ -108,8 +108,10 @@ public class DecisionTableAnalyzer {
                     if (methodSignature.getParameterName(i).equals(anotherOpenField.getName())) {
                         ParameterDeclaration parameterDeclaration = new ParameterDeclaration(methodSignature.getParameterTypes()[i],
                             methodSignature.getParameterName(i));
+                        if (!paramDeclarations.contains(parameterDeclaration)) {
+                            paramDeclarations.add(parameterDeclaration);
+                        }
                         
-                        paramDeclarations.add(parameterDeclaration);
                     }
                 }
             }

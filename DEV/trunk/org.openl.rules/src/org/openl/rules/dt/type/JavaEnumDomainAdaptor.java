@@ -13,6 +13,9 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
     }
 
     public int getIndex(Object value) {
+        if (value == null) {
+            return -1;
+        } 
         return ((Enum<?>)value).ordinal();
     }
 

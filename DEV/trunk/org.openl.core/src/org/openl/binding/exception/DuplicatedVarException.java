@@ -11,12 +11,9 @@ package org.openl.binding.exception;
  *
  */
 public class DuplicatedVarException extends RuntimeException {
-    /**
-     *
-     */
     private static final long serialVersionUID = 2754037692502108330L;
-    String msg;
-    String fieldName;
+    private String msg;
+    private String fieldName;
 
     public DuplicatedVarException(String msg, String fieldName) {
         this.msg = msg;
@@ -30,8 +27,7 @@ public class DuplicatedVarException extends RuntimeException {
             buf.append(msg);
         }
 
-        buf.append("Var ").append(fieldName);
-        buf.append(" has already been defined");
+        buf.append(String.format("Variable %s has already been defined", fieldName));
         return buf.toString();
     }
 
