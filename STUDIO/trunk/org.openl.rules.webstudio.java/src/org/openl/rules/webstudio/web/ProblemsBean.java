@@ -10,12 +10,14 @@ import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.TreeNodeData;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.XlsUrlParser;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringTool;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -94,6 +96,25 @@ public class ProblemsBean {
             OpenLException error = errorMessage.getError();
             String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
             String tableUri = WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
+            if (StringUtils.isNotBlank(tableUri)) {
+                XlsUrlParser uriParser = new XlsUrlParser();
+                uriParser.parse(errorUri);
+                url = "tableeditor/showTable.xhtml"
+                    + "?uri=" + StringTool.encodeURL(tableUri);
+                if (StringUtils.isNotBlank(uriParser.cell)) {
+                    url += "&errorCell=" + uriParser.cell;
+                }
+            }
+        }
+        
+        if (message instanceof OpenLWarnMessage) {
+
+            OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
+            ISyntaxNode syntaxNode = warnMessage.getSource();
+
+            String errorUri = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule(), "");
+            String tableUri = WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
+
             if (StringUtils.isNotBlank(tableUri)) {
                 XlsUrlParser uriParser = new XlsUrlParser();
                 uriParser.parse(errorUri);
