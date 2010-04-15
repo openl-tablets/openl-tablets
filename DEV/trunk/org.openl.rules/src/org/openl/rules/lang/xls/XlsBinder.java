@@ -33,7 +33,7 @@ import org.openl.conf.OpenLBuilderImpl;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.calc.SSheetNodeBinder;
+import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
@@ -78,7 +78,7 @@ public class XlsBinder implements IOpenBinder {
             { ITableNodeTypes.XLS_DATA, DataNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_DATATYPE, DatatypeNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_DT, DecisionTableNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_SPREADSHEET, SSheetNodeBinder.class.getName() },
+            { ITableNodeTypes.XLS_SPREADSHEET, SpreadsheetNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_METHOD, MethodTableNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_TEST_METHOD, TestMethodNodeBinder.class.getName() },
             { ITableNodeTypes.XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },

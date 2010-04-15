@@ -1,4 +1,4 @@
-package org.openl.rules.calc;
+package org.openl.rules.calc.element;
 
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
@@ -18,51 +18,50 @@ public class CellLoader {
     private IString2DataConvertor convertor;
 
     public CellLoader(IBindingContext bindingContext, IOpenMethodHeader header, IString2DataConvertor convertor) {
-        super();
-
         this.bindingContext = bindingContext;
         this.header = header;
         this.convertor = convertor;
     }
 
-    public Object loadSingleParam(IOpenSourceCodeModule srcModule, IMetaInfo meta) throws SyntaxNodeException {
-        
-        String src = srcModule.getCode();
+    public Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta) throws SyntaxNodeException {
 
-        if (src == null || (src = src.trim()).length() == 0) {
+        String code = source.getCode();
+
+        if (code == null || (code = code.trim()).length() == 0) {
             return null;
         }
 
         if (bindingContext != null) {
-            if (isFormula(src)) {
+
+            if (isFormula(code)) {
 
                 int end = 0;
-                if (src.startsWith("{")) {
+
+                if (code.startsWith("{")) {
                     end = -1;
                 }
 
-                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(srcModule, 1, end);
+                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
 
                 return OpenLManager.makeMethod(bindingContext.getOpenL(), srcCode, header, bindingContext);
             }
         }
 
         try {
-            Object res = convertor.parse(src, null, bindingContext);
-            if (res instanceof IMetaHolder) {
-                ((IMetaHolder) res).setMetaInfo(meta);
+            Object result = convertor.parse(code, null, bindingContext);
+
+            if (result instanceof IMetaHolder) {
+                ((IMetaHolder) result).setMetaInfo(meta);
             }
 
-            // setCellMetaInfo(cell, paramName, paramType);
-            // validateValue(res, paramType);
-            return res;
+            return result;
         } catch (Throwable t) {
-            throw SyntaxNodeExceptionUtils.createError(null, t, null, srcModule);
+            throw SyntaxNodeExceptionUtils.createError(null, t, null, source);
         }
     }
 
     public static boolean isFormula(String src) {
-        
+
         if (src.startsWith("{") && src.endsWith("}")) {
             return true;
         }

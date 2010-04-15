@@ -1,17 +1,22 @@
 package org.openl.rules.calc;
 
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetHeaderField extends ASpreadsheetField {
 
-    IdentifierNode name;
-    SpreadsheetHeaderDefinition header;
+//    private IdentifierNode name;
+    private SpreadsheetHeaderDefinition header;
 
-    public SpreadsheetHeaderField(SpreadsheetType declaringClass, IdentifierNode name, SpreadsheetHeaderDefinition h) {
-        super(declaringClass, name.getIdentifier(), h.getType());
-        this.name = name;
-        header = h;
+    public SpreadsheetHeaderField(SpreadsheetOpenClass declaringClass,
+            IdentifierNode name,
+            SpreadsheetHeaderDefinition header) {
+
+        super(declaringClass, name.getIdentifier(), header.getType());
+
+//        this.name = name;
+        this.header = header;
     }
 
     @Override

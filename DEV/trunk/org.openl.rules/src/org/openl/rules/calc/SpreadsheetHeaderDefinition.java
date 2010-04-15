@@ -3,38 +3,60 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.calc.SpreadsheetBuilder.SymbolicTypeDef;
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetHeaderDefinition {
 
-    IOpenClass type = null;
+    private int row;
+    private int column;
 
-    int row;
-    int column;
+    private IOpenClass type;
+    private List<SymbolicTypeDefinition> vars = new ArrayList<SymbolicTypeDefinition>();
 
-    List<SymbolicTypeDef> vars = new ArrayList<SymbolicTypeDef>();
-
-    public SpreadsheetHeaderDefinition(int row, int col) {
+    public SpreadsheetHeaderDefinition(int row, int column) {
         this.row = row;
-        column = col;
+        this.column = column;
     }
 
-    public void addVarHeader(SymbolicTypeDef parsed) {
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+    
+    public IOpenClass getType() {
+        return type;
+    }
+
+    public List<SymbolicTypeDefinition> getVars() {
+        return vars;
+    }
+    
+    public void setType(IOpenClass type) {
+        this.type = type;
+    }
+
+    public void addVarHeader(SymbolicTypeDefinition parsed) {
         vars.add(parsed);
     }
 
-    public SymbolicTypeDef findVarDef(String name) {
-        for (SymbolicTypeDef sdef : vars) {
-            if (sdef.name.getIdentifier().equals(name)) {
+    public SymbolicTypeDefinition findVarDef(String name) {
+        
+        for (SymbolicTypeDefinition sdef : vars) {
+            if (sdef.getName().getIdentifier().equals(name)) {
                 return sdef;
             }
         }
+        
         return null;
     }
 
     public Object getArray(SpreadsheetResult target, IRuntimeEnv env) {
+        
         if (row < 0) {
             return target.getColumn(column, env);
         } else {
@@ -43,22 +65,16 @@ public class SpreadsheetHeaderDefinition {
     }
 
     public String getFirstname() {
-        for (SymbolicTypeDef sd : vars) {
-            if (sd != null && sd.name != null) {
-                return sd.name.getIdentifier();
+        
+        for (SymbolicTypeDefinition definition : vars) {
+            if (definition != null && definition.getName() != null) {
+                return definition.getName().getIdentifier();
             }
-
         }
+
         return null;
     }
 
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public List<SymbolicTypeDef> getVars() {
-        return vars;
-    }
 
     public boolean isRow() {
         return row >= 0;
@@ -68,12 +84,5 @@ public class SpreadsheetHeaderDefinition {
         return isRow() ? "row" : "column";
     }
 
-    public void setType(IOpenClass type) {
-        this.type = type;
-    }
-
-    public void setVars(List<SymbolicTypeDef> vars) {
-        this.vars = vars;
-    }
 
 }

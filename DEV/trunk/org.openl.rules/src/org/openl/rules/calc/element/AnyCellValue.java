@@ -1,4 +1,4 @@
-package org.openl.rules.calc;
+package org.openl.rules.calc.element;
 
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
@@ -9,34 +9,20 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 public class AnyCellValue implements IMetaHolder {
 
     private DoubleValue doubleValue;
-
     private StringValue stringValue;
 
-    // static public DoubleValue autocast(AnyCellValue x, DoubleValue y) {
-    // return x.getDoubleValue();
-    // }
-    //
-    // static public StringValue autocast(AnyCellValue x, StringValue y) {
-    // return x.getStringValue();
-    // }
-    // static public AnyCellValue autocast(DoubleValue x, AnyCellValue y) {
-    // return new AnyCellValue(x);
-    // }
-
-    public AnyCellValue(DoubleValue x) {
-        this.doubleValue = x;
+    public AnyCellValue(DoubleValue doubleValue) {
+        this.doubleValue = doubleValue;
     }
 
-    public AnyCellValue(String src) {
+    public AnyCellValue(String source) {
 
         try {
-            double dx = (Double) new String2DataConvertorFactory.String2DoubleConvertor().parse(src, null, null);
-            this.doubleValue = new DoubleValue(dx);
-            return;
+            double value = (Double) new String2DataConvertorFactory.String2DoubleConvertor().parse(source, null, null);
+            this.doubleValue = new DoubleValue(value);
         } catch (Throwable t) {
+            this.stringValue = new StringValue(source);
         }
-
-        this.stringValue = new StringValue(src);
     }
 
     public DoubleValue getDoubleValue() {
@@ -51,11 +37,8 @@ public class AnyCellValue implements IMetaHolder {
         return stringValue == null ? doubleValue : stringValue;
     }
 
-    public DoubleValue multiply(AnyCellValue cv) {
-        return DoubleValue.multiply(getDoubleValue(), cv.getDoubleValue());
-    }
-
     public void setMetaInfo(IMetaInfo info) {
+
         if (doubleValue != null) {
             doubleValue.setMetaInfo(info);
         } else if (stringValue != null) {

@@ -1,14 +1,17 @@
-package org.openl.rules.calc;
+package org.openl.rules.calc.element;
 
+import org.openl.rules.calc.ASpreadsheetField;
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class SCellField extends ASpreadsheetField {
+public class SpreadsheetCellField extends ASpreadsheetField {
 
-    SCell cell;
+    private SpreadsheetCell cell;
 
-    public SCellField(IOpenClass declaringClass, String name, SCell cell) {
+    public SpreadsheetCellField(IOpenClass declaringClass, String name, SpreadsheetCell cell) {
         super(declaringClass, name, cell.getType());
+        
         this.cell = cell;
     }
 
@@ -19,12 +22,13 @@ public class SCellField extends ASpreadsheetField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        SpreadsheetResult res = (SpreadsheetResult) target;
 
-        return res.getValue(cell.row, cell.column);
+        SpreadsheetResult result = (SpreadsheetResult) target;
+
+        return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
     }
 
-    public SCell getCell() {
+    public SpreadsheetCell getCell() {
         return cell;
     }
 
