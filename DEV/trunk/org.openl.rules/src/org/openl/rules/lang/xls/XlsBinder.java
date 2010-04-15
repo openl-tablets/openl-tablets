@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -30,7 +32,6 @@ import org.openl.conf.IExecutable;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -72,6 +73,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class XlsBinder implements IOpenBinder {
 
+    private static final Log LOG = LogFactory.getLog(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
     private static final String[][] binders = {
@@ -320,9 +322,8 @@ public class XlsBinder implements IOpenBinder {
         AXlsTableBinder binder = getBinderFactory().get(type);
 
         if (binder == null) {
-
             String message = String.format("Unknown table type '%s'", type);
-            OpenLMessagesUtils.addWarn(message);
+            LOG.debug(message);
 
             return null;
         }
