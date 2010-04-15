@@ -20,7 +20,7 @@ public interface IConditionTransformer {
 
     IOpenClass transformParameterType(IParameterDeclaration declaration);
 
-    Object transformParameterValue(String name,
+    Object transformLocalParameterValue(String name,
             ICondition condition,
             Object value,            
             DecisionTableAnalyzer analyzer);

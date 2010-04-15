@@ -125,32 +125,31 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         return null;
     }
-
-    public Object transformParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
-         
+        
+    public Object transformLocalParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
+        Object result = value;
         if (value instanceof IntRange) {
             IntRange intr = (IntRange) value;
-            return new CtrIntRange(intr.getMin(), intr.getMax());
-
+            result = new CtrIntRange(intr.getMin(), intr.getMax());
         }
-
-        IDomain<?> domain = dtan.getParameterDomain(name, condition);
         
-        if (value instanceof String || value instanceof Date) {
-            IDomainAdaptor domainAdaptor = getDomains().get(name);
-            if (domainAdaptor == null) {
-                throw new OpenLRuntimeException(String.format("Could not create domain for %s", name));
+        // at first search domains in those that were defined by user.
+        IDomainAdaptor domainAdaptor = getDomains().get(name);
+        if (domainAdaptor != null) {
+            result = new Integer(domainAdaptor.getIndex(value));
+        } else { // then search domains from its type.
+            IDomain<?> domain = dtan.getParameterDomain(name, condition);
+            if (domain != null) {
+                IDomainAdaptor domainAdapt = makeDomainAdaptor(domain);
+                result = new Integer(domainAdapt.getIndex(value));
             } else {
-                return new Integer(domainAdaptor.getIndex(value));
+                if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value 
+                                                   // will be returned. in other cases throws an exception.
+                    throw new OpenLRuntimeException(String.format("Could not create domain for %s", name));
+                }
             }
         }
-        
-        if (domain != null) {
-            IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
-            return new Integer(domainAdaptor.getIndex(value));
-        }
-
-        return value;
+        return result;
     }
 
     public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration) {
@@ -186,15 +185,15 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             return intValue == 1 ? "true" : "false";
         }
         
-         
-        IDomain<?> domain = dtAnalyzer.getSignatureParameterDomain(name);
-        if (domain != null) {
-            IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
-            result = domainAdaptor.getValue(intValue);
-        } else {
-            IDomainAdaptor domainAdapt = getDomains().get(name);
-            if (domainAdapt != null) {
-                result = domainAdapt.getValue(intValue);
+        // at first search domains in those that were defined by user.
+        IDomainAdaptor domainAdapt = getDomains().get(name);
+        if (domainAdapt != null) {
+            result = domainAdapt.getValue(intValue);
+        } else { // then search domains from its type.
+            IDomain<?> domain = dtAnalyzer.getSignatureParameterDomain(name);
+            if (domain != null) {
+                IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
+                result = domainAdaptor.getValue(intValue);
             } else {
                 result = intValue;
             }

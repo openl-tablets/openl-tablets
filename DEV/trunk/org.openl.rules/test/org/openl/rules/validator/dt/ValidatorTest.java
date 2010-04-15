@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.openl.domain.DateRangeDomain;
+import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
@@ -22,6 +23,7 @@ import org.openl.rules.dt.validator.DecisionTableOverlapping;
 import org.openl.rules.dt.validator.DecisionTableUncovered;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
+import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 
@@ -99,8 +101,8 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
                 } else {
                     //System.out.println("NO PROBLEMS IN TABLE!!!!\n");
                 }
-            } catch (Exception t) {
-                //System.out.println("Exception " + t.getMessage());
+            } catch (Exception t) {                
+                System.out.println("Exception " + t.getMessage());
             }
         } else {
             fail();
@@ -198,6 +200,37 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         assertTrue(dtValidResult.getUncovered().length == 1);
         DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
         assertEquals("value=V4",gap.getValues().toString());
+    }
+    
+    @Test
+    public void testCountries() {
+        // test narrowed domain for enum values.        
+        String tableName = "Rules void testCountries(CountriesEnum country)";
+        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        
+        EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<CountriesEnum>(new CountriesEnum[]{CountriesEnum.AR, 
+                CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA});        
+        EnumDomainAdaptor enumDomainAdaptor1 = new EnumDomainAdaptor(enumDomain1);
+        domains.put("country", enumDomainAdaptor1);
+        domains.put("countryLocal1", enumDomainAdaptor1);
+        domains.put("countryLocal2", enumDomainAdaptor1);
+        domains.put("countryLocal3", enumDomainAdaptor1);
+        domains.put("countryLocal4", enumDomainAdaptor1);
+        domains.put("countryLocal5", enumDomainAdaptor1);
+        domains.put("countryLocal6", enumDomainAdaptor1);
+        domains.put("countryLocal7", enumDomainAdaptor1);
+        domains.put("countryLocal8", enumDomainAdaptor1);
+        domains.put("countryLocal9", enumDomainAdaptor1);
+        domains.put("countryLocal10", enumDomainAdaptor1);
+        domains.put("countryLocal11", enumDomainAdaptor1);
+        domains.put("countryLocal12", enumDomainAdaptor1);
+        domains.put("countryLocal13", enumDomainAdaptor1);
+        domains.put("countryLocal14", enumDomainAdaptor1);
+        domains.put("countryLocal15", enumDomainAdaptor1);
+        domains.put("countryLocal16", enumDomainAdaptor1);        
+        
+        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        assertFalse(dtValidResult.hasProblems());        
     }
  
 }

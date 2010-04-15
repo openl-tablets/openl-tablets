@@ -266,7 +266,7 @@ public class ValidationAlgorithm {
     }
 
     private Object transformValue(String name, ICondition condition, Object value, DecisionTableAnalyzer analyzer) {
-        return decisionTableToValidate.getTransformer().transformParameterValue(name, condition, value, analyzer);
+        return decisionTableToValidate.getTransformer().transformLocalParameterValue(name, condition, value, analyzer);
     }
 
 }
