@@ -36,7 +36,7 @@ public class OpenLProjectInfo {
             IOpenMethod m = iter.next();
 
             if (m instanceof DecisionTable) {
-                System.out.println(m.getName());
+//                System.out.println(m.getName());
                 loadDT((DecisionTable) m);
             }
         }
@@ -47,7 +47,7 @@ public class OpenLProjectInfo {
         IOpenClass type = table.getType();
 
         if (type != JavaOpenClass.VOID) {
-            System.out.println("WARNING: Only Decision Tables with type 'void' can be converted");
+//            System.out.println("WARNING: Only Decision Tables with type 'void' can be converted");
             return;
         }
 
@@ -57,12 +57,12 @@ public class OpenLProjectInfo {
         for (int i = 0; i < pTypes.length; i++) {
 
             if (pTypes[i] instanceof JavaOpenClass) {
-                System.out.print("  " + pTypes[i].getName());
-                System.out.println(" " + signature.getParameterName(i));
+//                System.out.print("  " + pTypes[i].getName());
+//                System.out.println(" " + signature.getParameterName(i));
                 types.add(pTypes[i]);
 
             } else {
-                System.out.println("WARNING: Type " + pTypes[i].getName() + " is not a Java Class");
+//                System.out.println("WARNING: Type " + pTypes[i].getName() + " is not a Java Class");
             }
         }
 
@@ -83,7 +83,7 @@ public class OpenLProjectInfo {
 
         for (int i = 0; i < cc.length; i++) {
             if (!(cc[i] instanceof Condition)) {
-                System.out.println("WARNING: Condition is not a DTCondition: " + cc[i].getName());
+//                System.out.println("WARNING: Condition is not a DTCondition: " + cc[i].getName());
                 return false;
             }
             if (!loadConditionOrAction((Condition) cc[i]))
@@ -99,7 +99,7 @@ public class OpenLProjectInfo {
 
         for (int i = 0; i < cc.length; i++) {
             if (!(cc[i] instanceof Action)) {
-                System.out.println("WARNING: Action is not a DTAction: " + cc[i].getName());
+//                System.out.println("WARNING: Action is not a DTAction: " + cc[i].getName());
                 return false;
             }
 
@@ -112,7 +112,7 @@ public class OpenLProjectInfo {
 
     private boolean loadConditionOrAction(FunctionalRow ca) {
 
-        System.out.print("     " + ca.getName());
+        //System.out.print("     " + ca.getName());
 
         CompositeMethod cm = (CompositeMethod) ca.getMethod();
 
@@ -124,14 +124,14 @@ public class OpenLProjectInfo {
                 System.out.println("Type " + params[i].getType().getName());
             }
 
-            System.out.print(i == 0 ? "(" : ", ");
-            System.out.print(params[i].getType().getInstanceClass().getName());
-            System.out.print(" " + params[i].getName());
-            System.out.print(" : " + ca.getParamPresentation()[i]);
+//            System.out.print(i == 0 ? "(" : ", ");
+//            System.out.print(params[i].getType().getInstanceClass().getName());
+//            System.out.print(" " + params[i].getName());
+//            System.out.print(" : " + ca.getParamPresentation()[i]);
         }
 
-        System.out.println(")");
-        System.out.println("     " + cm.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode());
+//        System.out.println(")");
+//        System.out.println("     " + cm.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode());
 
         Object[][] paramValues = ca.getParamValues();
 
@@ -143,9 +143,9 @@ public class OpenLProjectInfo {
                 // Object[] paramRow = paramValues[i];
                 DecisionTableParameterInfo pi = ca.getParameterInfo(i);
 
-                System.out.print("   " + pi.getValue(j));
+//                System.out.print("   " + pi.getValue(j));
             }
-            System.out.println();
+//            System.out.println();
         }
 
         return true;
