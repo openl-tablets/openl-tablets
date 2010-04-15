@@ -1,11 +1,14 @@
 package org.openl.rules.validation;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -13,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 
 import org.openl.domain.DateRangeDomain;
+import org.openl.domain.EnumDomain;
 import org.openl.domain.StringDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
@@ -39,16 +43,20 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     private static Log LOG = LogFactory.getLog(DimensionPropertiesValidator.class);
     
-    private Map<String, IDomainAdaptor> propDomains = new HashMap<String,IDomainAdaptor>();
-    private static List<String> propsNeedDomain = new ArrayList<String>();
+    private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<String,IDomainAdaptor>();
+    private static List<String> propertiesNeedDomain = new ArrayList<String>();
     
     static {
         String[] dimensionProperties = TablePropertyDefinitionUtils.getDimensionalTableProperties();
         
         for (String dimensionProp : dimensionProperties) {
             Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(dimensionProp);
-            if (Date.class.equals(propType) || String.class.equals(propType)) {
-                propsNeedDomain.add(dimensionProp);                
+            boolean dateType = Date.class.equals(propType);
+            boolean stringType = String.class.equals(propType);
+            boolean enumtype = propType.isEnum();
+            boolean arrayEnumType = propType.isArray() && propType.getComponentType().isEnum();
+            if (dateType || stringType || enumtype || arrayEnumType) {
+                propertiesNeedDomain.add(dimensionProp);                
             }
         }        
     }
@@ -62,7 +70,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
                 
                 DesionTableValidationResult dtValidResult = null;
                 try {
-                    dtValidResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), propDomains, openClass);     
+                    dtValidResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), propertiesDomains, openClass);     
                 } catch (Exception t) {
                     throw new OpenLRuntimeException(VALIDATION_FAILED, t);
                 }
@@ -84,17 +92,84 @@ public class DimensionPropertiesValidator extends TablesValidator {
     }    
     
     private void gatherPropDomains(TableSyntaxNode[] tableSyntaxNodes) {
-        propDomains.clear();
+        propertiesDomains.clear();
         DateRangeDomain dateDomain = gatherDateDomain(tableSyntaxNodes);
         applyDateDomain(dateDomain);
         gatherStringDomains(tableSyntaxNodes);
+        gatherEnumDomains(tableSyntaxNodes);
+        gatherArrayEnumDomains(tableSyntaxNodes);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void gatherArrayEnumDomains(TableSyntaxNode[] tableSyntaxNodes) {
+        for (String propNeedDomain : propertiesNeedDomain) {
+            Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            if (propertyType.isArray() && propertyType.getComponentType().isEnum()) {
+                Class<?> componentType = propertyType.getComponentType();
+                Set<Object> arrayEnumProperties = new HashSet<Object>();
+                for (TableSyntaxNode tsn : tableSyntaxNodes) {
+                    ITableProperties tableProperties = tsn.getTableProperties();
+                    if (tableProperties != null) {
+                        Object[] propValues = (Object[])tableProperties.getPropertyValue(propNeedDomain);
+                        if (propValues != null) {
+                            for (Object propValue : propValues) {
+                                if (propValue != null)
+                                    arrayEnumProperties.add(propValue);
+                            }
+                        }                        
+                    }
+                }    
+                if (!arrayEnumProperties.isEmpty()) {
+                    Object[] resultArray = (Object[])Array.newInstance(componentType, arrayEnumProperties.size());
+                    
+                    EnumDomain enumDomain = new EnumDomain(arrayEnumProperties.toArray(resultArray));
+                    EnumDomainAdaptor enumDomainAdaptor = new EnumDomainAdaptor(enumDomain);
+                    propertiesDomains.put(propNeedDomain, enumDomainAdaptor);
+                    for (int i=1; i<= arrayEnumProperties.size(); i++) {
+                        propertiesDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX + i, enumDomainAdaptor);
+                    }
+                } else {
+                    // all values from enum will be used as domain. 
+                }                
+                
+            }
+        }
+        
+    }
+
+    @SuppressWarnings("unchecked")
+    private void gatherEnumDomains(TableSyntaxNode[] tableSyntaxNodes) {
+        for (String propNeedDomain : propertiesNeedDomain) {
+            Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            if (propertyType.isEnum()) {
+                Set<Object> enumProp = new HashSet<Object>();
+                for (TableSyntaxNode tsn : tableSyntaxNodes) {
+                    ITableProperties tableProperties = tsn.getTableProperties();
+                    if (tableProperties != null) {
+                        Object propvalue = tableProperties.getPropertyValue(propNeedDomain);
+                        if (propvalue != null)
+                            enumProp.add(propvalue);
+                    }
+                }       
+                if (!enumProp.isEmpty()) {
+                    Object[] resultArray = (Object[])Array.newInstance(propertyType, enumProp.size());
+                    
+                    EnumDomain enumDomain = new EnumDomain(enumProp.toArray(resultArray));
+                    EnumDomainAdaptor enumDomainAdaptor = new EnumDomainAdaptor(enumDomain);
+                    propertiesDomains.put(propNeedDomain, enumDomainAdaptor);
+                    propertiesDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, enumDomainAdaptor);
+                } else {
+                    // all values from enum will be used as domain. 
+                }                
+            }
+        }        
     }
 
     private void gatherStringDomains(TableSyntaxNode[] tableSyntaxNodes) {
-        for (String propNeedDomain : propsNeedDomain) {
-            Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
-            if (String.class.equals(propType)) {
-                List<String> stringProp = new ArrayList<String>();
+        for (String propNeedDomain : propertiesNeedDomain) {
+            Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            if (String.class.equals(propertyType)) {
+                Set<String> stringProp = new HashSet<String>();
                 for (TableSyntaxNode tsn : tableSyntaxNodes) {
                     ITableProperties tableProperties = tsn.getTableProperties();
                     if (tableProperties != null) {
@@ -109,15 +184,15 @@ public class DimensionPropertiesValidator extends TablesValidator {
                 }
                 StringDomain strDomain = new StringDomain(stringProp.toArray(new String[stringProp.size()]));
                 EnumDomainAdaptor strDomainAdaptor = new EnumDomainAdaptor(strDomain);
-                propDomains.put(propNeedDomain, strDomainAdaptor);
-                propDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, strDomainAdaptor);
+                propertiesDomains.put(propNeedDomain, strDomainAdaptor);
+                propertiesDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, strDomainAdaptor);
             }
         }
     }
 
     private DateRangeDomain gatherDateDomain(TableSyntaxNode[] tableSyntaxNodes) {
         List<Date> dateProps = new ArrayList<Date>();
-        for (String propNeedDomain : propsNeedDomain) {
+        for (String propNeedDomain : propertiesNeedDomain) {
             Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
             if (Date.class.equals(propType)) {
                 for (TableSyntaxNode tsn : tableSyntaxNodes) {
@@ -143,12 +218,12 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     private void applyDateDomain(DateRangeDomain domain) {
         DateRangeDomainAdaptor dateDomainAdaptor = new DateRangeDomainAdaptor(domain);
-        for (String propNeedDomain : propsNeedDomain) {
+        for (String propNeedDomain : propertiesNeedDomain) {
             Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
             if (Date.class.equals(propType)) {
-                propDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, dateDomainAdaptor);
-                if (!propDomains.containsKey(DecisionTableCreator.CURRENT_DATE_PARAM)) {
-                    propDomains.put(DecisionTableCreator.CURRENT_DATE_PARAM, dateDomainAdaptor);
+                propertiesDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, dateDomainAdaptor);
+                if (!propertiesDomains.containsKey(DecisionTableCreator.CURRENT_DATE_PARAM)) {
+                    propertiesDomains.put(DecisionTableCreator.CURRENT_DATE_PARAM, dateDomainAdaptor);
                 }
             }
         }
