@@ -84,6 +84,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     }    
     
     private void gatherPropDomains(TableSyntaxNode[] tableSyntaxNodes) {
+        propDomains.clear();
         DateRangeDomain dateDomain = gatherDateDomain(tableSyntaxNodes);
         applyDateDomain(dateDomain);
         gatherStringDomains(tableSyntaxNodes);
