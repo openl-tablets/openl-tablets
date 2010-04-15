@@ -3,7 +3,6 @@ package org.openl.rules.property;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.BindHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
@@ -20,6 +19,8 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
@@ -37,7 +38,8 @@ public class PropertyTableBinder extends DataNodeBinder {
     private static final String SCOPE_PROPERTY_NAME = "scope";
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module) throws Exception {
+    public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
+        throws Exception {
 
         assert cxt instanceof RulesModuleBindingContext;
 
@@ -109,7 +111,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     private void analysePropertiesNode(TableSyntaxNode tableSyntaxNode,
             TableProperties propertiesInstance,
             RulesModuleBindingContext bindingContext,
-            PropertyTableBoundNode propertyNode) throws DuplicatedPropertiesTableException {
+            PropertyTableBoundNode propertyNode) throws SyntaxNodeException {
 
         String scope = propertiesInstance.getScope();
 
@@ -119,25 +121,24 @@ public class PropertyTableBinder extends DataNodeBinder {
             } else if (isCategoryProperties(scope)) {
                 processCategoryProperties(tableSyntaxNode, propertiesInstance, bindingContext, propertyNode);
             } else {
-                String message = String.format("Value of the property [%s] is neither [%s] or [%s]",
+                String message = String.format("Value of the property '%s' is neither '%s' or '%s'",
                     SCOPE_PROPERTY_NAME,
                     InheritanceLevel.MODULE.getDisplayName(),
                     InheritanceLevel.CATEGORY.getDisplayName());
 
-                BindHelper.processError(message, tableSyntaxNode, bindingContext);
+                throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
             }
         } else {
-            String message = String.format("There is no property with name [%s] defined in Properties component. It is obligatory.",
-                SCOPE_PROPERTY_NAME);
+            String message = String.format("There is no obligatory property '%s'", SCOPE_PROPERTY_NAME);
 
-            BindHelper.processError(message, tableSyntaxNode, bindingContext);
+            throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
         }
     }
 
     private void processCategoryProperties(TableSyntaxNode tableSyntaxNode,
             TableProperties propertiesInstance,
             RulesModuleBindingContext bindingContext,
-            PropertyTableBoundNode propertyNode) throws DuplicatedPropertiesTableException {
+            PropertyTableBoundNode propertyNode) throws SyntaxNodeException {
 
         String category = getCategoryToApplyProperties(tableSyntaxNode, propertiesInstance);
         String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
@@ -148,7 +149,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         if (!bindingContext.isTableSyntaxNodeExist(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
-            String message = String.format("Properties for category %s already exists", category);
+            String message = String.format("Properties for category '%s' already exists", category);
 
             throw new DuplicatedPropertiesTableException(message, null, tableSyntaxNode);
         }
@@ -157,16 +158,16 @@ public class PropertyTableBinder extends DataNodeBinder {
     private void checkPropertiesLevel(InheritanceLevel currentLevel,
             TableProperties propertiesInstance,
             TableSyntaxNode tableSyntaxNode,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         for (String propertyNameToCheck : propertiesInstance.getAllProperties().keySet()) {
 
             if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
-                String message = String.format("Property with name [%s] can`t be defined on the [%s] level.",
+                String message = String.format("Property '%s' can`t be defined on the '%s' level",
                     propertyNameToCheck,
                     currentLevel.getDisplayName());
 
-                BindHelper.processError(message, tableSyntaxNode, bindingContext);
+                throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
             }
         }
     }
@@ -174,7 +175,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     private void processModuleProperties(TableSyntaxNode tableSyntaxNode,
             TableProperties propertiesInstance,
             RulesModuleBindingContext bindingContext,
-            PropertyTableBoundNode propertyNode) throws DuplicatedPropertiesTableException {
+            PropertyTableBoundNode propertyNode) throws SyntaxNodeException {
 
         String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY;
 
@@ -185,9 +186,10 @@ public class PropertyTableBinder extends DataNodeBinder {
         if (!bindingContext.isTableSyntaxNodeExist(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
-            XlsWorkbookSourceCodeModule module = ((XlsSheetSourceCodeModule) tableSyntaxNode.getModule()).getWorkbookSource();
+            XlsWorkbookSourceCodeModule module = ((XlsSheetSourceCodeModule) tableSyntaxNode.getModule())
+                .getWorkbookSource();
             String moduleName = module.getDisplayName();
-            String message = String.format("Properties for module %s already exists", moduleName);
+            String message = String.format("Properties for module '%s' already exists", moduleName);
 
             throw new DuplicatedPropertiesTableException(message, null, tableSyntaxNode);
         }
