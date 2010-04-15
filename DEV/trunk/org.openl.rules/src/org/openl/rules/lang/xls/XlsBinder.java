@@ -209,10 +209,9 @@ public class XlsBinder implements IOpenBinder {
                 module,
                 notProp_And_NotDatatypeSelectors,
                 new TableSyntaxNodeComparator());
-        
-        // temporary is commited till the functionality will be ready        
-        //DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass)topNode.getType(), moduleContext);
-        //dispTableBuilder.buildTable();
+                
+        DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass)topNode.getType(), moduleContext);
+        dispTableBuilder.buildTable();
         
         return topNode;
     }

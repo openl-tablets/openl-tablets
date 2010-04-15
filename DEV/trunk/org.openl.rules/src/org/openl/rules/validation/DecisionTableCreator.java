@@ -153,6 +153,7 @@ public class DecisionTableCreator {
         writeSimpleConditionName(sheet, colNum);
         writeSimpleConditionExpression(sheet, colNum);
         writeSimpleConditionInitialization(sheet, colNum);
+        writeSimpleConditionDisplayName(sheet, colNum);
         writeSimpleRuleValue(sheet, colNum);
     }
     
@@ -189,6 +190,11 @@ public class DecisionTableCreator {
         cell.setCellValue(getSimpleConditionInitialization(colNum));        
     }
     
+    private void writeSimpleConditionDisplayName(Sheet sheet, int colNum) {
+        Cell cell = sheet.getRow(4).createCell(colNum);
+        cell.setCellValue(getSimpleConditionDisplayName(colNum));
+    }
+    
     /**
      * Fills rule values for all rules in this condition. Starts writing from the fourth row.
      * 
@@ -197,7 +203,7 @@ public class DecisionTableCreator {
      */
     private void writeSimpleRuleValue(Sheet sheet, int colNum) {
         for (int i = 0; i< tablesGroup.size(); i++) {
-            Cell cell = sheet.getRow(i+4).createCell(colNum);
+            Cell cell = sheet.getRow(i+5).createCell(colNum);
             cell.setCellValue(getSimpleConditionRuleValue(tablesGroup.get(i), colNum));
         }        
     }    
@@ -213,6 +219,7 @@ public class DecisionTableCreator {
         writeCountriesConditionName(sheet, colNum);
         writeCountriesConditionExpression(sheet, colNum);
         writeCountriesConditionInitialization(sheet, colNum);
+        writeCountriesConditionDisplayName(sheet, colNum);
         writeCountriesRuleValue(sheet, colNum);
         
         return colNum + CountriesEnum.values().length;
@@ -240,15 +247,24 @@ public class DecisionTableCreator {
             Cell cell = sheet.getRow(3).createCell(colNum);
             cell.setCellValue(String.format("%s %s", CountriesEnum.class.getSimpleName(), dimPropName + LOCAL_PARAM_SUFFIX + (i+1)));
             colNum++;
+        }        
+    }
+    
+    private void writeCountriesConditionDisplayName(Sheet sheet, int colNum) {
+        String dimPropName = arrayDimProp.get(colNum - simpleConditionsWidth);        
+        TablePropertyDefinition propDef = TablePropertyDefinitionUtils.getPropertyByName(dimPropName);        
+        for (int i = 0;i < CountriesEnum.values().length; i++) {
+            Cell cell = sheet.getRow(4).createCell(colNum);
+            cell.setCellValue(propDef.getDisplayName() + (i+1));
+            colNum++;
         }
-        
     }
 
     private void writeCountriesRuleValue(Sheet sheet, int colNum) {
         int startCol = colNum;
         for (int i = 0; i< tablesGroup.size(); i++) {
             for (int j = 0;j < CountriesEnum.values().length; j++) {
-                Cell cell = sheet.getRow(i+4).createCell(colNum);
+                Cell cell = sheet.getRow(i+5).createCell(colNum);
                 cell.setCellValue(getCountriesRuleValue(tablesGroup.get(i), colNum - startCol));                
                 colNum++;
             }
@@ -295,8 +311,11 @@ public class DecisionTableCreator {
         Cell cell2 = sheet.getRow(3).createCell(colNum);
         cell2.setCellValue(String.format("%s %s", originalReturnType.getName(), RESULT_VAR));
         
+        Cell cell3 = sheet.getRow(4).createCell(colNum);
+        cell3.setCellValue(RESULT_VAR.toUpperCase());
+        
         for (int i = 0; i< tablesGroup.size(); i++) {
-            Cell cellRule = sheet.getRow(i+4).createCell(colNum);
+            Cell cellRule = sheet.getRow(i+5).createCell(colNum);
             cellRule.setCellValue(String.format("=%s(%s)", originalTableName, originalParamsThroughComma())); 
         }
     }
@@ -328,18 +347,24 @@ public class DecisionTableCreator {
         TablePropertyDefinition propDef = TablePropertyDefinitionUtils.getPropertyByName(dimPropName);
         return String.format("%s %s", propDef.getType().getInstanceClass().getSimpleName(), dimPropName + LOCAL_PARAM_SUFFIX);
     }
+    
+    private String getSimpleConditionDisplayName(int colNum) {        
+        String dimPropName = simpleDimProp.get(colNum);
+        TablePropertyDefinition propDef = TablePropertyDefinitionUtils.getPropertyByName(dimPropName);
+        return propDef.getDisplayName();
+    }
 
     private String getSimpleConditionExpression(int colNum) {
         String result = null;
         String dimPropName = simpleDimProp.get(colNum);        
         if (EFFECTIVE_DATE_PROP.equals(dimPropName)) {
-            result = String.format("%s > %s", 
+            result = String.format("%s <= %s", 
                     EFFECTIVE_DATE_PROP + LOCAL_PARAM_SUFFIX, 
                     CURRENT_DATE_PARAM);
         } else if (EXPIRATION_DATE_PROP.equals(dimPropName)) {            
-            result = String.format("%s < %s", 
-                    EXPIRATION_DATE_PROP + LOCAL_PARAM_SUFFIX, 
-                    CURRENT_DATE_PARAM);
+            result = String.format("%s <= %s", 
+                    CURRENT_DATE_PARAM,
+                    EXPIRATION_DATE_PROP + LOCAL_PARAM_SUFFIX);
         } else if (LOB_PROP.equals(dimPropName)) {
             result = String.format("%s == %s", 
                     LOB_PROP + LOCAL_PARAM_SUFFIX,

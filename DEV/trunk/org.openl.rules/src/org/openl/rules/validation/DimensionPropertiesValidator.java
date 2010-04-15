@@ -1,6 +1,5 @@
 package org.openl.rules.validation;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -9,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 
-import org.openl.binding.IBoundNode;
 import org.openl.domain.DateRangeDomain;
-import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
@@ -21,7 +20,6 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.type.DateRangeDomainAdaptor;
 import org.openl.rules.dt.type.EnumDomainAdaptor;
 import org.openl.rules.dt.type.IDomainAdaptor;
-import org.openl.rules.dt.type.IntRangeDomainAdaptor;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -36,6 +34,10 @@ import org.openl.validation.ValidationUtils;
 
 
 public class DimensionPropertiesValidator extends TablesValidator {
+    
+    private static final String VALIDATION_FAILED = "Validation failed for dispatcher table";
+
+    private static Log LOG = LogFactory.getLog(DimensionPropertiesValidator.class);
     
     private Map<String, IDomainAdaptor> propDomains = new HashMap<String,IDomainAdaptor>();
     private static List<String> propsNeedDomain = new ArrayList<String>();
@@ -60,31 +62,26 @@ public class DimensionPropertiesValidator extends TablesValidator {
                 
                 DesionTableValidationResult dtValidResult = null;
                 try {
-                    //System.out.println("Validating <" + tableName+ ">");
-                    dtValidResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), propDomains, openClass);                  
-                    
+                    dtValidResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), propDomains, openClass);     
                 } catch (Exception t) {
-                    throw new OpenLRuntimeException("Validation failed for dispatcher table", t);
+                    throw new OpenLRuntimeException(VALIDATION_FAILED, t);
                 }
                 if (dtValidResult != null && dtValidResult.hasProblems()) {
                     tsn.setValidationResult(dtValidResult);
-                    validationResult = new ValidationResult(ValidationStatus.FAIL);
+                    if (validationResult == null) {
+                        validationResult = new ValidationResult(ValidationStatus.FAIL); 
+                    } 
                     ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(
-                            new SyntaxNodeException("Gap or/and overlaps in tables group for dimensional properties",
-                                    null, null)));
-                    //System.out.println("There are problems in table!!\n");
-                } else {
-                    //System.out.println("NO PROBLEMS IN TABLE!!!!\n");
-                    validationResult = new ValidationResult(ValidationStatus.SUCCESS);
-                }
+                                new SyntaxNodeException(dtValidResult.toString(),
+                                        null, tsn)));       
+                } 
             }                        
         }
         if (validationResult != null) {
             return validationResult;
-        } else {
-            return ValidationUtils.validationSuccess();
         }
-    }
+        return ValidationUtils.validationSuccess();
+    }    
     
     private void gatherPropDomains(TableSyntaxNode[] tableSyntaxNodes) {        
         for (String propNeedDomain : propsNeedDomain) {
@@ -97,8 +94,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
                         Date propValue = (Date)tableProperties.getPropertyValue(propNeedDomain);
                         if (propValue != null) {
                             dateProps.add(propValue);
-                        }
-                        
+                        }                        
                     }
                 }                
                 Collections.sort(dateProps);
