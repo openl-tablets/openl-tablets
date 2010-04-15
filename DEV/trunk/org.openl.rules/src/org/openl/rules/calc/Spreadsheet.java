@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.result.IResultBuilder;
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
@@ -14,33 +17,31 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Spreadsheet extends AMethod implements IMemberMetaInfo {
 
-    SSheetBoundNode node;
+    private SpreadsheetBoundNode node;
 
     protected IResultBuilder resultBuilder;
 
-    SCell[][] cells;
+    private SpreadsheetCell[][] cells;
+    private String[] rowNames;
+    private String[] columnNames;
 
-    // FIXME
-    String[] rowNames;
+    private SpreadsheetOpenClass spreadsheetType;
 
-    // FIXME
-    String[] colNames;
-
-    SpreadsheetType spreadsheetType;
-    static public Spreadsheet createSpreadsheet(IOpenMethodHeader header, SSheetBoundNode node) {
-        return new Spreadsheet(header, node);
-    }
-    public Spreadsheet(IOpenMethodHeader header, SSheetBoundNode node) {
+    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header);
-        this.node = node;
+
+        this.node = boundNode;
     }
 
-    public SCell[][] getCells() {
+    public SpreadsheetBoundNode getBoundNode() {
+        return node;
+    }
+
+    public SpreadsheetCell[][] getCells() {
         return cells;
     }
 
     public BindingDependencies getDependencies() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -57,7 +58,7 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
         return ((TableSyntaxNode) node.getSyntaxNode()).getUri();
     }
 
-    public SpreadsheetType getSpreadsheetType() {
+    public SpreadsheetOpenClass getSpreadsheetType() {
         return spreadsheetType;
     }
 
@@ -65,44 +66,16 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
         return node.getSyntaxNode();
     }
 
-    public int height() {
+    public int getHeight() {
         return cells.length;
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        SpreadsheetResult res = new SpreadsheetResult(this, (IDynamicObject) target, params, env);
-
-        return resultBuilder.makeResult(res);
-    }
-
-    public List<SCell> listNonEmptyCells(SpreadsheetHeaderDefinition hdef) {
-        List<SCell> list = new ArrayList<SCell>();
-        int row = hdef.row;
-        int col = hdef.column;
-
-        if (row >= 0) {
-            for (int i = 0; i < width(); ++i) {
-                if (!cells[row][i].isEmpty()) {
-                    list.add(cells[row][i]);
-                }
-            }
-        } else {
-            for (int i = 0; i < height(); ++i) {
-                if (!cells[i][col].isEmpty()) {
-                    list.add(cells[i][col]);
-                }
-            }
-        }
-
-        return list;
-    }
-
-    public void setCells(SCell[][] cells) {
+    public void setCells(SpreadsheetCell[][] cells) {
         this.cells = cells;
     }
 
     public void setColumnNames(String[] colNames) {
-        this.colNames = colNames;
+        this.columnNames = colNames;
     }
 
     public void setResultBuilder(IResultBuilder resultBuilder) {
@@ -113,12 +86,50 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
         this.rowNames = rowNames;
     }
 
-    public void setSpreadsheetType(SpreadsheetType spreadsheetType) {
+    public void setSpreadsheetType(SpreadsheetOpenClass spreadsheetType) {
         this.spreadsheetType = spreadsheetType;
     }
 
-    public int width() {
+    public int getWidth() {
         return cells[0].length;
+    }
+    
+    public String[] getRowNames() {
+        return rowNames;
+    }
+
+    public String[] getColumnNames() {
+        return columnNames;
+    }
+
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        SpreadsheetResult res = new SpreadsheetResult(this, (IDynamicObject) target, params, env);
+
+        return resultBuilder.makeResult(res);
+    }
+
+    public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
+        
+        List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
+        
+        int row = definition.getRow();
+        int col = definition.getColumn();
+
+        if (row >= 0) {
+            for (int i = 0; i < getWidth(); ++i) {
+                if (!cells[row][i].isEmpty()) {
+                    list.add(cells[row][i]);
+                }
+            }
+        } else {
+            for (int i = 0; i < getHeight(); ++i) {
+                if (!cells[i][col].isEmpty()) {
+                    list.add(cells[i][col]);
+                }
+            }
+        }
+
+        return list;
     }
 
 }

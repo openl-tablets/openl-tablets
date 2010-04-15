@@ -9,12 +9,21 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
+import org.openl.rules.calc.element.CellLoader;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetCellMetaInfo;
+import org.openl.rules.calc.result.ArrayResultBuilder;
+import org.openl.rules.calc.result.DefaultResultBuilder;
+import org.openl.rules.calc.result.ScalarResultBuilder;
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -36,546 +45,576 @@ import org.openl.types.java.JavaOpenClass;
 
 public class SpreadsheetBuilder {
 
-    static class SymbolicTypeDef {
-        IdentifierNode name;
-        IdentifierNode type;
-
-        SymbolicTypeDef(IdentifierNode name, IdentifierNode type) {
-            super();
-            this.name = name;
-            this.type = type;
-        }
-    }
     private static final String RETURN_NAME = "RETURN";
-    private static final IResultBuilder DEFAULT_RESULT_BULDER = new IResultBuilder() {
 
-        public Object makeResult(SpreadsheetResult res) {
-            int h = res.getSpreadsheet().height();
-            int w = res.getSpreadsheet().width();
-            for (int row = 0; row < h; row++) {
-                for (int col = 0; col < w; col++) {
-                    res.getValue(row, col);
-                }
-            }
-            return res;
-        }
-    };
-    static final IOpenClass DEFAULT_CELL_TYPE = JavaOpenClass.getOpenClass(AnyCellValue.class);
-    IBindingContext cxt;
-
-    Spreadsheet spreadsheet;
-    TableSyntaxNode tsn;
-
-    Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
-    Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
-
-    Map<String, SpreadsheetHeaderDefinition> varDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>();
-
+    private Spreadsheet spreadsheet;
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
 
-    List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
+    private IBindingContext bindingContext;
 
-    ILogicalTable rowNamesTable;
+    private TableSyntaxNode tableSyntaxNode;
 
-    ILogicalTable columnNamesTable;
+    private ILogicalTable rowNamesTable;
+    private ILogicalTable columnNamesTable;
 
-    Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
+    private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
+    private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
+    private Map<String, SpreadsheetHeaderDefinition> varDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>();
 
-    Map<Integer, IBindingContextDelegator> colContexts = new HashMap<Integer, IBindingContextDelegator>();
+    private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
+    private Map<Integer, IBindingContextDelegator> colContexts = new HashMap<Integer, IBindingContextDelegator>();
 
-    List<SCell> formulaCells = new ArrayList<SCell>();
+    private List<SpreadsheetCell> formulaCells = new ArrayList<SpreadsheetCell>();
 
-    public SpreadsheetBuilder(IBindingContext cxt, Spreadsheet spreadsheet, TableSyntaxNode tsn) {
-        this.cxt = cxt;
+    public SpreadsheetBuilder(IBindingContext bindingContext, Spreadsheet spreadsheet, TableSyntaxNode tableSyntaxNode) {
+        this.bindingContext = bindingContext;
         this.spreadsheet = spreadsheet;
-        this.tsn = tsn;
-    }
-
-    public void addColumnHeader(int col, StringValue sv, int cxtLevel) {
-        SpreadsheetHeaderDefinition h = columnHeaders.get(col);
-        if (h == null) {
-            h = new SpreadsheetHeaderDefinition(-1, col);
-            columnHeaders.put(col, h);
-        }
-        parseHeader(h, sv);
-
-    }
-
-    private void addColumnNames(int col, ILogicalTable logicalCol) {
-        for (int i = 0; i < logicalCol.getLogicalHeight(); i++) {
-            IGridTable nameCell = logicalCol.getLogicalRow(i).getGridTable();
-            String value = nameCell.getCell(0, 0).getStringValue();
-            if (value != null) {
-                String shortName = "scol" + col + "_" + i;
-                StringValue sv = new StringValue(value, shortName, null, nameCell.getUri());
-                addColumnHeader(col, sv, i);
-            }
-            // FIXME
-            spreadsheet.colNames[col] = value;
-        }
-    }
-
-    public void addRowHeader(int row, StringValue sv, int cxtLevel) {
-        SpreadsheetHeaderDefinition h = rowHeaders.get(row);
-        if (h == null) {
-            h = new SpreadsheetHeaderDefinition(row, -1);
-            rowHeaders.put(row, h);
-        }
-
-        parseHeader(h, sv);
-    }
-
-    private void addRowNames(int row, ILogicalTable logicalRow) {
-        for (int i = 0; i < logicalRow.getLogicalWidth(); i++) {
-            IGridTable nameCell = logicalRow.getLogicalColumn(i).getGridTable();
-            String value = nameCell.getCell(0, 0).getStringValue();
-            if (value != null) {
-                String shortName = "srow" + row + "_" + i;
-                StringValue sv = new StringValue(value, shortName, null, nameCell.getUri());
-                addRowHeader(row, sv, i);
-            }
-            // FIXME
-            spreadsheet.rowNames[row] = value;
-        }
+        this.tableSyntaxNode = tableSyntaxNode;
     }
 
     public void build(ILogicalTable tableBody) {
 
         buildColumnRowNames(tableBody);
-
-        buildColRowHeaderTypes();
+        buildHeaderTypes();
 
         try {
             processReturnCells();
+            buildCells();
+            buildReturn();
         } catch (SyntaxNodeException e) {
-            errors.add(e);
+            tableSyntaxNode.addError(e);
+            BindHelper.processError(e, bindingContext);
+        }
+    }
+
+    private void addColumnHeader(int column, StringValue value) {
+
+        SpreadsheetHeaderDefinition header = columnHeaders.get(column);
+
+        if (header == null) {
+            header = new SpreadsheetHeaderDefinition(-1, column);
+            columnHeaders.put(column, header);
         }
 
-        buildCells();
+        parseHeader(header, value);
+    }
 
-        if (errors.size() == 0) {
-            checkError(buildReturn());
+    private void addRowHeader(int row, StringValue value) {
+
+        SpreadsheetHeaderDefinition header = rowHeaders.get(row);
+
+        if (header == null) {
+            header = new SpreadsheetHeaderDefinition(row, -1);
+            rowHeaders.put(row, header);
         }
 
-        for (SyntaxNodeException e : errors) {
+        parseHeader(header, value);
+    }
 
-            tsn.addError(e);
-            cxt.addError(e);
+    private void addColumnNames(int column, ILogicalTable logicalColumn) {
+
+        for (int i = 0; i < logicalColumn.getLogicalHeight(); i++) {
+
+            IGridTable nameCell = logicalColumn.getLogicalRow(i).getGridTable();
+            String value = nameCell.getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                String shortName = "scol" + column + "_" + i;
+                StringValue stringValue = new StringValue(value, shortName, null, nameCell.getUri());
+
+                addColumnHeader(column, stringValue);
+            }
+
+            spreadsheet.getColumnNames()[column] = value;
+        }
+    }
+
+    private void addRowNames(int row, ILogicalTable logicalRow) {
+
+        for (int i = 0; i < logicalRow.getLogicalWidth(); i++) {
+
+            IGridTable nameCell = logicalRow.getLogicalColumn(i).getGridTable();
+            String value = nameCell.getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                String shortName = "srow" + row + "_" + i;
+                StringValue sv = new StringValue(value, shortName, null, nameCell.getUri());
+
+                addRowHeader(row, sv);
+            }
+
+            spreadsheet.getRowNames()[row] = value;
         }
     }
 
     private void buildCells() {
-        // ILogicalTable cellTable = LogicalTable.mergeBounds(rowNamesTable,
-        // columnNamesTable);
 
-        int h = rowNamesTable.getLogicalHeight();
-        int w = columnNamesTable.getLogicalWidth();
+        int rowsCount = rowNamesTable.getLogicalHeight();
+        int columnsCount = columnNamesTable.getLogicalWidth();
 
-        SpreadsheetType stype = spreadsheet.getSpreadsheetType();
-        ModuleBindingContext scxt = new ModuleBindingContext(cxt, stype);
+        SpreadsheetOpenClass spreadsheetOpenClass = spreadsheet.getSpreadsheetType();
+        ModuleBindingContext bindingContext = new ModuleBindingContext(this.bindingContext, spreadsheetOpenClass);
 
-        SCell[][] cells = new SCell[h][w];
-
+        SpreadsheetCell[][] cells = new SpreadsheetCell[rowsCount][columnsCount];
         spreadsheet.setCells(cells);
 
-        for (int row = 0; row < h; row++) {
+        for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
+            for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
 
-            for (int col = 0; col < w; col++) {
-                SCell scell = new SCell(row, col);
-                cells[row][col] = scell;
-                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable
-                        .getLogicalColumn(col));
-                IOpenSourceCodeModule src = new GridCellSourceCodeModule(cell.getGridTable());
-                String srcStr = src.getCode();
-                IOpenClass type = deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row), srcStr);
+                SpreadsheetCell spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex);
+                cells[rowIndex][columnIndex] = spreadsheetCell;
 
-                scell.setType(type);
+                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
+                    columnNamesTable.getLogicalColumn(columnIndex));
 
-                if (columnHeaders.get(col) == null || rowHeaders.get(row) == null) {
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable());
+                String code = source.getCode();
+                IOpenClass type = deriveCellType(spreadsheetCell,
+                    cell,
+                    columnHeaders.get(columnIndex),
+                    rowHeaders.get(rowIndex),
+                    code);
+
+                spreadsheetCell.setType(type);
+
+                if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
                     continue;
                 }
 
-                for (SymbolicTypeDef coldef : columnHeaders.get(col).getVars()) {
+                for (SymbolicTypeDefinition columnDefinition : columnHeaders.get(columnIndex).getVars()) {
+                    for (SymbolicTypeDefinition rowDefinition : rowHeaders.get(rowIndex).getVars()) {
 
-                    for (SymbolicTypeDef rowdef : rowHeaders.get(row).getVars())
+                        String columnName = columnDefinition.getName().getIdentifier();
+                        String rowName = rowDefinition.getName().getIdentifier();
+                        String fieldname = "$" + columnName + "$" + rowName;
+                        SpreadsheetCellField field = new SpreadsheetCellField(spreadsheetOpenClass,
+                            fieldname,
+                            spreadsheetCell);
 
-                    {
-                        String fieldname = "$" + coldef.name.getIdentifier() + "$" + rowdef.name.getIdentifier();
-                        stype.addField(new SCellField(stype, fieldname, scell));
-                        // System.out.println("$"+coldef.name.getIdentifier() +
-                        // "$"+rowdef.name.getIdentifier());
+                        spreadsheetOpenClass.addField(field);
                     }
                 }
             }
         }
 
-        for (int row = 0; row < h; row++) {
-            IBindingContext rowCxt = getRowContext(row, scxt);
+        for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
 
-            for (int col = 0; col < w; col++) {
-                if (columnHeaders.get(col) == null || rowHeaders.get(row) == null) {
+            IBindingContext rowBindingContext = getRowContext(rowIndex, bindingContext);
+
+            for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
+
+                if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
                     continue;
                 }
 
-                IBindingContext colCxt = getColContext(col, rowCxt);
+                IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext);
 
-                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable
-                        .getLogicalColumn(col));
+                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
+                    columnNamesTable.getLogicalColumn(columnIndex));
 
-                SCell scell = cells[row][col];
-                IOpenSourceCodeModule src = new GridCellSourceCodeModule(cell.getGridTable());
-                String srcStr = src.getCode();
+                SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable());
+                String code = source.getCode();
 
-                if (CellLoader.isFormula(srcStr)) {
-                    formulaCells.add(scell);
+                if (CellLoader.isFormula(code)) {
+                    formulaCells.add(spreadsheetCell);
                 }
 
-                String name = "$" + columnHeaders.get(col).getFirstname() + '$' + rowHeaders.get(row).getFirstname();
+                String name = "$" + columnHeaders.get(columnIndex).getFirstname() + '$' + rowHeaders.get(rowIndex)
+                    .getFirstname();
 
-                IMetaInfo meta = new SpreadsheetCellMetaInfo(name, src);
-                CellLoader loader = new CellLoader(colCxt, makeHeader(meta.getDisplayName(INamedThing.SHORT),
-                        spreadsheet.getHeader(), scell.getType()), makeConvertor(scell.getType()));
+                IMetaInfo meta = new SpreadsheetCellMetaInfo(name, source);
+
+                IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT),
+                    spreadsheet.getHeader(),
+                    spreadsheetCell.getType());
+                IString2DataConvertor convertor = makeConvertor(spreadsheetCell.getType());
+
+                CellLoader loader = new CellLoader(columnBindingContext, header, convertor);
 
                 try {
-                    Object cellvalue = loader.loadSingleParam(src, meta);
-                    scell.setValue(cellvalue);
+                    Object cellValue = loader.loadSingleParam(source, meta);
+                    spreadsheetCell.setValue(cellValue);
                 } catch (SyntaxNodeException e) {
-                    tsn.addError(e);
-                    cxt.addError(e);
+
+                    tableSyntaxNode.addError(e);
+                    BindHelper.processError(e, bindingContext);
                 }
-
             }
-
         }
     }
 
-    private void buildColRowHeaderTypes() {
+    private void buildHeaderTypes() {
 
-        SpreadsheetType stype = new SpreadsheetType(null, spreadsheet.getName() + "Type", cxt.getOpenL());
+        SpreadsheetOpenClass spreadsheetType = new SpreadsheetOpenClass(null,
+            spreadsheet.getName() + "Type",
+            bindingContext.getOpenL());
 
-        spreadsheet.setSpreadsheetType(stype);
+        spreadsheet.setSpreadsheetType(spreadsheetType);
 
-        for (SpreadsheetHeaderDefinition h : varDefinitions.values()) {
-            IOpenClass htype = null;
-            for (SymbolicTypeDef sx : h.vars) {
+        for (SpreadsheetHeaderDefinition headerDefinition : varDefinitions.values()) {
 
-                if (sx.type != null) {
-                    SyntaxNodeException b = null;
-                    IOpenClass type = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, sx.type.getIdentifier());
+            IOpenClass headerType = null;
+
+            for (SymbolicTypeDefinition symbolicTypeDefinition : headerDefinition.getVars()) {
+
+                if (symbolicTypeDefinition.getType() != null) {
+
+                    SyntaxNodeException error = null;
+                    IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                        symbolicTypeDefinition.getType().getIdentifier());
+
                     if (type == null) {
-                        b = SyntaxNodeExceptionUtils.createError("Type not found: " + sx.type.getIdentifier(), sx.type);
-                    } else if (htype == null) {
-                        htype = type;
-                    } else if (htype != type) {
-                        b = SyntaxNodeExceptionUtils.createError("Type redefinition", sx.type);
+                        String message = "Type not found: " + symbolicTypeDefinition.getType().getIdentifier();
+                        error = SyntaxNodeExceptionUtils.createError(message, symbolicTypeDefinition.getType());
+                    } else if (headerType == null) {
+                        headerType = type;
+                    } else if (headerType != type) {
+                        error = SyntaxNodeExceptionUtils.createError("Type redefinition",
+                            symbolicTypeDefinition.getType());
                     }
-                    if (b != null) {
-                        tsn.addError(b);
-                        cxt.addError(b);
+
+                    if (error != null) {
+                        tableSyntaxNode.addError(error);
+                        BindHelper.processError(error, bindingContext);
                     }
 
                 }
             }
-            if (htype != null) {
-                h.setType(htype);
+
+            if (headerType != null) {
+                headerDefinition.setType(headerType);
             }
-
-            // for(SymbolicTypeDef sx: h.vars)
-            // {
-            // stype.addField(new SpreadsheetHeaderField(stype, sx.name, h));
-            // }
-
         }
-
     }
+
     protected void buildColumnRowNames(ILogicalTable tableBody) {
+
         rowNamesTable = tableBody.getLogicalColumn(0).rows(1);
         columnNamesTable = tableBody.getLogicalRow(0).columns(1);
 
-        int h = rowNamesTable.getLogicalHeight();
-        int w = columnNamesTable.getLogicalWidth();
+        int height = rowNamesTable.getLogicalHeight();
+        int width = columnNamesTable.getLogicalWidth();
 
-        spreadsheet.setRowNames(new String[h]);
-        spreadsheet.setColumnNames(new String[w]);
+        spreadsheet.setRowNames(new String[height]);
+        spreadsheet.setColumnNames(new String[width]);
 
-        for (int row = 0; row < h; row++) {
+        for (int row = 0; row < height; row++) {
             addRowNames(row, rowNamesTable.getLogicalRow(row));
         }
 
-        for (int col = 0; col < w; col++) {
+        for (int col = 0; col < width; col++) {
             addColumnNames(col, columnNamesTable.getLogicalColumn(col));
         }
-
     }
 
-    private SyntaxNodeException buildReturn() {
-        SymbolicTypeDef sdef = null;
+    private void buildReturn() throws SyntaxNodeException {
+
+        SymbolicTypeDefinition symbolicTypeDefinition = null;
+
         if (returnHeaderDefinition != null) {
-            sdef = returnHeaderDefinition.findVarDef(RETURN_NAME);
+            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(RETURN_NAME);
         }
 
         if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
             if (returnHeaderDefinition != null) {
-                return  SyntaxNodeExceptionUtils.createError("If Spreadsheet return type is SpreadsheetResult, no return type is allowed", 
-                    sdef.name);
+                throw SyntaxNodeExceptionUtils.createError("If Spreadsheet return type is SpreadsheetResult, no return type is allowed",
+                    symbolicTypeDefinition.getName());
             }
 
-            spreadsheet.setResultBuilder(DEFAULT_RESULT_BULDER);
+            spreadsheet.setResultBuilder(new DefaultResultBuilder());
 
         } else if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
-            return SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tsn);
-        } else // real return type
-        {
+            throw SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tableSyntaxNode);
+        } else {
+
+            // real return type
+            //
             if (returnHeaderDefinition == null) {
-                return SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type", tsn);
+                throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
+                    tableSyntaxNode);
             }
 
-            List<SCell> notEmpty = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
+            List<SpreadsheetCell> notEmpty = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
 
             switch (notEmpty.size()) {
                 case 0:
-                    return SyntaxNodeExceptionUtils.createError("There is no return expression cell", sdef.name);
+                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
+                        symbolicTypeDefinition.getName());
                 case 1:
                     spreadsheet.setResultBuilder(new ScalarResultBuilder(notEmpty));
                     break;
                 default:
                     spreadsheet.setResultBuilder(new ArrayResultBuilder(notEmpty, returnHeaderDefinition.getType()));
-
             }
-
         }
-
-        return null;
-
     }
 
-    private int calculateNonEmptyCells(SpreadsheetHeaderDefinition sdef) {
+    private int calculateNonEmptyCells(SpreadsheetHeaderDefinition headerDefinition) {
 
-        int fromRow = 0, toRow = rowNamesTable.getLogicalHeight();
-        int fromCol = 0, toCol = columnNamesTable.getLogicalWidth();
+        int fromRow = 0;
+        int toRow = rowNamesTable.getLogicalHeight();
 
-        if (sdef.isRow()) {
-            fromRow = sdef.row;
+        int fromColumn = 0;
+        int toColumn = columnNamesTable.getLogicalWidth();
+
+        if (headerDefinition.isRow()) {
+            fromRow = headerDefinition.getRow();
             toRow = fromRow + 1;
         } else {
-            fromCol = sdef.column;
-            toCol = fromCol + 1;
+            fromColumn = headerDefinition.getColumn();
+            toColumn = fromColumn + 1;
         }
-        int cnt = 0;
-        for (int col = fromCol; col < toCol; ++col) {
-            for (int row = fromRow; row < toRow; ++row) {
-                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable
-                        .getLogicalColumn(col));
-                String str = cell.getGridTable().getCell(0, 0).getStringValue();
-                if (str != null && str.trim().length() > 0) {
-                    ++cnt;
+
+        int nonEmptyCellsCount = 0;
+
+        for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
+            for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
+
+                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
+                    columnNamesTable.getLogicalColumn(columnIndex));
+
+                String value = cell.getGridTable().getCell(0, 0).getStringValue();
+
+                if (value != null && value.trim().length() > 0) {
+                    nonEmptyCellsCount += 1;
                 }
             }
         }
 
-        return cnt;
+        return nonEmptyCellsCount;
     }
 
-    void checkError(SyntaxNodeException err) {
-        if (err != null) {
-            errors.add(err);
-        }
-    }
+    private IOpenClass deriveCellType(SpreadsheetCell spreadsheetCell,
+            ILogicalTable cell,
+            SpreadsheetHeaderDefinition columnHeader,
+            SpreadsheetHeaderDefinition rowHeader,
+            String cellValue) {
 
-    private IOpenClass deriveCellType(SCell scell, ILogicalTable cell, SpreadsheetHeaderDefinition colHeader,
-            SpreadsheetHeaderDefinition rowHeader, String cellvalue) {
-        if (colHeader != null && colHeader.getType() != null) {
-            return colHeader.getType();
+        if (columnHeader != null && columnHeader.getType() != null) {
+            return columnHeader.getType();
         } else if (rowHeader != null && rowHeader.getType() != null) {
             return rowHeader.getType();
         } else {
+
+            // Try to derive cell type as double.
+            //
             try {
-                if (CellLoader.isFormula(cellvalue)) {
+                if (CellLoader.isFormula(cellValue)) {
                     return JavaOpenClass.getOpenClass(DoubleValue.class);
                 }
-                new String2DataConvertorFactory.String2DoubleConvertor().parse(cellvalue, null, null);
+
+                // Try to parse cell value.
+                // If parse process will be finished with success then return
+                // double type else string type.
+                //
+                new String2DataConvertorFactory.String2DoubleConvertor().parse(cellValue, null, null);
+
                 return JavaOpenClass.getOpenClass(DoubleValue.class);
             } catch (Throwable t) {
                 return JavaOpenClass.getOpenClass(StringValue.class);
             }
         }
-
     }
 
     /**
-     *
-     * @param ncells
-     * @param sdef
+     * Derives single cell return type.
+     * 
+     * @param cellsCount
+     * @param headerDefinition
      * @return the type that should be in the cell that is located in RETURN row
      *         or column
-     *
-     * Right now we allow only to return types = scalars or arrays.
+     * 
+     *         Right now we allow only to return types = scalars or arrays.
      * @throws BoundError
      */
 
-    private IOpenClass deriveSingleCellReturnType(int ncells, SpreadsheetHeaderDefinition sdef) throws SyntaxNodeException {
-        IOpenClass retType = spreadsheet.getHeader().getType();
+    private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition) throws SyntaxNodeException {
 
-        if (ncells < 2) {
-            return retType;
+        IOpenClass returnType = spreadsheet.getHeader().getType();
+
+        if (cellsCount < 2) {
+            return returnType;
         }
 
-        IAggregateInfo aggr = retType.getAggregateInfo();
-        if (aggr != null && aggr.getComponentType(retType) != null) {
-            retType = aggr.getComponentType(retType);
+        IAggregateInfo aggregateInfo = returnType.getAggregateInfo();
+
+        if (aggregateInfo != null && aggregateInfo.getComponentType(returnType) != null) {
+            returnType = aggregateInfo.getComponentType(returnType);
         } else {
-            throw SyntaxNodeExceptionUtils.createError(
-                    "The return type is scalar, but there are more than one return cells",
-                    sdef.findVarDef(RETURN_NAME).name);
+            throw SyntaxNodeExceptionUtils.createError("The return type is scalar, but there are more than one return cells",
+                headerDefinition.findVarDef(RETURN_NAME).getName());
         }
-        return retType;
+
+        return returnType;
     }
 
-    private IBindingContext getColContext(int col, IBindingContext scxt) {
-        IBindingContextDelegator cxt = colContexts.get(col);
-        if (cxt == null) {
-            cxt = makeColContext(col, scxt);
-            colContexts.put(col, cxt);
+    private IBindingContext getColumnContext(int columnIndex, IBindingContext bindingContext) {
+
+        IBindingContextDelegator columnContext = colContexts.get(columnIndex);
+
+        if (columnContext == null) {
+            columnContext = makeColumnContext(columnIndex, bindingContext);
+            colContexts.put(columnIndex, columnContext);
         } else {
-            cxt.setDelegate(scxt);
+            columnContext.setDelegate(bindingContext);
         }
 
-        return cxt;
+        return columnContext;
     }
 
-    private IBindingContext getRowContext(int row, IBindingContext scxt) {
-        IBindingContext cxt = rowContexts.get(row);
-        if (cxt == null) {
-            cxt = makeRowContext(row, scxt);
-            rowContexts.put(row, cxt);
+    private IBindingContext getRowContext(int rowIndex, IBindingContext bindingContext) {
+
+        IBindingContext rowContext = rowContexts.get(rowIndex);
+
+        if (rowContext == null) {
+            rowContext = makeRowContext(rowIndex, bindingContext);
+            rowContexts.put(rowIndex, rowContext);
         }
 
-        return cxt;
+        return rowContext;
     }
 
-    private IBindingContextDelegator makeColContext(int col, IBindingContext scxt) {
-        int h = spreadsheet.height();
+    private IBindingContextDelegator makeColumnContext(int columnIndex, IBindingContext scxt) {
 
-        ModuleOpenClass rtype = new ModuleOpenClass(null, spreadsheet.getName() + "ColType" + col, cxt.getOpenL());
+        ModuleOpenClass returnType = new ModuleOpenClass(null,
+            spreadsheet.getName() + "ColType" + columnIndex,
+            bindingContext.getOpenL());
 
-        ModuleBindingContext ccxt = new ModuleBindingContext(scxt, rtype);
+        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(scxt, returnType);
 
-        for (int row = 0; row < h; row++) {
-            SpreadsheetHeaderDefinition rh = rowHeaders.get(row);
-            if (rh == null) {
+        int height = spreadsheet.getHeight();
+
+        for (int rowIndex = 0; rowIndex < height; rowIndex++) {
+
+            SpreadsheetHeaderDefinition headerDefinition = rowHeaders.get(rowIndex);
+
+            if (headerDefinition == null) {
                 continue;
             }
-            SCell scell = spreadsheet.getCells()[row][col];
-            for (SymbolicTypeDef rowdef : rh.getVars()) {
-                String fieldname = "$" + rowdef.name.getIdentifier();
-                rtype.addField(new SCellField(rtype, fieldname, scell));
-            }
 
+            SpreadsheetCell cell = spreadsheet.getCells()[rowIndex][columnIndex];
+
+            for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
+                String fieldName = "$" + typeDefinition.getName().getIdentifier();
+                SpreadsheetCellField field = new SpreadsheetCellField(returnType, fieldName, cell);
+
+                returnType.addField(field);
+            }
         }
-        return ccxt;
+
+        return moduleBindingContext;
     }
 
     private IString2DataConvertor makeConvertor(IOpenClass type) {
-            return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
+        return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
     }
 
     private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader header, IOpenClass type) {
         return new OpenMethodHeader(name, type, header.getSignature(), header.getDeclaringClass());
     }
 
-    private IBindingContextDelegator makeRowContext(int row, IBindingContext scxt) {
-        int w = spreadsheet.width();
+    private IBindingContextDelegator makeRowContext(int rowIndex, IBindingContext scxt) {
 
-        ModuleOpenClass rtype = new ModuleOpenClass(null, spreadsheet.getName() + "RowType" + row, cxt.getOpenL());
+        ModuleOpenClass returnType = new ModuleOpenClass(null,
+            spreadsheet.getName() + "RowType" + rowIndex,
+            bindingContext.getOpenL());
 
-        ModuleBindingContext rcxt = new ModuleBindingContext(scxt, rtype);
+        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(scxt, returnType);
 
-        for (int col = 0; col < w; col++) {
-            SpreadsheetHeaderDefinition h = columnHeaders.get(col);
-            if (h == null) {
+        int width = spreadsheet.getWidth();
+
+        for (int columnIndex = 0; columnIndex < width; columnIndex++) {
+
+            SpreadsheetHeaderDefinition headerDefinition = columnHeaders.get(columnIndex);
+
+            if (headerDefinition == null) {
                 continue;
             }
-            SCell scell = spreadsheet.getCells()[row][col];
-            for (SymbolicTypeDef coldef : h.getVars()) {
-                String fieldname = "$" + coldef.name.getIdentifier();
-                rtype.addField(new SCellField(rtype, fieldname, scell));
-            }
 
+            SpreadsheetCell cell = spreadsheet.getCells()[rowIndex][columnIndex];
+
+            for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
+                String fieldName = "$" + typeDefinition.getName().getIdentifier();
+                SpreadsheetCellField field = new SpreadsheetCellField(returnType, fieldName, cell);
+
+                returnType.addField(field);
+            }
         }
-        return rcxt;
+
+        return moduleBindingContext;
     }
 
-    public void parseHeader(SpreadsheetHeaderDefinition h, StringValue sv) {
+    private void parseHeader(SpreadsheetHeaderDefinition header, StringValue value) {
+
         try {
+            SymbolicTypeDefinition parsed = parseHeaderElement(value);
+            String headerName = parsed.getName().getIdentifier();
 
-            SymbolicTypeDef parsed = parseHeaderElement(sv);
-            String hname = parsed.name.getIdentifier();
-
-            SpreadsheetHeaderDefinition h1 = varDefinitions.get(hname);
+            SpreadsheetHeaderDefinition h1 = varDefinitions.get(headerName);
 
             if (h1 != null) {
-                throw new DuplicatedVarException(null, hname);
+                throw new DuplicatedVarException(null, headerName);
             } else {
-                varDefinitions.put(hname, h);
+                varDefinitions.put(headerName, header);
             }
 
-            h.addVarHeader(parsed);
+            header.addVarHeader(parsed);
 
         } catch (Throwable t) {
-            SyntaxNodeException b = null;
-            if (t instanceof SyntaxNodeException) {
-                b = (SyntaxNodeException) t;
-            } else {
-                b = SyntaxNodeExceptionUtils.createError(null, t, null, sv.asSourceCodeModule());
-            }
-            tsn.addError(b);
-            cxt.addError(b);
-        }
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition",
+                t,
+                null,
+                value.asSourceCodeModule());
 
+            tableSyntaxNode.addError(error);
+            BindHelper.processError(error, bindingContext);
+        }
     }
 
-    SymbolicTypeDef parseHeaderElement(StringValue sv) throws SyntaxNodeException {
-        
-        IOpenSourceCodeModule source = sv.asSourceCodeModule();
+    private SymbolicTypeDefinition parseHeaderElement(StringValue value) throws SyntaxNodeException {
+
+        IOpenSourceCodeModule source = value.asSourceCodeModule();
         IdentifierNode[] nodes;
+
         try {
             nodes = Tokenizer.tokenize(source, ":");
         } catch (OpenLCompilationException e) {
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header", source);
         }
-        
+
         switch (nodes.length) {
             case 1:
-                return new SymbolicTypeDef(nodes[0], null);
+                return new SymbolicTypeDefinition(nodes[0], null);
             case 2:
-                return new SymbolicTypeDef(nodes[0], nodes[1]);
+                return new SymbolicTypeDefinition(nodes[0], nodes[1]);
             default:
                 throw SyntaxNodeExceptionUtils.createError("Valid header format: name [: type]", source);
         }
     }
 
-    protected SyntaxNodeException processReturnCells() throws SyntaxNodeException {
+    private void processReturnCells() throws SyntaxNodeException {
 
-        SpreadsheetHeaderDefinition sdef = varDefinitions.get(RETURN_NAME);
+        SpreadsheetHeaderDefinition headerDefinition = varDefinitions.get(RETURN_NAME);
 
-        if (sdef == null) {
-            return null;
+        if (headerDefinition == null) {
+            return;
         }
 
-        int ncells = calculateNonEmptyCells(sdef);
+        int nonEmptyCellsCount = calculateNonEmptyCells(headerDefinition);
 
-        IOpenClass ctype = deriveSingleCellReturnType(ncells, sdef);
-        if (sdef.getType() == null) {
-            sdef.setType(ctype);
+        IOpenClass cellType = deriveSingleCellReturnType(nonEmptyCellsCount, headerDefinition);
+
+        if (headerDefinition.getType() == null) {
+            headerDefinition.setType(cellType);
         } else {
-            throw SyntaxNodeExceptionUtils.createError("RETURN " + sdef.rowOrColumn()
-                    + " derives it's type from the Spreadsheet return type and therefore must not be defined here",
-                    sdef.getVars().get(0).name);
+            String message = String.format("RETURN %s derives it's type from the Spreadsheet return type and therefore must not be defined here",
+                headerDefinition.rowOrColumn());
+
+            throw SyntaxNodeExceptionUtils.createError(message, headerDefinition.getVars().get(0).getName());
         }
-        returnHeaderDefinition = sdef;
 
-        return null;
-
+        returnHeaderDefinition = headerDefinition;
     }
 
 }

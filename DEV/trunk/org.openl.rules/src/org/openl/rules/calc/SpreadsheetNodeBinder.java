@@ -7,10 +7,14 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.impl.OpenMethodHeader;
 
-public class SSheetNodeBinder extends AExecutableNodeBinder {
+public class SpreadsheetNodeBinder extends AExecutableNodeBinder {
+
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tsn, OpenL openl, OpenMethodHeader header,
+    protected IMemberBoundNode createNode(TableSyntaxNode tableSyntaxNode,
+            OpenL openl,
+            OpenMethodHeader header,
             XlsModuleOpenClass module) {
-        return new SSheetBoundNode(tsn, openl, header, module);
+
+        return new SpreadsheetBoundNode(tableSyntaxNode, openl, header, module);
     }
 }

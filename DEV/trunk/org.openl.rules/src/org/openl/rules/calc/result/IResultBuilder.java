@@ -1,4 +1,5 @@
-package org.openl.rules.calc;
+package org.openl.rules.calc.result;
+
 
 public interface IResultBuilder {
 

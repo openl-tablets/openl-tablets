@@ -1,58 +1,65 @@
-package org.openl.rules.calc;
+package org.openl.rules.calc.result;
 
 import java.util.Map;
 
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.DynamicObject;
-import org.openl.util.print.NicePrinter;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetResult implements IDynamicObject {
 
-    boolean cacheResult = true;
+    private Spreadsheet spreadsheet;
 
-    Spreadsheet spreadsheet;
+    private boolean cacheResult = true;
+    /**
+     * OpenL module
+     */
+    private IDynamicObject targetModule;
+    /**
+     * Copy of the spreadsheet call parameters.
+     */
+    private Object[] params; 
+    /**
+     * Copy of the call environment.
+     */
+    private IRuntimeEnv env;
 
-    IDynamicObject targetModule; // OpenL module
-    Object[] params; // copy of the spreadsheet call params
-
-    IRuntimeEnv env; // copy of the call environment
-
-    Object[][] results;
+    private Object[][] results;
 
     public SpreadsheetResult(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params, IRuntimeEnv env) {
         super();
-        this.spreadsheet = spreadsheet;
 
+        this.spreadsheet = spreadsheet;
         this.targetModule = targetModule;
         this.params = params;
         this.env = env;
-        results = new Object[spreadsheet.height()][spreadsheet.width()];
+        this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
     }
 
     public Object getColumn(int column, IRuntimeEnv env2) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public String getColumnName(int column) {
-        return spreadsheet.colNames[column];
+        return spreadsheet.getColumnNames()[column];
     }
 
     public Object getFieldValue(String name) {
 
-        IOpenField f = spreadsheet.getSpreadsheetType().getField(name);
+        IOpenField field = spreadsheet.getSpreadsheetType().getField(name);
 
-        if (f == null) {
+        if (field == null) {
             return targetModule.getFieldValue(name);
         }
 
-        SCellField sfield = (SCellField) f;
+        SpreadsheetCellField cellField = (SpreadsheetCellField) field;
 
-        int row = sfield.getCell().getRow();
-        int column = sfield.getCell().getColumn();
+        int row = cellField.getCell().getRowIndex();
+        int column = cellField.getCell().getColumnIndex();
 
         return getValue(row, column);
     }
@@ -62,33 +69,36 @@ public class SpreadsheetResult implements IDynamicObject {
     }
 
     public Object getRow(int row, IRuntimeEnv env) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public String getRowName(int row) {
-        return spreadsheet.rowNames[row];
+        return spreadsheet.getRowNames()[row];
     }
 
     public int getRowIndex(String name) {
-        String[] names = spreadsheet.rowNames;
+        
+        String[] names = spreadsheet.getRowNames();
+        
         for (int i = 0; i < names.length; i++) {
             if (name.equals(names[i]))
                 return i;
         }
         
-        throw new RuntimeException("Row name <" + name + "> not found");
+        throw new OpenLRuntimeException("Row name <" + name + "> not found", spreadsheet.getBoundNode());
     }
 
 
     public int getColumnIndex(String name) {
-        String[] names = spreadsheet.colNames;
+        
+        String[] names = spreadsheet.getColumnNames();
+        
         for (int i = 0; i < names.length; i++) {
             if (name.equals(names[i]))
                 return i;
         }
         
-        throw new RuntimeException("Column name <" + name + "> not found");
+        throw new OpenLRuntimeException("Column name <" + name + "> not found", spreadsheet.getBoundNode());
     }
     
     
@@ -101,42 +111,37 @@ public class SpreadsheetResult implements IDynamicObject {
     }
 
     public Object getValue(int row, int column) {
+        
         Object result = null;
+        
         if (cacheResult) {
 
             result = results[row][column];
+        
             if (result != null) {
                 return result;
             }
         }
 
-        result = spreadsheet.cells[row][column].calculate(this, targetModule, params, env);
-
+        result = spreadsheet.getCells()[row][column].calculate(this, targetModule, params, env);
         results[row][column] = result;
 
         return result;
     }
 
     public final int height() {
-        return spreadsheet.height();
+        return spreadsheet.getHeight();
     }
 
     public void setFieldValue(String name, Object value) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public String toString() {
-        if (false) {
-            NicePrinter printer = new NicePrinter();
-            printer.print(this, DynamicObject.getNicePrinterAdaptor());
-            return printer.getBuffer().toString();
-        }
         return "Spreadsheet[" + width() + " x " + height() + "]";
     }
 
     public final int width() {
-        return spreadsheet.width();
+        return spreadsheet.getWidth();
     }
 }

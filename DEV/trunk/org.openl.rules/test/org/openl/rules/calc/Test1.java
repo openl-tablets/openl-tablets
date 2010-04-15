@@ -7,6 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
+import org.openl.rules.calc.result.SpreadsheetResult;
 
 public class Test1 {
     interface ITestCalc {
