@@ -24,7 +24,7 @@ public class DecisionTableOverlapping {
         return rules;
     }
 
-    public ArrayOfNamedValues getValue() {
+    public ArrayOfNamedValues getValues() {
         return value;
     }
 

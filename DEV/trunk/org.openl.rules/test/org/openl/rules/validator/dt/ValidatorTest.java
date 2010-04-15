@@ -4,16 +4,12 @@ import static org.junit.Assert.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.openl.domain.DateRangeDomain;
-import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
@@ -22,6 +18,8 @@ import org.openl.rules.dt.type.DateRangeDomainAdaptor;
 import org.openl.rules.dt.type.EnumDomainAdaptor;
 import org.openl.rules.dt.type.IDomainAdaptor;
 import org.openl.rules.dt.type.IntRangeDomainAdaptor;
+import org.openl.rules.dt.validator.DecisionTableOverlapping;
+import org.openl.rules.dt.validator.DecisionTableUncovered;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -161,9 +159,45 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertTrue(!dtValidResult.hasProblems());
         
-        dateRangeDomain.setMax(new Date(250, 0, 1));//01.01.2150
+        Date newEndDate = null;
+        try {
+            newEndDate = dateFormat.parse("01/01/2150");
+        } catch (ParseException e) {            
+            e.printStackTrace();
+        }
+        dateRangeDomain.setMax(newEndDate);
         dtValidResult = testTable(tableName, domains);
         assertTrue(dtValidResult.getUncovered().length == 1);
+    }
+    
+    @Test
+    public void testArrayContains() {
+        String tableName = "Rules void testArrayContains(TestValidationEnum3 value)";
+        
+        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        assertFalse(dtValidResult.hasProblems());
+    }
+    
+    @Test
+    public void testArrayContainsOverlap() {
+        String tableName = "Rules void testArrayContainsOverlap(TestValidationEnum3 value)";
+        
+        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        assertTrue(dtValidResult.hasProblems());
+        assertTrue(dtValidResult.getOverlappings().length == 1);
+        DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
+        assertEquals("value=V2",overlap.getValues().toString());
+    }
+    
+    @Test
+    public void testArrayContainsGap() {
+        String tableName = "Rules void testArrayContainsGap(TestValidationEnum3 value)";
+        
+        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        assertTrue(dtValidResult.hasProblems());
+        assertTrue(dtValidResult.getUncovered().length == 1);
+        DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
+        assertEquals("value=V4",gap.getValues().toString());
     }
  
 }

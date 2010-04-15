@@ -107,9 +107,17 @@ public class DesionTableValidationResult implements IValidationResult {
 
     @Override
     public String toString() {
-        return String.format("Uncovered: %s\nOverlapped: %s",
-            Arrays.asList(getUncovered()),
-            Arrays.asList(getOverlappings()));
+        StringBuffer validationResultDetails = new StringBuffer();
+        
+        if (getUncovered().length > 0) {
+            validationResultDetails.append(String.format("Uncovered: %s", Arrays.asList(getUncovered())));
+        }
+        
+        if (getOverlappings().length > 0) {
+            validationResultDetails.append(String.format("Overlapped: %s", Arrays.asList(getOverlappings())));
+        }
+        
+        return validationResultDetails.toString();        
     }
 
 }

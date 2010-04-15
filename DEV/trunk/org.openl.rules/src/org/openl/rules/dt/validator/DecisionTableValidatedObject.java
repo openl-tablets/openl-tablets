@@ -175,8 +175,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return null;
     }
 
-    public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {
-
+    public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {        
+        Object result = intValue;
+        
         DecisionTableParamDescription pd = dtAnalyzer.getUsedParams().get(name);
 
         Class<?> instanceClass = pd.getParameterDeclaration().getType().getInstanceClass();
@@ -184,20 +185,22 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (instanceClass == boolean.class || instanceClass == Boolean.class) {
             return intValue == 1 ? "true" : "false";
         }
-
+        
+         
         IDomain<?> domain = dtAnalyzer.getSignatureParameterDomain(name);
-
-        if (domain == null) {
-            return intValue;
-        }
-
-        IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
-
         if (domain != null) {
-            return domainAdaptor.getValue(intValue);
+            IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
+            result = domainAdaptor.getValue(intValue);
+        } else {
+            IDomainAdaptor domainAdapt = getDomains().get(name);
+            if (domainAdapt != null) {
+                result = domainAdapt.getValue(intValue);
+            } else {
+                result = intValue;
+            }
         }
-
-        return intValue;
+        
+        return result;
     }
 
 }
