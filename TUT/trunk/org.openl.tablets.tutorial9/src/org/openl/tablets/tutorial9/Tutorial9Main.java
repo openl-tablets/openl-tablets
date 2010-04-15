@@ -6,7 +6,7 @@ package org.openl.tablets.tutorial9;
 
 import static java.lang.System.out;
 
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.result.SpreadsheetResult;
 
 /**
  * Tutorial 9. Example of Spreadsheet tables.
