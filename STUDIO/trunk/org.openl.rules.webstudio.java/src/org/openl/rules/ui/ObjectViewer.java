@@ -13,7 +13,7 @@ import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.StringValue;
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.validator.DecisionTableOverlapping;
 import org.openl.rules.dt.validator.DecisionTableUncovered;
