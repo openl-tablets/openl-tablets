@@ -43,7 +43,8 @@ public class AnotherFloatVarTest extends TestCase {
             return;
         }
         if (Math.random() > (1 - weight)) {
-            System.out.print("\tC" + num);
+            // outputs are committed not to spoil the log
+//            System.out.print("\tC" + num);
             IntBoolExp ex = (IntBoolExp) _constraints.get(num);
             C.addConstraint(ex);
         }
@@ -73,7 +74,7 @@ public class AnotherFloatVarTest extends TestCase {
                 g1 = new GoalFloatGenerate(vars);
                 g2 = new GoalInstantiate(k);
 
-                System.out.print("\nactivated constraints: ");
+//                System.out.print("\nactivated constraints: ");
 
                 for (int ci = 0; ci < _constraints.size(); ci++) {
                     addConstraint(C, ci, 0.7);
@@ -89,15 +90,15 @@ public class AnotherFloatVarTest extends TestCase {
             }
             try {
                 C.postConstraints();
-                System.out.println("\nsuccessfully posted");
-                System.out.println("current domains:" + i + "\nx = " + x + "\ny = " + y + "\nk = " + k);
+//                System.out.println("\nsuccessfully posted");
+//                System.out.println("current domains:" + i + "\nx = " + x + "\ny = " + y + "\nk = " + k);
             } catch (Failure f) {
                 fail("constraints: the problem is inconsistent");
             }
 
             boolean flag = C.execute(new GoalAnd(g1, g2));
             assertTrue("the problem is inconsistent", flag);
-            System.out.println("\nSolution number" + i + "\nx = " + x + "\ny = " + y + "\nk = " + k);
+//            System.out.println("\nSolution number" + i + "\nx = " + x + "\ny = " + y + "\nk = " + k);
         }
     }
 }
