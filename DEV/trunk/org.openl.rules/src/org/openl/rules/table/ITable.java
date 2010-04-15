@@ -16,5 +16,16 @@ public interface ITable {
     String getType();
 
     List<OpenLMessage> getMessages();
+    
+    /**
+     * @return Table name form header string.
+     */
+    String getNameFromHeader();
+
+    /**
+     * @return Table name for user. (Firstly will be searched in table
+     *         properties and then from table header)
+     */
+    String getName();
 
 }

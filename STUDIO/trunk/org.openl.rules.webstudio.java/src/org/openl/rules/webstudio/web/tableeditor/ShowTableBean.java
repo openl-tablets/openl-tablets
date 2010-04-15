@@ -24,6 +24,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.validation.DispatcherTableBuilder;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -161,12 +162,16 @@ public class ShowTableBean {
         return false;
     }
 
+    private boolean isDispatcherValidationNode() {
+        return table.getNameFromHeader().startsWith(DispatcherTableBuilder.DEFAULT_METHOD_NAME);
+    }
+
     public boolean isEditable() {
-        return canModifyCurrentProject();
+        return canModifyCurrentProject() && !isDispatcherValidationNode();
     }
     
     public boolean isEditableAsNewVersion() {
-        return canModifyCurrentProject() && !isServiceNode();
+        return canModifyCurrentProject() && !isServiceNode() && !isDispatcherValidationNode();
     }
 
     public boolean isHasErrors() {

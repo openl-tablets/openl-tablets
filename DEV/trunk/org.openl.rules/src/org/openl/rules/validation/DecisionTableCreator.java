@@ -21,12 +21,15 @@ import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.enumeration.UsregionsEnum;
 import org.openl.rules.enumeration.UsstatesEnum;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -40,7 +43,7 @@ public class DecisionTableCreator {
     public static final String CURRENT_DATE_PARAM = "currentDate";
     public static final String LOCAL_PARAM_SUFFIX = "Local";
     
-    private static String __src = "src/rules/Test.xls";
+    private static String __src = "src/rules/Test.xls";;
     
     private static final String STATE_PROP = "state";
     private static final String COUNTRY_PROP = "country";
@@ -309,7 +312,7 @@ public class DecisionTableCreator {
         cell1.setCellValue(RESULT_VAR);
         
         Cell cell2 = sheet.getRow(3).createCell(colNum);
-        cell2.setCellValue(String.format("%s %s", originalReturnType.getName(), RESULT_VAR));
+        cell2.setCellValue(String.format("%s %s", originalReturnType.getDisplayName(0), RESULT_VAR));
         
         Cell cell3 = sheet.getRow(4).createCell(colNum);
         cell3.setCellValue(RESULT_VAR.toUpperCase());
@@ -382,7 +385,7 @@ public class DecisionTableCreator {
     }
 
     private String buildMethodHeader() {
-        String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2, originalReturnType.getName(), 
+        String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2, originalReturnType.getDisplayName(0), 
                 newTableName);
         StringBuffer strBuf = new StringBuffer();
         strBuf.append(start);
@@ -421,7 +424,13 @@ public class DecisionTableCreator {
     }
     
     private GridTable getGridTable(Sheet sheet) {
-        createdSheetGridModel = new XlsSheetGridModel(sheet);
+        Workbook wb = sheet.getWorkbook();
+
+        //it is just for correct work of webstudio
+        XlsWorkbookSourceCodeModule mockWorkbookSource = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null), wb);
+        XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(sheet, sheet.getSheetName(), mockWorkbookSource);
+
+        createdSheetGridModel = new XlsSheetGridModel(mockSheetSource);
         GridSplitter gridSplitter = new GridSplitter(createdSheetGridModel);
         GridTable[] gridTables = gridSplitter.split();
         
