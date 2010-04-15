@@ -22,6 +22,8 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -112,11 +114,13 @@ public class PropertiesLoader {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
 
-                String message = String.format("Property with name [%s] can`t be defined on the [%s] level.",
+                String message = String.format("Property '%s' can`t be defined on the '%s' level",
                     propertyNameToCheck,
                     currentLevel.getDisplayName());
 
-                BindHelper.processError(message, tableSyntaxNode);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                tableSyntaxNode.addError(error);
+                BindHelper.processError(error);
             }
         }
     }
@@ -134,11 +138,13 @@ public class PropertiesLoader {
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.canSetPropertyForTableType(propertyNameToCheck, tableType)) {
-                String message = String.format("Property [%s] can`t be defined in table of type [%s].",
+                String message = String.format("Property '%s' can`t be defined in table of type '%s'",
                     propertyNameToCheck,
                     tableType);
 
-                BindHelper.processError(message, tableSyntaxNode);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                tableSyntaxNode.addError(error);
+                BindHelper.processError(error);
             }
         }
     }
@@ -152,7 +158,8 @@ public class PropertiesLoader {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         String category = getCategory(tableSyntaxNode);
-        TableSyntaxNode categoryPropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+        TableSyntaxNode categoryPropertiesTsn = cxt.getTableSyntaxNode(
+                RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
 
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
@@ -202,12 +209,14 @@ public class PropertiesLoader {
         }
 
         ITableProperties properties = tableSyntaxNode.getTableProperties();
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils.getPropertiesToBeSetByDefault();
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
+            .getPropertiesToBeSetByDefault();
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
             String defaultPropertyName = propertyWithDefaultValue.getName();
-            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(defaultPropertyName);
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
+                .getPropertyByName(defaultPropertyName);
             Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
 
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
@@ -231,7 +240,7 @@ public class PropertiesLoader {
 
     public void loadProperties(TableSyntaxNode tsn) throws Exception {
 
-        // don`t need to load properties for tables with type XLS_PROPERTIES,
+        // Don`t need to load properties for tables with type XLS_PROPERTIES,
         // it will be processed during its binding.
         // author: DLiauchuk
         if (!ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())) {
