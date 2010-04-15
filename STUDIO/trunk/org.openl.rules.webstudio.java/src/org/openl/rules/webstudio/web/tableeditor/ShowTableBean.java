@@ -149,7 +149,7 @@ public class ShowTableBean {
     }
 
     public boolean isCopyable() {        
-        return canModifyCurrentProject() && !isServiceNode();
+        return canModifyCurrentProject() && !isServiceNode()  && !isDispatcherValidationNode();
     }
 
     private boolean isServiceNode() {
