@@ -160,15 +160,15 @@ public class ObjectViewer {
             buf.append("</p>");
 
             buf.append("<table style='border: 1px solid'><tr>");
-            int size = ov.getValue().size();
+            int size = ov.getValues().size();
 
             for (int i = 0; i < size; i++) {
-                buf.append("<th class='data_header'>").append(ov.getValue().getName(i)).append("</th>");
+                buf.append("<th class='data_header'>").append(ov.getValues().getName(i)).append("</th>");
             }
             buf.append("</tr><tr>");
 
             for (int i = 0; i < size; i++) {
-                buf.append("<td class='data_cell'>").append(ov.getValue().getValue(i)).append("</td>");
+                buf.append("<td class='data_cell'>").append(ov.getValues().getValue(i)).append("</td>");
             }
 
             buf.append("</tr></table><p/>");
