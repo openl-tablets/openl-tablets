@@ -11,6 +11,8 @@ import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.syntax.impl.ISyntaxConstants;
 public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
 {
   Object __instance;
@@ -34,8 +36,7 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
   private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
-      this.set(new org.openl.vm.SimpleVM().getRuntimeEnv());
-      return this.get();
+      return new org.openl.vm.SimpleVM().getRuntimeEnv();
     }
   };
 
@@ -43,8 +44,8 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
     return __env.get();
   }
 
-  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv __env) {
-    this.__env.set(__env);
+  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
+    __env.set(environment);
   }
 
   public Tutorial_9Wrapper(){
@@ -109,7 +110,7 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
 
 
   static org.openl.types.IOpenMethod incomeForecast_Method;
-  public org.openl.rules.calc.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
+  public org.openl.rules.calc.result.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
     Object[] __params = new Object[2];
     __params[0] = new Double(bonusRate);
     __params[1] = new Double(sharePrice);
@@ -117,7 +118,7 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
     {
     Object __myInstance = __instance;
     Object __res = incomeForecast_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.calc.SpreadsheetResult)__res;  }
+   return (org.openl.rules.calc.result.SpreadsheetResult)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -128,13 +129,13 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
 
 
   static org.openl.types.IOpenMethod totalAssets_Method;
-  public org.openl.rules.calc.SpreadsheetResult totalAssets()  {
+  public org.openl.rules.calc.result.SpreadsheetResult totalAssets()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
     Object __res = totalAssets_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.calc.SpreadsheetResult)__res;  }
+   return (org.openl.rules.calc.result.SpreadsheetResult)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
