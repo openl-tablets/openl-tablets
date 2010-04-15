@@ -104,7 +104,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
                 }
                 if (stringProp.isEmpty()) {
                     //fake string domain it is because constrainer will be freezed with empty domain.  
-                    stringProp.add("fake");
+                    stringProp.add("any");
                 }
                 StringDomain strDomain = new StringDomain(stringProp.toArray(new String[stringProp.size()]));
                 EnumDomainAdaptor strDomainAdaptor = new EnumDomainAdaptor(strDomain);
