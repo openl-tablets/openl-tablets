@@ -2,6 +2,7 @@ package org.openl.rules.table;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.table.properties.ITableProperties;
 /**
@@ -53,4 +54,15 @@ public class Table implements ITable {
         this.messages = messages;
     }
 
+    public String getNameFromHeader() {
+        return StringUtils.EMPTY;
+    }
+
+    public String getName() {
+        if (properties != null) {
+            return properties.getName();
+        } else {
+            return getNameFromHeader();
+        }
+    }
 }

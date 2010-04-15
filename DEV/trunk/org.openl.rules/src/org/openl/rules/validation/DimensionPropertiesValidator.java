@@ -83,46 +83,74 @@ public class DimensionPropertiesValidator extends TablesValidator {
         return ValidationUtils.validationSuccess();
     }    
     
-    private void gatherPropDomains(TableSyntaxNode[] tableSyntaxNodes) {        
+    private void gatherPropDomains(TableSyntaxNode[] tableSyntaxNodes) {
+        DateRangeDomain dateDomain = gatherDateDomain(tableSyntaxNodes);
+        applyDateDomain(dateDomain);
+        gatherStringDomains(tableSyntaxNodes);
+    }
+
+    private void gatherStringDomains(TableSyntaxNode[] tableSyntaxNodes) {
         for (String propNeedDomain : propsNeedDomain) {
             Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
-            if (Date.class.equals(propType)) {
-                List<Date> dateProps = new ArrayList<Date>();
-                for (TableSyntaxNode tsn : tableSyntaxNodes) {
-                    ITableProperties tableProperties = tsn.getTableProperties();
-                    if (tableProperties != null) {
-                        Date propValue = (Date)tableProperties.getPropertyValue(propNeedDomain);
-                        if (propValue != null) {
-                            dateProps.add(propValue);
-                        }                        
-                    }
-                }                
-                Collections.sort(dateProps);
-                if (!dateProps.isEmpty()) {
-                    DateRangeDomain dateRangeDomain = new DateRangeDomain(dateProps.get(0), dateProps.get(dateProps.size()-1));
-                    DateRangeDomainAdaptor dateDomainAdaptor = new DateRangeDomainAdaptor(dateRangeDomain);
-                    propDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, dateDomainAdaptor);
-                    if (!propDomains.containsKey(DecisionTableCreator.CURRENT_DATE_PARAM)) {
-                        propDomains.put(DecisionTableCreator.CURRENT_DATE_PARAM, dateDomainAdaptor);
-                    }
-                }                
-            } else if (String.class.equals(propType)) {
+            if (String.class.equals(propType)) {
                 List<String> stringProp = new ArrayList<String>();
                 for (TableSyntaxNode tsn : tableSyntaxNodes) {
                     ITableProperties tableProperties = tsn.getTableProperties();
                     if (tableProperties != null) {
-                        String propvalue = (String)tableProperties.getPropertyValue(propNeedDomain);
+                        String propvalue = (String) tableProperties.getPropertyValue(propNeedDomain);
                         if (StringUtils.isNotEmpty(propvalue))
-                        stringProp.add(propvalue);
+                            stringProp.add(propvalue);
                     }
                 }
-                
+                if (stringProp.isEmpty()) {
+                    //fake string domain it is because constrainer will be freezed with empty domain.  
+                    stringProp.add("fake");
+                }
                 StringDomain strDomain = new StringDomain(stringProp.toArray(new String[stringProp.size()]));
                 EnumDomainAdaptor strDomainAdaptor = new EnumDomainAdaptor(strDomain);
                 propDomains.put(propNeedDomain, strDomainAdaptor);
                 propDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, strDomainAdaptor);
-            }    
+            }
         }
-        
+    }
+
+    private DateRangeDomain gatherDateDomain(TableSyntaxNode[] tableSyntaxNodes) {
+        List<Date> dateProps = new ArrayList<Date>();
+        for (String propNeedDomain : propsNeedDomain) {
+            Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            if (Date.class.equals(propType)) {
+                for (TableSyntaxNode tsn : tableSyntaxNodes) {
+                    ITableProperties tableProperties = tsn.getTableProperties();
+                    if (tableProperties != null) {
+                        Date propValue = (Date) tableProperties.getPropertyValue(propNeedDomain);
+                        if (propValue != null) {
+                            dateProps.add(propValue);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!dateProps.isEmpty()) {
+            Collections.sort(dateProps);
+            DateRangeDomain dateRangeDomain = new DateRangeDomain(dateProps.get(0), dateProps.get(dateProps.size() - 1));
+            return dateRangeDomain;
+        } else {
+            return null;
+        }
+    }
+
+    private void applyDateDomain(DateRangeDomain domain) {
+        DateRangeDomainAdaptor dateDomainAdaptor = new DateRangeDomainAdaptor(domain);
+        for (String propNeedDomain : propsNeedDomain) {
+            Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            if (Date.class.equals(propType)) {
+                propDomains.put(propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX, dateDomainAdaptor);
+                if (!propDomains.containsKey(DecisionTableCreator.CURRENT_DATE_PARAM)) {
+                    propDomains.put(DecisionTableCreator.CURRENT_DATE_PARAM, dateDomainAdaptor);
+                }
+            }
+        }
+
     }
 }

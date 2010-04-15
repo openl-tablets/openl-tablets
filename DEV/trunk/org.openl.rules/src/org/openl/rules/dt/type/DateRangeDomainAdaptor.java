@@ -40,4 +40,8 @@ public class DateRangeDomainAdaptor implements IDomainAdaptor {
         return domain.getValue(index);
     }
 
+    @Override
+    public String toString() {
+        return "[" + getMin() + ";" + getMax() + "]";
+    }
 }

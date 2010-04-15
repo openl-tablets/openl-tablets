@@ -153,4 +153,9 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
         date.add(Calendar.DATE, index);
         return date.getTime();
     }
+
+    @Override
+    public String toString() {
+        return "[" + getMin() + ";" + getMax() + "]";
+    }
 }
