@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.message.Severity;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
+import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
 
 public class UniquePropertyValueValidator extends TablesValidator {
@@ -53,17 +54,30 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
                 TableSyntaxNode existsTable = values.get(value);
 
-                String message = String.format("Found tables with duplicate property '%s': %s [%s], %s [%s]",
-                        propertyName, existsTable.getHeaderLineValue().getValue(), existsTable.getUri(),
-                        tableSyntaxNode.getHeaderLineValue().getValue(), tableSyntaxNode.getUri());
+                // String message =
+                // String.format("Found tables with duplicate property '%s': %s [%s], %s [%s]",
+                // propertyName,
+                // existsTable.getHeaderLineValue().getValue(),
+                // existsTable.getUri(),
+                // tableSyntaxNode.getHeaderLineValue().getValue(),
+                // tableSyntaxNode.getUri());
+
+                String message = String.format("Found tables with duplicate property '%s'", propertyName);
 
                 if (validationResult == null) {
-                    validationResult = ValidationUtils.validationError(message);
+                    validationResult = new ValidationResult(ValidationStatus.FAIL, null);
+
+                    OpenLWarnMessage warnMessage1 = new OpenLWarnMessage(message, existsTable);
+                    OpenLWarnMessage warnMessage2 = new OpenLWarnMessage(message, tableSyntaxNode);
+
+                    ValidationUtils.addValidationMessage(validationResult, warnMessage1);
+                    ValidationUtils.addValidationMessage(validationResult, warnMessage2);
+
                 } else {
-                    ValidationUtils.addValidationMessage(validationResult, message, Severity.ERROR);
+                    OpenLWarnMessage warnMessage = new OpenLWarnMessage(message, tableSyntaxNode);
+                    ValidationUtils.addValidationMessage(validationResult, warnMessage);
                 }
             } else {
-
                 values.put(value, tableSyntaxNode);
             }
         }
