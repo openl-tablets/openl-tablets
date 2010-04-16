@@ -239,11 +239,12 @@ public class PropertiesLoader {
     }
 
     public void loadProperties(TableSyntaxNode tsn) throws Exception {
-
-        // Don`t need to load properties for tables with type XLS_PROPERTIES,
+        // Don`t need to load properties for Properties tables,
         // it will be processed during its binding.
         // author: DLiauchuk
-        if (!ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())) {
+        final String tableType = tsn.getType();
+        if (!ITableNodeTypes.XLS_PROPERTIES.equals(tableType)
+                && !ITableNodeTypes.XLS_DATATYPE.equals(tableType)) {
             try {
                 loadPropertiesAsDataTable(tsn);
 
