@@ -62,7 +62,7 @@
                         <authz:authentication operation="username"/>
                     </span>
                     <table style="display: inline;" cellspacing="0" cellpadding="2">
-                      <tr><td style="border: 1px solid rgb(110,110,110);">
+                      <tr><td style="border: 1px solid rgb(150,150,150); padding: 4px 3px 1px;">
                       <a href="#{contextPath}/main.jsp?mode=business" title="Business View" target="top"><img
                           border='0px;' alt="Business View"
                           src="#{contextPath}/webresource/images/business-view.png" /></a>
@@ -74,14 +74,15 @@
                       <c:if test="#{headerBean.showFormulas}">
                         <a href="#{contextPath}/main.jsp?showFormulas=false" title="Dont't Show Formulas"
                             target="top"><img border='0px;' alt="Dont't Show Formulas"
-                            src="#{contextPath}/webresource/images/dont-show-formulas.png" /></a>
+                            src="#{contextPath}/webresource/images/formula.png" /></a>
                       </c:if>
                       <c:if test="#{not headerBean.showFormulas}">
                         <a href="#{contextPath}/main.jsp?showFormulas=true" title="Show Formulas" target="top"><img
                             border='0px;' alt="Show Formulas"
-                            src="#{contextPath}/webresource/images/show-formulas.png" /></a>
+                            src="#{contextPath}/webresource/images/formula.png" /></a>
                       </c:if>
-                      
+                      <f:verbatim>&amp;nbsp;</f:verbatim>
+
                       <!-- Expand/Collapse Table Properties View  --> 
                       <c:if test="#{headerBean.collapseProperties}">
                         <a href="#{contextPath}/main.jsp?collapseProperties=false" title="Expand Properties"
@@ -141,7 +142,7 @@
                       </c:if>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
                       <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0'
-                          src="#{contextPath}/webresource/images/help.gif" alt="Help"/></a>
+                          src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
                       <c:if test="#{not headerBean.hideLogout}">
                         <f:verbatim>&amp;nbsp;</f:verbatim>
                         <a target="top" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out"
