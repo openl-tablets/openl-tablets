@@ -79,9 +79,9 @@ public class DimensionPropertiesValidator extends TablesValidator {
                     if (validationResult == null) {
                         validationResult = new ValidationResult(ValidationStatus.FAIL); 
                     } 
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(
-                                new SyntaxNodeException(dtValidResult.toString(),
-                                        null, tsn)));       
+                    SyntaxNodeException error = new SyntaxNodeException(dtValidResult.toString(), null, tsn);
+                    tsn.addError(error);
+                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(error));
                 } 
             }                        
         }

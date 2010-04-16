@@ -2,8 +2,10 @@ package org.openl.rules.validation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
@@ -15,6 +17,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.properties.PropertiesLoader;
@@ -49,10 +52,24 @@ public class DispatcherTableBuilder {
         Map<MethodKey, List<TableSyntaxNode>> groupedTables = groupExecutableTables();        
         for (MethodKey key : groupedTables.keySet()) {
             List<TableSyntaxNode> tablesGroup = groupedTables.get(key);
+            tablesGroup = excludeOveloadedByVersion(tablesGroup);
             if (tablesGroup.size() > 1) {
                 buildTableForGroup(tablesGroup);
             }
         }
+    }
+
+    private List<TableSyntaxNode> excludeOveloadedByVersion(List<TableSyntaxNode> tablesGroup) {
+        Set<TableSyntaxNodeKey> differentTables = new HashSet<TableSyntaxNodeKey>();
+        List<TableSyntaxNode> result = new ArrayList<TableSyntaxNode>();
+        for (TableSyntaxNode tsn : tablesGroup) {
+            TableSyntaxNodeKey key = new TableSyntaxNodeKey(tsn);
+            if (!differentTables.contains(key)) {
+                differentTables.add(key);
+                result.add(tsn);
+            }
+        }
+        return result;
     }
 
     private void addNewTsnToTopNode(TableSyntaxNode tsn) {        
