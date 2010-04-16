@@ -1,6 +1,7 @@
 package org.openl.message;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,11 @@ public class OpenLMessagesUtils {
 
     public static List<OpenLMessage> filterMessagesBySeverity(List<OpenLMessage> messages, Severity severity) {
         Map<Severity, List<OpenLMessage>> groupedMessagesMap = groupMessagesBySeverity(messages);
-        return groupedMessagesMap.get(severity);
+        List<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
+        if (groupedMessages != null) {
+            return groupedMessages;
+        }
+        return Collections.emptyList();
     }
 
 }
