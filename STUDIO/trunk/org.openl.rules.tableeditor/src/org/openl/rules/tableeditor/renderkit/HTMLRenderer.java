@@ -508,12 +508,13 @@ public class HTMLRenderer {
             result.append("<table cellspacing='0' cellpadding='0' class='te_props'>");
             result.append("<tr><td class='te_props_header'>Properties");
             renderHideButton(propsId);
-            result.append("</td></tr><tr><td><div id=" + propsId + " class='te_props_propstable'>");
+            result.append("</td></tr><tr><td><div id=" + propsId
+                    + " class='te_props_propstable' style='display: none;'>");
             result.append("<table cellspacing='1' cellpadding='1'>");
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
-            if (collapsed) {
-                result.append(renderJSBody("$('" + propsId + "').hide()"));
+            if (!collapsed) {
+                result.append(renderJSBody("$('" + propsId + "').show()"));
             }
             return result.toString();
         }
