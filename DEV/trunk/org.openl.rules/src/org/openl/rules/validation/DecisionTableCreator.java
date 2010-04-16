@@ -282,7 +282,7 @@ public class DecisionTableCreator {
                 numOfCountries.add(Integer.valueOf(countries.length));
             }
         }
-        if (numOfCountries.size() > 1) {
+        if (numOfCountries.size() > 0) {
             result = numOfCountries.last().intValue();
         }
         return result;
