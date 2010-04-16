@@ -39,32 +39,35 @@ public class ProblemsBean {
     }
 
     public TreeNode<?> getTree() {
-        
         int nodeCount = 1;
-        
+
         WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
-        CompiledOpenClass compiledOpenClass = model.getWrapper().getCompiledOpenClass();
-        
-        List<OpenLMessage> messages = compiledOpenClass.getMessages();
 
-        TreeNode<TreeNodeData> root = new TreeNodeImpl<TreeNodeData>();
+        if (studio.getCurrentProject() != null) {
+            ProjectModel model = studio.getModel();
+            CompiledOpenClass compiledOpenClass = model.getWrapper().getCompiledOpenClass();
 
-        List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
-        if (CollectionUtils.isNotEmpty(errorMessages)) {
-            TreeNode<TreeNodeData> errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
-            addMessageNodes(errorsRoot, ERROR_NODE_NAME, errorMessages);
-            root.addChild(nodeCount++, errorsRoot);
+            List<OpenLMessage> messages = compiledOpenClass.getMessages();
+
+            TreeNode<TreeNodeData> root = new TreeNodeImpl<TreeNodeData>();
+
+            List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+            if (CollectionUtils.isNotEmpty(errorMessages)) {
+                TreeNode<TreeNodeData> errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
+                addMessageNodes(errorsRoot, ERROR_NODE_NAME, errorMessages);
+                root.addChild(nodeCount++, errorsRoot);
+            }
+
+            List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+            if (CollectionUtils.isNotEmpty(warningMessages)) {
+                TreeNode<TreeNodeData> warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warningMessages.size());
+                addMessageNodes(warningsRoot, WARNING_NODE_NAME, warningMessages);
+                root.addChild(nodeCount++, warningsRoot);
+            }
+
+            return root;
         }
-
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
-        if (CollectionUtils.isNotEmpty(warningMessages)) {
-            TreeNode<TreeNodeData> warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warningMessages.size());
-            addMessageNodes(warningsRoot, WARNING_NODE_NAME, warningMessages);
-            root.addChild(nodeCount++, warningsRoot);
-        }
-
-        return root;
+        return null;
     }
 
     private TreeNode<TreeNodeData> createMessagesRoot(String rootName, int messagesNumber) {
