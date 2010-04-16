@@ -5,6 +5,8 @@
  */
 package org.openl.util.conf;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author snshor
  */
@@ -172,7 +174,10 @@ public class Version implements Comparable<Version> {
         return isVersion(t1, i, JAVA_VERSION_PATTERN);
     }
 
-    static public boolean isVersion(String s, int from, String pattern) {
+    public static boolean isVersion(String s, int from, String pattern) {
+        if (StringUtils.isBlank(s)) {
+            return false;
+        }
         return calcNumbersSeparatedByDots(s, from, pattern) == pattern.length() + 1;
     }
 
