@@ -1177,38 +1177,7 @@ public class ProjectModel {
     }
 
     public List<Object> validateAll() {
-
-        List<Object> ve = new ArrayList<Object>();
-        if (wrapper == null) {
-            return ve;
-        }
-
-        List<TableSyntaxNode> nodes = getAllValidatedNodes();
-
-        for (int i = 0; i < nodes.size(); i++) {
-            validateNode(nodes.get(i), ve);
-        }
-
-        return ve;
-    }
-
-    public void validateNode(TableSyntaxNode tsn, List<Object> ve) {
-
-        DecisionTable dt = (DecisionTable) tsn.getMember();
-
-        try {
-            DesionTableValidationResult dtr = DecisionTableValidator.validateTable(dt, null, wrapper.getOpenClass());
-
-            if (dtr.hasProblems()) {
-                tsn.setValidationResult(dtr);
-                ve.add(dtr);
-            } else {
-                tsn.setValidationResult(null);
-            }
-        } catch (Throwable t) {
-            tsn.setValidationResult(t);
-            ve.add(t);
-        }
+        return null;
     }
 
     public TableEditorModel getTableEditorModel(String tableUri) {
