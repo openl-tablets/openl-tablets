@@ -156,7 +156,8 @@ public class ShowTableBean {
         String tableType = table.getType();
         if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType)
                 || ITableNodeTypes.XLS_OTHER.equals(tableType)
-                || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
+                || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)
+                || ITableNodeTypes.XLS_DATATYPE.equals(tableType)) {
             return true;
         }
         return false;
@@ -229,23 +230,24 @@ public class ShowTableBean {
     @SuppressWarnings("unchecked")
     public boolean updateSystemProperties() {
         boolean result = true;
-        String editorId = FacesUtils.getRequestParameter(
-                org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
+        if (!isServiceNode()) {
+            String editorId = FacesUtils.getRequestParameter(
+                    org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map editorModelMap = (Map) FacesUtils.getSessionParam(
-                org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+            Map editorModelMap = (Map) FacesUtils.getSessionParam(
+                    org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
-        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+            TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
-        List<TablePropertyDefinition> sysProps = TablePropertyDefinitionUtils.getSystemProperties();
-        if (canUpdateSystemProperties(editorModel)) {
+            List<TablePropertyDefinition> sysProps = TablePropertyDefinitionUtils.getSystemProperties();
+
             for (TablePropertyDefinition sysProperty : sysProps) {
                 result = updateSystemValue(editorModel, sysProperty);
             }
         } 
         return result;
     }
-    
+
     private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
         boolean result = false;
         String systemValue = null;
@@ -258,26 +260,12 @@ public class ShowTableBean {
                     editorModel.setProperty(sysProperty.getName(), systemValue);
                     result = true;
                 } catch (Exception e) {
-                    LOG.error(String.format("Can`t update system property %s with value %s", sysProperty.getName(),
+                    LOG.error(String.format("Can`t update system property '%s' with value '%s'", sysProperty.getName(),
                             systemValue), e);
                 }
             }
         }
         return result;
-    }
-    
-    private boolean canUpdateSystemProperties(TableEditorModel editorModel) {
-        boolean result = false;
-        if (editorModel.getTable() != null) {
-            String tableType = editorModel.getTable().getType();
-            if (tableType != null 
-                    &&!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) 
-                    &&!ITableNodeTypes.XLS_OTHER.equals(tableType)
-                    &&!ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) { 
-                result = true;
-            }
-        }
-        return result;        
     }
 
     public String getTreeNodeId() {
