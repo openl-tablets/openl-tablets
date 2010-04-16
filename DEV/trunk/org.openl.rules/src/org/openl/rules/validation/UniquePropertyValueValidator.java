@@ -1,10 +1,16 @@
 package org.openl.rules.validation;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.openl.OpenL;
 import org.openl.message.OpenLWarnMessage;
+import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IOpenClass;
@@ -23,10 +29,12 @@ public class UniquePropertyValueValidator extends TablesValidator {
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
+        TableSyntaxNode[] activeTables = selectActiveTables(tableSyntaxNodes);
+        
         Map<Object, TableSyntaxNode> values = new HashMap<Object, TableSyntaxNode>();
         ValidationResult validationResult = null;
 
-        for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+        for (TableSyntaxNode tableSyntaxNode : activeTables) {
 
             ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
 
@@ -92,4 +100,24 @@ public class UniquePropertyValueValidator extends TablesValidator {
         return ValidationUtils.validationSuccess();
     }
 
+    @SuppressWarnings("unchecked")
+    private TableSyntaxNode[] selectActiveTables(TableSyntaxNode[] nodes) {
+
+        List<TableSyntaxNode> collection = Arrays.asList(nodes);
+
+        Collection<TableSyntaxNode> outputCollection = CollectionUtils.select(collection, new Predicate() {
+            
+            public boolean evaluate(Object arg0) {
+                TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) arg0;
+
+                if (tableSyntaxNode.getTableProperties() == null || tableSyntaxNode.getTableProperties().getActive() == null) {
+                    return true;
+                }
+                
+                return tableSyntaxNode.getTableProperties().getActive();
+            }
+        });
+
+        return outputCollection.toArray(new TableSyntaxNode[outputCollection.size()]);
+    }
 }
