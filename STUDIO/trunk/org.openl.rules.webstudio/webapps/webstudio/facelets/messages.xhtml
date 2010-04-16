@@ -30,12 +30,11 @@
 
                     <h:panelGroup rendered="#{messagesBean.editable}">
                         <h:outputLink title="Edit cell containing error"
-                            value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
-                            style="font-size: 90%; color: rgb(0, 80, 190);">
+                            value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
                             <f:param name="uri" value="#{messagesBean.tableUri}" />
                             <f:param name="cell" value="#{messagesBean.errorCell}" />
                             <f:param name="mode" value="edit" />
-                            <h:outputText value="Edit..." />
+                            <h:graphicImage url="/webresource/images/edit2.gif" />
                         </h:outputLink>
                     </h:panelGroup>
 
