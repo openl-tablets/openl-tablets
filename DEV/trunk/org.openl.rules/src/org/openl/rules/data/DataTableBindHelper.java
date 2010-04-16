@@ -1,7 +1,11 @@
 package org.openl.rules.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
+import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -294,6 +298,8 @@ public class DataTableBindHelper {
         int width = descriptorRows.getLogicalWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
+        List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>(width);
+
         for (int columnNum = 0; columnNum < width; columnNum++) {
 
             IGridTable gridTable = descriptorRows.getLogicalColumn(columnNum).getGridTable();
@@ -304,6 +310,15 @@ public class DataTableBindHelper {
             if (code.length() != 0) {
 
                 IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
+
+                if (contains(identifiers, fieldAccessorChainTokens)) {
+                    
+                    String message = "Found duplicate field accessor";
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+                    BindHelper.processError(error);
+                } else {
+                    identifiers.add(fieldAccessorChainTokens);
+                }
 
                 // the chain of fields to access the target field, e.g. for
                 // driver.name it will be array consisting of two fields:
@@ -422,4 +437,33 @@ public class DataTableBindHelper {
         return field;
     }
 
+    private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
+
+        for (IdentifierNode[] existIdentifier : identifiers) {
+            if (isEqualsIdentifier(existIdentifier, identifier)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isEqualsIdentifier(IdentifierNode[] identifier1, IdentifierNode[] identifier2) {
+
+        if (identifier1 == null || identifier2 == null) {
+            return false;
+        }
+
+        if (identifier1.length != identifier2.length) {
+            return false;
+        }
+
+        for (int i = 0; i < identifier1.length; i++) {
+            if (!identifier1[i].getIdentifier().equals(identifier2[i].getIdentifier())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
