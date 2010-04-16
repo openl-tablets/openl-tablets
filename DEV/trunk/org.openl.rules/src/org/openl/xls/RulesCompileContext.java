@@ -19,6 +19,7 @@ public class RulesCompileContext extends DefaultCompileContext {
 	
 	// implicit validators
 	{
-	    addValidator(new org.openl.rules.validation.DimensionPropertiesValidator());
+        addValidator(new org.openl.rules.validation.DimensionPropertiesValidator());
+        addValidator(new org.openl.rules.validation.GapOverlapValidator());
 	}
 }
