@@ -42,7 +42,6 @@
 <td valign=bottom><a href="indexSearch.jsp" target="_self"><font size=-1>&nbsp;Index</font></a></td>
 <td valign=bottom align=center><a href="<%=request.getContextPath()%>/faces/facelets/search/busSearch.xhtml" target="_self"><font size=-1>Business Search</font></a></td>
 <td valign=bottom align=center><a href="<%=request.getContextPath()%>/faces/facelets/search/advSearch.xhtml" target="_self"><font size=-1>Advanced Search</font></a></td>
-<td valign=bottom align=right><a href="<%=request.getContextPath()%>/html/ws-intro.html#search" target="_self"><font size=-1>Help&nbsp;</font></a></td>
 </tr>
 
 <tr>
