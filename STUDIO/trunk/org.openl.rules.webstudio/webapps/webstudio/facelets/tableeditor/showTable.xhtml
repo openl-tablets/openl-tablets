@@ -139,15 +139,15 @@
             </h:form>
         </td></tr></table>
 
-        <h:panelGroup rendered="#{showTableBean.hasErrors}" layout="block" style="margin-top: 10px;">
+        <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
             <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
                 <span style="margin-right: 4px">Problems</span>
-                <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Errors"
-                    onclick="$('errorsPanel').toggle();this.src=(this.title == 'Hide Errors' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Errors' ? 'Show Errors' : 'Hide Errors');" />
+                <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Problems"
+                    onclick="$('problemsPanel').toggle();this.src=(this.title == 'Hide Problems' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Hide Problems' : 'Hide Problems');" />
             </div>
-            <div id="errorsPanel">
+            <div id="problemsPanel">
                 <ui:include src="/facelets/messages.xhtml">
-                    <ui:param name="messages" value="#{showTableBean.errors}" />
+                    <ui:param name="messages" value="#{showTableBean.problems}" />
                 </ui:include>
                 <br />
             </div>
