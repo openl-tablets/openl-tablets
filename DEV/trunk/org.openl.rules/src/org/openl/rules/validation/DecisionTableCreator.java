@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -39,6 +39,11 @@ import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableCreator {
     
+    private static final int SERVICE_ROWS_NUMBER = 5; // number 5 - is a number of first development rows.
+    private static final int ROW_NUM_CONDITION_DISPLAY_NAME = 4;
+    private static final int ROW_NUM_CONDITION_INITIALIZATION = 3;
+    private static final int ROW_NUM_CONDITION_EXPRESSION = 2;
+    private static final int ROW_NUM_CONDITION_NAME = 1; // condition name always is the next row after header row.
     private static final String RESULT_VAR = "result";    
     public static final String CURRENT_DATE_PARAM = "currentDate";
     public static final String LOCAL_PARAM_SUFFIX = "Local";
@@ -52,14 +57,12 @@ public class DecisionTableCreator {
     private static final String EXPIRATION_DATE_PROP = "expirationDate";
     private static final String EFFECTIVE_DATE_PROP = "effectiveDate";    
     
-    private int conditionsWidth;
     private int simpleConditionsWidth = 0;
     private int mergedConditionsWidth = 0;
     private String originalTableName;
     private String newTableName;
     private Map<String, IOpenClass> originalParameters;
-    private List<TableSyntaxNode> tablesGroup;
-    private String[] dimensionalTableProp;
+    private List<TableSyntaxNode> tablesGroup;    
     private List<String> simpleDimProp = new ArrayList<String>();
     private List<String> arrayDimProp = new ArrayList<String>();
     private IOpenClass originalReturnType;
@@ -80,8 +83,7 @@ public class DecisionTableCreator {
     
     public DecisionTableCreator(String originalTableName, Map<String, IOpenClass> originalParameters,
             List<TableSyntaxNode> tablesGroup, String[] dimensionalTableProp,
-            IOpenClass originalReturnType) {
-        this.conditionsWidth = dimensionalTableProp.length;
+            IOpenClass originalReturnType) {        
         for (String propName : dimensionalTableProp) {
             if (TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propName).isArray()) {
                 mergedConditionsWidth++;
@@ -90,8 +92,7 @@ public class DecisionTableCreator {
                 simpleConditionsWidth++;
                 simpleDimProp.add(propName);
             }
-        }        
-        this.dimensionalTableProp = dimensionalTableProp;
+        }
         this.originalParameters = originalParameters;
         this.originalReturnType = originalReturnType;
         this.originalTableName = originalTableName;
@@ -108,51 +109,78 @@ public class DecisionTableCreator {
     }
     
     private Sheet writeTableByPOI() {
-        String tableName = buildMethodHeader();        
-        
         Workbook wb = new HSSFWorkbook();
         
         Sheet sheet = wb.createSheet(DispatcherTableBuilder.DISPATCHER_TABLES_SHEET + originalTableName);
         
+        modifySimpleConditionsWidth();
+        
         // table writing starts from 0,0 indexes
-        int rowNum = 0;
-        Row firstRow = sheet.createRow((short)rowNum);
-        
-        int tableWidth = conditionsWidth + CountriesEnum.values().length - 2;
-        
-        Cell cell_0_0 = firstRow.createCell(0);
-        cell_0_0.setCellValue(tableName);
-        sheet.addMergedRegion(new CellRangeAddress(firstRow.getRowNum(), firstRow.getRowNum(), 
-                cell_0_0.getColumnIndex(), tableWidth));
-        
         // create all needed rows for table. 
         createAllRows(sheet);
         
         // write simple conditions, that are not an array type.
-        for (int i=0; i< simpleConditionsWidth; i++) {
+        for (int i = 0; i < simpleConditionsWidth; i++) {
             writeSimpleConditionColumn(sheet, i);
         }
         
-        int nextCol = writeCountriesConditionColumn(sheet, simpleConditionsWidth);
+        int lastColNum = writeCountriesConditionColumn(sheet, simpleConditionsWidth);
         
-        writeReturnColumn(sheet, nextCol);
+        writeReturnColumn(sheet, lastColNum);
+        
+        writeHeaderRow(sheet, lastColNum);
 
-        //writeTableToFile(wb);
+        writeTableToFile(wb);
         
         return sheet;
     }
 
+    private void writeHeaderRow(Sheet sheet, int lastColNum) {
+        int rowNumForHeader = 0;
+        String tableName = buildMethodHeader();
+        
+        Cell cell_0_0 = sheet.getRow(rowNumForHeader).createCell(0);
+        cell_0_0.setCellValue(tableName);
+        sheet.addMergedRegion(new CellRangeAddress(rowNumForHeader, rowNumForHeader, 
+                cell_0_0.getColumnIndex(), lastColNum));
+    }
     
+    /**
+     * We need to exclude those columns that for all rules have empty values.
+     */
+    private void modifySimpleConditionsWidth() {
+         simpleConditionsWidth = simpleConditionsWidth();
+    }
+    
+    /**
+     * Exclude conditions that for all rules have empty values
+     * 
+     * @return new number of simple conditions.
+     */
+    private int simpleConditionsWidth() {
+        int result = 0;
+        List<Integer> numberOfPropertiesToRemove = new ArrayList<Integer>(); 
+        for (int i = 0; i < simpleConditionsWidth; i++) {
+            if (isEmptyValuesForAllRules(i)) {
+                numberOfPropertiesToRemove.add(Integer.valueOf(i));                
+            }
+        }
+        result = simpleDimProp.size() - numberOfPropertiesToRemove.size();
+        for (Integer num : numberOfPropertiesToRemove) {
+            simpleDimProp.remove(num.intValue());
+        }
+        return result;
+    }
 
-    private void createAllRows(Sheet sheet) {
-        for (int i =1; i< dimensionalTableProp.length + 4; i++) {
+    private void createAllRows(Sheet sheet) {        
+        for (int i = 0; i < tablesGroup.size() + SERVICE_ROWS_NUMBER; i++) {
             sheet.createRow((short)i);
         }
     }
 
     //******************SIMPLE CONDITIONS WRITING***********************
     
-    private void writeSimpleConditionColumn(Sheet sheet, int colNum) {
+    private void writeSimpleConditionColumn(Sheet sheet, int colNum) {        
         writeSimpleConditionName(sheet, colNum);
         writeSimpleConditionExpression(sheet, colNum);
         writeSimpleConditionInitialization(sheet, colNum);
@@ -160,14 +188,29 @@ public class DecisionTableCreator {
         writeSimpleRuleValue(sheet, colNum);
     }
     
+    private boolean isEmptyValuesForAllRules(int colNum) {
+        boolean result = false;
+        int filledValues = 0;
+        for (int i = 0; i< tablesGroup.size(); i++) {
+            String propValue = getSimpleConditionRuleValue(tablesGroup.get(i), colNum);
+            if (StringUtils.isNotEmpty(propValue)) {
+                filledValues++;
+            }
+        }
+        if (filledValues == 0) {
+            result = true;
+        }
+        return result;
+    }
+
     /**
      * Condition name is always in the first row of the table.
      * 
      * @param sheet  
      * @param colNum
      */
-    private void writeSimpleConditionName(Sheet sheet, int colNum) {        
-        Cell cell = sheet.getRow(1).createCell(colNum);
+    private void writeSimpleConditionName(Sheet sheet, int colNum) {
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_NAME).createCell(colNum);
         cell.setCellValue("C"+(colNum+1));
     }
     
@@ -177,8 +220,8 @@ public class DecisionTableCreator {
      * @param sheet
      * @param colNum
      */
-    private void writeSimpleConditionExpression(Sheet sheet, int colNum) {
-        Cell cell = sheet.getRow(2).createCell(colNum);
+    private void writeSimpleConditionExpression(Sheet sheet, int colNum) {        
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_EXPRESSION).createCell(colNum);
         cell.setCellValue(getSimpleConditionExpression(colNum));        
     }
     
@@ -189,12 +232,12 @@ public class DecisionTableCreator {
      * @param colNum
      */
     private void writeSimpleConditionInitialization(Sheet sheet, int colNum) {
-        Cell cell = sheet.getRow(3).createCell(colNum);
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_INITIALIZATION).createCell(colNum);
         cell.setCellValue(getSimpleConditionInitialization(colNum));        
     }
     
     private void writeSimpleConditionDisplayName(Sheet sheet, int colNum) {
-        Cell cell = sheet.getRow(4).createCell(colNum);
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_DISPLAY_NAME).createCell(colNum);
         cell.setCellValue(getSimpleConditionDisplayName(colNum));
     }
     
@@ -206,7 +249,7 @@ public class DecisionTableCreator {
      */
     private void writeSimpleRuleValue(Sheet sheet, int colNum) {
         for (int i = 0; i< tablesGroup.size(); i++) {
-            Cell cell = sheet.getRow(i+5).createCell(colNum);
+            Cell cell = sheet.getRow(i+SERVICE_ROWS_NUMBER).createCell(colNum);
             cell.setCellValue(getSimpleConditionRuleValue(tablesGroup.get(i), colNum));
         }        
     }    
@@ -218,56 +261,72 @@ public class DecisionTableCreator {
     /**
      * @return number of the column to write next column
      */
-    private int writeCountriesConditionColumn(Sheet sheet, int colNum) {        
-        writeCountriesConditionName(sheet, colNum);
-        writeCountriesConditionExpression(sheet, colNum);
-        writeCountriesConditionInitialization(sheet, colNum);
-        writeCountriesConditionDisplayName(sheet, colNum);
-        writeCountriesRuleValue(sheet, colNum);
+    private int writeCountriesConditionColumn(Sheet sheet, int colNum) {   
+        int numCountriesColumns = findMaxNumberOfCountries(colNum);
+        writeCountriesConditionName(sheet, colNum, numCountriesColumns);
+        writeCountriesConditionExpression(sheet, colNum, numCountriesColumns);
+        writeCountriesConditionInitialization(sheet, colNum, numCountriesColumns);
+        writeCountriesConditionDisplayName(sheet, colNum, numCountriesColumns);
+        writeCountriesRuleValue(sheet, colNum, numCountriesColumns);
         
-        return colNum + CountriesEnum.values().length;
+        return colNum + numCountriesColumns;
         
     }    
     
-    private void writeCountriesConditionName(Sheet sheet, int colNum) {
-        Cell cell = sheet.getRow(1).createCell(colNum);
+    private int findMaxNumberOfCountries(int colNum) {
+        int result = 0;
+        TreeSet<Integer> numOfCountries = new TreeSet<Integer>();
+        for (int i = 0; i < tablesGroup.size(); i++) {
+            CountriesEnum[] countries = (CountriesEnum[])tablesGroup.get(i).getTableProperties().getPropertyValue(COUNTRY_PROP);
+            if (countries != null && countries.length > 0) {
+                numOfCountries.add(Integer.valueOf(countries.length));
+            }
+        }
+        if (numOfCountries.size() > 1) {
+            result = numOfCountries.last().intValue();
+        }
+        return result;
+    }
+
+    private void writeCountriesConditionName(Sheet sheet, int colNum, int numCountriesColumns) {
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_NAME).createCell(colNum);
         cell.setCellValue("C"+(colNum+1));   
-        sheet.addMergedRegion(new CellRangeAddress(1, 1, 
-                colNum, colNum + CountriesEnum.values().length - 1));         
+        sheet.addMergedRegion(new CellRangeAddress(ROW_NUM_CONDITION_NAME, ROW_NUM_CONDITION_NAME, 
+                colNum, colNum + numCountriesColumns - 1));         
     }
     
-    private void writeCountriesConditionExpression(Sheet sheet, int colNum) {
-        Cell cell = sheet.getRow(2).createCell(colNum);
-        cell.setCellValue(getCountriesAlgorithm(colNum));    
+    private void writeCountriesConditionExpression(Sheet sheet, int colNum, int numCountriesColumns) {
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_EXPRESSION).createCell(colNum);
+        cell.setCellValue(getCountriesAlgorithm(colNum, numCountriesColumns));    
         sheet
-        .addMergedRegion(new CellRangeAddress(2, 2, 
-                colNum, colNum + CountriesEnum.values().length - 1));         
+        .addMergedRegion(new CellRangeAddress(ROW_NUM_CONDITION_EXPRESSION, ROW_NUM_CONDITION_EXPRESSION, 
+                colNum, colNum + numCountriesColumns - 1));         
     }
     
-    private void writeCountriesConditionInitialization(Sheet sheet, int colNum) {                
+    private void writeCountriesConditionInitialization(Sheet sheet, int colNum, int numCountriesColumns) {                
         String dimPropName = arrayDimProp.get(colNum - simpleConditionsWidth);
-        for (int i = 0;i < CountriesEnum.values().length; i++) {
-            Cell cell = sheet.getRow(3).createCell(colNum);
+        for (int i = 0;i < numCountriesColumns; i++) {
+            Cell cell = sheet.getRow(ROW_NUM_CONDITION_INITIALIZATION).createCell(colNum);
             cell.setCellValue(String.format("%s %s", CountriesEnum.class.getSimpleName(), dimPropName + LOCAL_PARAM_SUFFIX + (i+1)));
             colNum++;
         }        
     }
     
-    private void writeCountriesConditionDisplayName(Sheet sheet, int colNum) {
+    private void writeCountriesConditionDisplayName(Sheet sheet, int colNum, int numCountriesColumns) {
         String dimPropName = arrayDimProp.get(colNum - simpleConditionsWidth);        
         TablePropertyDefinition propDef = TablePropertyDefinitionUtils.getPropertyByName(dimPropName);        
-        for (int i = 0;i < CountriesEnum.values().length; i++) {
-            Cell cell = sheet.getRow(4).createCell(colNum);
+        for (int i = 0;i < numCountriesColumns; i++) {
+            Cell cell = sheet.getRow(ROW_NUM_CONDITION_DISPLAY_NAME).createCell(colNum);
             cell.setCellValue(propDef.getDisplayName() + (i+1));
             colNum++;
         }
     }
 
-    private void writeCountriesRuleValue(Sheet sheet, int colNum) {
+    private void writeCountriesRuleValue(Sheet sheet, int colNum, int numCountriesColumns) {
         int startCol = colNum;
-        for (int i = 0; i< tablesGroup.size(); i++) {
-            for (int j = 0;j < CountriesEnum.values().length; j++) {
-                Cell cell = sheet.getRow(i+5).createCell(colNum);
+        for (int i = 0; i < tablesGroup.size(); i++) {
+            for (int j = 0;j < numCountriesColumns; j++) {
+                Cell cell = sheet.getRow(i+SERVICE_ROWS_NUMBER).createCell(colNum);
                 cell.setCellValue(getCountriesRuleValue(tablesGroup.get(i), colNum - startCol));                
                 colNum++;
             }
@@ -285,10 +344,10 @@ public class DecisionTableCreator {
         }         
     }    
 
-    private String getCountriesAlgorithm(int colNum) {
+    private String getCountriesAlgorithm(int colNum, int numCountriesColumns) {
         StringBuffer strBuf = new StringBuffer();
-        int paramNum = CountriesEnum.values().length;
-        for (int i = 1;i <= CountriesEnum.values().length; i++) {
+        int paramNum = numCountriesColumns;
+        for (int i = 1;i <= numCountriesColumns; i++) {
             paramNum--;
             strBuf.append(String.format("%s == %s", 
                     COUNTRY_PROP + LOCAL_PARAM_SUFFIX + i, 
@@ -305,20 +364,20 @@ public class DecisionTableCreator {
     //******************RETURN SECTION WRITING***********************
     
     private void writeReturnColumn(Sheet sheet, int colNum) {
-        Cell cell = sheet.getRow(1).createCell(colNum);
+        Cell cell = sheet.getRow(ROW_NUM_CONDITION_NAME).createCell(colNum);
         cell.setCellValue("RET");
         
-        Cell cell1 = sheet.getRow(2).createCell(colNum);
+        Cell cell1 = sheet.getRow(ROW_NUM_CONDITION_EXPRESSION).createCell(colNum);
         cell1.setCellValue(RESULT_VAR);
         
-        Cell cell2 = sheet.getRow(3).createCell(colNum);
+        Cell cell2 = sheet.getRow(ROW_NUM_CONDITION_INITIALIZATION).createCell(colNum);
         cell2.setCellValue(String.format("%s %s", originalReturnType.getDisplayName(0), RESULT_VAR));
         
-        Cell cell3 = sheet.getRow(4).createCell(colNum);
+        Cell cell3 = sheet.getRow(ROW_NUM_CONDITION_DISPLAY_NAME).createCell(colNum);
         cell3.setCellValue(RESULT_VAR.toUpperCase());
         
         for (int i = 0; i< tablesGroup.size(); i++) {
-            Cell cellRule = sheet.getRow(i+5).createCell(colNum);
+            Cell cellRule = sheet.getRow(i + SERVICE_ROWS_NUMBER).createCell(colNum);
             cellRule.setCellValue(String.format("=%s(%s)", originalTableName, originalParamsThroughComma())); 
         }
     }
