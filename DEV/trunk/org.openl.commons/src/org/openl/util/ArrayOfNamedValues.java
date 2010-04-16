@@ -3,6 +3,9 @@
  */
 package org.openl.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author snshor
  */
@@ -37,10 +40,15 @@ public class ArrayOfNamedValues {
             if (i > 0) {
                 sb.append(',');
             }
-            sb.append(getName(i)).append("=").append(getValue(i));
-
+            sb.append(getName(i)).append(" = ");
+            Object value = getValue(i);
+            if (value instanceof Date) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                sb.append(dateFormat.format(value));
+            } else {
+                sb.append(value);
+            }
         }
-
         return sb.toString();
     }
 

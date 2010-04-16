@@ -110,7 +110,7 @@ public class DesionTableValidationResult implements IValidationResult {
         StringBuffer validationResultDetails = new StringBuffer();
         
         if (getUncovered().length > 0) {
-            validationResultDetails.append(String.format("Uncovered: %s", Arrays.asList(getUncovered())));
+            validationResultDetails.append(String.format("There is an uncovered case for values : %s", Arrays.asList(getUncovered())));
         }
         
         if (getOverlappings().length > 0) {
