@@ -158,17 +158,17 @@ public class DecisionTableCreator {
      * @return new number of simple conditions.
      */
     private int simpleConditionsWidth() {
-        int result = 0;
-        List<Integer> numberOfPropertiesToRemove = new ArrayList<Integer>(); 
+        int result = 0;        
+        List<String> propertiesToRemove = new ArrayList<String>();
         for (int i = 0; i < simpleConditionsWidth; i++) {
-            if (isEmptyValuesForAllRules(i)) {
-                numberOfPropertiesToRemove.add(Integer.valueOf(i));                
+            if (isEmptyValuesForAllRules(i)) {                
+                propertiesToRemove.add(simpleDimProp.get(i));
             }
         }
-        result = simpleDimProp.size() - numberOfPropertiesToRemove.size();
-        for (Integer num : numberOfPropertiesToRemove) {
-            simpleDimProp.remove(num.intValue());
-        }
+        result = simpleDimProp.size() - propertiesToRemove.size();
+        
+        simpleDimProp.removeAll(propertiesToRemove);
+        
         return result;
     }
 
@@ -263,14 +263,14 @@ public class DecisionTableCreator {
      */
     private int writeCountriesConditionColumn(Sheet sheet, int colNum) {   
         int numCountriesColumns = findMaxNumberOfCountries(colNum);
-        writeCountriesConditionName(sheet, colNum, numCountriesColumns);
-        writeCountriesConditionExpression(sheet, colNum, numCountriesColumns);
-        writeCountriesConditionInitialization(sheet, colNum, numCountriesColumns);
-        writeCountriesConditionDisplayName(sheet, colNum, numCountriesColumns);
-        writeCountriesRuleValue(sheet, colNum, numCountriesColumns);
-        
-        return colNum + numCountriesColumns;
-        
+        if (numCountriesColumns > 0) {
+            writeCountriesConditionName(sheet, colNum, numCountriesColumns);
+            writeCountriesConditionExpression(sheet, colNum, numCountriesColumns);
+            writeCountriesConditionInitialization(sheet, colNum, numCountriesColumns);
+            writeCountriesConditionDisplayName(sheet, colNum, numCountriesColumns);
+            writeCountriesRuleValue(sheet, colNum, numCountriesColumns);
+        }
+        return colNum + numCountriesColumns;        
     }    
     
     private int findMaxNumberOfCountries(int colNum) {
