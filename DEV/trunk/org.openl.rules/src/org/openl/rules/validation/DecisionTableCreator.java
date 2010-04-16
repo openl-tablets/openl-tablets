@@ -130,7 +130,7 @@ public class DecisionTableCreator {
         
         writeHeaderRow(sheet, lastColNum);
 
-        writeTableToFile(wb);
+        //writeTableToFile(wb);
         
         return sheet;
     }
