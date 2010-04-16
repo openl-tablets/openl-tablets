@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +9,14 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -31,6 +35,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringTool;
 
 /**
@@ -45,7 +50,11 @@ public class ShowTableBean {
     private boolean testable;
     private String uri;
     private ITable table;
+
     private List<OpenLMessage> errors;
+    private List<OpenLMessage> warnings;
+    // Errors + Warnings
+    private List<OpenLMessage> problems;
 
     private String notViewParams;
     private String paramsWithoutShowFormulas;
@@ -67,8 +76,7 @@ public class ShowTableBean {
 
         table = model.getTable(uri);
 
-        List<OpenLMessage> messages = table.getMessages();
-        errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+        initProblems();
 
         url = model.makeXlsUrl(uri);
         runnable = model.isRunnable(uri);
@@ -126,6 +134,48 @@ public class ShowTableBean {
         return errors;
     }
 
+    public List<OpenLMessage> getWarnings() {
+        return warnings;
+    }
+
+    public List<OpenLMessage> getProblems() {
+        return problems;
+    }
+
+    private void initProblems() {
+        initErrors();
+        initWarnings();
+
+        problems = new ArrayList<OpenLMessage>();
+        problems.addAll(errors);
+        problems.addAll(warnings);
+    }
+
+    private void initErrors() {
+        List<OpenLMessage> messages = table.getMessages();
+        errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+    }
+
+    private void initWarnings() {
+        warnings = new ArrayList<OpenLMessage>();
+
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+
+        CompiledOpenClass compiledOpenClass = model.getWrapper().getCompiledOpenClass();
+
+        List<OpenLMessage> messages = compiledOpenClass.getMessages();
+        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+        for (OpenLMessage message : warningMessages) {
+            OpenLWarnMessage warning = (OpenLWarnMessage) message;
+            ISyntaxNode syntaxNode = warning.getSource();
+            if (syntaxNode instanceof TableSyntaxNode
+                     && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
+                warnings.add(warning);
+            }
+        }
+    }
+
     public TestRunsResultBean getTestRunResults() {
         AllTestsRunResult atr = WebStudioUtils.getWebStudio().getModel().getRunMethods(uri);
         AllTestsRunResult.Test[] tests = null;
@@ -177,6 +227,14 @@ public class ShowTableBean {
 
     public boolean isHasErrors() {
         return CollectionUtils.isNotEmpty(errors);
+    }
+
+    public boolean isHasWarnings() {
+        return CollectionUtils.isNotEmpty(warnings);
+    }
+
+    public boolean isHasProblems() {
+        return isHasErrors() || isHasWarnings();
     }
 
     public boolean isRunnable() {
