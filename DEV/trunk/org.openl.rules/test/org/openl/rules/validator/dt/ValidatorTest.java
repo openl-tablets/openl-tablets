@@ -77,7 +77,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         
         DesionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertEquals(1, dtValidResult.getUncovered().length);
-        assertEquals("Param value missing", "hour=24", dtValidResult.getUncovered()[0].getValues().toString());
+        assertEquals("Param value missing", "hour = 24", dtValidResult.getUncovered()[0].getValues().toString());
     }
         
     private DesionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
@@ -188,7 +188,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         assertTrue(dtValidResult.hasProblems());
         assertTrue(dtValidResult.getOverlappings().length == 1);
         DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
-        assertEquals("value=V2",overlap.getValues().toString());
+        assertEquals("value = V2",overlap.getValues().toString());
     }
     
     @Test
@@ -199,7 +199,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         assertTrue(dtValidResult.hasProblems());
         assertTrue(dtValidResult.getUncovered().length == 1);
         DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
-        assertEquals("value=V4",gap.getValues().toString());
+        assertEquals("value = V4",gap.getValues().toString());
     }
     
     @Test

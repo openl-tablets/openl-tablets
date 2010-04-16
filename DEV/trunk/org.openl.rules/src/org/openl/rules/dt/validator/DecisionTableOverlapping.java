@@ -29,8 +29,8 @@ public class DecisionTableOverlapping {
     }
 
     @Override
-    public String toString() {
-        return String.format("Rules #%s overlap for {%s}", ArrayTool.asString(rules), value.toString());
+    public String toString() {        
+        return String.format("Rules #%s, overlap for values {%s}", ArrayTool.asString(rules), value.toString());
     }
 
 }
