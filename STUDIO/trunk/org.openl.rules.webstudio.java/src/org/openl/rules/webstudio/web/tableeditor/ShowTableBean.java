@@ -199,10 +199,10 @@ public class ShowTableBean {
     }
 
     public boolean isCopyable() {        
-        return canModifyCurrentProject() && !isServiceNode()  && !isDispatcherValidationNode();
+        return canModifyCurrentProject() && !isServiceTable()  && !isDispatcherValidationNode();
     }
 
-    private boolean isServiceNode() {
+    public boolean isServiceTable() {
         String tableType = table.getType();
         if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType)
                 || ITableNodeTypes.XLS_OTHER.equals(tableType)
@@ -222,7 +222,7 @@ public class ShowTableBean {
     }
     
     public boolean isEditableAsNewVersion() {
-        return canModifyCurrentProject() && !isServiceNode() && !isDispatcherValidationNode();
+        return canModifyCurrentProject() && !isServiceTable() && !isDispatcherValidationNode();
     }
 
     public boolean isHasErrors() {
@@ -288,7 +288,7 @@ public class ShowTableBean {
     @SuppressWarnings("unchecked")
     public boolean updateSystemProperties() {
         boolean result = true;
-        if (!isServiceNode()) {
+        if (!isServiceTable()) {
             String editorId = FacesUtils.getRequestParameter(
                     org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 

@@ -72,51 +72,49 @@
                     <h:graphicImage url="/webresource/images/delete.gif" alt="Remove Table" title="Remove Table" />
                 </h:commandLink>
 
-                <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
-                    <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml" title="Run">
+                <c:if test="#{!showTableBean.serviceTable}">
+                    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <h:graphicImage url="/webresource/images/test.gif" alt="Run" title="Run" />
+                        </h:outputLink>
+    
+                        <c:set var="traceUrl"
+                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
+                        <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
+                            <img border="0" src="webresource/images/trace.gif"
+                                title="Trace" alt="Trace" /></a>
+    
+                        <h:outputLink
+                            value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <h:graphicImage url="/webresource/images/clock-icon.png"
+                                title="Benchmark" alt="Benchmark" />
+                        </h:outputLink>
+                    </c:if>
+    
+                    <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
+                        value="#{contextPath}/faces/facelets/test/runAllTests.xhtml">
                         <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/test.gif" alt="Test" />
+                        <h:graphicImage url="/webresource/images/test_ok.gif" title="Test" alt="Test" />
                     </h:outputLink>
-
-                    <c:set var="traceUrl"
-                        value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
-                    <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#" title="Trace">
-                        <img border="0" src="webresource/images/trace.gif" alt="trace" /></a>
-
-                    <h:outputLink
-                        value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml" title="Benchmark">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/clock-icon.png"
-                            alt="benchmark" />
+    
+                    <h:outputLink value="?#{showTableBean.notViewParams}">
+                        <f:param value="view.business" name="view" />
+                        <h:graphicImage
+                            url="/webresource/images/business-view.png"
+                            title="Business View" alt="Business View" />
                     </h:outputLink>
-                </c:if>
-
-                <c:if test="#{showTableBean.testable and !showTableBean.hasErrors}">
-                    <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" title="Test">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/test_ok.gif" alt="test" />
+    
+                    <h:outputLink value="?#{showTableBean.notViewParams}">
+                        <f:param value="view.developer" name="view" />
+                        <h:graphicImage
+                            url="/webresource/images/developer-view.png"
+                            title="Developer (Full) View"
+                            alt="Full View" />
                     </h:outputLink>
-                </c:if>
-
-                <h:outputLink
-                    value="?#{showTableBean.notViewParams}">
-                    <f:param value="view.business" name="view" />
-                    <h:graphicImage
-                        url="/webresource/images/business-view.png"
-                        title="Business View" alt="Business View" />
-                </h:outputLink>
-
-                <h:outputLink
-                    value="?#{showTableBean.notViewParams}">
-                    <f:param value="view.developer" name="view" />
-                    <h:graphicImage
-                        url="/webresource/images/developer-view.png"
-                        title="Developer (Full) View"
-                        alt="Full View" />
-                </h:outputLink>
-
-                <c:if test="#{showTableBean.showFormulas}">
-                    <h:outputLink
+    
+                    <h:outputLink rendered="#{showTableBean.showFormulas}"
                         value="?#{showTableBean.paramsWithoutShowFormulas}">
                         <f:param name="showFormulas" value="false" />
                         <h:graphicImage
@@ -124,10 +122,8 @@
                             title="Don't Show Formulas"
                             alt="Don't Show Formulas" />
                     </h:outputLink>
-                </c:if>
-
-                <c:if test="#{not showTableBean.showFormulas}">
-                    <h:outputLink
+    
+                    <h:outputLink rendered="#{not showTableBean.showFormulas}"
                         value="?#{showTableBean.paramsWithoutShowFormulas}">
                         <f:param value="true" name="showFormulas" />
                         <h:graphicImage
