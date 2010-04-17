@@ -3,10 +3,10 @@
  */
 package org.openl.rules.search;
 
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.TransposedGridTable;
-import org.openl.rules.table.CompositeTableGrid;
 
 /**
  * @author snshor
@@ -14,21 +14,17 @@ import org.openl.rules.table.CompositeTableGrid;
  */
 public class OpenLAdvancedSearchResultViewer {
 
-    OpenLAdvancedSearchResult result;
-
-    public OpenLAdvancedSearchResultViewer(OpenLAdvancedSearchResult result) {
-        this.result = result;
-    }
+    public OpenLAdvancedSearchResultViewer() {}
 
     private IGridTable align(IGridTable rowTable, boolean isVertical) {
         return isVertical == isVertical(rowTable) ? rowTable : new TransposedGridTable(rowTable);
     }
 
-    boolean isVertical(IGridTable t) {
+    private boolean isVertical(IGridTable t) {
         return IGridRegion.Tool.width(t.getRegion()) >= IGridRegion.Tool.height(t.getRegion());
     }
 
-    public CompositeTableGrid makeGrid(ISearchTableRow[] rows) {
+    public CompositeGrid makeGrid(ISearchTableRow[] rows) {
         if (rows.length == 0) {
             return null;
         }
@@ -47,7 +43,7 @@ public class OpenLAdvancedSearchResultViewer {
             tables[(header != null ? 1 : 0) + i] = align(rows[i].getRowTable(), isVertical);
         }
 
-        return new CompositeTableGrid(tables, isVertical);
+        return new CompositeGrid(tables, isVertical);
     }
 
 }

@@ -13,11 +13,31 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author snshor
  *
  */
-public class OpenLAdvancedSearchResult {
+public class OpenLAdvancedSearchResult {    
 
-    static public class TableAndRows {
-        TableSyntaxNode tsn;
-        ISearchTableRow[] rows;
+    private ArrayList<TableAndRows> foundTables = new ArrayList<TableAndRows>();
+
+    public OpenLAdvancedSearchResult() {}
+
+    public void add(TableSyntaxNode tsn, ISearchTableRow[] rows) {
+        foundTables.add(new TableAndRows(tsn, rows));
+    }
+ 
+    public TableAndRows[] getFoundTableAndRows() {
+        TableAndRows[] tr = foundTables.toArray(new TableAndRows[0]);
+
+        Arrays.sort(tr, new Comparator<TableAndRows>() {
+
+            public int compare(TableAndRows t1, TableAndRows t2) {
+                return t2.rows.length - t1.rows.length;
+            }
+        });
+        return tr;
+    }
+    
+    public static class TableAndRows {
+        private TableSyntaxNode tsn;
+        private ISearchTableRow[] rows;
 
         public TableAndRows(TableSyntaxNode tsn, ISearchTableRow[] rows) {
             this.rows = rows;
@@ -31,37 +51,6 @@ public class OpenLAdvancedSearchResult {
         public TableSyntaxNode getTsn() {
             return tsn;
         }
-    }
-
-    OpenLAdvancedSearch search;
-
-    ArrayList<TableAndRows> foundTables = new ArrayList<TableAndRows>();
-
-    public OpenLAdvancedSearchResult(OpenLAdvancedSearch search) {
-        this.search = search;
-    }
-
-    /**
-     * @param tsn
-     * @param rows
-     */
-    public void add(TableSyntaxNode tsn, ISearchTableRow[] rows) {
-        foundTables.add(new TableAndRows(tsn, rows));
-    }
-
-    /**
-     * @return
-     */
-    public TableAndRows[] tablesAndRows() {
-        TableAndRows[] tr = foundTables.toArray(new TableAndRows[0]);
-
-        Arrays.sort(tr, new Comparator<TableAndRows>() {
-
-            public int compare(TableAndRows t1, TableAndRows t2) {
-                return t2.rows.length - t1.rows.length;
-            }
-        });
-        return tr;
     }
 
 }

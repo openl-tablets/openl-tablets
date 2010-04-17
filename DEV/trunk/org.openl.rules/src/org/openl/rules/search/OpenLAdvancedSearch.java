@@ -284,7 +284,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         ATableSyntaxNodeSelector[] tableSelectors = getTableSelectors();
         ATableRowSelector[] columnSelectors = getColumnSelectors();
 
-        OpenLAdvancedSearchResult res = new OpenLAdvancedSearchResult(this);
+        OpenLAdvancedSearchResult res = new OpenLAdvancedSearchResult();
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodesWithoutErrors();
         for (TableSyntaxNode table : tables) {
