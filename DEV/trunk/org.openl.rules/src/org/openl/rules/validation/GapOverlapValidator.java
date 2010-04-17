@@ -24,10 +24,11 @@ public class GapOverlapValidator extends TablesValidator {
 
     private static final String VALIDATION_FAILED = "Validation failed for node : ";
 
-    private ValidationResult validationResult = null;
+    private ValidationResult validationResult;
 
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
+        validationResult = null;
 
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (isValidatableNode(tsn)) {
