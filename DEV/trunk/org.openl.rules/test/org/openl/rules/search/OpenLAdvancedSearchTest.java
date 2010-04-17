@@ -30,8 +30,8 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
-            assertTrue(8 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
-            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).tablesAndRows()) {
+            assertTrue(8 == ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows().length);
+            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows()) {
                 assertTrue(tabAndRows.getRows().length>0);
             }
             
@@ -54,8 +54,8 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
-            assertTrue(11 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
-            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).tablesAndRows()) {
+            assertTrue(11 == ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows().length);
+            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows()) {
                 assertTrue(tabAndRows.getRows().length>0);
             }
             
@@ -87,8 +87,8 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
-            assertTrue(31 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
-            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).tablesAndRows()) {
+            assertTrue(31 == ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows().length);
+            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows()) {
                 assertTrue(tabAndRows.getRows().length>0);
             }
         } else {
@@ -114,18 +114,18 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             OpenLAdvancedSearchResult result = ((OpenLAdvancedSearchResult)searchResult);
-            assertTrue(31 == result.tablesAndRows().length);
+            assertTrue(31 == result.getFoundTableAndRows().length);
             
             for(int i = 0; i<2; i++) {
-                assertTrue(result.tablesAndRows()[i].getRows().length > 0);
+                assertTrue(result.getFoundTableAndRows()[i].getRows().length > 0);
                 if(i==0) {
-                    assertEquals("Theft Rating Table", result.tablesAndRows()[i].tsn.getTableProperties().getName());
+                    assertEquals("Theft Rating Table", result.getFoundTableAndRows()[i].getTsn().getTableProperties().getName());
                 } else {
-                    assertEquals("Injury Rating Table", result.tablesAndRows()[i].tsn.getTableProperties().getName());
+                    assertEquals("Injury Rating Table", result.getFoundTableAndRows()[i].getTsn().getTableProperties().getName());
                 }
             }
-            for(int i = 2; i<result.tablesAndRows().length; i++) {
-                assertTrue(((OpenLAdvancedSearchResult)searchResult).tablesAndRows()[i].getRows().length == 0);
+            for(int i = 2; i<result.getFoundTableAndRows().length; i++) {
+                assertTrue(((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows()[i].getRows().length == 0);
             }
         } else {
             fail();
@@ -150,18 +150,18 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             OpenLAdvancedSearchResult result = ((OpenLAdvancedSearchResult)searchResult);
-            assertTrue(31 == result.tablesAndRows().length);
+            assertTrue(31 == result.getFoundTableAndRows().length);
             
             for(int i = 0; i<2; i++) {
-                assertTrue(result.tablesAndRows()[i].getRows().length > 0);
+                assertTrue(result.getFoundTableAndRows()[i].getRows().length > 0);
                 if(i==0) {
-                    assertEquals("Injury Rating Table", (String)result.tablesAndRows()[i].tsn.getTableProperties().getName());
+                    assertEquals("Injury Rating Table", (String)result.getFoundTableAndRows()[i].getTsn().getTableProperties().getName());
                 } else {
-                    assertEquals("Vehicle Discounts", (String)result.tablesAndRows()[i].tsn.getTableProperties().getName());
+                    assertEquals("Vehicle Discounts", (String)result.getFoundTableAndRows()[i].getTsn().getTableProperties().getName());
                 }
             }
-            for(int i = 2; i<result.tablesAndRows().length; i++) {
-                assertTrue(((OpenLAdvancedSearchResult)searchResult).tablesAndRows()[i].getRows().length == 0);
+            for(int i = 2; i<result.getFoundTableAndRows().length; i++) {
+                assertTrue(((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows()[i].getRows().length == 0);
             }
         } else {
             fail();
