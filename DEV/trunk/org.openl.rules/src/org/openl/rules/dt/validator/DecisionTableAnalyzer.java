@@ -9,6 +9,8 @@ import java.util.Map;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.ILocalVar;
 import org.openl.domain.IDomain;
+import org.openl.domain.IntRangeDomain;
+import org.openl.domain.StringDomain;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
@@ -78,6 +80,45 @@ public class DecisionTableAnalyzer {
         return usedParamsFromSignature.get(parameterName).getDomain();
     }
     
+    public IDomain<?> gatherDomainFromValues(IParameterDeclaration parameter, ICondition condition) {
+        String type = parameter.getType().getDisplayName(0);
+        if (type.equals("String")) {
+            return gatherStringDomainFromValues(condition.getParamValues());
+        }
+        if (type.equals("int")) {
+            return gatherIntDomainFromValues(condition.getParamValues());
+        }
+        throw new RuntimeException("Failed to create domain for type \"" + type + "\"");
+    }
+
+    private StringDomain gatherStringDomainFromValues(Object[][] values) {
+        String[] enumValues = new String[values.length * values[0].length];
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] != null) {
+                for (int j = 0; j < values[i].length; j++) {
+                    enumValues[i * values[i].length + j] = (String) values[i][j];
+                }
+            }
+        }
+        return new StringDomain(enumValues);
+    }
+
+    private IntRangeDomain gatherIntDomainFromValues(Object[][] values) {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i < values.length; i++) {
+            for (int j = 0; j < values[i].length; j++) {
+                if (min > (Integer) values[i][j]) {
+                    min = (Integer) values[i][j];
+                }
+                if (max < (Integer) values[i][j]) {
+                    max = (Integer) values[i][j];
+                }
+            }
+        }
+        return new IntRangeDomain(min, max);
+    }
+
     /**
      * Goes through the condition in algorithm column and search the params that are income parameters from 
      * the signature.

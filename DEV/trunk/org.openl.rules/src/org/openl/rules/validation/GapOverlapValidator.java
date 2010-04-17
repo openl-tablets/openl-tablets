@@ -1,16 +1,25 @@
 package org.openl.rules.validation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
+import org.openl.domain.IDomain;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.type.DomainAdaptorFactory;
 import org.openl.rules.dt.type.IDomainAdaptor;
+import org.openl.rules.dt.validator.DecisionTableAnalyzer;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
+import org.openl.types.IParameterDeclaration;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
@@ -34,7 +43,7 @@ public class GapOverlapValidator extends TablesValidator {
             if (isValidatableNode(tsn)) {
                 DesionTableValidationResult dtValidResult = null;
                 try {
-                    Map<String, IDomainAdaptor> domains = gatherDomains(tsn);
+                    Map<String, IDomainAdaptor> domains = gatherDomains((DecisionTable) tsn.getMember());
                     dtValidResult = DecisionTableValidator.validateTable((DecisionTable) tsn.getMember(), domains,
                             openClass);
                 } catch (Exception t) {
@@ -51,9 +60,49 @@ public class GapOverlapValidator extends TablesValidator {
         }
         return ValidationUtils.validationSuccess();
     }
-    
-    private Map<String, IDomainAdaptor> gatherDomains(TableSyntaxNode tsn){
-        //TODO: get not-specifed domains from table values.
+
+    private Map<String, IDomainAdaptor> gatherDomains(DecisionTable dt) {
+        Map<String, IDomainAdaptor> domainsMap = new HashMap<String, IDomainAdaptor>();
+        DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(dt);
+        for (ICondition condition : dt.getConditionRows()) {
+            List<IParameterDeclaration> parameters = getAllParameters(condition, analyzer);
+            IDomain<?> domain = findDomainForConditionVariables(parameters, condition, analyzer);
+            if (domain != null) {
+                IDomainAdaptor adaptor = DomainAdaptorFactory.getAdaptor(domain);
+                for (IParameterDeclaration parameter : parameters) {
+                    domainsMap.put(parameter.getName(), adaptor);
+                }
+            }
+        }
+        return domainsMap;
+    }
+
+    /**
+     * @return all parameter declarations: from signature and local from
+     *         condition
+     */
+    private List<IParameterDeclaration> getAllParameters(ICondition condition, DecisionTableAnalyzer analyzer) {
+        List<IParameterDeclaration> result = new ArrayList<IParameterDeclaration>();
+        IParameterDeclaration[] paramDeclarations = condition.getParams();
+        result.addAll(Arrays.asList(paramDeclarations));
+        IParameterDeclaration[] referencedSignatureParams = analyzer.referencedSignatureParams(condition);
+        result.addAll(Arrays.asList(referencedSignatureParams));
+        return result;
+    }
+
+    /**
+     * @param condition Condition to check for variables without domain.
+     * @return <code>null</code> if there is no variables without domain
+     *         otherwise the domain for variables without domain.
+     */
+    private IDomain<?> findDomainForConditionVariables(List<IParameterDeclaration> parameters, ICondition condition,
+            DecisionTableAnalyzer analyzer) {
+        for (IParameterDeclaration parameter : parameters) {
+            IDomain<?> domain = parameter.getType().getDomain();
+            if (domain == null) {
+                return analyzer.gatherDomainFromValues(parameter, condition);
+            }
+        }
         return null;
     }
 
