@@ -97,10 +97,15 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
+        String folderName = getFolderName(method);
+        return makeFolderNode(folderName);
+    }
+
+    private String getFolderName(IOpenMethod method) {
         OverloadedMethodsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
         Set<TableSyntaxNodeKey> methodOverloads = openMethodGroupsDictionary.getAllMethodOverloads(method);
         String folderName = getMajorityName(methodOverloads);
-        return makeFolderNode(folderName);
+        return folderName;
     }
 
     /**
@@ -117,11 +122,13 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
             int hash = methodKey.hashCode();
             String hashString = String.valueOf(hash);
 
+            String folderName = getFolderName(method);
+
             Object nodeObject = makeObject(tableSyntaxNode);
 
-            String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
+            String[] displayNames = new String[3];
             for(int k = 0; k < displayNames.length; k++){
-                displayNames[i] += hashString;
+                displayNames[k] = folderName + hashString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);
         }
