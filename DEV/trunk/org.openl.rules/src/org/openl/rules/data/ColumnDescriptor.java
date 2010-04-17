@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.openl.OpenL;
+import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -69,8 +69,9 @@ public class ColumnDescriptor {
     /**
      * Method is using to load data. Is used when data table is represents
      * <b>AS</b> a constructor (see {@link #isConstructor()}).
+     * @throws SyntaxNodeException 
      */
-    public Object getLiteral(IOpenClass paramType, ILogicalTable valuesTable, OpenlToolAdaptor ota) throws Exception {
+    public Object getLiteral(IOpenClass paramType, ILogicalTable valuesTable, OpenlToolAdaptor ota) throws SyntaxNodeException  {
         Object resultLiteral = null;
         boolean valuesAnArray = isValuesAnArray(paramType);
 
@@ -136,7 +137,7 @@ public class ColumnDescriptor {
      * <b>NOT</b> a constructor (see {@link #isConstructor()}). Support loading
      * single value, array of values.
      */
-    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws Exception {
+    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) {
         IOpenClass paramType = field.getType();
         boolean valuesAnArray = isValuesAnArray(paramType);
 
@@ -146,15 +147,19 @@ public class ColumnDescriptor {
 
         valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
-        if (!valuesAnArray) {
-            Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
-            if (res != null) {
-                field.set(literal, res, getRuntimeEnv());
-            }
-        } else {
-            Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+        try {
+            if (!valuesAnArray) {
+                Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
 
-            field.set(literal, arrayValues, getRuntimeEnv());
+                if (res != null) {
+                    field.set(literal, res, getRuntimeEnv());
+                }
+            } else {
+                Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+                field.set(literal, arrayValues, getRuntimeEnv());
+            }
+        } catch (SyntaxNodeException e) {
+            BindHelper.processError(e);
         }
     }
 
