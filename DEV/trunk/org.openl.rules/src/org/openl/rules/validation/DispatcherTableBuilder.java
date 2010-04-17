@@ -83,12 +83,12 @@ public class DispatcherTableBuilder {
         TableSyntaxNode groupMember = tablesGroup.get(0);
         String originalTableName = ((AMethod)groupMember.getMember()).getHeader().getName();
         
-        Map<String, IOpenClass> originalParameters = getOriginalTableParameters(groupMember);
+        IMethodSignature originalSignature = getOriginalTableSignature(groupMember);
         
         IOpenClass originalReturnType = getOtiginalTableReturnType(groupMember);
         
         DecisionTableCreator dtTableWriter = new DecisionTableCreator(originalTableName, 
-                originalParameters, tablesGroup, dimensionalTableProp, originalReturnType);
+                originalSignature, tablesGroup, dimensionalTableProp, originalReturnType);
         GridTable createdGridTable = dtTableWriter.createGridTable();        
         
         DecisionTable decisionTable = dtTableWriter.getCreatedDecTable(); 
@@ -130,13 +130,8 @@ public class DispatcherTableBuilder {
         return ((AMethod)groupMember.getMember()).getHeader().getType();        
     }    
 
-    private Map<String, IOpenClass> getOriginalTableParameters(TableSyntaxNode tsn) {
-        Map<String, IOpenClass> result = new HashMap<String, IOpenClass>();
-        IMethodSignature methodSignature = ((AMethod)tsn.getMember()).getHeader().getSignature();
-        for (int i=0; i<methodSignature.getNumberOfParameters(); i++) {
-            result.put(methodSignature.getParameterName(i), methodSignature.getParameterType(i));
-        }
-        return result;
+    private IMethodSignature getOriginalTableSignature(TableSyntaxNode tsn) {        
+        return ((AMethod)tsn.getMember()).getHeader().getSignature();
     }
     
     private TableSyntaxNode createTableSyntaxNode(XlsSheetGridModel sheetGridModel, GridTable gridTable) {        
