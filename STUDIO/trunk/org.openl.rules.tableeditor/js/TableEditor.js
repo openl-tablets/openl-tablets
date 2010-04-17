@@ -399,7 +399,7 @@ var TableEditor = Class.create({
         } else if (this.isPropLocation(elt)) {
             this.selectPropElement(elt);
         }
-        Event.stop(e);
+        //Event.stop(e);
     },
 
     buildUrl: function(action, paramString) {
