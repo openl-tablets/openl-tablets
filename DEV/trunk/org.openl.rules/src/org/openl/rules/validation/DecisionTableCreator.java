@@ -61,7 +61,7 @@ public class DecisionTableCreator {
     private int mergedConditionsWidth = 0;
     private String originalTableName;
     private String newTableName;
-    private Map<String, IOpenClass> originalParameters;
+    private IMethodSignature originalSignature;
     private List<TableSyntaxNode> tablesGroup;    
     private List<String> simpleDimProp = new ArrayList<String>();
     private List<String> arrayDimProp = new ArrayList<String>();
@@ -81,7 +81,7 @@ public class DecisionTableCreator {
         incomeParams.put(COUNTRY_PROP, JavaOpenClass.getOpenClass(CountriesEnum.class));
     }
     
-    public DecisionTableCreator(String originalTableName, Map<String, IOpenClass> originalParameters,
+    public DecisionTableCreator(String originalTableName, IMethodSignature originalSignature,
             List<TableSyntaxNode> tablesGroup, String[] dimensionalTableProp,
             IOpenClass originalReturnType) {        
         for (String propName : dimensionalTableProp) {
@@ -93,7 +93,7 @@ public class DecisionTableCreator {
                 simpleDimProp.add(propName);
             }
         }
-        this.originalParameters = originalParameters;
+        this.originalSignature = originalSignature;
         this.originalReturnType = originalReturnType;
         this.originalTableName = originalTableName;
         this.newTableName = DispatcherTableBuilder.DEFAULT_METHOD_NAME + "_" + this.originalTableName;
@@ -448,7 +448,7 @@ public class DecisionTableCreator {
                 newTableName);
         StringBuffer strBuf = new StringBuffer();
         strBuf.append(start);
-        strBuf.append(paramsWithTypesThroughComma(originalParameters));  
+        strBuf.append(originalParamsWithTypesThroughComma());  
         strBuf.append(", ");
         strBuf.append(paramsWithTypesThroughComma(incomeParams));
         strBuf.append(")");
@@ -469,12 +469,26 @@ public class DecisionTableCreator {
         return strBuf.toString();
     }
     
+    private String originalParamsWithTypesThroughComma() {
+        StringBuffer strBuf = new StringBuffer();
+        int paramNum = originalSignature.getNumberOfParameters();
+        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
+            paramNum--;
+            strBuf.append(originalSignature.getParameterType(j).getInstanceClass().getSimpleName()).append(" ")
+                .append(originalSignature.getParameterName(j));
+            if (paramNum > 0) {
+                strBuf.append(", ");
+            }
+        }   
+        return strBuf.toString();
+    }
+    
     private String originalParamsThroughComma() {
         StringBuffer strBuf = new StringBuffer();
-        int paramNum = originalParameters.size();
-        for (Map.Entry<String, IOpenClass> param : originalParameters.entrySet()) {
+        int paramNum = originalSignature.getNumberOfParameters();
+        for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {
             paramNum--;
-            strBuf.append(param.getKey());
+            strBuf.append(originalSignature.getParameterName(i));
             if (paramNum > 0) {
                 strBuf.append(", ");
             }
@@ -501,15 +515,15 @@ public class DecisionTableCreator {
     }
     
     private void createDecisionTable() {
-        int paramsNum = originalParameters.size() + incomeParams.size(); 
+        int paramsNum = originalSignature.getNumberOfParameters() + incomeParams.size(); 
         IOpenClass[] paramTypes = new IOpenClass[paramsNum];
         String[] paramNames = new String[paramsNum];
         int i = 0;
         
         // add original table params
-        for (Map.Entry<String, IOpenClass> param : originalParameters.entrySet()) {
-            paramTypes[i] = param.getValue();
-            paramNames[i] = param.getKey();
+        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
+            paramTypes[i] = originalSignature.getParameterType(j);
+            paramNames[i] = originalSignature.getParameterName(j);
             i++;
         }
         
