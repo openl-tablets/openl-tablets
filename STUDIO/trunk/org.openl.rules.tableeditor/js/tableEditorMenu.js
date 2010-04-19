@@ -13,15 +13,18 @@ Ajax.Responders.register({
     }
 });
 
-function triggerEdit(editorId, url) {
-    var cellUri = $(PopupMenu.lastTarget).down("input").value;
+function triggerEdit(editorId, url, cellToEdit) {
+    var cell = cellToEdit;
+    if (!cell) {
+        cell = $(PopupMenu.lastTarget);
+    }
     var editor = $(editorId);
     new Ajax.Request(url, {
         method: "get",
         encoding: "utf-8",
         contentType: "text/javascript",
         parameters: {
-            cell: cellUri.toQueryParams().cell,
+            cell: cell.down("input").value.toQueryParams().cell,
             editorId: editor.id.replace('te_comp','')
         },
         onSuccess: function(data) {

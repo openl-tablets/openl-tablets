@@ -405,8 +405,11 @@ public class HTMLRenderer {
 
         public String renderWithMenu(String menuId, boolean showFormulas, String errorCell) {
             menuId = menuId == null ? "" : menuId;
-            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"", true,
-                    showFormulas, errorCell);
+            return render("onmouseover=\"openMenu('"
+                    + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\" ondblclick=\"triggerEdit('"
+                    + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','"
+                    + WebUtil.internalPath("ajax/edit") + "', this)\"",
+                    true, showFormulas, errorCell);
         }
 
         public void setCellIdPrefix(String prefix) {
