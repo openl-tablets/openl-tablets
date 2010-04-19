@@ -41,7 +41,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return new HTMLRenderer().render(editor, true, cellToEdit, null, errorCell);
     }
 
-    public String insertRowBefore() throws Exception {
+    public String insertRowBefore() {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
@@ -64,7 +64,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String insertColumnBefore() throws Exception {
+    public String insertColumnBefore() {
         int col = getCol();
         int row = getRow();
         String editorId = getEditorId();
@@ -130,7 +130,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
     }
 
-    public String load() throws Exception {
+    public String load() {
         String editorId = getEditorId();
         String response = render(editorId);
         IGridTable gridTable = getGridTable(editorId);
@@ -139,7 +139,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return response;
     }
 
-    public String removeRow() throws Exception {
+    public String removeRow() {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
@@ -152,7 +152,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String removeColumn() throws Exception {
+    public String removeColumn() {
         int col = getCol();
         int row = getRow();
         String editorId = getEditorId();
@@ -165,7 +165,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String setIndent() throws Exception {
+    public String setIndent() {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
@@ -235,7 +235,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String setAlign() throws Exception {
+    public String setAlign() {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
@@ -266,7 +266,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String undo() throws Exception {
+    public String undo() {
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
@@ -282,7 +282,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String redo() throws Exception {
+    public String redo() {
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
