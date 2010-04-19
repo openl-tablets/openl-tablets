@@ -107,12 +107,14 @@ public class DecisionTableAnalyzer {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
         for (int i = 0; i < values.length; i++) {
-            for (int j = 0; j < values[i].length; j++) {
-                if (min > (Integer) values[i][j]) {
-                    min = (Integer) values[i][j];
-                }
-                if (max < (Integer) values[i][j]) {
-                    max = (Integer) values[i][j];
+            if (values[i] != null) {
+                for (int j = 0; j < values[i].length; j++) {
+                    if (min > (Integer) values[i][j]) {
+                        min = (Integer) values[i][j];
+                    }
+                    if (max < (Integer) values[i][j]) {
+                        max = (Integer) values[i][j];
+                    }
                 }
             }
         }

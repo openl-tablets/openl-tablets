@@ -282,9 +282,9 @@ public class WebStudio {
         return listeners.remove(listener);
     }
 
-    public void reset() {
+    public void reset(ReloadType reloadType) {
         try {
-            model.reset();
+            model.reset(reloadType);
             for (StudioListener listener : listeners) {
                 listener.studioReset();
             }
@@ -294,7 +294,7 @@ public class WebStudio {
     }
 
     public void rebuildModel() {
-        reset();
+        reset(ReloadType.RELOAD);
         model.buildProjectTree();
     }
 

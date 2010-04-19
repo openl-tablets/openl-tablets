@@ -82,11 +82,6 @@ public class TreeBean {
         return currentProject.isLocked();
     }
 
-    public boolean isProjectCanBeValidated() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        return studio.getModel().getAllValidatedNodes().size() > 0;
-    }
-
     public boolean isProjectHasTests() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         AllTestsRunResult allTestMethods = studio.getModel().getAllTestMethods();
