@@ -16,7 +16,11 @@
             <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
             <div class="#{messageBoxClass}">
 
-                <h:outputText value="#{message.summary}" />
+                <h:outputText id="summary" value="#{messagesBean.summary}" />
+                <script type="text/javascript">
+                    var summary = #{rich:element('summary')};
+                    summary.innerHTML = summary.innerHTML.replace(/&amp;lt;br&amp;gt;/g, '<br/>');
+                </script>
 
                 <h:panelGroup rendered="#{message.severity == 'ERROR' and not empty messagesBean.errorCode}">
                     <br />

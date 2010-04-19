@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import org.ajax4jsf.component.UIRepeat;
+import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
@@ -24,6 +25,15 @@ public class MessagesBean {
 
     public void setMessages(UIRepeat messages) {
         this.messages = messages;
+    }
+
+    public String getSummary() {
+        OpenLMessage message = (OpenLMessage) messages.getRowData();
+        String summary = message.getSummary();
+        if (StringUtils.isNotBlank(summary)) {
+            return summary.replaceAll("\\r\\n", "<br>");
+        }
+        return StringUtils.EMPTY;
     }
 
     public String[] getErrorCode() {
