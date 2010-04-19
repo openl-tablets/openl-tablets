@@ -74,7 +74,7 @@ public class WebStudioProfiler extends Profiler.Unit {
 
         ProjectModel model = new ProjectModel(studio);
 
-        model.setWrapperInfo(wrapper, false);
+        model.setWrapperInfo(wrapper, ReloadType.NO);
 
         Object instance = model.getWrapper().getInstance();
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();

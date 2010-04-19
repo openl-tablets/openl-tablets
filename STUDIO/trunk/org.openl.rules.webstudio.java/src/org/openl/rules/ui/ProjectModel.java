@@ -931,10 +931,10 @@ public class ProjectModel {
         projectRoot = null;
     }
     
-    public void reset() throws Exception {
+    public void reset(ReloadType reloadType) throws Exception {
         if (wrapperInfo != null) {
             wrapperInfo.reset();
-            setWrapperInfo(wrapperInfo, true);
+            setWrapperInfo(wrapperInfo, reloadType);
         } else if (wrapper != null) {
             wrapper.reload();
         }
@@ -1016,7 +1016,7 @@ public class ProjectModel {
             IExporter iExporter = IWritableGrid.Tool.createExporter(module);
             iExporter.persist(search);
             module.save();
-            reset();
+            reset(ReloadType.RELOAD);
         }
     }
 
@@ -1033,11 +1033,11 @@ public class ProjectModel {
     }
 
     public void setWrapperInfo(OpenLWrapperInfo wrapperInfo) throws Exception {
-        setWrapperInfo(wrapperInfo, false);
+        setWrapperInfo(wrapperInfo, ReloadType.NO);
     }
 
-    public void setWrapperInfo(OpenLWrapperInfo wrapperInfo, boolean reload) throws Exception {
-        if (this.wrapperInfo == wrapperInfo && !reload) {
+    public void setWrapperInfo(OpenLWrapperInfo wrapperInfo, ReloadType reloadType) throws Exception {
+        if (this.wrapperInfo == wrapperInfo && reloadType == ReloadType.NO) {
             return;
         }
 
@@ -1051,7 +1051,7 @@ public class ProjectModel {
 
         try {
 
-            cl = wrapperInfo.getProjectInfo().getClassLoader(this.getClass().getClassLoader());
+            cl = wrapperInfo.getProjectInfo().getClassLoader(this.getClass().getClassLoader(), reloadType == ReloadType.FORCED);
 
             c = cl.loadClass(wrapperInfo.getWrapperClassName());
         } catch (Throwable t) {
@@ -1073,7 +1073,7 @@ public class ProjectModel {
             Thread.currentThread().setContextClassLoader(cl);
             try {
                 wrapper = (OpenLWrapper) wrapperNewInstance(c);
-                if (reload) {
+                if (reloadType != ReloadType.NO) {
                     wrapper.reload();
                 }
 

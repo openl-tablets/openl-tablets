@@ -3,7 +3,7 @@
 <%@page import="org.openl.rules.webstudio.web.servlet.RulesUserSession"%>
 <%@page import="org.openl.rules.webstudio.web.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspace"%>
-<%@page import="org.openl.rules.ui.WebStudio"%>
+<%@page import="org.openl.rules.ui.*"%>
 <%@page import="org.openl.util.StringTool"%>
 <%@page import="java.util.*"%>
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>
@@ -67,7 +67,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
     studio.switchMode(mode);
   String reload = request.getParameter("reload");
   if (reload != null)
-    studio.reset();
+    studio.reset(ReloadType.valueOf(reload.toUpperCase()));
   
   String tableUri = request.getParameter("tableUri");
   String nodeToOpen = null;
@@ -75,13 +75,6 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
   if (tableUri != null) {
       nodeToOpen = studio.getModel().getTreeNodeId(tableUri);   
       encodedTableUri = StringTool.encodeURL(tableUri);
-  }
-
-  String validate = request.getParameter("validate");
-  List validateErrors = null;
-  if (validate != null)
-  {
-    validateErrors = studio.getModel().validateAll();
   }
 
     String operation = request.getParameter("operation");
@@ -104,16 +97,11 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 </frameset>
 
 <frameset rows="*,100" border="4">
-<%if (validateErrors != null) { if (validateErrors.size() > 0){%>
-<frame src="${pageContext.request.contextPath}/html/yesValidateErrors.html" name="mainFrame" scrolling="auto"/>
-<%} else { %>
-<frame src="${pageContext.request.contextPath}/html/noValidateErrors.html" name="mainFrame" scrolling="auto"/>
-<%}} else { %>
 <%if (encodedTableUri != null) {%>
 <frame src="${pageContext.request.contextPath}/faces/facelets/tableeditor/showTable.xhtml?uri=<%=encodedTableUri%>" name="mainFrame" scrolling="auto"/>
 <%} else { %>
 <frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webresource/html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
-<%}} %>
+<%} %>
 
 <frame src="${pageContext.request.contextPath}/faces/facelets/footerPanel.xhtml" name="footerFrame" scrolling="auto" />
 

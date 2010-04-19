@@ -115,7 +115,7 @@
                           title="Search"><img border='0' src="#{contextPath}/webresource/images/search.png"
                           alt="Search"/></a>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
-                      <a href="#{contextPath}/main.jsp?reload=true&amp;select_wrapper=#{headerBean.selectedProject}"
+                      <a href="#{contextPath}/main.jsp?reload=reload&amp;select_wrapper=#{headerBean.selectedProject}"
                           title="Refresh Project(s)" target="top"><img border='0'
                           src="#{contextPath}/webresource/images/refresh.gif" alt="Refresh Project(s)"/></a>
                       <h:panelGroup rendered="#{headerBean.projectsExist and not headerBean.projectReadOnly}">
@@ -141,6 +141,9 @@
                             src="#{contextPath}/webresource/images/repository/storage.gif" alt="Rules Repository"/></a>
                       </c:if>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
+                      <a href="#{contextPath}/main.jsp?reload=forced&amp;select_wrapper=#{headerBean.selectedProject}"
+                          title="Refresh Project with dependencies" target="top"><img border='0'
+                          src="#{contextPath}/webresource/images/forced_refresh.png" alt="Refresh Project(s)"/></a>
                       <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0'
                           src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
                       <c:if test="#{not headerBean.hideLogout}">

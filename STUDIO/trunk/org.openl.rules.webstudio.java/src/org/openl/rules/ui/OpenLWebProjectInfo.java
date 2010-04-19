@@ -32,8 +32,8 @@ public class OpenLWebProjectInfo {
         this.name = name;
     }
     
-    public ClassLoader getClassLoader(ClassLoader parent) throws IOException {
-        if (ucl != null) {
+    public ClassLoader getClassLoader(ClassLoader parent, boolean reload) throws IOException {
+        if (ucl != null && !reload) {
             return ucl;
         }
         String classpath = projectClasspath();
