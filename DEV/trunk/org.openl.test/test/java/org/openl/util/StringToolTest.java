@@ -3,6 +3,9 @@
  */
 package org.openl.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -466,5 +469,25 @@ public class StringToolTest extends TestCase {
         
         String result = StringTool.insertStringToString(baseString, strToInsertAfter, insertion);
         assertEquals("Spencer\\,Sara`s son", result);
+    }
+    
+    @Test
+    public void testListToStringThroughCommas() {
+        String str1 = "firstValue";
+        String str2 = "secondValue";
+        String str3 = "thirdValue";
+        String str4 = "fourthValue";		
+        
+        List<String> listStrings = new ArrayList<String>();
+        listStrings.add(str1);
+        listStrings.add(str2);
+        listStrings.add(str3);
+        listStrings.add(str4);
+        
+        String result = StringTool.listToStringThroughCommas(listStrings);
+        assertEquals(String.format("%s, %s, %s, %s", str1, str2, str3, str4), result);
+        
+        assertNull(StringTool.listToStringThroughCommas(null));
+        assertNull(StringTool.listToStringThroughCommas(new ArrayList<String>()));        
     }
 }
