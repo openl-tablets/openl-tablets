@@ -37,9 +37,16 @@ public class BindHelper {
     }
 
     public static void processError(String message, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+        processError(message, syntaxNode, bindingContext, true);
+    }
 
+    public static void processError(String message, ISyntaxNode syntaxNode, IBindingContext bindingContext,
+            boolean storeGlobal) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
-        processError(error, bindingContext);
+        bindingContext.addError(error);
+        if (storeGlobal) {
+            processError(error);
+        }
     }
 
     public static void processError(String message, ISyntaxNode syntaxNode, Throwable throwable) {
