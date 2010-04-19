@@ -791,4 +791,21 @@ public class StringTool {
         return strBuf.toString();
     }
     
+    public static String listToStringThroughCommas(List<String> values) {
+        String result = null;
+        if (values != null && !values.isEmpty()) {
+            StringBuffer strBuf = new StringBuffer();
+            int paramNum = values.size();
+            for (String value : values) {
+                paramNum--;
+                strBuf.append(value);
+                if (paramNum > 0) {
+                    strBuf.append(", ");
+                }
+            }
+            result = strBuf.toString();
+        } 
+        return result;
+    }
+    
 }

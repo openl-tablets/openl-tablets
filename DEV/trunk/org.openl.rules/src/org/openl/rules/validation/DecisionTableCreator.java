@@ -36,6 +36,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringTool;
 
 public class DecisionTableCreator {
     
@@ -49,6 +50,7 @@ public class DecisionTableCreator {
     public static final String LOCAL_PARAM_SUFFIX = "Local";
     
     private static String __src = "src/rules/Test.xls";;
+    private static String FAKE_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";;
     
     private static final String STATE_PROP = "state";
     private static final String COUNTRY_PROP = "country";
@@ -457,50 +459,37 @@ public class DecisionTableCreator {
     }
 
     private String paramsWithTypesThroughComma(Map<String, IOpenClass> params) {
-        StringBuffer strBuf = new StringBuffer();
-        int paramNum = params.size();
+        List<String> values = new ArrayList<String>();
         for (Map.Entry<String, IOpenClass> param : params.entrySet()) {
-            paramNum--;
-            strBuf.append(param.getValue().getInstanceClass().getSimpleName()).append(" ").append(param.getKey());
-            if (paramNum > 0) {
-                strBuf.append(", ");
-            }
+            values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
         }
-        return strBuf.toString();
+        
+        return StringTool.listToStringThroughCommas(values);
     }
     
-    private String originalParamsWithTypesThroughComma() {
-        StringBuffer strBuf = new StringBuffer();
-        int paramNum = originalSignature.getNumberOfParameters();
+    private String originalParamsWithTypesThroughComma() {        
+        List<String> values = new ArrayList<String>();        
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
-            paramNum--;
-            strBuf.append(originalSignature.getParameterType(j).getInstanceClass().getSimpleName()).append(" ")
-                .append(originalSignature.getParameterName(j));
-            if (paramNum > 0) {
-                strBuf.append(", ");
-            }
+            values.add(String.format("%s %s", originalSignature.getParameterType(j).getInstanceClass().getSimpleName(), 
+                    originalSignature.getParameterName(j)));            
         }   
-        return strBuf.toString();
+        return StringTool.listToStringThroughCommas(values);
     }
     
     private String originalParamsThroughComma() {
-        StringBuffer strBuf = new StringBuffer();
-        int paramNum = originalSignature.getNumberOfParameters();
-        for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {
-            paramNum--;
-            strBuf.append(originalSignature.getParameterName(i));
-            if (paramNum > 0) {
-                strBuf.append(", ");
-            }
+        List<String> values = new ArrayList<String>();        
+        for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {            
+            values.add(originalSignature.getParameterName(i));            
         }
-        return strBuf.toString();
+        return StringTool.listToStringThroughCommas(values);
     }
     
     private GridTable getGridTable(Sheet sheet) {
         Workbook wb = sheet.getWorkbook();
 
         //it is just for correct work of webstudio
-        XlsWorkbookSourceCodeModule mockWorkbookSource = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null), wb);
+        XlsWorkbookSourceCodeModule mockWorkbookSource = 
+            new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(FAKE_EXCEL_FILE, null), wb);
         XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(sheet, sheet.getSheetName(), mockWorkbookSource);
 
         createdSheetGridModel = new XlsSheetGridModel(mockSheetSource);
