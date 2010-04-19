@@ -123,6 +123,9 @@ public class TableEditorModel {
 
     static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
+    /** Number of columns in Properties section */
+    public static final int NUMBER_PROPERTIES_COLUMNS = 3;
+
     private ITable table;
     private IGridTable gridTable;
     private IGridRegion fullTableRegion;
@@ -423,44 +426,40 @@ public class TableEditorModel {
     }
 
     public synchronized void setProperty(String name, String value) throws Exception {
-        
         List<IUndoableGridAction> createdActions = new ArrayList<IUndoableGridAction>();
         int nRowsToInsert = 0;
+        int nColsToInsert = 0;
         CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, wgrid(), name);
-        
+
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
-        
+
         if (propExists) {
             removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
         }
-        
-        if (/*!propExists &&*/ !propIsBlank) {
+
+        if (!propIsBlank) {
+            IGridTable table = getUpdatedFullTable();
+            int tableWidth = table.getGridWidth();
+            if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
+                nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
+            }
             nRowsToInsert = 1;
-            if (nRowsToInsert > 0 && !canInsertRows(nRowsToInsert)) {
-                createdActions.add(moveTable(getUpdatedFullTable()));
+            if ((nRowsToInsert > 0 && !canInsertRows(nRowsToInsert))
+                    || !canInsertCols(nColsToInsert)) {
+                createdActions.add(moveTable(table));
             }
             GridRegionAction allTable = new GridRegionAction(fullTableRegion, ROWS, INSERT, ActionType.EXPAND,
                     nRowsToInsert);
             allTable.doAction(wgrid(), undoGrid);
             createdActions.add(allTable);
             GridRegionAction displayedTable;
-            if (isBusinessView()) {
-                displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT, ActionType.MOVE,
-                        nRowsToInsert);
-            } else {
-                displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT, ActionType.EXPAND,
-                        nRowsToInsert);
-            }
+            displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT,
+                    isBusinessView() ? ActionType.MOVE : ActionType.EXPAND, nRowsToInsert);
             displayedTable.doAction(wgrid(), undoGrid);
             createdActions.add(displayedTable);
-//        } 
-//        else     
-//        if (propExists && propIsBlank) {
-//            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
-//            return;
         }
-    
+
         if (propIsBlank) {return;}
         
         IUndoableGridAction action = IWritableGrid.Tool
