@@ -26,12 +26,10 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
 
         if (methodCaller == null) {
-
             String message = errorMsg(operatorName, types[0], types[1]);
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
-            //            throw new BoundError(errorMsg(operatorName, types[0], types[1]), node);
         }
 
         return new BinaryOpNode(node, new IBoundNode[] { b1, b2 }, methodCaller);
