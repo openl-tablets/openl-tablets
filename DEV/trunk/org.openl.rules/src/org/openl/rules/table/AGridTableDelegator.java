@@ -17,10 +17,6 @@ public abstract class AGridTableDelegator extends AGridTable {
         this.gridTable = gridTable;
     }
 
-    /**
-     * 
-     */
-
     public IGrid getGrid() {
         return gridTable.getGrid();
     }
