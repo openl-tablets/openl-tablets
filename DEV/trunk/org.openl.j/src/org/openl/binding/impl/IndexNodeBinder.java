@@ -59,9 +59,9 @@ public class IndexNodeBinder extends ANodeBinder {
             return new IndexNode(node, children, targetNode, index);
         }
 
-        String message = String
-                               .format("Index operator %s[%s] not found", targetNode.getType(), indexExprType.getName());
-        BindHelper.processError(message, node, bindingContext);
+        String message = String.format(
+                "Index operator %s[%s] not found", targetNode.getType(), indexExprType.getName());
+        BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);
     }
