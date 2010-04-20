@@ -3,9 +3,13 @@ package org.openl.rules.lang.xls.binding;
 import org.openl.OpenL;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -57,7 +61,13 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     public void addTo(ModuleOpenClass openClass) {
 
         method = createMethodShell();
-        openClass.addMethod(method);
+        try{
+            openClass.addMethod(method);
+        }catch (DuplicatedMethodException e) {
+            SyntaxNodeException error = new SyntaxNodeException(null, e, getTableSyntaxNode());
+            getTableSyntaxNode().addError(error);
+            OpenLMessagesUtils.addError(error);
+        }
         getTableSyntaxNode().setMember(method);
     }
 

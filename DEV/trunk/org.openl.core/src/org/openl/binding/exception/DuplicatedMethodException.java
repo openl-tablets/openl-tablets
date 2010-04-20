@@ -28,11 +28,11 @@ public class DuplicatedMethodException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        StringBuffer buf = new StringBuffer();
         if (msg != null) {
-            buf.append(msg);
+            return msg;
         }
 
+        StringBuffer buf = new StringBuffer();
         buf.append("Method ");
         MethodUtil.printMethod(method, buf);
         buf.append(" has already been defined");
