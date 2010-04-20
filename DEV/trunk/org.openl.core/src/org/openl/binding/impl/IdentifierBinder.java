@@ -51,10 +51,9 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         String message = String.format("Field not found: '%s'", fieldName);
-        BindHelper.processError(message, node, bindingContext);
+        BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);
-        //        throw new BoundError("Field not found: " + fieldName, null, node);
     }
 
     @Override
@@ -66,10 +65,9 @@ public class IdentifierBinder extends ANodeBinder {
 
             if (field == null) {
                 String message = String.format("Field not found: '%s'", fieldName);
-                BindHelper.processError(message, node, bindingContext);
+                BindHelper.processError(message, node, bindingContext, false);
 
                 return new ErrorBoundNode(node);
-                //                throw new FieldNotFoundException("Identifier: ", fieldName, target.getType());
             }
 
             if (target.isStaticTarget() != field.isStatic()) {
