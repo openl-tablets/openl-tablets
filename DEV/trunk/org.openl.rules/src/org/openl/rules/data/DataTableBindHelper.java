@@ -313,7 +313,7 @@ public class DataTableBindHelper {
 
                 if (contains(identifiers, fieldAccessorChainTokens)) {
                     
-                    String message = "Found duplicate field accessor";
+                    String message = String.format("Found duplicate of field \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     BindHelper.processError(error);
                 } else {
