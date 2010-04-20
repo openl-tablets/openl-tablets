@@ -119,8 +119,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
             IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
             MethodKey methodKey = new MethodKey(method);
 
-            int hash = methodKey.hashCode();
-            String hashString = String.valueOf(hash);
+            String keyString = methodKey.toString();
 
             String folderName = getFolderName(method);
 
@@ -128,7 +127,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
 
             String[] displayNames = new String[3];
             for(int k = 0; k < displayNames.length; k++){
-                displayNames[k] = folderName + hashString;
+                displayNames[k] = folderName + keyString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);
         }

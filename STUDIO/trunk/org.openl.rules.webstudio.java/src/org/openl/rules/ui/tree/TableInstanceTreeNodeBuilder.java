@@ -106,14 +106,13 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
             TableSyntaxNodeKey key = new TableSyntaxNodeKey(tableSyntaxNode);
 
-            int hash = key.hashCode();
-            String hashString = String.valueOf(hash);
+            String keyString = key.toString();
 
             Object nodeObject = makeObject(tableSyntaxNode);
 
-            String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
+            String[] displayNames = new String[3];
             for(int i = 0; i < displayNames.length; i++){
-                displayNames[i] += hashString;
+                displayNames[i] = keyString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);
         } else {
