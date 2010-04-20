@@ -1,7 +1,7 @@
 /**
  * Created Feb 12, 2007
  */
-package org.openl.rules.dt.type;
+package org.openl.rules.dt.type.domains;
 
 import org.openl.domain.EnumDomain;
 

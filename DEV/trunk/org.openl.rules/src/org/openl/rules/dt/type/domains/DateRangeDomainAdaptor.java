@@ -1,4 +1,4 @@
-package org.openl.rules.dt.type;
+package org.openl.rules.dt.type.domains;
 
 import java.util.Date;
 
