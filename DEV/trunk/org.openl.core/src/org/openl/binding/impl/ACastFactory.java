@@ -196,8 +196,9 @@ public class ACastFactory implements ICastFactory {
     }
 
     public IOpenCast findCast(IOpenClass from, IOpenClass to) {
-
-        if (from == NullOpenClass.the || from == JavaOpenClass.OBJECT) {
+        if (to == NullOpenClass.the) {
+            return null;
+        } else if (from == NullOpenClass.the || from == JavaOpenClass.OBJECT) {
             return to.getInstanceClass().isPrimitive() ? null : JAVA_DOWNCAST;
         }
 
