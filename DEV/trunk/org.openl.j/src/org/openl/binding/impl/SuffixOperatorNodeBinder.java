@@ -34,7 +34,7 @@ public class SuffixOperatorNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
 
         if (!children[0].isLvalue()) {
-            BindHelper.processError("The node is not an Lvalue", children[0].getSyntaxNode(), bindingContext);
+            BindHelper.processError("The node is not an Lvalue", children[0].getSyntaxNode(), bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
