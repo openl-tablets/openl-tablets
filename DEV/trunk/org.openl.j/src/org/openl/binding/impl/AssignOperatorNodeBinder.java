@@ -67,18 +67,16 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         IOpenCast cast = null;
 
         if (!rightType.equals(leftType)) {
-            
+
             cast = bindingContext.getCast(rightType, leftType);
 
             if (cast == null || !cast.isImplicit()) {
-                
-                String message = String.format("Can not convert from '%s' to '%s'" + leftType.getName(),
-                    rightType.getName(),
-                    leftType.getName());
-                BindHelper.processError(message, node, bindingContext);
+
+                String message = String.format("Can not convert from '%s' to '%s'",
+                        rightType.getName(), leftType.getName());
+                BindHelper.processError(message, node, bindingContext, false);
 
                 return new ErrorBoundNode(node);
-                //                throw new BoundError("Can not convert from " + rightType.getName() + " to " + leftType.getName(), node);
             }
         }
 
