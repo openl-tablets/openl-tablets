@@ -29,7 +29,7 @@ public class MethodNodeBinder extends ANodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-            BindHelper.processError("Method node should have at least one subnode", node, bindingContext);
+            BindHelper.processError("Method node should have at least one subnode", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -47,7 +47,7 @@ public class MethodNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
 
             String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, types));
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
