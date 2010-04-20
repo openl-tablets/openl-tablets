@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.OpenL;
+import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.IDataBase;
@@ -114,6 +115,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			// Gets the existed method from map.
 			// 
 			IOpenMethod existedMethod = methods.get(key);
+			
+			if(!existedMethod.getType().equals(method.getType())){
+			    throw new DuplicatedMethodException("Method \"" + method.getName() + "\" has already been defined with another return type", method);
+			}
 			
 			// Checks the instance of existed method. If it's the
 			// OpenMethodDecorator then just add the method-candidate to
