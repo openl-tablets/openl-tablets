@@ -81,14 +81,14 @@ public class DecisionTableAnalyzer {
     }
     
     public IDomain<?> gatherDomainFromValues(IParameterDeclaration parameter, ICondition condition) {
-        String type = parameter.getType().getDisplayName(0);
-        if (type.equals("String")) {
-            return gatherStringDomainFromValues(condition.getParamValues());
-        }
-        if (type.equals("int")) {
-            return gatherIntDomainFromValues(condition.getParamValues());
-        }
-        throw new RuntimeException("Failed to create domain for type \"" + type + "\"");
+        IDomain<?> result = null;
+        Class<?> type = parameter.getType().getInstanceClass();
+        if (String.class.equals(type)) {
+            result = gatherStringDomainFromValues(condition.getParamValues());
+        } else if (int.class.equals(type)) {
+            result = gatherIntDomainFromValues(condition.getParamValues());
+        }        
+        return result;
     }
 
     private StringDomain gatherStringDomainFromValues(Object[][] values) {

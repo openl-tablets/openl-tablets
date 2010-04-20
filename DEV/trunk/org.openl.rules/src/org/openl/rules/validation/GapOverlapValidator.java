@@ -97,13 +97,14 @@ public class GapOverlapValidator extends TablesValidator {
      */
     private IDomain<?> findDomainForConditionVariables(List<IParameterDeclaration> parameters, ICondition condition,
             DecisionTableAnalyzer analyzer) {
+        IDomain<?> domain = null;
         for (IParameterDeclaration parameter : parameters) {
-            IDomain<?> domain = parameter.getType().getDomain();
+            domain = parameter.getType().getDomain();
             if (domain == null) {
-                return analyzer.gatherDomainFromValues(parameter, condition);
+                domain = analyzer.gatherDomainFromValues(parameter, condition);
             }
         }
-        return null;
+        return domain;
     }
 
     private void addError(TableSyntaxNode sourceNode, String message) {
