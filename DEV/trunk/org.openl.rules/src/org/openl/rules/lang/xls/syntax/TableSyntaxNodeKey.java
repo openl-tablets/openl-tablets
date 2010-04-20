@@ -55,4 +55,20 @@ public class TableSyntaxNodeKey {
         }
         return hashCodeBuilder.toHashCode();
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()));
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        stringBuilder.append('[');
+        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
+            if(i!= 0){
+                stringBuilder.append(',');
+            }
+            stringBuilder.append(dimensionalPropertyNames[i]).append('=');
+            stringBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
+        }
+        return stringBuilder.append(']').toString();
+    }
 }
