@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.type.IDomainAdaptor;
+import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.validator.IValidatedObject;
 import org.openl.rules.validator.IValidationResult;
