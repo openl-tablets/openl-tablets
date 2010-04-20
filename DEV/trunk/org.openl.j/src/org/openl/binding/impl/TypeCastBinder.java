@@ -36,7 +36,7 @@ public class TypeCastBinder extends ANodeBinder {
         if (cast == null) {
 
             String message = String.format("Can not convert from '%s' to '%s'", from.getName(), to.getName());
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
