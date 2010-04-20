@@ -64,12 +64,6 @@ public interface IGridRegion {
             return top <= bottom;
         }
 
-        /**
-         * @param intersection
-         * @param dx
-         * @param dy
-         * @return
-         */
         public static GridRegion move(IGridRegion reg, int dx, int dy) {
             return new GridRegion(reg.getTop() + dy, reg.getLeft() + dx, reg.getBottom() + dy, reg.getRight() + dx);
         }

@@ -4,7 +4,6 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -23,17 +22,10 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
-import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
-import org.openl.rules.table.xls.formatters.XlsBooleanFormatter;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.xls.formatters.XlsEnumFormatter;
 import org.openl.rules.table.xls.formatters.XlsFormattersManager;
-import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
-import org.openl.rules.table.xls.formatters.XlsStringFormatter;
 
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
 import org.openl.util.export.IExporter;
@@ -400,19 +392,31 @@ public interface IWritableGrid extends IGrid {
             }
             return shiftActions;
         }
-
+        
+        /**
+         * 
+         * @param startRow number of the row in region to start some manipulations (shifting down or up) 
+         * @param nRows number of rows to be moved
+         * @param isInsert do we need to insert rows or to shift it up. 
+         * @param region region to work with.
+         * @return
+         */
         private static List<IUndoableGridAction> shiftRows(int startRow, int nRows, boolean isInsert, IGridRegion region) {
             ArrayList<IUndoableGridAction> shiftActions = new ArrayList<IUndoableGridAction>();
             int direction, rowFromCopy, rowToCopy;
-            if (isInsert) {// shift rows up
-                direction = -1;
-                rowFromCopy = region.getBottom();
-            } else {// shift rows down
+            if (isInsert) {// shift rows down
+                direction = -1;                
+                rowFromCopy = region.getBottom(); // we gets the bottom row from the region, and are
+                                                  // going to shift it down.
+            } else {// shift rows up
                 direction = 1;
-                rowFromCopy = startRow;
+                rowFromCopy = startRow; // we gets the startRow and are
+                                        // going to shift it up.
             }
-            for (int i = 0; i <= region.getBottom() - startRow; i++) {
-                rowToCopy = rowFromCopy - direction * nRows;
+            int numRowsToBeShifted = region.getBottom() - startRow;
+            for (int i = 0; i <= numRowsToBeShifted; i++) {
+                rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
+                // each column we shift from one row to another
                 for (int column = region.getLeft(); column <= region.getRight(); column++) {
                     shiftActions.add(new UndoableCopyValueAction(column, rowFromCopy, column, rowToCopy));
                 }
