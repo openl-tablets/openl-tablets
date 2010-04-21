@@ -98,7 +98,7 @@ public class ProblemsBean {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
             OpenLException error = errorMessage.getError();
             String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
-            String tableUri = WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
+            String tableUri = errorUri;//WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
             if (StringUtils.isNotBlank(tableUri)) {
                 XlsUrlParser uriParser = new XlsUrlParser();
                 uriParser.parse(errorUri);
@@ -116,7 +116,7 @@ public class ProblemsBean {
             ISyntaxNode syntaxNode = warnMessage.getSource();
 
             String errorUri = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule(), "");
-            String tableUri = WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
+            String tableUri = errorUri;//WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
 
             if (StringUtils.isNotBlank(tableUri)) {
                 XlsUrlParser uriParser = new XlsUrlParser();

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -69,7 +70,9 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             suffix = QSEP;
         }
 
-        url += suffix + OPENL + "=" + openl;
+        if (StringUtils.isNotEmpty(openl)) {
+            url += suffix + OPENL + "=" + openl;
+        }
 
         return url;
         // testURL(url, stream);
