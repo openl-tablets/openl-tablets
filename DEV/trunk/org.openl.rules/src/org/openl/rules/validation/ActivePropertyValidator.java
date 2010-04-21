@@ -26,7 +26,7 @@ import org.openl.validation.ValidationUtils;
 public class ActivePropertyValidator extends TablesValidator {
 
     public static final String NO_ACTIVE_TABLE_MESSAGE = "No active table";
-    public static final String ODD_ACTIVE_TABLE_MESSAGE = "There is only one active table allowed";
+    public static final String ODD_ACTIVE_TABLE_MESSAGE = "There can be only one active table";
 
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {

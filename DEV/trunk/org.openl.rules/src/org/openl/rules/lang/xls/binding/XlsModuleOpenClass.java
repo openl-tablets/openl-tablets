@@ -116,9 +116,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			// 
 			IOpenMethod existedMethod = methods.get(key);
 			
-			if(!existedMethod.getType().equals(method.getType())){
-			    throw new DuplicatedMethodException("Method \"" + method.getName() + "\" has already been defined with another return type", method);
-			}
+            if (!existedMethod.getType().equals(method.getType())) {
+                throw new DuplicatedMethodException(
+                    String.format("Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
+                        method.getName(), method.getType().getDisplayName(0), existedMethod.getType().getDisplayName(0)), method);
+            }
 			
 			// Checks the instance of existed method. If it's the
 			// OpenMethodDecorator then just add the method-candidate to
