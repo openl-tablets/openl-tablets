@@ -110,9 +110,9 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
             Object nodeObject = makeObject(tableSyntaxNode);
 
-            String[] displayNames = new String[3];
+            String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
             for(int i = 0; i < displayNames.length; i++){
-                displayNames[i] = keyString;
+                displayNames[i] += keyString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);
         } else {
