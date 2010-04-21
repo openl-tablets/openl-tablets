@@ -69,7 +69,7 @@ public class TransformedGridTable extends AGridModel {
     }
 
     public String getUri() {
-        return gridTable.getUri();
+        return gridTable.getGrid().getUri();
     }
 
     public boolean isEmpty(int col, int row) {
