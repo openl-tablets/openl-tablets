@@ -12,13 +12,12 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
     private static final long serialVersionUID = -8075090606797764194L;
 
-    private String message;
     private Throwable cause;
     private ILocation location;
     private IOpenSourceCodeModule source;
 
     public OpenLCompilationException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
-        this.message = message;
+        super(message);
         this.cause = cause;
         this.location = location;
         this.source = source;
@@ -42,7 +41,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
             }
         }
 
-        return message;
+        return getMessage();
     }
 
     /* (non-Javadoc)
@@ -85,5 +84,4 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
         return stringWriter.toString();
     }
-
 }
