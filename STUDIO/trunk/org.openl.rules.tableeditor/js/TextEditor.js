@@ -6,8 +6,6 @@
  * @author Andrey Naumenko
  */
 var TextEditor = Class.create(BaseTextEditor, {
-    // Special flag, prevents closing on pressing enter
-    __do_nothing_on_enter: true,
 
     editor_initialize: function() {
         this.createInput();
@@ -25,10 +23,8 @@ var TextEditor = Class.create(BaseTextEditor, {
             case 13:
                 if ((Prototype.Browser.Opera || Prototype.Browser.IE) ? event.ctrlKey : event.altKey) {
                     this.switchTo("multiline");
-                } else {
-                    this.doneEdit();
                 }
-            break;
+                break;
         }
     }
 });
