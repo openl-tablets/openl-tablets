@@ -31,7 +31,7 @@ public abstract class ANodeBinder implements INodeBinder {
         try {
             return binder.bind(node, bindingContext);
         } catch (Throwable t) {
-            BindHelper.processError(node, t, bindingContext);
+            BindHelper.processError(t.getMessage(),node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }

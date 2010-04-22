@@ -41,7 +41,7 @@ public class NewNodeBinder extends ANodeBinder {
         if (type == null) {
 
             String message = String.format("Type '%s' not found", typeName);
-            BindHelper.processError(message, typeNode, bindingContext);
+            BindHelper.processError(message, typeNode, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
