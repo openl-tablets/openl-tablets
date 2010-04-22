@@ -300,7 +300,7 @@ public class HTMLRenderer {
                 if (editor.isEditable() || (actionLinks != null && !actionLinks.isEmpty())) {
                     result.append(renderJS("js/popup/popupmenu.js"))
                         .append(renderJS("js/tableEditorMenu.js"))
-                        .append(tableRenderer.renderWithMenu(menuId, editor.isShowFormulas(), errorCell))
+                        .append(tableRenderer.renderWithMenu(editor, menuId, errorCell))
                         .append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
                 } else {
                     result.append(tableRenderer.render(editor.isShowFormulas()));
@@ -403,13 +403,16 @@ public class HTMLRenderer {
             return s.toString();
         }
 
-        public String renderWithMenu(String menuId, boolean showFormulas, String errorCell) {
+        public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
             menuId = menuId == null ? "" : menuId;
-            return render("onmouseover=\"openMenu('"
-                    + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\" ondblclick=\"triggerEdit('"
+            String eventHandlers = "onmouseover=\"openMenu('"
+                    + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"";
+            if (editor.isEditable()) {
+                eventHandlers += " ondblclick=\"triggerEdit('"
                     + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','"
-                    + WebUtil.internalPath("ajax/edit") + "', this)\"",
-                    true, showFormulas, errorCell);
+                    + WebUtil.internalPath("ajax/edit") + "', this)\"";
+            }
+            return render(eventHandlers, true, editor.isShowFormulas(), errorCell);
         }
 
         public void setCellIdPrefix(String prefix) {
