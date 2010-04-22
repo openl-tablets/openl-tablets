@@ -56,38 +56,37 @@ var TableEditor = Class.create({
         // Handle Properties Editor events START
         var propIdSelector = 'id^="' + this.propIdPrefix + '"';
         $$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {
-            elem.observe("focus", function(e) {
-                self.handleClick(e);
-            }, false);
             elem.observe("blur", function(e) {
                 self.handlePropBlur(e);
-            }, false);
+            });
         });
         // Handle Properties Editor events END
 
         // Handle Table Editor events START
-        Event.observe(document, "keydown", function(e) {
-            self.handleKeyDown(e);
-        }, false);
-
-        if (Prototype.Browser.IE || Prototype.Browser.Opera) {
-            document.onkeypress = function(e) {self.handleKeyPress(e || window.event)}
-        } else {
-            Event.observe(document, "keypress", function(e) {
-                self.handleKeyPress(e);
-            }, false);
-        }
-
-        this.tableContainer.observe("click", function(e) {
+        Event.observe(document, "click", function(e) {
             if (self.currentElement) {
                 self.currentElement.blur();
             }
             self.handleClick(e);
-        }, false);
+        });
 
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
         });
+
+        Event.observe(document, "keydown", function(e) {
+            self.handleKeyDown(e);
+        });
+
+        if (Prototype.Browser.IE || Prototype.Browser.Opera) {
+            document.onkeypress = function(e) {
+                self.handleKeyPress(e || window.event)
+            }
+        } else {
+            Event.observe(document, "keypress", function(e) {
+                self.handleKeyPress(e);
+            });
+        }
         // Handle Table Editor events END
 
         this.modFuncSuccess = function(response) {
@@ -207,6 +206,23 @@ var TableEditor = Class.create({
 
             }
         });
+    },
+
+    /**
+     * Handles mouse click on the table.
+     */
+    handleClick: function(e) {
+        var elt = Event.element(e);
+        if (this.editor
+                && this.editor.getInputElement() == elt) {
+            return;
+        }
+        this.setCellValue();
+        if (this.isCell(elt)) {
+            this.selectElement(elt);
+        } else if (this.isProperty(elt)) {
+            this.selectPropElement(elt);
+        }
     },
 
     /**
@@ -388,27 +404,12 @@ var TableEditor = Class.create({
         this.editor = null;
     },
 
-    /**
-     * Handles mouse click on the table.
-     */
-    handleClick: function(e) {
-        var elt = Event.element(e);
-        this.setCellValue();
-        if (this.isCellLocation(elt)) {
-            this.selectElement(elt);
-        } else if (this.isPropLocation(elt)) {
-            this.selectPropElement(elt);
-        }
-        //Event.stop(e);
-    },
-
     buildUrl: function(action, paramString) {
         var url = this.baseUrl + action;
         if (paramString)
             url = url + "?" + paramString;
         return url
     },
-
 
     /**
      * Makes a cell 'selected', that is sets up this.selectionPos and this.currentElement, and also applies
@@ -471,14 +472,14 @@ var TableEditor = Class.create({
         return cell;
     },
 
-    isCellLocation: function(element) {
+    isCell: function(element) {
         if (element && element.id.indexOf(this.cellIdPrefix) >= 0) {
             return true;
         }
         return false;
     },
 
-    isPropLocation: function(element) {
+    isProperty: function(element) {
         if (element && element.id.indexOf(this.propIdPrefix) >= 0) {
             return true;
         }
@@ -486,13 +487,13 @@ var TableEditor = Class.create({
     },
 
     handleKeyPress: function(event) {
-        if (!this.isCellLocation(this.currentElement)) {
+        if (!this.isCell(this.currentElement)) {
             return;
         }
         if (this.editor) {
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
-                case 13: if ( this.editor.__do_nothing_on_enter !== true ) {
+                case 13: if (this.editor.__do_nothing_on_enter !== true) {
                     this.setCellValue();
                     if (Prototype.Browser.Opera) event.preventDefault();
                 }
@@ -525,7 +526,7 @@ var TableEditor = Class.create({
      * Handles key presses. Performs table navigation.
      */
     handleKeyDown: function(event) {
-        if (!this.isCellLocation(this.currentElement)) {
+        if (!this.isCell(this.currentElement)) {
             return;
         }
 
