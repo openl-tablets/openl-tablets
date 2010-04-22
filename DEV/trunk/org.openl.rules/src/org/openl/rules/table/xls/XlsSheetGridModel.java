@@ -169,6 +169,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public String getFormula() {
+            if (cell == null) return null;
             return cell.getCellType() == CELL_TYPE_FORMULA ? cell.getCellFormula() : null;
         }
 
