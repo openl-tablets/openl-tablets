@@ -8,14 +8,12 @@ import org.openl.codegen.tools.type.EnumerationDescriptor;
 import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.java.JavaOpenClass;
 
 public class EnumHelper {
 
     public static String getEnumName(String sourceName) {
 
-        return String.format("%s%sEnum", sourceName.substring(0, 1).toUpperCase(), sourceName.toLowerCase()
-                .substring(1));
+        return String.format("%s%sEnum", sourceName.substring(0, 1).toUpperCase(), sourceName.substring(1));
     }
 
     public static List<IOpenField> findEnumerationFields(IOpenClass openClass) {

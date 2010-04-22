@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
 import org.openl.rules.enumeration.RegionsEnum;
-import org.openl.rules.enumeration.UsregionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
@@ -54,7 +54,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));
             assertEquals("My Category", (String) categoryProperties.get("category"));
             assertEquals("newLob", (String) categoryProperties.get("lob"));
-            assertEquals(UsregionsEnum.SE.name(), ((UsregionsEnum) categoryProperties.get("usregion")).name());
+            assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum) categoryProperties.get("usregion")).name());
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum) categoryProperties.get("region")).name());
 
             Map<String, Object> allProperties = tableProperties.getAllProperties();

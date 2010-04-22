@@ -132,11 +132,11 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setModifiedBy(java.lang.String modifiedBy) {
 		setFieldValue("modifiedBy", modifiedBy);
 	}	
-	public java.util.Date getModifyOn() {
-		return (java.util.Date) getPropertyValue("modifyOn"); 
+	public java.util.Date getModifiedOn() {
+		return (java.util.Date) getPropertyValue("modifiedOn"); 
 	}
-	public void setModifyOn(java.util.Date modifyOn) {
-		setFieldValue("modifyOn", modifyOn);
+	public void setModifiedOn(java.util.Date modifiedOn) {
+		setFieldValue("modifiedOn", modifiedOn);
 	}	
 	public java.lang.String getBuildPhase() {
 		return (java.lang.String) getPropertyValue("buildPhase"); 
@@ -156,10 +156,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setLob(java.lang.String lob) {
 		setFieldValue("lob", lob);
 	}	
-	public org.openl.rules.enumeration.UsregionsEnum getUsregion() {
-		return (org.openl.rules.enumeration.UsregionsEnum) getPropertyValue("usregion"); 
+	public org.openl.rules.enumeration.UsRegionsEnum getUsregion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum) getPropertyValue("usregion"); 
 	}
-	public void setUsregion(org.openl.rules.enumeration.UsregionsEnum usregion) {
+	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum usregion) {
 		setFieldValue("usregion", usregion);
 	}	
 	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
@@ -180,10 +180,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
 		setFieldValue("lang", lang);
 	}	
-	public org.openl.rules.enumeration.UsstatesEnum getState() {
-		return (org.openl.rules.enumeration.UsstatesEnum) getPropertyValue("state"); 
+	public org.openl.rules.enumeration.UsStatesEnum[] getState() {
+		return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state"); 
 	}
-	public void setState(org.openl.rules.enumeration.UsstatesEnum state) {
+	public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
 		setFieldValue("state", state);
 	}	
 	public org.openl.rules.enumeration.RegionsEnum getRegion() {
@@ -209,12 +209,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	}
 	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
 		setFieldValue("failOnMiss", failOnMiss);
-	}	
-	public java.lang.Boolean getReturnOnMiss() {
-		return (java.lang.Boolean) getPropertyValue("returnOnMiss"); 
-	}
-	public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
-		setFieldValue("returnOnMiss", returnOnMiss);
 	}	
 	public java.lang.String getScope() {
 		return (java.lang.String) getPropertyValue("scope"); 

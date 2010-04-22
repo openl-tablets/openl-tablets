@@ -6,17 +6,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.DecisionTableCreator;
 
+import sun.misc.MessageUtils;
+
 public class DimensionPropertiesDomainsCollector {
     
-    private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<String,IDomainAdaptor>();
-    
-    private Set<String> propertiesNeedDomain = new HashSet<String>();
-    
     private Map<String, IDomainCollector> domainCollectors = new HashMap<String, IDomainCollector>();
+    private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<String,IDomainAdaptor>();
     
     // date domain collector should be one for all dates in project. 
     private DateDomainCollector dateDomainCollector = new DateDomainCollector();    
@@ -30,7 +31,7 @@ public class DimensionPropertiesDomainsCollector {
     }
     
     public Set<String> getPropertiesNeedDomain() {
-        return new HashSet<String>(propertiesNeedDomain);
+        return new HashSet<String>(domainCollectors.keySet());
     }
     
     public void gatherPropertiesDomains(TableSyntaxNode[] tableSyntaxNodes) {
@@ -41,7 +42,7 @@ public class DimensionPropertiesDomainsCollector {
 
     private void applyAllDomains() {
         IDomainAdaptor dateDomainAdaptor = null;
-        for (String propNeedDomain : propertiesNeedDomain) {
+        for (String propNeedDomain : domainCollectors.keySet()) {
             Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
             IDomainCollector domainCollector = domainCollectors.get(propNeedDomain);
             applyDomain(propNeedDomain, domainCollector.getGatheredDomain());
@@ -55,7 +56,7 @@ public class DimensionPropertiesDomainsCollector {
     }
 
     private void applyArrayDomains(String propNeedDomain, IDomainCollector domainCollector) {
-        ArrayEnumDomainCollector arrayCollector = (ArrayEnumDomainCollector) domainCollector;
+        ArrayDomainCollector arrayCollector = (ArrayDomainCollector) domainCollector;
         IDomainAdaptor domainAdaptor = arrayCollector.getGatheredDomain();
         if (domainAdaptor != null) {
             propertiesDomains.put(propNeedDomain, domainAdaptor);
@@ -83,49 +84,48 @@ public class DimensionPropertiesDomainsCollector {
 
     private void gatherAllDomains(TableSyntaxNode[] tableSyntaxNodes) {
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            for (String propNeedDomain : propertiesNeedDomain) {
+            for (String propNeedDomain : domainCollectors.keySet()) {
                 IDomainCollector domainCollector = domainCollectors.get(propNeedDomain);
                 domainCollector.gatherDomains(tsn);
             }
         }        
     }
 
-    private void initDomainCollectors() {
-        initPropertiesNeedDomain();
-        for (String propNeedDomain : propertiesNeedDomain) {
-            domainCollectors.put(propNeedDomain, getDomainCollector(propNeedDomain));
-        }        
-    }
-
-    private void initPropertiesNeedDomain() {
-        String[] dimensionProperties = TablePropertyDefinitionUtils.getDimensionalTableProperties();
-        
-        for (String dimensionProp : dimensionProperties) {
-            Class<?> propType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(dimensionProp);
-            boolean dateType = Date.class.equals(propType);
-            boolean stringType = String.class.equals(propType);
-            boolean enumtype = propType.isEnum();
-            boolean arrayEnumType = propType.isArray() && propType.getComponentType().isEnum();
-            if (dateType || stringType || enumtype || arrayEnumType) {
-                propertiesNeedDomain.add(dimensionProp);                
+    private void initDomainCollectors() {        
+        for (TablePropertyDefinition property : TablePropertyDefinitionUtils.getDimensionalTableProperties()) {
+            IDomainCollector domainCollector = getDomainCollector(property);
+            if (domainCollector != null) {
+                domainCollectors.put(property.getName(), domainCollector);
             }
         }        
     }
 
-    private IDomainCollector getDomainCollector(String propertyName) {        
-        Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propertyName);
-        IDomainCollector result = null; 
-        if (Date.class.equals(propertyType)) {
-            dateDomainCollector.addPropertyToSearch(propertyName);
-            result = dateDomainCollector;
-        } else if (String.class.equals(propertyType)) {
-            result = new StringDomainCollector(propertyName);
-        } else if (propertyType.isEnum()) {
-            result = new EnumDomainCollector(propertyName);
-        } else if (propertyType.isArray() && propertyType.getComponentType().isEnum()) {
-            result = new ArrayEnumDomainCollector(propertyName);
-        } 
+    private IDomainCollector getDomainCollector(TablePropertyDefinition property) {
+        Class<?> propertyType = property.getType().getInstanceClass();
+        String propertyName = property.getName();
+        IDomainCollector result = null;
+        
+        if (result == null) {
+            if (Date.class.equals(propertyType)) {
+                dateDomainCollector.addPropertyToSearch(propertyName);
+                result = dateDomainCollector;
+            } else if (String.class.equals(propertyType)) {
+                result = new StringDomainCollector(propertyName);
+            } else if (propertyType.isEnum()) {
+                result = new EnumDomainCollector(propertyName);
+            } else if (propertyType.isArray() && propertyType.getComponentType().isEnum()) {
+                result = new ArrayDomainCollector(propertyName);
+            } else if (propertyType.isArray() && String.class.equals(propertyType.getComponentType())) {
+                result = new ArrayDomainCollector(propertyName);
+            } else {
+                String message = String.format(
+                        "Can`t find domain for property \"%s\" of type \"%s\"",
+                        propertyName, propertyType.getSimpleName());
+                OpenLMessagesUtils.addWarn(message);
+            }
+        }        
         return result;
     }
+   
 
 }

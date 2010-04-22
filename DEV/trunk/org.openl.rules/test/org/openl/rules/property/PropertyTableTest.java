@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.enumeration.RegionsEnum;
-import org.openl.rules.enumeration.UsregionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -39,7 +39,7 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper{
             assertTrue(categoryProperties.size() == 4);
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(),(String) categoryProperties.get("scope"));
             assertEquals("newLob",(String) categoryProperties.get("lob"));
-            assertEquals(UsregionsEnum.SE.name(), ((UsregionsEnum)categoryProperties.get("usregion")).name());                
+            assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum)categoryProperties.get("usregion")).name());                
             assertEquals(RegionsEnum.NCSA.name(),((RegionsEnum) categoryProperties.get("region")).name());
                 
              Map<String, Object> defaultProperties = tableProperties.getPropertiesAppliedByDefault();

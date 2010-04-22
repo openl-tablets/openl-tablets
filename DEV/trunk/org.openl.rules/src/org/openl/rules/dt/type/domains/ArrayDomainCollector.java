@@ -9,13 +9,13 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
-public class ArrayEnumDomainCollector implements IDomainCollector {
+public class ArrayDomainCollector implements IDomainCollector {
 
     private String propertyToSearch; 
     
     private Set<Object> arrayEnumProperties = new HashSet<Object>();
     
-    public ArrayEnumDomainCollector(String propertyToSearch) {
+    public ArrayDomainCollector(String propertyToSearch) {
         this.propertyToSearch = propertyToSearch;
     }
 

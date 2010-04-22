@@ -1,6 +1,6 @@
 package org.openl.rules.enumeration;
 
-public enum UsregionsEnum {
+public enum UsRegionsEnum {
 
 	MW("Midwest"),
 	NE("Northeast"),
@@ -10,7 +10,7 @@ public enum UsregionsEnum {
 
 	private final String displayName;
 
-	private UsregionsEnum (String displayName) {
+	private UsRegionsEnum (String displayName) {
 		this.displayName = displayName;
 	}
 

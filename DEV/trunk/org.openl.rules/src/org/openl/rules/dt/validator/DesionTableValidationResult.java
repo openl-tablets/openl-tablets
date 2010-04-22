@@ -23,25 +23,22 @@ public class DesionTableValidationResult implements IValidationResult {
     private DecisionTableUncovered[] uncovered;
 
     public DesionTableValidationResult(DecisionTable decisionTable) {
-
         this.decisionTable = decisionTable;
         this.overlappings = new DecisionTableOverlapping[]{};
         this.uncovered = new DecisionTableUncovered[]{};
     }
 
     public DesionTableValidationResult(DecisionTable decisionTable,
-            Overlapping[] overlappings,
-            Uncovered[] uncovered,
-            IConditionTransformer transformer,
-            DecisionTableAnalyzer analyzer) {
+            Overlapping[] overlappings, Uncovered[] uncovered,
+            IConditionTransformer transformer, DecisionTableAnalyzer analyzer) {
 
         this.decisionTable = decisionTable;
         this.overlappings = convertOverlappings(overlappings, transformer, analyzer);
         this.uncovered = convertUncovered(uncovered, transformer, analyzer);
     }
 
-    private DecisionTableOverlapping[] convertOverlappings(Overlapping[] overlappings,
-            IConditionTransformer transformer,
+    private DecisionTableOverlapping[] convertOverlappings(
+            Overlapping[] overlappings, IConditionTransformer transformer,
             DecisionTableAnalyzer analyzer) {
 
         DecisionTableOverlapping[] tableOverlappings = new DecisionTableOverlapping[overlappings.length];
@@ -110,11 +107,11 @@ public class DesionTableValidationResult implements IValidationResult {
         StringBuffer validationResultDetails = new StringBuffer();
         
         if (getUncovered().length > 0) {
-            validationResultDetails.append(String.format("There is an uncovered case for values : %s", Arrays.asList(getUncovered())));
+            validationResultDetails.append(String.format("There is an uncovered case for values: %s\r\n", Arrays.asList(getUncovered())));
         }
         
         if (getOverlappings().length > 0) {
-            validationResultDetails.append(String.format("Overlapped: %s", Arrays.asList(getOverlappings())));
+            validationResultDetails.append(String.format("There is an overlap: %s", Arrays.asList(getOverlappings())));
         }
         
         return validationResultDetails.toString();        

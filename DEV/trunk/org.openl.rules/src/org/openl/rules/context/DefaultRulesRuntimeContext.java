@@ -42,16 +42,16 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setLob(java.lang.String lob) {
 		internalMap.put("lob", lob);
 	}	
-	public org.openl.rules.enumeration.UsregionsEnum getUsRegion() {
-		return (org.openl.rules.enumeration.UsregionsEnum) internalMap.get("usRegion"); 
+	public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum) internalMap.get("usRegion"); 
 	}
-	public void setUsRegion(org.openl.rules.enumeration.UsregionsEnum usRegion) {
+	public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
 		internalMap.put("usRegion", usRegion);
 	}	
-	public org.openl.rules.enumeration.UsstatesEnum getUsState() {
-		return (org.openl.rules.enumeration.UsstatesEnum) internalMap.get("usState"); 
+	public org.openl.rules.enumeration.UsStatesEnum getUsState() {
+		return (org.openl.rules.enumeration.UsStatesEnum) internalMap.get("usState"); 
 	}
-	public void setUsState(org.openl.rules.enumeration.UsstatesEnum usState) {
+	public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
 		internalMap.put("usState", usState);
 	}	
 	public org.openl.rules.enumeration.CountriesEnum getCountry() {
