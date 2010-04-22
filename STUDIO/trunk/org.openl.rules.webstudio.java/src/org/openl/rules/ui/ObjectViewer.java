@@ -152,7 +152,7 @@ public class ObjectViewer {
             DecisionTableOverlapping ov = res.getOverlappings()[0];
             buf.append("<p>").append("The following sample input data will trigger overlapping rules ");
 
-            int[] rules = ov.getRules();
+            int[] rules = ov.getRulesIndexes();
             for (int i = 0; i < rules.length; i++) {
                 buf.append("<b>").append(i > 0 ? ", " : "").append(dt.getRuleName(rules[i])).append("</b>");
             }
@@ -173,7 +173,7 @@ public class ObjectViewer {
 
             buf.append("</tr></table><p/>");
 
-            IGridFilter cf = makeFilter(ov.getRules(), res.getDecisionTable());
+            IGridFilter cf = makeFilter(ov.getRulesIndexes(), res.getDecisionTable());
 
             String type = IXlsTableNames.VIEW_BUSINESS;
             ILogicalTable gtx = tsn.getSubTables().get(type);

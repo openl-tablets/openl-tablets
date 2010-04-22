@@ -56,7 +56,7 @@ public class TableSyntaxNodeUtils {
         if (dictionary != null && tableProperties != null && tableSyntaxNode.getMember() instanceof IOpenMethod
                 && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
 
-            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
 
             for (String dimensionalPropertyName : dimensionalPropertyNames) {
                 String value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
