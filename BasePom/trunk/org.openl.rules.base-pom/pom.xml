@@ -12,7 +12,7 @@
 
   <properties>
     <openl.version.eclipse>5.5.0</openl.version.eclipse>
-    <openl.version.maven>5.5.0-SNAPSHOT</openl.version.maven>
+    <openl.version.maven>5.5.0</openl.version.maven>
   </properties>
 
  <scm>
@@ -58,6 +58,21 @@
 
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.0</version>
+          <configuration>
+            <workingDirectory>c:\tmp\mvn-basepom-release</workingDirectory>
+            <tagBase>https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags</tagBase>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-scm-plugin</artifactId>
+          <version>1.1</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
