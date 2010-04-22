@@ -430,12 +430,12 @@ public class JavaCodeGen implements ICodeGen {
             return sb;
         }
 
-        for (PropertyDescriptor pd : pdlist) {
+        for (PropertyDescriptor propertyDescriptor : pdlist) {
 
             Object value = null;
 
             try {
-                value = pd.getReadMethod().invoke(bean, new Object[] {});
+                value = propertyDescriptor.getReadMethod().invoke(bean, new Object[] {});
             } catch (Throwable t) {
                 throw RuntimeExceptionWrapper.wrap(t);
             }
@@ -450,7 +450,7 @@ public class JavaCodeGen implements ICodeGen {
             genConstIndexExpr(i, sb);
 
             sb.append(CHAIN_OP);
-            sb.append(pd.getWriteMethod().getName());
+            sb.append(propertyDescriptor.getWriteMethod().getName());
             sb.append(START_METHOD_BRACE);
 
             ctr.processLiteralValue(value, this, sb);

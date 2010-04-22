@@ -101,7 +101,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         List<Object> values = new ArrayList<Object>();
 
-        for (String property : TablePropertyDefinitionUtils.getDimensionalTableProperties()) {
+        for (String property : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
             values.add(tableProperties.getPropertyValue(property));
         }
 

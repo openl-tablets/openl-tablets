@@ -14,17 +14,33 @@ public class TablePropertyDefinitionUtils {
      * 
      * @return names of properties that are dimensional.
      */
-    public static String[] getDimensionalTableProperties() {        
+    public static String[] getDimensionalTablePropertiesNames() {        
         List<String> names = new ArrayList<String>();         
+        List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
+        
+        for (TablePropertyDefinition definition : dimensionalProperties) {
+                names.add(definition.getName());
+        }
+        
+        return names.toArray(new String[names.size()]);
+    }
+    
+    /**
+     * Gets the array of properties names that are dimensional. 
+     * 
+     * @return names of properties that are dimensional.
+     */
+    public static List<TablePropertyDefinition> getDimensionalTableProperties() {        
+        List<TablePropertyDefinition> dimensionalProperties = new ArrayList<TablePropertyDefinition>();         
         TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         
         for (TablePropertyDefinition definition : definitions) {
             if (definition.isDimensional()) {
-                names.add(definition.getName());
+                dimensionalProperties.add(definition);
             }
         }
         
-        return names.toArray(new String[names.size()]);
+        return dimensionalProperties;
     }
 
     /**

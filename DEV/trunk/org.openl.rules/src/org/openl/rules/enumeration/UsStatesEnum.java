@@ -1,6 +1,6 @@
 package org.openl.rules.enumeration;
 
-public enum UsstatesEnum {
+public enum UsStatesEnum {
 
 	AL("Alabama"),
 	AK("Alaska"),
@@ -55,7 +55,7 @@ public enum UsstatesEnum {
 
 	private final String displayName;
 
-	private UsstatesEnum (String displayName) {
+	private UsStatesEnum (String displayName) {
 		this.displayName = displayName;
 	}
 

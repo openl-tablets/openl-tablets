@@ -37,7 +37,7 @@ public class TableSyntaxNodeKey {
         EqualsBuilder equalsBuilder = new EqualsBuilder();
         equalsBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()), new MethodKey((IOpenMethod) key.getTableSyntaxNode()
                 .getMember()));
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
             equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), 
                     key.getTableSyntaxNode().getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
@@ -49,7 +49,7 @@ public class TableSyntaxNodeKey {
     public int hashCode() {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
         hashCodeBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()));
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
             hashCodeBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
         }
@@ -60,7 +60,7 @@ public class TableSyntaxNodeKey {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()));
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         stringBuilder.append('[');
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
             if(i!= 0){

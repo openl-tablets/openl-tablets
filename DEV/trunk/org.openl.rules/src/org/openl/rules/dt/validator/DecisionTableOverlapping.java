@@ -12,16 +12,16 @@ import org.openl.util.ArrayTool;
  */
 public class DecisionTableOverlapping {
 
-    private int[] rules;
+    private int[] rulesIndexes;
     private ArrayOfNamedValues value;
 
-    public DecisionTableOverlapping(int[] rules, ArrayOfNamedValues value) {
-        this.rules = rules;
+    public DecisionTableOverlapping(int[] rulesIndexes, ArrayOfNamedValues value) {
+        this.rulesIndexes = rulesIndexes;
         this.value = value;
     }
 
-    public int[] getRules() {
-        return rules;
+    public int[] getRulesIndexes() {
+        return rulesIndexes;
     }
 
     public ArrayOfNamedValues getValues() {
@@ -30,7 +30,7 @@ public class DecisionTableOverlapping {
 
     @Override
     public String toString() {        
-        return String.format("Rules #%s, overlap for values {%s}", ArrayTool.asString(rules), value.toString());
+        return String.format("Rules with # %s overlap for values: %s", ArrayTool.asString(rulesIndexes), value.toString());
     }
 
 }

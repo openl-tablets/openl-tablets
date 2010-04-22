@@ -22,6 +22,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -35,7 +36,7 @@ import org.openl.types.impl.AOpenClass.MethodKey;
 public class DispatcherTableBuilder {
     
     public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
-    public static final String DEFAULT_METHOD_NAME = "valdateGapOverlap";
+    public static final String DEFAULT_METHOD_NAME = "validateGapOverlap";
     
     private OpenL openl;    
     private XlsModuleOpenClass moduleOpenClass;
@@ -79,7 +80,7 @@ public class DispatcherTableBuilder {
     }
 
     private void buildTableForGroup(List<TableSyntaxNode> tablesGroup) {
-        String[] dimensionalTableProp = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
+        List<TablePropertyDefinition> dimensionalTableProp = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
         TableSyntaxNode groupMember = tablesGroup.get(0);
         String originalTableName = ((AMethod)groupMember.getMember()).getHeader().getName();
         

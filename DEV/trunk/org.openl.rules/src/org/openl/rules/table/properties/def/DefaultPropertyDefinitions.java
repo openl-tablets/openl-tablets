@@ -15,11 +15,11 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[24];
+		definitions = new TablePropertyDefinition[23];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
-		definitions[0].setDescription("The name of the table, must be unique");
+		definitions[0].setDescription("The name of the table, should be unique");
 		definitions[0].setDimensional(false);
 		definitions[0].setDisplayName("Name");
 		definitions[0].setGroup("Info");
@@ -33,7 +33,7 @@ public class DefaultPropertyDefinitions
 		definitions[1].setBusinessSearch(true);
 		definitions[1].setConstraints(new org.openl.rules.table.constraints.Constraints("no"));
 		definitions[1].setDescription("The category of the table, could be two-level, in this case use format: <categor"
-		 + "y>-<subcategory>");
+		 + "y> - <subcategory>");
 		definitions[1].setDimensional(false);
 		definitions[1].setDisplayName("Category");
 		definitions[1].setGroup("Info");
@@ -62,7 +62,6 @@ public class DefaultPropertyDefinitions
 		definitions[3].setDescription("Add any number of comma-separated tags, could be used for search");
 		definitions[3].setDimensional(false);
 		definitions[3].setDisplayName("Tags");
-		definitions[3].setFormat("comma separated");
 		definitions[3].setGroup("Info");
 		definitions[3].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[3].setName("tags");
@@ -73,10 +72,11 @@ public class DefaultPropertyDefinitions
 		definitions[4] = new TablePropertyDefinition();
 		definitions[4].setBusinessSearch(true);
 		definitions[4].setConstraints(new org.openl.rules.table.constraints.Constraints("< expirationDate"));
-		definitions[4].setDescription("The table becomes active on this date and inactive on the expiration date. There"
-		 + " can be multiple copies of the same table in the same module");
+		definitions[4].setDescription("The table becomes active on effective date and inactive after the expiration dat"
+		 + "e. You can have multiple instances of the same table in the same module with dif"
+		 + "ferent effective/expiration date ranges");
 		definitions[4].setDimensional(true);
-		definitions[4].setDisplayName("Rate Effective Date");
+		definitions[4].setDisplayName("Effective Date");
 		definitions[4].setExpression("le(currentDate)");
 		definitions[4].setFormat("MM/dd/yyyy");
 		definitions[4].setGroup("Business Dimension");
@@ -89,9 +89,11 @@ public class DefaultPropertyDefinitions
 		definitions[5] = new TablePropertyDefinition();
 		definitions[5].setBusinessSearch(true);
 		definitions[5].setConstraints(new org.openl.rules.table.constraints.Constraints("> effectiveDate"));
-		definitions[5].setDescription("See effectiveDate");
+		definitions[5].setDescription("The table becomes active on effective date and inactive after the expiration dat"
+		 + "e. You can have multiple instances of the same table in the same module with dif"
+		 + "ferent effective/expiration date");
 		definitions[5].setDimensional(true);
-		definitions[5].setDisplayName("Rate Expiration Date");
+		definitions[5].setDisplayName("Expiration Date");
 		definitions[5].setExpression("gt(currentDate)");
 		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
@@ -156,7 +158,7 @@ public class DefaultPropertyDefinitions
 		definitions[9].setFormat("MM/dd/yyyy");
 		definitions[9].setGroup("Info");
 		definitions[9].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
-		definitions[9].setName("modifyOn");
+		definitions[9].setName("modifiedOn");
 		definitions[9].setPrimaryKey(false);
 		definitions[9].setSecurityFilter("no");
 		definitions[9].setSystem(true);
@@ -179,7 +181,7 @@ public class DefaultPropertyDefinitions
 		definitions[11] = new TablePropertyDefinition();
 		definitions[11].setBusinessSearch(false);
 		definitions[11].setConstraints(new org.openl.rules.table.constraints.Constraints("one of: on, off, gaps, overlaps"));
-		definitions[11].setDescription("Defines validation mode for DT");
+		definitions[11].setDescription("Defines gap/overlap validation mode for Decision Table");
 		definitions[11].setDimensional(false);
 		definitions[11].setDisplayName("Validate DT");
 		definitions[11].setGroup("Dev");
@@ -206,7 +208,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[13] = new TablePropertyDefinition();
 		definitions[13].setBusinessSearch(true);
-		definitions[13].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usregions"));
+		definitions[13].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usRegions"));
 		definitions[13].setDescription("US Region");
 		definitions[13].setDimensional(true);
 		definitions[13].setDisplayName("US Region");
@@ -217,13 +219,13 @@ public class DefaultPropertyDefinitions
 		definitions[13].setPrimaryKey(false);
 		definitions[13].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[13].setSystem(false);
-		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsregionsEnum.class));
+		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsRegionsEnum.class));
 		definitions[14] = new TablePropertyDefinition();
 		definitions[14].setBusinessSearch(false);
 		definitions[14].setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
 		definitions[14].setDescription("Country");
 		definitions[14].setDimensional(true);
-		definitions[14].setDisplayName("Country");
+		definitions[14].setDisplayName("Countries");
 		definitions[14].setExpression("contains(country)");
 		definitions[14].setGroup("Business Dimension");
 		definitions[14].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
@@ -262,18 +264,18 @@ public class DefaultPropertyDefinitions
 		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.LanguagesEnum.class));
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setBusinessSearch(true);
-		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usstates"));
+		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usStates"));
 		definitions[17].setDescription("US State");
 		definitions[17].setDimensional(true);
-		definitions[17].setDisplayName("US State");
-		definitions[17].setExpression("eq(usState)");
+		definitions[17].setDisplayName("US States");
+		definitions[17].setExpression("contains(usState)");
 		definitions[17].setGroup("Business Dimension");
 		definitions[17].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[17].setName("state");
 		definitions[17].setPrimaryKey(false);
 		definitions[17].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[17].setSystem(false);
-		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsstatesEnum.class));
+		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsStatesEnum[].class));
 		definitions[18] = new TablePropertyDefinition();
 		definitions[18].setBusinessSearch(true);
 		definitions[18].setConstraints(new org.openl.rules.table.constraints.Constraints("data: regions"));
@@ -329,31 +331,18 @@ public class DefaultPropertyDefinitions
 		definitions[21].setTableType("xls.dt");
 		definitions[21].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[22] = new TablePropertyDefinition();
-		definitions[22].setBusinessSearch(false);
-		definitions[22].setDescription("Value to return if no rules were matched. The type is compatible with table retu"
-		 + "rn type");
+		definitions[22].setBusinessSearch(true);
+		definitions[22].setConstraints(new org.openl.rules.table.constraints.Constraints("Worksheet, Workbook, Module"));
+		definitions[22].setDescription("Defines scope for properties");
 		definitions[22].setDimensional(false);
-		definitions[22].setDisplayName("Return On Miss");
+		definitions[22].setDisplayName("Scope");
 		definitions[22].setGroup("Dev");
-		definitions[22].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
-		definitions[22].setName("returnOnMiss");
+		definitions[22].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY});
+		definitions[22].setName("scope");
 		definitions[22].setPrimaryKey(false);
 		definitions[22].setSystem(false);
-		definitions[22].setTableType("xls.dt");
-		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
-		definitions[23] = new TablePropertyDefinition();
-		definitions[23].setBusinessSearch(true);
-		definitions[23].setConstraints(new org.openl.rules.table.constraints.Constraints("Worksheet, Workbook, Module"));
-		definitions[23].setDescription("Use in properties table to provide scope of the properties");
-		definitions[23].setDimensional(false);
-		definitions[23].setDisplayName("Scope");
-		definitions[23].setGroup("Dev");
-		definitions[23].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY});
-		definitions[23].setName("scope");
-		definitions[23].setPrimaryKey(false);
-		definitions[23].setSystem(false);
-		definitions[23].setTableType("xls.properties");
-		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[22].setTableType("xls.properties");
+		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }
 

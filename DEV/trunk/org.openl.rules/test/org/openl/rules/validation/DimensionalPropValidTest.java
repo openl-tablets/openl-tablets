@@ -2,7 +2,6 @@ package org.openl.rules.validation;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 

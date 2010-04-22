@@ -10,6 +10,7 @@ import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenEnum;
 
 /**
  * @author snshor Created Jul 23, 2009
@@ -73,6 +74,13 @@ public class JavaCodeGenController implements ICodeGenController {
 				return gen.genLiteralJavaOpenClass((JavaOpenClass) value, sb);
 			}
 		});
+		// FIXME: copied code for JavaOpenClass.class, refactor to support processing of successor classes
+		map.put(JavaOpenEnum.class, new Processor() {
+            
+            public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
+                return gen.genLiteralJavaOpenClass((JavaOpenClass) value, sb);
+            }
+        });
 		map.put(Constraints.class, new Processor() {
             
             public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
