@@ -64,7 +64,9 @@ var TableEditor = Class.create({
 
         // Handle Table Editor events START
         Event.observe(document, "click", function(e) {
-            if (self.currentElement) {
+            var elt = Event.element(e);
+            if (self.currentElement
+                    && self.currentElement != elt) {
                 self.currentElement.blur();
             }
             self.handleClick(e);
