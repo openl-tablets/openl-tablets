@@ -28,7 +28,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.validation.DispatcherTableBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
