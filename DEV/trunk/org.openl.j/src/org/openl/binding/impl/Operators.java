@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
+import org.openl.meta.StringValue;
 import org.openl.util.ArrayTool;
 
 /**
@@ -190,6 +191,8 @@ public class Operators {
         return x;
     }
 
+    
+    
     static public Integer autocast(int i, Integer I) {
         return new Integer(i);
     }
@@ -223,6 +226,11 @@ public class Operators {
         return L.longValue();
     }
 
+    static public String autocast(StringValue x, String y) {
+        return x.getValue();
+    }
+    
+    
     static public int bitand(int x, int y) {
         return x & y;
     }
