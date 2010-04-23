@@ -26,139 +26,9 @@ import org.openl.util.AStringBoolOperator;
  * JSF managed bean, session scope.
  */
 public class OpenLAdvancedSearchBean {
-    
-    public class ColumnSearchElementBean extends SearchElementBean {
-        public ColumnSearchElementBean(int index) {
-            super(index);
-        }
 
-        @Override
-        protected SearchConditionElement getSearchConditionElement() {
-            return search.getColumnElements()[index];
-        }
-    }
-
-    public class SearchElementBean {
-        protected int index;
-
-        SearchElementBean(int index) {
-            this.index = index;
-        }
-
-        public String getGroupOperatorName() {
-            return getSearchConditionElement().getGroupOperator().getName();
-        }
-
-        public String getNotFlag() {
-            return OpenLAdvancedSearch.nfValues[getSearchConditionElement().isNotFlag() ? 1 : 0];
-        }
-
-        public GroupOperator getOperator() {
-            return getSearchConditionElement().getGroupOperator();
-        }
-
-        public String getOpType1() {
-            return getSearchConditionElement().getOpType1();
-        }
-
-        public String getOpType2() {
-            return getSearchConditionElement().getOpType2();
-        }
-
-        protected SearchConditionElement getSearchConditionElement() {
-            return search.getTableElements()[index];
-        }
-
-        public String getType() {
-            return getSearchConditionElement().getType();
-        }
-
-        public String getElementValueName() {
-            return getSearchConditionElement().getElementValueName();
-        }
-
-        public String getElementValue() {
-            return getSearchConditionElement().getElementValue();
-        }
-
-        public boolean isRequiredElementValueName() {
-            return search.showElementValueName(getType());
-        }
-
-        public void setGroupOperatorName(String groupOperatorName) {
-            getSearchConditionElement().setGroupOperator(GroupOperator.find(groupOperatorName));
-        }
-
-        public void setNotFlag(String flag) {
-            getSearchConditionElement().setNotFlag(OpenLAdvancedSearch.nfValues[1].equals(flag));
-        }
-
-        public void setOpType1(String type) {
-            getSearchConditionElement().setOpType1(type);
-        }
-
-        public void setOpType2(String type) {
-            getSearchConditionElement().setOpType2(type);
-        }
-
-        public void setType(String type) {
-            getSearchConditionElement().setType(type);
-        }
-
-        public void setElementValueName(String elementValueName) {
-            getSearchConditionElement().setElementValueName(elementValueName);
-        }
-
-        public void setElementValue(String elementValue) {
-            getSearchConditionElement().setElementValue(elementValue);
-        }
-    }
-    /**
-     * Request scope bean, holding flag if search run is required.
-     */
-    public static class SearchRequest {
-        private boolean needSearch;
-        private OpenLAdvancedSearchBean advancedSearchBean;
-        private List<TableSearch> tableSearchList;
-
-        public OpenLAdvancedSearchBean getAdvancedSearchBean() {
-            return advancedSearchBean;
-        }
-
-        public String getSearchResult() {
-            if (!isSearching() || !advancedSearchBean.isReady()) {
-                return "";
-            }
-
-            ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-            return model.displayResult(model.runSearch(advancedSearchBean.search), null);
-        }
-
-        public List<TableSearch> getSearchResults() {
-            if (!isSearching() || !advancedSearchBean.isReady()) {
-                return Collections.emptyList();
-            }
-            if (tableSearchList == null) {
-                ProjectModel model = WebStudioUtils.getWebStudio().getModel();                
-                tableSearchList = model.getSearchList(model.runSearch(advancedSearchBean.search));
-            }
-            return tableSearchList;
-        }
-
-        public boolean isSearching() {
-            return needSearch;
-        }
-
-        public String search() {
-            needSearch = true;
-            return null;
-        }
-
-        public void setAdvancedSearchBean(OpenLAdvancedSearchBean advancedSearchBean) {
-            this.advancedSearchBean = advancedSearchBean;
-        }
-    }
     private static final Log LOG = LogFactory.getLog(OpenLAdvancedSearchBean.class);
+
     private static final SelectItem[] tableTypes;
     private static final SelectItem[] columnTypeValues;
     private static final SelectItem[] groupOperationValues;
@@ -363,4 +233,130 @@ public class OpenLAdvancedSearchBean {
             tableElements[i] = new SearchElementBean(i);
         }
     }
+    
+    public class ColumnSearchElementBean extends SearchElementBean {
+        public ColumnSearchElementBean(int index) {
+            super(index);
+        }
+
+        @Override
+        protected SearchConditionElement getSearchConditionElement() {
+            return search.getColumnElements()[index];
+        }
+    }
+
+    public class SearchElementBean {
+        protected int index;
+
+        SearchElementBean(int index) {
+            this.index = index;
+        }
+
+        public String getGroupOperatorName() {
+            return getSearchConditionElement().getGroupOperator().getName();
+        }
+
+        public String getNotFlag() {
+            return OpenLAdvancedSearch.nfValues[getSearchConditionElement().isNotFlag() ? 1 : 0];
+        }
+
+        public GroupOperator getOperator() {
+            return getSearchConditionElement().getGroupOperator();
+        }
+
+        public String getOpType1() {
+            return getSearchConditionElement().getOpType1();
+        }
+
+        public String getOpType2() {
+            return getSearchConditionElement().getOpType2();
+        }
+
+        protected SearchConditionElement getSearchConditionElement() {
+            return search.getTableElements()[index];
+        }
+
+        public String getType() {
+            return getSearchConditionElement().getType();
+        }
+
+        public String getElementValueName() {
+            return getSearchConditionElement().getElementValueName();
+        }
+
+        public String getElementValue() {
+            return getSearchConditionElement().getElementValue();
+        }
+
+        public boolean isRequiredElementValueName() {
+            return search.showElementValueName(getType());
+        }
+
+        public void setGroupOperatorName(String groupOperatorName) {
+            getSearchConditionElement().setGroupOperator(GroupOperator.find(groupOperatorName));
+        }
+
+        public void setNotFlag(String flag) {
+            getSearchConditionElement().setNotFlag(OpenLAdvancedSearch.nfValues[1].equals(flag));
+        }
+
+        public void setOpType1(String type) {
+            getSearchConditionElement().setOpType1(type);
+        }
+
+        public void setOpType2(String type) {
+            getSearchConditionElement().setOpType2(type);
+        }
+
+        public void setType(String type) {
+            getSearchConditionElement().setType(type);
+        }
+
+        public void setElementValueName(String elementValueName) {
+            getSearchConditionElement().setElementValueName(elementValueName);
+        }
+
+        public void setElementValue(String elementValue) {
+            getSearchConditionElement().setElementValue(elementValue);
+        }
+    }
+
+    /**
+     * Request scope bean, holding flag if search run is required.
+     */
+    public static class SearchRequest {
+        private boolean needSearch;
+        private OpenLAdvancedSearchBean advancedSearchBean;
+        private List<TableSearch> tableSearchList;
+
+        public OpenLAdvancedSearchBean getAdvancedSearchBean() {
+            return advancedSearchBean;
+        }
+
+        public List<TableSearch> getSearchResults() {
+            if (!isSearching() || !advancedSearchBean.isReady()) {
+                return Collections.emptyList();
+            }
+            if (tableSearchList == null) {
+                ProjectModel model = WebStudioUtils.getWebStudio().getModel();                
+                tableSearchList = model.getAdvancedSearchResults(
+                        model.runSearch(advancedSearchBean.search));
+            }
+            return tableSearchList;
+        }
+
+        public boolean isSearching() {
+            return needSearch;
+        }
+
+        public String search() {
+            needSearch = true;
+            return null;
+        }
+
+        public void setAdvancedSearchBean(OpenLAdvancedSearchBean advancedSearchBean) {
+            this.advancedSearchBean = advancedSearchBean;
+        }
+    }
+
 }

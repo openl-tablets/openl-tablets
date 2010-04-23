@@ -24,7 +24,6 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.ui.tree.TreeCache;
-import org.openl.types.IOpenMethodHeader;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.ITracerObject;
 import org.openl.vm.Tracer;
@@ -100,21 +99,6 @@ public class TraceHelper {
         aRegions = regions.toArray(aRegions);
 
         return new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter());
-    }
-
-    public String printTraceMethod(IOpenMethodHeader header, Object[] params, StringBuffer buf, ProjectModel model) {
-        buf.append(header.getName()).append('(');
-        ObjectViewer viewer = new ObjectViewer(model);
-
-        for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(",");
-            }
-            buf.append(viewer.displayResult(params[i]));
-        }
-
-        buf.append(')');
-        return buf.toString();
     }
 
     public ITreeElement<?> getTraceTree(Tracer tracer) {
