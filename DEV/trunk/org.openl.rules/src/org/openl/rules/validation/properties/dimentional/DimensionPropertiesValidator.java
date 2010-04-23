@@ -1,4 +1,4 @@
-package org.openl.rules.validation;
+package org.openl.rules.validation.properties.dimentional;
 
 import java.util.Map;
 
@@ -6,13 +6,13 @@ import org.openl.OpenL;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.validation.TablesValidator;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 

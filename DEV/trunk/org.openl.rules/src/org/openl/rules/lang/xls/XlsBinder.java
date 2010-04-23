@@ -52,7 +52,7 @@ import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
-import org.openl.rules.validation.DispatcherTableBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;

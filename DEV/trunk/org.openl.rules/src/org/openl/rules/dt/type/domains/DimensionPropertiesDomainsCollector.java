@@ -10,7 +10,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.validation.DecisionTableCreator;
+import org.openl.rules.validation.properties.dimentional.DecisionTableCreator;
 
 import sun.misc.MessageUtils;
 

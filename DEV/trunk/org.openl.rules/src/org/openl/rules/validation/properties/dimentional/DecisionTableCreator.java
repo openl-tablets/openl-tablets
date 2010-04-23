@@ -1,4 +1,4 @@
-package org.openl.rules.validation;
+package org.openl.rules.validation.properties.dimentional;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -38,14 +37,16 @@ import org.openl.util.StringTool;
 
 public class DecisionTableCreator {
     
-    private static final int SERVICE_ROWS_NUMBER = 5; // number 5 - is a number of first development rows in table.
+    private static final int DECISION_TABLE_HEADER_ROWS_NUMBER = 5; // number 5 - is a number of first development rows in table.
     private static final int CONDITION_TITLE_ROW_INDEX = 4;
-    private static final int ROW_NUM_CONDITION_INITIALIZATION = 3;
+    private static final int CONDITION_PARAMETER_ROW_INDEX = 3;
     private static final int CODE_EXPRESSION_ROW_INDEX = 2;
     private static final int CONDITION_NAME_ROW_INDEX = 1; // condition name always is the next row after header row.
     private static final String RESULT_VAR = "result";    
-    public static final String CURRENT_DATE_PARAM = "currentDate";
     public static final String LOCAL_PARAM_SUFFIX = "Local";
+    
+    //FIXME: remove this variable
+    public static final String CURRENT_DATE_PARAM = "currentDate";
     
     private static String __src = "src/rules/Test.xls";;
     private static String FAKE_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";;
@@ -56,8 +57,8 @@ public class DecisionTableCreator {
     private String newTableName;
     private IMethodSignature originalSignature;
     private List<TableSyntaxNode> tablesGroup;
-    private List<TablePropertyDefinition> simpleDimensionalProperties = new ArrayList<TablePropertyDefinition>();
-    private List<TablePropertyDefinition> arrayDimensionalProperties = new ArrayList<TablePropertyDefinition>();
+    private List<TablePropertyDefinition> simpleDimensionalProperties;
+    private List<TablePropertyDefinition> arrayDimensionalProperties;
     
     private IOpenClass originalReturnType;
     private DecisionTable createdDecTable;
@@ -78,13 +79,34 @@ public class DecisionTableCreator {
         }
     }
     
-    public DecisionTableCreator(String originalTableName, IMethodSignature originalSignature,
-            List<TableSyntaxNode> tablesGroup, List<TablePropertyDefinition> dimensionalTableProp,
-            IOpenClass originalReturnType) {    
+    private static boolean belongsToExcluded(String methodName) {
+        boolean result = false;
+        if ("getValue".equals(methodName)) {
+            result = true;
+        }
+        return result;
+    }
+    
+    public DecisionTableCreator(List<TablePropertyDefinition> dimensionalProperties, List<TableSyntaxNode> tablesGroup, 
+            String newTableName, IOpenClass originalReturnType, String originalTableName, 
+            IMethodSignature originalSignature) { 
         this.tablesGroup = tablesGroup;
-                
+        this.originalSignature = originalSignature;
+        this.originalReturnType = originalReturnType;
+        this.originalTableName = originalTableName;
+        this.newTableName = newTableName;
+        
+        // tablesGroup should already be initialized 
+        initDimensionPropertiesLists(dimensionalProperties);
+        
+    }
+
+    private void initDimensionPropertiesLists(List<TablePropertyDefinition> dimensionalTableProp) {
+        simpleDimensionalProperties = new ArrayList<TablePropertyDefinition>();
+        arrayDimensionalProperties = new ArrayList<TablePropertyDefinition>();
+        
         for (TablePropertyDefinition property : dimensionalTableProp) {
-            if (!isEmptyPropertyValueForAllTables(property.getName())) {
+            if (isPropertyValueSetInTables(property.getName())) {
                 if (property.getType().getInstanceClass().isArray()) {
                     arrayDimensionalProperties.add(property);
                 } else {
@@ -92,19 +114,20 @@ public class DecisionTableCreator {
                 }
             }
         }
-        this.originalSignature = originalSignature;
-        this.originalReturnType = originalReturnType;
-        this.originalTableName = originalTableName;
-        this.newTableName = DispatcherTableBuilder.DEFAULT_METHOD_NAME + "_" + this.originalTableName;
-        
     }    
+    
+    private boolean isPropertyValueSetInTables(String propertyName) {
+        boolean isPropertyValueSet = false;
 
-    private static boolean belongsToExcluded(String methodName) {
-        boolean result = false;
-        if ("getValue".equals(methodName)) {
-            result = true;
+        for (TableSyntaxNode tsn : tablesGroup) {
+            String propertyValue = tsn.getTableProperties().getPropertyValueAsString(propertyName);            
+            if (StringUtils.isNotEmpty(propertyValue)) {
+                isPropertyValueSet = true;
+                break;
+            }
         }
-        return result;
+
+        return isPropertyValueSet;        
     }
 
     public GridTable createGridTable() {
@@ -157,7 +180,7 @@ public class DecisionTableCreator {
     }
 
     private void createAllRows(Sheet sheet) {        
-        for (int i = 0; i < tablesGroup.size() + SERVICE_ROWS_NUMBER; i++) {
+        for (int i = 0; i < tablesGroup.size() + DECISION_TABLE_HEADER_ROWS_NUMBER; i++) {
             sheet.createRow((short)i);
         }
     }
@@ -173,20 +196,7 @@ public class DecisionTableCreator {
         writeSimpleRuleValue(sheet, columnNumber, property);
     }
     
-    private boolean isEmptyPropertyValueForAllTables(String propName) {
-        boolean result = false;
-        int filledValues = 0;
-        for (TableSyntaxNode tsn : tablesGroup) {
-            String propValue = tsn.getTableProperties().getPropertyValueAsString(propName);            
-            if (StringUtils.isNotEmpty(propValue)) {
-                filledValues++;
-            }
-        }
-        if (filledValues == 0) {
-            result = true;
-        }
-        return result;        
-    }
+
 
     /**
      * Condition name is always in the first row of the table.
@@ -217,7 +227,7 @@ public class DecisionTableCreator {
      * @param colNum
      */
     private void writeSimpleConditionInitialization(Sheet sheet, int colNum, TablePropertyDefinition property) {
-        Cell cell = sheet.getRow(ROW_NUM_CONDITION_INITIALIZATION).createCell(colNum);
+        Cell cell = sheet.getRow(CONDITION_PARAMETER_ROW_INDEX).createCell(colNum);
         cell.setCellValue(getSimpleConditionInitialization(property));        
     }
     
@@ -234,7 +244,7 @@ public class DecisionTableCreator {
      */
     private void writeSimpleRuleValue(Sheet sheet, int columnNumber, TablePropertyDefinition property) {
         for (int i = 0; i < tablesGroup.size(); i++) {
-            Cell cell = sheet.getRow(SERVICE_ROWS_NUMBER + i).createCell(columnNumber);
+            Cell cell = sheet.getRow(DECISION_TABLE_HEADER_ROWS_NUMBER + i).createCell(columnNumber);
             
             TableSyntaxNode tsn = tablesGroup.get(i);
             String propertyValue = tsn.getTableProperties().getPropertyValueAsString(property.getName());
@@ -307,7 +317,7 @@ public class DecisionTableCreator {
     private void writeArrayConditionInitialization(Sheet sheet, int columnNumber, int numOfElements, TablePropertyDefinition property) {
         Class<?> componentType = property.getType().getInstanceClass().getComponentType();        
         for (int i = 0; i < numOfElements; i ++) {
-            Cell cell = sheet.getRow(ROW_NUM_CONDITION_INITIALIZATION).createCell(columnNumber);
+            Cell cell = sheet.getRow(CONDITION_PARAMETER_ROW_INDEX).createCell(columnNumber);
             cell.setCellValue(String
                     .format("%s %s", componentType.getSimpleName(), property.getName() + LOCAL_PARAM_SUFFIX + (i + 1)));
             columnNumber++;
@@ -327,7 +337,7 @@ public class DecisionTableCreator {
         int startCol = colNum;
         for (int i = 0; i < tablesGroup.size(); i++) {
             for (int j = 0; j < numCountriesColumns; j++) {
-                Cell cell = sheet.getRow(i + SERVICE_ROWS_NUMBER).createCell(colNum);
+                Cell cell = sheet.getRow(i + DECISION_TABLE_HEADER_ROWS_NUMBER).createCell(colNum);
                 cell.setCellValue(getArrayRuleValue(tablesGroup.get(i), colNum - startCol, property.getName()));                
                 colNum++;
             }
@@ -356,14 +366,14 @@ public class DecisionTableCreator {
         Cell cell1 = sheet.getRow(CODE_EXPRESSION_ROW_INDEX).createCell(colNum);
         cell1.setCellValue(RESULT_VAR);
         
-        Cell cell2 = sheet.getRow(ROW_NUM_CONDITION_INITIALIZATION).createCell(colNum);
+        Cell cell2 = sheet.getRow(CONDITION_PARAMETER_ROW_INDEX).createCell(colNum);
         cell2.setCellValue(String.format("%s %s", originalReturnType.getDisplayName(0), RESULT_VAR));
         
         Cell cell3 = sheet.getRow(CONDITION_TITLE_ROW_INDEX).createCell(colNum);
         cell3.setCellValue(RESULT_VAR.toUpperCase());
         
         for (int i = 0; i< tablesGroup.size(); i++) {
-            Cell cellRule = sheet.getRow(i + SERVICE_ROWS_NUMBER).createCell(colNum);
+            Cell cellRule = sheet.getRow(i + DECISION_TABLE_HEADER_ROWS_NUMBER).createCell(colNum);
             cellRule.setCellValue(String.format("=%s(%s)", originalTableName, originalParamsThroughComma())); 
         }
     }
@@ -574,7 +584,7 @@ public class DecisionTableCreator {
         createdDecTable = new DecisionTable(methodHeader);                
     }
 
-    public DecisionTable getCreatedDecTable() {
+    public DecisionTable getCreatedDecisionTable() {
         if (createdDecTable == null) {
             createGridTable();
         }
