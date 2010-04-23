@@ -1214,4 +1214,14 @@ public class ProjectModel {
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;
     }
+    
+    public static String showTable(IGridTable gt, boolean showgrid) {
+        return showTable(gt, (IGridFilter[]) null, showgrid);
+    }
+
+    public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
+        TableModel model = buildModel(gt, filters);
+        return TableViewer.showTable(model, showgrid);
+    }
+
 }

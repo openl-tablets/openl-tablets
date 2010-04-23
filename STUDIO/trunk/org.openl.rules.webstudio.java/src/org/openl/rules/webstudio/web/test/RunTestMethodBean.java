@@ -10,7 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.rules.ui.Explanator;
+import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -107,6 +109,22 @@ public class RunTestMethodBean {
 
     public void setResultItems(UIRepeat resultItems) {
         this.resultItems = resultItems;
+    }
+
+    public SpreadsheetResult getSpreadsheetResult() {
+        Object result = resultItems.getRowData();
+        if (result instanceof SpreadsheetResult) {
+            return (SpreadsheetResult) result;
+        }
+        return null;
+    }
+
+    public String getFormattedSpreadsheetResult() {
+        SpreadsheetResult spreadsheetResult = getSpreadsheetResult();
+        if (spreadsheetResult != null) {
+            return new ObjectViewer().displayResult(spreadsheetResult);
+        }
+        return StringUtils.EMPTY;
     }
 
     public DoubleValue getDoubleValueResult() {
