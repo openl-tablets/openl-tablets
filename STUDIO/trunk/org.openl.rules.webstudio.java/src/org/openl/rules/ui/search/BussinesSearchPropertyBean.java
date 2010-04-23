@@ -181,8 +181,9 @@ public class BussinesSearchPropertyBean {
             }
             if (tableSearchList == null) {
                 ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-                model.runSearch(bussinessSearchBean.search);                
-                tableSearchList = model.getSearchList(model.runSearch(bussinessSearchBean.search));                
+                model.runSearch(bussinessSearchBean.search);
+                tableSearchList = model.getBussinessSearchResults(
+                        model.runSearch(bussinessSearchBean.search));
             }
             return tableSearchList;
         }        

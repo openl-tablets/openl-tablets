@@ -9,15 +9,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang.StringUtils;
-//import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
-import org.openl.rules.dt.validator.DecisionTableValidator;
+import org.openl.meta.IMetaHolder;
+import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -27,13 +23,20 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.search.IOpenLSearch;
+import org.openl.rules.search.ISearchTableRow;
+import org.openl.rules.search.OpenLAdvancedSearchResult;
+import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
+import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.search.OpenLSavedSearch;
+import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.Table;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -50,16 +53,15 @@ import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
-//import org.openl.rules.ui.tree.NodeKey;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.syntax.ISyntaxNode;
-//import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -67,6 +69,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringTool;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -137,19 +140,6 @@ public class ProjectModel {
         p2.parse(url);
 
         return parser.wbPath.equals(p2.wbPath) && parser.wbName.equals(p2.wbName);
-    }
-
-    public static String showTable(IGridTable gt, boolean showgrid) {
-        return showTable(gt, (IGridFilter[]) null, showgrid);
-    }
-
-    public static String showTable(IGridTable gt, IGridFilter filter, boolean showgrid) {
-        return showTable(gt, new IGridFilter[] { filter }, showgrid);
-    }
-
-    public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
-        TableModel model = buildModel(gt, filters);
-        return TableViewer.showTable(model, showgrid);
     }
 
     public static Object wrapperNewInstance(Class<?> c) throws Exception {
@@ -303,11 +293,6 @@ public class ProjectModel {
         }
 
         return ores;
-    }
-
-    public String displayResult(Object res, HttpSession session) {
-        ObjectViewer objViewer = new ObjectViewer(this);
-        return objViewer.displayResult(res);
     }
 
     public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {        
@@ -633,8 +618,72 @@ public class ProjectModel {
         return savedSearches;
     }
 
-    public List<TableSearch> getSearchList(Object obj) {
-        return new ObjectViewer(this).getSearchList(obj);
+    public List<TableSearch> getAdvancedSearchResults(Object searchResult) {
+        List<TableSearch> searchResults = new ArrayList<TableSearch>();
+
+        if (searchResult instanceof OpenLAdvancedSearchResult) {
+            TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows();
+            OpenLAdvancedSearchResultViewer searchViewer = new OpenLAdvancedSearchResultViewer();
+            for (int i = 0; i < tr.length; i++) {
+                ISearchTableRow[] rows = tr[i].getRows();
+                if (rows.length > 0) {
+                    TableSyntaxNode tsn = tr[i].getTsn();
+                    StringValue tableName = TableSyntaxNodeUtils.getTableSyntaxNodeName(tsn);
+                    String tableUri = tsn.getUri();
+
+                    CompositeGrid cg = searchViewer.makeGrid(rows);
+                    IGridTable gridTable = cg != null ? cg.asGridTable() : null;
+
+                    Table newTable = new Table();
+                    newTable.setGridTable(gridTable);
+                    newTable.setProperties(tsn.getTableProperties());
+
+                    TableSearch tableSearch = new TableSearch();
+                    tableSearch.setTableUri(tableUri);
+                    tableSearch.setTable(newTable);
+                    tableSearch.setXlsLink((getXlsOrDocUrlLink(tableName)));
+
+                    searchResults.add(tableSearch);
+                }
+            }
+        }
+
+        return searchResults;
+    }
+
+    public List<TableSearch> getBussinessSearchResults(Object searchResult) {
+        List<TableSearch> searchResults = new ArrayList<TableSearch>();
+
+        if (searchResult instanceof OpenLBussinessSearchResult) {
+            List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
+            for(TableSyntaxNode foundTable : foundTables) {
+                TableSearch tableSearch = new TableSearch();
+                tableSearch.setTableUri(foundTable.getUri());
+                tableSearch.setTable(new TableSyntaxNodeAdapter(foundTable));
+                tableSearch.setXlsLink((getXlsOrDocUrlLink(
+                        TableSyntaxNodeUtils.getTableSyntaxNodeName(foundTable))));
+                searchResults.add(tableSearch);
+            }
+        }
+
+        return searchResults;
+    }
+
+    // TODO Move to UI
+    public String getXlsOrDocUrlLink(IMetaHolder mh) {
+        String display = String.valueOf(mh);
+        StringBuffer buf = new StringBuffer();
+        buf.append("<a ");
+
+        String url = WebTool.makeXlsOrDocUrl(mh.getMetaInfo().getSourceUrl());
+        buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
+        buf.append(" target='show_app_hidden'");
+
+        buf.append(">");
+        StringTool.encodeHTMLBody(display, buf);
+        buf.append("</a>");
+
+        return buf.toString();
     }
 
     public WebStudio getStudio() {
@@ -1101,27 +1150,6 @@ public class ProjectModel {
 
         return p == null ? "" : p;
 
-    }
-
-    public String showTable(String elementUri, String view) {
-        TableSyntaxNode tsn = getNode(elementUri);
-        if (tsn == null) {
-            return "No Table have been selected yet";
-        }
-
-        IGridTable gt = tsn.getTable().getGridTable();
-        if (view == null) {
-            view = studio.getMode().getTableMode();
-        }
-
-        if (view != null) {
-            ILogicalTable gtx = tsn.getSubTables().get(view);
-            if (gtx != null) {
-                gt = gtx.getGridTable();
-            }
-        }
-
-        return showTable(gt, false);
     }
 
     public String showTableWithSelection(String url, String view) {
