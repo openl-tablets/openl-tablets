@@ -1,4 +1,4 @@
-package org.openl.rules.validation;
+package org.openl.rules.validation.properties.dimentional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,21 +51,20 @@ public class DispatcherTableBuilder {
     
     public void buildTable() {        
         Map<MethodKey, List<TableSyntaxNode>> groupedTables = groupExecutableTables();        
-        for (MethodKey key : groupedTables.keySet()) {
-            List<TableSyntaxNode> tablesGroup = groupedTables.get(key);
-            tablesGroup = excludeOveloadedByVersion(tablesGroup);
-            if (tablesGroup.size() > 1) {
-                buildTableForGroup(tablesGroup);
+        for (List<TableSyntaxNode> tablesGroup : groupedTables.values()) {
+            List<TableSyntaxNode> overloadedTablesGroup = excludeOveloadedByVersion(tablesGroup);
+            if (overloadedTablesGroup.size() > 1) {
+                buildTableForGroup(overloadedTablesGroup);
             }
         }
     }
 
     private List<TableSyntaxNode> excludeOveloadedByVersion(List<TableSyntaxNode> tablesGroup) {
         Set<TableSyntaxNodeKey> differentTables = new HashSet<TableSyntaxNodeKey>();
-        List<TableSyntaxNode> result = new ArrayList<TableSyntaxNode>();
+        List<TableSyntaxNode> result = new ArrayList<TableSyntaxNode>();        
         for (TableSyntaxNode tsn : tablesGroup) {
             TableSyntaxNodeKey key = new TableSyntaxNodeKey(tsn);
-            if (!differentTables.contains(key)) {
+            if (!differentTables.contains(key)) {                
                 differentTables.add(key);
                 result.add(tsn);
             }
@@ -81,24 +80,26 @@ public class DispatcherTableBuilder {
 
     private void buildTableForGroup(List<TableSyntaxNode> tablesGroup) {
         List<TablePropertyDefinition> dimensionalTableProp = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
+        
         TableSyntaxNode groupMember = tablesGroup.get(0);
         String originalTableName = ((AMethod)groupMember.getMember()).getHeader().getName();
-        
         IMethodSignature originalSignature = getOriginalTableSignature(groupMember);
-        
         IOpenClass originalReturnType = getOtiginalTableReturnType(groupMember);
         
-        DecisionTableCreator dtTableWriter = new DecisionTableCreator(originalTableName, 
-                originalSignature, tablesGroup, dimensionalTableProp, originalReturnType);
-        GridTable createdGridTable = dtTableWriter.createGridTable();        
+        String tableName = DEFAULT_METHOD_NAME + "_" + originalTableName;
         
-        DecisionTable decisionTable = dtTableWriter.getCreatedDecTable(); 
+        DecisionTableCreator decisionTableWriter = new DecisionTableCreator(dimensionalTableProp, tablesGroup, 
+                tableName, originalReturnType, originalTableName, originalSignature);
         
-        TableSyntaxNode tsn = createTableSyntaxNode(dtTableWriter.getCreatedSheetGridModel(), createdGridTable);
+        GridTable createdGridTable = decisionTableWriter.createGridTable();        
+        DecisionTable decisionTable = decisionTableWriter.getCreatedDecisionTable(); 
+        
+        TableSyntaxNode tsn = createTableSyntaxNode(decisionTableWriter.getCreatedSheetGridModel(), createdGridTable);
         tsn.setMember(decisionTable);        
         
         loadCreatedTable(decisionTable, tsn);
-        IOpenMethod validatedMethod = (IOpenMethod)tablesGroup.get(0).getMember();
+        
+        IOpenMethod validatedMethod = (IOpenMethod)groupMember.getMember();
         setDispatcherProperties(validatedMethod, tsn);
     }
 
@@ -139,10 +140,9 @@ public class DispatcherTableBuilder {
         String type = ITableNodeTypes.XLS_DT;
         
         GridLocation pos = new GridLocation(gridTable);
-        
         HeaderSyntaxNode headerSyntaxNode = new HeaderSyntaxNode(null, null);
-        TableSyntaxNode tsn = new TableSyntaxNode(type, pos, sheetGridModel.getSheetSource(), gridTable, headerSyntaxNode);
-        return tsn;
+
+        return new TableSyntaxNode(type, pos, sheetGridModel.getSheetSource(), gridTable, headerSyntaxNode);
     }
     
     private Map<MethodKey, List<TableSyntaxNode>> groupExecutableTables() {
