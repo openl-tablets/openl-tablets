@@ -272,7 +272,7 @@ public class CellModel implements ICellModel {
     }
 
     public void toHtmlString(StringBuilder buf, TableModel table) {
-        buf.append("<td ");
+        buf.append("<td");
         atttributesToHtml(buf, table);
         //FIXME: Should formulas be displayed?
         buf.append('>').append("<div ").append(" onMouseDown='clickCell(").append(column).append(',').append(row)
