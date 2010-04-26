@@ -25,11 +25,11 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.choices = param.choices;
         this.entries = $H();
 
-        // creating containing DIV
+        // Creating containing DIV
         this.multiselectPanel = new Element("div");
         this.multiselectPanel.className = "multiselect_container_outer";
 
-        // creating buttons
+        // Creating buttons
         var self = this;
         this.multiselectPanel.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
         var b1 = this.multiselectPanel.down(), b2 = b1.next(), b3 = b2.next();
@@ -37,24 +37,21 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         b2.onclick = function() {self.setAllCheckBoxes(false)}
         b3.onclick = function() {self.finishEdit()}
 
-        // creating inner DIV
+        // Creating inner DIV
         var container = new Element("div");
         container.className = "multiselect_container";
 
-        // creating UL HTML element
-        var ulElement = new Element("ul");
-
-        // creating entries
+        // Creating entries
         var pc = param.choices, pd = param.displayValues;
         for (var ind = 0, len = pc.length; ind < len; ++ind) {
-            var li = new Element("li");
-            ulElement.appendChild(li);
+            var entry = new Element("div");
+            entry.innerHTML = '<input type="checkbox" name="multiselect_cb">' + pd[ind].escapeHTML();
 
-            li.innerHTML = '<input type="checkbox" name="multiselect_cb">' + pd[ind].escapeHTML();
-            this.entries[pc[ind]] = li.down();
+            container.appendChild(entry);
+
+            this.entries[pc[ind]] = entry.down();
         }
 
-        container.appendChild(ulElement);
         this.multiselectPanel.appendChild(container);
 
         this.input.onclick = function(event) {
