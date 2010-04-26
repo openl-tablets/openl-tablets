@@ -24,7 +24,7 @@ function triggerEdit(editorId, url, cellToEdit) {
         encoding: "utf-8",
         contentType: "text/javascript",
         parameters: {
-            cell: cell.down("input").value.toQueryParams().cell,
+            cell: cell.firstChild.value.toQueryParams().cell,
             editorId: editor.id.replace('te_comp','')
         },
         onSuccess: function(data) {
