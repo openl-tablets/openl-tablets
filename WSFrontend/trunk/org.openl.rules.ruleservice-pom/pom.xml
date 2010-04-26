@@ -32,6 +32,22 @@
 
   </scm>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+            <tagBase>https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/tags</tagBase>
+            <workingDirectory>c:\tmp\mvn-frontend-release</workingDirectory>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+
   <repositories>
     <repository>
       <id>local</id>

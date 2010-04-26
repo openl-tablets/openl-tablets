@@ -18,22 +18,22 @@
     <module>org.openl.rules.ruleservice-pom</module>
   </modules>
 
+  <distributionManagement>
+    <repository>
+      <id>exigen-repo-release</id>
+      <name>Exigen Release Repository</name>
+      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
+    </repository>
+  </distributionManagement>
+
   <build>
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.0-beta-8</version>
+          <artifactId>maven-deploy-plugin</artifactId>
           <configuration>
-            <tagBase>https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/tags</tagBase>
-            <workingDirectory>c:\tmp\mvn-frontend-release</workingDirectory>
+            <skip>true</skip>
           </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-scm-plugin</artifactId>
-          <version>1.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
