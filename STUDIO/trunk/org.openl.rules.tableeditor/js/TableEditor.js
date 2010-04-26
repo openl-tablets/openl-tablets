@@ -215,8 +215,7 @@ var TableEditor = Class.create({
      */
     handleClick: function(e) {
         var elt = Event.element(e);
-        if (this.editor
-                && this.editor.getInputElement() == elt) {
+        if (this.editor && this.editor.is(elt)) {
             return;
         }
         this.setCellValue();

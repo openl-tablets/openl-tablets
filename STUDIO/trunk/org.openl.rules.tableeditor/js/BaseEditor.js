@@ -135,6 +135,10 @@ var BaseEditor = Class.create({
      */
     getInputElement: function() {
         return this.input;
+    },
+
+    is: function(element) {
+        return element == this.getInputElement();
     }
 
 });
