@@ -7,7 +7,7 @@
 
 	<import file="changeVersion.xml"/>
 
-	<property file="release.properties"/>
+	<property file="OpenLRelease.properties"/>
 
 	<!-- BEGIN M2 PRESET -->
  	<property name="maven.commoncmd" value="" />
