@@ -45,8 +45,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var pc = param.choices, pd = param.displayValues;
         for (var ind = 0, len = pc.length; ind < len; ++ind) {
             var entry = new Element("div");
-            entry.innerHTML = '<input type="checkbox" name="multiselect_cb">' + pd[ind].escapeHTML();
-
+            entry.innerHTML = '<input type="checkbox">' + pd[ind].escapeHTML();
             container.appendChild(entry);
 
             this.entries[pc[ind]] = entry.down();
@@ -160,13 +159,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     documentClickHandler: function(e) {
         var element = Event.element(e);
         var abort = false;
-        do {
-            if (element == this.input
-                    || element == this.multiselectPanel) {
-                abort = true;
-            }
-        } while (element = element.parentNode);
-        if (!abort) {
+        if (!this.is(element)) {
             this.close();
         }
     },
@@ -193,6 +186,19 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
     destroyIE6Popup: function() {
         Element.remove(this.ie6Popup);
+    },
+
+    is: function($super, element) {
+        if ($super(element)) {
+            return true;
+        } else {
+            do {
+                if (element == this.multiselectPanel) {
+                    return true;
+                }
+            } while (element = element.parentNode);
+        }
+        return false;
     }
 
 });
