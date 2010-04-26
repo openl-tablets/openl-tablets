@@ -30,26 +30,28 @@ public class XlsSimpleFilter implements IGridFilter {
     private Map<String, AXlsFormatter> existingFormatters = new HashMap<String, AXlsFormatter>();
 
     private Map<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
-    
+
     public Object parse(String value) {
         throw new UnsupportedOperationException("This format does not parse");
     }
-    
+
     public IGridSelector getGridSelector() {
         return null;
     }
-    
+
     public FormattedCell filterFormat(FormattedCell fc) {
         switch (fc.getType()) {
             case IGrid.CELL_TYPE_NUMERIC:
                 return formatNumberOrDate(fc);
             case IGrid.CELL_TYPE_FORMULA:
                 return formatFormula(fc);
+            case IGrid.CELL_TYPE_BOOLEAN:
+                return formatBoolean(fc);
         }
 
         return fc;
     }
-    
+
     private static boolean containsAny(String src, String test) {
         char[] tst = test.toCharArray();
         for (int i = 0; i < tst.length; i++) {
@@ -142,8 +144,13 @@ public class XlsSimpleFilter implements IGridFilter {
     private FormattedCell formatFormula(FormattedCell fc) {
         AXlsFormatter format = getFormat(fc);
         AXlsFormatter formulaFormat = new XlsFormulaFormatter(format);
-        
-        return new FormulaFilter(formulaFormat).filterFormat(fc);
+
+        return new FormatFilter(formulaFormat).filterFormat(fc);
+    }
+
+    private FormattedCell formatBoolean(FormattedCell fc) {
+        AXlsFormatter formatter = XlsFormattersManager.getFormatter(fc.getObjectValue().getClass());
+        return new FormatFilter(formatter).filterFormat(fc);
     }
 
     private AXlsFormatter getFormat(FormattedCell formattedCell) {
@@ -156,7 +163,7 @@ public class XlsSimpleFilter implements IGridFilter {
             return null;
         }
     }
-    
+
     private XlsNumberFormatter makeFormat(String format) {
         if (GENERAL_XLS_FORMAT.equals(format)) {
             return XlsNumberFormatter.General;

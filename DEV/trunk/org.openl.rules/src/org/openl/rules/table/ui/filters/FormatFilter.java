@@ -3,11 +3,11 @@ package org.openl.rules.table.ui.filters;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
-public class FormulaFilter extends AGridFilter {
+public class FormatFilter extends AGridFilter {
 
     private AXlsFormatter format;
     
-    public FormulaFilter(AXlsFormatter format) {
+    public FormatFilter(AXlsFormatter format) {
         this.format = format;
     }
     
