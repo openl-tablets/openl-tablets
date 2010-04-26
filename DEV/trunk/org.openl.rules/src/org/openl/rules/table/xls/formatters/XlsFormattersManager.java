@@ -60,4 +60,8 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
         return formatter;
     }
 
+    public static AXlsFormatter getFormatter(Class<?> clazz) {
+        return getFormatter(clazz, null);
+    }
+
 }
