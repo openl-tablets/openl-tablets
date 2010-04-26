@@ -34,6 +34,22 @@
 <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</developerConnection>
   </scm>
 
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+            <workingDirectory>c:\tmp\mvn-eclipse-release</workingDirectory>
+            <tagBase>https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags</tagBase>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
   <repositories>
     <repository>
       <id>local</id>
