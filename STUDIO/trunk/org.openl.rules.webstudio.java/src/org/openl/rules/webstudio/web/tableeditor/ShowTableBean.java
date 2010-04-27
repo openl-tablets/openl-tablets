@@ -214,7 +214,7 @@ public class ShowTableBean {
     }
 
     private boolean isDispatcherValidationNode() {
-        return table.getNameFromHeader().startsWith(DispatcherTableBuilder.DEFAULT_METHOD_NAME);
+        return table.getNameFromHeader().startsWith(DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
     public boolean isEditable() {
