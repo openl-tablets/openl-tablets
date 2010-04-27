@@ -64,6 +64,6 @@ public interface ICodeGen {
 
     StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb);
     
-    StringBuilder genLiteralLevelInheritance(MatchingExpression value, StringBuilder sb);
+    StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb);
     
 }
