@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties.expressions.match;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.exception.OpenLRuntimeException;
 
 public class MatchingExpressionFactory {
     
@@ -9,7 +10,7 @@ public class MatchingExpressionFactory {
         operationName = operationName == null ? "" : operationName;
         
         if (StringUtils.isEmpty(contextAttribute))  {
-            throw new RuntimeException("Can`t create matching expression with empty context attribute");
+            throw new OpenLRuntimeException("Can`t create matching expression with empty context attribute");
         }
         
         if (LEMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)){
@@ -21,7 +22,7 @@ public class MatchingExpressionFactory {
         } else if (ContainsMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)){
             matchExpression = new ContainsMatchingExpression(contextAttribute);            
         } else {
-            throw new RuntimeException(String.format("Unknown match expression operation \"%s\"", operationName));
+            throw new OpenLRuntimeException(String.format("Unknown match expression operation \"%s\"", operationName));
         } 
         return matchExpression;
     }

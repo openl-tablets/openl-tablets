@@ -43,6 +43,10 @@ public class DispatcherTableBuilder {
     
     private static final Map<String, IOpenClass> incomeParams;
     
+    /**
+     * Initialize a map of parameters from context, that will be used as income parameters to newly created dispatcher tables.
+     * 
+     */
     static {
         incomeParams = new HashMap<String, IOpenClass>();
         Method[] methods = IRulesRuntimeContext.class.getDeclaredMethods();
@@ -55,6 +59,12 @@ public class DispatcherTableBuilder {
         }
     }
     
+    /**
+     * Exclude those methods, that are not used as context variables.
+     * 
+     * @param methodName
+     * @return
+     */
     private static boolean belongsToExcluded(String methodName) {
         boolean result = false;
         if ("getValue".equals(methodName)) {
@@ -76,7 +86,11 @@ public class DispatcherTableBuilder {
         this.moduleOpenClass = moduleOpenClass;        
     }
     
-    public void buildTable() {        
+    /**
+     * Builds dispatcher tables for every group of overloaded tables.
+     * As a result new {@link TableSyntaxNode} objects appears in module.
+     */
+    public void buildDispatcherTables() {        
         Map<MethodKey, List<TableSyntaxNode>> groupedTables = groupExecutableTables();        
         for (List<TableSyntaxNode> tablesGroup : groupedTables.values()) {
             List<TableSyntaxNode> overloadedTablesGroup = excludeOveloadedByVersion(tablesGroup);
@@ -104,55 +118,140 @@ public class DispatcherTableBuilder {
         ((WorkbookSyntaxNode)xlsMetaInfo.getXlsModuleNode().getWorkbookSyntaxNodes()[0])
             .getWorksheetSyntaxNodes()[0].addNode(tsn);     
     }
-
+    
+    /**
+     * Build dispatcher table for dimensional properties for particular overloaded tables group.
+     * 
+     * @param tablesGroup group of overloaded tables.
+     */
     private void buildTableForGroup(List<TableSyntaxNode> tablesGroup) {
-        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
         
+        // as we have a group of overloaded tables, we need to take one it`s 
+        // member to get all common settings for the whole group
         TableSyntaxNode groupMember = tablesGroup.get(0);
-        String originalTableName = ((AMethod)groupMember.getMember()).getHeader().getName();
-        IMethodSignature originalSignature = getOriginalTableSignature(groupMember);
-        IOpenClass originalReturnType = getOriginalTableReturnType(groupMember);
+        String originalTableName = getOriginalTableName(groupMember);
         
+        // table name for dispatcher table.
         String newTableName = DEFAULT_DISPATCHER_TABLE_NAME + "_" + originalTableName;
         
-        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
-        for (TableSyntaxNode tsn : tablesGroup) {
-            propertiesValues.add(tsn.getTableProperties());
-        }        
+        // properties values from tables in group that will be used to build dispatcher table by dimensional properties.
+        List<ITableProperties> propertiesValues = getPropertiesValues(tablesGroup);  
         
-        DimensionPropertiesReturnColumn returnColumn = new DimensionPropertiesReturnColumn(originalReturnType, originalTableName, originalSignature, incomeParams);
-        
-        DecisionTablePOIBuilder tableBulder = initTableBuilder(newTableName, propertiesValues, dimensionalPropertiesDef, returnColumn);
-        
-        Sheet sheetWithTable = tableBulder.buildTable();
+        // create the table by POI builder. gets the sheet containing this table.
+        Sheet sheetWithTable = createTable(groupMember, newTableName, propertiesValues);
         
         DecisionTableCreator decisionTableCreator = new DecisionTableCreator();
         
         GridTable gridTable = decisionTableCreator.createGridTable(sheetWithTable);
+        
         XlsSheetGridModel sheetGridModel = decisionTableCreator.createSheetGridModel(sheetWithTable);
-        DecisionTable decisionTable = decisionTableCreator.createDecisionTable(newTableName, originalReturnType, originalSignature, incomeParams); 
         
         TableSyntaxNode tsn = createTableSyntaxNode(sheetGridModel, gridTable);
+        
+        IMethodSignature originalSignature = getOriginalTableSignature(groupMember);
+        IOpenClass originalReturnType = getOriginalTableReturnType(groupMember);
+        
+        DecisionTable decisionTable = decisionTableCreator.createDecisionTable(newTableName, originalReturnType, originalSignature, incomeParams);
         tsn.setMember(decisionTable);        
         
         loadCreatedTable(decisionTable, tsn);
         
-        IOpenMethod validatedMethod = (IOpenMethod)groupMember.getMember();
-        setDispatcherProperties(validatedMethod, tsn);
+        IOpenMethod groupMemberMethod = (IOpenMethod)groupMember.getMember();
+        setPropertiesForDispatcherTable(groupMemberMethod, tsn);
     }
     
-    private DecisionTablePOIBuilder initTableBuilder(String newTableName, List<ITableProperties> tableProperties, List<TablePropertyDefinition> dimensionalProperties, DimensionPropertiesReturnColumn returnColumn) {
+    /**
+     * Creates the memory representation of dispatcher table by POI.
+     * 
+     * @param groupMember member of tables group.
+     * @param newTableName table name for dispatcher table.
+     * @param propertiesValues properties values from tables in group.
+     * @return sheet that contains created table.
+     */
+    private Sheet createTable(TableSyntaxNode groupMember, String newTableName, List<ITableProperties> propertiesValues) {
+        DecisionTablePOIBuilder tableBulder = initTableBuilder(groupMember, newTableName, propertiesValues);
+        
+        return tableBulder.buildTable();
+        
+    }
+    
+    /**
+     * Gets properties values from tables in group that will be used to build dispatcher table by dimensional properties.
+     * 
+     * @param tablesGroup group of overloaded tables.
+     * @return properties values from tables in group.
+     */
+    private List<ITableProperties> getPropertiesValues(List<TableSyntaxNode> tablesGroup) {
+        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        for (TableSyntaxNode tsn : tablesGroup) {
+            propertiesValues.add(tsn.getTableProperties());
+        }
+        return propertiesValues;
+    }
+    
+    /**
+     * As all tables in group have the similar name, so it is possible do get any member and get it`s name.
+     * 
+     * @param groupMember member of the overloaded tables group
+     * @return name of the tables in group.
+     */
+    private String getOriginalTableName(TableSyntaxNode groupMember) {
+        return ((AMethod)groupMember.getMember()).getHeader().getName();
+    }
+    
+    /**
+     * As all tables in group have the similar type, so it is possible do get any member and get it`s type.
+     * 
+     * @param groupMember member of the overloaded tables group
+     * @return type of the tables in group.
+     */
+    private IOpenClass getOriginalTableReturnType(TableSyntaxNode groupMember) {        
+        return ((AMethod)groupMember.getMember()).getHeader().getType();        
+    }    
+    
+    /**
+     * As all tables in group have the similar signature, so it is possible do get any member and get it`s signature.
+     * 
+     * @param groupMember member of the overloaded tables group
+     * @return method signature of the tables in group.
+     */
+    private IMethodSignature getOriginalTableSignature(TableSyntaxNode tsn) {        
+        return ((AMethod)tsn.getMember()).getHeader().getSignature();
+    }
+    
+    /**
+     * Initialize POI table builder with columns and return column, number of rules.
+     * 
+     * @param groupMember
+     * @param newTableName
+     * @param propertiesValues
+     * @return
+     */
+    private DecisionTablePOIBuilder initTableBuilder(TableSyntaxNode groupMember, String newTableName, List<ITableProperties> propertiesValues) {
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        
+        String originalTableName = getOriginalTableName(groupMember);
+        IMethodSignature originalSignature = getOriginalTableSignature(groupMember);
+        IOpenClass originalReturnType = getOriginalTableReturnType(groupMember);
+                
+        DimensionPropertiesReturnColumn returnColumn = new DimensionPropertiesReturnColumn(originalReturnType, originalTableName, originalSignature, incomeParams);
+        
         List<IDecisionTableColumn> conditions = new ArrayList<IDecisionTableColumn>();
-        DimensionPropertiesRules rules = new DimensionPropertiesRules(tableProperties);
-        for (TablePropertyDefinition dimensionProperty : dimensionalProperties) {
-            if (isPropertyValueSetInTables(dimensionProperty.getName(), tableProperties)) {
-                conditions.add(DimensionProperiesCondionsMaker.makeCondition(dimensionProperty, rules));
+        DimensionPropertiesRules rules = new DimensionPropertiesRules(propertiesValues);
+        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+            if (isPropertyValueSetInTables(dimensionProperty.getName(), propertiesValues)) {
+                conditions.add(DimensionProperiesColumnMaker.makeColumn(dimensionProperty, rules));
             }
         }
         
         return new DecisionTablePOIBuilder(newTableName, conditions, returnColumn, rules.getRulesNumber());
     }
     
+    /**
+     * Checks if there is any value of particular property represented in collection, that will be used as rules.
+     * If no, we don`t need to create column for this property.
+     * 
+     */
     private boolean isPropertyValueSetInTables(String propertyName, List<ITableProperties> tableProperties) {
         boolean isPropertyValueSet = false;
 
@@ -166,7 +265,13 @@ public class DispatcherTableBuilder {
 
         return isPropertyValueSet;        
     }
-
+    
+    /**
+     * Load and bind the decision table by OpenL.
+     * 
+     * @param decisionTable created decision table.
+     * @param tsn created table syntax node.
+     */
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         PropertiesLoader propLoader = new PropertiesLoader(openl, moduleContext, (XlsModuleOpenClass)moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
@@ -181,24 +286,20 @@ public class DispatcherTableBuilder {
             e.printStackTrace();
         }
     }
-
-    private void setDispatcherProperties(IOpenMethod validatedMethod, TableSyntaxNode tsn) {
+    
+    /**
+     * Set properties to newly created table syntax node.
+     * 
+     */
+    private void setPropertiesForDispatcherTable(IOpenMethod groupMemberMethod, TableSyntaxNode tsn) {
         TableProperties properties = (TableProperties) tsn.getTableProperties();
-        properties.setFieldValue("name", "Dispatcher by properties for: " + validatedMethod.getName());
+        properties.setFieldValue("name", "Dispatcher by properties for: " + groupMemberMethod.getName());
         properties.setFieldValue("category", "Autogenerated - Dispatch by Properties");
         properties.setFieldValue("description",
                 " Automatically created table to dispatch by dimensional properties values for method: "
-                        + MethodUtil.printMethod(validatedMethod, 0, true)
+                        + MethodUtil.printMethod(groupMemberMethod, 0, true)
                         + ". Please, edit original tables to make any change to the overloading logic.");
-    }
-
-    private IOpenClass getOriginalTableReturnType(TableSyntaxNode groupMember) {        
-        return ((AMethod)groupMember.getMember()).getHeader().getType();        
     }    
-
-    private IMethodSignature getOriginalTableSignature(TableSyntaxNode tsn) {        
-        return ((AMethod)tsn.getMember()).getHeader().getSignature();
-    }
     
     private TableSyntaxNode createTableSyntaxNode(XlsSheetGridModel sheetGridModel, GridTable gridTable) {        
         String type = ITableNodeTypes.XLS_DT;
@@ -208,7 +309,7 @@ public class DispatcherTableBuilder {
 
         return new TableSyntaxNode(type, pos, sheetGridModel.getSheetSource(), gridTable, headerSyntaxNode);
     }
-    
+        
     private Map<MethodKey, List<TableSyntaxNode>> groupExecutableTables() {
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
         
@@ -225,6 +326,10 @@ public class DispatcherTableBuilder {
         return groupedTables;
     }
     
+    /**
+     * 
+     * @return all table syntax nodes from module open class.
+     */
     private TableSyntaxNode[] getTableSyntaxNodes() {
         XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
         return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();

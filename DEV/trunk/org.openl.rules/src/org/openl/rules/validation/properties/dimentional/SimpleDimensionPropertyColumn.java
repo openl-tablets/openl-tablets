@@ -5,12 +5,12 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
-public class SimpleDimensionPropertyCondition extends ADimensionPropertyCondition {
+public class SimpleDimensionPropertyColumn extends ADimensionPropertyColumn {
     
     private DimensionPropertiesRules rules;
     private TablePropertyDefinition property;
     
-    public SimpleDimensionPropertyCondition(TablePropertyDefinition property, DimensionPropertiesRules rules) {
+    public SimpleDimensionPropertyColumn(TablePropertyDefinition property, DimensionPropertiesRules rules) {
         this.property = property;
         this.rules = rules;
     }
@@ -27,7 +27,7 @@ public class SimpleDimensionPropertyCondition extends ADimensionPropertyConditio
         MatchingExpression matchExpression = property.getExpression();
         
         if (matchExpression != null) {
-            result = matchExpression.getMatchExpression().getCodeExpression(propertyName + ADimensionPropertyCondition.LOCAL_PARAM_SUFFIX);
+            result = matchExpression.getMatchExpression().getCodeExpression(propertyName + ADimensionPropertyColumn.LOCAL_PARAM_SUFFIX);
         } else {
             String message = String.format("Can`t create expression for \"%s\" property validation.", propertyName);
             OpenLMessagesUtils.addWarn(message);
@@ -41,7 +41,7 @@ public class SimpleDimensionPropertyCondition extends ADimensionPropertyConditio
 
     public String getParameterDeclaration() {        
         String propertyTypeName = property.getType().getInstanceClass().getSimpleName();
-        return String.format("%s %s", propertyTypeName, property.getName() + ADimensionPropertyCondition.LOCAL_PARAM_SUFFIX);
+        return String.format("%s %s", propertyTypeName, property.getName() + ADimensionPropertyColumn.LOCAL_PARAM_SUFFIX);
     }
     
     public String getRuleValue(int ruleIndex, int elementNum) {        

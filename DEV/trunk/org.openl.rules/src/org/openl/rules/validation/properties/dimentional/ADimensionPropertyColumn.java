@@ -1,6 +1,6 @@
 package org.openl.rules.validation.properties.dimentional;
 
-public abstract class ADimensionPropertyCondition implements IDecisionTableColumn {
+public abstract class ADimensionPropertyColumn implements IDecisionTableColumn {
 
     public static final String LOCAL_PARAM_SUFFIX = "Local";
     
