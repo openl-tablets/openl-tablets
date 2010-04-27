@@ -8,11 +8,33 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringTool;
 
+/**
+ * This class is used to build dispatcher table by dimensional properties for the group of overloaded tables.
+ * In this table in return column there are calls for original table from the group for every rule.
+ *  
+ * @author DLiauchuk
+ *
+ */
 public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColumn {
     
+    /**
+     * Return type of the member of overloaded tables group.
+     */
     private IOpenClass originalReturnType;
+    
+    /**
+     * Table name of the member of overloaded tables group.
+     */
     private String originalTableName;
+    
+    /**
+     * Signature of the member of overloaded tables group.
+     */
     private IMethodSignature originalSignature;
+    
+    /**
+     * As new income params to newly created dispatcher table are used params from context.
+     */
     private Map<String, IOpenClass> newIncomeParams;
 
     private static final String RET = "RET";

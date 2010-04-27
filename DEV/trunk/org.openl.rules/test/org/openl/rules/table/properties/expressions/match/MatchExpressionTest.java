@@ -3,6 +3,7 @@ package org.openl.rules.table.properties.expressions.match;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.exception.OpenLRuntimeException;
 
 public class MatchExpressionTest {
 
@@ -52,7 +53,7 @@ public class MatchExpressionTest {
         try {
             testMatchExpression(operationNameTest, operationTest);       
             fail();
-        } catch (RuntimeException e) {
+        } catch (OpenLRuntimeException e) {
            assertTrue(true); 
         }
     }

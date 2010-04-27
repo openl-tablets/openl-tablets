@@ -213,7 +213,7 @@ public class XlsBinder implements IOpenBinder {
                 new TableSyntaxNodeComparator());
                 
         DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass)topNode.getType(), moduleContext);
-        dispTableBuilder.buildTable();
+        dispTableBuilder.buildDispatcherTables();
         
         return topNode;
     }
