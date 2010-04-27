@@ -11,13 +11,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.tutorials-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.5.0</version>
+  <version>5.5.0-SNAPSHOT</version>
   <name>OpenL - Tutorials</name>
   <description />
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.5.0</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.5.0</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</developerConnection>
   </scm>
 
   <modules>
