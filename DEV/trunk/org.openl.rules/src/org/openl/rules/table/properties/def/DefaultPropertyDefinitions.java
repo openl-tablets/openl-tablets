@@ -77,7 +77,7 @@ public class DefaultPropertyDefinitions
 		 + "ferent effective/expiration date ranges");
 		definitions[4].setDimensional(true);
 		definitions[4].setDisplayName("Effective Date");
-		definitions[4].setExpression("le(currentDate)");
+		definitions[4].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("le(currentDate)"));
 		definitions[4].setFormat("MM/dd/yyyy");
 		definitions[4].setGroup("Business Dimension");
 		definitions[4].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
@@ -94,7 +94,7 @@ public class DefaultPropertyDefinitions
 		 + "ferent effective/expiration date");
 		definitions[5].setDimensional(true);
 		definitions[5].setDisplayName("Expiration Date");
-		definitions[5].setExpression("gt(currentDate)");
+		definitions[5].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("gt(currentDate)"));
 		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
 		definitions[5].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
@@ -198,7 +198,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setDescription("Defines the list of active LOBs for this table");
 		definitions[12].setDimensional(true);
 		definitions[12].setDisplayName("LOB");
-		definitions[12].setExpression("eq(lob)");
+		definitions[12].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(lob)"));
 		definitions[12].setGroup("Business Dimension");
 		definitions[12].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[12].setName("lob");
@@ -212,7 +212,7 @@ public class DefaultPropertyDefinitions
 		definitions[13].setDescription("US Region");
 		definitions[13].setDimensional(true);
 		definitions[13].setDisplayName("US Region");
-		definitions[13].setExpression("eq(usRegion)");
+		definitions[13].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(usRegion)"));
 		definitions[13].setGroup("Business Dimension");
 		definitions[13].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[13].setName("usregion");
@@ -226,7 +226,7 @@ public class DefaultPropertyDefinitions
 		definitions[14].setDescription("Country");
 		definitions[14].setDimensional(true);
 		definitions[14].setDisplayName("Countries");
-		definitions[14].setExpression("contains(country)");
+		definitions[14].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(country)"));
 		definitions[14].setGroup("Business Dimension");
 		definitions[14].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[14].setName("country");
@@ -268,7 +268,7 @@ public class DefaultPropertyDefinitions
 		definitions[17].setDescription("US State");
 		definitions[17].setDimensional(true);
 		definitions[17].setDisplayName("US States");
-		definitions[17].setExpression("contains(usState)");
+		definitions[17].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(usState)"));
 		definitions[17].setGroup("Business Dimension");
 		definitions[17].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[17].setName("state");

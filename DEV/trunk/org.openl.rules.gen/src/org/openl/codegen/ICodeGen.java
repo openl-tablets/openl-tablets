@@ -3,6 +3,8 @@ package org.openl.codegen;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
+import org.openl.rules.types.impl.MatchingConstraint;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -53,6 +55,7 @@ public interface ICodeGen {
     int setDoublePrecision(int dprecision);
 
     StringBuilder genLiteralNull(StringBuilder sb);
+    
     StringBuilder genLiteralJavaOpenClass(JavaOpenClass jc, StringBuilder sb);
 
     StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb);
@@ -60,5 +63,7 @@ public interface ICodeGen {
     StringBuilder genLiteralSystemValuePolicy(SystemValuePolicy value, StringBuilder sb);
 
     StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb);
+    
+    StringBuilder genLiteralLevelInheritance(MatchingExpression value, StringBuilder sb);
     
 }

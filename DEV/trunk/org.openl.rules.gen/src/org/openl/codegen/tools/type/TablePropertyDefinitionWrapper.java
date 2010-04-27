@@ -1,15 +1,15 @@
 package org.openl.codegen.tools.type;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.constraints.DataEnumConstraint;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 public class TablePropertyDefinitionWrapper {
 
     private TablePropertyDefinition tablePropertyDefinition;
-    private String operation;
+    private String operationName;
     private String contextVar;
     private String propertyVar;
 
@@ -21,16 +21,13 @@ public class TablePropertyDefinitionWrapper {
 
     private void init() {
 
-        String expression = tablePropertyDefinition.getExpression();
-
-        if (!StringUtils.isEmpty(expression)) {
-            int openBracketIndex = expression.indexOf("(");
-            int closeBracketIndex = expression.indexOf(")");
-
-            operation = expression.substring(0, openBracketIndex).toUpperCase();
+        MatchingExpression expression = tablePropertyDefinition.getExpression();
+        
+        if (expression != null) {
+            operationName = expression.getMatchExpression().getOperationName();
             propertyVar = tablePropertyDefinition.getName();
-            contextVar = expression.substring(openBracketIndex + 1, closeBracketIndex);
-        }
+            contextVar = expression.getMatchExpression().getContextAtribute();
+        }        
     }
 
     public TablePropertyDefinition getDefinition() {
@@ -38,7 +35,7 @@ public class TablePropertyDefinitionWrapper {
     }
 
     public String getOperation() {
-        return operation;
+        return operationName;
     }
 
     public String getContextVar() {

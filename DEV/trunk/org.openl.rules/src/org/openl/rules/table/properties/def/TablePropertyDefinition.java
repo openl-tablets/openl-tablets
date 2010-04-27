@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties.def;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 
@@ -23,7 +24,7 @@ public class TablePropertyDefinition {
 	private String format;	
 	private InheritanceLevel[] inheritanceLevel;
 	private String description;
-	private String expression;
+	private MatchingExpression expression;
 
     public enum SystemValuePolicy {
 	    IF_BLANK_ONLY, ON_EACH_EDIT
@@ -133,11 +134,11 @@ public class TablePropertyDefinition {
     	this.dimensional = dimensional;
     }
 
-	public String getExpression() {
+	public MatchingExpression getExpression() {
     	return expression;
     }
 
-	public void setExpression(String expression) {
+	public void setExpression(MatchingExpression expression) {
     	this.expression = expression;
     }
 

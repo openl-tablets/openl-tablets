@@ -4,7 +4,7 @@ import org.openl.runtime.IRuntimeContext;
 
 /*
  * Important notice:
- * If you add any methods, verify org.openl.rules.validation.DecisionTableCreator class works properly.
+ * If you add any methods, verify org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder class works properly.
  * Refer to static initialization section were context attributes are gathered.
  * Add your method to exclusions the same way as it's done for "Object getValue(String variable)"
  */

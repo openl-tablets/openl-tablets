@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenEnum;
@@ -97,6 +98,12 @@ public class JavaCodeGenController implements ICodeGenController {
 		map.put(InheritanceLevel.class, new Processor() {            
             public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
                 return gen.genLiteralLevelInheritance((InheritanceLevel) value, sb);
+            }
+        });
+		
+		map.put(MatchingExpression.class, new Processor() {            
+            public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
+                return gen.genLiteralLevelInheritance((MatchingExpression) value, sb);
             }
         });
     }
