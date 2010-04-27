@@ -1,11 +1,12 @@
 package org.openl.codegen.tools;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 public class TablePropertyDefinitionWrapper {
 
     private TablePropertyDefinition tablePropertyDefinition;
-    private String operation;
+    private String operationName;
     private String contextVar;
     private String propertyVar;
 
@@ -16,15 +17,10 @@ public class TablePropertyDefinitionWrapper {
     }
 
     private void init() {
-
-        String expression = tablePropertyDefinition.getExpression();
-
-        int openBracketIndex = expression.indexOf("(");
-        int closeBracketIndex = expression.indexOf(")");
-
-        operation = expression.substring(0, openBracketIndex).toUpperCase();
+        MatchingExpression expression = tablePropertyDefinition.getExpression();
+        operationName = expression.getMatchExpression().getOperationName();
         propertyVar = tablePropertyDefinition.getName();
-        contextVar = expression.substring(openBracketIndex + 1, closeBracketIndex);
+        contextVar = expression.getMatchExpression().getContextAtribute();
     }
 
     public TablePropertyDefinition getDefinition() {
@@ -32,7 +28,7 @@ public class TablePropertyDefinitionWrapper {
     }
 
     public String getOperation() {
-        return operation;
+        return operationName;
     }
 
     public String getContextVar() {

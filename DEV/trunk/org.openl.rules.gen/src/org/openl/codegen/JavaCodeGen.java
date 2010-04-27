@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -473,5 +474,11 @@ public class JavaCodeGen implements ICodeGen {
 
     public StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb) {
         return sb.append(InheritanceLevel.class.getSimpleName()).append(".").append(value.name());
+    }
+
+    @Override
+    public StringBuilder genLiteralLevelInheritance(MatchingExpression value, StringBuilder sb) {
+        return sb.append("new ").append(MatchingExpression.class.getName()).append("(\"").append(value.getMatchExpressionStr())
+        .append("\")");        
     }
 }

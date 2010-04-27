@@ -1,5 +1,6 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableLoader;
 import org.openl.rules.lang.xls.ITableNodeTypes;
@@ -19,7 +22,9 @@ import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.table.GridTable;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -32,11 +37,33 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.AOpenClass.MethodKey;
+import org.openl.types.java.JavaOpenClass;
 
 public class DispatcherTableBuilder {
     
-    public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
-    public static final String DEFAULT_METHOD_NAME = "validateGapOverlap";
+    private static final Map<String, IOpenClass> incomeParams;
+    
+    static {
+        incomeParams = new HashMap<String, IOpenClass>();
+        Method[] methods = IRulesRuntimeContext.class.getDeclaredMethods();
+        for (Method method : methods) {
+            String methodName = method.getName(); 
+            if(methodName.startsWith("get") && !belongsToExcluded(methodName)) {
+                String fieldName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+                incomeParams.put(fieldName, JavaOpenClass.getOpenClass(method.getReturnType()));
+            }
+        }
+    }
+    
+    private static boolean belongsToExcluded(String methodName) {
+        boolean result = false;
+        if ("getValue".equals(methodName)) {
+            result = true;
+        }
+        return result;
+    }    
+    
+    public static final String DEFAULT_DISPATCHER_TABLE_NAME = "validateGapOverlap";
     
     private OpenL openl;    
     private XlsModuleOpenClass moduleOpenClass;
@@ -79,28 +106,65 @@ public class DispatcherTableBuilder {
     }
 
     private void buildTableForGroup(List<TableSyntaxNode> tablesGroup) {
-        List<TablePropertyDefinition> dimensionalTableProp = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils.getDimensionalTableProperties();    
         
         TableSyntaxNode groupMember = tablesGroup.get(0);
         String originalTableName = ((AMethod)groupMember.getMember()).getHeader().getName();
         IMethodSignature originalSignature = getOriginalTableSignature(groupMember);
-        IOpenClass originalReturnType = getOtiginalTableReturnType(groupMember);
+        IOpenClass originalReturnType = getOriginalTableReturnType(groupMember);
         
-        String tableName = DEFAULT_METHOD_NAME + "_" + originalTableName;
+        String newTableName = DEFAULT_DISPATCHER_TABLE_NAME + "_" + originalTableName;
         
-        DecisionTableCreator decisionTableWriter = new DecisionTableCreator(dimensionalTableProp, tablesGroup, 
-                tableName, originalReturnType, originalTableName, originalSignature);
+        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        for (TableSyntaxNode tsn : tablesGroup) {
+            propertiesValues.add(tsn.getTableProperties());
+        }        
         
-        GridTable createdGridTable = decisionTableWriter.createGridTable();        
-        DecisionTable decisionTable = decisionTableWriter.getCreatedDecisionTable(); 
+        DimensionPropertiesReturnColumn returnColumn = new DimensionPropertiesReturnColumn(originalReturnType, originalTableName, originalSignature, incomeParams);
         
-        TableSyntaxNode tsn = createTableSyntaxNode(decisionTableWriter.getCreatedSheetGridModel(), createdGridTable);
+        DecisionTablePOIBuilder tableBulder = initTableBuilder(newTableName, propertiesValues, dimensionalPropertiesDef, returnColumn);
+        
+        Sheet sheetWithTable = tableBulder.buildTable();
+        
+        DecisionTableCreator decisionTableCreator = new DecisionTableCreator();
+        
+        GridTable gridTable = decisionTableCreator.createGridTable(sheetWithTable);
+        XlsSheetGridModel sheetGridModel = decisionTableCreator.createSheetGridModel(sheetWithTable);
+        DecisionTable decisionTable = decisionTableCreator.createDecisionTable(newTableName, originalReturnType, originalSignature, incomeParams); 
+        
+        TableSyntaxNode tsn = createTableSyntaxNode(sheetGridModel, gridTable);
         tsn.setMember(decisionTable);        
         
         loadCreatedTable(decisionTable, tsn);
         
         IOpenMethod validatedMethod = (IOpenMethod)groupMember.getMember();
         setDispatcherProperties(validatedMethod, tsn);
+    }
+    
+    private DecisionTablePOIBuilder initTableBuilder(String newTableName, List<ITableProperties> tableProperties, List<TablePropertyDefinition> dimensionalProperties, DimensionPropertiesReturnColumn returnColumn) {
+        List<IDecisionTableColumn> conditions = new ArrayList<IDecisionTableColumn>();
+        DimensionPropertiesRules rules = new DimensionPropertiesRules(tableProperties);
+        for (TablePropertyDefinition dimensionProperty : dimensionalProperties) {
+            if (isPropertyValueSetInTables(dimensionProperty.getName(), tableProperties)) {
+                conditions.add(DimensionProperiesCondionsMaker.makeCondition(dimensionProperty, rules));
+            }
+        }
+        
+        return new DecisionTablePOIBuilder(newTableName, conditions, returnColumn, rules.getRulesNumber());
+    }
+    
+    private boolean isPropertyValueSetInTables(String propertyName, List<ITableProperties> tableProperties) {
+        boolean isPropertyValueSet = false;
+
+        for (ITableProperties properties : tableProperties) {
+            String propertyValue = properties.getPropertyValueAsString(propertyName);            
+            if (StringUtils.isNotEmpty(propertyValue)) {
+                isPropertyValueSet = true;
+                break;
+            }
+        }
+
+        return isPropertyValueSet;        
     }
 
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
@@ -128,7 +192,7 @@ public class DispatcherTableBuilder {
                         + ". Please, edit original tables to make any change to the overloading logic.");
     }
 
-    private IOpenClass getOtiginalTableReturnType(TableSyntaxNode groupMember) {        
+    private IOpenClass getOriginalTableReturnType(TableSyntaxNode groupMember) {        
         return ((AMethod)groupMember.getMember()).getHeader().getType();        
     }    
 

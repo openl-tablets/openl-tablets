@@ -10,6 +10,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.validation.properties.dimentional.ADimensionPropertyCondition;
 import org.openl.rules.validation.properties.dimentional.DecisionTableCreator;
 
 import sun.misc.MessageUtils;
@@ -62,14 +63,14 @@ public class DimensionPropertiesDomainsCollector {
             propertiesDomains.put(propNeedDomain, domainAdaptor);
             for (int i = 1; i <= arrayCollector.getNumberOfDomainElements(); i++) {
                 propertiesDomains.put(
-                        String.format("%s%s%s", propNeedDomain, DecisionTableCreator.LOCAL_PARAM_SUFFIX, i), 
+                        String.format("%s%s%s", propNeedDomain, ADimensionPropertyCondition.LOCAL_PARAM_SUFFIX, i), 
                         domainAdaptor);
             }
         }
     }
 
     private void applyDomain(String propNeedDomain, IDomainAdaptor gatheredDomain) {
-        String key = propNeedDomain + DecisionTableCreator.LOCAL_PARAM_SUFFIX;
+        String key = propNeedDomain + ADimensionPropertyCondition.LOCAL_PARAM_SUFFIX;
         if (gatheredDomain != null && !propertiesDomains.containsKey(key)) {
             propertiesDomains.put(propNeedDomain, gatheredDomain);
             propertiesDomains.put(key, gatheredDomain);

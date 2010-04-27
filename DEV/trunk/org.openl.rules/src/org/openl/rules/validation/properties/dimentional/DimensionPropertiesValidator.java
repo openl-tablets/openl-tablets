@@ -73,7 +73,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     }
 
     private boolean isDimensionPropertiesDispatcherTable(TableSyntaxNode tsn) {
-        return tsn.getDisplayName() != null && tsn.getDisplayName().contains(DispatcherTableBuilder.DEFAULT_METHOD_NAME) && tsn.getMember() instanceof DecisionTable;
+        return tsn.getDisplayName() != null && tsn.getDisplayName().contains(DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME) && tsn.getMember() instanceof DecisionTable;
     }
 
     private Map<String, IDomainAdaptor> getDomainsForDimensionalProperties(TableSyntaxNode[] tableSyntaxNodes) {
