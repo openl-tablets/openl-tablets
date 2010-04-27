@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.source.eclipse.feature"
       label="OpenL Sources"
-      version="5.5.0"
+      version="5.5.1"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -21,63 +21,63 @@
          id="org.openl.rules.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.core.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.commons.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.j.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.helpers.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.j.science.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="com.exigen.rules.constrainer.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.conf.ant.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.tableeditor.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
 
@@ -85,21 +85,21 @@
          id="org.openl.rules.util.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.jcr.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
 
@@ -107,21 +107,21 @@
          id="org.openl.rules.repository.jcr.jackrabbit.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.workspace.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.webstudio.java.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
 
@@ -129,21 +129,21 @@
          id="org.openl.rules.webtools.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.security.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.security.standalone.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
 
@@ -151,20 +151,20 @@
          id="org.openl.rules.diff.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.ruleservice.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.ruleservice.ws.source"
          download-size="0"
          install-size="0"
-         version="5.5.0"
+         version="5.5.1"
          unpack="false"/>
 </feature>
