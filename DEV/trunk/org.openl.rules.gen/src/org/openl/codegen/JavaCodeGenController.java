@@ -103,7 +103,7 @@ public class JavaCodeGenController implements ICodeGenController {
 		
 		map.put(MatchingExpression.class, new Processor() {            
             public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
-                return gen.genLiteralLevelInheritance((MatchingExpression) value, sb);
+                return gen.genLiteralMatchingExpression((MatchingExpression) value, sb);
             }
         });
     }
