@@ -27,7 +27,6 @@
             id="project_pom"
             dir="${projects_root}"
             includes="*-pom/pom.xml">
-    	<include name="pom.xml"/><!--Only for tutorials POM(Changing parent version)-->
     </fileset>
 
     <fileset
