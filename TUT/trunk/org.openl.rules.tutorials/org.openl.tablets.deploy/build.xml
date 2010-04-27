@@ -8,7 +8,7 @@
   <property name="webapp.client.name" value="demo" />
 
   <property name="plugin.base.path" location="${eclipse.pdebuild.home}../" />
-  <property name="openl.plugin.version" value="_5.5.0" />
+  <property name="openl.plugin.version" value="_5.5.1" />
 
   <property name="tomcat.path" value="${plugin.base.path}/org.openl.lib.apache.tomcat${openl.plugin.version}/apache-tomcat-6.0.20" />
 
