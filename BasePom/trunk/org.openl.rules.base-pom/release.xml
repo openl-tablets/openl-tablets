@@ -5,6 +5,8 @@
 		all projects are placed into single workspace and full SVN project structure.
 	</description>
 
+	<taskdef name="try" classname="ise.antelope.tasks.TryTask"/>
+
 	<import file="changeVersion.xml"/>
 
 	<property file="OpenLRelease.properties"/>
@@ -57,12 +59,23 @@
 		<echo>Changing versions before the release</echo>
 		<antcall target="changeVersionsBefore"/>
 		<echo>release:prepare</echo>
-		<maven dir="${moduleFolder}/${rootProject}">
-			<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
-		</maven>
+		<try>
+			<maven dir="${moduleFolder}">
+				<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
+			</maven>
+		    <catch>
+		     	<!-- Mavern release problem : we have to do "svn update" to prepare release-->
+				<exec executable="svn">
+					<arg line="update ${moduleFolder}"/>
+				</exec>
+				<maven dir="${moduleFolder}">
+					<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
+				</maven>
+		    </catch>
+		</try>
 		<echo>release:perform</echo>
-		<maven dir="${moduleFolder}/${rootProject}">
-			<arg line="-B release:perform -Darguments=&quot;-P internal-deploy -f org.openl.rules.base-pom/pom.xml&quot;" />
+		<maven dir="${moduleFolder}">
+			<arg line="-B release:perform -Darguments=&quot;-P internal-deploy &quot;" />
 		</maven>
 		<echo>Changing versions after the release</echo>
 		<antcall target="changeVersionsAfter"/>
@@ -81,7 +94,6 @@
 	<target name="releaseBasePom">
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
-			<param name="rootProject" value="org.openl.rules.base-pom"/>
 		</antcall>
 	</target>
 	<target name="releaseDEV">
