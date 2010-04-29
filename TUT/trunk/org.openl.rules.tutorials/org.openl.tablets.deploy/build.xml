@@ -114,6 +114,7 @@
         <include name="**/org.openl.commons${openl.plugin.version}.jar" />
         <include name="**/org.openl.core${openl.plugin.version}.jar" />
         <include name="**/org.openl.rules*${openl.plugin.version}.jar" />
+        <include name="**/org.openl.grammars*${openl.plugin.version}.jar" />
         <include name="**/org.openl.j${openl.plugin.version}.jar" />
         <include name="org.openl.rules.ruleservice.lib${openl.plugin.version}/lib/*.jar" />
         <include name="org.openl.rules.webstudio.lib${openl.plugin.version}/lib/*.jar" />
