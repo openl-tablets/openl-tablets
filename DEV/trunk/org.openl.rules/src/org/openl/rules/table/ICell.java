@@ -6,7 +6,7 @@ import org.openl.rules.table.xls.IncorrectFormulaException;
 
 public interface ICell {
 
-    public static final String ERROR_VALUE = "#ERROR";
+    String ERROR_VALUE = "#ERROR";
 
     int getRow();
 
@@ -37,7 +37,11 @@ public interface ICell {
     String getStringValue();
 
     ICellFont getFont();
-
+    
+    /**
+     * 
+     * @return grid region, if cell belongs to any merged region. In other cases <code>null</code>.
+     */
     IGridRegion getRegion();
 
     String getFormula();

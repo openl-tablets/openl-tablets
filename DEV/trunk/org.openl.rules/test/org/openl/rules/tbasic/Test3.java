@@ -48,6 +48,12 @@ public class Test3 extends Test0 {
     public void test6() {
         okRows(new File("test/rules/tbasic0/Algorithm3-6.xls"), 0);
     }
+    
+    @Test
+    public void testDuplicateColumn() {
+        Exception ex = catchEx(new File("test/rules/tbasic0/Test_Duplicate_Column_In_TBasic.xls"));
+        TestUtils.assertEx(ex, "Duplicate column");
+    }
 
     @Test
     public void test7() {

@@ -15,8 +15,8 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -79,7 +79,7 @@ public class ColumnDescriptor {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
 
-        valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
+        valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
         if (!valuesAnArray) {
             resultLiteral = RuleRowHelper.loadSingleParam(paramType,
@@ -145,7 +145,7 @@ public class ColumnDescriptor {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
 
-        valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
+        valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
         try {
             if (!valuesAnArray) {

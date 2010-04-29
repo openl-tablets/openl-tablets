@@ -44,12 +44,12 @@ public class LookupTest extends TestCase {
        
         Assert.assertEquals(2, tables.length);
 
-        ILogicalTable lookupTable = LogicalTable.logicalTable(tables[0]);
+        ILogicalTable lookupTable = LogicalTableHelper.logicalTable(tables[0]);
         ILogicalTable t1 = lookupTable.rows(1);
         ILogicalTable lookupRow1 = t1.getLogicalRow(0);
         ILogicalTable t2 = t1.rows(1);
         ILogicalTable lookupColumn1 = t2.getLogicalColumn(0);
-        ILogicalTable body = LogicalTable.mergeBounds(lookupColumn1, lookupRow1);
+        ILogicalTable body = LogicalTableHelper.mergeBounds(lookupColumn1, lookupRow1);
 
         Assert.assertEquals(5, body.getLogicalHeight());
         Assert.assertEquals(3, body.getLogicalWidth());

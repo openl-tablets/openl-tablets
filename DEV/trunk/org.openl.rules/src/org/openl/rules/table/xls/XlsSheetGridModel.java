@@ -66,14 +66,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     class XlsCell implements ICell {
 
         private int column;
-
         private int row;
-
-        private IGridRegion region;
-
+        private XlsGridRegion region;
         private Cell cell;
 
-        public XlsCell(int column, int row, IGridRegion region, Cell cell) {
+        public XlsCell(int column, int row, XlsGridRegion region, Cell cell) {
             this.column = column;
             this.row = row;
             this.region = region;
@@ -126,11 +123,41 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
         
         public Object getObjectValue() {
-            if (cell == null) return null;
-            Object value = extractCellValue(false);
-            return value;
+            if (cell == null && region == null) {
+                return null;
+            } else if (region != null) { // if cell belongs to some merged region, we try to get merged value from it.                
+                return extractValueFromRegion();
+            } else {
+                return extractCellValue(false);
+            }
         }
         
+        private ICell getTopLeftCellFromRegion() {
+            // gets the top left cell in this region
+            int row = region.getPoiXlsRegion().getFirstRow();
+            int col = region.getPoiXlsRegion().getFirstColumn();
+            return getCell(col, row);
+        }
+        
+        private boolean isCurrentCellATopLeftCellInRegion() {
+            ICell topLeftCell = getTopLeftCellFromRegion();
+            if (topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row) {
+                return true;
+            }
+            return false;
+        }
+        
+        private Object extractValueFromRegion() {   
+            // if the top left cell is the current cell instance, we just extract it`s value.
+            // in other case get string value of top left cell of the region.
+            if (isCurrentCellATopLeftCellInRegion()) {
+                return extractCellValue(false);
+            } else {
+                ICell topLeftCell = getTopLeftCellFromRegion();
+                return topLeftCell.getStringValue();
+            }            
+        }
+
         private Object extractCellValue(boolean useCachedValue){
             switch (useCachedValue ? cell.getCachedFormulaResultType() : cell.getCellType()) {
                 case Cell.CELL_TYPE_BLANK:
@@ -169,13 +196,44 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public String getFormula() {
-            if (cell == null) return null;
+            if (cell == null && region == null) {
+                return null;
+            } else if (region != null) {                
+                return getFormulaFromRegion();
+            } else {
+                return cellFormula();
+            }
+        }
+
+        private String getFormulaFromRegion() {            
+            if (isCurrentCellATopLeftCellInRegion()) {
+                return cellFormula();
+            }
+            ICell topLeftCell = getTopLeftCellFromRegion();
+            return topLeftCell.getType() == CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
+        }
+
+        private String cellFormula() {
             return cell.getCellType() == CELL_TYPE_FORMULA ? cell.getCellFormula() : null;
         }
 
         public int getType() {
-            if (cell == null) return Cell.CELL_TYPE_BLANK;
-            return cell.getCellType();
+            if (cell == null && region == null) {
+                return Cell.CELL_TYPE_BLANK;
+            } else if (region != null) {
+                return getTypeFromRegion();
+            } else {
+                return cell.getCellType();
+            }
+            
+        }
+
+        private int getTypeFromRegion() {
+            if (isCurrentCellATopLeftCellInRegion()) {
+                return Cell.CELL_TYPE_BLANK;
+            }
+            ICell topLeftCell = getTopLeftCellFromRegion();
+            return topLeftCell.getType();            
         }
 
         public String getUri() {
@@ -402,7 +460,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     public ICell getCell(int column, int row) {
         CellRangeAddress region = getRegionContaining(column, row);
-        return new XlsCell(column, row, region == null ? null : new XlsGridRegion(region), getXlsCell(column, row));
+        XlsGridRegion gridRegion = region == null ? null : new XlsGridRegion(region);
+        return new XlsCell(column, row, gridRegion, getXlsCell(column, row));
     }
 
     public CellMetaInfo getCellMetaInfo(int col, int row) {

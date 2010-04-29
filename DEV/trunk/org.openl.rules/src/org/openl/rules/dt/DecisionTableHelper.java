@@ -6,11 +6,11 @@ public class DecisionTableHelper {
 
     public static boolean looksLikeTransposed(ILogicalTable table) {
 
-        if (table.getLogicalWidth() <= IDecisionTableConstants.DATA_COLUMN) {
+        if (table.getLogicalWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
         }
 
-        if (table.getLogicalHeight() <= IDecisionTableConstants.DATA_COLUMN) {
+        if (table.getLogicalHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return false;
         }
 
@@ -21,23 +21,25 @@ public class DecisionTableHelper {
             return cnt1 > cnt2;
         }
 
-        return table.getLogicalWidth() <= IDecisionTableConstants.DATA_COLUMN;
+        return table.getLogicalWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
-
+    
     public static boolean isValidConditionHeader(String s) {
-        return s.length() >= 2 && s.charAt(0) == 'C' && Character.isDigit(s.charAt(1));
+        return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey().charAt(0) 
+            && Character.isDigit(s.charAt(1));
     }
 
     public static boolean isValidActionHeader(String s) {
-        return s.length() >= 2 && s.charAt(0) == 'A' && Character.isDigit(s.charAt(1));
+        return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey().charAt(0) 
+            && Character.isDigit(s.charAt(1));
     }
 
     public static boolean isValidRetHeader(String s) {
-        return s.length() >= 3 && s.startsWith(IDecisionTableConstants.RETURN) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+        return s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
 
     public static boolean isValidRuleHeader(String s) {
-        return s.equals(IDecisionTableConstants.RULE);
+        return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());
     }
 
     public static boolean isValidCommentHeader(String s) {

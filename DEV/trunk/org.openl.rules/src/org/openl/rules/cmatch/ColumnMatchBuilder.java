@@ -12,7 +12,7 @@ import org.openl.rules.cmatch.algorithm.MatchAlgorithmFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -77,7 +77,7 @@ public class ColumnMatchBuilder {
 
                 data = leftRows.rows(1);
             } else {
-                data = LogicalTable.mergeBounds(leftRows, colTable);
+                data = LogicalTableHelper.mergeBounds(leftRows, colTable);
             }
 
             // fill rows of particular column
@@ -121,8 +121,8 @@ public class ColumnMatchBuilder {
         }
 
         return values;
-    }
-
+    }    
+    
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new ArrayList<TableColumn>();
         Set<String> addedIds = new HashSet<String>();
@@ -131,7 +131,7 @@ public class ColumnMatchBuilder {
 
         // parse ids, row=0
         for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = safeId(ids.getGridTable().getCell(c, 0).getStringValue());
+            String id = safeId(ids.getLogicalColumn(c).getGridTable().getCell(0, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

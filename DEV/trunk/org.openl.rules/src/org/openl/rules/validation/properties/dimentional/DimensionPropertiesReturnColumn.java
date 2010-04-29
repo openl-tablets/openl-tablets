@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringTool;
@@ -36,8 +37,7 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
      * As new income params to newly created dispatcher table are used params from context.
      */
     private Map<String, IOpenClass> newIncomeParams;
-
-    private static final String RET = "RET";
+    
     private static final String RESULT_VAR = "result";
     
     public DimensionPropertiesReturnColumn(IOpenClass originalReturnType, String originalTableName, IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
@@ -117,7 +117,7 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
     }
     
     public String getColumnType() {
-        return RET;
+        return DecisionTableColumnHeaders.RETURN.getHeaderKey();
     }
 
 }

@@ -9,7 +9,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.TransformedGridTable;
 
 /**
@@ -46,7 +46,7 @@ public class DecisionTableLookupConvertor {
     public IGridTable convertTable(ILogicalTable table) throws Exception {
 
         IGrid grid = table.getGridTable().getGrid();
-        ILogicalTable originaltable = LogicalTable.logicalTable(table);
+        ILogicalTable originaltable = LogicalTableHelper.logicalTable(table);
 
         ILogicalTable headerRow = originaltable.getLogicalRow(HEADER_ROW);
 

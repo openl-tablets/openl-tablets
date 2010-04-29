@@ -19,10 +19,9 @@ import org.openl.engine.OpenLManager;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.IDecisionTableConstants;
-import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -59,23 +58,25 @@ public abstract class FunctionalRow implements IDecisionRow {
     private IParameterDeclaration[] params;
     private Object[][] paramValues;
     private Boolean hasNoParams = null;
-
+    
+    
     private ILogicalTable decisionTable;
     private ILogicalTable paramsTable;
     private ILogicalTable codeTable;
     private ILogicalTable presentationTable;
 
     private int noParamsIndex = 0;
-
+    
+    
     public FunctionalRow(String name, int row, ILogicalTable decisionTable) {
 
         this.name = name;
         this.row = row;
         this.decisionTable = decisionTable;
 
-        this.paramsTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PARAM_COLUMN, row, 1, 1);
-        this.codeTable = decisionTable.getLogicalRegion(IDecisionTableConstants.CODE_COLUMN, row, 1, 1);
-        this.presentationTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PRESENTATION_COLUMN, row, 1, 1);
+        this.paramsTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PARAM_COLUMN_INDEX, row, 1, 1);
+        this.codeTable = decisionTable.getLogicalRegion(IDecisionTableConstants.CODE_COLUMN_INDEX, row, 1, 1);
+        this.presentationTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PRESENTATION_COLUMN_INDEX, row, 1, 1);
     }
 
     public String getName() {
@@ -111,6 +112,48 @@ public abstract class FunctionalRow implements IDecisionRow {
         return params.length;
     }
     
+    /**
+     * Whole representation of decision table.
+     * Horizontal representation of the table where conditions are listed from top to bottom. And must be 
+     * readed from left to right</br> 
+     * Example:
+     * 
+     * <table cellspacing="2">
+     * <tr>
+     * <td align="center" bgcolor="#ccffff"><b>Rule</b></td>
+     * <td align="center" bgcolor="#ccffff"></td>
+     * <td align="center" bgcolor="#ccffff"></td>
+     * <td align="center" bgcolor="#8FCB52">Rule</td>
+     * <td align="center" bgcolor="#8FCB52">Rule1</td>
+     * <td align="center" bgcolor="#8FCB52">Rule2</td>
+     * <td align="center" bgcolor="#8FCB52">Rule3</td>
+     * 
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#ccffff"><b>C1</b></td>
+     * <td align="center" bgcolor="#ccffff">paramLocal1==paramInc</td>
+     * <td align="center" bgcolor="#ccffff">String paramLocal1</td>
+     * <td align="center" bgcolor="#ffff99">Local Param 1</td>
+     * <td align="center" bgcolor="#ffff99">value11</td>
+     * <td align="center" bgcolor="#ffff99">value12</td>
+     * <td align="center" bgcolor="#ffff99">value13</td>
+     * </tr>
+     * 
+     * <tr>
+     * <td align="center" bgcolor="#ccffff"><b>C2</b></td>
+     * <td align="center" bgcolor="#ccffff">paramLocal2==paramInc</td>
+     * <td align="center" bgcolor="#ccffff">String paramLocal2</td>
+     * <td align="center" bgcolor="#ffff99">Local Param 2</td>
+     * <td align="center" bgcolor="#ffff99">value21</td>
+     * <td align="center" bgcolor="#ffff99">value22</td>
+     * <td align="center" bgcolor="#ffff99">value23</td>
+     * </tr>
+     * </table>
+     * 
+     * @param dataTableBody
+     * @param tableType
+     * @return <code>TRUE</code> if table is horizontal.
+     */
     public ILogicalTable getDecisionTable() {
         return decisionTable;
     }
@@ -217,7 +260,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
 
         IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType);
-        dataTable = ALogicalTable.make1ColumnTable(dataTable);
+        dataTable = LogicalTableHelper.make1ColumnTable(dataTable);
 
         int height = RuleRowHelper.calculateHeight(dataTable);
 
@@ -272,6 +315,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         for (int col = 0; col < len; col++) {
             ILogicalTable valueCell = getValueCell(col);
             IGridTable paramGridColumn = valueCell.getGridTable();
+            decisionTable.toString();
 
             Object[] valueAry = new Object[paramDecl.length];
 
@@ -290,7 +334,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
                 Object v = null;
                 try {
-                    v = loadParam(LogicalTable.logicalTable(singleParamGridTable),
+                    v = loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
                         paramDecl[j].getType(),
                         paramDecl[j].getName(),
                         ruleName,
@@ -339,11 +383,11 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     private ILogicalTable getValueCell(int column) {
-        return decisionTable.getLogicalRegion(column + IDecisionTableConstants.DATA_COLUMN, row, 1, 1);
+        return decisionTable.getLogicalRegion(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
     private int nValues() {
-        return decisionTable.getLogicalWidth() - IDecisionTableConstants.DATA_COLUMN;
+        return decisionTable.getLogicalWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
     private IParameterDeclaration makeNoParamParameterDeclaration() {

@@ -1,10 +1,10 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import org.openl.rules.dt.DecisionTableColumnHeaders;
+
 public abstract class ADimensionPropertyColumn implements IDecisionTableColumn {
 
     public static final String LOCAL_PARAM_SUFFIX = "Local";
-    
-    private static final String CONDITION_NAME = "C";
 
     /**
      * default behavior says that just one value can exist for any rule.
@@ -22,7 +22,7 @@ public abstract class ADimensionPropertyColumn implements IDecisionTableColumn {
     }
     
     public String getColumnType() {
-        return CONDITION_NAME;
+        return DecisionTableColumnHeaders.CONDITION.getHeaderKey();
     }
     
     
