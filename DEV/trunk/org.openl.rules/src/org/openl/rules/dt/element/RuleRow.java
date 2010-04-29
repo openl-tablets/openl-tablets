@@ -18,7 +18,7 @@ public class RuleRow {
     }
 
     private ILogicalTable getValueCell(int col) {
-        return table.getLogicalRegion(col + IDecisionTableConstants.DATA_COLUMN, row, 1, 1);
+        return table.getLogicalRegion(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
 }

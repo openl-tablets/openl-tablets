@@ -11,17 +11,22 @@ package org.openl.rules.dt;
  *
  */
 public interface IDecisionTableConstants {
-
-    String CONDITION = "C";
-    String ACTION = "A";
-    String RULE = "RULE";
-    String RETURN = "RET";
-
-    int INFO_COLUMN = 0;
-    int CODE_COLUMN = 1;
-    int PARAM_COLUMN = 2;
-    int PRESENTATION_COLUMN = 3;
-    int DATA_COLUMN = 4;
+    
+    int INFO_COLUMN_INDEX = 0;
+    int CODE_COLUMN_INDEX = 1;
+    int PARAM_COLUMN_INDEX = 2;
+    int PRESENTATION_COLUMN_INDEX = 3;
+    
+    /**
+     * When condition is represented as a row. So it is readed from left to right.
+     * First 4 columns are service ones.<br>
+     * ( see {@link IDecisionTableConstants#INFO_COLUMN_INDEX},
+     * {@link IDecisionTableConstants#CODE_COLUMN_INDEX},
+     * {@link IDecisionTableConstants#PARAM_COLUMN_INDEX},
+     * {@link IDecisionTableConstants#PRESENTATION_COLUMN_INDEX})
+     * 
+     */
+    int SERVICE_COLUMNS_NUMBER = 4;
 
     /**
      * Value type constants

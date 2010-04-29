@@ -143,7 +143,7 @@ public class AlgorithmBuilder {
 
         // parse ids, row=0
         for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = safeId(ids.getGridTable().getCell(c, 0).getStringValue());
+            String id = safeId(ids.getLogicalColumn(c).getGridTable().getCell(0, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

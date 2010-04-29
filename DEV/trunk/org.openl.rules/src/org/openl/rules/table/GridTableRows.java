@@ -12,16 +12,13 @@ package org.openl.rules.table;
  */
 public class GridTableRows extends AGridTableDelegator {
 
-    int fromRow;
-    int toRow;
+    private int fromRow;
+    private int toRow;
 
     public GridTableRows(IGridTable gridTable, int fromRow) {
         this(gridTable, fromRow, gridTable.getGridHeight() - 1);
     }
 
-    /**
-     * @param gridTable
-     */
     public GridTableRows(IGridTable gridTable, int fromRow, int toRow) {
         super(gridTable);
         if (fromRow - toRow > 1) {
@@ -32,41 +29,21 @@ public class GridTableRows extends AGridTableDelegator {
         this.toRow = toRow;
     }
 
-    /**
-     *
-     */
-
     public int getGridColumn(int column, int row) {
         return gridTable.getGridColumn(column, row + fromRow);
     }
-
-    /**
-     *
-     */
 
     public int getGridHeight() {
         return toRow - fromRow + 1;
     }
 
-    /**
-     *
-     */
-
     public int getGridRow(int column, int row) {
         return gridTable.getGridRow(column, row + fromRow);
     }
 
-    /**
-     *
-     */
-
     public int getGridWidth() {
         return gridTable.getGridWidth();
     }
-
-    /**
-     *
-     */
 
     public boolean isNormalOrientation() {
         return gridTable.isNormalOrientation();

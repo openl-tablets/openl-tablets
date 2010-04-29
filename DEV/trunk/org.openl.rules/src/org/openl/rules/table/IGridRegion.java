@@ -12,10 +12,13 @@ package org.openl.rules.table;
  */
 public interface IGridRegion {
 	
-	static final public short TOP = 0, LEFT = 1, BOTTOM = 2, RIGHT = 3; 
+	short TOP = 0;
+	short LEFT = 1;
+	short BOTTOM = 2;
+	short RIGHT = 3; 
 	
-    static public class Tool {
-        static public boolean contains(IGridRegion i1, int x, int y) {
+    class Tool {
+        public static boolean contains(IGridRegion i1, int x, int y) {
             return i1.getLeft() <= x && x <= i1.getRight() && i1.getTop() <= y && y <= i1.getBottom();
         }
 
@@ -45,7 +48,7 @@ public interface IGridRegion {
             return i1.getBottom() - i1.getTop() + 1;
         }
 
-        static public IGridRegion intersect(IGridRegion i1, IGridRegion i2) {
+        public static IGridRegion intersect(IGridRegion i1, IGridRegion i2) {
             int left = Math.max(i1.getLeft(), i2.getLeft());
             int right = Math.min(i1.getRight(), i2.getRight());
             int top = Math.max(i1.getTop(), i2.getTop());
@@ -53,7 +56,7 @@ public interface IGridRegion {
             return top <= bottom && left <= right ? new GridRegion(top, left, bottom, right) : null;
         }
 
-        static public boolean intersects(IGridRegion i1, IGridRegion i2) {
+        public static boolean intersects(IGridRegion i1, IGridRegion i2) {
             int left = Math.max(i1.getLeft(), i2.getLeft());
             int right = Math.min(i1.getRight(), i2.getRight());
             if (right < left) {

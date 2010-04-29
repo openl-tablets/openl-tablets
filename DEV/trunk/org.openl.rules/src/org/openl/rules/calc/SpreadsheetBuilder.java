@@ -29,7 +29,7 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -164,7 +164,7 @@ public class SpreadsheetBuilder {
                 SpreadsheetCell spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex);
                 cells[rowIndex][columnIndex] = spreadsheetCell;
 
-                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
+                ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
                     columnNamesTable.getLogicalColumn(columnIndex));
 
                 IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable());
@@ -209,7 +209,7 @@ public class SpreadsheetBuilder {
 
                 IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext);
 
-                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
+                ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
                     columnNamesTable.getLogicalColumn(columnIndex));
 
                 SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
@@ -371,7 +371,7 @@ public class SpreadsheetBuilder {
         for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
             for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
 
-                ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
+                ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
                     columnNamesTable.getLogicalColumn(columnIndex));
 
                 String value = cell.getGridTable().getCell(0, 0).getStringValue();

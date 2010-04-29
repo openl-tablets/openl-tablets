@@ -48,6 +48,17 @@ public class Test0 {
             }
         }, "Name cannot be empty!", "cell=B8");
     }
+    
+    @Test
+    public void testDublicateColumn() {
+        TestUtils.assertEx(new Runnable() {
+            public void run() {
+                File xlsFile = new File("test/rules/cmatch0/Test_Dublicate_Column.xls");
+                TestHelper<ITestI> testHelper;
+                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+            }
+        }, "Duplicate column 'values'!");
+    }
 
     @Test
     public void test4() {

@@ -114,10 +114,26 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
 
     @Override
     public String toString() {
-        return super.toString() + (isNormalOrientation() ? "N" : "T") +  getRegion().toString();
+        StringBuffer tableVizualization = new StringBuffer();
+        tableVizualization.append(super.toString() + (isNormalOrientation() ? "N" : "T") +  getRegion().toString() +"\n");
+        for (int i = 0; i < getLogicalHeight(); i++) {
+            int length = 0;
+            for (int j = 0; j < getLogicalWidth(); j++) {
+                String strValue = getCell(j, i).getStringValue();
+                if (strValue == null) {
+                    strValue = "EMPTY";
+                }
+                length += strValue.length();
+                tableVizualization.append(strValue);                
+                tableVizualization.append("|");
+            }
+            tableVizualization.append("\n");
+            for(int k = 0; k <= length; k++) {
+                tableVizualization.append("-");
+            }   
+            tableVizualization.append("\n");
+        }
+        
+        return  tableVizualization.toString();
     }
-
-    
-    
-    
-}
+ }

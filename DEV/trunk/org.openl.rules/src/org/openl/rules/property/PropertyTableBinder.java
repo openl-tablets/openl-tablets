@@ -13,7 +13,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.property.exception.DuplicatedPropertiesTableException;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -81,7 +81,7 @@ public class PropertyTableBinder extends DataNodeBinder {
      */
     private String parseHeader(TableSyntaxNode tsn) throws Exception {
 
-        ILogicalTable table = LogicalTable.logicalTable(tsn.getTable());
+        ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");

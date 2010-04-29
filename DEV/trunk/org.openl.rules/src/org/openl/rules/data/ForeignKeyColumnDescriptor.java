@@ -11,8 +11,8 @@ import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.element.FunctionalRow;
-import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -301,7 +301,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             // table will have 1xN size
             //
-            valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
+            valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
             IOpenClass fieldType = getField().getType();
 
