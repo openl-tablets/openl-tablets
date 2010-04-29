@@ -87,6 +87,7 @@ lib\neethi-2.0.2.jar;^
 lib\ooxml-schemas-1.0.jar;^
 lib\org.openl.commons_5.5.0.jar;^
 lib\org.openl.core_5.5.0.jar;^
+lib\org.openl.grammars_5.5.0.jar;^
 lib\org.openl.j_5.5.0.jar;^
 lib\org.openl.rules.diff_5.5.0.jar;^
 lib\org.openl.rules.eclipse.ui_5.5.0.jar;^
