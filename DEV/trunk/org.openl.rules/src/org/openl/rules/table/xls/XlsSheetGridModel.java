@@ -69,7 +69,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         private int row;
         private XlsGridRegion region;
         private Cell cell;
-
+        
+        /**
+         * Usually there is a parameter duplication: the same column and row exist in cell object.
+         * But sometimes cell is null, so we will have just the coordinates of the cell.
+         */
         public XlsCell(int column, int row, XlsGridRegion region, Cell cell) {
             this.column = column;
             this.row = row;
@@ -79,7 +83,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         public ICellStyle getStyle() {
             if (cell == null) return null;
-            return getCellStyle(column, row, cell);
+            return getCellStyle(cell);
         }
 
         public int getAbsoluteColumn() {
@@ -468,8 +472,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         CellKey ck = new CellKey(col, row);
         return metaInfoMap.get(ck);
     }
-
-    private ICellStyle getCellStyle(int column, int row, Cell cell) {
+    
+    private ICellStyle getCellStyle(Cell cell) {
         CellStyle style = cell.getCellStyle();
         if (style != null) {
             Workbook workbook = sheet.getWorkbook();
