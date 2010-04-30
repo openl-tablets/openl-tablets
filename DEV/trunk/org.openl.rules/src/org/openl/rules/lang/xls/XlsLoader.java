@@ -349,9 +349,8 @@ public class XlsLoader {
 
         if (xls_type == null) {
             xls_type = ITableNodeTypes.XLS_OTHER;
-        }
+        }        
         
-        table.toString();
         TableSyntaxNode tsn = new TableSyntaxNode(xls_type, new GridLocation(table), source, table, headerNode);
 
         if (header.equals(IXlsTableNames.ENVIRONMENT_TABLE)) {
