@@ -9,7 +9,10 @@ class CompositeCell implements ICell {
     private int row;
     private IGridRegion region;
     private ICell delegate;
-
+    
+    /**
+     * parameters column and row are different from inner column and row in cell delegate. 
+     */
     public CompositeCell(int column, int row, IGridRegion region, ICell delegate) {
         this.column = column;
         this.row = row;
