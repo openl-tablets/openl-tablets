@@ -315,7 +315,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         for (int col = 0; col < len; col++) {
             ILogicalTable valueCell = getValueCell(col);
             IGridTable paramGridColumn = valueCell.getGridTable();
-            decisionTable.toString();
 
             Object[] valueAry = new Object[paramDecl.length];
 
