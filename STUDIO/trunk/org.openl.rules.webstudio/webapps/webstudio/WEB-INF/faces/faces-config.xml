@@ -221,6 +221,18 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>simpleSearchBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.search.SimpleSearchBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>searchResultsBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.search.SearchResultsBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>showTableBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.ShowTableBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
