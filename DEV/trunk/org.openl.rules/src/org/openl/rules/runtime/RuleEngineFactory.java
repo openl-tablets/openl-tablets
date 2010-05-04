@@ -14,7 +14,7 @@ import org.openl.runtime.EngineFactoryDefinition;
  */
 public class RuleEngineFactory<T> extends EngineFactory<T> {
 
-    static public final String RULE_OPENL_NAME = "org.openl.xls";
+    public static final String RULE_OPENL_NAME = "org.openl.xls";
     
     /**
      *
