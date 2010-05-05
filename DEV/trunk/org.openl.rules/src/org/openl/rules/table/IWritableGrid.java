@@ -355,23 +355,6 @@ public interface IWritableGrid extends IGrid {
             return clearActions;
         }
 
-        /**
-         * Checks if cell is the top left cell in merged region. We don't have
-         * to remove value from this cell because value of merged cell will be
-         * lost.
-         * 
-         */
-        @SuppressWarnings("unused")
-        private static boolean isTopLeftInMergedRegion(int column, int row, IWritableGrid wgrid) {
-            for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
-                IGridRegion existingMergedRegion = wgrid.getMergedRegion(i);
-                if (existingMergedRegion.getLeft() == column && existingMergedRegion.getTop() == row) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private static List<IUndoableGridAction> shiftColumns(int startColumn, int nCols, boolean isInsert,
                 IGridRegion region) {
             ArrayList<IUndoableGridAction> shiftActions = new ArrayList<IUndoableGridAction>();
@@ -516,4 +499,5 @@ public interface IWritableGrid extends IGrid {
 
     void setCellValue(int col, int row, Object value);
 
+    boolean isTopLeftCellInMergedRegion(int column, int row);
 }

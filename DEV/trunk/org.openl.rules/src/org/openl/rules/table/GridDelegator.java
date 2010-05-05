@@ -68,4 +68,8 @@ public class GridDelegator implements IGrid {
         return delegate.isPartOfTheMergedRegion(col, row);
     }
 
+    public IGridRegion getRegionContaining(int column, int row) {
+        return delegate.getRegionContaining(column, row);
+    }
+
 }

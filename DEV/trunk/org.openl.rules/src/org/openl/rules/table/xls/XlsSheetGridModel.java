@@ -32,6 +32,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
@@ -56,6 +57,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     private XlsSheetSourceCodeModule sheetSource;
 
     private Sheet sheet;
+    private RegionsPool mergedRegionsPool;
 
     private Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
 
@@ -67,14 +69,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         private int column;
         private int row;
-        private XlsGridRegion region;
+        private IGridRegion region;
         private Cell cell;
         
         /**
          * Usually there is a parameter duplication: the same column and row exist in cell object.
          * But sometimes cell is null, so we will have just the coordinates of the cell.
          */
-        public XlsCell(int column, int row, XlsGridRegion region, Cell cell) {
+        public XlsCell(int column, int row, IGridRegion region, Cell cell) {
             this.column = column;
             this.row = row;
             this.region = region;
@@ -138,8 +140,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         
         private ICell getTopLeftCellFromRegion() {
             // gets the top left cell in this region
-            int row = region.getPoiXlsRegion().getFirstRow();
-            int col = region.getPoiXlsRegion().getFirstColumn();
+            int row = region.getTop();
+            int col = region.getLeft();
             return getCell(col, row);
         }
         
@@ -289,17 +291,28 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     public XlsSheetGridModel(Sheet sheet) {
         this.sheet = sheet;
+        extractMergedRegions();
         initCellWriters();
     }    
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
         sheet = sheetSource.getSheet();
+        extractMergedRegions();
 
         sheetSource.getWorkbookSource().addListener(this);   
         initCellWriters();
     }
     
+    private void extractMergedRegions(){
+        mergedRegionsPool = new RegionsPool(null);
+        int nregions = getNumberOfMergedRegions();
+        for (int i = 0; i < nregions; i++) {
+            CellRangeAddress reg = getMergedRegionAt(i);
+            mergedRegionsPool.add(new XlsGridRegion(reg));
+        }
+    }
+
     private void initCellWriters() {
         cellWriters.put(AXlsCellWriter.ARRAY_WRITER, new XlsCellArrayWriter(this));
         cellWriters.put(AXlsCellWriter.BOOLEAN_WRITER, new XlsCellBooleanWriter(this));
@@ -312,6 +325,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public int addMergedRegion(IGridRegion reg) {
+        mergedRegionsPool.add(reg);
         return sheet
                 .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
     }
@@ -362,24 +376,15 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
     
     private boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
-        for (int i = 0; i < getNumberOfMergedRegions(); i++) {
-            IGridRegion existingMergedRegion = getMergedRegion(i);
-            if (org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, firstCellColumn, firstCellRow)
-                    && org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, secondCellColumn, secondCellRow)) {
-                return true;
-            }
+        IGridRegion region = mergedRegionsPool.getRegionContaining(firstCellColumn, firstCellRow);
+        if (region != null && org.openl.rules.table.IGridRegion.Tool.contains(region, secondCellColumn, secondCellRow)) {
+            return true;
         }
         return false;
     }
 
-    private boolean isTopLeftCellInMergedRegion(int column, int row) {
-        for (int i = 0; i < getNumberOfMergedRegions(); i++) {
-            IGridRegion existingMergedRegion = getMergedRegion(i);
-                if(existingMergedRegion.getTop() == row && existingMergedRegion.getLeft() == column){
-                    return true;
-            }
-        }
-        return false;
+    public boolean isTopLeftCellInMergedRegion(int column, int row) {
+        return super.getRegionStartingAt(column, row) != null;
     }
 
     public void copyCellValue(Cell cellFrom, Cell cellTo) {
@@ -463,9 +468,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public ICell getCell(int column, int row) {
-        CellRangeAddress region = getRegionContaining(column, row);
-        XlsGridRegion gridRegion = region == null ? null : new XlsGridRegion(region);
-        return new XlsCell(column, row, gridRegion, getXlsCell(column, row));
+        IGridRegion region = getRegionContaining(column, row);
+        return new XlsCell(column, row, region, getXlsCell(column, row));
     }
 
     public CellMetaInfo getCellMetaInfo(int col, int row) {
@@ -562,15 +566,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
     }
 
-    public CellRangeAddress getRegionContaining(int x, int y) {
-        int nregions = getNumberOfMergedRegions();
-        for (int i = 0; i < nregions; i++) {
-            CellRangeAddress reg = getMergedRegionAt(i);
-            if (contains(reg,  x, y)) {
-                return reg;
-            }
-        }
-        return null;
+    public IGridRegion getRegionContaining(int x, int y) {
+        return mergedRegionsPool.getRegionContaining(x, y);
     }
 
     
@@ -620,6 +617,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void removeMergedRegion(int x, int y) {
+        mergedRegionsPool.remove(x, y);
         int nregions = getNumberOfMergedRegions();
         for (int i = 0; i < nregions; i++) {
             CellRangeAddress reg = getMergedRegionAt(i);

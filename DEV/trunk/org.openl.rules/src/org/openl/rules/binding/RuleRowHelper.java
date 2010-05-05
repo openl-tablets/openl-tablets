@@ -3,12 +3,16 @@ package org.openl.rules.binding;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.IDomain;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
+import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -176,28 +180,19 @@ public class RuleRowHelper {
         return loadSingleParam(paramType, paramName, ruleName, cell, openlAdapter, src, value, false);
     }
 
-    public static Object loadSingleParam(IOpenClass paramType,
-            String paramName,
-            String ruleName,
-            ILogicalTable cell,
-            OpenlToolAdaptor openlAdapter,
-            String source,
-            Object value,
-            boolean isPartOfArray) throws SyntaxNodeException {
+    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
+            OpenlToolAdaptor openlAdapter, String source, Object value, boolean isPartOfArray)
+            throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
-        if (source != null && (source = source.trim()).length() != 0) {
-
+        if (StringUtils.isNotBlank(source)) {
             if (openlAdapter != null && openlAdapter.getHeader() != null) {
-
                 IOpenMethodHeader old_header = openlAdapter.getHeader();
-                OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(),
-                    paramType,
-                    old_header.getSignature(),
-                    old_header.getDeclaringClass());
+                OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(), paramType, old_header
+                        .getSignature(), old_header.getDeclaringClass());
                 openlAdapter.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
@@ -216,30 +211,14 @@ public class RuleRowHelper {
             }
 
             Class<?> expectedType = paramType.getInstanceClass();
-            IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
-
             try {
 
-                Object result;
-
-                // FIXME: It's absolute crunch! Revise parsing mechanism for
-                // cell values.
-                if (value != null && expectedType.isAssignableFrom(value.getClass())) {
-
-                    // We've already parsed the expected value
-                    result = value;
-
-                    // FIXME: just for the case trying to parse it with
-                    // previously used approach. If it goes OK, then consider it
-                    // results to be proper. The parsing mechanism must be
-                    // rewritten.
-                    try {
-                        result = convertor.parse(source, null, openlAdapter.getBindingContext());
-                    } catch (Throwable t) {
-                        // ignore error
-                    }
-                } else {
-                    result = convertor.parse(source, null, openlAdapter.getBindingContext());
+                Object result = null;
+                if (value != null) {
+                    result = convertObjectValue(value, expectedType, openlAdapter.getBindingContext());
+                }
+                if (result == null) {
+                    result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
                 }
 
                 if (result instanceof IMetaHolder) {
@@ -257,6 +236,7 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
+                t.printStackTrace();
                 throw SyntaxNodeExceptionUtils.createError(null,
                     t,
                     null,
@@ -269,6 +249,27 @@ public class RuleRowHelper {
         }
 
         return null;
+    }
+
+    /**
+     * @return <code>null</code> if value is not convertable to expected type.
+     */
+    private static Object convertObjectValue(Object value, Class<?> expectedType, IBindingContext bindingContext) {
+        if (ClassUtils.isAssignable(value.getClass(), expectedType, true)) {
+            return value;
+        } else {
+            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, value
+                    .getClass());
+            if (objectConvertor != null) {
+                return objectConvertor.convert(value, bindingContext);
+            }
+        }
+        return null;
+    }
+
+    private static Object parseStringValue(String source, Class<?> expectedType, IBindingContext bindingContext) {
+        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
+        return convertor.parse(source, null, bindingContext);
     }
 
     public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {
