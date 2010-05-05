@@ -43,7 +43,7 @@ public class RulesFactory {
      */
     public static Class<?> generateInterface(String className, RuleInfo[] rules, ClassLoader classLoader) throws Exception {
 
-        ClassWriter classWriter = new ClassWriter(true);
+        ClassWriter classWriter = new ClassWriter(0);
         classWriter.visit(Opcodes.V1_5,
             PUBLIC_ABSTRACT_INTERFACE,
             className.replace('.', '/'),
