@@ -311,7 +311,8 @@ public abstract class FunctionalRow implements IDecisionRow {
         Object ary = null;
         ILogicalTable paramSource = dataTable.getLogicalRow(0);
         Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
-        if (params.getClass().isArray()) {                
+        Class<?> paramClass = params.getClass(); 
+        if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {                
             Object[] paramsArray = ((Object[])params);
             int paramsLength = paramsArray.length;
             ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
