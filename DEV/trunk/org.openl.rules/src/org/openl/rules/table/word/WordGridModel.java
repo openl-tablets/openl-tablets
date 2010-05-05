@@ -281,7 +281,7 @@ public class WordGridModel implements IGrid {
         return getUri() + "&wdParStart=" + wcStart.getParStart() + "&wdParEnd=" + wcEnd.getParEnd();
     }
 
-    private IGridRegion getRegionContaining(int column, int row) {
+    public IGridRegion getRegionContaining(int column, int row) {
         for (int i = 0; i < regions.length; i++) {
             if (IGridRegion.Tool.contains(regions[i], column, row)) {
                 return regions[i];

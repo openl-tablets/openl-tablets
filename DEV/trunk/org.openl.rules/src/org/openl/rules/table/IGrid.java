@@ -63,4 +63,8 @@ public interface IGrid {
 
     boolean isPartOfTheMergedRegion(int col, int row);
 
+    /**
+     * @return Merged region containing cell specified by coordinates or <code>null</code>
+     */
+    IGridRegion getRegionContaining(int column, int row);
 }

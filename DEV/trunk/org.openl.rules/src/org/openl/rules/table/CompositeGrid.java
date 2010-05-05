@@ -43,7 +43,7 @@ public class CompositeGrid extends AGridModel {
 
         ICell delegate = t.grid().getCell(t.getCol(), t.getRow());
 
-        return new CompositeCell(column, row, getGridRegionContaining(column, row), delegate);
+        return new CompositeCell(column, row, getRegionContaining(column, row), delegate);
     }
 
     public int getColumnWidth(int col) {

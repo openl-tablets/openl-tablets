@@ -7,7 +7,6 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -17,6 +16,7 @@ import java.util.List;
 public class GridSplitter {
 
     private List<GridTable> tables = new ArrayList<GridTable>();
+    private RegionsPool pool = new RegionsPool(null);
 
     private IGrid grid;
 
@@ -25,13 +25,7 @@ public class GridSplitter {
     }
 
     boolean cellIsUsed(int col, int row) {
-        for (Iterator<GridTable> iter = tables.iterator(); iter.hasNext();) {
-            GridTable table = iter.next();
-            if (GridTool.contains(table, col, row)) {
-                return true;
-            }
-        }
-        return false;
+        return pool.getRegionContaining(col, row) != null;
     }
 
     boolean containsCell(int x, int y) {
@@ -68,7 +62,9 @@ public class GridSplitter {
 
         }
 
-        tables.add(new GridTable(row, stX, y - 1, x - 1, grid));
+        GridTable table = new GridTable(row, stX, y - 1, x - 1, grid);
+        tables.add(table);
+        pool.add(table);
 
     }
 

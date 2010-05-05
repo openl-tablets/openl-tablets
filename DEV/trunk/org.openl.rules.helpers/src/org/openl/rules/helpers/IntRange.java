@@ -31,6 +31,10 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         }
     }
 
+    public IntRange(Integer number) {
+        super(number, number);
+    }
+
     /**
      * Constructor for <code>IntRange</code>. Tries to parse range text with
      * variety of formats. Supported range formats: "<min number> - <max
