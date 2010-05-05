@@ -10,6 +10,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.openl.rules.util.net.NetUtils;
 
 /**
@@ -87,7 +88,7 @@ public class JSFFunctions {
         return StringEscapeUtils.unescapeHtml(string);
     }
 
-    public static Integer toInteger(String string) {
-        return Integer.valueOf(string);
+    public static Number toNumber(String string) {
+        return NumberUtils.createNumber(string);
     }
 }
