@@ -58,7 +58,7 @@ public class Index {
             getHitBucket(element).increment();
         }
                 
-        public String displayValue() {
+        public String getDisplayValue() {
             return tokens.iterator().next();
         }
         
