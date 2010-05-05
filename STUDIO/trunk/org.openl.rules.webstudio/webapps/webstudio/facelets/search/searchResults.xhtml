@@ -8,6 +8,7 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <a4j:repeat var="sr" value="#{searchResults}" binding="#{searchResultsBean.searchResults}">
+        <c:set var="uri" value="#{sr[0]}" />
         <c:set var="result" value="#{sr[1]}" />
 
         <table width="80%">
@@ -26,20 +27,21 @@
                         rendered="#{searchResultsBean.readOnly and !searchResultsBean.canViewTable}" />
                 </td>
             </tr>
-            <c:if test="#{searchResultsBean.xlsFile and !searchResultsBean.canViewTable}">
+            <h:panelGroup rendered="#{searchResultsBean.xlsFile and !searchResultsBean.canViewTable}">
             <tr>
                 <td style="width: 16px">
                     <h:graphicImage url="/webresource/images/viewTable.gif" />
                 </td>
                 <td style="vertical-align: top">
                     <h:outputLink
-                        value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml?uri=#{searchResultsBean.encodedUri}"
+                        value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
                         title="View Table in Table Editor">
+                        <f:param name="uri" value="#{uri}" />
                         <h:outputText value="View Table" />
                     </h:outputLink>
                 </td>
             </tr>
-            </c:if>
+            </h:panelGroup>
             <tr>
                 <td />
                 <td>

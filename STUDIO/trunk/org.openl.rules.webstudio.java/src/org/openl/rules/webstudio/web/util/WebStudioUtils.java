@@ -4,6 +4,7 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -59,4 +60,13 @@ public abstract class WebStudioUtils {
         WebStudio webStudio = getWebStudio();
         return webStudio != null && webStudio.getModel().isReady();
     }
+
+    public static ProjectModel getProjectModel() {
+        WebStudio webStudio = getWebStudio();
+        if (webStudio != null) {
+            return webStudio.getModel();
+        }
+        return null;
+    }
+
 }

@@ -2,11 +2,9 @@ package org.openl.rules.webstudio.web.search;
 
 import org.ajax4jsf.component.UIRepeat;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.indexer.FileIndexer;
-import org.openl.util.StringTool;
 
 /**
  * Request scope managed bean providing logic for Search Results include page of OpenL Studio.
@@ -31,20 +29,13 @@ public class SearchResultsBean {
         return searchResult[0];
     }
 
-    public String getEncodedUri() {
-        String uri = getUri();
-        return StringTool.encodeURL(uri);
-    }
-
     public boolean isReadOnly() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
+        ProjectModel model = WebStudioUtils.getProjectModel();
         return model.isReadOnly();
     }
 
     public boolean isCanViewTable() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
+        ProjectModel model = WebStudioUtils.getProjectModel();
 
         String uri = getUri();
 

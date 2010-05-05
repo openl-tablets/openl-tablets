@@ -8,6 +8,17 @@
 
         <br />
 
+        <div class="menuPanel">
+            <h:outputLink value="#{contextPath}/faces/facelets/search/indexSearch.xhtml"
+                target="_self">Index Search</h:outputLink>
+            <h:outputLink value="#{contextPath}/faces/facelets/search/busSearch.xhtml"
+                target="_self">Business Search</h:outputLink>
+            <h:outputLink value="#{contextPath}/faces/facelets/search/advSearch.xhtml"
+                target="_self">Advanced Search</h:outputLink>
+        </div>
+
+        <br />
+
         <h:form>
             <h:inputText size="50" value="#{simpleSearchBean.searchQuery}"
                 style="width: 300px; margin-right: 3px;" />

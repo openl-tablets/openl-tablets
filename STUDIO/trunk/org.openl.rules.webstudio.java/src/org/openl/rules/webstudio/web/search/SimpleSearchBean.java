@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.search;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.ui.ProjectIndexer;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -50,8 +49,7 @@ public class SimpleSearchBean {
         String[][] searchResults = {};
 
         if (StringUtils.isNotBlank(searchQuery)) {
-            WebStudio studio = WebStudioUtils.getWebStudio();
-            ProjectModel projectModel = studio.getModel();
+            ProjectModel projectModel = WebStudioUtils.getProjectModel();
             if (projectModel != null) {
                 ProjectIndexer projectIndexer = projectModel.getIndexer();
                 if (projectIndexer != null) {

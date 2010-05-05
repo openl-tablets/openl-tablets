@@ -8,7 +8,7 @@
 
     <a4j:loadStyle src="resource:///css/wizard.css" />
 
-    <c:forEach begin="1" end="#{jsffn:toInteger(max)}" var="index">
+    <c:forEach begin="1" end="#{jsffn:toNumber(max)}" var="index">
         <h:outputText value="#{index}" styleClass="step step_passed" rendered="#{current gt index}" />
         <h:outputText value="#{index}" styleClass="step step_current" rendered="#{current == index}" />
         <h:outputText value="#{index}" styleClass="step step_not_passed" rendered="#{current lt index}" />

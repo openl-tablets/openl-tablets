@@ -19,15 +19,21 @@
   </ui:define>
 
   <ui:define name="page">
-  	<table>
-		<tr>
-			<td valign="bottom"><a href="#{contextPath}/jsp/search/indexSearch.jsp" target="_self"><font size="-1">Index</font></a></td>
-			<td valign="bottom" align="center"><a href="#{contextPath}/faces/facelets/search/advSearch.xhtml" target="_self"><font size="-1">Advanced Search</font></a></td>			
-		</tr>
-	</table>
+  
+    <br />
+  
+  	<div class="menuPanel">
+        <h:outputLink value="#{contextPath}/faces/facelets/search/simpleSearch.xhtml"
+            target="_self">Simple Search</h:outputLink>
+        <h:outputLink value="#{contextPath}/faces/facelets/search/indexSearch.xhtml"
+            target="_self">Index Search</h:outputLink>
+        <h:outputLink value="#{contextPath}/faces/facelets/search/advSearch.xhtml"
+            target="_self">Advanced Search</h:outputLink>
+    </div>
+
+    <br />
 
     <table class="search-table">
-	<tr><th>Business Search</th></tr>
 	<tr><td>
 	<h:form id="businessSearchForm">
 	<fieldset>

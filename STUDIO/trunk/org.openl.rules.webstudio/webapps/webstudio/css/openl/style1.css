@@ -472,3 +472,7 @@ span.rule-presentation {
     padding-right: 17px;
     margin-right: 10px;
 }
+
+.menuPanel a {
+    margin-right: 10px;
+}

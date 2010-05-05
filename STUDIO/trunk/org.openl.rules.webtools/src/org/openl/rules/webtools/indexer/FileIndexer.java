@@ -34,7 +34,6 @@ import org.openl.rules.webtools.WebTool;
 import org.openl.rules.word.WordDocSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.util.Log;
-import org.openl.util.StringTool;
 
 /**
  * Handles Word and Excel files for indexing. Check if files where changed in time. If true,
@@ -49,11 +48,6 @@ public class FileIndexer extends WebTool {
     private String[] files = null;
 
     private Index index;
-
-    static public String getBucketLink(TokenBucket tb) {
-        return urlLink("showIndex.jsp?value=" + StringTool.encodeHTMLBody(tb.displayValue()), null, tb.displayValue()
-                + " (" + tb.size() + ")", null);
-    }
 
     static String getFileName(String path) {
         String fileName = StringUtils.EMPTY;
@@ -166,19 +160,7 @@ public class FileIndexer extends WebTool {
         Arrays.sort(ret, Index.TokenBucket.TOKEN_COMPARATOR);
         return ret;
     }
-    
-    public static String urlLink(String url, String title, String text, String target) {
-        String s1 = "<a href=\"" + url + "\"";
-        if (title != null) {
-            s1 += " title=\"" + title + "\"";
-        }
-        if (target != null) {
-            s1 += " target=" + "\"" + target + "\"";
-        }
-        s1 += ">" + text + "</a>";
-        return s1;
-    }
-    
+
     /**
      * Gets the buckets on the specified letter
      * @param charStr Capital letter on which you want to get all buckets from index.
@@ -206,16 +188,6 @@ public class FileIndexer extends WebTool {
         return index;
     }
 
-    public String[] getIndexStrings(String charStr) {
-        TokenBucket[] bb = getBuckets(charStr);
-
-        String[] is = new String[bb.length];
-        for (int i = 0; i < is.length; i++) {
-            is[i] = getBucketLink(bb[i]);
-        }
-        return is;
-    }
-    
     /**
      * Gets the string array of capital letters for which there are words in files.
      * @return String array of capital letters for which there are words in files. 

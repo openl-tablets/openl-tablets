@@ -98,7 +98,7 @@ public class FileIndexerTest {
         TokenBucket[] buckets = fileInd.getBuckets("A");
         
         for(TokenBucket buck : buckets) {
-            System.out.println("111"+buck.displayValue());
+            System.out.println("111"+buck.getDisplayValue());
         }
         assertTrue(25 == buckets.length);        
     }
