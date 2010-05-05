@@ -116,7 +116,7 @@ public class ModuleOpenClass extends ADynamicClass {
 
     }
 
-    class GetOpenClass implements IOpenMethod {
+    public class GetOpenClass implements IOpenMethod {
 
         public IOpenClass getDeclaringClass() {
             return ModuleOpenClass.this;
