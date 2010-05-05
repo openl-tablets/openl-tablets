@@ -1200,6 +1200,13 @@
       <artifactId>poi-ooxml</artifactId>
       <version>3.6</version>
     </dependency>
+    
+    <dependency>
+	    <groupId>asm</groupId>
+	    <artifactId>asm</artifactId>
+	    <version>3.2</version>
+	</dependency>
+    
 
       </dependencies>
   </dependencyManagement>
