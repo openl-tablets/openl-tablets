@@ -519,7 +519,7 @@ public class String2DataConvertorFactory {
             } else  if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 IString2DataConvertor componentConvertor = getConvertor(componentType);
-                convertor = new String2ArrayConvertor((String2EnumConvertor) componentConvertor);
+                convertor = new String2ArrayConvertor(componentConvertor);
             }else {
                 try {
                     Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[] { String.class });
