@@ -22,6 +22,7 @@
     <module>../org.openl.rules.ruleservice.ws</module>
     <module>../org.openl.rules.ruleservice.eclipse.feature</module>
     <module>../org.openl.rules.ruleservice.lib</module>
+	<module>../org.openl.rules.ruleservice.ws.lib</module>
     <module>../org.openl.rules.ruleservice.lib.eclipse.feature</module>
   </modules>
 
