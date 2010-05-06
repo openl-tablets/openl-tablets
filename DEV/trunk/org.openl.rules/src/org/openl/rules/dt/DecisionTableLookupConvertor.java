@@ -3,6 +3,7 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
@@ -39,11 +40,13 @@ public class DecisionTableLookupConvertor {
     public static final int EXPR_ROW = 1;
     public static final int PARAM_ROW = 2;
     public static final int DISPLAY_ROW = 3;
+    
+    public static final String HORIZONTAL_CONDITION_KEY = "HC";
 
     private List<ILogicalTable> hcHeaders = new ArrayList<ILogicalTable>();
     private ILogicalTable retTable;
 
-    public IGridTable convertTable(ILogicalTable table) throws Exception {
+    public IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
 
         IGrid grid = table.getGridTable().getGrid();
         ILogicalTable originaltable = LogicalTableHelper.logicalTable(table);
@@ -79,22 +82,24 @@ public class DecisionTableLookupConvertor {
                 .getGridTable(), lookupValuesTable)).asGridTable();
     }
 
-    private void validateHCHeaders(ILogicalTable hcHeaderTable) throws Exception {
+    private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
 
+        String message = String.format("The width of the horizontal keys must be equal to the number of the %s headers", 
+            HORIZONTAL_CONDITION_KEY);
         assertEQ(hcHeaders.size(),
             hcHeaderTable.getGridTable().getLogicalHeight(),
-            "The width of the horizontal keys must be equal to the number of the HC headers");
+            message);
     }
 
-    private void assertEQ(int v1, int v2, String message) throws Exception {
+    private void assertEQ(int v1, int v2, String message) throws OpenLCompilationException {
 
         if (v1 == v2)
             return;
 
-        throw new Exception(message);
+        throw new OpenLCompilationException(message);
     }
 
-    private int parseAndValidateLookupHeaders(ILogicalTable headerRow) throws Exception {
+    private int parseAndValidateLookupHeaders(ILogicalTable headerRow) throws OpenLCompilationException {
 
         int ncol = headerRow.getLogicalWidth();
 
@@ -108,19 +113,21 @@ public class DecisionTableLookupConvertor {
 
             headerStr = headerStr.toUpperCase();
 
-            if (DecisionTableHelper.isValidConditionHeader(headerStr) || DecisionTableHelper.isValidCommentHeader(headerStr)) {
+            if (DecisionTableHelper.isValidRuleHeader(headerStr) || 
+                    DecisionTableHelper.isValidConditionHeader(headerStr) || 
+                    DecisionTableHelper.isValidCommentHeader(headerStr)) {
                 continue;
             }
 
-            loadHCandRet(headerRow, i);
+            loadHorizConditionsAndReturnColumns(headerRow, i);
 
             return i;
         }
 
-        throw new Exception("Lookup table must have at least one horizontal condition");
+        throw new OpenLCompilationException("Lookup table must have at least one horizontal condition");
     }
 
-    private void loadHCandRet(ILogicalTable rowHeader, int i) throws Exception {
+    private void loadHorizConditionsAndReturnColumns(ILogicalTable rowHeader, int i) throws OpenLCompilationException {
 
         int ncol = rowHeader.getLogicalWidth();
 
@@ -137,48 +144,56 @@ public class DecisionTableLookupConvertor {
 
             if (isValidHConditionHeader(headerStr)) {
                 if (retTable != null) {
-                    throw new Exception("RET column must be the last one");
+                    throw new OpenLCompilationException(String.format("%s column must be the last one", 
+                        DecisionTableColumnHeaders.RETURN.getHeaderKey()));
                 }
 
                 hcHeaders.add(htable);
-                assertTableWidth(1, htable, "HC");
+                assertTableWidth(1, htable, HORIZONTAL_CONDITION_KEY);
                 continue;
             }
 
             if (DecisionTableHelper.isValidRetHeader(headerStr)) {
 
                 if (retTable != null) {
-                    throw new Exception("Lookup Table can have only one RET column");
+                    throw new OpenLCompilationException(String.format("Lookup Table can have only one %s column", 
+                        DecisionTableColumnHeaders.RETURN.getHeaderKey()));
                 }
 
-                assertTableWidth(1, htable, "RET");
+                assertTableWidth(1, htable, DecisionTableColumnHeaders.RETURN.getHeaderKey());
                 retTable = htable;
                 continue;
             }
 
-            throw new Exception("Lookup Table allow here only HC or RET columns: " + headerStr);
+            String message = String.format("Lookup Table allow here only %s or %s columns: %s", 
+                HORIZONTAL_CONDITION_KEY, DecisionTableColumnHeaders.RETURN.getHeaderKey(), headerStr);
+            throw new OpenLCompilationException(message);
         }
 
         if (hcHeaders.size() == 0) {
-            throw new Exception("Lookup Table must have at least one Horizontal Condition (HC1)");
+            String message = String.format("Lookup Table must have at least one Horizontal Condition (%s1)", 
+                HORIZONTAL_CONDITION_KEY);
+            throw new OpenLCompilationException(message);
         }
 
         if (retTable == null) {
-            throw new Exception("Lookup Table must have RET column");
+            String message = String.format("Lookup Table must have %s column", 
+                DecisionTableColumnHeaders.RETURN.getHeaderKey());
+            throw new OpenLCompilationException(message);
         }
 
     }
 
-    private void assertTableWidth(int w, ILogicalTable htable, String type) throws Exception {
+    private void assertTableWidth(int w, ILogicalTable htable, String type) throws OpenLCompilationException {
         if (htable.getGridTable().getGridWidth() == w) {
             return;
         }
 
-        throw new Exception("Column " + type + " must have width=" + w);
+        throw new OpenLCompilationException(String.format("Column %s must have width=%s", type, w));
     }
 
     public static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith("HC") && headerStr.length() > 2 && Character.isDigit(headerStr.charAt(2));
+        return headerStr.startsWith(HORIZONTAL_CONDITION_KEY) && headerStr.length() > 2 && Character.isDigit(headerStr.charAt(2));
     }
 
 }
