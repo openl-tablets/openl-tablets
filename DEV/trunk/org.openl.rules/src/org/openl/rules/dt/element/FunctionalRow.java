@@ -305,26 +305,40 @@ public abstract class FunctionalRow implements IDecisionRow {
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass paramType) throws SyntaxNodeException {        
         
-        List<CompositeMethod> methodsList = null;        
-        Object ary = null;
         ILogicalTable paramSource = dataTable.getLogicalRow(0);
         Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass(); 
-        if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {                
-            Object[] paramsArray = ((Object[])params);
-            int paramsLength = paramsArray.length;
-            ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
-            for (int i = 0; i < paramsLength; i++) {
-                if (paramsArray[i] instanceof CompositeMethod) {
-                    methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod)paramsArray[i]));
-                } else {
-                    Array.set(ary, i, paramsArray[i]);
-                }
-            }                
+        if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
+            return processAsObjectParams(paramType, (Object[])params);
+        } 
+        return params;
+    }
+    
+    /**
+     * Checks if the elements of parameters array are the instances of {@link CompositeMethod}, if yes process it through
+     * {@link ArrayHolder}. If no return Object[].
+     * 
+     * @param paramType parameter type
+     * @param paramsArray array of parameters
+     * @return {@link ArrayHolder} if elements of parameters array are instances of {@link CompositeMethod}, in other 
+     * case Object[].
+     */
+    private Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
+        List<CompositeMethod> methodsList = null;
+        Object ary = null;        
+        int paramsLength = paramsArray.length;
+        ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
+        for (int i = 0; i < paramsLength; i++) {
+            if (paramsArray[i] instanceof CompositeMethod) {
+                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) paramsArray[i]));
+            } else {
+                Array.set(ary, i, paramsArray[i]);
+            }
         }
-        return methodsList == null ? ary : new ArrayHolder(ary, 
+
+        return methodsList == null ? ary : new ArrayHolder(ary,
             methodsList.toArray(new CompositeMethod[methodsList.size()]));
     }
     

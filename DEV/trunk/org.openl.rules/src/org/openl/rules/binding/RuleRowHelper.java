@@ -78,7 +78,7 @@ public class RuleRowHelper {
      * @param cell
      * @param openlAdaptor
      * @return Array of parameters.
-     * @throws BoundError
+     * @throws SyntaxNodeException
      */
     public static Object loadCommaSeparatedParam(IOpenClass paramType,
             String paramName,
