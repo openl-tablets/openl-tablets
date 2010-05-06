@@ -9,19 +9,32 @@
     <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-  <name>OpenL - RuleService - Libraries</name>
+  <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
+  <name>OpenL - RuleService - WS Libraries</name>
   <description />
 
   <dependencies>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
+
+  <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-bundle</artifactId>
     </dependency>
-    
+
     <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-distribution-manifest</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.3</version>
     </dependency>
   </dependencies>
 
