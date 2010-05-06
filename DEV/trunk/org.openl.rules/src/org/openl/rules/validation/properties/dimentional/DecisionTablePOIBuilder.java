@@ -82,7 +82,7 @@ public class DecisionTablePOIBuilder {
         
         writeHeaderRow(lastColumnNumber);
 
-        writeTableToFile();
+        //writeTableToFile();
         
         return sheet;
     }
