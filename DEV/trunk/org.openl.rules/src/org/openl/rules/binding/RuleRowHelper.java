@@ -188,7 +188,7 @@ public class RuleRowHelper {
         // class doesn't know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
-        if (StringUtils.isNotBlank(source)) {
+        if (source != null && (source = source.trim()).length() != 0) {
             if (openlAdapter != null && openlAdapter.getHeader() != null) {
                 IOpenMethodHeader old_header = openlAdapter.getHeader();
                 OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(), paramType, old_header
@@ -256,7 +256,11 @@ public class RuleRowHelper {
      */
     private static Object convertObjectValue(Object value, Class<?> expectedType, IBindingContext bindingContext) {
         if (ClassUtils.isAssignable(value.getClass(), expectedType, true)) {
-            return value;
+            if (expectedType == String.class) {
+                return ((String) value).trim();//we have to trim string values
+            } else {
+                return value;
+            }
         } else {
             IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, value
                     .getClass());
