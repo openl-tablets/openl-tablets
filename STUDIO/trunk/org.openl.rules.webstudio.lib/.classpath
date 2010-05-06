@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/asm-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-digester-1.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/myfaces-api-1.2.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/acegi-security-1.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/acegi-security-tiger-1.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/asm-1.5.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-attrs-1.5.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher-2-1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cglib-2.1_3.jar"/>
