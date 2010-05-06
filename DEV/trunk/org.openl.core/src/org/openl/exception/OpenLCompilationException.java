@@ -26,6 +26,10 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     public OpenLCompilationException(String message, Throwable cause, ILocation location) {
         this(message, cause, location, null);
     }
+    
+    public OpenLCompilationException(String message) {
+        this(message, null, null, null);
+    }
 
     /* (non-Javadoc)
      * @see org.openl.exception.OpenLException#getOriginalMessage()
