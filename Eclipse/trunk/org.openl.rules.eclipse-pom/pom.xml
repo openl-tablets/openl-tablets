@@ -406,6 +406,12 @@
       <artifactId>org.openl.rules.ruleservice.lib</artifactId>
       <version>${openl.version.maven}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
+      <version>${openl.version.maven}</version>
+    </dependency>
 
 
 
