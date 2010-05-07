@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/asm-3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-1.5.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/aopalliance-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk14-136.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-api-2.0.3-incubator.jar" sourcepath="D:/Downloads/apache-cxf-2.0.3-incubator-src/apache-cxf-2.0.3-incubator-src"/>
