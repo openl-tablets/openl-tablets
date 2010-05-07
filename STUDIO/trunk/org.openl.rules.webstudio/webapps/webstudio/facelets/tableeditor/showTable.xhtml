@@ -206,6 +206,17 @@
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
+        <h:panelGroup rendered="#{showTableBean.testable}">
+            <h3>Available Tests</h3>
+            <rich:dataList value="#{showTableBean.tests}" var="test">
+                <h:outputLink rendered="#{showTableBean.editable}"
+                    value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <f:param name="uri" value="#{test.uri}" />
+                    <h:outputText value="#{test.testName}" />
+                </h:outputLink>
+            </rich:dataList>    
+        </h:panelGroup>
+
         <c:set value="#{showTableBean.testRunResults}" var="testResult" />
         <c:if test="#{testResult.notEmpty}">
             <h1>

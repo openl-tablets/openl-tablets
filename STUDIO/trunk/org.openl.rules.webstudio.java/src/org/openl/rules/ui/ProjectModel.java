@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
@@ -61,7 +62,6 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -339,36 +339,6 @@ public class ProjectModel {
         }
 
         return null;
-    }
-
-    public AllTestsRunResult getAllTestMethods() {
-        if (wrapper == null) {
-            return null;
-        }
-
-        IOpenClass oc = wrapper.getOpenClass();
-        List<IOpenMethod> methods = new ArrayList<IOpenMethod>();
-        List<String> names = new ArrayList<String>();
-
-        for (Iterator<?> iter = oc.methods(); iter.hasNext();) {
-            IOpenMethod m = (IOpenMethod) iter.next();
-            IMemberMetaInfo mi = m.getInfo();
-            ISyntaxNode node = null;
-            if (mi == null || ((node = mi.getSyntaxNode()) == null)) {
-                continue;
-            }
-            if (node instanceof TableSyntaxNode) {
-                TableSyntaxNode tnode = (TableSyntaxNode) node;
-
-                if (tnode.getType().equals(ITableNodeTypes.XLS_TEST_METHOD)) {
-                    methods.add(m);
-                    names.add(TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1]);
-                }
-            }
-        }
-
-        return new AllTestsRunResult((IOpenMethod[]) methods.toArray(new IOpenMethod[0]), (String[]) names
-                .toArray(new String[0]));
     }
 
     public List<TableSyntaxNode> getAllValidatedNodes() {
@@ -743,27 +713,37 @@ public class ProjectModel {
 
     }
 
-    public AllTestsRunResult getTestMethods(String elementUri) {
-        IOpenMethod[] testers = null;
+    public AllTestsRunResult getTestsRunner(IOpenMethod[] testMethods) {
+        String[] names = new String[testMethods.length];
 
-        IOpenMethod m = getMethod(elementUri);
-        if (m != null) {
-            testers = ProjectHelper.testers(m);
-        } else {
-            testers = ProjectHelper.allTesters(wrapper.getOpenClass());
-        }
-
-        String[] names = new String[testers.length];
-
-        for (int i = 0; i < testers.length; i++) {
-            IMemberMetaInfo mi = testers[i].getInfo();
+        for (int i = 0; i < testMethods.length; i++) {
+            IMemberMetaInfo mi = testMethods[i].getInfo();
             TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
 
             names[i] = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1];
         }
 
-        return new AllTestsRunResult(testers, names);
+        return new AllTestsRunResult(testMethods, names);
+    }
 
+    public AllTestsRunResult getTestMethods(String elementUri) {
+        IOpenMethod[] testMethods = null;
+
+        IOpenMethod method = getMethod(elementUri);
+        if (method != null) {
+            testMethods = ProjectHelper.testers(method);
+            if (ArrayUtils.isNotEmpty(testMethods)) {
+                return getTestsRunner(testMethods);
+            }
+        }
+        return null;
+    }
+
+    public AllTestsRunResult getAllTestMethods() {
+        IOpenMethod[] testMethods = ProjectHelper.allTesters(
+                wrapper.getOpenClass());
+
+        return getTestsRunner(testMethods);
     }
 
     public String getUri(String elementUri) {
@@ -994,8 +974,10 @@ public class ProjectModel {
 
     public AllTestsRunResult runAllTests(String elementUri) {
 
-        // AllTestsRunResult atr = getAllTestMethods();
         AllTestsRunResult atr = getTestMethods(elementUri);
+        if (atr == null) {
+            atr = getAllTestMethods();
+        }
 
         Test[] ttm = atr.getTests();
 

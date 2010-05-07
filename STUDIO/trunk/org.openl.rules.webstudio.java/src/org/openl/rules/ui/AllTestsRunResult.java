@@ -34,6 +34,10 @@ public class AllTestsRunResult {
             return method.getTestDescriptions()[i];
         }
 
+        public String getUri() {
+            return method.getSourceUrl();
+        }
+
         public String getTestName() {
             return testName;
         }

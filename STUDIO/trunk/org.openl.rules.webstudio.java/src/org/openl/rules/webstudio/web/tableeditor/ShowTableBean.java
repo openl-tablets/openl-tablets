@@ -28,6 +28,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
@@ -46,6 +47,8 @@ public class ShowTableBean {
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
 
     private String url;
+
+    private Test[] tests = {};
     private boolean runnable;
     private boolean testable;
     private String uri;
@@ -79,8 +82,14 @@ public class ShowTableBean {
         initProblems();
 
         url = model.makeXlsUrl(uri);
+
+        AllTestsRunResult testsRunner = model.getTestMethods(uri);
+        if (testsRunner != null) {
+            tests = testsRunner.getTests();
+        }
+
         runnable = model.isRunnable(uri);
-        testable = model.isTestable(uri);
+        testable = tests.length > 0;
 
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
@@ -178,11 +187,15 @@ public class ShowTableBean {
 
     public TestRunsResultBean getTestRunResults() {
         AllTestsRunResult atr = WebStudioUtils.getWebStudio().getModel().getRunMethods(uri);
-        AllTestsRunResult.Test[] tests = null;
+        Test[] tests = null;
         if (atr != null) {
             tests = atr.getTests();
         }
         return new TestRunsResultBean(tests);
+    }
+
+    public Test[] getTests() {
+        return tests;
     }
 
     public String getUri() {
@@ -334,11 +347,11 @@ public class ShowTableBean {
 
     public static class TestRunsResultBean {
 
-        private AllTestsRunResult.Test[] tests;
+        private Test[] tests;
 
         private TestProxy[] proxies;
 
-        public TestRunsResultBean(AllTestsRunResult.Test[] tests) {
+        public TestRunsResultBean(Test[] tests) {
             this.tests = tests;
             if (tests == null) {
                 proxies = new TestProxy[0];
@@ -368,7 +381,7 @@ public class ShowTableBean {
             }
 
             public String[] getDescriptions() {
-                AllTestsRunResult.Test test = getTest();
+                Test test = getTest();
                 String[] descriptions = new String[test.ntests()];
                 for (int i = 0; i < descriptions.length; i++) {
                     descriptions[i] = test.getTestDescription(i);
@@ -376,7 +389,7 @@ public class ShowTableBean {
                 return descriptions;
             }
 
-            private AllTestsRunResult.Test getTest() {
+            private Test getTest() {
                 return tests[index];
             }
 
