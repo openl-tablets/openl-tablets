@@ -761,7 +761,17 @@ public class JavaWrapperAntTask extends Task {
             ucxt = new UserContext(cl, userHome);
             Thread.currentThread().setContextClassLoader(cl);
         }
-        OpenClassJavaWrapper jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile);
+        
+        long start = System.currentTimeMillis();
+        OpenClassJavaWrapper jwrapper = null;
+        try {
+            jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile);
+        }
+        finally
+        {
+            long end = System.currentTimeMillis();
+            System.out.println("Loaded " + srcFile + " in " + (end-start) + " ms");
+        }    
         return jwrapper.getOpenClass();
 
     }
