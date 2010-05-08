@@ -42,7 +42,7 @@ public class ArrayTool {
         }
 
         public void remove() {
-            throw new RuntimeException("Should not be called");
+            throw new UnsupportedOperationException("Should not be called");
         }
 
     }
