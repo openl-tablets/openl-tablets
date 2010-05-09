@@ -158,8 +158,10 @@ public class BindingContext implements IBindingContext {
         return binder.getCastFactory().getCast(from, to);
     }
 
+    static final SyntaxNodeException[] NO_ERRORS = {}; 
+    
     public SyntaxNodeException[] getErrors() {
-        return errors == null ? new SyntaxNodeException[0] : ((SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]));
+        return errors.size() == 0 ? NO_ERRORS : ((SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]));
     }
 
     /*
