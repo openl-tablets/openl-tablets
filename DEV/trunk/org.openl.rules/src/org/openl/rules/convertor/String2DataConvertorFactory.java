@@ -19,6 +19,8 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
+import org.openl.meta.DoubleValue;
+import org.openl.rules.helpers.IntRange;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -423,6 +425,30 @@ public class String2DataConvertorFactory {
 
     }
 
+    public static class String2IntRangeConvertor implements IString2DataConvertor {
+
+        public String format(Object data, String format) {
+            return String.valueOf(data);
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+            return new IntRange(data);
+        }
+
+    }
+    
+    public static class String2DoubleValueConvertor implements IString2DataConvertor {
+
+        public String format(Object data, String format) {
+            return String.valueOf(data);
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+            return new DoubleValue(data);
+        }
+
+    }
+    
     public static class String2StringConvertor implements IString2DataConvertor {
 
         public String format(Object data, String format) {
@@ -508,12 +534,15 @@ public class String2DataConvertorFactory {
         convertors.put(Calendar.class, new String2CalendarConvertor());
         convertors.put(Class.class, new String2ClassConvertor());
         convertors.put(IOpenClass.class, new String2OpenClassConvertor());        
+        convertors.put(DoubleValue.class, new String2DoubleValueConvertor());        
+        convertors.put(IntRange.class, new String2IntRangeConvertor());        
     }
 
-    public static IString2DataConvertor getConvertor(Class<?> clazz) {
+    public static synchronized IString2DataConvertor getConvertor(Class<?> clazz) {
         IString2DataConvertor convertor = convertors.get(clazz);
-
-        if (convertor == null) {
+        if (convertor != null)
+            return convertor;
+        
             if (clazz.isEnum()) {
                 convertor = new String2EnumConvertor(clazz);
             } else  if (clazz.isArray()) {
@@ -525,19 +554,19 @@ public class String2DataConvertorFactory {
                     Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[] { String.class });
                     convertor = new String2ConstructorConvertor(ctr);
                 } catch (NoSuchMethodException t) {
-                    return new NoConvertor(clazz);
+                    convertor = new NoConvertor(clazz);
                     // throw new IllegalArgumentException("Convertor or Public
                     // Constructor " + clazz.getName()
                     // + "(String s) does not exist");
                 }
             }
-        }
-
+            
+        convertors.put(clazz, convertor);    
         return convertor;
 
     }
 
-    static Locale getLocale() {
+    static public Locale getLocale() {
         if (locale == null) {
             String country = System.getProperty("org.openl.locale.country");
             String lang = System.getProperty("org.openl.locale.lang");

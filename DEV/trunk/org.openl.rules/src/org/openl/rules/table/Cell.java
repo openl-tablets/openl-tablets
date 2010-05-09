@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import java.util.Date;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -131,5 +133,24 @@ public class Cell implements ICell {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public boolean getNativeBoolean() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Date getNativeDate() {
+        throw new UnsupportedOperationException();
+    }
+    public double getNativeNumber() {
+        throw new UnsupportedOperationException();
+    }
+
+    public int getNativeType() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasNativeType() {
+        return false;
     }
 }

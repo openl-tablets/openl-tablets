@@ -3,6 +3,8 @@
  */
 package org.openl.rules.table;
 
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ui.CellFont;
@@ -120,5 +122,25 @@ public class FormattedCell implements ICell {
 
     public String getUri() {
         return delegate.getUri();
+    }
+
+    public boolean getNativeBoolean() {
+        return delegate.getNativeBoolean();
+    }
+
+    public double getNativeNumber() {
+        return delegate.getNativeNumber();
+    }
+
+    public int getNativeType() {
+        return delegate.getNativeType();
+    }
+
+    public boolean hasNativeType() {
+        return delegate.hasNativeType();
+    }
+
+    public Date getNativeDate() {
+        return delegate.getNativeDate();
     }
 }

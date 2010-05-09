@@ -252,9 +252,8 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass paramType,
             String paramName,
             String ruleName,
-            OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
+            OpenlToolAdaptor openlAdaptor, boolean indexed) throws SyntaxNodeException {
 
-        boolean indexed = paramType.getAggregateInfo().isAggregate(paramType);
 
         if (!indexed) {
             return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
@@ -385,6 +384,11 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         IParameterDeclaration[] paramDecl = getParams(ota.getBindingContext());
 
+        boolean[] paramIndexed = new boolean[paramDecl.length];
+        for (int i = 0; i < paramIndexed.length; i++) {
+            paramIndexed[i] = paramDecl[i].getType().getAggregateInfo().isAggregate(paramDecl[i].getType()); 
+        }
+        
         ArrayList<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
         for (int col = 0; col < len; col++) {
@@ -408,11 +412,12 @@ public abstract class FunctionalRow implements IDecisionRow {
 
                 Object v = null;
                 try {
+                    IOpenClass paramType = paramDecl[j].getType(); 
                     v = loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
-                        paramDecl[j].getType(),
+                        paramType,
                         paramDecl[j].getName(),
                         ruleName,
-                        ota);
+                        ota, paramIndexed[j]);
                 } catch (SyntaxNodeException error) {
                     errors.add(error);
                 }

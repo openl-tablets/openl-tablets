@@ -1,5 +1,7 @@
 package org.openl.rules.table.word;
 
+import java.util.Date;
+
 import org.apache.poi.hwpf.usermodel.RangeHack;
 import org.apache.poi.hwpf.usermodel.TableCell;
 import org.openl.rules.table.ICell;
@@ -104,5 +106,26 @@ public class WordCell implements ICell{
     public int getWidth() {
         return 1;
     }
+
+    public boolean hasNativeType() {
+        return false;
+    }
+
+    public boolean getNativeBoolean() {
+        throw new UnsupportedOperationException();
+    }
+
+    public double getNativeNumber() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Date getNativeDate() {
+        throw new UnsupportedOperationException();
+    }
+
+    public int getNativeType() {
+        throw new UnsupportedOperationException();
+    }
+
 
 }

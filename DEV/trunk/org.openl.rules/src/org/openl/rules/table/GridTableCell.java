@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import java.util.Date;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -71,5 +73,25 @@ class GridTableCell implements ICell {
 
     public String getUri() {
         return cell.getUri();
+    }
+
+    public boolean getNativeBoolean() {
+        return cell.getNativeBoolean();
+    }
+
+    public double getNativeNumber() {
+        return cell.getNativeNumber();
+    }
+
+    public int getNativeType() {
+        return cell.getNativeType();
+    }
+
+    public boolean hasNativeType() {
+        return cell.hasNativeType();
+    }
+
+    public Date getNativeDate() {
+        return cell.getNativeDate();
     }
 }
