@@ -6,7 +6,6 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
@@ -23,8 +22,8 @@ public class ProjectHelper {
      * @return
      */
     public static IOpenMethod[] allTesters(IOpenClass openClass) {
-        Vector res = new Vector();
-        for (Iterator iter = openClass.methods(); iter.hasNext();) {
+        List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+        for (Iterator<IOpenMethod> iter = openClass.methods(); iter.hasNext();) {
             IOpenMethod tester = (IOpenMethod) iter.next();
             if (isTester(tester)) {
                 res.add(tester);
@@ -95,8 +94,8 @@ public class ProjectHelper {
 
     static public IOpenMethod[] testers(IOpenMethod tested) {
 
-        Vector res = new Vector();
-        for (Iterator iter = tested.getDeclaringClass().methods(); iter.hasNext();) {
+        List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+        for (Iterator<IOpenMethod> iter = tested.getDeclaringClass().methods(); iter.hasNext();) {
             IOpenMethod tester = (IOpenMethod) iter.next();
             if (isMethodTestedBy(tested, tester)) {
                 res.add(tester);

@@ -39,7 +39,7 @@ public class OpenLProjectLocator {
             System.out.println(f[i].getCanonicalPath() + " - " + op.isRulesProject(f[i]));
             String[] s = op.listPotentialOpenLWrappersClassNames(f[i]);
             for (int j = 0; j < s.length; j++) {
-                System.out.println(s[j]);
+                System.out.println(" ** " + s[j]);
             }
         }
     }
