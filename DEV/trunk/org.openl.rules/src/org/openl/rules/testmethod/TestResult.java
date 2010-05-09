@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.impl.DynamicObject;
-import org.openl.util.ArrayTool;
 
 public class TestResult implements INamedThing {
 
@@ -77,6 +76,17 @@ public class TestResult implements INamedThing {
         return ts.getEx() != null ? ts.getEx() : ts.getRes();
     }
 
+    public Object getDescription(int i) {
+
+        TestStruct ts = tests.get(i);
+
+        Object descr = ts.getTestObj().getFieldValue(TestMethodHelper.DESCRIPTION_NAME);
+        
+        return descr == null ? "No Description" : descr;
+    }
+
+    
+    
     public String[] getTestHeaders() {
 
         IMethodSignature mm = testSuite.getTestedMethod().getSignature();
@@ -97,6 +107,9 @@ public class TestResult implements INamedThing {
         return ts.getTestObj().getFieldValue(fname);
     }
 
+    
+    
+    @SuppressWarnings("unchecked")
     public static boolean compareResult(Object res, Object expected) {
 
         if (res == expected) {
@@ -137,5 +150,31 @@ public class TestResult implements INamedThing {
 
         return true;
     }
+
+    public StringBuilder printFailedTests(StringBuilder sb) {
+        sb.append(getName());
+        if (getNumberOfFailures() == 0) {
+            return sb.append(" - ").append(getNumberOfTests()).append(" tests ALL OK!");
+        }
+
+        sb.append(" - ").append(getNumberOfTests()).append(" tests / ").append(getNumberOfFailures())
+                .append(" FAILED!");
+        
+        for (int i = 0; i < getNumberOfTests(); i++) {
+            if (getCompareResult(i) != TR_OK)
+            {
+                sb.append('\n').append(i+1).append(". ").append(getDescription(i)).append("\t").append(getExpected(i)).append(" / ").append(getResult(i));
+            }    
+        }
+
+        return sb;
+    }
+
+    @Override
+    public String toString() {
+        return printFailedTests(new StringBuilder()).toString();
+    }
+    
+    
 
 }
