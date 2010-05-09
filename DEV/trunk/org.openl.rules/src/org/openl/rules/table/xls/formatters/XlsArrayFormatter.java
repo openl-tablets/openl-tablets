@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.table.FormattedCell;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 
