@@ -442,11 +442,17 @@ public class JavaOpenClass extends AOpenClass {
         return fields;
     }
 
-    public IAggregateInfo getAggregateInfo() {
+    private IAggregateInfo aggregateInfo;
+    
+    public synchronized IAggregateInfo getAggregateInfo() {
+        if (aggregateInfo != null)
+            return aggregateInfo;
+        
         if (List.class.isAssignableFrom(getInstanceClass())) {
-            return JavaListAggregateInfo.LIST_AGGREGATE;
+            aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
         }
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE;
+        else aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
+        return aggregateInfo;
     }
 
     public String getDisplayName(int mode) {
