@@ -5,7 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

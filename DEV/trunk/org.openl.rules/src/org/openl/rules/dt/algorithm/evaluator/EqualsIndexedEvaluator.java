@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
