@@ -1,7 +1,6 @@
 package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
-import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
@@ -15,13 +14,13 @@ public class TableValueFilter extends AGridFilter {
 
     private int startX, startY;
 
-    private IGrid grid;
+ //   private IGrid grid;
 
     public TableValueFilter(IGridTable t, Model m) {
         model = m;
         startX = t.getGridColumn(0, 0);
         startY = t.getGridRow(0, 0);
-        grid = t.getGrid();
+//       grid = t.getGrid();
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
