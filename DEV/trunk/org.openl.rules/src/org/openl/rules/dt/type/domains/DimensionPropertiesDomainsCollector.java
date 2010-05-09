@@ -13,8 +13,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.properties.dimentional.ADimensionPropertyColumn;
 import org.openl.rules.validation.properties.dimentional.DecisionTableCreator;
 
-import sun.misc.MessageUtils;
-
 public class DimensionPropertiesDomainsCollector {
     
     private Map<String, IDomainCollector> domainCollectors = new HashMap<String, IDomainCollector>();
