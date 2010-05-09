@@ -30,6 +30,7 @@ import org.openl.rules.table.AGridModel;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.RegionsPool;
@@ -244,6 +245,34 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         public String getUri() {
             return XlsUtil.xlsCellPresentation(column, row);
+        }
+
+        public boolean getNativeBoolean() {
+            return true;
+        }
+
+        public double getNativeNumber() {
+            return cell.getNumericCellValue();
+        }
+
+        public int getNativeType() {
+            if (cell == null)
+                
+                return IGrid.CELL_TYPE_BLANK;
+            
+           int type = cell.getCellType();
+           if (type == IGrid.CELL_TYPE_FORMULA)
+               return cell.getCachedFormulaResultType();
+           return type;
+               
+        }
+
+        public boolean hasNativeType() {
+            return true;
+        }
+
+        public Date getNativeDate() {
+            return cell.getDateCellValue();
         }
 
     }

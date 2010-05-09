@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import java.util.Date;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.IncorrectFormulaException;
@@ -49,4 +51,28 @@ public interface ICell {
     int getType();
 
     String getUri();
+    
+    
+    // used for optimized access
+    
+    /**
+     *  @return true if the cell has ability to provide fast access to the native value(cached)
+     *  If cell has not such an ability, the native methods should not be used
+     */
+    
+    boolean hasNativeType();
+    
+    
+    /**
+     * 
+     * @return IGrid.CELL_TYPE... constant, in case of CELL_TYPE_FORMULA returns cached value type
+     */
+    int getNativeType();
+    
+    double getNativeNumber();
+    boolean getNativeBoolean();
+
+    Date getNativeDate();
+    
+    
 }
