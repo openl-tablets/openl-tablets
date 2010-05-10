@@ -94,11 +94,18 @@ public class RangeNodeBinder extends ANodeBinder {
                     new RangeWithBounds(getMinimalIncrease(val), getMax(val)),
                     JavaOpenClass.getOpenClass(RangeWithBounds.class));
 
-            } else if (type.endsWith("le") || type.endsWith("plus")) {
+            } else if (type.endsWith("le") || type.endsWith("plus") || type.endsWith("and.more")) {
                 return new LiteralBoundNode(node,
                     new RangeWithBounds(val, getMax(val)),
                     JavaOpenClass.getOpenClass(RangeWithBounds.class));
             }
+            else if (type.endsWith("or.less"))
+            {
+                return new LiteralBoundNode(node,
+                        new RangeWithBounds(getMin(val), val),
+                        JavaOpenClass.getOpenClass(RangeWithBounds.class));
+                
+            }        
 
             String message = String.format("Unsupported range suffix type: %s", type);
             BindHelper.processError(message, node, bindingContext);

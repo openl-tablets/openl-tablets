@@ -31,14 +31,21 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
-        String[] binders = { "literal", org.openl.binding.impl.LiteralNodeBinder.class.getName(), "literal.integer",
-                org.openl.binding.impl.IntNodeBinder.class.getName(), "literal.real",
-                org.openl.binding.impl.DoubleNodeBinder.class.getName(), "literal.percent",
-                org.openl.binding.impl.PercentNodeBinder.class.getName(), "literal.string",
-                org.openl.binding.impl.StringNodeBinder.class.getName(), "literal.char",
-                org.openl.binding.impl.CharNodeBinder.class.getName(), "literal.range",
-                org.openl.binding.impl.RangeNodeBinder.class.getName(), "literal.integer.business",
-                org.openl.binding.impl.BusinessIntNodeBinder.class.getName(), "literal.real.business",
+        String[] binders = {
+
+        "literal", org.openl.binding.impl.LiteralNodeBinder.class.getName(), 
+        "literal.integer", org.openl.binding.impl.IntNodeBinder.class.getName(), 
+        "literal.real", org.openl.binding.impl.DoubleNodeBinder.class.getName(),
+        "literal.percent", org.openl.binding.impl.PercentNodeBinder.class.getName(), 
+        "literal.string",
+                org.openl.binding.impl.StringNodeBinder.class.getName(), 
+                "literal.char",
+                org.openl.binding.impl.CharNodeBinder.class.getName(), 
+                "literal.range",
+                org.openl.binding.impl.RangeNodeBinder.class.getName(), 
+                "literal.integer.business", org.openl.binding.impl.BusinessIntNodeBinder.class.getName(), 
+                "literal.integer.negative", org.openl.binding.impl.NegativeIntNodeBinder.class.getName(), 
+                "literal.real.business",
                 org.openl.binding.impl.BusinessDoubleNodeBinder.class.getName()
 
                 , "array.init", org.openl.binding.impl.ArrayInitializationBinder.class.getName()
@@ -120,7 +127,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.addConfiguredTypeFactory(of);
 
         /**
-         *
+         * 
          * <typefactory name="java.factory"
          * implementingClass="org.openl.types.java.JavaOpenFactory"/>
          */
@@ -136,7 +143,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         nstc.addConfiguration(javatype);
 
         JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
-        
+
         javaimport.addConfiguredImport("java.util");
         javaimport.addConfiguredImport("java.math");
 
@@ -145,7 +152,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         types.addConfiguredTypeLibrary(nstc);
 
         /**
-         *
+         * 
          * <types> <typelibrary namespace="org.openl.this"> <javatype
          * classname="org.openl.types.java.JavaPrimitiveTypeLibrary"/> <javatype
          * classname="org.openl.types.java.JavaLang"/> <javaimport>

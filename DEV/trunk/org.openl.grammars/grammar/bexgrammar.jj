@@ -347,6 +347,7 @@ TOKEN :
       | <HEX_LITERAL> (["l","L"])?
       | <OCTAL_LITERAL> (["l","L"])?
   >
+
 |
   < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
 |
@@ -1152,15 +1153,25 @@ void LiteralFloat() :
   { syntaxBuilder.literal("literal.real.business", pos(token), token.image); }
 }
 
+
+void NegLiteralBI():
+{
+  Token x;}
+{
+  x = < MINUS>
+  LiteralBI()
+	{syntaxBuilder.uop("literal.integer.negative", pos(x));}	
+}
+
 void RangeBinary():
 {
 	Token x; 
 	String op; 
 }
 {
-	LiteralBI()
+	(	  LiteralBI() | NegLiteralBI())
 	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
-	LiteralBI()
+	(	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
 }
 
@@ -1168,7 +1179,7 @@ void RangeNumber():
 {
 }
 {
-	LiteralBI()
+	(	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.uop("literal.range.number", null);}
 }
 
@@ -1179,8 +1190,12 @@ void RangePrefix():
 	String op; 
 }
 {
-	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";})
-	LiteralBI()
+	(
+	  x="<" {op="lt";} | x="less than" {op="lt";} |
+	  x = "<=" {op="le";} |
+	  x = ">" {op="gt";} | x = "more than" {op="gt";} |
+	  x =">=" {op="ge";})
+	(	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
 }
 
@@ -1190,8 +1205,12 @@ void RangeSuffix():
 	String op; 
 }
 {
-	LiteralBI()
-	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";} | x ="+" {op="plus";})
+	(	  	  LiteralBI() | NegLiteralBI())
+	(x="<" {op="lt";} |
+	x = "<=" {op="le";} | x = "or less" {op="or.less";} | 
+	x = ">" {op="gt";}  |
+	x =">=" {op="ge";} | x = "and more" {op="and.more";} |
+	x ="+" {op="plus";})
 	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
 }
 
