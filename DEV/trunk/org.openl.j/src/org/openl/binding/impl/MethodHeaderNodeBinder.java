@@ -20,7 +20,7 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
     private static final int TYPE_NODE = 0;
     private static final int METHOD_NAME_NODE = 1;
     private static final int PARAMETERS_NODE = 2;
-    private static final int BODY_NODE = 3;
+//    private static final int BODY_NODE = 3;
 
     /*
      * (non-Javadoc)

@@ -5,7 +5,6 @@ package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
@@ -65,12 +64,19 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(0, Integer.MAX_VALUE), new IntRange("0+"));
     }
 
-    @Ignore("Temporary disabled because of unimplemented processing for signed numbers")
+    @Test
     public void testSignedNumber() {
         assertEquals(new IntRange(-15, -8), new IntRange("-15  - -8"));
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100+"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">+2"));
+        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">2"));
         assertEquals(new IntRange(-10, -10), new IntRange("-10"));
     }
 
+    @Test
+    public void testVerbal() {
+        assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100 and more"));
+        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(" more than 2"));
+        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(" more than 2"));
+        assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
+    }
 }

@@ -270,6 +270,10 @@ public interface BExGrammarConstants {
     "\"is in\"",
     "\"is more or equal\"",
     "\"is no less than\"",
+    "\"less than\"",
+    "\"more than\"",
+    "\"or less\"",
+    "\"and more\"",
   };
 
 }
