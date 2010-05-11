@@ -225,6 +225,10 @@ public class ShowTableBean {
         }
         return false;
     }
+    
+    public boolean isCanCreateTest() {
+        return table.isExecutable();
+    }
 
     private boolean isDispatcherValidationNode() {
         return table.getNameFromHeader().startsWith(DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);

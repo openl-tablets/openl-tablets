@@ -131,6 +131,14 @@
                             title="Show Formulas"
                             alt="Show Formulas" />
                     </h:outputLink>
+                    
+                    <h:commandLink rendered="#{showTableBean.canCreateTest}"
+                    action="#{tableCreatorWizardManager.startWizard}">
+                    <a4j:actionparam assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
+                    <f:param name="uri" value="#{showTableBean.uri}" />
+                    <h:graphicImage url="/webresource/images/testDirect1.gif"
+                        alt="Create Test Table" title="Create Test Table" />
+                </h:commandLink>
                 </c:if>
 
             </h:form>

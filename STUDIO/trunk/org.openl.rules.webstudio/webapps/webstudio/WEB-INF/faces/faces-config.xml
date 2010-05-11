@@ -582,6 +582,15 @@
       <to-view-id>/facelets/tableCopier/changeVersion.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
+  
+  <!-- Create test from direct from executable table "Create direct tests"-->
+  <navigation-rule>
+   <from-view-id>/facelets/tableeditor/showTable.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>testTableDirect</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
 
   <!-- Change names navigation -->   
   <navigation-rule>
