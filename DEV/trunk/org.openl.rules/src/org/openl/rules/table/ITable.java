@@ -27,5 +27,7 @@ public interface ITable {
      *         properties and then from table header)
      */
     String getName();
+    
+    boolean isExecutable();
 
 }
