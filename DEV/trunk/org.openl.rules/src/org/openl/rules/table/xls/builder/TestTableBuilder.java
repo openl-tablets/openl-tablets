@@ -1,5 +1,7 @@
 package org.openl.rules.table.xls.builder;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,6 +17,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMember;
+import org.openl.types.impl.AMethod;
 
 /**
  * The class is responsible for creating test method tables in excel sheets.
@@ -47,6 +51,7 @@ public class TestTableBuilder extends TableBuilder {
      * @param node Decision table node
      * @return Decision table
      */
+    @Deprecated
     private static DecisionTable getDecisionTable(TableSyntaxNode node) {
         if (node == null) {
             throw new IllegalArgumentException("syntax node is null");
@@ -60,24 +65,46 @@ public class TestTableBuilder extends TableBuilder {
         }
         return null;
     }
+    
+    /**
+     * Returns executable method from node.
+     *
+     * @param executableTsn Executable node
+     * @return executable method from node
+     */
+    private static AMethod getExecutableMethod(TableSyntaxNode executableTsn) {
+        if (executableTsn == null) {
+            throw new IllegalArgumentException("Syntax node is null");
+        }
+        
+        if (!executableTsn.isExecutableNode()) {
+            throw new IllegalArgumentException("Syntax node is not executable node");
+        }
+        IOpenMember member = executableTsn.getMember();
+        if (member != null) {            
+            // as node is executable it will be instance of AMethod
+            return (AMethod) member;                        
+        }
+        return null;
+    }
 
     /**
      * Returns table header. 
      *
-     * @param decisionTableNode Decision table node
+     * @param executableNode Executable node
      * @param technicalName Technical name of the table. If <code>null</code> or empty
      * we get default technical name. It is building with table name and postfix 'Test'. 
      * @return table header
      */
-    public static String getHeader(TableSyntaxNode decisionTableNode, String technicalName) {
+    public static String getHeader(TableSyntaxNode executableNode, String technicalName) {
         String result = null;
-        DecisionTable decisionTable = getDecisionTable(decisionTableNode);
-        if (decisionTable != null) {
-            String tableName = decisionTable.getName();
+        AMethod executableMethod = getExecutableMethod(executableNode);
+        if (executableMethod != null) {
+            String tableName = executableMethod.getName();
             if (technicalName != null && !StringUtils.EMPTY.equals(technicalName)) {
                 result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + technicalName;
             } else {
-                result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + getDefaultTechnicalName(decisionTable);
+                result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + getDefaultTechnicalName(executableMethod);
             }
             
         }
@@ -90,25 +117,38 @@ public class TestTableBuilder extends TableBuilder {
      * @return Default technical name for new test table. It is build 
      * from <code>DecisionTable</code> name and postfix 'Test'.
      */
+    @Deprecated
     private static String getDefaultTechnicalName(DecisionTable decisionTable) {
         String tableName = decisionTable.getName();
         return tableName + TESTMETHOD_NAME_POSTFIX;
     }
+    
+    /**
+     * 
+     * @param executableMethod
+     * @return Default technical name for new test table. It is build 
+     * from <code>AMethod</code> name and postfix 'Test'.
+     */    
+    private static String getDefaultTechnicalName(AMethod executableMethod) {
+        String tableName = executableMethod.getName();
+        return tableName + TESTMETHOD_NAME_POSTFIX;
+    }
+    
     /**
      * Gets the default technical name for new test table.
-     * At first we get the decision table from <code>TableSyntaxNode</code> and if it is not <code>null</code>
-     * calls {@link #getDefaultTechnicalName(DecisionTable)}.
+     * At first we get the executable method from <code>TableSyntaxNode</code> and if it is not <code>null</code>
+     * calls {@link #getDefaultTechnicalName(AMethod)}.
      * 
-     * @param decisionTableNode <code>TableSyntaxNode</code> from which we 
-     * tries to get the <code>DecisionTable</code>.
+     * @param executableNode <code>TableSyntaxNode</code> that is executable (see {@link Executable})from which we 
+     * tries to get the <code>AMethod</code>.
      * @return Default technical name for new test table. It is build 
      * from table name and postfix 'Test'.
      */
-    public static String getDefaultTechnicalName(TableSyntaxNode decisionTableNode) {
+    public static String getDefaultTechnicalName(TableSyntaxNode executableNode) {
         String result = null;
-        DecisionTable decisionTable = getDecisionTable(decisionTableNode);
-        if (decisionTable != null) {
-            result = getDefaultTechnicalName(decisionTable);
+        AMethod executableMethod = getExecutableMethod(executableNode);
+        if (executableMethod != null) {
+            result = getDefaultTechnicalName(executableMethod);
         }
         return result;
     }
@@ -116,14 +156,14 @@ public class TestTableBuilder extends TableBuilder {
     /**
      * Returns table parameters.
      *
-     * @param decisionTableNode Decision table node
+     * @param executableNode Executable node
      * @return table parameters
      */
-    public static Map<String, String> getParams(TableSyntaxNode decisionTableNode) {
-        DecisionTable decisionTable = getDecisionTable(decisionTableNode);
-        if (decisionTable != null) {
+    public static Map<String, String> getParams(TableSyntaxNode executableNode) {
+        AMethod executableMethod = getExecutableMethod(executableNode);
+        if (executableMethod != null) {
             Map<String, String> params = new LinkedHashMap<String, String>();
-            IMethodSignature tableHeaderSignature = decisionTable.getHeader().getSignature();
+            IMethodSignature tableHeaderSignature = executableMethod.getHeader().getSignature();
             for (int i = 0; i < tableHeaderSignature.getNumberOfParameters(); i++) {
                 String paramName = tableHeaderSignature.getParameterName(i);
                 params.put(paramName, id2title(paramName));

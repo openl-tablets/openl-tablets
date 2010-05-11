@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.SpreadsheetResult;
@@ -15,6 +16,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
 
+@Executable
 public class Spreadsheet extends AMethod implements IMemberMetaInfo {
 
     private SpreadsheetBoundNode node;

@@ -9,7 +9,7 @@ package org.openl.rules.table;
  * @author PUdalau
  */
 public interface CoordinatesTransformer {
-    public static class Point {
+    class Point {
         private int column;
         private int row;
 
