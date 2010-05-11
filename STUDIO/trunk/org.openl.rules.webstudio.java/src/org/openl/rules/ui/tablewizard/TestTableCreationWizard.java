@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import javax.faces.model.SelectItem;
 
-import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
@@ -59,7 +57,7 @@ public class TestTableCreationWizard extends WizardBase {
      * 
      * @return see {@link TestTableBuilder#getDefaultTechnicalName(TableSyntaxNode)} 
      */
-    private String getDefaultTechnicalName() {
+    protected String getDefaultTechnicalName() {
         TableSyntaxNode node = getSelectedNode();
         String defaultName = TestTableBuilder.getDefaultTechnicalName(node);
         return defaultName;
@@ -70,13 +68,12 @@ public class TestTableCreationWizard extends WizardBase {
      * @return <code>TableSyntaxNode</code> from model, by the 
      * technical name of the table we have selected. 
      */
-    private TableSyntaxNode getSelectedNode() {        
+    protected TableSyntaxNode getSelectedNode() {   
         TableSyntaxNode[] nodes = getSyntaxNodes();
         if (selectedTableNameIndex < 0 || selectedTableNameIndex >= nodes.length) {
             throw new IllegalStateException("not table is selected");
         }
-
-       return nodes[selectedTableNameIndex];        
+        return nodes[selectedTableNameIndex];          
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -153,7 +150,7 @@ public class TestTableCreationWizard extends WizardBase {
 
     @Override
     protected void onStart() {
-        selectedTableNameIndex = 0;        
+        selectedTableNameIndex = 0;
 
         TableSyntaxNode[] syntaxNodes = getSyntaxNodes();
         List<SelectItem> result = new ArrayList<SelectItem>();
@@ -171,7 +168,7 @@ public class TestTableCreationWizard extends WizardBase {
                 return (o1.getValue().toString()).compareTo(o2.getValue().toString());
             }
         });
-    }      
+    }   
 
     @Override
     protected void onStepFirstVisit(int step) {
