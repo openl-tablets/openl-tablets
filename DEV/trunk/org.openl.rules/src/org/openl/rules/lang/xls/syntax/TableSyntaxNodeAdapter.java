@@ -54,20 +54,27 @@ public class TableSyntaxNodeAdapter implements ITable {
         IOpenMember member = tsn.getMember();
         if (member != null) {
             return member.getName();
-        } else {
-            return StringUtils.EMPTY;
         }
+        return StringUtils.EMPTY;
     }
 
     public String getName() {
-        if (getProperties() != null) {
-            return getProperties().getName();
-        } else {
-            return getNameFromHeader();
+        ITableProperties properties = getProperties();
+        if (properties != null) {
+            String name = properties.getName();
+            if (StringUtils.isNotBlank(name)) {
+                return name;
+            }
         }
+        return getNameFromHeader();
     }
-    
+
     public boolean isExecutable() {
         return tsn.isExecutableNode();
     }
+
+    public String getUri() {
+        return tsn.getUri();
+    }
+
 }
