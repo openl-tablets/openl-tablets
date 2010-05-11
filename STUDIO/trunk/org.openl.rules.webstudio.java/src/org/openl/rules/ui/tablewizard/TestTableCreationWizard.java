@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import javax.faces.model.SelectItem;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
@@ -25,18 +26,39 @@ import org.openl.rules.webstudio.properties.SystemValuesManager;
  * @author Aliaksandr Antonik.
  */
 public class TestTableCreationWizard extends WizardBase {
+    
     private SelectItem[] tableItems;
-    private int selectedTable;    
+    
+    /**
+     * index of the selected item, when selecting table name to test.
+     */
+    private int selectedTableNameIndex;
+    
+    /**
+     * Technical name of newly created test table.
+     */
     private String technicalName;
-
+    
+    /**
+     * 
+     * @return Technical name of newly created test table.
+     */
     public String getTechnicalName() {
         return technicalName;
     }
-
+    
+    /**
+     * 
+     * @param technicalName Technical name of newly created test table.
+     */
     public void setTechnicalName(String technicalName) {
         this.technicalName = technicalName;
     }
     
+    /**
+     * 
+     * @return see {@link TestTableBuilder#getDefaultTechnicalName(TableSyntaxNode)} 
+     */
     private String getDefaultTechnicalName() {
         TableSyntaxNode node = getSelectedNode();
         String defaultName = TestTableBuilder.getDefaultTechnicalName(node);
@@ -48,14 +70,13 @@ public class TestTableCreationWizard extends WizardBase {
      * @return <code>TableSyntaxNode</code> from model, by the 
      * technical name of the table we have selected. 
      */
-    private TableSyntaxNode getSelectedNode() {
+    private TableSyntaxNode getSelectedNode() {        
         TableSyntaxNode[] nodes = getSyntaxNodes();
-        if (selectedTable < 0 || selectedTable >= nodes.length) {
+        if (selectedTableNameIndex < 0 || selectedTableNameIndex >= nodes.length) {
             throw new IllegalStateException("not table is selected");
         }
 
-        TableSyntaxNode node = nodes[selectedTable];
-        return node;
+       return nodes[selectedTableNameIndex];        
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -117,7 +138,7 @@ public class TestTableCreationWizard extends WizardBase {
     }
 
     public int getSelectedTable() {
-        return selectedTable;
+        return selectedTableNameIndex;
     }
 
     private TableSyntaxNode[] getSyntaxNodes() {
@@ -132,14 +153,14 @@ public class TestTableCreationWizard extends WizardBase {
 
     @Override
     protected void onStart() {
-        selectedTable = 0;
+        selectedTableNameIndex = 0;        
 
         TableSyntaxNode[] syntaxNodes = getSyntaxNodes();
         List<SelectItem> result = new ArrayList<SelectItem>();
 
         for (int i = 0; i < syntaxNodes.length; i++) {
             TableSyntaxNode node = syntaxNodes[i];
-            if (ITableNodeTypes.XLS_DT.equals(node.getType())) {
+            if (node.isExecutableNode()) {
                 result.add(new SelectItem(i, node.getMember().getName()));
             }
         }
@@ -150,7 +171,7 @@ public class TestTableCreationWizard extends WizardBase {
                 return (o1.getValue().toString()).compareTo(o2.getValue().toString());
             }
         });
-    }
+    }      
 
     @Override
     protected void onStepFirstVisit(int step) {
@@ -168,8 +189,8 @@ public class TestTableCreationWizard extends WizardBase {
         super.onFinish();
     }
 
-    public void setSelectedTable(int selectedTable) {
-        this.selectedTable = selectedTable;
+    public void setSelectedTable(int selectedTableNameIndex) {
+        this.selectedTableNameIndex = selectedTableNameIndex;
         this.technicalName = getDefaultTechnicalName();
     }
 }
