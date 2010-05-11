@@ -238,13 +238,12 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
     </dependency>
-    
-    <dependency>
-	  <groupId>asm</groupId>
-	  <artifactId>asm</artifactId>
-          <version>1.5.3</version><!-- Hibernate dependency-->
-	</dependency>
 
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    
   </dependencies>
   
 
