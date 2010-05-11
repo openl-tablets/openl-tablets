@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.table.properties.ITableProperties;
 /**
@@ -18,6 +17,8 @@ public class Table implements ITable {
     private String type;
     private List<OpenLMessage> messages;
     private boolean isExecutable;
+    private String uri;
+    private String name;
 
     public IGridTable getGridTable() {
         return gridTable;
@@ -55,23 +56,28 @@ public class Table implements ITable {
         this.messages = messages;
     }
 
-    public String getNameFromHeader() {
-        return StringUtils.EMPTY;
+    public String getName() {
+        return name;
     }
 
-    public String getName() {
-        if (properties != null) {
-            return properties.getName();
-        } else {
-            return getNameFromHeader();
-        }
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setExecutable(boolean isExecutable) {
         this.isExecutable = isExecutable;
     }
-    
+
     public boolean isExecutable() {        
         return isExecutable;
     }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
 }

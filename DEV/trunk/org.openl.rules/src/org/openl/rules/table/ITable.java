@@ -16,11 +16,6 @@ public interface ITable {
     String getType();
 
     List<OpenLMessage> getMessages();
-    
-    /**
-     * @return Table name form header string.
-     */
-    String getNameFromHeader();
 
     /**
      * @return Table name for user. (Firstly will be searched in table
@@ -29,5 +24,7 @@ public interface ITable {
     String getName();
     
     boolean isExecutable();
+
+    String getUri();
 
 }
