@@ -19,7 +19,7 @@
     	    <br />  
             <hr/>
 
-     	    <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />
+     	    <h:commandButton value="Prev" rendered="#{tableWizard.step > 1}" action="#{tableCreatorWizardManager.prev}" />
   	        <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" />
   	        <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" />
         </h:form>
