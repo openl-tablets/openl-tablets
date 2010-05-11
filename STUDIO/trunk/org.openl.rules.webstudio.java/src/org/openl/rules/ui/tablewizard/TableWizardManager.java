@@ -8,6 +8,7 @@ public class TableWizardManager extends TableWizard{
         UNKNOWN,
         DECISION,
         TEST,
+        TEST_DIRECT,
         PROPERTY
     }
 
@@ -20,8 +21,6 @@ public class TableWizardManager extends TableWizard{
         }
         return "newTableCancel";
     }
-
-
     
     public String getTableType() {
         return tableType.name();
@@ -43,6 +42,7 @@ public class TableWizardManager extends TableWizard{
     
     @Override
     public String startWizard() {
+        reload();
         switch (tableType) {
             case DECISION:
                 wizard = new DecisionTableCreationWizard();
@@ -51,6 +51,10 @@ public class TableWizardManager extends TableWizard{
             case TEST:
                 wizard = new TestTableCreationWizard();
                 wizard.setStepsCount(3);
+                break;
+            case TEST_DIRECT:
+                wizard = new TestTableCreationWizardDirect(getElementUri());
+                wizard.setStepsCount(2);
                 break;
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
