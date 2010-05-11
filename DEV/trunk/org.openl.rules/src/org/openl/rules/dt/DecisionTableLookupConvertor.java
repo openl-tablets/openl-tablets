@@ -24,7 +24,7 @@ import org.openl.rules.table.TransformedGridTable;
  * called "horizontal".
  * 
  * 
- * The table should have at least one vertical condition column, it can not have
+ * The table should have at least one vertical condition column, it can have
  * the Rule column, it (in theory) might have vertical Actions which will be
  * processed the same way as vertical conditions, it must have one or more
  * Horizontal Conditions, and exactly one (optional in the future release) RET
@@ -62,6 +62,7 @@ public class DecisionTableLookupConvertor {
 
         ILogicalTable displayRow = tableWithDisplay.getLogicalRow(0);
         IGridRegion displayRowRegion = displayRow.getGridTable().getRegion();
+        
         IGridRegion hcHeadersRegion = new GridRegion(displayRowRegion, IGridRegion.LEFT, firstLookupGridColumn);
         ILogicalTable hcHeaderTable = new GridTable(hcHeadersRegion, grid);
 
