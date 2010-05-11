@@ -17,6 +17,7 @@ public class Table implements ITable {
     private ITableProperties properties;
     private String type;
     private List<OpenLMessage> messages;
+    private boolean isExecutable;
 
     public IGridTable getGridTable() {
         return gridTable;
@@ -64,5 +65,13 @@ public class Table implements ITable {
         } else {
             return getNameFromHeader();
         }
+    }
+
+    public void setExecutable(boolean isExecutable) {
+        this.isExecutable = isExecutable;
+    }
+    
+    public boolean isExecutable() {        
+        return isExecutable;
     }
 }

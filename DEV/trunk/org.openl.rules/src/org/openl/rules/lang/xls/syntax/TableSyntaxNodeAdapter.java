@@ -66,4 +66,8 @@ public class TableSyntaxNodeAdapter implements ITable {
             return getNameFromHeader();
         }
     }
+    
+    public boolean isExecutable() {
+        return tsn.isExecutableNode();
+    }
 }
