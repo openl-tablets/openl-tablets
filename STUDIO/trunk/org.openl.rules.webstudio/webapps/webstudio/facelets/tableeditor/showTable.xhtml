@@ -4,6 +4,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
@@ -30,8 +31,31 @@
     </ui:define>
 
     <ui:define name="page">
-        <br/>
-        
+        <br />
+
+        <h:panelGroup rendered="#{showTableBean.runnable and not empty showTableBean.targetTables}" layout="block"
+            style="margin-bottom: 15px;">
+            <h:panelGroup style="font-weight: bold;">
+                <h:outputText value="Target Table" />
+                <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
+                <h:outputText value=": " />
+            </h:panelGroup>
+
+            <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
+                rendered="#{fn:length(showTableBean.targetTables) == 1}">
+                <f:param name="uri" value="#{showTableBean.targetTables[0].uri}" />
+                <h:outputText value="#{showTableBean.targetTables[0].name}" />
+            </h:outputLink>
+
+            <rich:dataList value="#{showTableBean.targetTables}" var="targetTable"
+                rendered="#{fn:length(showTableBean.targetTables) > 1}" style="margin: 3px 0px 0px;">
+                <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <f:param name="uri" value="#{targetTable.uri}" />
+                    <h:outputText value="#{targetTable.name}" />
+                </h:outputLink>
+            </rich:dataList>
+        </h:panelGroup>
+
         <table class="editToolbar"><tr><td>
             <h:form>
                 <h:outputLink rendered="#{showTableBean.editable}"
@@ -215,7 +239,7 @@
         </rules:tableEditor>
 
         <h:panelGroup rendered="#{showTableBean.testable}">
-            <h3>Available Tests</h3>
+            <h3>Available Tests:</h3>
             <rich:dataList value="#{showTableBean.tests}" var="test">
                 <h:outputLink rendered="#{showTableBean.editable}"
                     value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
@@ -227,9 +251,7 @@
 
         <c:set value="#{showTableBean.testRunResults}" var="testResult" />
         <c:if test="#{testResult.notEmpty}">
-            <h1>
-                Select one of the available runs by clicking on it:
-            </h1>
+            <h3>Available Runs:</h3>
             <c:forEach var="test" items="#{testResult.tests}">
                 <c:forEach var="description"
                     items="#{test.descriptions}" varStatus="status">
