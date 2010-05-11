@@ -57,7 +57,7 @@ public class OpenLExceptionUtils {
         }
 
         int pstart = 0;
-        int pend = code.length();
+        int pend = 0;
 
         if (StringUtils.isNotBlank(code)
                 && location != null && location.isTextLocation()) {

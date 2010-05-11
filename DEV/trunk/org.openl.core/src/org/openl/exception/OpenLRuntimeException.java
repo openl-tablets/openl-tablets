@@ -121,6 +121,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         }
 
         stream.println(rootCause.getClass().getName() + ": " + rootCause.getMessage());
+        
         if (getNode() != null) {
             ISyntaxNode syntaxNode = getNode().getSyntaxNode();
             SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), stream);
@@ -137,7 +138,9 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
         }
 
-        rootCause.printStackTrace(stream);
+        if (rootCause != this) {
+            rootCause.printStackTrace(stream);
+        }
     }
 
     public void pushMethodNode(IBoundNode node) {
