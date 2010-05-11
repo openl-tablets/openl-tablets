@@ -27,6 +27,16 @@
             .editToolbar a {
                 margin-left: 5px;
             }
+            .editToolbar .toolbarDelimeter {
+                border-right: 1px solid rgb(150,150,150);
+                padding-left: 5px;
+            }
+            .editToolbar .newTestLink {
+                background: url(#{contextPath}/webresource/images/test_new.gif) no-repeat left;
+                padding-left: 19px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
         </style>
     </ui:define>
 
@@ -56,8 +66,8 @@
             </rich:dataList>
         </h:panelGroup>
 
-        <table class="editToolbar"><tr><td>
-            <h:form>
+        <h:form>
+            <table class="editToolbar"><tr><td>
                 <h:outputLink rendered="#{showTableBean.editable}"
                     value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
                     <f:param name="uri" value="#{showTableBean.uri}" />
@@ -120,7 +130,8 @@
                     <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
                         value="#{contextPath}/faces/facelets/test/runAllTests.xhtml">
                         <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/test_ok.gif" title="Test" alt="Test" />
+                        <h:graphicImage url="/webresource/images/test_ok.gif"
+                            title="Run All Tests" alt="Run All Tests" />
                     </h:outputLink>
     
                     <h:outputLink value="?#{showTableBean.notViewParams}">
@@ -155,18 +166,22 @@
                             title="Show Formulas"
                             alt="Show Formulas" />
                     </h:outputLink>
-                    
-                    <h:commandLink rendered="#{showTableBean.canCreateTest}"
-                    action="#{tableCreatorWizardManager.startWizard}">
+                </c:if>
+            </td>
+            <h:panelGroup rendered="#{showTableBean.canCreateTest}">
+            <td class="toolbarDelimeter"></td>
+            <td>
+                <h:commandLink action="#{tableCreatorWizardManager.startWizard}"
+                    styleClass="newTestLink">
                     <a4j:actionparam assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
                     <f:param name="uri" value="#{showTableBean.uri}" />
-                    <h:graphicImage url="/webresource/images/testDirect1.gif"
-                        alt="Create Test Table" title="Create Test Table" />
+                    <h:outputText value="Create Test" />
                 </h:commandLink>
-                </c:if>
-
-            </h:form>
-        </td></tr></table>
+            </td>
+            </h:panelGroup>
+            </tr>
+            </table>
+        </h:form>
 
         <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
             <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">

@@ -235,9 +235,9 @@ public class ShowTableBean {
         }
         return false;
     }
-    
+
     public boolean isCanCreateTest() {
-        return table.isExecutable();
+        return table.isExecutable() && !isDispatcherValidationNode();
     }
 
     private boolean isDispatcherValidationNode() {
