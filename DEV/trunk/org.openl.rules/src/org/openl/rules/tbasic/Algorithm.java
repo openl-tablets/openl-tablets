@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
@@ -25,6 +26,7 @@ import org.openl.vm.Tracer;
  * Allows users to represent any algorithm in tables using simple TBasic syntax.
  *
  */
+@Executable
 public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     private final AlgorithmBoundNode node;
 

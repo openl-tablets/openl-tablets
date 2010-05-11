@@ -12,6 +12,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
+import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -38,6 +39,7 @@ import org.openl.vm.Tracer;
  * @author snshor
  * 
  */
+@Executable
 public class DecisionTable extends AMethod implements IMemberMetaInfo {    
     private ICondition[] conditionRows;
     private IAction[] actionRows;

@@ -6,12 +6,14 @@
 
 package org.openl.rules.lang.xls.syntax;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openl.meta.StringValue;
+import org.openl.rules.annotations.Executable;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -170,6 +172,20 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
             result = true;
         }
         return result;
+    }
+    
+    public boolean isExecutableNode() {
+        if (getMember() != null) {
+            Class<?> memberClass = getMember().getClass();
+            Annotation[] annotations = memberClass.getAnnotations();
+            
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof Executable) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
