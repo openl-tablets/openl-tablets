@@ -17,6 +17,7 @@ import org.openl.message.Severity;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -51,6 +52,8 @@ public class ShowTableBean {
     private Test[] tests = {};
     private boolean runnable;
     private boolean testable;
+    private List<ITable> targetTables;
+
     private String uri;
     private ITable table;
 
@@ -90,6 +93,9 @@ public class ShowTableBean {
 
         runnable = model.isRunnable(uri);
         testable = tests.length > 0;
+        if (runnable) {
+            targetTables = model.getTargetTables(uri);
+        }
 
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
@@ -186,7 +192,7 @@ public class ShowTableBean {
     }
 
     public TestRunsResultBean getTestRunResults() {
-        AllTestsRunResult atr = WebStudioUtils.getWebStudio().getModel().getRunMethods(uri);
+        AllTestsRunResult atr = WebStudioUtils.getProjectModel().getRunMethods(uri);
         Test[] tests = null;
         if (atr != null) {
             tests = atr.getTests();
@@ -200,6 +206,10 @@ public class ShowTableBean {
 
     public String getUri() {
         return uri;
+    }
+
+    public List<ITable> getTargetTables() {
+        return targetTables;
     }
 
     public String getUrl() {
@@ -231,7 +241,8 @@ public class ShowTableBean {
     }
 
     private boolean isDispatcherValidationNode() {
-        return table.getNameFromHeader().startsWith(DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+        return ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
+                DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
     public boolean isEditable() {

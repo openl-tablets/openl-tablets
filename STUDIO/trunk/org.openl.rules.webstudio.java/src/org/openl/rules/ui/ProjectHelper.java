@@ -70,11 +70,7 @@ public class ProjectHelper {
         return testers(m).length > 0;
     }
 
-    /**
-     * @param tester
-     * @return
-     */
-    private static boolean isTester(IOpenMethod tester) {
+    public static boolean isTester(IOpenMethod tester) {
         return (tester instanceof TestSuiteMethod) && ((TestSuiteMethod) tester).isRunmethodTestable();
     }
 

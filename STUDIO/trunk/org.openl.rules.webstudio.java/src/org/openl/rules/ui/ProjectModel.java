@@ -51,6 +51,7 @@ import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
@@ -455,6 +456,40 @@ public class ProjectModel {
         }
 
         return getMethod(tsn);
+    }
+
+    public List<IOpenMethod> getTargetMethods(String testOrRunUri) {
+        List<IOpenMethod> targetMethods = new ArrayList<IOpenMethod>();
+        IOpenMethod testMethod = getMethod(testOrRunUri);
+
+        if (testMethod instanceof TestSuiteMethod) {
+            IOpenMethod targetMethod = ((TestSuiteMethod) testMethod).getTestedMethod();
+
+            // Overloaded methods
+            if (targetMethod instanceof OpenMethodDispatcher) {
+                List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) targetMethod).getCandidates();
+                targetMethods.addAll(overloadedMethods);
+            } else {
+                targetMethods.add(targetMethod);
+            }
+        }
+
+        return targetMethods;
+    }
+
+    public List<ITable> getTargetTables(String testOrRunUri) {
+        List<ITable> targetTables = new ArrayList<ITable>();
+        List<IOpenMethod> targetMethods = getTargetMethods(testOrRunUri);
+
+        for (IOpenMethod targetMethod : targetMethods) {
+            if (targetMethod != null) {
+                TableSyntaxNode tsn = (TableSyntaxNode) targetMethod.getInfo().getSyntaxNode();
+                ITable targetTable = new TableSyntaxNodeAdapter(tsn);
+                targetTables.add(targetTable);
+            }
+        }
+
+        return targetTables;
     }
 
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
