@@ -96,9 +96,7 @@
         </h:panelGroup>
         <br /><br />
         <rules:tableEditor table="#{tableSearch.table}" editable="false" rendered="#{tableSearch.table != null}"
-            collapseProps="true">
-            <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
-        </rules:tableEditor>
+            collapseProps="true" />
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{tableSearch.table == null}" escape="false" />
      </c:forEach>
 
