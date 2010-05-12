@@ -1,8 +1,5 @@
 package org.openl.rules.java;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;
