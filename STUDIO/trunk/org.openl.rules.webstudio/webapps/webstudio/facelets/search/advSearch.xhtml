@@ -225,11 +225,12 @@
                 <h:outputText value="View Table" />
             </h:outputLink>
         </h:panelGroup>
+
         <br /><br />
+
         <rules:tableEditor table="#{tableSearch.table}" editable="false" rendered="#{tableSearch.table != null}"
-            collapseProps="true">
-            <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
-        </rules:tableEditor>
+            collapseProps="true" />
+
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{tableSearch.table == null}" escape="false" />
      </c:forEach>
 </c:if>
@@ -244,24 +245,6 @@
 
   fixValue1Enabled();
 </script>
-
-<f:verbatim>
-    <script type="text/javascript">
-        function triggerSearch(f) {
-            f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {
-                return s.nodeName == "#text"
-            }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
-                .reject(function(s) {
-                    return !s
-                }).join(" ");
-            f.submit();
-        }
-    </script>
-
-    <form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
-        <input type="hidden" name="searchQuery" value="" />
-    </form>
-</f:verbatim>
 
   </ui:define>
 </ui:composition>
