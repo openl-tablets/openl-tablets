@@ -16,13 +16,6 @@
     //height: expression(this.scrollHeight > 300 ? '300px' : 'auto'); /* IE */
 }
 
-.multiselect_container ul {
-    list-style-type: none;
-    position: relative;
-    margin: 0px;
-    padding: 0px;
-}
-
 /* The iframe hack to cover selectlists in Internet Explorer 6 */
 iframe.ms_ie6Popup {
     position: absolute;
