@@ -40,7 +40,12 @@ public class SimpleSearchBean {
 
     private void initSearchQuery() {
         String searchQuery = FacesUtils.getRequestParameter("searchQuery");
+
         if (StringUtils.isNotBlank(searchQuery)) {
+            // Replace all non-breaking spaces by breaking spaces 
+            String spaceToRemove = Character.toString((char) 160);
+            searchQuery = searchQuery.replaceAll(spaceToRemove, " ");
+
             setSearchQuery(searchQuery);
         }
     }
