@@ -135,7 +135,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             } else if (region != null) { // if cell belongs to some merged region, we try to get merged value from it.                
                 return extractValueFromRegion();
             } else {
-                return extractCellValue(false);
+                return extractCellValue(true);
             }
         }
         
@@ -158,15 +158,18 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             // if the top left cell is the current cell instance, we just extract it`s value.
             // in other case get string value of top left cell of the region.
             if (isCurrentCellATopLeftCellInRegion()) {
-                return extractCellValue(false);
+                return extractCellValue(true);
             } else {
                 ICell topLeftCell = getTopLeftCellFromRegion();
-                return topLeftCell.getStringValue();
+                return topLeftCell.getObjectValue();
             }            
         }
 
         private Object extractCellValue(boolean useCachedValue){
-            switch (useCachedValue ? cell.getCachedFormulaResultType() : cell.getCellType()) {
+            int type = cell.getCellType();
+            if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
+                type = cell.getCachedFormulaResultType();
+            switch (type) {
                 case Cell.CELL_TYPE_BLANK:
                     return null;
                 case Cell.CELL_TYPE_BOOLEAN:
