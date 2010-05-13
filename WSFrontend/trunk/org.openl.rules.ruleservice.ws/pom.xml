@@ -11,11 +11,16 @@
 
   <artifactId>org.openl.rules.ruleservice.ws</artifactId>
   <name>OpenL - RuleService - RuleService - Web Services</name>
+  <packaging>war</packaging>
   <description />
+
+  <properties>
+    <war.name>ws</war.name>
+  </properties>
 
   <build>
     <plugins>
-      <plugin>
+      <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
@@ -23,18 +28,45 @@
             <manifestFile>META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
-      </plugin>
-    </plugins>
+      </plugin-->
 
-    <resources>
-      <resource>
-        <directory>src</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>webapps/ws</warSourceDirectory>
+          <warName>${war.name}</warName>
+          <packagingExcludes>
+            WEB-INF/lib/poi-2.5.1-*.jar,
+            WEB-INF/lib/org.openl.lib-*.jar,
+            WEB-INF/lib/org.openl.poi.lib-*.jar,
+            WEB-INF/lib/org.openl.rules.webstudio.lib-*.jar,
+            WEB-INF/lib/org.openl.rules.ruleservice.ws.lib-*.jar
+          </packagingExcludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>assembly-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-jar.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
   </build>
 
   <dependencies>
@@ -54,6 +86,11 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
     </dependency>
 
     <!-- Other-->

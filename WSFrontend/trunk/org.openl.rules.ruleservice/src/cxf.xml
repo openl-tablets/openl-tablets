@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:simple="http://cxf.apache.org/simple"
+      xmlns:soap="http://cxf.apache.org/bindings/soap"
+      xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd
+http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
+
+  <bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding">
+  </bean>
+  <bean id="deploymentAdmin" class="org.openl.rules.ruleservice.publish.WebServicesDeployAdmin">
+    <property name="address" value="http://localhost:9000/" />
+    <property name="dataBinding" ref="binding" />
+  </bean>
+</beans>
