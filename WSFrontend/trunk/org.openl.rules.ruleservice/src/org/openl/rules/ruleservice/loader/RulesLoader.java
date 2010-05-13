@@ -101,7 +101,7 @@ public class RulesLoader implements Runnable {
     }
 
     public synchronized void load(DeploymentInfo di) throws Exception {
-        log.debug(String.format("Start loading deployment \"{1}\"", di.getName()));
+        log.debug(String.format("Start loading deployment \"{%s}\"", di.getName()));
         onBeforeLoading(di);
 
         try {
@@ -109,7 +109,7 @@ public class RulesLoader implements Runnable {
 
             deployment2Version.put(di.getName(), di.getVersion().getVersionName());
 
-            log.info(String.format("Loaded deployment \"{1}\" at {2}", di.getName(), deploymentLocalFolder
+            log.info(String.format("Loaded deployment \"{%s}\" at {%s}", di.getName(), deploymentLocalFolder
                     .getAbsolutePath()));
 
             onAfterLoading(di, deploymentLocalFolder);

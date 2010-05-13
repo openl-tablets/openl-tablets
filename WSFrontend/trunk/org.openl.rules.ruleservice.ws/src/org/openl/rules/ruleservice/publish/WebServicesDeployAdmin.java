@@ -3,8 +3,10 @@ package org.openl.rules.ruleservice.publish;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.transport.DestinationFactory;
 import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.InstantiationStrategy;
@@ -21,11 +23,39 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
 
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
+    
+    private String address = "http://localhost:9000/";
+    private DataBinding dataBinding = new AegisDatabinding();
+    private DestinationFactory destinationFactory = null;
+    
+    public DestinationFactory getDestinationFactory() {
+        return destinationFactory;
+    }
+
+    public void setDestinationFactory(DestinationFactory destinationFactory) {
+        this.destinationFactory = destinationFactory;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public DataBinding getDataBinding() {
+        return dataBinding;
+    }
+
+    public void setDataBinding(DataBinding dataBinding) {
+        this.dataBinding = dataBinding;
+    }
 
     public synchronized void deploy(String serviceName, ClassLoader loader, List<RuleServiceInfo> infoList) {
         undeploy(serviceName);
 
-        String address = "http://localhost:9000/" + serviceName + "/";
+        String address = getAddress() + serviceName + "/";
 
         Collection<Server> servers = new ArrayList<Server>();
         for (RuleServiceInfo wsInfo : infoList) {
@@ -45,10 +75,13 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
 
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setServiceClass(aClass);
-        svrFactory.setAddress(baseAddress + wsInfo.getName());
-        svrFactory.getServiceFactory().setDataBinding(new AegisDatabinding());
-
+        svrFactory.setDestinationFactory(destinationFactory);
         svrFactory.setServiceBean(getStrategy(wsInfo).instantiate(aClass));
+        
+        svrFactory.setAddress(baseAddress + wsInfo.getName());
+        svrFactory.getServiceFactory().setDataBinding(dataBinding);
+
+
 
         return svrFactory.create();
     }

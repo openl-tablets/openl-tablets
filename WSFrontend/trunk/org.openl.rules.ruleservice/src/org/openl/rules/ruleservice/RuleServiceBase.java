@@ -14,11 +14,11 @@ import org.openl.rules.ruleservice.resolver.RulesProjectResolver;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
 
 public class RuleServiceBase {
-    protected static RulesLoader loader;
+    protected  RulesLoader loader;
 
-    protected static DeploymentAdmin deployAdmin;
-    protected static RulesProjectResolver resolver;
-    protected static RulesPublisher publisher;
+    protected  DeploymentAdmin deployAdmin;
+    protected  RulesProjectResolver resolver;
+    protected  RulesPublisher publisher;
     /**
      * Gets path to temporary directory. Extract the value with key
      * <i>ruleservice.tmp.dir</i> from configuration file. If such a key is
@@ -26,7 +26,7 @@ public class RuleServiceBase {
      *
      * @return path to temporary directory
      */
-    protected static String getTempDirectory() {
+    protected  String getTempDirectory() {
         SmartProps props = new SmartProps("rules-production.properties");
         String value = props.getStr("ruleservice.tmp.dir");
         if (value == null || value.trim().length() == 0) {
@@ -43,7 +43,7 @@ public class RuleServiceBase {
      * @throws RRepositoryException
      * @throws InterruptedException
      */
-    public static void runFrontend() throws RRepositoryException, InterruptedException {
+    public  void runFrontend() throws RRepositoryException {
         final JcrRulesClient rulesClient = new JcrRulesClient();
 
         loader.setRulesClient(rulesClient);
@@ -90,5 +90,13 @@ public class RuleServiceBase {
         }));
 
         executor.execute();
+    }
+
+    public DeploymentAdmin getDeployAdmin() {
+        return deployAdmin;
+    }
+
+    public void setDeployAdmin(DeploymentAdmin deployAdmin) {
+        this.deployAdmin = deployAdmin;
     }
 }

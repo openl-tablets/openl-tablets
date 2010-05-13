@@ -121,6 +121,13 @@
         <version>${version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+
       <!-- DEV -->
       <dependency>
         <groupId>org.openl.rules</groupId>

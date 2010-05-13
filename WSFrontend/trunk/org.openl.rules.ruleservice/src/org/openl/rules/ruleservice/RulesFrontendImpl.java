@@ -136,9 +136,6 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
                 } catch (RRepositoryException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
             }
         });
