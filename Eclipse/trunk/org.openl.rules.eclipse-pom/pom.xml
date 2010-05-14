@@ -27,6 +27,12 @@
     <module>../org.openl.eclipse.ui.eclipse.feature</module>
     <module>../org.openl.rules.source.eclipse.feature</module>
     <module>../org.openl.rules.all.eclipse.feature</module>
+	<module>../org.openl.rules.eclipse.feature</module>
+    <module>../org.openl.lib.eclipse.feature</module>    
+    <module>../org.openl.poi.lib.eclipse.feature</module>
+	<module>../org.openl.rules.webstudio.eclipse.feature</module>
+	<module>../org.openl.rules.ruleservice.eclipse.feature</module>
+	<module>../org.openl.rules.ruleservice.lib.eclipse.feature</module>
   </modules>
 
   <scm>
