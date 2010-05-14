@@ -27,10 +27,7 @@
     <module>../com.exigen.rules.constrainer</module>
     <module>../org.openl.conf.ant</module>    
     <module>../org.openl.lib</module>
-    <module>../org.openl.rules.eclipse.feature</module>
-    <module>../org.openl.lib.eclipse.feature</module>
-    <module>../org.openl.poi.lib</module>
-    <module>../org.openl.poi.lib.eclipse.feature</module>
+	<module>../org.openl.poi.lib</module>    
     <module>../org.openl.rules.gen</module>
 	
     <!-- Tests -->
