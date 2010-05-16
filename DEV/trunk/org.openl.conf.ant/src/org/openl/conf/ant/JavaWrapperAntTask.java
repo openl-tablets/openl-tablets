@@ -307,8 +307,8 @@ public class JavaWrapperAntTask extends Task {
 
             IOpenClass param = params[i];
 			if (param instanceof ModuleOpenClass) {
-				initBuf.append("((XlsModuleOpenClass)__class)")
-					   .append(String.format(".findType(ISyntaxConstants.THIS_NAMESPACE, \"%s\")", param.getName()));
+				initBuf.append("((org.openl.rules.lang.xls.binding.XlsModuleOpenClass)__class)")
+					   .append(String.format(".findType(org.openl.syntax.impl.ISyntaxConstants.THIS_NAMESPACE, \"%s\")", param.getName()));
 			} else {
 				// JavaOpenClass.getOpenClass(int.class),
 				initBuf.append("      JavaOpenClass.getOpenClass(")
@@ -439,8 +439,8 @@ public class JavaWrapperAntTask extends Task {
         addImport(buf, "org.openl.conf.UserContext");
 
         addImport(buf, "org.openl.impl.OpenClassJavaWrapper");
-        addImport(buf, "org.openl.rules.lang.xls.binding.XlsModuleOpenClass");
-        addImport(buf, "org.openl.syntax.impl.ISyntaxConstants");
+//        addImport(buf, "org.openl.rules.lang.xls.binding.XlsModuleOpenClass");
+//        addImport(buf, "org.openl.syntax.impl.ISyntaxConstants");
 
         addClassDeclaration(buf);
 
