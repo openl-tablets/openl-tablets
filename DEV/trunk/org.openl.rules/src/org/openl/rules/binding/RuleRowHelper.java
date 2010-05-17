@@ -160,17 +160,17 @@ public class RuleRowHelper {
         }
     }
 
-    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
+    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable table,
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
-        ICell theCell = cell.getGridTable().getCell(0, 0);
+        ICell theCell = table.getGridTable().getCell(0, 0);
 
         // traceCellLoading(paramType.getName(), theCell.getType());
 
         if (theCell.hasNativeType()) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
                 Object res = loadNativeValue(theCell, paramType.getInstanceClass(), openlAdapter.getBindingContext(),
-                        paramName, ruleName);
+                        paramName, ruleName, table);
                 if (res != null)
                     return res;
             }
@@ -181,7 +181,7 @@ public class RuleRowHelper {
         String src = theCell.getStringValue();
         // Object value = cell.getGridTable().getCell(0, 0).getObjectValue();
 
-        return loadSingleParam(paramType, paramName, ruleName, cell, openlAdapter, src, null, false);
+        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
     }
 
     static Map<String, int[]> cellTracemap = new HashMap<String, int[]>();
@@ -204,7 +204,7 @@ public class RuleRowHelper {
     }
 
     private static Object loadNativeValue(ICell cell, Class<?> expectedType, IBindingContext bindingContext,
-            String paramName, String ruleName) {
+            String paramName, String ruleName, ILogicalTable table) {
         double value = cell.getNativeNumber();
         IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
         Object res = null;
@@ -225,7 +225,7 @@ public class RuleRowHelper {
             }
         }
         if (res != null && res instanceof IMetaHolder) {
-            setMetaInfo((IMetaHolder) res, cell.getUri(), paramName, ruleName);
+            setMetaInfo((IMetaHolder) res, table, paramName, ruleName);
         }
 
         return res;
@@ -275,7 +275,7 @@ public class RuleRowHelper {
                 }
 
                 if (result instanceof IMetaHolder) {
-                    setMetaInfo((IMetaHolder) result, cell.getGridTable().getUri(0, 0), paramName, ruleName);
+                    setMetaInfo((IMetaHolder) result, cell, paramName, ruleName);
                 }
 
                 boolean multiValue = false;
@@ -344,16 +344,27 @@ public class RuleRowHelper {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
         IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
     }
-
-    private static void setMetaInfo(IMetaHolder holder, String uri, String paramName, String ruleName) {
+    
+    private static void setMetaInfo(IMetaHolder holder, ILogicalTable cell, String paramName, String ruleName) {
 
         ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
         valueMetaInfo.setShortName(paramName);
         valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
-        valueMetaInfo.setSourceUrl(uri);
+        valueMetaInfo.setSourceUrl(cell.getGridTable().getUri(0,0));
 
         holder.setMetaInfo(valueMetaInfo);
     }
+    
+
+//    private static void setMetaInfo(IMetaHolder holder, String uri, String paramName, String ruleName) {
+//
+//        ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
+//        valueMetaInfo.setShortName(paramName);
+//        valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
+//        valueMetaInfo.setSourceUrl(uri);
+//
+//        holder.setMetaInfo(valueMetaInfo);
+//    }
 
     @SuppressWarnings("unchecked")
     private static void validateValue(Object value, IOpenClass paramType) throws Exception {
