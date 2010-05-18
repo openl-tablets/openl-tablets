@@ -61,11 +61,7 @@ public class Action extends FunctionalRow implements IAction {
             return null;
         }
 
-        if (hasNoParams()) {
-            return getMethod().invoke(target, params, env);
-        } else {
-            return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
-        }
+        return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
     }
 
     public void prepareAction(IOpenClass methodType,

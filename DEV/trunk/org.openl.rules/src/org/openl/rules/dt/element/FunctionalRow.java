@@ -17,6 +17,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.IDecisionTableConstants;
@@ -35,11 +36,11 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
@@ -49,7 +50,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class FunctionalRow implements IDecisionRow {
 
-    private static final String NO_PARAM = "___NO_PARAM___";
+    private static final String NO_PARAM = "P";
 
     private String name;
     private int row;
@@ -58,17 +59,14 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private IParameterDeclaration[] params;
     private Object[][] paramValues;
-    private Boolean hasNoParams = null;
-    
-    
+
     private ILogicalTable decisionTable;
     private ILogicalTable paramsTable;
     private ILogicalTable codeTable;
     private ILogicalTable presentationTable;
 
     private int noParamsIndex = 0;
-    
-    
+
     public FunctionalRow(String name, int row, ILogicalTable decisionTable) {
 
         this.name = name;
@@ -112,12 +110,11 @@ public abstract class FunctionalRow implements IDecisionRow {
     public int numberOfParams() {
         return params.length;
     }
-    
+
     /**
-     * Whole representation of decision table.
-     * Horizontal representation of the table where conditions are listed from top to bottom. And must be 
-     * readed from left to right</br> 
-     * Example:
+     * Whole representation of decision table. Horizontal representation of the
+     * table where conditions are listed from top to bottom. And must be readed
+     * from left to right</br> Example:
      * 
      * <table cellspacing="2">
      * <tr>
@@ -194,10 +191,15 @@ public abstract class FunctionalRow implements IDecisionRow {
         IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, module);
         openlAdaptor.setHeader(header);
 
-        paramValues = prepareParamValues(openlAdaptor, ruleRow);
+        paramValues = prepareParamValues(method, openlAdaptor, ruleRow);
     }
 
-    private IParameterDeclaration[] getParams(IBindingContext bindingContext) throws Exception {
+    private IParameterDeclaration[] getParams(IOpenSourceCodeModule methodSource,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            IOpenClass methodType,
+            OpenL openl,
+            IBindingContext bindingContext) throws Exception {
 
         if (params == null) {
 
@@ -210,38 +212,24 @@ public abstract class FunctionalRow implements IDecisionRow {
 
                 ILogicalTable paramTable = paramsTable.getLogicalRow(i);
                 IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getGridTable());
+
+                IParameterDeclaration parameterDeclaration = getParameterDeclaration(source,
+                    methodSource,
+                    signature,
+                    declaringClass,
+                    methodType,
+                    openl,
+                    bindingContext);
+                    
+                String paramName = parameterDeclaration.getName();
                 
-                IdentifierNode[] nodes = Tokenizer.tokenize(source, " \n\r");
-                
-                if (nodes.length == 0) {
-                    // no parameters
-                    params[i] = makeNoParamParameterDeclaration();
-                    continue;
+                if (paramNames.contains(paramName)) {
+                    throw SyntaxNodeExceptionUtils.createError("Duplicated parameter name: " + paramName, source);
                 }
 
-                String errMsg;
+                paramNames.add(paramName);
 
-                if (nodes.length != 2) {
-                    errMsg = "Parameter Cell format: <type> <name>";
-                    throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, source);
-                }
-
-                String typeCode = nodes[0].getIdentifier();
-                IOpenClass type = RuleRowHelper.getType(typeCode, bindingContext);
-                
-                if (type == null) {
-                    throw SyntaxNodeExceptionUtils.createError("Type not found: " + typeCode, nodes[0]);
-                }
-
-                String name = nodes[1].getIdentifier();
-                
-                if (paramNames.contains(name)) {
-                    throw SyntaxNodeExceptionUtils.createError("Duplicated parameter name: " + name, nodes[1]);
-                }
-
-                paramNames.add(name);
-
-                params[i] = new ParameterDeclaration(type, name);
+                params[i] = parameterDeclaration;
             }
         }
 
@@ -252,8 +240,8 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass paramType,
             String paramName,
             String ruleName,
-            OpenlToolAdaptor openlAdaptor, boolean indexed) throws SyntaxNodeException {
-
+            OpenlToolAdaptor openlAdaptor,
+            boolean indexed) throws SyntaxNodeException {
 
         if (!indexed) {
             return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
@@ -290,43 +278,47 @@ public abstract class FunctionalRow implements IDecisionRow {
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
             IOpenClass paramType) throws SyntaxNodeException {
-        
-        int height = RuleRowHelper.calculateHeight(dataTable);        
-        
-        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) { // load comma separated array
-           return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+
+        int height = RuleRowHelper.calculateHeight(dataTable);
+
+        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) { // load
+            // comma
+            // separated
+            // array
+            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
         } else {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
-        }        
+        }
     }
-    
+
     private Object loadCommaSeparatedArrayParams(ILogicalTable dataTable,
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {        
-        
+            IOpenClass paramType) throws SyntaxNodeException {
+
         ILogicalTable paramSource = dataTable.getLogicalRow(0);
         Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
-        Class<?> paramClass = params.getClass(); 
+        Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
-            return processAsObjectParams(paramType, (Object[])params);
-        } 
+            return processAsObjectParams(paramType, (Object[]) params);
+        }
         return params;
     }
-    
+
     /**
-     * Checks if the elements of parameters array are the instances of {@link CompositeMethod}, if yes process it through
-     * {@link ArrayHolder}. If no return Object[].
+     * Checks if the elements of parameters array are the instances of
+     * {@link CompositeMethod}, if yes process it through {@link ArrayHolder}.
+     * If no return Object[].
      * 
      * @param paramType parameter type
      * @param paramsArray array of parameters
-     * @return {@link ArrayHolder} if elements of parameters array are instances of {@link CompositeMethod}, in other 
-     * case Object[].
+     * @return {@link ArrayHolder} if elements of parameters array are instances
+     *         of {@link CompositeMethod}, in other case Object[].
      */
     private Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
         List<CompositeMethod> methodsList = null;
-        Object ary = null;        
+        Object ary = null;
         int paramsLength = paramsArray.length;
         ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
         for (int i = 0; i < paramsLength; i++) {
@@ -340,55 +332,61 @@ public abstract class FunctionalRow implements IDecisionRow {
         return methodsList == null ? ary : new ArrayHolder(ary,
             methodsList.toArray(new CompositeMethod[methodsList.size()]));
     }
-    
+
     private Object loadSimpleArrayParams(ILogicalTable dataTable,
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
             IOpenClass paramType) throws SyntaxNodeException {
-        
+
         int height = RuleRowHelper.calculateHeight(dataTable);
-                
+
         List<CompositeMethod> methodsList = null;
         Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { height });
-        
-        for (int i = 0; i < height; i++) { // load array values represented as number of cells 
-            
+
+        for (int i = 0; i < height; i++) { // load array values represented as
+            // number of cells
+
             ILogicalTable cell = dataTable.getLogicalRow(i);
             Object parameter = RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
-            
+
             if (parameter instanceof CompositeMethod) {
-                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod)parameter));
+                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) parameter));
             } else {
                 Array.set(ary, i, parameter);
             }
         }
-        return methodsList == null ? ary : new ArrayHolder(ary, 
+        return methodsList == null ? ary : new ArrayHolder(ary,
             methodsList.toArray(new CompositeMethod[methodsList.size()]));
-        
+
     }
-    
+
     private List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
-        if (methods == null) {            
+        if (methods == null) {
             methods = new ArrayList<CompositeMethod>();
-        }        
-        methods.add(method);    
-        
+        }
+        methods.add(method);
+
         return methods;
     }
 
-    private Object[][] prepareParamValues(OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
-        
+    private Object[][] prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
+
         int len = nValues();
         Object[][] values = new Object[len][];
 
-        IParameterDeclaration[] paramDecl = getParams(ota.getBindingContext());
+        IParameterDeclaration[] paramDecl = getParams(method.getMethodBodyBoundNode().getSyntaxNode().getModule(),
+            method.getSignature(),
+            method.getDeclaringClass(),
+            method.getType(),
+            ota.getOpenl(),
+            ota.getBindingContext());
 
         boolean[] paramIndexed = new boolean[paramDecl.length];
         for (int i = 0; i < paramIndexed.length; i++) {
-            paramIndexed[i] = paramDecl[i].getType().getAggregateInfo().isAggregate(paramDecl[i].getType()); 
+            paramIndexed[i] = paramDecl[i].getType().getAggregateInfo().isAggregate(paramDecl[i].getType());
         }
-        
+
         ArrayList<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
         for (int col = 0; col < len; col++) {
@@ -412,12 +410,13 @@ public abstract class FunctionalRow implements IDecisionRow {
 
                 Object v = null;
                 try {
-                    IOpenClass paramType = paramDecl[j].getType(); 
+                    IOpenClass paramType = paramDecl[j].getType();
                     v = loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
                         paramType,
                         paramDecl[j].getName(),
                         ruleName,
-                        ota, paramIndexed[j]);
+                        ota,
+                        paramIndexed[j]);
                 } catch (SyntaxNodeException error) {
                     errors.add(error);
                 }
@@ -442,15 +441,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         return values;
     }
 
-    protected boolean hasNoParams() {
-
-        if (hasNoParams == null) {
-            hasNoParams = params[0].getName().startsWith(NO_PARAM);
-        }
-
-        return hasNoParams.booleanValue();
-    }
-
     protected Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, Object[] params) {
 
         Object[] newParams = new Object[dtParams.length + params.length];
@@ -469,8 +459,10 @@ public abstract class FunctionalRow implements IDecisionRow {
         return decisionTable.getLogicalWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
-    private IParameterDeclaration makeNoParamParameterDeclaration() {
-        return new ParameterDeclaration(JavaOpenClass.STRING, NO_PARAM + noParamsIndex++);
+    private String makeParamName() {
+        noParamsIndex += 1;
+
+        return NO_PARAM + noParamsIndex;
     }
 
     private CompositeMethod generateMethod(IMethodSignature signature,
@@ -481,11 +473,103 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(codeTable.getGridTable());
 
-        IParameterDeclaration[] methodParams = getParams(bindingContextDelegator);
-        IMethodSignature newSignature = hasNoParams() ? signature : ((MethodSignature) signature).merge(methodParams);
+        IParameterDeclaration[] methodParams = getParams(source,
+            signature,
+            declaringClass,
+            methodType,
+            openl,
+            bindingContextDelegator);
+        IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, declaringClass);
 
         return OpenLManager.makeMethod(openl, source, methodHeader, bindingContextDelegator);
+    }
+
+    /**
+     * Gets local parameter declaration from specified source.
+     * 
+     * OpenL support several types of parameters declarations. In common case
+     * user should provide the following information: <br>
+     * a) <type of parameter> <br>
+     * b) <name of parameter>.<br>
+     * But in simple cases of parameter usage the information is redundant.
+     * 
+     * OpenL engine uses the following rules when user omitted parameter
+     * declaration or part of it:
+     * 
+     * a) if cell with parameter declaration is empty then engine will use the
+     * parameter with name "Pn", where n is the number of parameter (1 based)
+     * and type what is equals of expression type <br>
+     * 
+     * b) if user omitted parameter name then engine will use parameter with
+     * name "Pn", where n is the number of parameter (1 based) and type what is
+     * specified by user <br>
+     * 
+     * User can use parameters with generated name in his expressions but in
+     * this case he should provide type of parameter.
+     * 
+     * @param paramSource source of parameter declaration
+     * @param methodSource source of method (cell with expression where used
+     *            local parameter)
+     * @param signature method signature
+     * @param declaringClass IOpenClass what declare method
+     * @param methodType return type of method
+     * @param openl openl context
+     * @param bindingContext binding context
+     * @return parameter declaration
+     * @throws OpenLCompilationException if and error has occurred
+     */
+    private IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
+            IOpenSourceCodeModule methodSource,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            IOpenClass methodType,
+            OpenL openl,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+
+        IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
+
+        if (nodes.length == 0) {
+
+            try {
+                OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
+                CompositeMethod method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
+
+                IOpenClass type = method.getBodyType();
+                
+                if (type instanceof NullOpenClass) {
+                    String message = String.format("Cannot recognize type of local parameter for expression");
+                    throw SyntaxNodeExceptionUtils.createError(message, null, null, methodSource);
+                }
+                
+                String paramName = makeParamName();
+
+                return new ParameterDeclaration(type, paramName);
+            } catch (Exception ex) {
+                throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", null, null, methodSource);
+            }
+        }
+
+        if (nodes.length > 2) {
+            String errMsg = "Parameter Cell format: <type> <name>";
+            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, methodSource);
+        }
+
+        String typeCode = nodes[0].getIdentifier();
+        IOpenClass type = RuleRowHelper.getType(typeCode, bindingContext);
+
+        if (type == null) {
+            throw SyntaxNodeExceptionUtils.createError("Type not found: " + typeCode, nodes[0]);
+        }
+
+        if (nodes.length == 1) {
+            String paramName = makeParamName();
+            return new ParameterDeclaration(type, paramName);
+        }
+
+        String name = nodes[1].getIdentifier();
+
+        return new ParameterDeclaration(type, name);
     }
 
 }
