@@ -133,5 +133,17 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
 
         return list;
     }
+    
+    @Deprecated 
+    public int height()
+    {
+        return getHeight();
+    }
+    
+    @Deprecated
+    public int width()
+    {
+        return getWidth();
+    }
 
 }
