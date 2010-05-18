@@ -31,6 +31,8 @@ public class ColumnDescriptor {
     private IOpenField field;
     private StringValue displayValue;
     private OpenL openl;
+    boolean valuesAnArray;
+
 
     private Map<String, Integer> uniqueIndex = null;
 
@@ -38,6 +40,7 @@ public class ColumnDescriptor {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
+        valuesAnArray = isValuesAnArray(field.getType());
     }
 
     protected IRuntimeEnv getRuntimeEnv() {
@@ -50,7 +53,7 @@ public class ColumnDescriptor {
      * @param paramType Parameter type.
      * @return
      */
-    protected boolean isValuesAnArray(IOpenClass paramType) {
+    protected static boolean isValuesAnArray(IOpenClass paramType) {
         return paramType.getAggregateInfo().isAggregate(paramType);
     }
 
@@ -138,9 +141,9 @@ public class ColumnDescriptor {
      * single value, array of values.
      */
     public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) {
-        IOpenClass paramType = field.getType();
-        boolean valuesAnArray = isValuesAnArray(paramType);
 
+        IOpenClass paramType = field.getType();
+        
         if (valuesAnArray) {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
