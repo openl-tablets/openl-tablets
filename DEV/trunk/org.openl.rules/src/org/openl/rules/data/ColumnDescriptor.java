@@ -31,7 +31,7 @@ public class ColumnDescriptor {
     private IOpenField field;
     private StringValue displayValue;
     private OpenL openl;
-    boolean valuesAnArray;
+    boolean valuesAnArray = false;
 
 
     private Map<String, Integer> uniqueIndex = null;
@@ -40,7 +40,8 @@ public class ColumnDescriptor {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
-        valuesAnArray = isValuesAnArray(field.getType());
+        if (field != null)
+            this.valuesAnArray = isValuesAnArray(field.getType());
     }
 
     protected IRuntimeEnv getRuntimeEnv() {
