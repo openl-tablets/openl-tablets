@@ -97,23 +97,25 @@ public class Condition extends FunctionalRow implements ICondition {
     }
     
     public DecisionValue calculateCondition(int rule, Object target, Object[] dtParams, IRuntimeEnv env) {
+        
         Object value = getParamValues()[rule];
+        
         if (value == null) {
             return DecisionValue.NxA_VALUE;
         }
+        
         if (value instanceof DecisionValue) {
             return (DecisionValue) value;
         }
 
-        Object[] params = hasNoParams() ? dtParams : mergeParams(target, dtParams, env, (Object[]) value);
-        // (Object[]) ArrayTool.merge(dtParams, value);
-        // dtParams.length == method.getSignature().getParameterTypes().length ?
-        // dtParams :
-        // (Object[]) ArrayTool.merge(dtParams, value);
-
+        Object[] params = mergeParams(target, dtParams, env, (Object[]) value);
         Boolean res = (Boolean) getMethod().invoke(target, params, env);
 
-        return res == null || res.booleanValue() ? DecisionValue.TRUE_VALUE : DecisionValue.FALSE_VALUE;
+        if (res == null || res.booleanValue()) {
+            return DecisionValue.TRUE_VALUE;
+        } else {
+            return DecisionValue.FALSE_VALUE;
+        }
     }
 
 
