@@ -417,6 +417,10 @@
       <to-view-id>/facelets/tableWizard/newTable1.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>newDatatypeTable</from-outcome>
+      <to-view-id>/facelets/tableWizard/datatype/newDatatypeTable1.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>newTestTable</from-outcome>
       <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
     </navigation-case>
@@ -492,6 +496,39 @@
     <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- Datatype table wizard -->
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/datatype/newDatatypeTable1.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/datatype/newDatatypeTable2.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/datatype/newDatatypeTable2.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/datatype/newDatatypeTable3.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/datatype/newDatatypeTable1.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/datatype/newDatatypeTable3.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/datatype/newDatatypeTable2.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 

@@ -4,16 +4,18 @@ package org.openl.rules.ui.tablewizard;
  * @author Aliaksandr Antonik.
  */
 public class TableWizardManager extends TableWizard{
+
     static enum TableType {
         UNKNOWN,
         DECISION,
+        DATATYPE,
         TEST,
         TEST_DIRECT,
         PROPERTY
     }
 
     private TableType tableType = TableType.DECISION;
-    
+
     @Override
     public String cancel() {
         if (wizard != null) {
@@ -47,6 +49,10 @@ public class TableWizardManager extends TableWizard{
             case DECISION:
                 wizard = new DecisionTableCreationWizard();
                 wizard.setStepsCount(6);
+                break;
+            case DATATYPE:
+                wizard = new DatatypeTableCreationWizard();
+                wizard.setStepsCount(3);
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
