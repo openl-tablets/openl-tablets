@@ -1,7 +1,6 @@
 package org.openl.runtime;
 
 import java.io.File;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -24,100 +23,18 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
+ * Class EngineFactory creates {@link Proxy} based wrappers around OpenL
+ * classes. Each wrapper implements interface T and interface
+ * {@link IEngineWrapper}. If OpenL IOpenClass does not have methods matching
+ * interface T it will produce an error. <br/>
  * 
- * @author snshor
- * 
- *         Class EngineFactory creates {@link Proxy} based wrappers around OpenL
- *         classes. Each wrapper implements interface T and interface
- *         {@link IEngineWrapper}. If OpenL IOpenClass does not have methods
- *         matching interface T it will produce an error. <br/>
- * 
- *         NOTE: OpenL fieldValues will be exposed as get<Field> methods
+ * NOTE: OpenL fieldValues will be exposed as get<Field> methods
  * 
  * @param <T>
+ * 
+ * @author snshor
  */
-
 public class EngineFactory<T> {
-
-    private class OpenLHandler implements InvocationHandler, IEngineWrapper<T> {
-
-        private Object openlInstance;
-        private IRuntimeEnv openlEnv;
-        private Map<Method, IOpenMember> methodMap;
-
-        public OpenLHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
-            this.openlInstance = openlInstance;
-            this.openlEnv = openlEnv;
-            this.methodMap = methodMap;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-
-            if (obj == null) {
-                return false;
-            }
-
-            if (obj instanceof Proxy) {
-                return Proxy.getInvocationHandler(obj) == this;
-            }
-
-            return super.equals(obj);
-        }
-
-        @SuppressWarnings("unchecked")
-        public EngineFactory<T> getFactory() {
-            return EngineFactory.this;
-        }
-
-        public Object getInstance() {
-            return openlInstance;
-        }
-
-        public IRuntimeEnv getRuntimeEnv() {
-            return openlEnv;
-        }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            Object executionResult;
-
-            if (method.getDeclaringClass() == engineInterface) {
-                IOpenMember m = methodMap.get(method);
-
-                if (m instanceof IOpenMethod) {
-                    IOpenMethod mx = (IOpenMethod) m;
-                    executionResult = mx.invoke(openlInstance, args, openlEnv);
-                } else {
-                    IOpenField f = (IOpenField) m;
-                    executionResult = f.get(openlInstance, openlEnv);
-                }
-            } else {
-                Class<?>[] cargs = {};
-
-                // TODO: What does this code mean?
-                if (args != null && args.length == 1) {
-                    cargs = new Class<?>[] { Object.class };
-                }
-
-                if (method.getDeclaringClass() == IEngineWrapper.class) {
-                    Method myMethod = OpenLHandler.class.getDeclaredMethod(method.getName(), cargs);
-                    executionResult = myMethod.invoke(this, args);
-                } else {
-                    Method objectMethod = Object.class.getDeclaredMethod(method.getName(), cargs);
-                    executionResult = objectMethod.invoke(this, args);
-                }
-            }
-
-            return executionResult;
-
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Rule Engine(%s)", getOpenClass().getName());
-        }
-
-    }
 
     // This field should be always passed as constructor parameter
     private Class<T> engineInterface;
@@ -148,7 +65,6 @@ public class EngineFactory<T> {
         this.openlName = openlName;
         this.userContext = factoryDef.ucxt;
         this.sourceCode = factoryDef.sourceCode;
-
         this.engineInterface = engineInterface;
     }
 
@@ -160,7 +76,7 @@ public class EngineFactory<T> {
      */
     public EngineFactory(String openlName, File file, Class<T> engineInterface) {
         this.openlName = openlName;
-        sourceCode = new FileSourceCodeModule(file, null);
+        this.sourceCode = new FileSourceCodeModule(file, null);
         this.engineInterface = engineInterface;
     }
 
@@ -212,7 +128,7 @@ public class EngineFactory<T> {
      */
     public EngineFactory(String openlName, URL url, Class<T> engineInterface) {
         this.openlName = openlName;
-        sourceCode = new URLSourceCodeModule(url);
+        this.sourceCode = new URLSourceCodeModule(url);
         this.engineInterface = engineInterface;
     }
 
@@ -225,7 +141,7 @@ public class EngineFactory<T> {
      */
     public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserContext userContext) {
         this.openlName = openlName;
-        sourceCode = new URLSourceCodeModule(url);
+        this.sourceCode = new URLSourceCodeModule(url);
         this.engineInterface = engineInterface;
         this.userContext = userContext;
     }
@@ -234,11 +150,13 @@ public class EngineFactory<T> {
      * @return an abstraction of a "class".
      */
     public synchronized IOpenClass getOpenClass() {
+
         if (openClass == null) {
             openClass = initializeOpenClass();
             // methodMap must be initialized with OpenClass it relates to
             methodMap = initializeMethodMap(openClass);
         }
+
         return openClass;
     }
 
@@ -246,9 +164,11 @@ public class EngineFactory<T> {
      * @return Openl instance.
      */
     public synchronized OpenL getOpenL() {
+
         if (openl == null) {
             openl = OpenL.getInstance(openlName, getUserContext());
         }
+
         return openl;
     }
 
@@ -256,9 +176,11 @@ public class EngineFactory<T> {
      * @return source code of a file.
      */
     public synchronized IOpenSourceCodeModule getSourceCode() {
+
         if (sourceCode == null) {
             sourceCode = new FileSourceCodeModule(sourceFile, null);
         }
+
         return sourceCode;
     }
 
@@ -266,88 +188,16 @@ public class EngineFactory<T> {
      * @return user context.
      */
     public synchronized IUserContext getUserContext() {
+
         if (userContext == null) {
             userContext = new UserContext(getDefaultUserClassLoader(), userHome);
         }
+
         return userContext;
     }
 
-    protected ClassLoader getDefaultUserClassLoader() {
-        ClassLoader userClassLoader = Thread.currentThread().getContextClassLoader();
-
-        try {
-            // checking if classloader has openl, sometimes it does not
-            userClassLoader.loadClass(this.getClass().getName());
-        } catch (ClassNotFoundException cnfe) {
-            userClassLoader = this.getClass().getClassLoader();
-        }
-        return userClassLoader;
-    }
-
-    private Map<Method, IOpenMember> initializeMethodMap(IOpenClass module) {
-        Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
-
-        Method[] interfaceMethods = engineInterface.getDeclaredMethods();
-
-        for (Method interfaceMethod : interfaceMethods) {
-            String interfaceMethodName = interfaceMethod.getName();
-
-            IOpenMethod rulesMethod = module.getMatchingMethod(interfaceMethodName, JavaOpenClass
-                    .getOpenClasses(interfaceMethod.getParameterTypes()));
-
-            if (rulesMethod != null) {
-                methodMap.put(interfaceMethod, rulesMethod);
-            } else {
-                final String fieldMethodPrefix = "get";
-                if (interfaceMethodName.startsWith(fieldMethodPrefix)) {
-                    String fieldName = ""
-                            + Character.toLowerCase(interfaceMethodName.charAt(fieldMethodPrefix.length()))
-                            + interfaceMethodName.substring(fieldMethodPrefix.length() + 1);
-
-                    IOpenField rulesField = module.getField(fieldName, true);
-
-                    if (rulesField != null) {
-                        if (JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()) == rulesField.getType()) {
-                            methodMap.put(interfaceMethod, rulesField);
-                            continue;
-                        } else {
-                            throw new RuntimeException(String.format("Return type of method \"%s\" should be %s",
-                                    interfaceMethodName, rulesField.getType()));
-                        }
-                    }
-                }
-                throw new RuntimeException(String.format(
-                        "There is no implementation in rules for interface method \"%s\"", interfaceMethod));
-            }
-        }
-
-        return methodMap;
-    }
-
-    private Class<?>[] makeInstanceInterfaces() {
-        return new Class<?>[] { engineInterface, IEngineWrapper.class };
-    }
-
-    protected IOpenClass initializeOpenClass() {
-        CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode());
-        return compiledOpenClass.getOpenClass();
-    }
-
-    /**
-     * Make new instance of rule engine
-     * 
-     * @return new instance
-     */
-    @SuppressWarnings("unchecked")
-    public T makeEngineInstance() {
-        IRuntimeEnv env = getOpenL().getVm().getRuntimeEnv();
-
-        Object openlInstObject = getOpenClass().newInstance(env);
-
-        // methodMap has been initialized with current Open Class
-        OpenLHandler handler = new OpenLHandler(openlInstObject, env, methodMap);
-
-        return (T) Proxy.newProxyInstance(engineInterface.getClassLoader(), makeInstanceInterfaces(), handler);
+    public Class<T> getEngineInterface() {
+        return engineInterface;
     }
 
     /**
@@ -361,11 +211,103 @@ public class EngineFactory<T> {
 
     /**
      * Force EngineFactory to recompile the rules when creating new rules
-     * instance
+     * instance.
      */
     public void reset() {
         openClass = null;
         methodMap = null;
+    }
+
+    /**
+     * Make new instance of rule engine
+     * 
+     * @return new instance
+     */
+    @SuppressWarnings("unchecked")
+    private T makeEngineInstance() {
+
+        IRuntimeEnv env = getOpenL().getVm().getRuntimeEnv();
+        Object openlInstObject = getOpenClass().newInstance(env);
+
+        // methodMap has been initialized with current Open Class
+        OpenLInvocationHandler handler = makeInvocationHandler(openlInstObject, env, methodMap);
+
+        return (T) Proxy.newProxyInstance(engineInterface.getClassLoader(), makeInstanceInterfaces(), handler);
+    }
+
+    protected OpenLInvocationHandler<T> makeInvocationHandler(Object openlInstance,
+            IRuntimeEnv env,
+            Map<Method, IOpenMember> methodMap) {
+        
+        return new OpenLInvocationHandler<T>(openlInstance, this, env, methodMap);
+    }
+
+    protected Class<?>[] makeInstanceInterfaces() {
+        return new Class<?>[] { engineInterface, IEngineWrapper.class };
+    }
+
+    protected IOpenClass initializeOpenClass() {
+        CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode());
+
+        return compiledOpenClass.getOpenClass();
+    }
+
+    protected ClassLoader getDefaultUserClassLoader() {
+
+        ClassLoader userClassLoader = Thread.currentThread().getContextClassLoader();
+
+        try {
+            // checking if classloader has openl, sometimes it does not
+            userClassLoader.loadClass(this.getClass().getName());
+        } catch (ClassNotFoundException cnfe) {
+            userClassLoader = this.getClass().getClassLoader();
+        }
+
+        return userClassLoader;
+    }
+
+    private Map<Method, IOpenMember> initializeMethodMap(IOpenClass module) {
+
+        Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
+        Method[] interfaceMethods = engineInterface.getDeclaredMethods();
+
+        for (Method interfaceMethod : interfaceMethods) {
+            String interfaceMethodName = interfaceMethod.getName();
+
+            IOpenMethod rulesMethod = module.getMatchingMethod(interfaceMethodName,
+                JavaOpenClass.getOpenClasses(interfaceMethod.getParameterTypes()));
+
+            if (rulesMethod != null) {
+                methodMap.put(interfaceMethod, rulesMethod);
+            } else {
+                String fieldMethodPrefix = "get";
+
+                if (interfaceMethodName.startsWith(fieldMethodPrefix)) {
+                    String fieldName = "" + Character.toLowerCase(interfaceMethodName.charAt(fieldMethodPrefix.length())) + interfaceMethodName.substring(fieldMethodPrefix.length() + 1);
+
+                    IOpenField rulesField = module.getField(fieldName, true);
+
+                    if (rulesField != null) {
+                        if (JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()) == rulesField.getType()) {
+                            methodMap.put(interfaceMethod, rulesField);
+
+                            continue;
+                        } else {
+                            String message = String.format("Return type of method \"%s\" should be %s",
+                                interfaceMethodName,
+                                rulesField.getType());
+                            throw new RuntimeException(message);
+                        }
+                    }
+                }
+
+                String message = String.format("There is no implementation in rules for interface method \"%s\"",
+                    interfaceMethod);
+                throw new RuntimeException(message);
+            }
+        }
+
+        return methodMap;
     }
 
 }
