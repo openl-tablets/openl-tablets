@@ -45,6 +45,13 @@
 
                 <h:column>
                     <f:facet name="header">
+                        <h:outputText value="Is Array" />
+                    </f:facet>
+                    <h:selectBooleanCheckbox value="#{parameter.iterable}" />
+                </h:column>
+
+                <h:column>
+                    <f:facet name="header">
                         <h:outputText value="Name"/>
                     </f:facet>
                     <h:inputText id="pname" value="#{parameter.name}">
