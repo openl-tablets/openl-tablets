@@ -11,5 +11,4 @@ Require-Bundle: org.openl.commons;visibility:=reexport,
  org.openl.core;visibility:=reexport,
  org.openl.lib,
  org.junit4,
- org.openl.conf.ant,
  org.openl.j
