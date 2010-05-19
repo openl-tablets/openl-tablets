@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.openl.base.INamedThing;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.IAction;
@@ -23,6 +24,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IParameterDeclaration;
+
 import static org.openl.types.java.JavaOpenClass.*;
 
 /**
@@ -36,21 +38,21 @@ public class DomainTree {
 
     static {
         ignoredTypes = new HashSet<String>();
-        ignoredTypes.add("java.lang.Object");
-        ignoredTypes.add("java.lang.Class");
-        ignoredTypes.add("void");
+        ignoredTypes.add(OBJECT.getSimpleName());
+        ignoredTypes.add(CLASS.getSimpleName());
+        ignoredTypes.add(VOID.getSimpleName());
     }
 
     static {
         predefinedTypes = new HashMap<String, IOpenClass>();
-        predefinedTypes.put(INT.getName(), INT);
-        predefinedTypes.put(STRING.getName(), STRING);
-        predefinedTypes.put(BOOLEAN.getName(), BOOLEAN);
-        predefinedTypes.put(LONG.getName(), LONG);
-        predefinedTypes.put(DOUBLE.getName(), DOUBLE);
-        predefinedTypes.put(FLOAT.getName(), FLOAT);
-        predefinedTypes.put(SHORT.getName(), SHORT);
-        predefinedTypes.put(CHAR.getName(), CHAR);
+        predefinedTypes.put(INT.getSimpleName(), INT);
+        predefinedTypes.put(STRING.getSimpleName(), STRING);
+        predefinedTypes.put(BOOLEAN.getSimpleName(), BOOLEAN);
+        predefinedTypes.put(LONG.getSimpleName(), LONG);
+        predefinedTypes.put(DOUBLE.getSimpleName(), DOUBLE);
+        predefinedTypes.put(FLOAT.getSimpleName(), FLOAT);
+        predefinedTypes.put(SHORT.getSimpleName(), SHORT);
+        predefinedTypes.put(CHAR.getSimpleName(), CHAR);
     }
 
     /**
@@ -69,11 +71,10 @@ public class DomainTree {
 
             XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) projectInfo;
             for (TableSyntaxNode node : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors()) {
-                if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
-                    IOpenMember table = node.getMember();
-                    if (table != null) {
-                        domainTree.scanTable((DecisionTable) table);
-                    }
+                String nodeType = node.getType();
+                if (nodeType.equals(ITableNodeTypes.XLS_DT)
+                        || nodeType.equals(ITableNodeTypes.XLS_DATATYPE)) {
+                    domainTree.scanTable(node);
                 }
             }
 
@@ -99,12 +100,14 @@ public class DomainTree {
     }
 
     private boolean addType(IOpenClass type) {
-        if (!treeElements.containsKey(type.getName()) && !ignoredTypes.contains(type.getName())) {
+        String simpleTypeName = type.getDisplayName(INamedThing.SHORT);
+
+        if (!treeElements.containsKey(simpleTypeName) && !ignoredTypes.contains(simpleTypeName)) {
             if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
                 return false;
             }
 
-            treeElements.put(type.getName(), type);
+            treeElements.put(simpleTypeName, type);
 
             if (inspectTypeRecursively(type)) {
                 // types of IOpenClass fields
@@ -210,13 +213,27 @@ public class DomainTree {
         return openClass.getName();
     }
 
+    private void scanTable(TableSyntaxNode node) {
+        String nodeType = node.getType();
+
+        if (nodeType.equals(ITableNodeTypes.XLS_DT)) {
+            IOpenMember table = node.getMember();
+            if (table != null) {
+                scanDecisionTable((DecisionTable) table);
+            }
+
+        } else if (nodeType.equals(ITableNodeTypes.XLS_DATATYPE)) {
+            // scan Datatype table
+        }
+    }
+
     /**
      * Scans given table, and adds classes that the table references (parameter
      * types, condition and action variable types) to the tree.
      *
      * @param decisionTable decision table to scan.
      */
-    private void scanTable(DecisionTable decisionTable) {
+    private void scanDecisionTable(DecisionTable decisionTable) {
         for (IOpenClass paramType : decisionTable.getHeader().getSignature().getParameterTypes()) {
             addType(paramType);
         }
@@ -233,4 +250,5 @@ public class DomainTree {
             }
         }
     }
+
 }
