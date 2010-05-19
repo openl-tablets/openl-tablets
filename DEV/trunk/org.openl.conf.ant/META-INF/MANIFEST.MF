@@ -6,4 +6,5 @@ Bundle-Version: 5.5.1
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.apache.ant;visibility:=reexport,
- org.openl.lib;visibility:=reexport
+ org.openl.lib;visibility:=reexport,
+ org.openl.rules;visibility:=reexport
