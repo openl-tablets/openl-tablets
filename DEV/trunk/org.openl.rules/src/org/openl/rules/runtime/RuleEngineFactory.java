@@ -1,10 +1,19 @@
 package org.openl.rules.runtime;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
+import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.EngineFactoryDefinition;
+import org.openl.runtime.OpenLInvocationHandler;
+import org.openl.types.IOpenMember;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * 
@@ -62,4 +71,22 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
         super(RULE_OPENL_NAME, url, engineInterface);
     }
 
+    @Override
+    protected Class<?>[] makeInstanceInterfaces() {
+        
+        List<Class<?>> interfaces = new ArrayList<Class<?>>();
+        interfaces.addAll(Arrays.asList(super.makeInstanceInterfaces()));
+        interfaces.add(IRulesRuntimeContextProvider.class);
+        
+        return interfaces.toArray(new Class<?>[interfaces.size()]);
+    }
+
+    @Override
+    protected OpenLInvocationHandler<T> makeInvocationHandler(Object openlInstance,
+            IRuntimeEnv env,
+            Map<Method, IOpenMember> methodMap) {
+
+        return new RulesInvocationHandler<T>(openlInstance, this, env, methodMap);
+    }
+    
 }
