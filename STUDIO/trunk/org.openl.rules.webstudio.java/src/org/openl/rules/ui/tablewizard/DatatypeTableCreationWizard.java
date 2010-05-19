@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -24,6 +25,7 @@ import org.richfaces.component.html.HtmlDataTable;
 public class DatatypeTableCreationWizard extends WizardBase {
 
     @NotEmpty(message="Table name can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid table name")
     private String tableName;
 
     @Valid
