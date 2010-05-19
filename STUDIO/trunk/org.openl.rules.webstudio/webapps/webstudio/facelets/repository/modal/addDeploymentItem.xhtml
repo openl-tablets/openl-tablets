@@ -4,8 +4,7 @@
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:c="http://java.sun.com/jstl/core"
-  xmlns:t="http://myfaces.apache.org/tomahawk">
+  xmlns:c="http://java.sun.com/jstl/core">
 
   <c:set var="availableProjects" value="#{deploymentController.projects}"/>
 
@@ -18,7 +17,7 @@
         </f:facet>
     <a4j:outputPanel id="addDeployEntryPanel">
     <h:form id="addDeployEntryForm">
-        <t:saveState value="#{deploymentController.projectName}" />
+        <a4j:keepAlive beanName="deploymentController" />
         <a4j:commandButton id="addDeployEntryBtn" reRender="addDeployEntryPanel" oncomplete="showAddDeployEntryUpdateVersion()" ajaxSingle="true" style="display:none;"/>
 
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{not empty availableProjects}">

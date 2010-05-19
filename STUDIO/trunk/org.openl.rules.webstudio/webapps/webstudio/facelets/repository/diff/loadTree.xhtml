@@ -3,13 +3,12 @@
 <ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://java.sun.com/jstl/core"
-                xmlns:t="http://myfaces.apache.org/tomahawk">
+                xmlns:c="http://java.sun.com/jstl/core">
 
   <f:view contentType="text/xml">
 
     <tree id="#{param.id != null ? param.id : param.treeId}">
-      <t:dataList var="node" value="#{repositoryDiffController.diffTreeNodes}">
+      <ui:repeat var="node" value="#{repositoryDiffController.diffTreeNodes}">
           <c:set var="element" value="#{node.elements[param.treeId-1]}" />
           <h:panelGroup rendered="#{node.elements[1].diffStatus != 'EQUALS' or repositoryDiffController.showEqualElements}">
             <node
@@ -23,7 +22,7 @@
               im2="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
               />
           </h:panelGroup>
-      </t:dataList>
+      </ui:repeat>
     </tree>
 
   </f:view>
