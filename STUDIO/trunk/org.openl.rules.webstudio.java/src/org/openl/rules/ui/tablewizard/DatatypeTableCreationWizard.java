@@ -100,7 +100,11 @@ public class DatatypeTableCreationWizard extends WizardBase {
         builder.writeHeader(tableName);
 
         for (TypeNamePair parameter : parameters) {
-            builder.writeParameter(parameter.getType(), parameter.getName());
+            String paramType = parameter.getType();
+            if (parameter.isIterable()) {
+                paramType += "[]";
+            }
+            builder.writeParameter(paramType, parameter.getName());
         }
 
         String uri = gridModel.getRangeUri(builder.getTableRegion());
