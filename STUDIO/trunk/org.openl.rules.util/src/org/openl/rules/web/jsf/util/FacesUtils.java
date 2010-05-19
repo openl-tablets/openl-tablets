@@ -62,7 +62,7 @@ public abstract class FacesUtils {
         FacesContext context = FacesContext.getCurrentInstance();
         ELContext elContext = context.getELContext();
         ValueExpression valueExpression = context.getApplication().getExpressionFactory().
-            createValueExpression(elContext, expressionString, null);
+            createValueExpression(elContext, expressionString, Object.class);
         return valueExpression;
     }
 
