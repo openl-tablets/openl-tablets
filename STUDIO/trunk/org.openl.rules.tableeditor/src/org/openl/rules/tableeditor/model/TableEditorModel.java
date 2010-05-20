@@ -9,7 +9,6 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
-import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
@@ -429,15 +428,8 @@ public class TableEditorModel {
         List<IUndoableGridAction> createdActions = new ArrayList<IUndoableGridAction>();
         int nRowsToInsert = 0;
         int nColsToInsert = 0;
-        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, wgrid(), name);
 
-        boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
-
-        if (propExists) {
-            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
-        }
-
         if (!propIsBlank) {
             IGridTable table = getUpdatedFullTable();
             int tableWidth = table.getGridWidth();
