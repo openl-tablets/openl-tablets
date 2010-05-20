@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.IDomain;
 import org.openl.meta.IMetaHolder;
@@ -26,6 +27,7 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -289,9 +291,9 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
-                t.printStackTrace();
-                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell
-                        .getGridTable()));
+                SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(
+                        null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
+                throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { exception });
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
