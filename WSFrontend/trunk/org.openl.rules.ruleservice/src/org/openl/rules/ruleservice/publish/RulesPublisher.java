@@ -45,16 +45,28 @@ public class RulesPublisher {
             URLClassLoader urlClassLoader = new URLClassLoader(classPathURLs.toArray(new URL[classPathURLs.size()]),
                     Thread.currentThread().getContextClassLoader());
 
-            deployment2ClassLoader.put(di.getName(), urlClassLoader);
+            String serviceName = getServiceName(di);
+            deployment2ClassLoader.put(serviceName, urlClassLoader);
 
-            deployAdmin.deploy(di.getName(), urlClassLoader, serviceClasses);
+            deployAdmin.deploy(serviceName, urlClassLoader, serviceClasses);
         } catch (Exception e) {
             log.error("failed to deploy project " + di.getDeployID(), e);
         }
     }
+    
+    /**
+     * @return Service name for specified deployment.
+     */
+    public String getServiceName(DeploymentInfo di) {
+        return di.getName();
+    }
 
     public void setDeployAdmin(DeploymentAdmin deployAdmin) {
         this.deployAdmin = deployAdmin;
+    }
+
+    public DeploymentAdmin getDeployAdmin() {
+        return deployAdmin;
     }
 
     public void setRulesProjectResolver(RulesProjectResolver rulesProjectResolver) {
@@ -62,7 +74,7 @@ public class RulesPublisher {
     }
 
     public synchronized void undeploy(DeploymentInfo di) {
-        if (deployment2ClassLoader.remove(di.getName()) != null) {
+        if (deployment2ClassLoader.remove(getServiceName(di)) != null) {
             deployAdmin.undeploy(di.getName());
         }
     }
