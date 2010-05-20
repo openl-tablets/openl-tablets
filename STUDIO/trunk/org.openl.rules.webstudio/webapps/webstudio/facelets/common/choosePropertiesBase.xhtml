@@ -142,26 +142,32 @@
 					style="cursor:pointer"
 					onclick="#{rich:component('newPropertyDlg')}.hide();" />
 			</f:facet>
-			<h:form style="text-align: center;">
-				<h:panelGrid columns="2"
-					rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}">
+
+            <h:form rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}">
+				<h:panelGrid columns="2">
 					<h:outputText value="Select Property" />
 					<h:selectOneMenu value="#{propertiesManager.propNameToAdd}">
 						<f:selectItems value="#{propertiesManager.propertiesThatCanBeAdded}" />
 					</h:selectOneMenu>
 				</h:panelGrid>
-				<h:outputText value="There are no properties to add"
-					rendered="#{empty propertiesManager.propertiesThatCanBeAdded}" />
-				<h:panelGrid columns="2" style="margin-top: 10px;">
+				<h:panelGroup style="text-align: center; margin-top: 10px;" layout="block">
 					<a4j:commandButton value="Add"
 						action="#{propertiesManager.addProperty}"
 						reRender="propertiesTable,newPropertyDlg,modalVersionChange"
-						oncomplete="#{rich:component('newPropertyDlg')}.hide();"
-						rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}" />
+						oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
+                    <rich:spacer width="5px" />
 					<h:commandButton value="Cancel"
 						onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
-				</h:panelGrid>
+				</h:panelGroup>
 			</h:form>
+
+            <h:panelGroup rendered="#{empty propertiesManager.propertiesThatCanBeAdded}">
+                <h:panelGrid style="text-align: center; width: 100%">
+                    <h:outputText value="There are no properties to add" />
+                    <rich:spacer height="5px" />
+                    <h:commandButton value="Ok" onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+                </h:panelGrid>
+            </h:panelGroup>
 		</rich:modalPanel>
 
 	</ui:define>
