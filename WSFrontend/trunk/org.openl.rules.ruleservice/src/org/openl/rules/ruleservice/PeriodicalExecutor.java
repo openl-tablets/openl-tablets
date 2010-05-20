@@ -3,8 +3,6 @@ package org.openl.rules.ruleservice;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
 /**
  * Runs a given {@link Runnable} every time an event happens. The main method
  * {@link #execute()} runs infinite loop and if another thread triggers the

@@ -7,11 +7,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.ruleservice.loader.RulesLoader;
+import org.openl.rules.ruleservice.loader.RulesLoaderJcr;
 import org.openl.rules.ruleservice.publish.DeploymentListener;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
 import org.openl.rules.ruleservice.publish.JavaClassDeploymentAdmin;
 import org.openl.rules.ruleservice.resolver.RulesProjectResolver;
+import org.openl.rules.workspace.production.client.JcrRulesClient;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -94,9 +95,13 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
     }
 
     private void init() {
-        loader = new RulesLoader();
-        resolver = new RulesProjectResolver();
+        try {
+            loader = new RulesLoaderJcr(new JcrRulesClient());
+        } catch (RRepositoryException e) {
+            e.printStackTrace();
+        }
         publisher = new RulesPublisher();
+        publisher.setRulesProjectResolver(new RulesProjectResolver());
 
         JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
 
@@ -119,7 +124,7 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
         };
 
         deploymentAdmin.addDeploymentListener(deploymentListener);
-        deployAdmin = deploymentAdmin;
+        publisher.setDeployAdmin(deploymentAdmin);
     }
 
     protected void registerProjects(String deploymentName, Map<String, OpenLWrapper> ruleModules) {
@@ -129,16 +134,7 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
     }
 
     private void startFrontend() {
-        frontendExecutor = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    runFrontend();
-                } catch (RRepositoryException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
+        frontendExecutor = new Thread(this);
 
         frontendExecutor.setDaemon(true);
         frontendExecutor.start();
