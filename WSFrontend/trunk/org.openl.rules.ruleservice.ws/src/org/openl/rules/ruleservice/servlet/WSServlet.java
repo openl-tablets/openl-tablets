@@ -5,6 +5,7 @@ import javax.servlet.ServletException;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.ruleservice.RuleServiceBase;
 import org.openl.rules.ruleservice.RuleServiceMain;
 import org.openl.rules.ruleservice.publish.WebServicesDeployAdmin;
 import org.springframework.web.context.WebApplicationContext;
@@ -19,19 +20,18 @@ public class WSServlet extends CXFServlet {
         ServletContext context = getServletContext();
         WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(context);
 
-        WebServicesDeployAdmin admin;
-        if (applicationContext.containsBean("deploymentAdmin")) {
-            admin = (WebServicesDeployAdmin) applicationContext.getBean("deploymentAdmin");
+        RuleServiceBase ruleService;
+        if (applicationContext.containsBean("ruleService")) {
+            ruleService = (RuleServiceBase) applicationContext.getBean("ruleService");
         } else {
-            admin = new WebServicesDeployAdmin();
+            try {
+                ruleService = new RuleServiceMain();
+            } catch (RRepositoryException e) {
+                throw new ServletException(e);
+            }
         }
-        admin.setDestinationFactory(servletTransportFactory);
-        RuleServiceMain ruleService = new RuleServiceMain();
-        ruleService.setDeployAdmin(admin);
-        try {
-            ruleService.runFrontend();
-        } catch (RRepositoryException e) {
-            e.printStackTrace();
-        }
+        WebServicesDeployAdmin deployAdmin = (WebServicesDeployAdmin)ruleService.getPublisher().getDeployAdmin();
+        deployAdmin.setContext(applicationContext);
+        ruleService.run();
     }
 }
