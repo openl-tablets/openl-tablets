@@ -405,8 +405,7 @@ public class HTMLRenderer {
 
         public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
             menuId = menuId == null ? "" : menuId;
-            String eventHandlers = "onmouseover=\"openMenu('"
-                    + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"";
+            String eventHandlers = "onmousedown=\"openMenu('" + menuId + "',this,event)\"";
             if (editor.isEditable()) {
                 eventHandlers += " ondblclick=\"triggerEdit('"
                     + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','"
