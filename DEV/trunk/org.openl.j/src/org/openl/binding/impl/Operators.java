@@ -444,10 +444,24 @@ public class Operators {
         return x * y;
     }
 
+    
+    
     static public long multiply(long x, long y) {
         return x * y;
     }
 
+    static public int pow(int x, int y) {
+        return (int)Math.pow(x, y);
+    }
+    
+    static public long pow(long x, long y) {
+        return (long)Math.pow(x, y);
+    }
+
+    static public double pow(double x, double y) {
+        return Math.pow(x, y);
+    }
+    
     static public boolean ne(BigDecimal x, BigDecimal y) {
         return !x.equals(y);
     }
