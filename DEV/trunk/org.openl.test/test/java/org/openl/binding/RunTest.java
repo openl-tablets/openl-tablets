@@ -8,10 +8,10 @@ import junit.framework.TestCase;
 
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
+import org.openl.meta.DoubleValue;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
-
 import org.openl.util.RangeWithBounds;
 
 public class RunTest extends TestCase {
@@ -185,6 +185,9 @@ public class RunTest extends TestCase {
         _runNoError("10% of \n the  50", 5.0, "org.openl.j");
 
         _runNoError("long Of =-1;int y=60; Of >>> y ", (long) -1 >>> 60, "org.openl.j");
+        _runNoError("5.0 ** 7.0 ", Math.pow(5, 7), "org.openl.rules.java");
+        _runNoError("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)), "org.openl.rules.java");
+        _runNoError("BigDecimal x = 5.0; x ** 7 ", new BigDecimal(Math.pow(5, 7)), "org.openl.rules.java");
 
     }
     
