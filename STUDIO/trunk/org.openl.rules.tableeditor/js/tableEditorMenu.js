@@ -1,17 +1,14 @@
 
 function openMenu(menuId, td, event) {
-    PopupMenu.sheduleShowMenu(menuId, event, 400);
+    if (event.button == 2) { // mouse right click
+        td.oncontextmenu = function() { return false; };
+        PopupMenu.sheduleShowMenu(menuId, event, 150);
+    }
 }
 
 function closeMenu(td) {
     PopupMenu.cancelShowMenu();
 }
-
-Ajax.Responders.register({
-    onFailure: function() {
-        alert("global");
-    }
-});
 
 function triggerEdit(editorId, url, cellToEdit) {
     var cell = cellToEdit;
