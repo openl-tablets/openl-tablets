@@ -279,6 +279,26 @@ public class Operators {
         return (int) x;
     }
 
+    static public int cast(String x, int y) {
+        return Integer.parseInt(x);
+    }
+
+    static public double cast(String x, double y) {
+        return Double.parseDouble(x);
+    }
+
+    static public long cast(String x, long y) {
+        return Long.parseLong(x);
+    }
+
+    static public BigDecimal cast(String x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+    
+    
+    
+    
+    
     public static double dec(double x) {
         return x - 1;
     }
