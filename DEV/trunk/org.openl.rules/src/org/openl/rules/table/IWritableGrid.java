@@ -230,8 +230,8 @@ public interface IWritableGrid extends IGrid {
          * @return null if set new property with empty or same value
          * */
 
-        public static IUndoableGridAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion, IWritableGrid wgrid,
-                String newPropName, String newPropValue) {
+        public static IUndoableGridAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
+                IWritableGrid wgrid, String newPropName, String newPropValue) {
             AXlsFormatter format = getFormat(newPropName);
             int regionHeight = IGridRegion.Tool.height(tableRegion);
             int regionWidth = IGridRegion.Tool.width(tableRegion);
@@ -240,7 +240,6 @@ public interface IWritableGrid extends IGrid {
 
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
-
             
             String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
             boolean containsPropSection = tableContainsPropertySection(propsHeader);
@@ -275,7 +274,8 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftRows(firstToMove, nRows, INSERT, tableRegion));
 
             if (!containsPropSection) {
-                actions.add(new UnmergeByColumnsAction(new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow, tableRegion.getRight())));
+                actions.add(new UnmergeByColumnsAction(
+                        new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow, tableRegion.getRight())));
                 actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
                 if (regionWidth > 3) {
                     // clear cells
@@ -290,16 +290,21 @@ public interface IWritableGrid extends IGrid {
                         actions.add(new MergeCellsAction(new GridRegion(row, leftCell + regionWidth - 1, row,
                                 leftCell + 2)));
                     }
-                    actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
-                    actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
+                    actions.add(new GridRegionAction(
+                            tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
+                    actions.add(new GridRegionAction(
+                            diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
                 }
+
+            } else {
+                actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow + 1, StringUtils.EMPTY, null));
             }
+
             actions.add(new UndoableSetValueAction(leftCell + 1, topCell + beforeRow, newPropName, null));
             actions.add(new UndoableSetValueAction(leftCell + 2, topCell + beforeRow, newPropValue, format));
 
             if (propsCount == 1) {
                 // resize 'properties' cell
-
                 actions.add(new UndoableResizeMergedRegionAction(new GridRegion(topCell + 1, leftCell,
                         topCell + 1, leftCell), nRows, INSERT, ROWS));
             } else {
@@ -309,7 +314,6 @@ public interface IWritableGrid extends IGrid {
             return new UndoableCompositeAction(actions);
         }
 
-
         private static boolean tableContainsPropertySection(String propsHeader) {
             boolean containsPropSection = false;
             if (propsHeader != null && propsHeader.equals(PROPERTIES_SECTION_NAME)) {
@@ -317,7 +321,6 @@ public interface IWritableGrid extends IGrid {
             }
             return containsPropSection;
         }
-        
 
         private static AXlsFormatter getFormat(String propertyName) {
 
