@@ -168,14 +168,22 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
         TableSyntaxNode tsn = (TableSyntaxNode) getSyntaxNode();
         return ITableNodeTypes.XLS_RUN_METHOD.equals(tsn.getType());
     }
-
+    
+    /**
+     * Indicates if test method has any row rules for testing target table.
+     * Finds it by field that contains {@link TestMethodHelper#EXPECTED_RESULT_NAME}
+     * @return
+     * 
+     * TODO: rename it. it is difficult to understand what is it doing 
+     */
     public boolean isRunmethodTestable() {
+        // gets the data from rows that have test parameters.
         Object testArray = boundNode.getField().getTable().getDataArray();
 
-        DynamicObject[] dd = (DynamicObject[]) testArray;
+        DynamicObject[] testArrayDynamicObj = (DynamicObject[]) testArray;
 
-        for (int i = 0; i < dd.length; i++) {
-            if (dd[i].containsField(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+        for (int i = 0; i < testArrayDynamicObj.length; i++) {
+            if (testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_RESULT_NAME)) {
                 return true;
             }
         }
