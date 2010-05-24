@@ -48,10 +48,14 @@ public class ShowTableBean {
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
 
     private String url;
-
-    private Test[] tests = {};
-    private boolean runnable;
-    private boolean testable;
+    
+    // filled and runnable tests(this group of tests is more tight than allTests)
+    private Test[] runnableTests = {};
+    
+    // all checks and tests for current table (including tests with no cases, run methods)
+    private Test[] allTests = {};
+    
+    private boolean runnable;    
     private List<ITable> targetTables;
 
     private String uri;
@@ -88,11 +92,14 @@ public class ShowTableBean {
 
         AllTestsRunResult testsRunner = model.getTestMethods(uri);
         if (testsRunner != null) {
-            tests = testsRunner.getTests();
+            runnableTests = testsRunner.getTests();
+        }
+        AllTestsRunResult allTestRunner = model.getAllTestMethods(uri);
+        if (allTestRunner != null) {
+            allTests = allTestRunner.getTests();
         }
 
-        runnable = model.isRunnable(uri);
-        testable = tests.length > 0;
+        runnable = model.isRunnable(uri);         
         if (runnable) {
             targetTables = model.getTargetTables(uri);
         }
@@ -201,7 +208,7 @@ public class ShowTableBean {
     }
 
     public Test[] getTests() {
-        return tests;
+        return runnableTests;
     }
 
     public String getUri() {
@@ -235,7 +242,11 @@ public class ShowTableBean {
         }
         return false;
     }
-
+    
+    /**
+     * 
+     * @return true if it is possible to create tests for current table.
+     */
     public boolean isCanCreateTest() {
         return table.isExecutable() && !isDispatcherValidationNode();
     }
@@ -268,9 +279,26 @@ public class ShowTableBean {
     public boolean isRunnable() {
         return runnable;
     }
-
+    
+    /**
+     * Checks if there are runnable tests for current table.
+     * 
+     * @return true if there are runnable tests for current table.
+     */
     public boolean isTestable() {
-        return testable;
+        return runnableTests.length > 0;
+    }
+    
+    public boolean isHasAnyTests() {
+        return allTests.length > 0;
+    }
+
+    public Test[] getAllTests() {
+        return allTests;
+    }
+
+    public void setAllTests(Test[] allTests) {
+        this.allTests = allTests;
     }
 
     public boolean isShowFormulas() {
