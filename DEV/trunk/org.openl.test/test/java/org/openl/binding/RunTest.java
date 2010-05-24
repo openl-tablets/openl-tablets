@@ -152,12 +152,22 @@ public class RunTest extends TestCase {
                 new Double(9), "org.openl.rules.java");
         _runNoError("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", new Integer(45), "org.openl.j");
 
+
+        
         // Testing new implementation of s1 == s2 for Strings. To achieve old
         // identity test Strings must be downcasted to Object
         _runNoError("String a=\"a\"; String b = \"b\"; a + b == a + 'b'", new Boolean(true), "org.openl.j");
+        _runNoError("String a=\"a\"; String b = \"b\"; a + b == a + 'c'", new Boolean(false), "org.openl.j");
+        _runNoError("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", new Boolean(false), "org.openl.j");
+        _runNoError("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", new Boolean(true), "org.openl.j");
         _runNoError("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", new Boolean(false),
                 "org.openl.j");
 
+        
+        _runNoError("boolean a=true; boolean b = false; a == !b", new Boolean(true), "org.openl.j");
+        _runNoError("boolean a=true; boolean b = false; a != b", new Boolean(true), "org.openl.j");
+        
+        
         _runNoError("int x=5, y=7; x & y", 5 & 7, "org.openl.j");
         _runNoError("int x=5, y=7; x | y", 5 | 7, "org.openl.j");
         _runNoError("int x=5, y=7; x ^ y", 5 ^ 7, "org.openl.j");
