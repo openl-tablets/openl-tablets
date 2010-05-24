@@ -331,6 +331,11 @@ public class Operators {
         return x == y;
     }
 
+    public static boolean ne(boolean x, boolean y) {
+        return x != y;
+    }
+    
+    
     public static boolean eq(double x, double y) {
         return x == y;
     }
@@ -354,6 +359,14 @@ public class Operators {
         return x.equals(y);
     }
 
+    public static boolean ne(String x, String y) {
+        if (x == null) {
+            return x != y;
+        }
+        return !x.equals(y);
+    }
+    
+    
     static public <T extends Comparable<?>> boolean ge(Comparable<T> c1, T c2) {
         return c1.compareTo(c2) >= 0;
     }
