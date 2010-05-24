@@ -23,6 +23,11 @@ public interface ITable {
      */
     String getName();
     
+    /**
+     * 
+     * @return true if table is executable at OpenL rules runtime. Also it indicates that tests can be created for this 
+     * table.   
+     */
     boolean isExecutable();
 
     String getUri();
