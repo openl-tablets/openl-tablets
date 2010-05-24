@@ -591,10 +591,7 @@ public class ProjectModel {
         String[] names = new String[runners.length];
 
         for (int i = 0; i < runners.length; i++) {
-            IMemberMetaInfo mi = runners[i].getInfo();
-            TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
-
-            names[i] = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1];
+            names[i] = ProjectHelper.createTestName(runners[i]);
         }
 
         return new AllTestsRunResult(runners, names);
@@ -752,21 +749,46 @@ public class ProjectModel {
         String[] names = new String[testMethods.length];
 
         for (int i = 0; i < testMethods.length; i++) {
-            IMemberMetaInfo mi = testMethods[i].getInfo();
-            TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
-
-            names[i] = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1];
+            
+            names[i] = ProjectHelper.createTestName(testMethods[i]);
         }
 
         return new AllTestsRunResult(testMethods, names);
     }
-
+    
+    /**
+     * Get runnable tests for tested method by uri. Runnable tests - tests with  filled rules rows data for testing 
+     * its functionality. If you need to get all test methods, including and empty ones, use {@link #getAllTestMethods(String)
+     * 
+     * @param elementUri
+     * @return
+     */
     public AllTestsRunResult getTestMethods(String elementUri) {
         IOpenMethod[] testMethods = null;
 
         IOpenMethod method = getMethod(elementUri);
         if (method != null) {
             testMethods = ProjectHelper.testers(method);
+            if (ArrayUtils.isNotEmpty(testMethods)) {
+                return getTestsRunner(testMethods);
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Gets all test methods for method by uri.
+     * 
+     * @param elementUri
+     * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
+     * runs without any parameters and tests without cases and runs.
+     */
+    public AllTestsRunResult getAllTestMethods(String elementUri) {
+        IOpenMethod[] testMethods = null;
+
+        IOpenMethod method = getMethod(elementUri);
+        if (method != null) {
+            testMethods = ProjectHelper.allTesters(method);
             if (ArrayUtils.isNotEmpty(testMethods)) {
                 return getTestsRunner(testMethods);
             }
