@@ -1,7 +1,7 @@
 package org.openl.rules.calc.element;
 
 import org.openl.rules.calc.ASpreadsheetField;
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -16,14 +16,14 @@ public class SpreadsheetCellField extends ASpreadsheetField {
     }
 
     @Override
-    public Object calculate(SpreadsheetResult spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
+    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
         return cell.calculate(spreadsheetResult, targetModule, params, env);
     }
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
 
-        SpreadsheetResult result = (SpreadsheetResult) target;
+        SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
 
         return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
     }

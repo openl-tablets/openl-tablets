@@ -1,6 +1,6 @@
 package org.openl.rules.calc.element;
 
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -82,7 +82,7 @@ public class SpreadsheetCell {
         }
     }
 
-    public Object calculate(SpreadsheetResult spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
+    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
 
         if (isValueCell()) {
 

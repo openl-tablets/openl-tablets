@@ -104,9 +104,10 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        SpreadsheetResult res = new SpreadsheetResult(this, (IDynamicObject) target, params, env);
+        SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(this, (IDynamicObject) target, params, env);
 
         return resultBuilder.makeResult(res);
+        
     }
 
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {

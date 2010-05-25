@@ -54,7 +54,7 @@ public class SpreadsheetHeaderDefinition {
         return null;
     }
 
-    public Object getArray(SpreadsheetResult target, IRuntimeEnv env) {
+    public Object getArray(SpreadsheetResultCalculator target, IRuntimeEnv env) {
         
         if (row < 0) {
             return target.getColumn(column, env);

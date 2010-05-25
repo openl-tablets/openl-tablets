@@ -19,7 +19,7 @@ public class SpreadsheetHeaderField extends ASpreadsheetField {
     }
 
     @Override
-    public Object calculate(SpreadsheetResult spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
+    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
         return header.getArray(spreadsheetResult, env);
     }
 
