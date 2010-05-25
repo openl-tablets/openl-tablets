@@ -4,7 +4,7 @@
  */
 package org.openl.tablets.tutorial4;
 
-import org.openl.rules.calc.result.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.types.impl.DynamicObject;
 import org.openl.vm.Tracer;
 
