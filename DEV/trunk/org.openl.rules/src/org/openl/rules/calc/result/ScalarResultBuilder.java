@@ -2,6 +2,7 @@ package org.openl.rules.calc.result;
 
 import java.util.List;
 
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
 
 public class ScalarResultBuilder implements IResultBuilder {

@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
-import org.openl.rules.calc.result.SpreadsheetResult;
 
 public class Test0 {
     interface ITestCalc {

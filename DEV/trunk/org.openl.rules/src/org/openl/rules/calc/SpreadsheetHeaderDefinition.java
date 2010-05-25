@@ -3,7 +3,6 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 

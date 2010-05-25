@@ -5,7 +5,6 @@ import java.io.File;
 
 import org.junit.Test;
 import org.openl.rules.TestHelper;
-import org.openl.rules.calc.result.SpreadsheetResult;
 
 public class Test2 {
     interface ITestCalc {

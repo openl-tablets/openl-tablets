@@ -1,5 +1,7 @@
 package org.openl.rules.calc.result;
 
+import org.openl.rules.calc.SpreadsheetResult;
+
 
 public class DefaultResultBuilder implements IResultBuilder {
 
