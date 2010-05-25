@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.calc.result.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
