@@ -156,6 +156,10 @@ public abstract class AOpenClass implements IOpenClass {
         Map<String, IOpenField> fieldMap = fieldMap();
         return fieldMap == null ? null : fieldMap.values().iterator();
     }
+    
+    public Map<String, IOpenField> getFields() {
+        return new HashMap<String, IOpenField>(fieldMap());
+    }
 
     /*
      * (non-Javadoc)

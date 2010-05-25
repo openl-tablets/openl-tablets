@@ -1,10 +1,9 @@
 package org.openl.rules.calc.result;
 
-import org.openl.rules.calc.SpreadsheetResult;
-
+import org.openl.rules.calc.SpreadsheetResultCalculator;
 
 public interface IResultBuilder {
-
-    Object makeResult(SpreadsheetResult res);
+    
+    Object makeResult(SpreadsheetResultCalculator res);
 
 }
