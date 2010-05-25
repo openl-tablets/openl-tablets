@@ -407,7 +407,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         setCellMetaInfo(colTo, rowTo, meta);
     }
     
-    private boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
+    public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
         IGridRegion region = mergedRegionsPool.getRegionContaining(firstCellColumn, firstCellRow);
         if (region != null && org.openl.rules.table.IGridRegion.Tool.contains(region, secondCellColumn, secondCellRow)) {
             return true;
@@ -499,7 +499,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return cell;
     }
 
-    public ICell getCell(int column, int row) {
+    public XlsCell getCell(int column, int row) {
         IGridRegion region = getRegionContaining(column, row);
         return new XlsCell(column, row, region, getXlsCell(column, row));
     }
