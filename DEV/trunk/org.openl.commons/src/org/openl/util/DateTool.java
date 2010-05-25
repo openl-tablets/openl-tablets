@@ -1,4 +1,4 @@
-package org.openl.rules.helpers;
+package org.openl.util;
 
 import java.util.Calendar;
 import java.util.Date;

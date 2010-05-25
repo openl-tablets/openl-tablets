@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -17,12 +17,12 @@ import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ArrayUtils;
+import org.openl.util.ArrayTool;
 import org.openl.util.EnumUtils;
 
 public class TableProperties extends DynamicObject implements ITableProperties {
     
-    private final Log LOG = LogFactory.getLog(TableProperties.class);
+    //private final Log LOG = LogFactory.getLog(TableProperties.class);
 
     private String currentTableType;
     /**
@@ -244,7 +244,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
                 Object[] enums = (Object[]) propValue;
 
-                if (!ArrayUtils.isEmpty(enums)) {
+                if (!ArrayTool.isEmpty(enums)) {
 
                     String[] names = EnumUtils.getNames(enums);
                     result = StringUtils.join(names, ",");
