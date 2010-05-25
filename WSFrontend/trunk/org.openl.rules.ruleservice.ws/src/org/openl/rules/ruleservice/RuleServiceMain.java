@@ -31,6 +31,7 @@ public class RuleServiceMain extends RuleServiceBase {
             admin = new WebServicesDeployAdmin();
 
         }
+        admin.setContext(applicationContext);
         return admin;
     }
 

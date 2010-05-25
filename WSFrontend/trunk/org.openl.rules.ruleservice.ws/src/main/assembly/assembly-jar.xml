@@ -9,7 +9,8 @@
 
   <fileSets>
     <fileSet>
-      <directory>src</directory>
+      <directory>target/classes/org</directory>
+      <outputDirectory>org</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>META-INF</directory>
