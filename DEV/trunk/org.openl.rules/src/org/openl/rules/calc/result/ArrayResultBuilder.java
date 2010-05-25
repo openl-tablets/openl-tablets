@@ -3,6 +3,7 @@ package org.openl.rules.calc.result;
 import java.lang.reflect.Array;
 import java.util.List;
 
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.types.IOpenClass;
 

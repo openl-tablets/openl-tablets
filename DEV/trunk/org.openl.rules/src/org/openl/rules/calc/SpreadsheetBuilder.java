@@ -23,7 +23,6 @@ import org.openl.rules.calc.element.SpreadsheetCellMetaInfo;
 import org.openl.rules.calc.result.ArrayResultBuilder;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
-import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

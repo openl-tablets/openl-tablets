@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.vm.IRuntimeEnv;
 

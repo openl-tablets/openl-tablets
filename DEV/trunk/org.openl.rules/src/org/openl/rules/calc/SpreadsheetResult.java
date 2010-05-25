@@ -1,9 +1,8 @@
-package org.openl.rules.calc.result;
+package org.openl.rules.calc;
 
 import java.util.Map;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;

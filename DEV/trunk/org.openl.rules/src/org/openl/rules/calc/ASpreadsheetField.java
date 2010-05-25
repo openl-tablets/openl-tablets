@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import org.openl.rules.calc.result.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.vm.IRuntimeEnv;

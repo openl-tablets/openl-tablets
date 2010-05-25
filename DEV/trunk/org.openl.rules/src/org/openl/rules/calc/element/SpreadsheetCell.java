@@ -1,6 +1,6 @@
 package org.openl.rules.calc.element;
 
-import org.openl.rules.calc.result.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
