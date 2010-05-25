@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -412,7 +413,15 @@ public class ShowTableBean {
         }
 
         public boolean isNotEmpty() {
-            return tests != null && tests.length > 0;
+            if (ArrayUtils.isNotEmpty(tests)) {
+                for (TestProxy testProxy : getTests()) {
+                    String[] descriptions = testProxy.getDescriptions();
+                    if (ArrayUtils.isNotEmpty(descriptions)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public class TestProxy {
