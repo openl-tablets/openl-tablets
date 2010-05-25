@@ -9,7 +9,6 @@ import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
@@ -36,10 +35,7 @@ public class ObjectViewer {
     }
 
     public static Object displaySpreadsheetResult(final SpreadsheetResult res) {
-
-        TableSyntaxNode tsn = (TableSyntaxNode) res.getSpreadsheet().getInfo().getSyntaxNode();
-
-        ILogicalTable table = tsn.getTableBody();
+        ILogicalTable table = res.getLogicalTable();
         IGridTable gt = table.getGridTable();
 
         final int firstRowHeight = table.getLogicalRow(0).getGridTable().getGridHeight();
