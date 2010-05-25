@@ -11,26 +11,26 @@ import org.openl.rules.table.IGridTable;
 public class TableModel {
 
     private static final String EMPTY =
-        "<td width=50 style=\"border-style: dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+        "<td width=\"50\" style=\"border-style: dashed;border-width:1px; border-color: #C0C0FF\">&nbsp;</td>";
 
     private static final String EMPTY_TR =
-        "<td style=\"border-style: dashed dashed none none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+        "<td style=\"border-style: dashed dashed none none;border-width:1px; border-color: #C0C0FF\">&nbsp;</td>";
 
     private static final String EMPTY_TRB =
-        "<td width=50 style=\"border-style: dashed dashed dashed none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+        "<td width=\"50\" style=\"border-style: dashed dashed dashed none;border-width:1px; border-color: #C0C0FF\">&nbsp;</td>";
 
     private static final String EMPTY_BL =
-        "<td width=50 style=\"border-style: none none dashed dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+        "<td width=\"50\" style=\"border-style: none none dashed dashed;border-width:1px; border-color: #C0C0FF\">&nbsp;</td>";
 
     private static final String EMPTY_RB =
-        "<td width=50 style=\"border-style: none dashed dashed none;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+        "<td width=\"50\" style=\"border-style: none dashed dashed none;border-width:1px; border-color: #C0C0FF\">&nbsp;</td>";
 
     private static final String EMPTY_RBL =
-        "<td width=50 style=\"border-style: none dashed dashed dashed;border-width:1; border-color: #C0C0FF\">&nbsp;</td>";
+        "<td width=\"50\" style=\"border-style: none dashed dashed dashed;border-width:1px; border-color: #C0C0FF\">&nbsp;</td>";
 
     private ICellModel[][] cells;
 
-    private String attributes = "cellspacing=0 cellpadding=1";
+    private String attributes = "cellspacing=\"0\" cellpadding=\"1\"";
 
     private IGridTable gridTable;
 
@@ -148,6 +148,7 @@ public class TableModel {
         return cells[r][c] != null;
     }
 
+    /** @deprecated */
     public void toHtmlString(StringBuilder buf, boolean showGrid) {
         buf.append("<table ").append(attributes).append(">\n");
 

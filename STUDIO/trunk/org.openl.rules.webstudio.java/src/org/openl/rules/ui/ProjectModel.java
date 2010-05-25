@@ -1253,11 +1253,13 @@ public class ProjectModel {
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;
     }
-    
+
+    /** @deprecated */
     public static String showTable(IGridTable gt, boolean showgrid) {
         return showTable(gt, (IGridFilter[]) null, showgrid);
     }
 
+    /** @deprecated */
     public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
         TableModel model = buildModel(gt, filters);
         return TableViewer.showTable(model, showgrid);

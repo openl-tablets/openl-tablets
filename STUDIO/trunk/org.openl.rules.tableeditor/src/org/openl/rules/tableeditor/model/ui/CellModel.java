@@ -49,10 +49,10 @@ public class CellModel implements ICellModel {
 
     public void atttributesToHtml(StringBuilder buf, TableModel table, boolean selectErrorCell) {
         if (colspan != 1) {
-            buf.append(" colspan=").append(colspan);
+            buf.append(" colspan=\"").append(colspan).append("\"");
         }
         if (rowspan != 1) {
-            buf.append(" rowspan=").append(rowspan);
+            buf.append(" rowspan=\"").append(rowspan).append("\"");
         }
 
         String style = getHtmlStyle(table, selectErrorCell);
@@ -271,13 +271,12 @@ public class CellModel implements ICellModel {
         this.width = width;
     }
 
+    /** @deprecated */
     public void toHtmlString(StringBuilder buf, TableModel table) {
         buf.append("<td");
         atttributesToHtml(buf, table);
         //FIXME: Should formulas be displayed?
-        buf.append('>').append("<div ").append(" onMouseDown='clickCell(").append(column).append(',').append(row)
-                .append(",event)'").append(" id='c").append(column).append('x').append(row).append("'>").append(
-                        getContent(false)).append("</div></td>\n");
+        buf.append('>').append("</td>\n");
     }
 
     public boolean hasFormula() {

@@ -55,6 +55,7 @@ public class TableViewer {
         cm.setFont(cell.getFont());
     }
 
+    /** @deprecated */
     public static String showTable(TableModel tm, boolean showGrid) {
         StringBuilder buf = new StringBuilder(1000);
         tm.toHtmlString(buf, showGrid);

@@ -27,6 +27,8 @@ import org.openl.util.StringTool;
 
 /**
  * @author snshor
+ * 
+ * @deprecated
  */
 public class ObjectViewer {
 
@@ -165,7 +167,8 @@ public class ObjectViewer {
 
         if (res instanceof SpreadsheetResult) {
             SpreadsheetResult sres = (SpreadsheetResult) res;
-            return displayResult(displaySpreadsheetResult(sres));
+            Object d = displaySpreadsheetResult(sres);
+            return displayResult(d);
         }
 
         String value = res.toString();
