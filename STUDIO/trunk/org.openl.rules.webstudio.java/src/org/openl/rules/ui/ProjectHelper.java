@@ -177,11 +177,11 @@ public class ProjectHelper {
     }
     
     private static String getNumberOfTests(int param1, String param2) {        
-        return String.format("(%d %s)", param1, param2);
+        return String.format(" (%d %s)", param1, param2);
     }
 
     private static String getTestAdditionalInfo(String param1, String param2) {
-        return String.format("(%s %s)", param1, param2);
+        return String.format(" (%s %s)", param1, param2);
     }
 
 }
