@@ -31,6 +31,9 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridAction {
             // Wrong region created
             newRegion = null;
         }
+        if(IGridRegion.Tool.width(newRegion) == 1 && IGridRegion.Tool.height(newRegion) == 1){
+            newRegion = null;
+        }
     }
 
     public void doAction(IWritableGrid grid, IUndoGrid undo) {

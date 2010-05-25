@@ -3,9 +3,6 @@
  */
 package org.openl.rules.table.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IUndoGrid;
@@ -19,8 +16,7 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
 
     private int colFrom, rowFrom;
 
-    private List<IGridRegion> toRestore = new ArrayList<IGridRegion>();
-    private List<IGridRegion> toRemove = new ArrayList<IGridRegion>();
+    private GridRegion toRestore, toRemove;
 
     public UndoableCopyValueAction(int colFrom, int rowFrom, int colTo, int rowTo) {
         super(colTo, rowTo);
@@ -35,35 +31,31 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
     }
 
     void moveRegion(IWritableGrid wgrid) {
-        toRemove.clear();
-        toRestore.clear();
         IGridRegion rrFrom = wgrid.getRegionStartingAt(colFrom, rowFrom);
         IGridRegion rrTo = wgrid.getRegionStartingAt(col, row);
 
         if (rrTo != null) {
-            GridRegion removedRegion = new GridRegion(rrTo);
-            toRestore.add(removedRegion);
-            wgrid.removeMergedRegion(removedRegion);
+            toRestore = new GridRegion(rrTo);
+            wgrid.removeMergedRegion(toRestore);
         }
 
         if (rrFrom != null) {
-            toRestore.add(rrFrom);
-            wgrid.removeMergedRegion(rrFrom);
             GridRegion copyFrom = new GridRegion(rrFrom.getTop() + row - rowFrom, rrFrom.getLeft() + col - colFrom,
                     rrFrom.getBottom() + row - rowFrom, rrFrom.getRight() + col - colFrom);
             wgrid.addMergedRegion(copyFrom);
-            toRemove.add(copyFrom);
+            toRemove = copyFrom;
         }
 
     }
 
     @Override
     public void restore(IWritableGrid wgrid, IUndoGrid undo) {
-        for (IGridRegion region : toRemove) {
-            wgrid.removeMergedRegion(region);
+
+        if (toRemove != null) {
+            wgrid.removeMergedRegion(toRemove);
         }
-        for (IGridRegion region : toRestore) {
-            wgrid.addMergedRegion(region);
+        if (toRestore != null) {
+            wgrid.addMergedRegion(toRestore);
         }
         super.restore(wgrid, undo);
     }
