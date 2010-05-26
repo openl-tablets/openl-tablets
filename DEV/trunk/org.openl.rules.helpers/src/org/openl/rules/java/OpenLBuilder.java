@@ -32,7 +32,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
         JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
-        javalib1.setClassName("org.openl.rules.helpers.Util");
+        javalib1.setClassName("org.openl.rules.helpers.RulesUtils");
         library.addJavalib(javalib1);
 
         JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration();
@@ -49,7 +49,7 @@ public class OpenLBuilder extends AOpenLBuilder {
          * <libraries>
          *
          * <library namespace="org.openl.this"> <javalib
-         * classname="org.openl.rules.helpers.Util"/> </library> </libraries>
+         * classname="org.openl.rules.helpers.RulesUtils"/> </library> </libraries>
          */
 
         TypeFactoryConfiguration types = op.createTypes();

@@ -289,7 +289,6 @@ public class ArrayTool {
     /**
      * Returns true if both array1 and array2 have at least one the same element
      */
-
     public static <T> boolean intersects(T[] array1, T[] array2) {
         Iterator<T> it = iterator(array1);
         while (it.hasNext()) {
@@ -307,12 +306,6 @@ public class ArrayTool {
     public static Object merge(Object array1, Object array2) {
         return merge(new Object[] { array1, array2 });
     }
-
-    // public static int size(Object[] ary)
-    // {
-    // return ary.length;
-    // }
-    //
 
     public static Object merge(Object[] arrays) {
         if (arrays == null || arrays.length == 0) {
@@ -574,6 +567,132 @@ public class ArrayTool {
         }
 
         return true;
+    }
+    
+    public static boolean containsAll(int[] ary1, int[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (int arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }        
+        return true;   
+    }
+
+    public static boolean containsAll(byte[] ary1, byte[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (byte arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean containsAll(short[] ary1, short[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (short arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }        
+        return true;
+    }
+
+    public static boolean containsAll(long[] ary1, long[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (long arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean containsAll(char[] ary1, char[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (char arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean containsAll(float[] ary1, float[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (float arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean containsAll(String[] ary1, String[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (String arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean containsAll(double[] ary1, double[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        
+        for (double arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean containsAll(boolean[] ary1, boolean[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return false;
+        }
+        for (boolean arrayElement : ary2) {
+            if(!contains(ary1, arrayElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String[] intersection(String[] ary1, String[] ary2) {
+        List<String> v = new ArrayList<String>();
+        for (int j = 0; j < ary2.length; ++j) {
+            if (contains(ary1, ary2[j])) {
+                v.add(ary2[j]);
+            }
+        }
+        return  v.toArray(new String[v.size()]);
     }
 
 }
