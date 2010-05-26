@@ -104,7 +104,7 @@ public class SpreadsheetResult implements Serializable {
         return new HashMap<String, Point>(fieldsCoordinates);
     }
 
-    public void setFields(Map<String, Point> fieldsCoordinates) {
+    public void setFieldsCoordinates(Map<String, Point> fieldsCoordinates) {
         this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);
     }
     
