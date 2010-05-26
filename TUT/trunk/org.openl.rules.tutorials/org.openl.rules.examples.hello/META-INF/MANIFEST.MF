@@ -6,5 +6,4 @@ Bundle-Version: 5.5.0
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core,
  org.openl.j,
- org.openl.rules,
- org.openl.rules.helpers
+ org.openl.rules
