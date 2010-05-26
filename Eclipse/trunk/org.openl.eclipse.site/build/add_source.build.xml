@@ -12,7 +12,6 @@
 -->	
 	<antcall target="add_source" ><param name="plugin_name" value="org.openl.j"/></antcall>	
 	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules"/></antcall>	
-	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.helpers"/></antcall>	
 	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.eclipse.ui"/></antcall>	
 <!--	
 	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.eclipse.ui.wizard"/></antcall>	

@@ -224,12 +224,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.helpers</artifactId>
-        <version>${openl.version.maven}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j.science</artifactId>
         <version>${openl.version.maven}</version>
@@ -448,13 +442,6 @@
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j</artifactId>
-      <classifier>sources</classifier>
-      <version>${openl.version.maven}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.helpers</artifactId>
       <classifier>sources</classifier>
       <version>${openl.version.maven}</version>
     </dependency>
