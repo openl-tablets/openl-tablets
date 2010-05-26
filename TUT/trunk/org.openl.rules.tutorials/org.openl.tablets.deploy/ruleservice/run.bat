@@ -91,7 +91,6 @@ lib\org.openl.grammars_5.5.1.jar;^
 lib\org.openl.j_5.5.1.jar;^
 lib\org.openl.rules.diff_5.5.1.jar;^
 lib\org.openl.rules.eclipse.ui_5.5.1.jar;^
-lib\org.openl.rules.helpers_5.5.1.jar;^
 lib\org.openl.rules.repository.jcr.jackrabbit_5.5.1.jar;^
 lib\org.openl.rules.repository.jcr_5.5.1.jar;^
 lib\org.openl.rules.repository_5.5.1.jar;^

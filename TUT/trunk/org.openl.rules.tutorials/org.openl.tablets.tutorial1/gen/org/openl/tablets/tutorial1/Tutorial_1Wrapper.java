@@ -8,13 +8,12 @@ import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.IOpenClass;
+import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
+public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
 {
   Object __instance;
-
-    public org.openl.vm.IRuntimeEnv __env = new org.openl.vm.SimpleVM().getRuntimeEnv();
 
   public static org.openl.types.IOpenClass __class;
 
@@ -24,11 +23,34 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
 
   public static String __src = "rules/Tutorial_1.xls";
 
+  public static String __srcModuleClass = null;
+
   public static String __folder = "rules";
 
   public static String __project = "org.openl.tablets.tutorial1";
 
   public static String __userHome = ".";
+
+  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+    @Override
+    protected org.openl.vm.IRuntimeEnv initialValue() {
+      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      return environment;
+    }
+  };
+
+  public org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {
+    return __env.get();
+  }
+
+  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
+    __env.set(environment);
+  }
+
+  public org.openl.rules.context.IRulesRuntimeContext getRuntimeContext() {
+    return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();
+  }
 
   public Tutorial_1Wrapper(){
     this(false);
@@ -37,7 +59,7 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
   public Tutorial_1Wrapper(boolean ignoreErrors){
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
-    __instance = __class.newInstance(__env);
+    __instance = __class.newInstance(__env.get());
   }
 
 
@@ -46,14 +68,14 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
 
   public org.openl.types.impl.DynamicObject getThis()
   {
-   Object __res = this_Field.get(__instance, __env);
+   Object __res = this_Field.get(__instance, __env.get());
    return (org.openl.types.impl.DynamicObject)__res;
   }
 
 
   public void setThis(org.openl.types.impl.DynamicObject __var)
   {
-   this_Field.set(__instance, __var, __env);
+   this_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -65,7 +87,7 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
     try
     {
     Object __myInstance = __instance;
-    hello1_Method.invoke(__myInstance, __params, __env);  }
+    hello1_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -83,18 +105,18 @@ public IOpenClass getOpenClass(){return __class;}
 
 public org.openl.CompiledOpenClass getCompiledOpenClass(){return __compiledClass;}
 
-public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env);}
+public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env.get());}
 
   static synchronized protected void __init()
   {
     if (__initialized)
       return;
 
-    UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src);
+    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
-   // __env = wrapper.getEnv();
+   // __env.set(wrapper.getEnv());
 
     this_Field = __class.getField("this");
     hello1_Method = __class.getMatchingMethod("hello1", new IOpenClass[] {
