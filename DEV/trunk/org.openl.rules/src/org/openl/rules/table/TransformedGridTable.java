@@ -1,6 +1,5 @@
 package org.openl.rules.table;
 
-import org.openl.rules.table.CoordinatesTransformer.Point;
 
 /**
  * Logical table model that delegate original table and access to original table

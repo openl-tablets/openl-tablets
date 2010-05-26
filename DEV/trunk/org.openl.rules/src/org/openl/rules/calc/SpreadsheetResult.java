@@ -1,38 +1,49 @@
 package org.openl.rules.calc;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.types.IOpenField;
+import org.openl.rules.table.Point;
 
-public class SpreadsheetResult {
+/**
+ * Serializable bean that handles result of spreadsheet calculation.
+ *
+ */
+public class SpreadsheetResult implements Serializable {
+    
+    private static final long serialVersionUID = 8704762477153429384L;
     
     private Object[][] results;
     private int height;
     private int width;
     private String[] columnNames;
     private String[] rowNames;
-    private Map<String, IOpenField> fields;
+    private Map<String, Point> fieldsCoordinates;
     
     /**
      * logical representation of calculated spreadsheet table
      * it is needed for web studio to display results
      */
-    private ILogicalTable logicalTable;
+    private transient ILogicalTable logicalTable;
     
     public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames, 
-            Map<String, IOpenField> fields) {
+            Map<String, Point> fieldsCoordinates) {
         this.columnNames = columnNames;
         this.rowNames = rowNames;
         this.height = rowNames.length;
         this.width = columnNames.length;
         this.results = results.clone();
-        this.fields = new HashMap<String, IOpenField>(fields);        
+        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);        
     }
     
+    @Deprecated
     public int height() {
+        return getHeight();
+    }
+    
+    public int getHeight() {
         return height;
     }
     
@@ -41,14 +52,19 @@ public class SpreadsheetResult {
     }
     
     public Object[][] getResults() {
-        return results;
+        return results.clone();
     }
 
     public void setResults(Object[][] results) {
-        this.results = results;
+        this.results = results.clone();
     }
     
+    @Deprecated
     public int width() {
+        return getWidth();
+    }
+    
+    public int getWidth() {
         return width;
     }
 
@@ -57,11 +73,11 @@ public class SpreadsheetResult {
     }
 
     public String[] getColumnNames() {        
-        return columnNames;
+        return columnNames.clone();
     }
 
     public void setColumnNames(String[] columnNames) {
-        this.columnNames = columnNames;
+        this.columnNames = columnNames.clone();
     }
 
     public String[] getRowNames() {
@@ -69,33 +85,27 @@ public class SpreadsheetResult {
     }
 
     public void setRowNames(String[] rowNames) {
-        this.rowNames = rowNames;
+        this.rowNames = rowNames.clone();
     }    
     
     public Object getValue(int row, int column) {       
         return results[row][column];
     }
     
-    public String getColumnName(int column) {    
-        if (column < columnNames.length) {
-            return columnNames[column];
-        }
-        return null;        
+    public String getColumnName(int column) {
+        return columnNames[column];                
     }    
     
     public String getRowName(int row) {
-        if (row < rowNames.length) {
-            return rowNames[row];
-        } 
-        return null;
+        return rowNames[row];        
     }
     
-    public Map<String, IOpenField> getFields() {
-        return new HashMap<String, IOpenField>(fields);
+    public Map<String, Point> getFieldsCoordinates() {
+        return new HashMap<String, Point>(fieldsCoordinates);
     }
 
-    public void setFields(Map<String, IOpenField> fields) {
-        this.fields = new HashMap<String, IOpenField>(fields);
+    public void setFields(Map<String, Point> fieldsCoordinates) {
+        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);
     }
     
     /**
@@ -112,15 +122,10 @@ public class SpreadsheetResult {
     }
 
     public Object getFieldValue(String name) {
-        IOpenField field = fields.get(name);        
+        Point fieldCoordinates = fieldsCoordinates.get(name);        
         
-        if (field != null) {
-            SpreadsheetCellField cellField = (SpreadsheetCellField) field;
-
-            int row = cellField.getCell().getRowIndex();
-            int column = cellField.getCell().getColumnIndex();
-
-            return getValue(row, column);
+        if (fieldCoordinates != null) {
+            return getValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn());
         }
         return null;        
     }

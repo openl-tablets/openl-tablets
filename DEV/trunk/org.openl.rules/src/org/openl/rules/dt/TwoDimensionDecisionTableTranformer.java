@@ -2,6 +2,7 @@ package org.openl.rules.dt;
 
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.CoordinatesTransformer;
+import org.openl.rules.table.Point;
 
 /**
  * Transforms coordinates for table with two dimensions(table that has vertical
