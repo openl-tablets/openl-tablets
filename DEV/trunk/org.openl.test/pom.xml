@@ -82,12 +82,7 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j</artifactId>
     </dependency>
-    
-    <dependency>
-    	<groupId>org.openl.rules</groupId>
-    	<artifactId>org.openl.rules.helpers</artifactId>
-    </dependency>
-  
+
   </dependencies>
 
 </project>

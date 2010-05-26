@@ -7,7 +7,6 @@ Bundle-Localization: plugin
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules,
  org.openl.test,
- org.openl.rules.helpers,
  org.openl.j
 Export-Package: com.exigen.rules.openl.integrator,
  com.exigen.srp.idat,

@@ -22,7 +22,6 @@
 	<module>../org.openl.grammars</module>
     <module>../org.openl.j</module>
     <module>../org.openl.j.science</module>
-    <module>../org.openl.rules.helpers</module>
     <module>../org.openl.rules</module>
     <module>../com.exigen.rules.constrainer</module>
     <module>../org.openl.conf.ant</module>    
@@ -98,7 +97,6 @@
                     <include name="org.openl.j\target\cobertura\cobertura.ser" />
                     <include name="org.openl.j.science\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />                    
                   </fileset>
                 </cobertura-merge>
 
@@ -130,9 +128,6 @@
                   <fileset dir="..\org.openl.rules\poi\">
                     <include name="**\*.java" />
                   </fileset>
-                  <fileset dir="..\org.openl.rules.helpers\src\">
-                    <include name="**\*.java" />
-                  </fileset>                  
                 </cobertura-report>
               </tasks>
             </configuration>
@@ -187,12 +182,6 @@
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.helpers</artifactId>
         <version>${version}</version>
       </dependency>
 
