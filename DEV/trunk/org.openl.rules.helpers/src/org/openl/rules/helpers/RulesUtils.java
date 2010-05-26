@@ -13,14 +13,12 @@ import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.util.ArrayTool;
+import org.openl.util.DateTool;
 
 /**
  * @author snshor
  */
 public class RulesUtils {
-
-    @Deprecated
-    public class DateTool extends org.openl.util.DateTool {}
 
     public static final String DEFAULT_DOUBLE_FORMAT = "#,##0.00";
 
