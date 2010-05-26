@@ -9,24 +9,6 @@ package org.openl.rules.table;
  * @author PUdalau
  */
 public interface CoordinatesTransformer {
-    class Point {
-        private int column;
-        private int row;
-
-        public Point(int column, int row) {
-            this.column = column;
-            this.row = row;
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        public int getRow() {
-            return row;
-        }
-    }
-
     /**
      * @param column The column of logical table.
      * @param row The row of logical table.
