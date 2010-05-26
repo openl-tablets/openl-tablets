@@ -67,7 +67,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
          * <libraries>
          *
          * <library namespace="org.openl.this"> <javalib
-         * classname="org.openl.rules.helpers.Util"/> </library> </libraries>
+         * classname="org.openl.rules.helpers.RulesUtils"/> </library> </libraries>
          */
 
         if (!imports.isEmpty()) {

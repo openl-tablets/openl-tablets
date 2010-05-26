@@ -52,23 +52,13 @@ public class DateTool {
         return c.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
-    public static void main(String[] args) {
-        Date d1 = new Date();
-
-        int absQ = absQuarter(d1);
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println("" + i + ".  " + lastDateOfQuarter(absQ + i));
-        }
-    }
-
     public static int month(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.MONTH);
     }
 
-    static public int monthDiff(Date d1, Date d2) {
+    public static int monthDiff(Date d1, Date d2) {
         int y1 = year(d1);
         int m1 = month(d1);
 
@@ -87,11 +77,6 @@ public class DateTool {
 
     }
 
-    /**
-     *
-     * @param d
-     * @return year quarter from 0 to 3
-     */
     public static int quarter(Date d) {
         return month(d) / 3;
     }
@@ -101,4 +86,5 @@ public class DateTool {
         c.setTime(d);
         return c.get(Calendar.YEAR);
     }
+
 }
