@@ -70,12 +70,7 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.lib</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.helpers</artifactId>
-    </dependency>
-	
+
 	<dependency>
       <groupId>com.exigen.rules</groupId>
       <artifactId>com.exigen.rules.constrainer</artifactId>
