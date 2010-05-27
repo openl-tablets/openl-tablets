@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -138,8 +139,12 @@ public class MergedRegionsTest {
             for (int column = 0; column <= width; column++) {
                 XlsCell resultCell = grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
                 XlsCell expectedCell = grid.getCell(expectedRegion.getLeft() + column, expectedRegion.getTop() + row);
+                Cell resultXLSCell = grid.getOrCreateXlsCell(testRegion.getLeft() + column, testRegion.getTop() + row);
+                Cell expectedXLSCell = grid.getOrCreateXlsCell(expectedRegion.getLeft() + column, expectedRegion
+                        .getTop() + row);
                 if (resultCell != expectedCell && resultCell.getStringValue() != expectedCell.getStringValue()) {
-                    if (!isEqualCells(resultCell, expectedCell, grid)) {
+                    if (!isEqualCells(resultCell, expectedCell, grid)
+                            || !isEqualCellsInPOI(resultXLSCell, expectedXLSCell)) {
                         throw new DifferentCellsException(resultCell, expectedCell);
                     }
                 }
@@ -167,6 +172,44 @@ public class MergedRegionsTest {
             return secondValue.equals(firstValue);
         }
         return firstValue == secondValue;
+    }
+
+    private boolean isEqualCellsInPOI(Cell first, Cell second) {
+        if (first == null && second == null) {
+            return true;
+        }
+        if (first == null || second == null) {
+            return false;
+        }
+        if (first.getCellType() != second.getCellType()) {
+            return false;
+        }
+        Object firstValue = extractCellValue(first);
+        Object secondValue = extractCellValue(second);
+        if (firstValue != null) {
+            return firstValue.equals(secondValue);
+        } else if (secondValue != null) {
+            return secondValue.equals(firstValue);
+        }
+        return firstValue == secondValue;
+    }
+
+    private Object extractCellValue(Cell cell) {
+        int type = cell.getCellType();
+        switch (type) {
+            case Cell.CELL_TYPE_BLANK:
+                return null;
+            case Cell.CELL_TYPE_BOOLEAN:
+                return Boolean.valueOf(cell.getBooleanCellValue());
+            case Cell.CELL_TYPE_NUMERIC:
+                return cell.getNumericCellValue();
+            case Cell.CELL_TYPE_STRING:
+                return cell.getStringCellValue();
+            case Cell.CELL_TYPE_FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "unknown type: " + cell.getCellType();
+        }
     }
 
     @Test
