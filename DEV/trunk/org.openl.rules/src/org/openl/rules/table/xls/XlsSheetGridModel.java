@@ -357,9 +357,29 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public int addMergedRegion(IGridRegion reg) {
+        Object topLeftCellValue = findFirstValueInRegion(reg);
+        for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
+            for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
+                if (column != reg.getLeft() || row != reg.getTop())
+                    clearCellValue(column, row);
+            }
+        }
+        setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
         mergedRegionsPool.add(reg);
         return sheet
                 .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
+    }
+
+    private Object findFirstValueInRegion(IGridRegion reg) {
+        for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
+            for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
+                Object cellValue = getCell(column, row).getObjectValue();
+                if (cellValue != null) {
+                    return cellValue;
+                }
+            }
+        }
+        return null;
     }
 
     private CellRangeAddress getMergedRegionAt(int index) {
@@ -367,6 +387,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }    
 
     public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
+    }
+
+    public void clearCellValue(int col, int row) {
+        setCellValue(col, row, null);
     }
 
     public void clearCell(int col, int row) {
@@ -392,11 +416,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             }
             return;
         }
-        if (isInOneMergedRegion(cellFrom.getColumnIndex(), cellFrom.getRowIndex(), colTo, rowTo)
-                && isTopLeftCellInMergedRegion(colTo, rowTo)) {
-            return;
-        }
-
         if (cellTo == null) {
             cellTo = getOrCreateXlsCell(colTo, rowTo);
         }
@@ -691,6 +710,9 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cellWriter.setCellToWrite(cell);
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue();
+        }else{
+            Cell cell = getOrCreateXlsCell(col, row);
+            cell.setCellType(CELL_TYPE_BLANK);
         }
     }
 
