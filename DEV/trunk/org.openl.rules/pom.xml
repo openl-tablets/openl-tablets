@@ -77,6 +77,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.j</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
 	  <scope>test</scope> 
