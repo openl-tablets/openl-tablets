@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.search;
 
 import org.ajax4jsf.component.UIRepeat;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.WebTool;
 
 /**
  * Request scope managed bean providing logic for Search Results include page of OpenL Studio.
@@ -65,7 +65,7 @@ public class SearchResultsBean {
 
     public String getXlsOrDocUrlLink() {
         String uri = getUri();
-        return WebTool.makeXlsOrDocUrl(uri);
+        return HTMLHelper.makeXlsOrDocUrl(uri);
     }
 
 }

@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.model.ui;
 
 import org.openl.rules.table.ui.ICellFont;
-import org.openl.rules.webtools.WebTool;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 
 public class CellModel implements ICellModel {
 
@@ -90,7 +90,7 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < borderStyle.length; i++) {
             short[] rgb = (borderStyle[i] == null) ? new short[] { 0, 0, 0 } : borderStyle[i].getRgb();
 
-            buf.append(' ').append(WebTool.toHexString(rgb));
+            buf.append(' ').append(HTMLHelper.toHexColor(rgb));
         }
         buf.append(';');
     }
@@ -171,7 +171,7 @@ public class CellModel implements ICellModel {
         }
 
         short[] color = rgbBackground;
-        sb.append("background-color:" + WebTool.toRgbString(color) + ";");
+        sb.append("background-color:" + HTMLHelper.toRgbColor(color) + ";");
 
         if (borderStyle != null || font != null) {
             sb.append("padding:" + String.valueOf(cellPadding) + "px" + ";");
@@ -210,7 +210,7 @@ public class CellModel implements ICellModel {
 
         short[] color = font.getFontColor();
 
-        buf.append("; color: " + WebTool.toHexString(color) + ";");
+        buf.append("; color: " + HTMLHelper.toHexColor(color) + ";");
 
         return buf;
     }

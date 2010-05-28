@@ -3,7 +3,7 @@ package org.openl.rules.ui;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.webtools.WebTool.StringHighlighter;
+import org.openl.rules.tableeditor.model.ui.util.StringHighlighter;
 
 public class StringFinderTest {
     
@@ -11,7 +11,7 @@ public class StringFinderTest {
     public void testStringFinder() {
         String[] tokens = new String[]{"driver"};
         String src = "go away driver of my dream";
-        StringHighlighter sf = new StringHighlighter(tokens, src);               
+        StringHighlighter sf = new StringHighlighter(tokens, src);
         String result = sf.highlightStringsInText();
         System.out.println("result="+result);
         assertEquals("go away <b>driver</b> of my dream", result);

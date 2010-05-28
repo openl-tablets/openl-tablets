@@ -21,8 +21,8 @@ import org.openl.rules.table.ui.filters.TableValueFilter;
 import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.model.ui.CellModel;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.rules.webtools.WebTool;
 import org.openl.util.StringTool;
 
 /**
@@ -174,7 +174,7 @@ public class ObjectViewer {
     }
 
     private void makeXlsOrDocUrl(String uri, StringBuffer buf) {
-        String url = WebTool.makeXlsOrDocUrl(uri);
+        String url = HTMLHelper.makeXlsOrDocUrl(uri);
         buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
         buf.append(" target='show_app_hidden'");
     }

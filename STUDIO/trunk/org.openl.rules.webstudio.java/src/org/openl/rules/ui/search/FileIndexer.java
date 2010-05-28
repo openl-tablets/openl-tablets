@@ -29,7 +29,7 @@ import org.openl.rules.indexer.WorksheetIndexParser;
 import org.openl.rules.indexer.Index.TokenBucket;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.syntax.XlsURLConstants;
-import org.openl.rules.webtools.WebTool;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.word.WordDocSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.util.FileTypeHelper;
@@ -105,7 +105,7 @@ public class FileIndexer {
 
         for (HitBucket hb : hitBuckets) {            
             String text = hb.getElement().getIndexedText();
-            String res = WebTool.htmlStringWithSelections(text, tokens);
+            String res = HTMLHelper.htmlStringWithSelections(text, tokens);
 
             System.out.println("\n++++++++++++++++++++++\n" + hb.getWeight());
             System.out.println(res);
@@ -229,7 +229,7 @@ public class FileIndexer {
             HitBucket hb = (HitBucket) iter.next();
             String[] s1 = new String[3]; 
             s1[0] = hb.getElement().getUri();
-            s1[1] = WebTool.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
+            s1[1] = HTMLHelper.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
             v.add(s1);
         }
 
@@ -269,7 +269,7 @@ public class FileIndexer {
             String[] res = new String[3];
             String uri = hb.getElement().getUri();
             res[0] = uri;
-            res[1] = WebTool.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
+            res[1] = HTMLHelper.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
             result.add(res);
             ++cnt;
         }
