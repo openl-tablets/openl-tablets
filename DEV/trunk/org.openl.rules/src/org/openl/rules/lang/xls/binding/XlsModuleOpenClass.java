@@ -32,20 +32,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	 */
 	private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
 	
-	IDataBase dataBase = new DataBase();
+	private IDataBase dataBase = new DataBase();
 	
-	/**
-	 * @param schema
-	 * @param name
-	 */
 	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl) {
 		super(schema, name, openl);
 		this.metaInfo = metaInfo;
 	}
 	
-	/**
-	 * @return
-	 */
 	public IDataBase getDataBase() {
 		return dataBase;
 	}
@@ -164,5 +157,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	private String buildFullTypeName(String namespace, String type) {
 		
 		return String.format("%s.%s", namespace, type);
+	}
+	
+	/**
+     * Return the whole map of internal types. Where the key is namespace of the type, 
+     * the value is {@link IOpenClass}.
+     * 
+     * @return map of internal types 
+     */
+	@Override
+	public Map<String, IOpenClass> getTypes() {
+	    return new HashMap<String, IOpenClass>(internalTypes);
 	}
 }

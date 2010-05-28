@@ -397,4 +397,15 @@ public abstract class AOpenClass implements IOpenClass {
 
 		return null;
 	}
+	
+	/**
+	 * Default implementation. Always returns <code>null</code>.
+	 * 
+	 */
+	public Map<String, IOpenClass> getTypes() {
+	    // Default implementation.
+        // To do nothing. Not everyone has internal types.
+	    
+	    return null;        
+    }
 }

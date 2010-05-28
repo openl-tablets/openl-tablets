@@ -7,6 +7,7 @@
 package org.openl.types;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
@@ -177,4 +178,9 @@ public class NullOpenClass implements IOpenClass {
 		// Default implementation
 		return null;
 	}
+
+    public Map<String, IOpenClass> getTypes() {
+        // Default implementation
+        return null;
+    }
 }

@@ -20,6 +20,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DynamicObjectField;
+import org.openl.types.impl.InternalDatatypeClass;
 
 /**
  * @author snshor
@@ -27,19 +28,14 @@ import org.openl.types.impl.DynamicObjectField;
  */
 public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
-    TableSyntaxNode xlsDatatypeNode;
+    private TableSyntaxNode xlsDatatypeNode;
 
-    OpenL openl;
+    private OpenL openl;
 
-    ModuleOpenClass module;
+    private ModuleOpenClass module;
 
-    ILogicalTable table;
-
-    /**
-     * @param xlsDataNode
-     * @param class1
-     * @param table
-     */
+    private ILogicalTable table;
+ 
     public DatatypeTableMethodBoundNode(TableSyntaxNode xlsDatatypeNode,
         ModuleOpenClass module,
         ILogicalTable table,
@@ -51,7 +47,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         this.openl = openl;
     }
 
-    void addFields(IBindingContext cxt) throws Exception {
+    private void addFields(IBindingContext cxt) throws Exception {
 
         ILogicalTable dataTable = findOrientation(cxt);
 
@@ -110,16 +106,12 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         }
     }
 
-    /**
-     *
-     */
-
     public void addTo(ModuleOpenClass openClass) {
-        // TODO Auto-generated method stub
-
+        InternalDatatypeClass internalClassMember = new InternalDatatypeClass(module, openClass);
+        xlsDatatypeNode.setMember(internalClassMember);
     }
 
-    int countTypes(ILogicalTable dataPart, IBindingContext cxt) {
+    private int countTypes(ILogicalTable dataPart, IBindingContext cxt) {
         int h = dataPart.getLogicalHeight();
         int cnt = 0;
         for (int i = 0; i < h; ++i) {
@@ -133,9 +125,6 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         return cnt;
     }
 
-    /**
-     *
-     */
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
 
@@ -143,7 +132,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
     }
 
-    ILogicalTable findOrientation(IBindingContext cxt) {
+    private ILogicalTable findOrientation(IBindingContext cxt) {
         ILogicalTable dataPart = table.rows(1);
 
         // TODO optimize
@@ -155,7 +144,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
     }
 
-    IOpenClass findType(ILogicalTable table, IBindingContext cxt) {
+    private IOpenClass findType(ILogicalTable table, IBindingContext cxt) {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
 
         IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);

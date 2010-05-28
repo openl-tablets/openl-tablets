@@ -26,7 +26,7 @@ import org.openl.syntax.impl.Tokenizer;
  */
 public class DatatypeNodeBinder extends AXlsTableBinder {
 
-    static final int TYPE_INDEX = 1, TABLE_NAME_INDEX = 2;
+    private static final int TYPE_INDEX = 1, TABLE_NAME_INDEX = 2;
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)

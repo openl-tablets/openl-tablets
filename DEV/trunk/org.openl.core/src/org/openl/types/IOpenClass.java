@@ -7,6 +7,7 @@
 package org.openl.types;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
 import org.openl.domain.IType;
@@ -148,4 +149,12 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	 * @return {@link IOpenClass} instance or <code>null</code>
 	 */
 	IOpenClass findType(String namespace, String typeName);
+	
+	/**
+	 * Return the whole map of internal types. Where the key is namespace of the type, 
+	 * the value is {@link IOpenClass}.
+	 * 
+	 * @return map of internal types 
+	 */
+	Map<String, IOpenClass> getTypes();
 }
