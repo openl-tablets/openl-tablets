@@ -27,6 +27,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -89,7 +90,7 @@ public class ShowTableBean {
 
         initProblems();
 
-        url = model.makeXlsUrl(uri);
+        url = HTMLHelper.makeXlsOrDocUrl(uri);
 
         AllTestsRunResult testsRunner = model.getTestMethods(uri);
         if (testsRunner != null) {

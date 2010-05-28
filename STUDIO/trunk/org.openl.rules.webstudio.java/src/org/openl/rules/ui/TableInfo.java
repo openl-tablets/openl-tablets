@@ -4,8 +4,8 @@
 package org.openl.rules.ui;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.ui.search.FileIndexer;
-import org.openl.rules.webtools.WebTool;
 
 /**
  * @author snshor
@@ -48,7 +48,7 @@ public class TableInfo {
     }
 
     public String getUrl() {
-        return WebTool.makeXlsOrDocUrl(uri == null ? table.getUri() : uri);
+        return HTMLHelper.makeXlsOrDocUrl(uri == null ? table.getUri() : uri);
     }
 
     public boolean isRunnable() {

@@ -50,6 +50,7 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -62,7 +63,6 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.rules.webtools.WebTool;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -672,12 +672,13 @@ public class ProjectModel {
     }
 
     // TODO Move to UI
+    @Deprecated
     public String getXlsOrDocUrlLink(IMetaHolder mh) {
         String display = String.valueOf(mh);
         StringBuffer buf = new StringBuffer();
         buf.append("<a ");
 
-        String url = WebTool.makeXlsOrDocUrl(mh.getMetaInfo().getSourceUrl());
+        String url = HTMLHelper.makeXlsOrDocUrl(mh.getMetaInfo().getSourceUrl());
         buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
         buf.append(" target='show_app_hidden'");
 
@@ -1004,13 +1005,6 @@ public class ProjectModel {
             }
         }
         return executableNodes;
-    }
-
-    public String makeXlsUrl(String elementUri) {
-        if (elementUri == null) {
-            return "problem: elementUri: " + elementUri;
-        }
-        return WebTool.makeXlsOrDocUrl(elementUri);
     }
 
     public void redraw() throws Exception {

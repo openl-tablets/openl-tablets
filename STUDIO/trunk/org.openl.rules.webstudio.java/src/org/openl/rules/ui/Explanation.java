@@ -9,7 +9,7 @@ import org.openl.meta.DoubleValueFormula;
 import org.openl.meta.DoubleValueFunction;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.webtools.WebTool;
+import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -117,7 +117,7 @@ public class Explanation {
         }
         int id = explanator.getUniqueId(value);
 
-        return WebTool.urlLink(makeExpandUrl(id), name == null ? "expand" : name, text, null);
+        return HTMLHelper.urlLink(makeExpandUrl(id), name == null ? "expand" : name, text, null);
 
         // if (isExpandable(value))
         // {
@@ -169,13 +169,13 @@ public class Explanation {
         String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
 
         if (url != null) {
-            text = WebTool.urlLink(makeUrl(url), "show", text, null);
+            text = HTMLHelper.urlLink(makeUrl(url), "show", text, null);
         }
 
         if (name == null) {
             name = "";
         } else if (url != null) {
-            name = WebTool.urlLink("showExplainTable.jsp?uri=" + StringTool.encodeURL(url) + "&text=" + name, "show",
+            name = HTMLHelper.urlLink("showExplainTable.jsp?uri=" + StringTool.encodeURL(url) + "&text=" + name, "show",
                     name, "mainFrame");
         }
 
