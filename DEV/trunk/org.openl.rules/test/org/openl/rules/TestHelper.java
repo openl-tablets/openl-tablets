@@ -20,9 +20,9 @@ public class TestHelper<T> {
     public TestHelper(File file, Class<T> tClass) {
         engineFactory = new RuleEngineFactory<T>(file, tClass);
 
-        instance = engineFactory.newInstance();
+        instance = engineFactory.makeInstance();
 
-        IEngineWrapper<T> ew = (IEngineWrapper<T>) instance;
+        IEngineWrapper ew = (IEngineWrapper) instance;
         DynamicObject dObj = (DynamicObject) ew.getInstance();
         XlsMetaInfo xlsMI = (XlsMetaInfo) dObj.getType().getMetaInfo();
         tableSyntaxNode =  xlsMI.getXlsModuleNode().getXlsTableSyntaxNodes()[0];

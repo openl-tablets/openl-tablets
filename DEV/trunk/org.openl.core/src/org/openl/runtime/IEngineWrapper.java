@@ -8,19 +8,18 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor IEngineWrapper provides a lightweight wrapper around Engine
  *         instance that implements interface T. One instance of wrapper should
  *         be used for a single-threaded execution of the engine. Engine
- *         wrappers are produced by {@link EngineFactory#newInstance()} method
+ *         wrappers are produced by {@link EngineFactory#makeInstance()} method
  *
- * @param <T>
  */
 
-public interface IEngineWrapper<T> {
+public interface IEngineWrapper {
     /**
      * Reference to the factory that created this wrapper
      *
      * @return
      */
 
-    EngineFactory<T> getFactory();
+    AEngineFactory getFactory();
 
     /**
      * Instance of engine object (usually {@link DynamicObject})

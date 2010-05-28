@@ -235,7 +235,7 @@ public class GenRulesCode {
         RuleEngineFactory<ITablePropertyDefinitionLoader> rulesFactory = new RuleEngineFactory<ITablePropertyDefinitionLoader>(
                 CodeGenConstants.DEFINITIONS_XLS, ITablePropertyDefinitionLoader.class);
 
-        return rulesFactory.newInstance().getDefinitions();
+        return rulesFactory.makeInstance().getDefinitions();
     }
 
     private ContextPropertyDefinition[] loadContextPropertyDefinitions() {
@@ -243,7 +243,7 @@ public class GenRulesCode {
         RuleEngineFactory<IContextPropertyDefinitionLoader> rulesFactory = new RuleEngineFactory<IContextPropertyDefinitionLoader>(
                 CodeGenConstants.DEFINITIONS_XLS, IContextPropertyDefinitionLoader.class);
 
-        return rulesFactory.newInstance().getContextDefinitions();
+        return rulesFactory.makeInstance().getContextDefinitions();
     }
 
 }

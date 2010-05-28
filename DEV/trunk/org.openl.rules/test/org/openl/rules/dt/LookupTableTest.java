@@ -19,7 +19,7 @@ public class LookupTableTest {
         EngineFactory<ILookupTableTest> engineFactory = new EngineFactory<ILookupTableTest>(
                 RuleEngineFactory.RULE_OPENL_NAME, src, ILookupTableTest.class);
         
-        test = engineFactory.newInstance();
+        test = engineFactory.makeInstance();
     }
     
     @Test
