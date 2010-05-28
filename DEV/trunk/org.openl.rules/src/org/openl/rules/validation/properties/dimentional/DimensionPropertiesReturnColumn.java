@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.StringTool;
 
 /**
@@ -85,9 +86,17 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
     
     private String originalParamsWithTypesThroughComma() {        
         List<String> values = new ArrayList<String>();        
-        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
-            values.add(String.format("%s %s", originalSignature.getParameterType(j).getInstanceClass().getSimpleName(), 
-                    originalSignature.getParameterName(j)));            
+        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) { 
+            if (!(originalSignature.getParameterType(j) instanceof NullOpenClass)) { // on compare in repository tutorial10,
+                                                                                     // all original parameter types are 
+                                                                                     // instances of NullOpenClass.
+                                                                                     // it causes NullPointerException. 
+                                                                                     // On compare we don`t need to build
+                                                                                     // and execute validation tables at 
+                                                                                     // all during binding.
+                values.add(String.format("%s %s", originalSignature.getParameterType(j).getInstanceClass().getSimpleName(), 
+                    originalSignature.getParameterName(j)));
+            }           
         }   
         return StringTool.listToStringThroughCommas(values);
     }
