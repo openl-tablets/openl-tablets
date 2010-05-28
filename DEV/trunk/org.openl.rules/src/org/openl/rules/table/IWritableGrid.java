@@ -250,7 +250,7 @@ public interface IWritableGrid extends IGrid {
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
-            if (tableContainsPropertySection(propsHeader)) {
+            if (!tableContainsPropertySection(propsHeader)) {
                 return -1;
             }
             int propsCount = wgrid.getCell(leftCell, topCell + 1).getHeight();
