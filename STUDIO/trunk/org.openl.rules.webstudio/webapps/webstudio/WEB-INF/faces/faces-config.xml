@@ -21,8 +21,8 @@
   </managed-bean>
 
   <component>
-    <component-type>org.openl.rules.web.jsf.facelets.acegi.Authentication</component-type>
-    <component-class>org.openl.rules.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
+    <component-type>org.openl.rules.webtools.jsf.facelets.acegi.Authentication</component-type>
+    <component-class>org.openl.rules.webtools.jsf.facelets.acegi.AuthenticationComponent</component-class>
   </component>
 
   <!-- ====================================================================

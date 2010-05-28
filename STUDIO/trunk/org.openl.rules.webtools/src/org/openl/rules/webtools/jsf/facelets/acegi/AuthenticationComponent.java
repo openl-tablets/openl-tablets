@@ -14,8 +14,8 @@ import javax.faces.el.ValueBinding;
  * @author Andrey Naumenko
  */
 public class AuthenticationComponent extends UIComponentBase {
-    public static final String COMPONENT_TYPE = "org.openl.rules.web.jsf.facelets.acegi.Authentication";
-    public static final String COMPONENT_FAMILY = "org.openl.rules.web.jsf.facelets.acegi";
+    public static final String COMPONENT_TYPE = "org.openl.rules.webtools.jsf.facelets.acegi.Authentication";
+    public static final String COMPONENT_FAMILY = "org.openl.rules.webtools.jsf.facelets.acegi";
     private String operation;
 
     public AuthenticationComponent() {
