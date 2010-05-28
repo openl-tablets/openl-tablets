@@ -6,11 +6,16 @@
 
 package org.openl.rules.webtools;
 
+import org.openl.rules.lang.xls.XlsUrlParser;
+
 /**
  *
  * @author sam
  */
 public class ExcelLauncher {
+
+    public static final String defaultScriptName = "LaunchExcel.vbs";
+
     String scriptName;
 
     String wbPath;
@@ -22,7 +27,7 @@ public class ExcelLauncher {
         XlsUrlParser p = new XlsUrlParser();
         p.parse(url);
 
-        launch(p.scriptName, p.wbPath, p.wbName, p.wsName, p.range);
+        launch(defaultScriptName, p.wbPath, p.wbName, p.wsName, p.range);
     }
 
     static public void launch(String scriptName, String wbPath, String wbName, String wsName, String range)

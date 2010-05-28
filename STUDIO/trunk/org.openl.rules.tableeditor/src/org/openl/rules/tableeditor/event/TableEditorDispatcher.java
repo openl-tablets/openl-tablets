@@ -20,10 +20,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.lang.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;
-import org.openl.rules.webtools.XlsUrlParser;
 
 public class TableEditorDispatcher implements PhaseListener {
     private static final long serialVersionUID = 8617343432886373802L;

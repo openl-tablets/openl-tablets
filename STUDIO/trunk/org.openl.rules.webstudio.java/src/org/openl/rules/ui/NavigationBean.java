@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.XlsUrlParser;
+import org.openl.rules.lang.xls.XlsUrlParser;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**

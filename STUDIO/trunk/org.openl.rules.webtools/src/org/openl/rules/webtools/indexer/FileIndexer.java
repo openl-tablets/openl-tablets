@@ -14,7 +14,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.indexer.DefaultIndexer;
-import org.openl.rules.webtools.FileTypeHelper;
 import org.openl.rules.indexer.HitBucket;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.indexer.IIndexParser;
@@ -33,6 +32,7 @@ import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.word.WordDocSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.Log;
 
 /**

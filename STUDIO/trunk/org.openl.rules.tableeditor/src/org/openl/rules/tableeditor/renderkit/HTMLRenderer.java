@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsUrlParser;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
@@ -33,7 +34,6 @@ import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.EnumUtils;
 import org.openl.rules.tableeditor.util.WebUtil;
 import org.openl.rules.web.jsf.util.FacesUtils;
-import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.util.StringTool;
 
 /**
