@@ -34,15 +34,25 @@ public class RulesProjectResolver {
         return projectXls.getFile();
     }
 
-    private void addWrapperIfValid(List<RuleServiceInfo> serviceClasses, Map.Entry<String, WSEntryPoint> wsCandidate,
+    private void addWrapperIfValid(List<RuleServiceInfo> serviceClasses,
+            Map.Entry<String, WSEntryPoint> wsCandidate,
             File projectFolder) {
-        final File binFolder = new File(projectFolder, "bin");
+
+        File binFolder = new File(projectFolder, "bin");
         WSEntryPoint wsEntryPoint = wsCandidate.getValue();
         String dif = wsEntryPoint.getFullFilename();
-        if (new File(binFolder, FileSystemWalker.changeExtension(dif, "class")).exists()) {
+        File file = new File(binFolder, FileSystemWalker.changeExtension(dif, "class"));
+
+        if (file.exists()) {
             String className = FileSystemWalker.removeExtension(dif).replaceAll("[/\\\\]", ".");
-            serviceClasses.add(new RuleServiceInfo(projectFolder, binFolder, xlsFile, className, wsCandidate.getKey(),
-                    wsEntryPoint.isInterface()));
+            RuleServiceInfo serviceInfo = new RuleServiceInfo(projectFolder,
+                binFolder,
+                xlsFile,
+                className,
+                wsCandidate.getKey(),
+                wsEntryPoint.isInterface() ? RulesServiceType.DYNAMIC_WRAPPER : RulesServiceType.STATIC_WRAPPER);
+            
+            serviceClasses.add(serviceInfo);
         }
     }
 

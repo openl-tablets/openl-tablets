@@ -12,7 +12,7 @@ public class RuleServiceInfo {
     private File xlsFile;
     private String className;
     private String name;
-    private boolean usingEngineFactory;
+    private RulesServiceType serviceType;
 
     /**
      * Constructor. Some parameters may be <code>null</code>.
@@ -21,17 +21,16 @@ public class RuleServiceInfo {
      * @param xlsFile excel file to use
      * @param className name of the class to expose
      * @param name name of the webservice
-     * @param usingEngineFactory if use <code>EngineFactory</code> to create
-     *            engine instance
+     * @param serviceType
      */
     public RuleServiceInfo(File project, File projectBin, File xlsFile, String className, String name,
-            boolean usingEngineFactory) {
+            RulesServiceType serviceType) {
         this.project = project;
         this.projectBin = projectBin;
         this.xlsFile = xlsFile;
         this.className = className;
         this.name = name;
-        this.usingEngineFactory = usingEngineFactory;
+        this.serviceType = serviceType;
     }
 
     public String getClassName() {
@@ -54,7 +53,7 @@ public class RuleServiceInfo {
         return xlsFile;
     }
 
-    public boolean isUsingEngineFactory() {
-        return usingEngineFactory;
+    public RulesServiceType getServiceType() {
+        return serviceType;
     }
 }
