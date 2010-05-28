@@ -43,33 +43,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-impl</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.facelets</groupId>
-      <artifactId>jsf-facelets</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.acegisecurity</groupId>
-      <artifactId>acegi-security</artifactId>
     </dependency>
 
     <dependency>
@@ -77,10 +52,6 @@
       <artifactId>hsqldb</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>javax.el</groupId>
-      <artifactId>el-api</artifactId>
-    </dependency>
   </dependencies>
 
 </project>
