@@ -4,6 +4,7 @@
 package org.openl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -47,9 +48,6 @@ public class CompiledOpenClass {
         return openClass;
     }
 
-    /**
-     * @return
-     */
     public IOpenClass getOpenClassWithErrors() {
         return openClass;
     }
@@ -76,6 +74,10 @@ public class CompiledOpenClass {
 
     public List<OpenLMessage> getMessages() {
         return messages;
+    }
+    
+    public Map<String, IOpenClass> getTypes() {
+        return openClass.getTypes();
     }
     
 }
