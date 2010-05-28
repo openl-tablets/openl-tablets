@@ -235,7 +235,7 @@ public class ClasspathCopy extends Task {
         }
 
         w.println();
-        w.println("java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webtools.StartTomcat");
+        w.println("java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webstudio.util.StartTomcat");
         w.println("pause");
 
         w.close();
