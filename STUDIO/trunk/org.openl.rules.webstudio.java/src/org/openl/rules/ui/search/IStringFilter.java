@@ -1,4 +1,4 @@
-package org.openl.rules.webtools.indexer;
+package org.openl.rules.ui.search;
 
 public interface IStringFilter {
     public static class ArrayFilter implements IStringFilter {

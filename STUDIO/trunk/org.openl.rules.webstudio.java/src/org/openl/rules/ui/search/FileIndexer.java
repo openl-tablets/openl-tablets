@@ -1,4 +1,4 @@
-package org.openl.rules.webtools.indexer;
+package org.openl.rules.ui.search;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import org.openl.util.Log;
  * @author snshor
  *
  */
-public class FileIndexer extends WebTool {
+public class FileIndexer {
     
     private long[] updateTimes;
 
@@ -105,7 +105,7 @@ public class FileIndexer extends WebTool {
 
         for (HitBucket hb : hitBuckets) {            
             String text = hb.getElement().getIndexedText();
-            String res = htmlStringWithSelections(text, tokens);
+            String res = WebTool.htmlStringWithSelections(text, tokens);
 
             System.out.println("\n++++++++++++++++++++++\n" + hb.getWeight());
             System.out.println(res);
@@ -229,7 +229,7 @@ public class FileIndexer extends WebTool {
             HitBucket hb = (HitBucket) iter.next();
             String[] s1 = new String[3]; 
             s1[0] = hb.getElement().getUri();
-            s1[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
+            s1[1] = WebTool.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
             v.add(s1);
         }
 
@@ -269,7 +269,7 @@ public class FileIndexer extends WebTool {
             String[] res = new String[3];
             String uri = hb.getElement().getUri();
             res[0] = uri;
-            res[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
+            res[1] = WebTool.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
             result.add(res);
             ++cnt;
         }

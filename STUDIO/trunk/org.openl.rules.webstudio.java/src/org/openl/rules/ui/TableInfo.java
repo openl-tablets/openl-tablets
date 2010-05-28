@@ -4,8 +4,8 @@
 package org.openl.rules.ui;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.webtools.WebTool;
-import org.openl.rules.webtools.indexer.FileIndexer;
 
 /**
  * @author snshor

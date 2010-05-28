@@ -24,7 +24,7 @@ public class WebTool extends StringTool {
      * for further displaying on UI. Finds detached words and parts of the words.
      *
      */
-    static class StringHighlighter {
+    public static class StringHighlighter {
         
         private final String BOLD_OPEN = "<b>";
         private final String BOLD_CLOSE = "</b>";

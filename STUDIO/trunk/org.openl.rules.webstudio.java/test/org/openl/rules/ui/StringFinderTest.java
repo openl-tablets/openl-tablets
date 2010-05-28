@@ -1,4 +1,4 @@
-package org.openl.rules.webtools;
+package org.openl.rules.ui;
 
 import static org.junit.Assert.*;
 
@@ -60,11 +60,11 @@ public class StringFinderTest {
     @Test
     public void testStringFinder5() {
         String[] tokens = new String[]{"driv"};
-        String src = "if driver has taken driver’s training from a licensed driver training company, then driver";
+        String src = "if driver has taken driverï¿½s training from a licensed driver training company, then driver";
         StringHighlighter sf = new StringHighlighter(tokens, src);                
         String result = sf.highlightStringsInText();
         System.out.println("result="+result);
-        assertEquals("if <b>driv</b>er has taken <b>driv</b>er’s training from a licensed <b>driv</b>er training company, then <b>driv</b>er", result);
+        assertEquals("if <b>driv</b>er has taken <b>driv</b>erï¿½s training from a licensed <b>driv</b>er training company, then <b>driv</b>er", result);
     }
     
     @Test

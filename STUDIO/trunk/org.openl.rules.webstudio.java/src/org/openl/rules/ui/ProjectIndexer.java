@@ -4,7 +4,7 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.rules.webtools.indexer.FileIndexer;
+import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.webstudio.util.WebstudioTreeIterator;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.Log;
