@@ -11,8 +11,8 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.hierarchy.Projection;

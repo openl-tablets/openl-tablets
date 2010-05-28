@@ -11,7 +11,7 @@
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.openl.rules.webstudio.security.CurrentUserInfo"%>
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
-<%@page import = "org.openl.rules.util.net.NetUtils" %>
+<%@page import = "org.openl.rules.webtools.WebTool" %>
 <%@page import="org.openl.rules.webstudio.web.jsf.WebContext"%>
 <html>
 <head>
@@ -37,7 +37,7 @@ if (WebContext.getContextPath() == null) {
 </jsp:useBean>
 
 <%
-if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.getAttribute("studio_from_userWorkspace")==null)) {
+if (rulesUserSession != null && !WebTool.isLocalRequest(request) && (session.getAttribute("studio_from_userWorkspace")==null)) {
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
         String path = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
 

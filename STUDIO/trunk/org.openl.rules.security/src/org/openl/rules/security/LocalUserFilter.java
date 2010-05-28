@@ -14,7 +14,7 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.openl.rules.util.net.NetUtils;
+import org.openl.rules.webtools.WebTool;
 
 /**
  * Acegi filter, that automatically logins local user if the following
@@ -22,7 +22,7 @@ import org.openl.rules.util.net.NetUtils;
  *
  * <pre>
  * 1. autoLogin is set to true
- * 2. NetUtils.isLocalRequest(request) == true
+ * 2. WebTool.isLocalRequest(request) == true
  * 3. no other user is currently logged in
  * 4. the urls we come from is not in 'blacklist' defined by property
  * <code>
@@ -47,7 +47,7 @@ public class LocalUserFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        if (autoLogin && NetUtils.isLocalRequest(request)
+        if (autoLogin && WebTool.isLocalRequest(request)
                 && SecurityContextHolder.getContext().getAuthentication() == null && !isIgnoredRequest(request)) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(SecurityUtils.LOCAL_USER_ID);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails

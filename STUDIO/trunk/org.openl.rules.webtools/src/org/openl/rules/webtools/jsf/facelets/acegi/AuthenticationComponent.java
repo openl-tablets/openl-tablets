@@ -1,4 +1,4 @@
-package org.openl.rules.web.jsf.facelets.acegi;
+package org.openl.rules.webtools.jsf.facelets.acegi;
 
 import java.io.IOException;
 

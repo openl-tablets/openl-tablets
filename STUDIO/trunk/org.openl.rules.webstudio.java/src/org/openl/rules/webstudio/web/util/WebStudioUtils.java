@@ -6,8 +6,8 @@ import javax.servlet.http.HttpSession;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * Contains utility methods, which can be used from any class.

@@ -24,8 +24,8 @@ import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.StringTool;
 
 /**

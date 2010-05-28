@@ -1,6 +1,9 @@
 package org.openl.rules.webtools;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.word.WordUrlParser;
 import org.openl.rules.table.xls.XlsUrlParser;
@@ -8,6 +11,8 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -18,6 +23,8 @@ import javax.servlet.ServletRequest;
  * @author Stanislav Shor
  */
 public class WebTool {
+
+    private static final Log LOG = LogFactory.getLog(WebTool.class);
 
     /**
      * Finds the given array of strings in the text and highlight it with <b> tags 
@@ -244,4 +251,34 @@ public class WebTool {
         s1 += (">" + htmltext + "</a>");
         return s1;
     }
+    
+    public static boolean isLocalRequest(ServletRequest request) {
+        String remote = request.getRemoteAddr();
+        // TODO: think about proper implementation
+        boolean b = isLoopbackAddress(remote);// ||
+        // request.getLocalAddr().equals(remote);
+        return b;
+    }
+
+    /**
+     * Checks if given IP address is a loopback.
+     *
+     * @param ip address to check
+     *
+     * @return <code>true</code> if <code>ip</code> represents loopback
+     *         address, or <code>false</code> otherwise.
+     */
+    public static boolean isLoopbackAddress(String ip) {
+        if (StringUtils.isEmpty(ip)) {
+            return false;
+        }
+        try {
+            InetAddress addr = InetAddress.getByName(ip);
+            return (addr != null) && addr.isLoopbackAddress();
+        } catch (UnknownHostException e) {
+            LOG.info("Cannot check '" + ip + "'.", e);
+            return false;
+        }
+    }
+
 }

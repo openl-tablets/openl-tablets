@@ -22,8 +22,8 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * @author Aliaksandr Antonik.

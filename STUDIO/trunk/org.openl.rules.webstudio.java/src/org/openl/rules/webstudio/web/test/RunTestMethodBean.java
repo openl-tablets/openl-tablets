@@ -14,9 +14,9 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.StringTool;
 
 /**

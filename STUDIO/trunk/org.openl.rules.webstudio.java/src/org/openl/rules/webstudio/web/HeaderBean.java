@@ -5,9 +5,10 @@ import javax.faces.model.SelectItem;
 
 import org.openl.rules.ui.OpenLWrapperInfo;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.util.net.NetUtils;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.WebTool;
+import org.openl.rules.webtools.jsf.FacesUtils;
+
 import static org.openl.rules.webstudio.web.util.WebStudioUtils.getWebStudio;
 
 /**
@@ -39,7 +40,7 @@ public class HeaderBean {
     }
 
     public boolean isLocalRequest() {
-        return NetUtils.isLocalRequest(FacesUtils.getRequest());
+        return WebTool.isLocalRequest(FacesUtils.getRequest());
     }
 
     public boolean isProjectReadOnly() {

@@ -15,7 +15,7 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SecurityUtils;
 import org.openl.rules.security.none.SimpleAuthenticationToken;
-import org.openl.rules.util.net.NetUtils;
+import org.openl.rules.webtools.WebTool;
 
 /**
  * @author Aliaksandr Antonik.
@@ -27,7 +27,7 @@ public class AuthenticationFilter implements Filter {
     /**
      * Composes user name from a <code>ServletRequest</code>. If the request
      * comes from local computer, that is
-     * <code>NetUtils.isLocalRequest(req)</code> returns <code>true</code>
+     * <code>WebTool.isLocalRequest(req)</code> returns <code>true</code>
      * than a special value denoting local user is returned, otherwise user name
      * is IP address the request came from.
      *
@@ -35,7 +35,7 @@ public class AuthenticationFilter implements Filter {
      * @return user name
      */
     private static String nameFromRequest(ServletRequest req) {
-        if (NetUtils.isLocalRequest(req)) {
+        if (WebTool.isLocalRequest(req)) {
             return SecurityUtils.LOCAL_USER_ID;
         }
 

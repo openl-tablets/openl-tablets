@@ -1,4 +1,4 @@
-package org.openl.rules.web.jsf.facelets.fn;
+package org.openl.rules.webtools.jsf.facelets.fn;
 
 import com.sun.facelets.tag.AbstractTagLibrary;
 
