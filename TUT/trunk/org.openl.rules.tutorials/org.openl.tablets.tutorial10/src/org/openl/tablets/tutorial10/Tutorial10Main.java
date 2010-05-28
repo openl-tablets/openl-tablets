@@ -32,13 +32,13 @@ public class Tutorial10Main {
 
         out.println("Getting wrapper...\n");
         RuleEngineFactory<Tutorial10Rules> rulesFactory = new RuleEngineFactory<Tutorial10Rules>("rules/Tutorial_10.xlsx", Tutorial10Rules.class);
-        Tutorial10Rules rules = rulesFactory.newInstance();
+        Tutorial10Rules rules = rulesFactory.makeInstance();
         
         // We should setup runtime context with proper values
         // These values will be used to dispatch call to appropriate rule
        
         // Getting runtime environment which contains context 
-        IRuntimeEnv env = ((IEngineWrapper<Tutorial10Rules>) rules).getRuntimeEnv();
+        IRuntimeEnv env = ((IEngineWrapper) rules).getRuntimeEnv();
 
         // Creating context (most probably in future, the code will be different)
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
