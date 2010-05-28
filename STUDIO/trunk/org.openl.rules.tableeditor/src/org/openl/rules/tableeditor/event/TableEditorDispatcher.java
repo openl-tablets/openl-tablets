@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.lang.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;

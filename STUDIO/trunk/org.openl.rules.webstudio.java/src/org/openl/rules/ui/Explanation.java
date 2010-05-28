@@ -8,7 +8,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.DoubleValueFormula;
 import org.openl.meta.DoubleValueFunction;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.lang.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.webtools.WebTool;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;

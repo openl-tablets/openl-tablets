@@ -1,8 +1,9 @@
 package org.openl.rules.webtools;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.openl.rules.lang.xls.XlsUrlParser;
 import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.word.WordUrlParser;
+import org.openl.rules.table.xls.XlsUrlParser;
 
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;

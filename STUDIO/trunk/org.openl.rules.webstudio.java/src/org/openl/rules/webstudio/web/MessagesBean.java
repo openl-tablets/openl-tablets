@@ -7,7 +7,7 @@ import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.lang.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
