@@ -166,33 +166,36 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         private Object extractCellValue(boolean useCachedValue){
-            int type = cell.getCellType();
-            if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
-                type = cell.getCachedFormulaResultType();
-            switch (type) {
-                case Cell.CELL_TYPE_BLANK:
-                    return null;
-                case Cell.CELL_TYPE_BOOLEAN:
-                    return Boolean.valueOf(cell.getBooleanCellValue());
-                case Cell.CELL_TYPE_NUMERIC:
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        return cell.getDateCellValue();
-                    }
-                    double value = cell.getNumericCellValue();
-                    return XlsUtil.intOrDouble(value);
-                case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
-                case Cell.CELL_TYPE_FORMULA:
-                    try {
-                        FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
-                        formulaEvaluator.evaluateFormulaCell(cell);
-                    } catch (RuntimeException e) {
-                    }
-                    //extract new calculated value or previously cached value if calculation failed
-                    return extractCellValue(true);
-                default:
-                    return "unknown type: " + cell.getCellType();
+            if (cell != null) {
+                int type = cell.getCellType();
+                if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
+                    type = cell.getCachedFormulaResultType();
+                switch (type) {
+                    case Cell.CELL_TYPE_BLANK:
+                        return null;
+                    case Cell.CELL_TYPE_BOOLEAN:
+                        return Boolean.valueOf(cell.getBooleanCellValue());
+                    case Cell.CELL_TYPE_NUMERIC:
+                        if (DateUtil.isCellDateFormatted(cell)) {
+                            return cell.getDateCellValue();
+                        }
+                        double value = cell.getNumericCellValue();
+                        return XlsUtil.intOrDouble(value);
+                    case Cell.CELL_TYPE_STRING:
+                        return cell.getStringCellValue();
+                    case Cell.CELL_TYPE_FORMULA:
+                        try {
+                            FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+                            formulaEvaluator.evaluateFormulaCell(cell);
+                        } catch (RuntimeException e) {
+                        }
+                        //extract new calculated value or previously cached value if calculation failed
+                        return extractCellValue(true);
+                    default:
+                        return "unknown type: " + cell.getCellType();
+                }
             }
+            return null;
         }
 
         public String getStringValue() {
