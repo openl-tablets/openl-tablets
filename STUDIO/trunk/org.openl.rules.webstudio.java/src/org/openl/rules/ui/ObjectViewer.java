@@ -20,6 +20,7 @@ import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
 import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webtools.WebTool;
 import org.openl.util.StringTool;
@@ -191,7 +192,7 @@ public class ObjectViewer {
 
         public FormattedCell filterFormat(FormattedCell cell) {
 
-            String fontStyle = WebTool.fontToHtml(cell.getFont(), new StringBuilder()).toString();
+            String fontStyle = CellModel.fontToHtml(cell.getFont(), new StringBuilder()).toString();
 
             cell.setFormattedValue("<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
                     + cell.getFormattedValue() + "</a>");

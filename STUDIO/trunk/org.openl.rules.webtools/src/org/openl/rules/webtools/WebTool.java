@@ -4,7 +4,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.word.WordUrlParser;
 import org.openl.rules.table.xls.XlsUrlParser;
 
@@ -109,32 +108,7 @@ public class WebTool {
         }
     }
 
-    public static StringBuilder fontToHtml(ICellFont font, StringBuilder buf) {
-        if (font == null) {
-            return buf;
-        }
-
-        if (font.isUnderlined()) {
-            buf.append("text-decoration: underline;");
-        }
-
-        buf.append("font-family: ").append(font.getName());
-        buf.append("; font-size: ").append(font.getSize() + 2);
-        if (font.isItalic()) {
-            buf.append("; font-style: italic");
-        }
-        if (font.isBold()) {
-            buf.append("; font-weight: bold");
-        }
-
-        short[] color = font.getFontColor();
-
-        buf.append("; color: " + toHexString(color) + ";");
-
-        return buf;
-    }
-
-    static public String htmlStringWithSelections(String src, String[] tokens) {
+    public static String htmlStringWithSelections(String src, String[] tokens) {
         StringHighlighter sf = new StringHighlighter(tokens, src);        
         return sf.highlightStringsInText();
     }
