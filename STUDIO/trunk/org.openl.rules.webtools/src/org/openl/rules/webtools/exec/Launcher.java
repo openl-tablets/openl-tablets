@@ -1,4 +1,4 @@
-package org.openl.rules.webtools;
+package org.openl.rules.webtools.exec;
 
 public class Launcher {
     static public String LAUNCH_DIR_PROP = "org.openl.rules.webtools.scripts";

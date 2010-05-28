@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.webtools.WebTool;
+import org.openl.rules.webtools.exec.ExcelLauncher;
 import org.openl.rules.webtools.jsf.FacesUtils;
 
 public class TableEditorDispatcher implements PhaseListener {
@@ -108,7 +109,7 @@ public class TableEditorDispatcher implements PhaseListener {
             parser.parse(uri);
             try {
                 if (local) { // open file
-                    org.openl.rules.webtools.ExcelLauncher.launch("LaunchExcel.vbs", parser.wbPath, parser.wbName,
+                    ExcelLauncher.launch("LaunchExcel.vbs", parser.wbPath, parser.wbName,
                             parser.wsName, parser.range);
                 } else { // download file
                     File xlsFile = new File(parser.wbPath, parser.wbName);

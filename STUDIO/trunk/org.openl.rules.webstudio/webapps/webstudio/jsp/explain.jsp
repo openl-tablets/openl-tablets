@@ -1,4 +1,4 @@
-<%@ page import = "org.openl.rules.webtools.*" %>
+<%@ page import = "org.openl.rules.webtools.exec.*" %>
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.meta.*" %>
 
