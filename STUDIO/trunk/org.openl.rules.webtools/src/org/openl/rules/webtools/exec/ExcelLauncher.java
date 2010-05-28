@@ -4,7 +4,7 @@
  * Developed by OpenRules Inc. 2003
  */
 
-package org.openl.rules.webtools;
+package org.openl.rules.webtools.exec;
 
 import org.openl.rules.table.xls.XlsUrlParser;
 

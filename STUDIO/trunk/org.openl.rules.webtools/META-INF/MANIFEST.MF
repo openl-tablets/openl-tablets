@@ -10,6 +10,7 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.lib.apache.tomcat;visibility:=reexport,
  org.junit4
 Export-Package: org.openl.rules.webtools,
+ org.openl.rules.webtools.exec,
  org.openl.rules.webtools.jsf,
  org.openl.rules.webtools.jsf.facelets.acegi,
  org.openl.rules.webtools.jsf.facelets.fn
