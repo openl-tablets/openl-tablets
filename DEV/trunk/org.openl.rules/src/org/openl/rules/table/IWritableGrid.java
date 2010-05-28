@@ -229,90 +229,140 @@ public interface IWritableGrid extends IGrid {
         }
 
         /**
-         * TODO To refactor
-         * 
          * @return null if set new property with empty or same value
-         * */
+         */
 
         public static IUndoableGridAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
                 IWritableGrid wgrid, String newPropName, String newPropValue) {
+            if (StringUtils.isBlank(newPropValue)) {
+                return null;
+            }
+
+            int propertyRowIndex = getPropertyRowInsex(tableRegion, wgrid, newPropName);
+            if (propertyRowIndex > 0) {
+                return setExistingPropertyValue(tableRegion, wgrid, newPropName, newPropValue, propertyRowIndex);
+            } else {
+                return insertNewProperty(tableRegion, diplayedTableRegion, wgrid, newPropName, newPropValue);
+            }
+        }
+
+        private static int getPropertyRowInsex(IGridRegion tableRegion, IWritableGrid wgrid, String newPropName){
+            int leftCell = tableRegion.getLeft();
+            int topCell = tableRegion.getTop();
+            String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
+            if (tableContainsPropertySection(propsHeader)) {
+                return -1;
+            }
+            int propsCount = wgrid.getCell(leftCell, topCell + 1).getHeight();
+            int propNameCellOffset = wgrid.getCell(leftCell, topCell + 1).getWidth();
+            for (int i = 0; i < propsCount; i++) {
+                String propNameFromTable = wgrid.getCell(leftCell + propNameCellOffset, topCell + 1 + i)
+                        .getStringValue();
+                if (propNameFromTable != null && propNameFromTable.equals(newPropName)) {
+                    return topCell + 1 + i;
+                }
+            }
+            return -1;
+        }
+        
+        private static IUndoableGridAction setExistingPropertyValue(IGridRegion tableRegion, IWritableGrid wgrid,
+                String newPropName, String newPropValue, int propertyRowIndex) {
+            int leftCell = tableRegion.getLeft();
+            int topCell = tableRegion.getTop();
+            int propNameCellOffset = wgrid.getCell(leftCell, topCell + 1).getWidth();
+            int propValueCellOffset = propNameCellOffset
+                    + wgrid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
+
+            String propValueFromTable = wgrid.getCell(leftCell + propValueCellOffset, propertyRowIndex)
+                    .getStringValue();
+            if (propValueFromTable != null && newPropValue != null
+                    && propValueFromTable.trim().equals(newPropValue.trim())) {
+                // property with such name and value already exists.
+                return null;
+            }
             AXlsFormatter format = getFormat(newPropName);
-            int regionHeight = IGridRegion.Tool.height(tableRegion);
+            return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, newPropValue, format);
+        }
+        
+        private static IUndoableGridAction insertNewProperty(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
+                IWritableGrid wgrid, String newPropName, String newPropValue){
+            AXlsFormatter format = getFormat(newPropName);
+            int firstPropertyRow = 1;
+            int leftCell = tableRegion.getLeft();
+            int topCell = tableRegion.getTop();
+
+            int rowsToMove = IGridRegion.Tool.height(tableRegion) - firstPropertyRow;
+            ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(IGridRegion.Tool
+                    .width(tableRegion)* rowsToMove);
+            actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, wgrid));
+
+            String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
+            if (!tableContainsPropertySection(propsHeader)) {
+                actions.add(createPropertiesSection(tableRegion, diplayedTableRegion, wgrid));
+            } else {
+                actions.add(resizePropertiesHeader(tableRegion, wgrid));
+            }
+
+            int propNameCellOffset = wgrid.getCell(leftCell, topCell + 1).getWidth();
+            int propValueCellOffset = propNameCellOffset
+                    + wgrid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
+            actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset, topCell + firstPropertyRow,
+                    newPropName, null));
+            actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset, topCell + firstPropertyRow,
+                    newPropValue, format));
+            return new UndoableCompositeAction(actions);
+        }
+        
+        private static IUndoableGridAction createPropertiesSection(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
+                IWritableGrid wgrid){
             int regionWidth = IGridRegion.Tool.width(tableRegion);
             int nRows = 1;
             int beforeRow = 1;
 
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
-            
-            String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
-            boolean containsPropSection = tableContainsPropertySection(propsHeader);
-            int propsCount = 0;
-            if (containsPropSection) {
-                propsCount = wgrid.getCell(leftCell, topCell + 1).getHeight();
-                for (int i = 0; i < propsCount; i++) {
-
-                    String propNameFromTable = wgrid.getCell(leftCell + 1, topCell + 1 + i).getStringValue();
-                    // if such name already exists in the table, we need to change its value.
-                    if (propNameFromTable != null && propNameFromTable.equals(newPropName)) {
-                        String propValueFromTable = wgrid.getCell(leftCell + 2, topCell + 1 + i).getStringValue();
-                        if (propValueFromTable!= null && newPropValue!= null 
-                                && propValueFromTable.trim().equals(newPropValue.trim())) {
-                            // property with such name and value already exists.
-                            return null;
-                        }
-                        return new UndoableSetValueAction(leftCell + 2, topCell + 1 + i, newPropValue, format);
-                    }
+            ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>();
+            actions.add(new UnmergeByColumnsAction(new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow,
+                    tableRegion.getRight())));
+            actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
+            if (regionWidth > 3) {
+                // clear cells
+                for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {
+                    actions.add(new UndoableClearAction(j, topCell + beforeRow));
                 }
-            }
-
-            if (StringUtils.isBlank(newPropValue)) {
-                return null;
-            }
-
-            int rowsToMove = regionHeight - beforeRow;
-
-            ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(regionWidth * rowsToMove);
-
-            int firstToMove = tableRegion.getTop() + beforeRow;
-            actions.addAll(shiftRows(firstToMove, nRows, INSERT, tableRegion, wgrid));
-
-            if (!containsPropSection) {
-                actions.add(new UnmergeByColumnsAction(
-                        new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow, tableRegion.getRight())));
-                actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
-                if (regionWidth > 3) {
-                    // clear cells
-                    for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {
-                        actions.add(new UndoableClearAction(j, topCell + beforeRow));
-                    }
-                } else if (regionWidth < 3) {
-                    // expand table by including neighboring cell in merged
-                    // regions, width will equal 3
-                    actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, topCell, leftCell + 2)));
-                    for (int row = topCell + 2; row < tableRegion.getBottom() + nRows; row++) {
-                        actions.add(new MergeCellsAction(new GridRegion(row, leftCell + regionWidth - 1, row,
-                                leftCell + 2)));
-                    }
-                    actions.add(new GridRegionAction(
-                            tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
-                    actions.add(new GridRegionAction(
-                            diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
+            } else if (regionWidth < 3) {
+                // expand table by including neighboring cell in merged
+                // regions, width will equal 3
+                actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, topCell, leftCell + 2)));
+                for (int row = topCell + 2; row < tableRegion.getBottom() + nRows; row++) {
+                    actions
+                            .add(new MergeCellsAction(
+                                    new GridRegion(row, leftCell + regionWidth - 1, row, leftCell + 2)));
                 }
+                actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
+                actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND,
+                        3 - regionWidth));
             }
-
-            actions.add(new UndoableSetValueAction(leftCell + 1, topCell + beforeRow, newPropName, null));
-            actions.add(new UndoableSetValueAction(leftCell + 2, topCell + beforeRow, newPropValue, format));
-
-            if (propsCount == 1) {
-                // resize 'properties' cell
-                actions.add(new UndoableResizeMergedRegionAction(new GridRegion(topCell + 1, leftCell,
-                        topCell + 1, leftCell), nRows, INSERT, ROWS));
-            } else {
-                actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, tableRegion));
-            }
-
             return new UndoableCompositeAction(actions);
+        }
+
+        private static IUndoableGridAction resizePropertiesHeader(IGridRegion tableRegion, 
+                IWritableGrid wgrid){
+            int firstPropertyRow = 1;
+            int leftCell = tableRegion.getLeft();
+            int topCell = tableRegion.getTop();
+
+            int propsCount = wgrid.getCell(leftCell, topCell + 1).getHeight();
+            if (propsCount == 1) {
+                IGridRegion propHeaderRegion = wgrid.getRegionContaining(leftCell, topCell + 1);
+                if (propHeaderRegion == null) {
+                    propHeaderRegion = new GridRegion(topCell + 1, leftCell, topCell + 1, leftCell);
+                }
+                return new UndoableResizeMergedRegionAction(propHeaderRegion, 1, INSERT, ROWS);
+            } else {
+                return new UndoableCompositeAction(resizeMergedRegions(wgrid, firstPropertyRow, 1, INSERT, ROWS, tableRegion));
+            }
+
         }
 
         private static boolean tableContainsPropertySection(String propsHeader) {
