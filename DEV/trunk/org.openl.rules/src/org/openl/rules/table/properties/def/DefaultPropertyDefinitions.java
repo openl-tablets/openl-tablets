@@ -324,7 +324,7 @@ public class DefaultPropertyDefinitions
 		definitions[21].setDimensional(false);
 		definitions[21].setDisplayName("Fail On Miss");
 		definitions[21].setGroup("Dev");
-		definitions[21].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
+		definitions[21].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[21].setName("failOnMiss");
 		definitions[21].setPrimaryKey(false);
 		definitions[21].setSystem(false);
