@@ -7,4 +7,5 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.webstudio.lib,
  org.openl.lib.apache.tomcat
-Export-Package: org.openl.rules.util.spring
+Export-Package: org.openl.rules.util.spring.beans,
+ org.openl.rules.util.spring.beans.db
