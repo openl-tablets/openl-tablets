@@ -1,4 +1,4 @@
-package org.openl.rules.webtools;
+package org.openl.rules.webstudio.util;
 
 import java.io.File;
 import java.io.IOException;

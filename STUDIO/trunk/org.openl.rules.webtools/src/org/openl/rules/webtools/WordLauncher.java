@@ -37,11 +37,6 @@ public class WordLauncher {
         l.launch();
     }
 
-    public static void main(String[] args) throws Exception {
-        launch("LaunchWord.vbs", "C:\\___DEV\\org.openl.dev_3.1\\eclipse\\workspace\\com.exigen.srp.idat\\docs",
-                "WorkflowUIAnalysis_5.6.6_Final.doc", "1240", "1250");
-    }
-
     public WordLauncher(String scriptName, String wdPath, String wdName, String wdParStart, String wdParEnd) {
         this.scriptName = scriptName;
         this.wdPath = wdPath;
