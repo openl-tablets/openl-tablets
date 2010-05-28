@@ -6,11 +6,16 @@
 
 package org.openl.rules.webtools;
 
+import org.openl.rules.table.word.WordUrlParser;
+
 /**
  *
  * @author sam
  */
 public class WordLauncher {
+
+    public static final String defaultScriptName = "LaunchWord.vbs";
+
     String scriptName;
 
     String wdPath;
@@ -22,7 +27,7 @@ public class WordLauncher {
         WordUrlParser p = new WordUrlParser();
         p.parse(url);
 
-        launch(p.scriptName, p.wdPath, p.wdName, p.wdParStart, p.wdParEnd);
+        launch(defaultScriptName, p.wdPath, p.wdName, p.wdParStart, p.wdParEnd);
     }
 
     static public void launch(String scriptName, String wdPath, String wdName, String wdParStart, String wdParEnd)

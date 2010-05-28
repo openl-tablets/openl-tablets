@@ -6,7 +6,7 @@
 
 package org.openl.rules.webtools;
 
-import org.openl.rules.lang.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlParser;
 
 /**
  *
