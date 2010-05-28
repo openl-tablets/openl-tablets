@@ -157,7 +157,7 @@ public class TestTableCreationWizard extends WizardBase {
 
         for (int i = 0; i < syntaxNodes.length; i++) {
             TableSyntaxNode node = syntaxNodes[i];
-            if (node.isExecutableNode()) {
+            if (isExecutableAndTestableNode(node)) {
                 result.add(new SelectItem(i, node.getMember().getName()));
             }
         }
@@ -169,6 +169,22 @@ public class TestTableCreationWizard extends WizardBase {
             }
         });
     }   
+    
+    /**
+     * Checks if it is possible to create test for current table(table is executable at runtime), and checks if
+     * return type of the table is not void.
+     * 
+     * @param node
+     * @return
+     */
+    private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
+        if (node.isExecutableNode()) {
+            if (!void.class.equals(node.getMember().getType().getInstanceClass())) {
+                return true;
+            }
+        }
+        return false;
+    }    
 
     @Override
     protected void onStepFirstVisit(int step) {
