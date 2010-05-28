@@ -12,7 +12,7 @@ set CP=%CP%;../org.openl.lib.apache.commons/commons-logging-1.0.3/commons-loggin
 set CP=%CP%;../org.openl.rules.webstudio/bin
 set CP=%CP%;../org.openl.rules.webtools/bin
 
-java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webtools.StartTomcat
+java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webstudio.util.StartTomcat
 
 
 pause

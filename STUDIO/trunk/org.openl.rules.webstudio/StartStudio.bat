@@ -27,7 +27,7 @@ set CP=%CP%;../TravelersPOC/bin
 
 echo Classpath: %CP% > cp.log
 
-java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webtools.StartTomcat
+java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webstudio.util.StartTomcat
 
 pause
 
