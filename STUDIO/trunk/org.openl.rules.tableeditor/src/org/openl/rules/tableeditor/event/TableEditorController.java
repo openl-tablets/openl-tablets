@@ -18,7 +18,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * Table editor controller.

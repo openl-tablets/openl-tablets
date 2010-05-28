@@ -1,10 +1,10 @@
 <%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
-<%@ page import="org.openl.rules.webtools.XlsUrlParser" %>
-<%@ page import="org.openl.rules.util.net.NetUtils" %>
+<%@page import="org.openl.rules.table.xls.XlsUrlParser"%>
+<%@ page import="org.openl.rules.webtools.WebTool" %>
 <%@ page import="java.io.File" %>
 
 <%
-    boolean local = NetUtils.isLocalRequest(request);
+    boolean local = WebTool.isLocalRequest(request);
     boolean wantURI = request.getParameter("uri") != null;
     if (local) {
         if (wantURI) {

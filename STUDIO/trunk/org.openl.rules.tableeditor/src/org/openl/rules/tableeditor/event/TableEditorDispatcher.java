@@ -22,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.util.net.NetUtils;
-import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webtools.WebTool;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 public class TableEditorDispatcher implements PhaseListener {
     private static final long serialVersionUID = 8617343432886373802L;
@@ -103,7 +103,7 @@ public class TableEditorDispatcher implements PhaseListener {
         String uri = ((HttpServletRequest)context.getExternalContext().getRequest()).getParameter(
                 Constants.REQUEST_PARAM_URI);
         if (uri != null && !uri.equals("")) {
-            boolean local = NetUtils.isLocalRequest((ServletRequest) context.getExternalContext().getRequest());
+            boolean local = WebTool.isLocalRequest((ServletRequest) context.getExternalContext().getRequest());
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(uri);
             try {

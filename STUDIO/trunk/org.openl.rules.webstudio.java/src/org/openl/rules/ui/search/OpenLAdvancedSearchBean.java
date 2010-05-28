@@ -17,9 +17,11 @@ import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.SearchConditionElement;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.web.jsf.util.FacesUtils;
-import static org.openl.rules.web.jsf.util.FacesUtils.createSelectItems;
+
+import static org.openl.rules.webtools.jsf.FacesUtils.createSelectItems;
+
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.AStringBoolOperator;
 
 /**

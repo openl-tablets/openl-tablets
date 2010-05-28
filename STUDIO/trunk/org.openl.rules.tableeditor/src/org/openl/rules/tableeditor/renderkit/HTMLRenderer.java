@@ -33,7 +33,7 @@ import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.EnumUtils;
 import org.openl.rules.tableeditor.util.WebUtil;
-import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.StringTool;
 
 /**

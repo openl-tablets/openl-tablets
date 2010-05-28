@@ -21,10 +21,10 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.WizardBase;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * Backing bean for table coping.

@@ -1,4 +1,4 @@
-package org.openl.rules.web.jsf.facelets.fn;
+package org.openl.rules.webtools.jsf.facelets.fn;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.openl.rules.util.net.NetUtils;
+import org.openl.rules.webtools.WebTool;
 
 /**
  * JSF functions.
@@ -69,7 +69,7 @@ public class JSFFunctions {
     }
 
     public static boolean isLocalRequest() {
-        return NetUtils.isLocalRequest((ServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+        return WebTool.isLocalRequest((ServletRequest) FacesContext.getCurrentInstance().getExternalContext()
                 .getRequest());
     }
 

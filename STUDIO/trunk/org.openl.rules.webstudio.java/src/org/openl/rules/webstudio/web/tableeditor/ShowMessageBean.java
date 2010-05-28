@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webtools.jsf.FacesUtils;
 
 public class ShowMessageBean {
 
