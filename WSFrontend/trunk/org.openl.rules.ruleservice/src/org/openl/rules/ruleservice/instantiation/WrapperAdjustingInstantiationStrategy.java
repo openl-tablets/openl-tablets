@@ -5,16 +5,25 @@ import java.lang.reflect.Field;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class WrapperAdjustingInstantiationStrategy implements InstantiationStrategy {
+public class WrapperAdjustingInstantiationStrategy extends AClassInstantiationStrategy {
+    
     private static final Log log = LogFactory.getLog(WrapperAdjustingInstantiationStrategy.class);
 
     private final String userHomeFieldValue;
 
-    public WrapperAdjustingInstantiationStrategy(String userHomeFieldValue) {
+    public WrapperAdjustingInstantiationStrategy(String userHomeFieldValue, Class<?> clazz) {
+        super(clazz);
+        this.userHomeFieldValue = userHomeFieldValue;
+    }
+    
+    public WrapperAdjustingInstantiationStrategy(String userHomeFieldValue, String className, ClassLoader loader) {
+        super(className, loader);
         this.userHomeFieldValue = userHomeFieldValue;
     }
 
-    public Object instantiate(Class<?> clazz) {
+    @Override
+    protected Object instantiate(Class<?> clazz) throws InstantiationException, IllegalAccessException {
+
         try {
             Field field = clazz.getField("__userHome");
             field.set(null, userHomeFieldValue);

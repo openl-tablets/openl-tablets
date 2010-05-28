@@ -1,22 +1,23 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.transport.DestinationFactory;
-import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.AClassInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.InstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.WebServiceEngineFactoryInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
 import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
 import org.springframework.context.ApplicationContext;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 public class WebServicesDeployAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
@@ -85,9 +86,11 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
 
     private void instantiateServiceBean(ClassLoader loader, RuleServiceInfo wsInfo, ServerFactoryBean svrFactory)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Class<?> aClass = loader.loadClass(wsInfo.getClassName());
-        svrFactory.setServiceClass(aClass);
-        svrFactory.setServiceBean(getStrategy(wsInfo).instantiate(aClass));
+
+        AClassInstantiationStrategy strategy = getStrategy(wsInfo, wsInfo.getClassName(), loader);
+        
+        svrFactory.setServiceClass(strategy.getServiceClass());
+        svrFactory.setServiceBean(strategy.instantiate());
     }
     
     private ServerFactoryBean getServerFactoryBean(){
@@ -97,18 +100,24 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         return new ServerFactoryBean();
     }
 
-    private InstantiationStrategy getStrategy(RuleServiceInfo wsInfo) {
-        if (wsInfo.isUsingEngineFactory()) {
-            return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile());
-        } else {
-            String path = ".";
-            try {
-                path = wsInfo.getProject().getCanonicalPath();
-            } catch (IOException e) {
-                log.error("failed to get canonical path", e);
-            }
-            return new WrapperAdjustingInstantiationStrategy(path);
+    private AClassInstantiationStrategy getStrategy(RuleServiceInfo wsInfo, String className, ClassLoader classLoader) {
+
+        switch (wsInfo.getServiceType()) {
+            case DYNAMIC_WRAPPER:
+                return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
+            case STATIC_WRAPPER:
+                String path = ".";
+                try {
+                    path = wsInfo.getProject().getCanonicalPath();
+                } catch (IOException e) {
+                    log.error("failed to get canonical path", e);
+                }
+                return new WrapperAdjustingInstantiationStrategy(path, className, classLoader);
+            case AUTO_WRAPPER:
+                return new WebServiceEngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
         }
+        
+        throw new RuntimeException("Cannot resolve instantiation strategy");
     }
 
     public synchronized void undeploy(String serviceName) {

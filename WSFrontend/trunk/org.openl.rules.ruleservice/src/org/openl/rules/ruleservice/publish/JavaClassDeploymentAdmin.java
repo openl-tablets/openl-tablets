@@ -10,9 +10,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.AClassInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.InstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.WebServiceEngineFactoryInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
 import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
 
 public class JavaClassDeploymentAdmin implements DeploymentAdmin {
@@ -26,7 +27,6 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         if (deploymentListener != null) {
             deploymentListeners.add(deploymentListener);
         }
-
     }
 
     public synchronized void deploy(String deploymentName, ClassLoader loader, List<RuleServiceInfo> infoList) {
@@ -50,26 +50,31 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         onAfterDeployment(deploymentName, projectWrappers);
     }
 
-    private OpenLWrapper deploy(String serviceName, ClassLoader loader, RuleServiceInfo wsInfo)
-            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class<?> aClass = loader.loadClass(wsInfo.getClassName());
-
-        return (OpenLWrapper) getStrategy(wsInfo).instantiate(aClass);
+    private OpenLWrapper deploy(String serviceName, ClassLoader loader, RuleServiceInfo wsInfo) throws ClassNotFoundException,
+                                                                                               IllegalAccessException,
+                                                                                               InstantiationException {
+        return (OpenLWrapper) getStrategy(wsInfo, wsInfo.getClassName(), loader).instantiate();
 
     }
 
-    private InstantiationStrategy getStrategy(RuleServiceInfo wsInfo) {
-        if (wsInfo.isUsingEngineFactory()) {
-            return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile());
-        } else {
-            String path = ".";
-            try {
-                path = wsInfo.getProject().getCanonicalPath();
-            } catch (IOException e) {
-                log.error("failed to get canonical path", e);
-            }
-            return new WrapperAdjustingInstantiationStrategy(path);
+    private AClassInstantiationStrategy getStrategy(RuleServiceInfo wsInfo, String className, ClassLoader classLoader) {
+
+        switch (wsInfo.getServiceType()) {
+            case DYNAMIC_WRAPPER:
+                return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
+            case STATIC_WRAPPER:
+                String path = ".";
+                try {
+                    path = wsInfo.getProject().getCanonicalPath();
+                } catch (IOException e) {
+                    log.error("failed to get canonical path", e);
+                }
+                return new WrapperAdjustingInstantiationStrategy(path, className, classLoader);
+            case AUTO_WRAPPER:
+                return new WebServiceEngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
         }
+        
+        throw new RuntimeException("Cannot resolve instantiation strategy");
     }
 
     private void onAfterDeployment(String deploymentName, Map<String, OpenLWrapper> projectWrappers) {

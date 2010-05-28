@@ -5,12 +5,14 @@ import java.util.List;
 
 import net.sf.cglib.core.ReflectUtils;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Type;
 import org.openl.binding.impl.module.ModuleOpenClass.GetOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass.ThisField;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -43,32 +45,26 @@ public class RulesFactory {
     public static Class<?> generateInterface(String className, RuleInfo[] rules, ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(false);
-        
+
         String name = className.replace('.', '/');
         String sourceFileName = getClassFileName(name);
-        
-        classWriter.visit(Constants.V1_5,
-            PUBLIC_ABSTRACT_INTERFACE,
-            name,  
-            JAVA_LANG_OBJECT,
-            null,            
-            sourceFileName); 
+
+        classWriter.visit(Constants.V1_5, PUBLIC_ABSTRACT_INTERFACE, name, JAVA_LANG_OBJECT, null, sourceFileName);
 
         for (RuleInfo ruleInfo : rules) {
 
             String ruleName = ruleInfo.getName();
-
-            classWriter.visitMethod(PUBLIC_ABSTRACT,
-                ruleName,
-                getMethodTypes(ruleInfo),
-                null,
-                null);
+            classWriter.visitMethod(PUBLIC_ABSTRACT, ruleName, getMethodTypes(ruleInfo), null, null);
         }
 
         classWriter.visitEnd();
 
+        // Create class object.
+        //
         ReflectUtils.defineClass(className, classWriter.toByteArray(), classLoader);
 
+        // Return loaded to classpath class object.
+        //
         return Class.forName(className, true, classLoader);
     }
 
@@ -81,7 +77,7 @@ public class RulesFactory {
      * @param classLoader class loader what will be used to load generated
      *            interface
      * @return generated interface
-     * @throws Exception if an error has occured
+     * @throws Exception if an error has occurred
      */
     public static Class<?> generateInterface(String className, IOpenClass openClass, ClassLoader classLoader) throws Exception {
 
@@ -139,12 +135,15 @@ public class RulesFactory {
      */
     private static RuleInfo getRuleInfoForMethod(IOpenMethod method) {
 
-        IOpenClass[] paramClasses = method.getSignature().getParameterTypes();
         String methodName = method.getName();
-        Class<?>[] paramTypes = OpenClassUtils.getInstanceClasses(paramClasses);
+        IOpenClass[] paramClasses = method.getSignature().getParameterTypes();
         Class<?> returnType = method.getType().getInstanceClass();
+        Class<?>[] paramTypes = OpenClassUtils.getInstanceClasses(paramClasses);
 
-        RuleInfo ruleInfo = createRuleInfo(methodName, paramTypes, returnType);
+        Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
+        Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(newParams, paramTypes);
+
+        RuleInfo ruleInfo = createRuleInfo(methodName, extendedParamTypes, returnType);
 
         return ruleInfo;
     }
@@ -175,11 +174,7 @@ public class RulesFactory {
      *         due interface generation phase), <code>false</code> - otherwise
      */
     private static boolean isIgnoredMember(IOpenMember member) {
-        return member instanceof OpenConstructor || 
-                member instanceof JavaOpenConstructor || 
-                member instanceof ThisField || 
-                member instanceof GetOpenClass || 
-                member instanceof TestSuiteMethod;
+        return member instanceof OpenConstructor || member instanceof JavaOpenConstructor || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
     }
 
     /**
@@ -206,10 +201,11 @@ public class RulesFactory {
     }
 
     private static String getClassFileName(String name) {
-        
+
         String[] path = name.split("/");
         String className = path[path.length - 1];
-        
+
         return String.format("%s.java", className);
     }
+
 }
