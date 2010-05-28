@@ -29,9 +29,9 @@
       <property name="maxWait" value="-1"/>
     </bean>
 
-    <bean id="dataBase" class="org.openl.rules.util.database.HsqlServerBean">
+    <bean id="dataBase" class="org.openl.rules.util.spring.beans.db.HsqlServerBean">
       <property name="enabled">
-        <bean class="org.openl.rules.util.spring.ChooseObjectFactoryBean">
+        <bean class="org.openl.rules.util.spring.beans.ChooseObjectFactoryBean">
           <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
           <property name="defaultObject" value="false"/>
           <property name="casesMap">
@@ -76,7 +76,7 @@
       class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
 
     <!-- Populate database with demo data  -->
-    <bean id="databasePopulator" class="org.openl.rules.util.database.DbUnitDatabasePopulator"
+    <bean id="databasePopulator" class="org.openl.rules.util.spring.beans.db.DbUnitDatabasePopulator"
           depends-on="openlSessionFactory">
       <property name="dataSource" ref="openlDataSource"/>
       <property name="enabled" value="@{security.standalone.db.populateDatabase}"/>
@@ -84,7 +84,7 @@
       <!-- for DBMS that support multiple schemata like Oracle -->
       <property name="dbSchema" value="@{security.standalone.db.schema}"/>
       <property name="dataTypeFactory">
-        <bean class="org.openl.rules.util.spring.ChooseObjectFactoryBean">
+        <bean class="org.openl.rules.util.spring.beans.ChooseObjectFactoryBean">
           <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
           <property name="defaultObject">
             <bean class="org.dbunit.dataset.datatype.DefaultDataTypeFactory"/>
@@ -99,7 +99,7 @@
         </bean>
       </property>
       <property name="databaseOperation">
-        <bean class="org.openl.rules.util.spring.ChooseObjectFactoryBean">
+        <bean class="org.openl.rules.util.spring.beans.ChooseObjectFactoryBean">
           <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
           <property name="defaultObject" ref="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"/>
           <property name="casesMap">

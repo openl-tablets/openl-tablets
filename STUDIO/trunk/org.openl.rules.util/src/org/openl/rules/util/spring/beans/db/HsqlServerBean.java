@@ -1,4 +1,4 @@
-package org.openl.rules.util.database;
+package org.openl.rules.util.spring.beans.db;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -1,4 +1,4 @@
-package org.openl.rules.util.spring;
+package org.openl.rules.util.spring.beans;
 
 import org.apache.commons.lang.StringUtils;
 
