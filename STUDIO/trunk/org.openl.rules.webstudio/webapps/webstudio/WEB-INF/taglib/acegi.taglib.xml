@@ -5,5 +5,5 @@
   "http://java.sun.com/dtd/facelet-taglib_1_0.dtd">
 
 <facelet-taglib>
-  <library-class>org.openl.rules.web.jsf.facelets.acegi.AcegiTaglib</library-class>
+  <library-class>org.openl.rules.webtools.jsf.facelets.acegi.AcegiTaglib</library-class>
 </facelet-taglib>
