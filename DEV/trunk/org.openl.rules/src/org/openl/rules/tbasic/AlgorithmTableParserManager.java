@@ -50,7 +50,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
         EngineFactory<IAlgorithmTableParserManager> engineFactory = new EngineFactory<IAlgorithmTableParserManager>(
                 sourceType, sourceFile, IAlgorithmTableParserManager.class);
-        rulesWrapperInstance = engineFactory.newInstance();
+        rulesWrapperInstance = engineFactory.makeInstance();
     }
 
     private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {

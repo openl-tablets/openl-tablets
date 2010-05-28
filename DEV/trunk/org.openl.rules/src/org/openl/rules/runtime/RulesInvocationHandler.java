@@ -5,15 +5,15 @@ import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.runtime.EngineFactory;
+import org.openl.runtime.AEngineFactory;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
-public class RulesInvocationHandler<T> extends OpenLInvocationHandler<T> implements IRulesRuntimeContextProvider {
+public class RulesInvocationHandler extends OpenLInvocationHandler implements IRulesRuntimeContextProvider {
 
     public RulesInvocationHandler(Object openlInstance,
-            EngineFactory<T> engineFactory,
+            AEngineFactory engineFactory,
             IRuntimeEnv openlEnv,
             Map<Method, IOpenMember> methodMap) {
 
@@ -36,7 +36,6 @@ public class RulesInvocationHandler<T> extends OpenLInvocationHandler<T> impleme
 
         if (method.getDeclaringClass() == IRulesRuntimeContextProvider.class) {
             Method declaredMethod = RulesInvocationHandler.class.getDeclaredMethod(method.getName(), new Class<?>[0]);
-            
             return declaredMethod.invoke(this, args);
         }
 

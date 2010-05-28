@@ -18,7 +18,7 @@ public class CommaSeparatedParamsDTTest {
         EngineFactory<CommaSeparatedTest> engineFactory = new EngineFactory<CommaSeparatedTest>(
                 RuleEngineFactory.RULE_OPENL_NAME, src, CommaSeparatedTest.class);
         
-        test = engineFactory.newInstance();
+        test = engineFactory.makeInstance();
     }
     
     @Test

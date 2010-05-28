@@ -5,26 +5,30 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class OpenLInvocationHandler<T> implements InvocationHandler, IEngineWrapper<T> {
+public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper {
 
     private Object openlInstance;
-    private EngineFactory<T> engineFactory;
+    private AEngineFactory engineFactory;
     private IRuntimeEnv openlEnv;
     private Map<Method, IOpenMember> methodMap;
 
-    public OpenLInvocationHandler(Object openlInstance, EngineFactory<T> engineFactory, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
+    public OpenLInvocationHandler(Object openlInstance,
+            AEngineFactory engineFactory,
+            IRuntimeEnv openlEnv,
+            Map<Method, IOpenMember> methodMap) {
         this.openlInstance = openlInstance;
         this.engineFactory = engineFactory;
         this.openlEnv = openlEnv;
         this.methodMap = methodMap;
     }
 
-    public EngineFactory<T> getFactory() {
+    public AEngineFactory getFactory() {
         return engineFactory;
     }
 
@@ -36,20 +40,27 @@ public class OpenLInvocationHandler<T> implements InvocationHandler, IEngineWrap
         return openlEnv;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        
-        Object executionResult;
+    protected Map<Method, IOpenMember> getMethodMap() {
+        return methodMap;
+    }
 
-        if (method.getDeclaringClass() == engineFactory.getEngineInterface()) {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+        if (method.getDeclaringClass() == IEngineWrapper.class) {
+            Method wrapperMethod = OpenLInvocationHandler.class.getDeclaredMethod(method.getName(), new Class<?>[0]);
+            return wrapperMethod.invoke(this, args);
+        }
+
+        if (ArrayUtils.contains(engineFactory.getInstanceInterfaces(), method.getDeclaringClass())) {
 
             IOpenMember member = methodMap.get(method);
 
             if (member instanceof IOpenMethod) {
                 IOpenMethod openMethod = (IOpenMethod) member;
-                executionResult = openMethod.invoke(openlInstance, args, openlEnv);
+                return openMethod.invoke(openlInstance, args, openlEnv);
             } else {
                 IOpenField openField = (IOpenField) member;
-                executionResult = openField.get(openlInstance, openlEnv);
+                return openField.get(openlInstance, openlEnv);
             }
         } else {
 
@@ -60,16 +71,9 @@ public class OpenLInvocationHandler<T> implements InvocationHandler, IEngineWrap
                 cargs = new Class<?>[] { Object.class };
             }
 
-            if (method.getDeclaringClass() == IEngineWrapper.class) {
-                Method myMethod = OpenLInvocationHandler.class.getDeclaredMethod(method.getName(), cargs);
-                executionResult = myMethod.invoke(this, args);
-            } else {
-                Method objectMethod = Object.class.getDeclaredMethod(method.getName(), cargs);
-                executionResult = objectMethod.invoke(this, args);
-            }
+            Method objectMethod = Object.class.getDeclaredMethod(method.getName(), cargs);
+            return objectMethod.invoke(this, args);
         }
-
-        return executionResult;
     }
 
     @Override
@@ -84,11 +88,6 @@ public class OpenLInvocationHandler<T> implements InvocationHandler, IEngineWrap
         }
 
         return super.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Rule Engine(%s)", engineFactory.getOpenClass().getName());
     }
 
 }

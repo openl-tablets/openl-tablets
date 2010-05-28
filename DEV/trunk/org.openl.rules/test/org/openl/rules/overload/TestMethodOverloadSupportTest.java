@@ -21,7 +21,7 @@ public class TestMethodOverloadSupportTest {
         testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
         
         ITestI instance = testHelper.getInstance();
-        IRuntimeEnv env = ((IEngineWrapper<ITestI>) instance).getRuntimeEnv();
+        IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
 
         instance.driverRiskTestTestAll();
     }

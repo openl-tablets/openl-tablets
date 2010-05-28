@@ -36,7 +36,7 @@ public class LocalParametersDeclarationTest extends TestCase {
             src,
             ILocalParametersDeclarationTest.class);
 
-        test = engineFactory.newInstance();
+        test = engineFactory.makeInstance();
     }
 
     public void testParamsDeclarationWithDifferentTypes() {

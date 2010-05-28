@@ -9,7 +9,7 @@ public class BasicTest {
         EngineFactory<IBasicTest> engineFactory = new EngineFactory<IBasicTest>("org.openl.xls",
                 "test/rules/BasicAlgorithm.xls", IBasicTest.class);
 
-        IBasicTest rule = engineFactory.newInstance();
+        IBasicTest rule = engineFactory.makeInstance();
 
         int result = rule.modification(4);
 
