@@ -180,7 +180,7 @@ public class CellModel implements ICellModel {
             } else {
                 borderToHtml(sb, tm);
             }
-            WebTool.fontToHtml(font, sb);
+            fontToHtml(font, sb);
         }
 
         if (ident > 0) {
@@ -188,6 +188,31 @@ public class CellModel implements ICellModel {
         }
 
         return sb.toString();
+    }
+
+    public static StringBuilder fontToHtml(ICellFont font, StringBuilder buf) {
+        if (font == null) {
+            return buf;
+        }
+
+        if (font.isUnderlined()) {
+            buf.append("text-decoration: underline;");
+        }
+
+        buf.append("font-family: ").append(font.getName());
+        buf.append("; font-size: ").append(font.getSize() + 2);
+        if (font.isItalic()) {
+            buf.append("; font-style: italic");
+        }
+        if (font.isBold()) {
+            buf.append("; font-weight: bold");
+        }
+
+        short[] color = font.getFontColor();
+
+        buf.append("; color: " + WebTool.toHexString(color) + ";");
+
+        return buf;
     }
 
     public int getRow() {
