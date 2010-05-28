@@ -4,33 +4,30 @@
  * Developed by OpenRules Inc. 2003
  */
 
-package org.openl.rules.lang.xls;
+package org.openl.rules.table.word;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.table.syntax.XlsURLConstants;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
+ *
  * @author sam
  */
 
-public class XlsUrlParser implements XlsURLConstants {
+public class WordUrlParser implements XlsURLConstants {
 
     public static final String FILE_PROTOCOL = "file:";
 
-    public String wbPath;
-    public String wbName;
-    public String wsName;
+    public String wdPath;
+    public String wdName;
+    public String wdParStart;
 
-    public String range;
-
-    public String cell;
+    public String wdParEnd;
 
     static boolean endsWithSlash(String s) {
         return s.length() > 0 && isSlash(s.charAt(s.length() - 1));
@@ -76,11 +73,7 @@ public class XlsUrlParser implements XlsURLConstants {
         return url;
     }
 
-    public boolean isExcelFile() {
-	    return FileTypeHelper.isExcelFile(wbName);
-	}
-
-    public void parse(String url) {
+    public void parse(String url) throws Exception {
         // String SCRIPT_NAME = "LaunchExcel.vbs";
 
         // scriptName =
@@ -90,32 +83,17 @@ public class XlsUrlParser implements XlsURLConstants {
         Map<String, String> urlMap = SourceCodeURLTool.parseUrl(url);
 
         String file = urlMap.get(FILE);
-        wsName = urlMap.get(SHEET);
 
-        range = urlMap.get(RANGE);
-
-        if (range == null) {
-            // TODO line, col
-            range = urlMap.get(CELL);
+        wdParStart = urlMap.get(PARAGRAPH_NUM);
+        if (wdParStart == null) {
+            wdParStart = urlMap.get(PARAGRAPH_START);
         }
+        wdParEnd = urlMap.get(PARAGRAPH_END);
 
-        cell = urlMap.get(CELL);
+        File f = new File(file).getCanonicalFile();
 
-        File f = null;
-        try {
-            f = new File(file).getCanonicalFile();
-            wbPath = f.getParent();
-            wbName = f.getName();
-        } catch (IOException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
-        } catch (NullPointerException ex) {
-            // there is no file representation
-            // FIXME tempory hack to support generated dispatch tables
-            wbPath = "/unexistingPath/";
-            wbName = "unexistingSourceFile.xls";
-        }
-
-        
+        wdPath = f.getParent();
+        wdName = f.getName();
 
         // wsName = url.substring(iPound + 1, iAt);
 
