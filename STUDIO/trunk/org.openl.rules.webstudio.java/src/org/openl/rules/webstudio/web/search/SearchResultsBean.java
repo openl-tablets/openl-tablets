@@ -2,9 +2,9 @@ package org.openl.rules.webstudio.web.search;
 
 import org.ajax4jsf.component.UIRepeat;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
-import org.openl.rules.webtools.indexer.FileIndexer;
 
 /**
  * Request scope managed bean providing logic for Search Results include page of OpenL Studio.

@@ -1,4 +1,4 @@
-package org.openl.rules.webtools.indexer;
+package org.openl.rules.ui;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,7 +14,7 @@ import org.openl.rules.indexer.Index;
 import org.openl.rules.indexer.IndexQuery;
 import org.openl.rules.indexer.IndexQueryParser;
 import org.openl.rules.indexer.Index.TokenBucket;
-import org.openl.rules.webtools.indexer.FileIndexer;
+import org.openl.rules.ui.search.FileIndexer;
 
 public class FileIndexerTest {
     
