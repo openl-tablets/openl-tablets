@@ -17,8 +17,8 @@ import javax.servlet.ServletRequest;
  *
  * @author Stanislav Shor
  */
-public class WebTool extends StringTool {
-    
+public class WebTool {
+
     /**
      * Finds the given array of strings in the text and highlight it with <b> tags 
      * for further displaying on UI. Finds detached words and parts of the words.
