@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 public class ShowMessageBean {
 

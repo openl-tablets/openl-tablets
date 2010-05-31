@@ -12,10 +12,10 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.context.SecurityContextHolder;
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SecurityUtils;
 import org.openl.rules.security.none.SimpleAuthenticationToken;
-import org.openl.rules.webtools.WebTool;
 
 /**
  * @author Aliaksandr Antonik.

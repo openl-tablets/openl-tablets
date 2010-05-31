@@ -10,7 +10,7 @@ set CP=%CP%;../org.openl.lib.apache.commons/commons-lang-1.0.1/commons-lang-1.0.
 set CP=%CP%;../org.openl.lib.apache.commons/commons-logging-1.0.3/commons-logging.jar
 set CP=%CP%;../org.openl.lib.apache.commons/commons-logging-1.0.3/commons-logging-api.jar
 set CP=%CP%;../org.openl.rules.webstudio/bin
-set CP=%CP%;../org.openl.rules.webtools/bin
+set CP=%CP%;../org.openl.commons.web/bin
 
 java -Xms256M -Xmx1024M -cp %CP% org.openl.rules.webstudio.util.StartTomcat
 

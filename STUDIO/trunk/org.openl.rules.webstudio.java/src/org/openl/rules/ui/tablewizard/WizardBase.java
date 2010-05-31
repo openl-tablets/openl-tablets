@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -25,7 +26,6 @@ import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.StringTool;
 
 /**

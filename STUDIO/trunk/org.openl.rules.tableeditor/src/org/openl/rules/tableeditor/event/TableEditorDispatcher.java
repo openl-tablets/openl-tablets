@@ -20,10 +20,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.webtools.WebTool;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.exec.ExcelLauncher;
 
 public class TableEditorDispatcher implements PhaseListener {

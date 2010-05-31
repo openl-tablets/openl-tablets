@@ -1,11 +1,11 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 public abstract class TableWizard {
     

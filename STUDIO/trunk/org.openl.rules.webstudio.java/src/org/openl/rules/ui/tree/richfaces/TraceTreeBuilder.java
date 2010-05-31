@@ -1,8 +1,8 @@
 package org.openl.rules.ui.tree.richfaces;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class TraceTreeBuilder extends TreeBuilder {

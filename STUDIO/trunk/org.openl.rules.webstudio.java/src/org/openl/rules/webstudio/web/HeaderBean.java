@@ -3,11 +3,11 @@ package org.openl.rules.webstudio.web;
 import java.io.IOException;
 import javax.faces.model.SelectItem;
 
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.ui.OpenLWrapperInfo;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.WebTool;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 import static org.openl.rules.webstudio.web.util.WebStudioUtils.getWebStudio;
 

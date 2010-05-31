@@ -5,5 +5,5 @@
   "http://java.sun.com/dtd/facelet-taglib_1_0.dtd">
 
 <facelet-taglib>
-  <library-class>org.openl.rules.webtools.jsf.facelets.fn.JSFTaglib</library-class>
+  <library-class>org.openl.commons.web.jsf.facelets.fn.JSFTaglib</library-class>
 </facelet-taglib>

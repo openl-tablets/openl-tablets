@@ -1,4 +1,4 @@
-package org.openl.rules.webtools;
+package org.openl.commons.web.util;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;

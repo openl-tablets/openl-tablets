@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -33,7 +34,6 @@ import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.EnumUtils;
 import org.openl.rules.tableeditor.util.WebUtil;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.StringTool;
 
 /**

@@ -3,8 +3,8 @@ package org.openl.rules.webstudio.web.repository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;

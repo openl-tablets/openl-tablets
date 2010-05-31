@@ -1,4 +1,6 @@
-package org.openl.rules.webtools;
+package org.openl.commons.web;
+
+import org.openl.commons.web.util.WebTool;
 
 import junit.framework.TestCase;
 

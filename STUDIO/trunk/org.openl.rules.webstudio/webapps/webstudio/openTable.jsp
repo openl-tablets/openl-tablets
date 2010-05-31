@@ -1,8 +1,8 @@
-<%@page import="org.openl.rules.webtools.WebTool"%>
 <%@page import="org.openl.rules.webstudio.web.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.ui.WebStudio"%>
 <%@page import="org.openl.util.StringTool"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="org.openl.commons.web.util.WebTool"%>
 
 <%
     final String contextPath = request.getContextPath();

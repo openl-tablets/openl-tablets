@@ -1,4 +1,4 @@
-package org.openl.rules.webtools.jsf.facelets.acegi;
+package org.openl.commons.web.jsf.facelets.acegi;
 
 import com.sun.facelets.tag.AbstractTagLibrary;
 

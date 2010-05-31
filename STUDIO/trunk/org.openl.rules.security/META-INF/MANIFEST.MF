@@ -6,5 +6,5 @@ Bundle-Version: 5.5.1
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.webstudio.lib,
  org.openl.lib.apache.tomcat,
- org.openl.rules.webtools
+ org.openl.commons.web
 Export-Package: org.openl.rules.security

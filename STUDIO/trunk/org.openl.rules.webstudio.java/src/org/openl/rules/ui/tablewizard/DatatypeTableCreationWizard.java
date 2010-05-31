@@ -11,12 +11,12 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.richfaces.component.html.HtmlDataTable;
 
 /**

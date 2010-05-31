@@ -1,9 +1,9 @@
 <%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 <%@page import="org.openl.rules.table.xls.XlsUrlParser"%>
-<%@ page import="org.openl.rules.webtools.WebTool" %>
 <%@page import="org.openl.util.exec.ExcelLauncher"%>
 <%@page import="org.openl.util.exec.WordLauncher"%>
 <%@ page import="java.io.File" %>
+<%@page import="org.openl.commons.web.util.WebTool"%>
 
 <%
     boolean local = WebTool.isLocalRequest(request);

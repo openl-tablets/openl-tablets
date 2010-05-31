@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.faces.component.html.HtmlDataTable;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkOrder;
 

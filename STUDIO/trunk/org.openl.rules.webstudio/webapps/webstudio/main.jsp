@@ -11,8 +11,8 @@
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.openl.rules.webstudio.security.CurrentUserInfo"%>
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
-<%@page import = "org.openl.rules.webtools.WebTool" %>
 <%@page import="org.openl.rules.webstudio.web.jsf.WebContext"%>
+<%@page import="org.openl.commons.web.util.WebTool"%>
 <html>
 <head>
 <title>OpenL Web Studio</title>
