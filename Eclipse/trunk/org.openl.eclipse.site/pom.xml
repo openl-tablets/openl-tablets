@@ -154,11 +154,6 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.util</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository</artifactId>
     </dependency>
 
@@ -302,12 +297,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.tableeditor</artifactId>
-      <classifier>sources</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.util</artifactId>
       <classifier>sources</classifier>
     </dependency>
 

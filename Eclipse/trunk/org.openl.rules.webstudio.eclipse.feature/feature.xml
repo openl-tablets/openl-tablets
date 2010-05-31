@@ -97,13 +97,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.util"
-         download-size="0"
-         install-size="0"
-         version="5.5.1"
-         unpack="false"/>
-
-   <plugin
          id="org.openl.lib.apache.tomcat"
          download-size="0"
          install-size="0"
