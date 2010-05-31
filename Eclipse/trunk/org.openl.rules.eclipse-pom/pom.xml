@@ -292,12 +292,6 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.util</artifactId>
-        <version>${openl.version.maven}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository</artifactId>
         <version>${openl.version.maven}</version>
     </dependency>
@@ -478,13 +472,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.tableeditor</artifactId>
-      <classifier>sources</classifier>
-      <version>${openl.version.maven}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.util</artifactId>
       <classifier>sources</classifier>
       <version>${openl.version.maven}</version>
     </dependency>

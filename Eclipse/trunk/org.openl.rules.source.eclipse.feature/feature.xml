@@ -73,14 +73,6 @@
          version="5.5.1"
          unpack="false"/>
 
-
-   <plugin
-         id="org.openl.rules.util.source"
-         download-size="0"
-         install-size="0"
-         version="5.5.1"
-         unpack="false"/>
-
    <plugin
          id="org.openl.rules.repository.source"
          download-size="0"
