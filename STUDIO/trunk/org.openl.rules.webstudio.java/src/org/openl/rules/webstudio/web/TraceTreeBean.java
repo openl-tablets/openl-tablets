@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
@@ -34,6 +36,8 @@ public class TraceTreeBean {
             
             if (traceHelper == null) {
                 traceHelper = new TraceHelper();
+                Map<String, Object> sessionMap = FacesUtils.getSessionMap();
+                sessionMap.put(TRACER_NAME, traceHelper);
             }
             
             ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
