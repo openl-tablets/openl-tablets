@@ -47,11 +47,6 @@
       <artifactId>org.openl.rules.security</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.util</artifactId>
-    </dependency>
-
     <!-- spring related -->
     <dependency>
       <groupId>org.acegisecurity</groupId>

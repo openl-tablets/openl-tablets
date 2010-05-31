@@ -57,11 +57,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.util</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.sdicons.jsontools</groupId>
             <artifactId>jsontools-core</artifactId>
         </dependency>

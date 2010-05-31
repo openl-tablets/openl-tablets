@@ -11,8 +11,7 @@ Require-Bundle: org.openl.lib.apache.tomcat;visibility:=reexport,
  org.openl.rules.workspace;visibility:=reexport, 
  org.openl.rules.webtools;visibility:=reexport,
  org.openl.rules.security.standalone;visibility:=reexport,
- org.openl.rules.webstudio.lib;visibility:=reexport,
- org.openl.rules.util;visibility:=reexport
+ org.openl.rules.webstudio.lib;visibility:=reexport
 Export-Package: org.openl.rules.tableeditor.component,
  org.openl.rules.tableeditor.event,
  org.openl.rules.tableeditor.model,
