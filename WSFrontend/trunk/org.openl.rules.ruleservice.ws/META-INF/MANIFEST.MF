@@ -19,4 +19,4 @@ Require-Bundle: org.openl.rules.ruleservice.ws.lib,
  org.openl.rules.tableeditor,
  org.openl.rules.webstudio,
  org.openl.rules.webstudio.java,
- org.openl.rules.webtools
+ org.openl.commons.web
