@@ -99,7 +99,6 @@ lib\org.openl.rules.ruleservice_5.5.1.jar;^
 lib\org.openl.rules.security.standalone_5.5.1.jar;^
 lib\org.openl.rules.security_5.5.1.jar;^
 lib\org.openl.rules.tableeditor_5.5.1.jar;^
-lib\org.openl.rules.util_5.5.1.jar;^
 lib\org.openl.rules.validator_5.5.1.jar;^
 lib\org.openl.rules.webstudio.java_5.5.1.jar;^
 lib\org.openl.rules.webtools_5.5.1.jar;^
