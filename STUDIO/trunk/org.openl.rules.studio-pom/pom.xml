@@ -18,7 +18,6 @@
 
   <modules>
     <module>../org.openl.rules.tableeditor</module>
-    <module>../org.openl.rules.util</module>
     <module>../org.openl.rules.repository</module>
     <module>../org.openl.rules.repository.jcr</module>
     <module>../org.openl.rules.repository.jcr.jackrabbit</module>
@@ -243,12 +242,6 @@
       </dependency>
 
       <!-- STUDIO -->
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.util</artifactId>
-        <version>${version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.webstudio.lib</artifactId>
