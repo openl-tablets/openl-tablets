@@ -6,15 +6,12 @@
 
 package org.openl.rules.webtools.exec;
 
-import org.openl.rules.table.word.WordUrlParser;
-
 /**
+ * MS Word launcher.
  *
  * @author sam
  */
 public class WordLauncher {
-
-    public static final String defaultScriptName = "LaunchWord.vbs";
 
     String scriptName;
 
@@ -23,11 +20,12 @@ public class WordLauncher {
     String wdParStart;
     String wdParEnd;
 
-    static public void launch(String url) throws Exception {
-        WordUrlParser p = new WordUrlParser();
-        p.parse(url);
-
-        launch(defaultScriptName, p.wdPath, p.wdName, p.wdParStart, p.wdParEnd);
+    public WordLauncher(String scriptName, String wdPath, String wdName, String wdParStart, String wdParEnd) {
+        this.scriptName = scriptName;
+        this.wdPath = wdPath;
+        this.wdName = wdName;
+        this.wdParStart = wdParStart;
+        this.wdParEnd = wdParEnd;
     }
 
     static public void launch(String scriptName, String wdPath, String wdName, String wdParStart, String wdParEnd)
@@ -35,14 +33,6 @@ public class WordLauncher {
         WordLauncher l = new WordLauncher(scriptName, wdPath, wdName, wdParStart, wdParEnd);
 
         l.launch();
-    }
-
-    public WordLauncher(String scriptName, String wdPath, String wdName, String wdParStart, String wdParEnd) {
-        this.scriptName = scriptName;
-        this.wdPath = wdPath;
-        this.wdName = wdName;
-        this.wdParStart = wdParStart;
-        this.wdParEnd = wdParEnd;
     }
 
     public void launch() throws Exception {
