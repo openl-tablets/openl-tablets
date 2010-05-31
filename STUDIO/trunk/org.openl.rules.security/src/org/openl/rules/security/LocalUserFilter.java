@@ -14,7 +14,7 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.openl.rules.webtools.WebTool;
+import org.openl.commons.web.util.WebTool;
 
 /**
  * Acegi filter, that automatically logins local user if the following

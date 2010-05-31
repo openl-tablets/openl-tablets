@@ -7,6 +7,7 @@ package org.openl.rules.ui;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.view.BaseBusinessViewMode;
 import org.openl.rules.ui.view.BaseDeveloperViewMode;
 import org.openl.rules.ui.view.BusinessViewMode1;
@@ -17,7 +18,6 @@ import org.openl.rules.ui.view.DeveloperByTypeViewMode;
 import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.Project;

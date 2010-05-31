@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.search;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectIndexer;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * Request scope managed bean providing logic for Simple Search page of OpenL Studio.

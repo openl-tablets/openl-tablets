@@ -2,12 +2,12 @@ package org.openl.rules.tableeditor.event;
 
 import java.util.Map;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 public class BaseTableEditorController {
 

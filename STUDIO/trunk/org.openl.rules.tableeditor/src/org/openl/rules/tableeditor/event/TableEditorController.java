@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.formula.FormulaParseException;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.CellStyle;
@@ -18,7 +19,6 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * Table editor controller.

@@ -13,6 +13,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -23,7 +24,6 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 /**
  * @author Aliaksandr Antonik.

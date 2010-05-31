@@ -10,6 +10,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.search.GroupOperator;
 import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearch;
@@ -18,10 +19,9 @@ import org.openl.rules.search.SearchConditionElement;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 
-import static org.openl.rules.webtools.jsf.FacesUtils.createSelectItems;
+import static org.openl.commons.web.jsf.FacesUtils.createSelectItems;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.AStringBoolOperator;
 
 /**

@@ -1,5 +1,5 @@
 <%@ page import = "org.openl.rules.ui.*" %>
-<%@ page import = "org.openl.rules.webtools.*" %>
+<%@ page import = "org.openl.commons.web.*" %>
 <%@page import="org.openl.rules.webstudio.web.util.Constants"%>
 
 

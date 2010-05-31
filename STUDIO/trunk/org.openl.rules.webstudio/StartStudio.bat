@@ -20,7 +20,7 @@ FOR %%c in ("%CATALINA_HOME%/server/lib/*.jar") DO set CP=!CP!;%CATALINA_HOME%%C
 
 set CP=%CP%;../org.openl.lib.apache.tomcat/apache-tomcat-6.0.20/bin/bootstrap.jar
 set CP=%CP%;../org.openl.rules.webstudio/bin
-set CP=%CP%;../org.openl.rules.webtools/bin
+set CP=%CP%;../org.openl.commons.web/bin
 set CP=%CP%;../com.exigen.rules.constrainer/bin
 set CP=%CP%;../org.openl.rules.validator/bin
 set CP=%CP%;../TravelersPOC/bin

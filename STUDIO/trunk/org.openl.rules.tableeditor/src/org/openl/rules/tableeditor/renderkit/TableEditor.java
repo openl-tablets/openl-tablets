@@ -5,10 +5,10 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.BooleanUtils;
 
 /**

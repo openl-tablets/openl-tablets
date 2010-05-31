@@ -6,13 +6,13 @@ import java.util.List;
 import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeStateManager;
 import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;

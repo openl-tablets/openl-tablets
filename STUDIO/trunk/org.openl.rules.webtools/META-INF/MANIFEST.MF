@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Webtools Plug-in
-Bundle-SymbolicName: org.openl.rules.webtools
+Bundle-SymbolicName: org.openl.commons.web
 Bundle-Version: 5.5.1
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
  org.openl.lib.apache.tomcat;visibility:=reexport,
  org.junit4,
  org.openl.commons
-Export-Package: org.openl.rules.webtools,
- org.openl.rules.webtools.jsf,
- org.openl.rules.webtools.jsf.facelets.acegi,
- org.openl.rules.webtools.jsf.facelets.fn
+Export-Package: org.openl.commons.web.util,
+ org.openl.commons.web.jsf,
+ org.openl.commons.web.jsf.facelets.acegi,
+ org.openl.commons.web.jsf.facelets.fn
+ 
 Bundle-Vendor: OpenL Tablets

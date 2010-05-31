@@ -1,4 +1,4 @@
-package org.openl.rules.webtools.jsf.facelets.fn;
+package org.openl.commons.web.jsf.facelets.fn;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.openl.rules.webtools.WebTool;
+import org.openl.commons.web.util.WebTool;
 
 /**
  * JSF functions.

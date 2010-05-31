@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
@@ -16,7 +17,6 @@ import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.StringTool;
 
 /**

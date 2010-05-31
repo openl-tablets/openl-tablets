@@ -1,4 +1,4 @@
-package org.openl.rules.webtools.jsf;
+package org.openl.commons.web.jsf;
 
 import java.io.IOException;
 import java.util.Map;

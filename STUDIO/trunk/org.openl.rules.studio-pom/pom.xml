@@ -22,7 +22,7 @@
     <module>../org.openl.rules.repository.jcr</module>
     <module>../org.openl.rules.repository.jcr.jackrabbit</module>
     <module>../org.openl.rules.workspace</module>
-    <module>../org.openl.rules.webtools</module>
+    <module>../org.openl.commons.web</module>
     <module>../org.openl.rules.webstudio.java</module>
     <module>../org.openl.rules.webstudio</module>
     <module>../org.openl.rules.security</module>
@@ -119,7 +119,7 @@
                     <include name="org.openl.rules.security\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.security.standalone\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.webstudio.java\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.webtools\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.commons.web\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.workspace\target\cobertura\cobertura.ser" />
                   </fileset>
                 </cobertura-merge>
@@ -149,7 +149,7 @@
                   <fileset dir="..\org.openl.rules.webstudio.java\src\">
                     <include name="**\*.java" />
                   </fileset>
-                  <fileset dir="..\org.openl.rules.webtools\src\">
+                  <fileset dir="..\org.openl.commons.web\src\">
                     <include name="**\*.java" />
                   </fileset>
                   <fileset dir="..\org.openl.rules.workspace\src\">
@@ -291,8 +291,8 @@
       </dependency>
 
       <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.webtools</artifactId>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons.web</artifactId>
         <version>${version}</version>
       </dependency>
 

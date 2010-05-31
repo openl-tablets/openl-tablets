@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Explanation;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.tree.richfaces.TreeBuilder;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 

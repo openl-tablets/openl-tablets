@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.webstudio.services.ServiceException;
@@ -18,7 +19,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
-import org.openl.rules.webtools.jsf.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;

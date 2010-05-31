@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.diff;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 
@@ -12,7 +13,6 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.webtools.jsf.FacesUtils;
 
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.hierarchy.Projection;

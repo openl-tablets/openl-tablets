@@ -6,7 +6,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.webtools.jsf.FacesUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 
 /**
  * The container of current skin.

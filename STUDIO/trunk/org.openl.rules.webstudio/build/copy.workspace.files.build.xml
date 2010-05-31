@@ -10,7 +10,7 @@
 		<param name="plugin_name" 
 			value="org.openl.rules.webstudio"/></antcall>	
 	<antcall target="copy_project" >
-		<param name="plugin_name" value="org.openl.rules.webtools"/>
+		<param name="plugin_name" value="org.openl.commons.web"/>
 	</antcall>	
 
 	<antcall target="copy_tomcat" >
