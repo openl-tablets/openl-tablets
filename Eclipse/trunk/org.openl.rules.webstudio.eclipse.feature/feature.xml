@@ -43,7 +43,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.webtools"
+         id="org.openl.commons.web"
          download-size="0"
          install-size="0"
          version="5.5.1"

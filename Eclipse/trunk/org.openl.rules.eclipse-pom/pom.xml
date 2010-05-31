@@ -327,8 +327,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webtools</artifactId>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.commons.web</artifactId>
         <version>${openl.version.maven}</version>
     </dependency>
 
@@ -512,8 +512,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webtools</artifactId>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.commons.web</artifactId>
       <classifier>sources</classifier>
       <version>${openl.version.maven}</version>
     </dependency>
