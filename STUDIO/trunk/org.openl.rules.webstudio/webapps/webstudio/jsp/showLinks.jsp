@@ -1,8 +1,8 @@
 <%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 <%@page import="org.openl.rules.table.xls.XlsUrlParser"%>
 <%@ page import="org.openl.rules.webtools.WebTool" %>
-<%@page import="org.openl.rules.webtools.exec.ExcelLauncher"%>
-<%@page import="org.openl.rules.webtools.exec.WordLauncher"%>
+<%@page import="org.openl.util.exec.ExcelLauncher"%>
+<%@page import="org.openl.util.exec.WordLauncher"%>
 <%@ page import="java.io.File" %>
 
 <%
@@ -12,15 +12,15 @@
         if (wantURI) {
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(request.getParameter("uri"));
-            ExcelLauncher.launch("LaunchExcel.vbs",
-                    parser.wbPath, parser.wbName, parser.wsName, parser.range);
+            ExcelLauncher.launch("LaunchExcel.vbs", parser.wbPath,
+                parser.wbName, parser.wsName, parser.range);
             return;
         }
 
         String wbName = request.getParameter("wbName");
         if (wbName != null)
             ExcelLauncher.launch(
-                    "LaunchExcel.vbs",
+                    "scripts/LaunchExcel.vbs",
                     request.getParameter("wbPath"),
                     wbName,
                     request.getParameter("wsName"),
@@ -31,7 +31,7 @@
         String wdName = request.getParameter("wdName");
         if (wdName != null)
             WordLauncher.launch(
-                    "LaunchWord.vbs",
+                    "scripts/LaunchWord.vbs",
                     request.getParameter("wdPath"),
                     wdName,
                     request.getParameter("wdParStart"),

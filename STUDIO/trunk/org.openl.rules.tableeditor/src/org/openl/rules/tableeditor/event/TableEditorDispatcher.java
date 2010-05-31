@@ -23,8 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.webtools.WebTool;
-import org.openl.rules.webtools.exec.ExcelLauncher;
 import org.openl.rules.webtools.jsf.FacesUtils;
+import org.openl.util.exec.ExcelLauncher;
 
 public class TableEditorDispatcher implements PhaseListener {
     private static final long serialVersionUID = 8617343432886373802L;
@@ -109,8 +109,8 @@ public class TableEditorDispatcher implements PhaseListener {
             parser.parse(uri);
             try {
                 if (local) { // open file
-                    ExcelLauncher.launch("LaunchExcel.vbs", parser.wbPath, parser.wbName,
-                            parser.wsName, parser.range);
+                    ExcelLauncher.launch("scripts/LaunchExcel.vbs", parser.wbPath,
+                            parser.wbName, parser.wsName, parser.range);
                 } else { // download file
                     File xlsFile = new File(parser.wbPath, parser.wbName);
                     if (xlsFile.isFile()) {
