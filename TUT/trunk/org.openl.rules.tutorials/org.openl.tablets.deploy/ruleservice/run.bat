@@ -101,7 +101,7 @@ lib\org.openl.rules.security_5.5.1.jar;^
 lib\org.openl.rules.tableeditor_5.5.1.jar;^
 lib\org.openl.rules.validator_5.5.1.jar;^
 lib\org.openl.rules.webstudio.java_5.5.1.jar;^
-lib\org.openl.rules.webtools_5.5.1.jar;^
+lib\org.openl.commons.web_5.5.1.jar;^
 lib\org.openl.rules.workspace_5.5.1.jar;^
 lib\org.openl.rules_5.5.1.jar;^
 lib\oro-2.0.8.jar;^
