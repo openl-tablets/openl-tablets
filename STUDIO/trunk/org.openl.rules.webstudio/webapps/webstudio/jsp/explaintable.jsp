@@ -1,6 +1,6 @@
-<%@ page import = "org.openl.rules.webtools.exec.*" %>
 <%@ page import = "org.openl.meta.*" %>
 <%@ page import="org.openl.rules.ui.Explanation" %>
+<%@page import="org.openl.util.exec.ExcelLauncher"%>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
@@ -107,7 +107,7 @@ if (header != null)
 	String wbName = request.getParameter("wbName");
 	if (wbName != null)
 		ExcelLauncher.launch(
-		"LaunchExcel.vbs", 
+        "scripts/LaunchExcel.vbs", 
 		request.getParameter("wbPath"),
 		wbName,
 		request.getParameter("wsName"),
