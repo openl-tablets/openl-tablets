@@ -6,15 +6,12 @@
 
 package org.openl.rules.webtools.exec;
 
-import org.openl.rules.table.xls.XlsUrlParser;
-
 /**
+ * MS Excel launcher.
  *
  * @author sam
  */
 public class ExcelLauncher {
-
-    public static final String defaultScriptName = "LaunchExcel.vbs";
 
     String scriptName;
 
@@ -23,27 +20,20 @@ public class ExcelLauncher {
     String wsName;
     String range;
 
-    static public void launch(String url) throws Exception {
-        XlsUrlParser p = new XlsUrlParser();
-        p.parse(url);
-
-        launch(defaultScriptName, p.wbPath, p.wbName, p.wsName, p.range);
-    }
-
-    static public void launch(String scriptName, String wbPath, String wbName, String wsName, String range)
-            throws Exception {
-        ExcelLauncher l = new ExcelLauncher(Launcher.getLaunchScriptsDir() + "/" + scriptName, wbPath, wbName, wsName,
-                range);
-
-        l.launch();
-    }
-
     public ExcelLauncher(String scriptName, String wbPath, String wbName, String wsName, String range) {
         this.scriptName = scriptName;
         this.wbPath = wbPath;
         this.wbName = wbName;
         this.wsName = wsName;
         this.range = range;
+    }
+
+    public static void launch(String scriptName, String wbPath, String wbName, String wsName, String range)
+            throws Exception {
+        ExcelLauncher l = new ExcelLauncher(Launcher.getLaunchScriptsDir() + "/" + scriptName, wbPath, wbName,
+                wsName, range);
+
+        l.launch();
     }
 
     public void launch() throws Exception {
