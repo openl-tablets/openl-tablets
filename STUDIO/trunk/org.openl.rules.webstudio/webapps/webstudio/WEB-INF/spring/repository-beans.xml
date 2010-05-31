@@ -65,7 +65,7 @@
 
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="deployer">
-      <bean class="org.openl.rules.util.spring.beans.ChooseObjectFactoryBean">
+      <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
         <property name="testValue" value="@{webstudio.deployer}" />
         <property name="casesMap">
           <map>
