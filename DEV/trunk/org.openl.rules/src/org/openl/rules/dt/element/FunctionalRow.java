@@ -474,9 +474,9 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(codeTable.getGridTable());
 
-        if (StringUtils.isEmpty(source.getCode())) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot parse empty method body", source);
-        }
+//        if (StringUtils.isEmpty(source.getCode())) {
+//            throw SyntaxNodeExceptionUtils.createError("Cannot parse empty method body", source);
+//        }
         
         IParameterDeclaration[] methodParams = getParams(source,
             signature,
