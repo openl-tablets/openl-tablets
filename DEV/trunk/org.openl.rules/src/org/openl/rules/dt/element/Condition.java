@@ -2,6 +2,7 @@ package org.openl.rules.dt.element;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
@@ -11,6 +12,8 @@ import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -79,7 +82,13 @@ public class Condition extends FunctionalRow implements ICondition {
             RuleRow ruleRow) throws Exception {
 
         super.prepare(NullOpenClass.the, signature, openl, module, bindingContextDelegator, ruleRow);
+        
+        IOpenSourceCodeModule source = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule();
 
+        if (StringUtils.isEmpty(source.getCode())){
+            throw SyntaxNodeExceptionUtils.createError("Cannot execute empty expression", source);
+        }
+        
         IOpenClass methodType = ((CompositeMethod) getMethod()).getBodyType();
 
         if (isDependentOnAnyParams()) {
