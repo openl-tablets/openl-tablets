@@ -91,10 +91,15 @@
     </dependency>
 
     <dependency>
- 		<groupId>commons-collections</groupId>
+	<groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
     </dependency>
-    
+
+    <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+    </dependency>
+
     <dependency>
     	<groupId>org.openl</groupId>
   		<artifactId>org.openl.poi.lib</artifactId>

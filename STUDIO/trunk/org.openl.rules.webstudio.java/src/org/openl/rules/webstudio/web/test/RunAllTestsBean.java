@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
+import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -15,6 +16,7 @@ import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.print.Formatter;
 
 /**
  * Request scope managed bean providing logic for 'Run All Tests' page of OpenL Studio.
@@ -151,4 +153,8 @@ public class RunAllTestsBean {
         return ts.getTestObj().getFieldValue(header);
     }
 
+    public String getFormattedTestValue(){
+        Object testValue = getTestValue();
+        return Formatter.format(testValue, INamedThing.REGULAR, new StringBuffer()).toString();
+    }
 }

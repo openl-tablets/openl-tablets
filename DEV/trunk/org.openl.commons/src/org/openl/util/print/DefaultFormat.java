@@ -72,8 +72,9 @@ public class DefaultFormat implements IFormat {
         if (obj instanceof INamedThing) {
             return buf.append(((INamedThing) obj).getDisplayName(mode));
         }
-
-        return buf.append(obj);
+        NicePrinter printer = new NicePrinter();
+        printer.print(obj, new BeanNicePrinterAdaptor());
+        return buf.append(printer.getBuffer());
     }
 
     /**

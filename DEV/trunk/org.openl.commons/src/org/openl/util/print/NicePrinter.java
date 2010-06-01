@@ -91,6 +91,11 @@ public class NicePrinter {
 
         printedObjects.put(obj, new Integer(newID));
 
+        if (obj instanceof Enum) {
+            adaptor.printPrimitive(obj, this);
+            return;
+        }
+
         if (obj instanceof Map) {
             adaptor.printMap((Map<Object,Object>) obj, null, this);
             return;

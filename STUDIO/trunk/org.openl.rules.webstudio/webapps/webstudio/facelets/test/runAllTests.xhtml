@@ -55,7 +55,7 @@
                     <tr>
                         <a4j:repeat value="#{result.testHeaders}" var="testHeader" binding="#{runAllTestsBean.headers}">
                             <td>
-                                <h:outputText value="#{runAllTestsBean.testValue}" />
+                                <h:outputText value="#{runAllTestsBean.formattedTestValue}" />
                             </td>
                         </a4j:repeat>
                         <td>
