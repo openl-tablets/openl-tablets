@@ -29,20 +29,50 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class ModuleOpenClass extends ADynamicClass {
+public class ModuleOpenClass extends ADynamicClass {    
 
-    class DefaultInitializer implements IOpenMethod {
+    private DefaultInitializer init;
+
+    private OpenL openl;
+
+    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
+        super(schema, name, DynamicObject.class);
+        this.openl = openl;
+        init = new DefaultInitializer();
+        addField(new ThisField());
+        addMethod(new GetOpenClass());
+    }    
+
+    public void addInitializerNode(IBoundNode node) {
+        init.addNode(node);
+    }
+
+    @Override
+    public IAggregateInfo getAggregateInfo() {
+        return DynamicArrayAggregateInfo.aggregateInfo;
+    }
+
+    public OpenL getOpenl() {
+        return openl;
+    }
+
+    public IBindingContext makeBindingContext(IBindingContext parentContext) {
+        return new ModuleBindingContext(parentContext, this);
+    }
+
+    public Object newInstance(IRuntimeEnv env) {
+        DynamicObject res = new DynamicObject(this);
+        init.invoke(res, new Object[] {}, env);
+        return res;
+    }
+    
+    private class DefaultInitializer implements IOpenMethod {
         List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();
 
         public void addNode(IBoundNode node) {
             boundNodes.add(node);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IOpenMember#getDeclaringClass()
-         */
         public IOpenClass getDeclaringClass() {
             return ModuleOpenClass.this;
         }
@@ -51,20 +81,10 @@ public class ModuleOpenClass extends ADynamicClass {
             return ModuleOpenClass.this.getDisplayName(mode);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IOpenMember#getInfo()
-         */
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IMethodCaller#getMethod()
-         */
         public IOpenMethod getMethod() {
             return this;
         }
@@ -73,20 +93,10 @@ public class ModuleOpenClass extends ADynamicClass {
             return ModuleOpenClass.this.getName();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IOpenMethod#getParameterTypes()
-         */
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IOpenMember#getType()
-         */
         public IOpenClass getType() {
             return JavaOpenClass.VOID;
         }
@@ -105,11 +115,6 @@ public class ModuleOpenClass extends ADynamicClass {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IOpenMember#isStatic()
-         */
         public boolean isStatic() {
             return false;
         }
@@ -158,20 +163,10 @@ public class ModuleOpenClass extends ADynamicClass {
 
     public class ThisField extends AOpenField {
 
-        /**
-         * @param name
-         * @param type
-         */
         protected ThisField() {
             super("this", ModuleOpenClass.this);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.types.IOpenField#get(java.lang.Object,
-         *      org.openl.vm.IRuntimeEnv)
-         */
         public Object get(Object target, IRuntimeEnv env) {
             return target;
         }
@@ -180,50 +175,6 @@ public class ModuleOpenClass extends ADynamicClass {
             throw new RuntimeException("Can not assign to this");
         }
 
-    }
-
-    DefaultInitializer init;
-
-    OpenL openl;
-
-    /**
-     * @param schema
-     * @param name
-     */
-    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
-        super(schema, name, DynamicObject.class);
-        this.openl = openl;
-        init = new DefaultInitializer();
-        addField(new ThisField());
-        addMethod(new GetOpenClass());
-
-    }
-
-    public void addInitializerNode(IBoundNode node) {
-        init.addNode(node);
-    }
-
-    /**
-     *
-     */
-
-    @Override
-    public IAggregateInfo getAggregateInfo() {
-        return DynamicArrayAggregateInfo.aggregateInfo;
-    }
-
-    public OpenL getOpenl() {
-        return openl;
-    }
-
-    public IBindingContext makeBindingContext(IBindingContext parentContext) {
-        return new ModuleBindingContext(parentContext, this);
-    }
-
-    public Object newInstance(IRuntimeEnv env) {
-        DynamicObject res = new DynamicObject(this);
-        init.invoke(res, new Object[] {}, env);
-        return res;
     }
 
 }

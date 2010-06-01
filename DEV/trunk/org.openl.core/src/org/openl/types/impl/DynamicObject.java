@@ -18,38 +18,7 @@ import org.openl.util.print.NicePrinterAdaptor;
  * @author snshor
  * 
  */
-public class DynamicObject implements IDynamicObject {
-
-    private static class DONIcePrinterAdaptor extends NicePrinterAdaptor {
-
-        @Override
-        protected String getTypeName(Object obj) {
-            if (obj instanceof DynamicObject) {
-                return ((DynamicObject) obj).getType().getName();
-            }
-            return super.getTypeName(obj);
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.openl.commons.print.NicePrinterAdaptor#printObject(java.lang.
-         * Object, int, org.openl.commons.print.NicePrinter)
-         */
-        @Override
-        public void printObject(Object obj, int newID, NicePrinter printer) {
-            if (obj instanceof IDynamicObject) {
-                IDynamicObject dobj = (IDynamicObject) obj;
-                printReference(dobj, newID, printer);
-                // printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
-                printMap(dobj.getFieldValues(), null, printer);
-                return;
-            }
-
-            super.printObject(obj, newID, printer);
-        }
-    }
+public class DynamicObject implements IDynamicObject {    
 
     private IOpenClass type;
 
@@ -82,19 +51,11 @@ public class DynamicObject implements IDynamicObject {
         return fieldValues.get(name);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.types.IDynamicObject#getFieldValues()
-     */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getFieldValues() {
         return (HashMap<String, Object>) fieldValues.clone();
     }
 
-    /**
-     * @return
-     */
     public IOpenClass getType() {
         return type;
     }
@@ -111,15 +72,35 @@ public class DynamicObject implements IDynamicObject {
         this.type = type;
     }
 
-    /**
-     *
-     */
-
     @Override
     public String toString() {
         NicePrinter printer = new NicePrinter();
         printer.print(this, getNicePrinterAdaptor());
         return printer.getBuffer().toString();
+    }
+    
+    private static class DONIcePrinterAdaptor extends NicePrinterAdaptor {
+
+        @Override
+        protected String getTypeName(Object obj) {
+            if (obj instanceof DynamicObject) {
+                return ((DynamicObject) obj).getType().getName();
+            }
+            return super.getTypeName(obj);
+        }
+
+        @Override
+        public void printObject(Object obj, int newID, NicePrinter printer) {
+            if (obj instanceof IDynamicObject) {
+                IDynamicObject dobj = (IDynamicObject) obj;
+                printReference(dobj, newID, printer);
+                // printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
+                printMap(dobj.getFieldValues(), null, printer);
+                return;
+            }
+
+            super.printObject(obj, newID, printer);
+        }
     }
 
 }

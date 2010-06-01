@@ -13,12 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -37,95 +34,15 @@ import org.openl.util.ISelector;
  *
  */
 public abstract class AOpenClass implements IOpenClass {
-    static public final class MethodKey {
-        String name;
-        IOpenClass[] pars;
-
-        public MethodKey(IOpenMethod om) {
-            name = om.getName();
-            pars = om.getSignature().getParameterTypes();
-        }
-
-        public MethodKey(String name, IOpenClass[] pars) {
-            this.name = name;
-            this.pars = pars;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof MethodKey)) {
-                return false;
-            }
-            MethodKey mk = (MethodKey) obj;
-
-            return new EqualsBuilder().append(name, mk.name).append(pars, mk.pars).isEquals();
-        }
-
-        @Override
-        public int hashCode() {
-            int hashCode = new HashCodeBuilder().append(name).append(pars).toHashCode();
-            return hashCode;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(name).append("(");
-            boolean first = true;
-            for (IOpenClass c : pars) {
-                if (!first) {
-                    sb.append(",");
-                }
-                sb.append(c.getName());
-                first = false;
-            }
-            sb.append(")");
-            return sb.toString();
-        }
-
-    }// eof MethodKey
-
     protected IOpenSchema schema;
 
-    IOpenField indexField;
+    private IOpenField indexField;
 
     protected IMetaInfo metaInfo;
     protected Map<String, IOpenField> uniqueLowerCaseFieldMap = null;
 
     protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap = null;
-
-    static public IOpenMethod[] getMethods(String name, Iterator<IOpenMethod> methods) {
-        ArrayList<IOpenMethod> list = new ArrayList<IOpenMethod>();
-        for (; methods.hasNext();) {
-            IOpenMethod m = methods.next();
-            if (m.getName().equals(name)) {
-                list.add(m);
-            }
-        }
-
-        return list.toArray(new IOpenMethod[0]);
-    }
-
-    static public IOpenMethod getSingleMethod(String name, Iterator<IOpenMethod> methods) {
-        ArrayList<IOpenMethod> list = new ArrayList<IOpenMethod>();
-        for (; methods.hasNext();) {
-            IOpenMethod m = methods.next();
-            if (m.getName().equals(name)) {
-                list.add(m);
-            }
-        }
-
-        if (list.size() == 0) {
-            throw new MethodNotFoundException(null, name, IOpenClass.EMPTY);
-        }
-
-        if (list.size() > 1) {
-            throw new AmbiguousMethodException(name, IOpenClass.EMPTY, list);
-        }
-
-        return list.get(0);
-    }
-
+    
     protected AOpenClass(IOpenSchema schema) {
         this.schema = schema;
     }
@@ -161,11 +78,6 @@ public abstract class AOpenClass implements IOpenClass {
         return new HashMap<String, IOpenField>(fieldMap());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IOpenClass#getArrayType(int)
-     */
     public IOpenClass getArrayType(int dim) {
         return JavaOpenClass.getOpenClass(getInstanceClass()).getArrayType(dim);
     }
@@ -212,19 +124,10 @@ public abstract class AOpenClass implements IOpenClass {
         return null;
     }
 
-    /**
-     * @return
-     */
     public IOpenField getIndexField() {
         return indexField;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String,
-     *      org.openl.types.IOpenClass[])
-     */
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return getMethod(name, params);
     }
@@ -266,18 +169,10 @@ public abstract class AOpenClass implements IOpenClass {
         return nonUniqueLowerCaseFieldMap;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IOpenClassHolder#getOpenClass()
-     */
     public IOpenClass getOpenClass() {
         return this;
     }
 
-    /**
-     * @return
-     */
     public IOpenSchema getSchema() {
         return schema;
     }
@@ -298,11 +193,6 @@ public abstract class AOpenClass implements IOpenClass {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IOpenClass#isAbstract()
-     */
     public boolean isAbstract() {
         return false;
     }
@@ -335,28 +225,15 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected abstract Map<MethodKey, IOpenMethod> methodMap();
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IMethodFactory#methods()
-     */
     public Iterator<IOpenMethod> methods() {
         Map<MethodKey, IOpenMethod> methodMap = methodMap();
         return methodMap == null ? null : methodMap.values().iterator();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IOpenClass#nullObject()
-     */
     public Object nullObject() {
         return null;
     }
 
-    /**
-     * @param field
-     */
     public void setIndexField(IOpenField field) {
         indexField = field;
     }
