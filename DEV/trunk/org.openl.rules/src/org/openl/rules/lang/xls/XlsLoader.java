@@ -238,7 +238,7 @@ public class XlsLoader {
 
     private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
         int height = table.getLogicalHeight();
-        List<String> importsList = new ArrayList<String>();
+//        List<String> importsList = new ArrayList<String>();
 
         for (int i = 0; i < height; i++) {
             String singleImport = table.getCell(1, i).getStringValue();   
@@ -246,15 +246,23 @@ public class XlsLoader {
                 singleImport = singleImport.trim();
             }            
             if (StringUtils.isNotEmpty(singleImport)) {
-                importsList.add(singleImport);
+                addImport(singleImport);
             }
         }
-        imports = importsList;
+        
         addInnerImports();
     }
     
+    
+    private void addImport(String singleImport)
+    {
+        if (!imports.contains(singleImport))
+            imports.add(singleImport);
+        
+    }
+    
     private void addInnerImports() {
-        imports.add("org.openl.rules.enumeration");
+        addImport("org.openl.rules.enumeration");
     }
 
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
