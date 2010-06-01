@@ -1,6 +1,6 @@
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.util.*" %>
-<%@ page import = "org.openl.commons.web.*" %>
+<%@ page import = "org.openl.commons.web.util.WebTool" %>
 <%@ page import="org.openl.rules.lang.xls.syntax.TableSyntaxNode" %>
 
 
