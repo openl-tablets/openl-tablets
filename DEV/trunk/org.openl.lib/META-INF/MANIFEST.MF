@@ -5,7 +5,11 @@ Bundle-SymbolicName: org.openl.lib
 Bundle-Version: 5.5.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Export-Package: org.apache.commons.collections,
+Export-Package: org.apache.commons.beanutils,
+ org.apache.commons.beanutils.converters,
+ org.apache.commons.beanutils.locale,
+ org.apache.commons.beanutils.locale.converters,
+ org.apache.commons.collections,
  org.apache.commons.collections.bag,
  org.apache.commons.collections.bidimap,
  org.apache.commons.collections.buffer,
@@ -28,7 +32,8 @@ Export-Package: org.apache.commons.collections,
  org.apache.commons.lang.time,
  org.apache.commons.logging,
  org.apache.commons.logging.impl
-Bundle-ClassPath: lib/commons-logging-1.1.1.jar,
+Bundle-ClassPath: lib/commons-beanutils-1.7.0.jar,
  lib/commons-collections-3.2.jar,
- lib/commons-lang-2.5.jar
+ lib/commons-lang-2.5.jar,
+ lib/commons-logging-1.1.1.jar
 Require-Bundle: org.openl.poi.lib;visibility:=reexport
