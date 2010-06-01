@@ -301,7 +301,7 @@ public class CellModel implements ICellModel {
         buf.append("<td");
         atttributesToHtml(buf, table);
         //FIXME: Should formulas be displayed?
-        buf.append('>').append("</td>\n");
+        buf.append('>').append(getContent(false)).append("</td>\n");
     }
 
     public boolean hasFormula() {
