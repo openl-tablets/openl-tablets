@@ -11,7 +11,7 @@ import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.OverloadedMethodsDictionary;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AOpenClass.MethodKey;
+import org.openl.types.impl.MethodKey;
 
 /**
  * Builds tree node for group of methods.

@@ -9,7 +9,7 @@ import java.util.Set;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AOpenClass.MethodKey;
+import org.openl.types.impl.MethodKey;
 
 /**
  * Dictionary of IOpenMethod instances. Categorizes methods using their
