@@ -11,8 +11,8 @@ import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
 import org.openl.rules.table.ui.filters.XlsSimpleFilter;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.DynamicObject;
+import org.openl.types.impl.MethodsHelper;
 
 /**
  * 
@@ -27,7 +27,7 @@ public class GameInterface
 	
 	static public IGridTable findTable(String methodName, Object thizz) {
 
-		IOpenMethod m = AOpenClass.getSingleMethod(methodName,
+		IOpenMethod m = MethodsHelper.getSingleMethod(methodName,
 				((DynamicObject) thizz).getType().methods());
 		DecisionTable dt = (DecisionTable) m;
 		TableSyntaxNode tsn = dt.getSyntaxNode();
