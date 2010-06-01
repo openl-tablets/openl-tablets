@@ -56,7 +56,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
             cellSources[i] = new GridCellSourceCodeModule(bodyTable.getLogicalRow(i).getGridTable());
         }
 
-        IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources);
+        IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
         OpenLManager.compileMethod(getOpenl(), src, getTableMethod(), bindingContext);
     }
