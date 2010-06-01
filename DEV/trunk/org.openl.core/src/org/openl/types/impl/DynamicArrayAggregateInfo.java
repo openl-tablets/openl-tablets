@@ -32,11 +32,6 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
     static class MyArrayOpenClass extends ArrayOpenClass {
 
-        /**
-         * @param schema
-         * @param componentClass
-         * @param lengthOpenField
-         */
         public MyArrayOpenClass(IOpenClass componentClass) {
             super(componentClass.getSchema(), componentClass, new MyArrayLengthOpenField());
         }
@@ -98,17 +93,13 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
         return new ArrayIndex(getComponentType(aggregateType));
     }
 
-    /**
-     *
-     */
-
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
         if (dim == 0) {
             return componentType;
         }
 
-        IOpenClass[] arrayTypes = ((ADynamicClass) componentType).arrayTypes;
+        IOpenClass[] arrayTypes = ((ADynamicClass) componentType).getArrayTypes();
 
         synchronized (arrayTypes) {
             if (arrayTypes[dim - 1] != null) {

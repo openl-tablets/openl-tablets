@@ -31,6 +31,7 @@ import org.openl.types.IOpenSchema;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
+import org.openl.types.impl.MethodKey;
 import org.openl.util.AOpenIterator;
 import org.openl.util.CollectionsUtil;
 import org.openl.util.IConvertor;

@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AOpenClass.MethodKey;
+import org.openl.types.impl.MethodKey;
 
 /**
  * Key to check identity of tables represented by TableSyntaxNodes. Tables are

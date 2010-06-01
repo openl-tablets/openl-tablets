@@ -16,12 +16,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DynamicObjectField extends AOpenField {
 
-    IOpenClass declaringClass;
+    private IOpenClass declaringClass;
 
-    /**
-     * @param name
-     * @param type
-     */
     public DynamicObjectField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(name, type);
         this.declaringClass = declaringClass;
@@ -48,10 +44,6 @@ public class DynamicObjectField extends AOpenField {
     public IOpenClass getDeclaringClass() {
         return declaringClass;
     }
-
-    /**
-     *
-     */
 
     @Override
     public boolean isWritable() {

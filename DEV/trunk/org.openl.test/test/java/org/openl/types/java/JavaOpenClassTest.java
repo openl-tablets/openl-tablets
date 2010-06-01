@@ -7,6 +7,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.types.impl.MethodKey;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -54,8 +55,8 @@ public class JavaOpenClassTest extends TestCase {
 
     void _testMethodKey() {
         Class<?>[] cc = { int.class, TestClass2.class };
-        JavaOpenClass.MethodKey mk1 = new JavaOpenClass.MethodKey("getM1", JavaOpenClass.getOpenClasses(cc));
-        JavaOpenClass.MethodKey mk2 = new JavaOpenClass.MethodKey("getM1", JavaOpenClass.getOpenClasses(cc));
+        MethodKey mk1 = new MethodKey("getM1", JavaOpenClass.getOpenClasses(cc));
+        MethodKey mk2 = new MethodKey("getM1", JavaOpenClass.getOpenClasses(cc));
 
         Assert.assertEquals(mk1, mk2);
         Assert.assertEquals(mk1.hashCode(), mk2.hashCode());

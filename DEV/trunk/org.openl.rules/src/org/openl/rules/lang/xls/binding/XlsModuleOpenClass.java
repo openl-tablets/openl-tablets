@@ -19,6 +19,7 @@ import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor

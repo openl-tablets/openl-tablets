@@ -11,7 +11,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AOpenClass;
+import org.openl.types.impl.MethodsHelper;
 
 /**
  * @author snshor
@@ -38,7 +38,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             String tableName) {
 
         TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) dataNode;
-        IOpenMethod testedMethod = AOpenClass.getSingleMethod(typeName, module.methods());
+        IOpenMethod testedMethod = MethodsHelper.getSingleMethod(typeName, module.methods());
         TestSuiteMethod testSuite = new TestSuiteMethod(tableName, testedMethod, testMethodBoundNode);
         testMethodBoundNode.setTestSuite(testSuite);
 

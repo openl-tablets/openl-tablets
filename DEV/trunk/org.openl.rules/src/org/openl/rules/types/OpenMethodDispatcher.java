@@ -10,7 +10,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AOpenClass.MethodKey;
+import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 
 /**
