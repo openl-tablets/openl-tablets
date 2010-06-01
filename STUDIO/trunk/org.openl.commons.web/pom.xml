@@ -9,6 +9,7 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl</groupId>
   <artifactId>org.openl.commons.web</artifactId>
   <name>OpenL - STUDIO - WebTools</name>
   <description />
