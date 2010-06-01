@@ -20,47 +20,40 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     IOpenSourceCodeModule[] modules;
     int[] len;
 
-    String source;
+    private String source;
 
-    public CompositeSourceCodeModule(IOpenSourceCodeModule[] modules) {
+    public CompositeSourceCodeModule(IOpenSourceCodeModule[] modules, String separator) {
         this.modules = modules;
         len = new int[modules.length];
+        makeCode(separator);
+    }
+    
+    
+    private void makeCode(String separator)
+    {
         StringBuffer buf = new StringBuffer(100);
         for (int i = 0; i < modules.length; i++) {
             if (modules[i] == null) {
                 continue;
             }
             String code = modules[i].getCode();
-            len[i] = code.length();
+            len[i] = code.length() + separator.length();
             buf.append(code);
+            buf.append(separator);
         }
 
         source = buf.toString();
+        
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getByteStream()
-     */
     public InputStream getByteStream() {
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getCharacterStream()
-     */
     public Reader getCharacterStream() {
         return new StringReader(source);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getCode()
-     */
     public String getCode() {
         return source;
     }
@@ -73,11 +66,6 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         return 2;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getUri(int)
-     */
     public String getUri(int textpos) {
         int relPos = textpos;
         int sum = 0;
