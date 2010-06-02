@@ -409,31 +409,6 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     }
 
-    public static class RangeParam {
-        private Long min, max;
-
-        public RangeParam(Long min, Long max) {
-            this.min = min;
-            this.max = max;
-        }
-
-        public Long getMax() {
-            return max;
-        }
-
-        public Long getMin() {
-            return min;
-        }
-
-        public void setMax(Long max) {
-            this.max = max;
-        }
-
-        public void setMin(Long min) {
-            this.min = min;
-        }
-    }
-
     public static class TableModificationResponse {
         private String response;
         private String status;
