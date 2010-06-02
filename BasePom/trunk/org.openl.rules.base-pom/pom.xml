@@ -145,6 +145,7 @@
           </execution>
         </executions>
         <configuration>
+          <excludeResources>true</excludeResources>
           <archive>
             <manifestEntries>
               <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
