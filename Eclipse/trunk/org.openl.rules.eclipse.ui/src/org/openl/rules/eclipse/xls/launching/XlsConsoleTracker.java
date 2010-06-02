@@ -20,9 +20,8 @@ import org.openl.main.SourceCodeURLConstants;
  */
 public class XlsConsoleTracker implements IConsoleLineTracker, IHyperlinkFactory, SourceCodeURLConstants {
 
-    static boolean isRegistered = false;
-
-    IConsole console;
+    private boolean isRegistered = false;
+    private IConsole console;
 
     public IHyperlink createHyperlink(IConsole console, String url) {
         return new XlsStackTraceHyperlink(console, url);
@@ -38,7 +37,7 @@ public class XlsConsoleTracker implements IConsoleLineTracker, IHyperlinkFactory
     }
 
     public String getMatchString() {
-        return AT_PREFIX + "*" + ".xls" + "*" + OPENL + "=" + "*";
+        return AT_PREFIX + "*" + ".xls" + "*";
     }
 
     /*
@@ -63,7 +62,6 @@ public class XlsConsoleTracker implements IConsoleLineTracker, IHyperlinkFactory
      */
     public void lineAppended(IRegion line) {
         ConsoleLineTrackerTool.lineAppended(console, line);
-
     }
 
 }

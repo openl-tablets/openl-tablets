@@ -17,13 +17,12 @@ import org.openl.main.SourceCodeURLConstants;
  *
  */
 public class OpenlConsoleTracker implements IConsoleLineTracker, IHyperlinkFactory, SourceCodeURLConstants {
-    static boolean isRegistered = false;
-
-    IConsole console;
+    
+    private boolean isRegistered = false;
+    private IConsole console;
 
     public IHyperlink createHyperlink(IConsole console, String url) {
         return new OpenlStackTraceHyperlink(console, url);
-        // return new FileLink(null, null,1, 1,1);
     }
 
     /*
@@ -32,7 +31,6 @@ public class OpenlConsoleTracker implements IConsoleLineTracker, IHyperlinkFacto
      * @see org.eclipse.debug.ui.console.IConsoleLineTracker#dispose()
      */
     public void dispose() {
-        // TODO Auto-generated method stub
     }
 
     public String getExcludeMatchString() {
@@ -40,7 +38,7 @@ public class OpenlConsoleTracker implements IConsoleLineTracker, IHyperlinkFacto
     }
 
     public String getIncludeMatchString() {
-        return AT_PREFIX + "*" + OPENL + "=" + "*";
+        return AT_PREFIX + "*";
     }
 
     /*
@@ -49,6 +47,7 @@ public class OpenlConsoleTracker implements IConsoleLineTracker, IHyperlinkFacto
      * @see org.eclipse.debug.ui.console.IConsoleLineTracker#init(org.eclipse.debug.ui.console.IConsole)
      */
     public synchronized void init(IConsole console) {
+        
         this.console = console;
 
         if (!isRegistered) {
