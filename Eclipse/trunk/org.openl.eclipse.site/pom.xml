@@ -277,6 +277,12 @@
 
     <dependency>
       <groupId>org.openl</groupId>
+      <artifactId>org.openl.grammars</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
       <artifactId>org.openl.j.science</artifactId>
       <classifier>sources</classifier>
     </dependency>
@@ -366,6 +372,38 @@
       <artifactId>org.openl.rules.ruleservice.ws</artifactId>
       <classifier>sources</classifier>
     </dependency>
+
+    <!-- Eclipse -->
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.util</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.ui</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
   </dependencies>
 
 </project>

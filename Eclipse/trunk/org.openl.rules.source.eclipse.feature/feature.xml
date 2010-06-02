@@ -46,6 +46,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.grammars.source"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.j.science.source"
          download-size="0"
          install-size="0"
@@ -148,6 +155,41 @@
 
    <plugin
          id="org.openl.rules.ruleservice.ws.source"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.util.source"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.wizard.source"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.source"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.eclipse.ui.wizard.source"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.eclipse.ui.source"
          download-size="0"
          install-size="0"
          version="5.5.1"
