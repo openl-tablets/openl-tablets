@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.model;
 
+import org.openl.rules.tableeditor.model.RangeParam;
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
-import org.openl.rules.tableeditor.event.TableEditorController.RangeParam;
 
 public class IntRangeCellEditor implements ICellEditor {
 
