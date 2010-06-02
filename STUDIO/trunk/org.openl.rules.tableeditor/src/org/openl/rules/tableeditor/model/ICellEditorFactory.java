@@ -26,13 +26,13 @@ public interface ICellEditorFactory {
     ICellEditor makeMultiSelectEditor(String[] choices, String[] displayValues);
 
     /**
-     * Creates int range editor with min,max bounds.
+     * Creates numeric editor with min, max bounds.
      *
      * @param min
      * @param max
      * @return
      */
-    ICellEditor makeIntEditor(int min, int max);
+    ICellEditor makeNumericEditor(int min, int max);
 
     ICellEditor makeMultilineEditor();
 
