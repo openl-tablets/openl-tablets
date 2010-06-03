@@ -17,9 +17,7 @@
       Applied by ContextLoaderListener.
     </description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>
-      /META-INF/cxf/cxf.xml
-    </param-value>
+    <param-value>openl-ws.xml</param-value>
   </context-param>
 
   <listener>

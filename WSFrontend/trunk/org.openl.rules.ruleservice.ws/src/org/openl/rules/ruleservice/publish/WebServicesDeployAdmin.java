@@ -11,30 +11,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.transport.DestinationFactory;
 import org.openl.rules.ruleservice.instantiation.AClassInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.WebServiceEngineFactoryInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
 import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.ObjectFactory;
 
 public class WebServicesDeployAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
-    private ApplicationContext context;
+    private ObjectFactory serverFactory;
 
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
-    
-    private String baseAddress = "http://localhost:9000/";
-    private DestinationFactory destinationFactory = null;
-    
-    public DestinationFactory getDestinationFactory() {
-        return destinationFactory;
-    }
 
-    public void setDestinationFactory(DestinationFactory destinationFactory) {
-        this.destinationFactory = destinationFactory;
-    }
+    private String baseAddress;
 
     public String getBaseAddress() {
         return baseAddress;
@@ -44,12 +34,12 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         this.baseAddress = address;
     }
 
-    public ApplicationContext getContext() {
-        return context;
+    public ObjectFactory getServerFactory() {
+        return serverFactory;
     }
 
-    public void setContext(ApplicationContext context) {
-        this.context = context;
+    public void setServerFactory(ObjectFactory serverFactory) {
+        this.serverFactory = serverFactory;
     }
 
     public synchronized void deploy(String serviceName, ClassLoader loader, List<RuleServiceInfo> infoList) {
@@ -72,10 +62,9 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
     private Server deploy(String baseAddress, ClassLoader loader, RuleServiceInfo wsInfo)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
-        svrFactory.setDestinationFactory(destinationFactory);
 
         instantiateServiceBean(loader, wsInfo, svrFactory);
-        
+
         return exposeWebService(baseAddress, wsInfo, svrFactory);
     }
 
@@ -88,14 +77,14 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
         AClassInstantiationStrategy strategy = getStrategy(wsInfo, wsInfo.getClassName(), loader);
-        
+
         svrFactory.setServiceClass(strategy.getServiceClass());
         svrFactory.setServiceBean(strategy.instantiate());
     }
-    
-    private ServerFactoryBean getServerFactoryBean(){
-        if (context != null && context.containsBean("serverPrototype")) {
-            return (ServerFactoryBean) context.getBean("serverPrototype");
+
+    protected ServerFactoryBean getServerFactoryBean() {
+        if (serverFactory != null) {
+            return (ServerFactoryBean) serverFactory.getObject();
         }
         return new ServerFactoryBean();
     }
@@ -116,7 +105,7 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
             case AUTO_WRAPPER:
                 return new WebServiceEngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
         }
-        
+
         throw new RuntimeException("Cannot resolve instantiation strategy");
     }
 

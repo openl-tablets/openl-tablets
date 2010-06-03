@@ -9,12 +9,15 @@
 
   <fileSets>
     <fileSet>
-      <directory>target/classes/org</directory>
-      <outputDirectory>org</outputDirectory>
+      <directory>target/classes</directory>
+      <outputDirectory></outputDirectory>
     </fileSet>
     <fileSet>
       <directory>META-INF</directory>
     </fileSet>
+    <fileSet>
+      <directory>conf</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
   </fileSets>
-
 </assembly>
