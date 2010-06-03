@@ -52,7 +52,7 @@
               </archive>
               <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
               <descriptors>
-                <descriptor>src/main/assembly/assembly-jar.xml</descriptor>
+                <descriptor>assembly/assembly-jar.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
@@ -60,6 +60,12 @@
       </plugin>
 
     </plugins>
+
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+      </testResource>
+    </testResources>
   </build>
 
   <dependencies>
