@@ -171,10 +171,12 @@ public class RuleRowHelper {
 
         if (theCell.hasNativeType()) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
-                Object res = loadNativeValue(theCell, paramType.getInstanceClass(), openlAdapter.getBindingContext(),
+                Object res = loadNativeValue(theCell, paramType, openlAdapter.getBindingContext(),
                         paramName, ruleName, table);
-                if (res != null)
+                if (res != null) {
+                    setCellMetaInfo(table, paramName, paramType, false);
                     return res;
+                }
             }
         }
 
@@ -205,8 +207,9 @@ public class RuleRowHelper {
             System.out.println("  **  " + paramType + "\t" + type + "\t" + counts[type]);
     }
 
-    private static Object loadNativeValue(ICell cell, Class<?> expectedType, IBindingContext bindingContext,
+    private static Object loadNativeValue(ICell cell, IOpenClass paramType, IBindingContext bindingContext,
             String paramName, String ruleName, ILogicalTable table) {
+        Class<?> expectedType = paramType.getInstanceClass();
         double value = cell.getNativeNumber();
         IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
         Object res = null;
