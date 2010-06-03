@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.simple;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.ruleservice.RuleServiceBase;
 import org.openl.rules.ruleservice.loader.RulesLoaderJcr;
 import org.openl.rules.ruleservice.publish.DeploymentListener;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
