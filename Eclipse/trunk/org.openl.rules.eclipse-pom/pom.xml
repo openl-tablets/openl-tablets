@@ -2,7 +2,6 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
@@ -11,11 +10,17 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.eclipse-pom</artifactId>
-  <packaging>pom</packaging>
   <version>5.5.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
   <name>OpenL - Eclipse</name>
   <description>Eclipse related projects</description>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+  </scm>
 
   <modules>
     <module>../org.openl.eclipse.site</module>
@@ -34,11 +39,6 @@
 	<module>../org.openl.rules.ruleservice.eclipse.feature</module>
 	<module>../org.openl.rules.ruleservice.lib.eclipse.feature</module>
   </modules>
-
-  <scm>
-<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</developerConnection>
-  </scm>
 
   <repositories>
     <repository>
