@@ -1,13 +1,17 @@
 package org.openl.rules.tableeditor.model;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.lang.xls.types.CellMetaInfo; //import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.ICell;
 import org.openl.util.EnumUtils;
+import org.openl.util.NumberUtils;
 import org.openl.types.IOpenClass;
 
 // TODO Reimplement
@@ -27,15 +31,24 @@ public class CellEditorSelector {
         if (dataType != null) {
             IDomain domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
-            if (instanceClass == int.class || instanceClass == Integer.class) {
+
+            // Simple numeric
+            if (ClassUtils.isAssignable(instanceClass, double.class, true)) {
+                Number minValue = null;
+                Number maxValue = null;
                 if (domain == null && !meta.isMultiValue()) {
-                    result = factory.makeIntEditor(Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    minValue = NumberUtils.getMinValue(instanceClass);
+                    maxValue = NumberUtils.getMaxValue(instanceClass);
                 } else if (domain instanceof IntRangeDomain) {
                     IntRangeDomain range = (IntRangeDomain) domain;
-                    result = factory.makeIntEditor(range.getMin(), range.getMax());
-                } else if (meta.isMultiValue()) {
-                    factory.makeTextEditor();
+                    minValue = range.getMin();
+                    maxValue = range.getMax();
                 }
+                result = factory.makeNumericEditor(minValue, maxValue);
+            // Unbounded numeric
+            } else if (instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {
+                result = factory.makeNumericEditor();
+            // String
             } else if (instanceClass == String.class) {
                 if (domain instanceof EnumDomain) {
                     EnumDomain enumDomain = (EnumDomain) domain;
@@ -45,12 +58,14 @@ public class CellEditorSelector {
                         result = factory.makeComboboxEditor((String[]) enumDomain.getEnum().getAllObjects());
                     }
                 }
+            // Date
             } else if (instanceClass == Date.class) {
                 result = factory.makeDateEditor();
+            // Boolean
             } else if (instanceClass == boolean.class || instanceClass == Boolean.class) {
                 result = factory.makeBooleanEditor();
+            // Enum
             } else if (instanceClass.isEnum()) {
-
                 String[] values = EnumUtils.getNames(instanceClass);
                 String[] displayValues = EnumUtils.getValues(instanceClass);
 

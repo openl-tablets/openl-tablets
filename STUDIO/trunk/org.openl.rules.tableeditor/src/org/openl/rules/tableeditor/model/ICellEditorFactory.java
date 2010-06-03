@@ -32,7 +32,9 @@ public interface ICellEditorFactory {
      * @param max
      * @return
      */
-    ICellEditor makeNumericEditor(int min, int max);
+    ICellEditor makeNumericEditor(Number min, Number max);
+
+    ICellEditor makeNumericEditor();
 
     ICellEditor makeMultilineEditor();
 

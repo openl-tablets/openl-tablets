@@ -10,8 +10,12 @@ public class CellEditorFactory implements ICellEditorFactory {
         return new ComboBoxCellEditor(choices, displayValues);
     }
 
-    public ICellEditor makeNumericEditor(int min, int max) {
+    public ICellEditor makeNumericEditor(Number min, Number max) {
         return new NumericCellEditor(min, max);
+    }
+
+    public ICellEditor makeNumericEditor() {
+        return makeNumericEditor(null, null);
     }
 
     public ICellEditor makeMultilineEditor() {
