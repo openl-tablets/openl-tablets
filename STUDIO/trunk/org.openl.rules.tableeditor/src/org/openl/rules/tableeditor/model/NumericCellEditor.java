@@ -5,18 +5,17 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
 
 public class NumericCellEditor implements ICellEditor {
 
-    private int min;
+    private Number min;
+    private Number max;
 
-    private int max;
-
-    public NumericCellEditor(int min, int max) {
+    public NumericCellEditor(Number min, Number max) {
         this.min = min;
         this.max = max;
     }
 
     public EditorTypeResponse getEditorTypeAndMetadata() {
         EditorTypeResponse typeResponse = new EditorTypeResponse(CE_NUMERIC);
-        typeResponse.setParams(new RangeParam((long) min, (long) max));
+        typeResponse.setParams(new RangeParam(min, max));
         return typeResponse;
     }
 

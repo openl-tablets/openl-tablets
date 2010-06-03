@@ -4,26 +4,28 @@
 package org.openl.rules.tableeditor.model;
 
 public class RangeParam {
-    private Long min, max;
 
-    public RangeParam(Long min, Long max) {
+    private Number min;
+    private Number max;
+
+    public RangeParam(Number min, Number max) {
         this.min = min;
         this.max = max;
     }
 
-    public Long getMax() {
+    public Number getMax() {
         return max;
     }
 
-    public Long getMin() {
+    public Number getMin() {
         return min;
     }
 
-    public void setMax(Long max) {
+    public void setMax(Number max) {
         this.max = max;
     }
 
-    public void setMin(Long min) {
+    public void setMin(Number min) {
         this.min = min;
     }
 }
