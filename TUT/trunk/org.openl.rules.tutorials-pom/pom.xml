@@ -45,8 +45,8 @@
       </dependency>
 
       <dependency>
-        <groupId>com.exigen.rules</groupId>
-        <artifactId>com.exigen.rules.constrainer</artifactId>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.constrainer</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
 

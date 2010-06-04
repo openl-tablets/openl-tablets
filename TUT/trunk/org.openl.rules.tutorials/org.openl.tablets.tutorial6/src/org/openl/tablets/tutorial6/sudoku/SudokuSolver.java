@@ -1,16 +1,16 @@
 package org.openl.tablets.tutorial6.sudoku;
 
-import com.exigen.ie.constrainer.Constrainer;
-import com.exigen.ie.constrainer.Failure;
-import com.exigen.ie.constrainer.Goal;
-import com.exigen.ie.constrainer.GoalAnd;
-import com.exigen.ie.constrainer.GoalGenerate;
-import com.exigen.ie.constrainer.GoalSaveArrayResult;
-import com.exigen.ie.constrainer.IntExp;
-import com.exigen.ie.constrainer.IntExpArray;
-import com.exigen.ie.constrainer.IntVar;
-import com.exigen.ie.constrainer.impl.ConstraintAllDiff;
-import com.exigen.ie.constrainer.impl.IntVarImpl;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.Goal;
+import org.openl.ie.constrainer.GoalAnd;
+import org.openl.ie.constrainer.GoalGenerate;
+import org.openl.ie.constrainer.GoalSaveArrayResult;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.impl.ConstraintAllDiff;
+import org.openl.ie.constrainer.impl.IntVarImpl;
 
 
 /**

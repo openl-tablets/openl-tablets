@@ -13,7 +13,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 
-import com.exigen.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExp;
 
 public class SquigglySudoku extends SudokuSolver {
 	public SquigglySudoku(String methodName, int H, int W, int[][] data) {
