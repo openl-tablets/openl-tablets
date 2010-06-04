@@ -24,10 +24,10 @@ import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 
-import com.exigen.ie.constrainer.Constrainer;
-import com.exigen.ie.constrainer.IntBoolVar;
-import com.exigen.ie.constrainer.IntExp;
-import com.exigen.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntBoolVar;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor

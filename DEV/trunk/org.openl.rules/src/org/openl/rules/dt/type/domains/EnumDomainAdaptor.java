@@ -5,7 +5,7 @@ package org.openl.rules.dt.type.domains;
 
 import org.openl.domain.EnumDomain;
 
-import com.exigen.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor

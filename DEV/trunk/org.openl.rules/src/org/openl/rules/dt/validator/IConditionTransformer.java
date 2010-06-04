@@ -7,8 +7,8 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 
-import com.exigen.ie.constrainer.Constrainer;
-import com.exigen.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor
