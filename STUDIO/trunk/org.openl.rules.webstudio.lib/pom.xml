@@ -44,7 +44,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-              <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules,org.apache.poi</excludeGroupIds>
+              <excludeGroupIds>org.openl,org.openl.rules,org.apache.poi</excludeGroupIds>
               <excludeArtifactIds>junit,servlet-api,jsp-api,org.openl.poi.lib</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
