@@ -15,7 +15,6 @@
 			<exclude name="**/bin/**/*.class" />
 			<exclude name="**/com.exigen.demo*/**" />
 			<exclude name="**/com.exigen.srp*/**" />
-			<include name="**/com.exigen.rules.*/**"/>
 			<include name="**/org.openl.*/**"/>
 		</fileset>
 	</copy>
