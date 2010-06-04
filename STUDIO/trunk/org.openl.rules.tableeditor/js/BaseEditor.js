@@ -84,7 +84,7 @@ var BaseEditor = Class.create({
      * Returns if the editing was cancelled.
      */
     isCancelled : function() {
-        return this.initialValue == this.getValue();
+        return (this.initialValue == this.getValue() || !this.isValid(this.getValue()));
     },
 
     switchTo: function(editorName) {
@@ -139,6 +139,13 @@ var BaseEditor = Class.create({
 
     is: function(element) {
         return element == this.getInputElement();
+    },
+
+    /**
+     * Validates input value.
+     */
+    isValid: function(value) {
+        return true;
     }
 
 });

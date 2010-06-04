@@ -331,6 +331,13 @@ var TableEditor = Class.create({
             initialValue = AjaxHelper.unescapeHTML(cell.innerHTML.replace(/<br>/ig, "\n")).strip();
         }
 
+        if (editorName == 'array') {
+            var entryEditorName = params.entryEditor;
+            if (entryEditorName) {
+                params.entryEditor = new TableEditor.Editors[entryEditorName]('', '', params);
+            }
+        }
+
         this.editor = new TableEditor.Editors[editorName](
                 this, this.editorWrapper.id, params, initialValue, true, style);
     },

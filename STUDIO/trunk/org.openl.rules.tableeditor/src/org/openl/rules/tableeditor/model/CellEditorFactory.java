@@ -46,4 +46,12 @@ public class CellEditorFactory implements ICellEditorFactory {
         return new MultiSelectCellEditor(choices, dispalayValues);
     }
 
+    public ICellEditor makeArrayEditor() {
+        return new ArrayCellEditor();
+    }
+
+    public ICellEditor makeArrayEditor(String separator, String entryEditor) {
+        return new ArrayCellEditor(separator, entryEditor);
+    }
+
 }
