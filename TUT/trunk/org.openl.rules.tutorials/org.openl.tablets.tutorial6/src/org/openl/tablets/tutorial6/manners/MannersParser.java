@@ -13,7 +13,7 @@ import java.util.Iterator;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
-import com.exigen.ie.constrainer.Failure;
+import org.openl.ie.constrainer.Failure;
 
 public class MannersParser
 {
