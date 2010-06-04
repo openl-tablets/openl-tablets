@@ -60,7 +60,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.exigen.rules.constrainer.source"
+         id="org.openl.rules.constrainer.source"
          download-size="0"
          install-size="0"
          version="5.5.1"
