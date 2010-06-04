@@ -7,7 +7,6 @@ import java.util.Date;
 import org.apache.commons.lang.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
-import org.openl.domain.IntRangeDomain;
 import org.openl.rules.lang.xls.types.CellMetaInfo; //import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.ICell;
 import org.openl.util.EnumUtils;
@@ -32,22 +31,15 @@ public class CellEditorSelector {
             IDomain domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
 
-            // Simple numeric
-            if (ClassUtils.isAssignable(instanceClass, double.class, true)) {
-                Number minValue = null;
-                Number maxValue = null;
+            // Numeric
+            //if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
+            if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
+                || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
                 if (domain == null && !meta.isMultiValue()) {
-                    minValue = NumberUtils.getMinValue(instanceClass);
-                    maxValue = NumberUtils.getMaxValue(instanceClass);
-                } else if (domain instanceof IntRangeDomain) {
-                    IntRangeDomain range = (IntRangeDomain) domain;
-                    minValue = range.getMin();
-                    maxValue = range.getMax();
+                    Number minValue = NumberUtils.getMinValue(instanceClass);
+                    Number maxValue = NumberUtils.getMaxValue(instanceClass);
+                    result = factory.makeNumericEditor(minValue, maxValue);
                 }
-                result = factory.makeNumericEditor(minValue, maxValue);
-            // Unbounded numeric
-            } else if (instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {
-                result = factory.makeNumericEditor();
             // String
             } else if (instanceClass == String.class) {
                 if (domain instanceof EnumDomain) {
@@ -74,10 +66,20 @@ public class CellEditorSelector {
                 } else {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
+            } else if (instanceClass.isArray()) {
+                result = selectArrayEditor(instanceClass.getComponentType());
             }
         }
-        
+
         return result;
+    }
+
+    private ICellEditor selectArrayEditor(Class<?> instanceClass) {
+        if (ClassUtils.isAssignable(instanceClass, double.class, true)
+            || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {
+            return factory.makeArrayEditor(",", ICellEditor.CE_NUMERIC);
+        }
+        return null;
     }
 
     public ICellEditor selectEditor(int row, int col, TableEditorModel model) {

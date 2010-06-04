@@ -24,13 +24,10 @@ var NumericEditor = Class.create(BaseTextEditor, {
         }
     },
 
-    isCancelled : function() {
-        return (this.initialValue == this.getValue() || this.isInvalid(this.getValue()));
-    },
-
-    isInvalid: function(v) {
-        var n = Number(v);
-        return isNaN(n) || (this.min && n < this.min) || (this.max && n > this.max);
+    isValid: function(value) {
+        var n = Number(value);
+        var invalid = isNaN(n) || (this.min && n < this.min) || (this.max && n > this.max);
+        return !invalid;
     },
 
     keyPressed: function(event) {

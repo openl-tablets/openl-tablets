@@ -191,7 +191,8 @@ public class HTMLRenderer {
                 .append(renderJS("js/FormulaEditor.js"))
                 .append(renderJS("js/BooleanEditor.js"))
                 .append(renderJS("js/DateEditor.js"))
-                .append(renderJS("js/MultiselectEditor.js"));
+                .append(renderJS("js/MultiselectEditor.js"))
+                .append(renderJS("js/ArrayEditor.js"));
         result.append(
                 renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT, editor.isCollapseProps()));
         result.append("<div id=\"").append(tableId).append("\"></div>");

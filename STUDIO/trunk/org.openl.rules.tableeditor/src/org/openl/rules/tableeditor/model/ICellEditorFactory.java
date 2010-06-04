@@ -1,7 +1,6 @@
 package org.openl.rules.tableeditor.model;
 
 /**
- *
  * @author snshor
  *
  * Provides interface for table editor creator. An implementation can differ in
@@ -18,11 +17,11 @@ public interface ICellEditorFactory {
      * @return
      */
     ICellEditor makeComboboxEditor(String[] choices);
-    
+
     ICellEditor makeComboboxEditor(String[] choices, String[] displayValues);
-    
+
     ICellEditor makeMultiSelectEditor(String[] choices);
-    
+
     ICellEditor makeMultiSelectEditor(String[] choices, String[] displayValues);
 
     /**
@@ -39,10 +38,15 @@ public interface ICellEditorFactory {
     ICellEditor makeMultilineEditor();
 
     ICellEditor makeTextEditor();
-    
+
     ICellEditor makeFormulaEditor();
-    
+
     ICellEditor makeDateEditor();
-    
+
     ICellEditor makeBooleanEditor();
+
+    ICellEditor makeArrayEditor();
+
+    ICellEditor makeArrayEditor(String separator, String entryEditor);
+
 }
