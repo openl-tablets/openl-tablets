@@ -2,7 +2,7 @@ package org.openl.rules.dt.type.domains;
 
 import org.openl.types.java.JavaEnumDomain;
 
-import com.exigen.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.IntVar;
 
 public class JavaEnumDomainAdaptor implements IDomainAdaptor {
 

@@ -9,8 +9,8 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.validator.IValidationResult;
 import org.openl.util.ArrayOfNamedValues;
 
-import com.exigen.ie.constrainer.consistencyChecking.Overlapping;
-import com.exigen.ie.constrainer.consistencyChecking.Uncovered;
+import org.openl.ie.constrainer.consistencyChecking.Overlapping;
+import org.openl.ie.constrainer.consistencyChecking.Uncovered;
 
 /**
  * @author snshor

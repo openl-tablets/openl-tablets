@@ -22,16 +22,16 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
-import com.exigen.ie.constrainer.Constrainer;
-import com.exigen.ie.constrainer.IntBoolExp;
-import com.exigen.ie.constrainer.IntBoolExpConst;
-import com.exigen.ie.constrainer.IntExp;
-import com.exigen.ie.constrainer.IntExpArray;
-import com.exigen.ie.constrainer.IntVar;
-import com.exigen.ie.constrainer.consistencyChecking.DTCheckerImpl;
-import com.exigen.ie.constrainer.consistencyChecking.Overlapping;
-import com.exigen.ie.constrainer.consistencyChecking.Uncovered;
-import com.exigen.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntBoolExpConst;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl;
+import org.openl.ie.constrainer.consistencyChecking.Overlapping;
+import org.openl.ie.constrainer.consistencyChecking.Uncovered;
+import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
 
 public class ValidationAlgorithm {
 
