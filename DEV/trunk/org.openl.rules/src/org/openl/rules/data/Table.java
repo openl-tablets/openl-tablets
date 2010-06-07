@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -215,52 +217,67 @@ public class Table implements ITable {
         int rows = logicalTable.getLogicalHeight();
         int startRow = getStartRowForData();
 
-        dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
+        dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);        
 
-        boolean constructor = isConstructor();
-
-        for (int i = startRow; i < rows; i++) {
-
-            Object literal = null;
-
-            int rowIndex = i - startRow;
-
-            if (!constructor) {
-                literal = dataModel.newInstance();
-                addToRowIndex(rowIndex, literal);
-            }
-
-            int columns = logicalTable.getLogicalWidth();
-
-            for (int j = 0; j < columns; j++) {
-                ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[j];
-
-                if (columnDescriptor != null && !columnDescriptor.isReference()) {
-                    if (constructor) {
-                        literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getLogicalRegion(j,
-                            i,
-                            1,
-                            1), openlAdapter);
-                    } else {
-                        columnDescriptor.populateLiteral(literal,
-                            logicalTable.getLogicalRegion(j, i, 1, 1),
-                            openlAdapter);
-                    }
-                }
-            }
-
-            if (literal == null) {
-                literal = dataModel.getType().nullObject();
-            }
-
-            Array.set(dataArray, i - startRow, literal);
+        for (int rowNum = startRow; rowNum < rows; rowNum++) {
+            processRow(openlAdapter, startRow, rowNum);
         }
+    }
+
+    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) 
+        throws OpenLCompilationException, SyntaxNodeException {
+        
+        boolean constructor = isConstructor();
+        Object literal = null;
+
+        int rowIndex = rowNum - startRow;
+
+        if (!constructor) {
+            literal = dataModel.newInstance();
+            if (literal == null) {
+                String errorMessage = String.format("Can`t create instance of %s", dataModel.getName());
+                throw new OpenLCompilationException(errorMessage);
+            }
+            addToRowIndex(rowIndex, literal);
+        }
+
+        int columns = logicalTable.getLogicalWidth();
+
+        for (int columnNum = 0; columnNum < columns; columnNum++) {
+            literal = processColumn(openlAdapter, constructor, rowNum, literal, columnNum);
+        }
+
+        if (literal == null) {
+            literal = dataModel.getType().nullObject();
+        }
+
+        Array.set(dataArray, rowNum - startRow, literal);
+    }
+
+    private Object processColumn(OpenlToolAdaptor openlAdapter, boolean constructor, int rowNum, Object literal,
+            int columnNum) throws SyntaxNodeException {
+        
+        ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
+
+        if (columnDescriptor != null && !columnDescriptor.isReference()) {
+            if (constructor) {
+                literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getLogicalRegion(columnNum,
+                    rowNum,
+                    1,
+                    1), openlAdapter);
+            } else {
+                columnDescriptor.populateLiteral(literal,
+                    logicalTable.getLogicalRegion(columnNum, rowNum, 1, 1),
+                    openlAdapter);
+            }
+        }
+        return literal;
     }
 
     public synchronized void setPrimaryIndexKey(int row, String value) {
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null) {
-            throw new RuntimeException("Duplicated key: " + value + "in rows " + oldRow + "," + row);
+            throw new OpenLRuntimeException("Duplicated key: " + value + "in rows " + oldRow + "," + row);
         }
         primaryIndexMap.put(row, value);
     }

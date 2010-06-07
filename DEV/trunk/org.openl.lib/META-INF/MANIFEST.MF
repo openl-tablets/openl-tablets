@@ -5,7 +5,17 @@ Bundle-SymbolicName: org.openl.lib
 Bundle-Version: 5.5.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Export-Package: org.apache.commons.beanutils,
+Export-Package: net.sf.cglib.asm,
+ net.sf.cglib.asm.attrs,
+ net.sf.cglib.beans,
+ net.sf.cglib.core,
+ net.sf.cglib.proxy,
+ net.sf.cglib.reflect,
+ net.sf.cglib.transform,
+ net.sf.cglib.transform.hook,
+ net.sf.cglib.transform.impl,
+ net.sf.cglib.util,
+ org.apache.commons.beanutils,
  org.apache.commons.beanutils.converters,
  org.apache.commons.beanutils.locale,
  org.apache.commons.beanutils.locale.converters,
@@ -31,9 +41,12 @@ Export-Package: org.apache.commons.beanutils,
  org.apache.commons.lang.text,
  org.apache.commons.lang.time,
  org.apache.commons.logging,
- org.apache.commons.logging.impl
+ org.apache.commons.logging.impl,
+ org.objectweb.asm
 Bundle-ClassPath: lib/commons-beanutils-1.7.0.jar,
  lib/commons-collections-3.2.jar,
  lib/commons-lang-2.5.jar,
- lib/commons-logging-1.1.1.jar
+ lib/commons-logging-1.1.1.jar,
+ lib/asm-1.5.3.jar,
+ lib/cglib-nodep-2.1_3.jar
 Require-Bundle: org.openl.poi.lib;visibility:=reexport

@@ -808,4 +808,12 @@ public class StringTool {
         return result;
     }
     
+    public static String getSetterName(String fieldName) {
+        return String.format("set%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
+    }
+    
+    public static String getGetterName(String fieldName) {
+        return String.format("get%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
+    }
+    
 }

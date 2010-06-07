@@ -67,11 +67,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib</artifactId>
-    </dependency>
-
-	<dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.constrainer</artifactId>
     </dependency>
@@ -86,6 +81,40 @@
       <artifactId>junit</artifactId>
 	  <scope>test</scope> 
     </dependency>
+    
+     <!-- poi dependency reference  -->
+    <dependency>
+    	<groupId>org.openl</groupId>
+  		<artifactId>org.openl.poi.lib</artifactId>
+  		<version>${version}</version>
+    </dependency>
+    
+    <!-- 3rd party dependencies  -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+
+    <dependency>
+ 		<groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    
+	<dependency>
+		<groupId>cglib</groupId>
+		<artifactId>cglib-nodep</artifactId>
+	</dependency>
+    
   </dependencies>
 
 </project>

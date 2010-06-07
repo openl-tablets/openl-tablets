@@ -7,10 +7,10 @@ package org.openl.rules.datatype.binding;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -30,7 +30,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-                                                                                                                     throws Exception {
+        throws Exception {
 
         ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
 
@@ -57,8 +57,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, parsedHeader[TYPE_INDEX]);
         }
-
-        ModuleOpenClass tableType = new ModuleOpenClass(module.getSchema(), typeName, cxt.getOpenL());
+        
+        DatatypeOpenClass tableType = new DatatypeOpenClass(module.getSchema(), typeName);
 
         cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
@@ -68,5 +68,5 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl);
     }
-
+    
 }
