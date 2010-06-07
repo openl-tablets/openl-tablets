@@ -6,30 +6,27 @@
 
 package org.openl.rules.lang.xls.types;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenSchema;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
-import org.openl.types.impl.DynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
 /**
+ * Open class for types represented as datatype table components in openl.
+ * 
  * @author snshor
  *
  */
 public class DatatypeOpenClass extends ADynamicClass {
-
-    /**
-     * @param schema
-     * @param name
-     */
+    
+    private static final Log LOG = LogFactory.getLog(DatatypeOpenClass.class);
+    
     public DatatypeOpenClass(IOpenSchema schema, String name) {
-        super(schema, name, DynamicObject.class);
+        super(schema, name, null);
     }
-
-    /**
-     *
-     */
 
     @Override
     public IAggregateInfo getAggregateInfo() {
@@ -37,8 +34,15 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     public Object newInstance(IRuntimeEnv env) {
-        DynamicObject res = new DynamicObject(this);
-        return res;
+        Object instance = null;
+        try {
+            instance = getInstanceClass().newInstance();
+        } catch (InstantiationException e) {            
+            LOG.error(this, e);
+        } catch (IllegalAccessException e) {            
+            LOG.error(this, e);
+        }
+        return instance;
     }
 
 }

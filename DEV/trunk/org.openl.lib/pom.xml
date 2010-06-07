@@ -14,13 +14,7 @@
   <name>OpenL - DEV - Libraries</name>
   <description />
 
-  <build>
-
-
-
-
-
-
+  <build>	
 
     <plugins>
       <plugin>
@@ -99,6 +93,16 @@
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
     </dependency>
+    
+	<dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    
+	<dependency>
+		<groupId>cglib</groupId>
+		<artifactId>cglib-nodep</artifactId>
+	</dependency>
 
     <dependency>
     	<groupId>org.openl</groupId>
