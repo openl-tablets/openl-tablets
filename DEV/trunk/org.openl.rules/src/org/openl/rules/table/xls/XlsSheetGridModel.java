@@ -243,10 +243,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         private int getTypeFromRegion() {
             if (isCurrentCellATopLeftCellInRegion()) {
-                return Cell.CELL_TYPE_BLANK;
+                return cell.getCellType();
             }
             ICell topLeftCell = getTopLeftCellFromRegion();
-            return topLeftCell.getType();            
+            return topLeftCell.getType();
         }
 
         public String getUri() {
