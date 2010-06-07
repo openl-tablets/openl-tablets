@@ -58,22 +58,27 @@ public class DomainTree {
     /**
      * Builds a domain tree from excel rules project meta information.
      *
-     * @param projectInfo project meta inforamtion.
+     * @param projectOpenClass project open class.
      * @return <code>DomainTree</code> instance
      */
-    public static DomainTree buildTree(IMetaInfo projectInfo) {
-        if (projectInfo == null) {
-            throw new NullPointerException("projectInfo is null");
-        }
+    public static DomainTree buildTree(IOpenClass projectOpenClass) {
+        IMetaInfo projectInfo = projectOpenClass.getMetaInfo();
 
         if (projectInfo instanceof XlsMetaInfo) {
             DomainTree domainTree = new DomainTree();
 
+            // Add all datatypes
+            Map<String, IOpenClass> dataTypes = projectOpenClass.getTypes();
+            if (dataTypes.size() > 0) {
+                for (IOpenClass type : dataTypes.values()) {
+                    domainTree.addType(type);
+                }
+            }
+
             XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) projectInfo;
             for (TableSyntaxNode node : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors()) {
                 String nodeType = node.getType();
-                if (nodeType.equals(ITableNodeTypes.XLS_DT)
-                        || nodeType.equals(ITableNodeTypes.XLS_DATATYPE)) {
+                if (nodeType.equals(ITableNodeTypes.XLS_DT)) {
                     domainTree.scanTable(node);
                 }
             }
@@ -222,8 +227,6 @@ public class DomainTree {
                 scanDecisionTable((DecisionTable) table);
             }
 
-        } else if (nodeType.equals(ITableNodeTypes.XLS_DATATYPE)) {
-            // scan Datatype table
         }
     }
 
