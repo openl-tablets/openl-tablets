@@ -13,10 +13,11 @@ public interface ISyntaxConstants {
     /**
      * The namespace for regular openl types
      */
-    public static final String THIS_NAMESPACE = "org.openl.this";
+    String THIS_NAMESPACE = "org.openl.this";
 
     /**
      * The namespace for operator methods - this way they do not mix with THIS namespace
      */
-    public static final String OPERATORS_NAMESPACE = "org.openl.operators";
+    String OPERATORS_NAMESPACE = "org.openl.operators";
+    
 }
