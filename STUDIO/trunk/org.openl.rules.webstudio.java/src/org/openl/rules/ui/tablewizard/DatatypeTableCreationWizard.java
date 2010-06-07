@@ -1,7 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,7 +78,7 @@ public class DatatypeTableCreationWizard extends WizardBase {
     protected void onStart() {
         reset();
 
-        domainTree = DomainTree.buildTree(getMetaInfo());
+        domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
 
         addParameter();

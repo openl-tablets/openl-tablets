@@ -22,7 +22,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValueP
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 /**
@@ -316,7 +315,7 @@ public class DecisionTableCreationWizard extends WizardBase {
     protected void onStart() {
         reset();
 
-        domainTree = DomainTree.buildTree(getMetaInfo());
+        domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
     }
 
