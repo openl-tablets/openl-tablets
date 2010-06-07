@@ -39,6 +39,16 @@
       <artifactId>servlet-api</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>tomcat</groupId>
+      <artifactId>bootstrap</artifactId>
+     </dependency>
+
+     <dependency>
+       <groupId>edu.stanford.ejalbert</groupId>
+       <artifactId>BrowserLauncher</artifactId>
+     </dependency>
+
   </dependencies>
 
 </project>
