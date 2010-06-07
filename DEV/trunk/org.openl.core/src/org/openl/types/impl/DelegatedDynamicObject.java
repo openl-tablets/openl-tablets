@@ -29,11 +29,6 @@ public class DelegatedDynamicObject extends DynamicObject {
         this.parent = parent;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.impl.DynamicObject#getFieldValue(java.lang.String)
-     */
     @Override
     public Object getFieldValue(String name) {
         Object value;
@@ -47,12 +42,6 @@ public class DelegatedDynamicObject extends DynamicObject {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.impl.DynamicObject#setFieldValue(java.lang.String,
-     *      java.lang.Object)
-     */
     @Override
     public void setFieldValue(String name, Object value) {
         if (isMyField(name)) {
