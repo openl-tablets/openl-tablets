@@ -7,7 +7,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
  org.junit4,
  org.openl.commons,
- org.openl.lib.apache.tomcat
+ org.openl.rules.tomcat.lib
 Export-Package: org.openl.commons.web,
  org.openl.commons.web.jsf,
  org.openl.commons.web.jsf.facelets.acegi,

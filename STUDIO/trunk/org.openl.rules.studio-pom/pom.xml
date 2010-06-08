@@ -35,7 +35,7 @@
     <module>../org.openl.rules.security.standalone</module>
     <module>../org.openl.rules.diff</module>
     <module>../org.openl.rules.webstudio.lib</module>    
-    <module>../org.openl.lib.apache.tomcat</module>
+    <module>../org.openl.rules.tomcat.lib</module>
   </modules>
 
   <repositories>
@@ -322,8 +322,8 @@
       </dependency>
 
       <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.lib.apache.tomcat</artifactId>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.tomcat.lib</artifactId>
         <version>${version}</version>
       </dependency>
 

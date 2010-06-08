@@ -14,7 +14,7 @@
 	</antcall>	
 
 	<antcall target="copy_tomcat" >
-		<param name="plugin_name" value="org.openl.lib.apache.tomcat"/>
+		<param name="plugin_name" value="org.openl.rules.tomcat.lib"/>
 	</antcall>	
 	
 </target>
