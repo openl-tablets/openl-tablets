@@ -55,6 +55,7 @@ public class RulesPublisher {
     }
     
     /**
+     * @param di 
      * @return Service name for specified deployment.
      */
     public String getServiceName(DeploymentInfo di) {
@@ -69,7 +70,7 @@ public class RulesPublisher {
         return deployAdmin;
     }
 
-    public void setRulesProjectResolver(RulesProjectResolver rulesProjectResolver) {
+    public synchronized void setRulesProjectResolver(RulesProjectResolver rulesProjectResolver) {
         this.rulesProjectResolver = rulesProjectResolver;
     }
 

@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.ruleservice.RuleServiceBase;
+import org.openl.rules.ruleservice.RuleService;
 import org.openl.rules.ruleservice.loader.RulesLoaderJcr;
 import org.openl.rules.ruleservice.publish.DeploymentListener;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
@@ -20,8 +20,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.SimpleVM;
 
-public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend {
-    private static final Log log = LogFactory.getLog(RulesFrontendImpl.class);
+public class RulesFrontendImpl extends RuleService implements RulesFrontend {
+    private static final Log LOG = LogFactory.getLog(RulesFrontendImpl.class);
 
     private Thread frontendExecutor;
 
@@ -73,8 +73,9 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
     }
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
         close();
+        super.finalize();
     }
 
     public Object getValues(String deployment, String ruleModule, String fieldName) {
@@ -99,7 +100,7 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
         try {
             loader = new RulesLoaderJcr(new JcrRulesClient());
         } catch (RRepositoryException e) {
-            e.printStackTrace();
+            LOG.error("Failed to intialize rules loader from JCR.", e);
         }
         publisher = new RulesPublisher();
         publisher.setRulesProjectResolver(new RulesProjectResolver());
@@ -130,7 +131,7 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
 
     protected void registerProjects(String deploymentName, Map<String, OpenLWrapper> ruleModules) {
         runningDeployments.put(deploymentName, ruleModules);
-        log.info(String.format("Started exposing deployment \"{1}\" with rules modules {2}", deploymentName,
+        LOG.info(String.format("Started exposing deployment \"%s\" with rules modules %s", deploymentName,
                 ruleModules.keySet().toString()));
     }
 
@@ -143,7 +144,7 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
 
     protected void unregisterProjects(String deploymentName) {
         runningDeployments.remove(deploymentName);
-        log.info(String.format("Stoped exposing deployment \"{1}\" ", deploymentName));
+        LOG.info(String.format("Stoped exposing deployment \"%s\" ", deploymentName));
     }
 
 }

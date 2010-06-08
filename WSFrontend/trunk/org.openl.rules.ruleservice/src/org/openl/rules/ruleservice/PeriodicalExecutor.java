@@ -3,6 +3,9 @@ package org.openl.rules.ruleservice;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Runs a given {@link Runnable} every time an event happens. The main method
  * {@link #execute()} runs infinite loop and if another thread triggers the
@@ -27,6 +30,8 @@ public class PeriodicalExecutor {
      * <i>1</i> object can be held by the queue.
      */
     private BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(1);
+    
+    private static final Log LOG = LogFactory.getLog(PeriodicalExecutor.class);
 
     public PeriodicalExecutor(Runnable action) {
         this.action = action;
@@ -38,15 +43,15 @@ public class PeriodicalExecutor {
      * {@link #signal()} method from other threads to execute associated
      * action's <code>run</code> method.
      */
-    public void execute(){
+    public void execute() {
         Thread executionThread = new Thread(new Runnable() {
-            public void run(){
+            public void run() {
                 while (true) {
                     try {
                         queue.take();
                         action.run();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOG.debug("Stopping execution of PeriodicalExecutor", e);
                     }
                 }
             }
@@ -54,7 +59,7 @@ public class PeriodicalExecutor {
         executionThread.start();
     }
 
-    public void signal() {
+    public final void signal() {
         queue.offer(new Object());
     }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.ruleservice.instantiation.AClassInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.WebServiceEngineFactoryInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
@@ -57,7 +57,7 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
 
     }
 
-    private AClassInstantiationStrategy getStrategy(RuleServiceInfo wsInfo, String className, ClassLoader classLoader) {
+    private RulesInstantiationStrategy getStrategy(RuleServiceInfo wsInfo, String className, ClassLoader classLoader) {
 
         switch (wsInfo.getServiceType()) {
             case DYNAMIC_WRAPPER:

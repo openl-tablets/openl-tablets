@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.instantiation;
 
-public class SimpleInstantiationStrategy extends AClassInstantiationStrategy {
+public class SimpleInstantiationStrategy extends RulesInstantiationStrategy {
 
     public SimpleInstantiationStrategy(Class<?> clazz) {
         super(clazz);
