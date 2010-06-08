@@ -9,10 +9,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.webstudio</artifactId>
-  <name>OpenL - STUDIO - WebStudio Web Resources</name>
-  <description />
   <packaging>war</packaging>
+  <name>OpenL - STUDIO - WebStudio Web Resources</name>
+  <description>OpenL WebStudio</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <properties>
     <war.name>${artifactId}-${version}</war.name>

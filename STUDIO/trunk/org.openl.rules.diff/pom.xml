@@ -9,23 +9,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.diff</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - Structured Diff</name>
-  <description />
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <description>API for comparing tables in Excel</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <dependencies>
     <dependency>

@@ -9,23 +9,14 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - Repository JackRabbit Jcr implementation</name>
-  <description />
+  <description>Jackrabbit OpenL Repository implementation</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-
     <resources>
       <resource>
         <directory>src</directory>
@@ -38,11 +29,6 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository</artifactId>
