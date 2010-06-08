@@ -5,9 +5,9 @@ import java.lang.reflect.Field;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class WrapperAdjustingInstantiationStrategy extends AClassInstantiationStrategy {
+public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {
     
-    private static final Log log = LogFactory.getLog(WrapperAdjustingInstantiationStrategy.class);
+    private static final Log LOG = LogFactory.getLog(WrapperAdjustingInstantiationStrategy.class);
 
     private final String userHomeFieldValue;
 
@@ -23,12 +23,23 @@ public class WrapperAdjustingInstantiationStrategy extends AClassInstantiationSt
 
     @Override
     protected Object instantiate(Class<?> clazz) throws InstantiationException, IllegalAccessException {
+        adjustToServerSettings(clazz);
 
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        try {
+            return clazz.newInstance();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+
+    private void adjustToServerSettings(Class<?> clazz) {
         try {
             Field field = clazz.getField("__userHome");
             field.set(null, userHomeFieldValue);
         } catch (Exception e) {
-            log.error("failed to set up __userHome", e);
+            LOG.error("Failed to set up __userHome", e);
         }
 
         try {
@@ -36,18 +47,7 @@ public class WrapperAdjustingInstantiationStrategy extends AClassInstantiationSt
             String sourcePath = (String) field.get(null);
             field.set(null, userHomeFieldValue + '/' + sourcePath);
         } catch (Exception e) {
-            log.error("failed to set up __src", e);
-        }
-
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
-        try {
-            return clazz.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+            LOG.error("Failed to set up __src", e);
         }
     }
 }

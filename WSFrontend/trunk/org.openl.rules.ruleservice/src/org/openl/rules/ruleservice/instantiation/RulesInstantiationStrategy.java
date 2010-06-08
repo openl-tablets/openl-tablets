@@ -1,16 +1,16 @@
 package org.openl.rules.ruleservice.instantiation;
 
-public abstract class AClassInstantiationStrategy {
+public abstract class RulesInstantiationStrategy {
 
     private Class<?> clazz;
     private String className;
     private ClassLoader loader;
 
-    public AClassInstantiationStrategy(Class<?> clazz) {
+    public RulesInstantiationStrategy(Class<?> clazz) {
         this.clazz = clazz;
     }
 
-    public AClassInstantiationStrategy(String className, ClassLoader loader) {
+    public RulesInstantiationStrategy(String className, ClassLoader loader) {
         this.loader = loader;
         this.className = className;
     }

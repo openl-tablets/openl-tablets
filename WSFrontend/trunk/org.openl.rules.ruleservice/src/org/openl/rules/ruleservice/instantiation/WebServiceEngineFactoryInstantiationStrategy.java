@@ -4,10 +4,9 @@ import java.io.File;
 
 import org.openl.rules.ruleservice.factory.WebServiceRulesEngineFactory;
 
-public class WebServiceEngineFactoryInstantiationStrategy extends AClassInstantiationStrategy {
-
+public class WebServiceEngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
     private File sourceFile;
-    private WebServiceRulesEngineFactory factory;
+    
     private Object instance;
     private Class<?> serviceClass;
 
@@ -23,7 +22,7 @@ public class WebServiceEngineFactoryInstantiationStrategy extends AClassInstanti
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getLoader());
         try {
-            factory = new WebServiceRulesEngineFactory(sourceFile);
+            WebServiceRulesEngineFactory factory = new WebServiceRulesEngineFactory(sourceFile);
             serviceClass = factory.getInterfaceClass();
             instance = factory.makeInstance();
         } finally {

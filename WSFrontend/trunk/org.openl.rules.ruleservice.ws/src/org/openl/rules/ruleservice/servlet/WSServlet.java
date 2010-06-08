@@ -4,7 +4,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
-import org.openl.rules.ruleservice.RuleServiceBase;
+import org.openl.rules.ruleservice.RuleService;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -17,9 +17,9 @@ public class WSServlet extends CXFServlet {
         ServletContext context = getServletContext();
         WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(context);
 
-        RuleServiceBase ruleService;
+        RuleService ruleService;
         if (applicationContext.containsBean("ruleService")) {
-            ruleService = (RuleServiceBase) applicationContext.getBean("ruleService");
+            ruleService = (RuleService) applicationContext.getBean("ruleService");
         } else {
             throw new ServletException(
                     "Could not instaniate rule service. Make sure that you have configured bean \"ruleService\"");

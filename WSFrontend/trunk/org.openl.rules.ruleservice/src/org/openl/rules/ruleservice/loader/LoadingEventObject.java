@@ -5,7 +5,7 @@ import java.util.EventObject;
 
 public class LoadingEventObject extends EventObject {
     /**
-     * Version for serialization
+     * Version for serialization.
      */
     private static final long serialVersionUID = -5989538358550371845L;
 

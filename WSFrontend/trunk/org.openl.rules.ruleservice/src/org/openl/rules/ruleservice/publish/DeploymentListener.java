@@ -7,11 +7,11 @@ import org.openl.main.OpenLWrapper;
 
 public interface DeploymentListener extends EventListener {
 
-    public void afterDeployment(String deploymentName, Map<String, OpenLWrapper> ruleModules);
+    void afterDeployment(String deploymentName, Map<String, OpenLWrapper> ruleModules);
 
-    public void afterUndeployment(String deploymentName);
+    void afterUndeployment(String deploymentName);
 
-    public void beforeDeployment(String deploymentName);
+    void beforeDeployment(String deploymentName);
 
-    public void beforeUndeployment(String deploymentName);
+    void beforeUndeployment(String deploymentName);
 }

@@ -7,10 +7,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * Application main class. Sets up other classes.
  */
-public class RuleServiceMain extends RuleServiceBase {
+public class RuleServiceMain {
     public static void main(String[] args) throws RRepositoryException {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("openl-ws.xml");
-        RuleServiceBase ruleService = (RuleServiceBase) applicationContext.getBean("ruleService");
+        RuleService ruleService = (RuleService) applicationContext.getBean("ruleService");
         PeriodicalExecutor executor = new PeriodicalExecutor(ruleService);
         executor.execute();
     }

@@ -1,12 +1,11 @@
 package org.openl.rules.ruleservice;
 
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.ruleservice.loader.LoadingEventObject;
 import org.openl.rules.ruleservice.loader.LoadingListener;
 import org.openl.rules.ruleservice.loader.RulesLoader;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
 
-public class RuleServiceBase implements Runnable{
+public class RuleService implements Runnable {
     protected  RulesLoader loader;
 
     protected  RulesPublisher publisher;
@@ -17,7 +16,7 @@ public class RuleServiceBase implements Runnable{
      * @throws RRepositoryException
      * @throws InterruptedException
      */
-    public  void run(){
+    public  void run() {
         loader.addLoadingListener(new LoadingListener() {
 
             public void onAfterLoading(LoadingEventObject loadedDeployment) {
