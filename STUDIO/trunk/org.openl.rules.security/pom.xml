@@ -9,23 +9,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.security</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - Security</name>
-  <description />
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <description>OpenL Common Security</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <dependencies>
     <dependency>

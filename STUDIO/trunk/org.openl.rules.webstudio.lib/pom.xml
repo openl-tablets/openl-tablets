@@ -13,9 +13,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.webstudio.lib</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - WebStudio Libraries</name>
-  <description />
+  <description>OpenL WebStudio Libraries</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <plugins>
@@ -45,23 +48,13 @@
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
               <excludeGroupIds>org.openl,org.openl.rules,org.apache.poi</excludeGroupIds>
-              <excludeArtifactIds>junit,servlet-api,jsp-api,org.openl.poi.lib</excludeArtifactIds>
+              <excludeArtifactIds>junit,servlet-api,jsp-api,org.openl.lib</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
               <type>jar</type>
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
       </plugin>
     </plugins>
 
@@ -83,74 +76,13 @@
   
     <dependency>
       <groupId>org.openl</groupId>
-  	  <artifactId>org.openl.poi.lib</artifactId>
+  	  <artifactId>org.openl.lib</artifactId>
 	  <scope>runtime</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.j</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository.jcr</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.workspace</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.commons.web</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.standalone</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.diff</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.tableeditor</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -170,8 +102,23 @@
     </dependency>
 
     <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
     </dependency>
 
     <dependency>
@@ -219,9 +166,55 @@
       <artifactId>hibernate-validator</artifactId>
     </dependency>
 
+    <!-- JPA(Hibernate) related -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-commons-annotations</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>ejb3-persistence</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security-tiger</artifactId>
     </dependency>
 
     <dependency>
@@ -240,12 +233,64 @@
     </dependency>
     
     <dependency>
-       <groupId>edu.stanford.ejalbert</groupId>
-       <artifactId>BrowserLauncher</artifactId>
-     </dependency>
-    
-  </dependencies>
-  
+      <groupId>edu.stanford.ejalbert</groupId>
+      <artifactId>BrowserLauncher</artifactId>
+    </dependency>
+     
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+    </dependency>
 
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr-rmi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>

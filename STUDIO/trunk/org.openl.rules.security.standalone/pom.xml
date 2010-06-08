@@ -9,9 +9,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.security.standalone</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - Standalone Security</name>
-  <description />
+  <description>Internal OpenL security implementation</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -27,18 +30,6 @@
         </includes>
       </resource>
     </resources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <dependencies>
@@ -97,11 +88,6 @@
     <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
     </dependency>
 
     <dependency>

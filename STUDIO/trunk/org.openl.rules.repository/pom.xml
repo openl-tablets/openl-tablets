@@ -9,23 +9,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.repository</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - Repository</name>
-  <description />
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <description>OpenL Repostory API</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <dependencies>
     <dependency>
