@@ -23,6 +23,10 @@
   </scm>
 
   <modules>
+    <!-- LIBS -->
+    <module>../org.openl.lib</module>
+    <module>../org.openl.poi.lib</module>    
+
     <module>../org.openl.eclipse.site</module>
     <module>../org.openl.eclipse.ui</module>
     <module>../org.openl.rules.eclipse.ui</module>
@@ -32,12 +36,12 @@
     <module>../org.openl.eclipse.ui.eclipse.feature</module>
     <module>../org.openl.rules.source.eclipse.feature</module>
     <module>../org.openl.rules.all.eclipse.feature</module>
-	<module>../org.openl.rules.eclipse.feature</module>
+    <module>../org.openl.rules.eclipse.feature</module>
     <module>../org.openl.lib.eclipse.feature</module>    
     <module>../org.openl.poi.lib.eclipse.feature</module>
-	<module>../org.openl.rules.webstudio.eclipse.feature</module>
-	<module>../org.openl.rules.ruleservice.eclipse.feature</module>
-	<module>../org.openl.rules.ruleservice.lib.eclipse.feature</module>
+    <module>../org.openl.rules.webstudio.eclipse.feature</module>
+    <module>../org.openl.rules.ruleservice.eclipse.feature</module>
+    <module>../org.openl.rules.ruleservice.lib.eclipse.feature</module>
   </modules>
 
   <repositories>
@@ -389,6 +393,26 @@
 
 
     <!-- LIBs -->
+    <!-- OPENL MODIFIED POI --> 
+    <!--dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+      <version>${openl.version.maven}</version>
+    </dependency-->
+
+    <!-- ORIGINAL POI ARTIFACTS -->
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.poi.lib</artifactId>
+      <version>${version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.lib</artifactId>
+      <version>${version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
