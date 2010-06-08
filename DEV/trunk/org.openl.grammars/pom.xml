@@ -11,8 +11,10 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.grammars</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Grammar</name>
-  <description />
+  <description>OpenL parsing Grammars</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -25,16 +27,6 @@
     </resources>
 
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -57,12 +49,10 @@
   </build>
 
   <dependencies>
-
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.core</artifactId>
     </dependency>
-
   </dependencies>
 
 </project>

@@ -9,28 +9,22 @@
     <relativePath>../org.openl.rules.dev-pom</relativePath>
   </parent>
 
+  <groupId>org.openl</groupId>
   <artifactId>org.openl.test</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Tests</name>
-  <description />
+  <description>Tests for OpenL core functionality</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
+        <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
+          <skip>true</skip>
         </configuration>
       </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
     </plugins>
 
     <testResources>
@@ -47,11 +41,9 @@
         </excludes>
       </testResource>
     </testResources>
-    
   </build>
 
   <dependencies>
-   
    	<dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -82,7 +74,6 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j</artifactId>
     </dependency>
-
   </dependencies>
 
 </project>

@@ -11,22 +11,10 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.j.science</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - J Science</name>
-  <description />
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <description>Enhanced Java language for OpenL</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <dependencies>
     <dependency>

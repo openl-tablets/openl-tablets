@@ -146,15 +146,7 @@
   </dependencies>
 
   <dependencyManagement>
-    
     <dependencies>
-	
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.lib.poi35.dev.modified</artifactId>
-            <version>${openl.version.maven}</version>
-		</dependency>
-
       <!-- DEV -->
       <dependency>
         <groupId>org.openl.rules</groupId>
@@ -200,84 +192,36 @@
 
       <dependency>
         <groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse.ui</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.eclipse.ui</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl</groupId>
         <artifactId>org.openl.conf.ant</artifactId>
         <version>${version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.conf.ant</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
+      <!-- OPENL MODIFIED POI --> 
+      <!--dependency>
         <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
-        <version>${version}</version>
-      </dependency>
+        <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency-->
 
+      <!-- ORIGINAL POI ARTIFACTS -->
       <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+  		<groupId>org.openl</groupId>
+  		<artifactId>org.openl.poi.lib</artifactId>
         <version>${version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse.feature</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.lib.eclipse.feature</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.eclipse.feature</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse.site</artifactId>
-        <version>${version}</version>
-      </dependency>
-
+    
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib</artifactId>
         <version>${version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
-        <version>${version}</version>
-      </dependency>
-	  
 	  <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.test</artifactId>
         <version>${version}</version>
       </dependency>
-
     </dependencies>
-    
   </dependencyManagement>
 
 </project>

@@ -11,11 +11,12 @@
 
 	<groupId>org.openl</groupId>
 	<artifactId>org.openl.poi.lib</artifactId>
+	<packaging>jar</packaging>
 	<name>OpenL - DEV - POI - Libraries</name>
-	<description />
+	<description>POI Libraries to read/write Excel files</description>
+	<url>http://openl-tablets.sf.net/</url>
 
 	<build>
-
 		<plugins>
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
@@ -58,18 +59,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestFile>
-							META-INF/MANIFEST.MF
-						</manifestFile>
-					</archive>
-				</configuration>
 			</plugin>
 		</plugins>
 

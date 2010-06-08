@@ -11,21 +11,13 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.constrainer</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Rules Constrainer</name>
-  <description />
+  <description>OpenL Constraint Programming engine</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
       <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <configuration>
-            <archive>
-              <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-            </archive>
-          </configuration>
-        </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
