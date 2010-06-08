@@ -208,8 +208,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.apache.tomcat</artifactId>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.tomcat.lib</artifactId>
     </dependency>
 
     <!-- WSFrontend -->
