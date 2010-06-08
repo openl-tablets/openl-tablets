@@ -26,6 +26,7 @@
     <!-- LIBS -->
     <module>../org.openl.lib</module>
     <module>../org.openl.poi.lib</module>    
+    <module>../org.openl.rules.webstudio.lib</module>    
 
     <module>../org.openl.eclipse.site</module>
     <module>../org.openl.eclipse.ui</module>
@@ -284,6 +285,12 @@
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.poi.lib</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.webstudio.lib</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
 
