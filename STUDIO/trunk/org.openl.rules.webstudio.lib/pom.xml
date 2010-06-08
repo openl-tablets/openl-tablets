@@ -239,6 +239,11 @@
       <artifactId>asm</artifactId>
     </dependency>
     
+    <dependency>
+       <groupId>edu.stanford.ejalbert</groupId>
+       <artifactId>BrowserLauncher</artifactId>
+     </dependency>
+    
   </dependencies>
   
 

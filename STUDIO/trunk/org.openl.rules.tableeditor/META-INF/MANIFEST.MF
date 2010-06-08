@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.rules.tableeditor;singleton:=true
 Bundle-Version: 5.5.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.lib.apache.tomcat;visibility:=reexport,
+Require-Bundle: org.openl.rules.tomcat.lib;visibility:=reexport,
  org.openl.core;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
  org.openl.rules.workspace;visibility:=reexport,

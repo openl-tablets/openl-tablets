@@ -6,9 +6,9 @@ Bundle-Version: 5.5.1
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.security;visibility:=reexport,
- org.openl.lib.apache.tomcat,
  org.openl.rules.webstudio.lib,
- org.openl.commons.web
+ org.openl.commons.web,
+ org.openl.rules.tomcat.lib;visibility:=reexport
 Export-Package: org.openl.rules.security.common.spring,
  org.openl.rules.security.common.spring.db,
  org.openl.rules.security.standalone,

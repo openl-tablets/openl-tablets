@@ -3,7 +3,7 @@
 	<taskdef name="cpcopy" classname="org.openl.conf.ant.ClasspathCopy" />
 
 	<property name="targetDir" value="/temp/webstudio1/workspace" />
-	<property name="tomcat.project" value="org.openl.lib.apache.tomcat" />
+	<property name="tomcat.project" value="org.openl.rules.tomcat.lib" />
 	<property name="webstudio.project" value="org.openl.rules.webstudio" />
 <!--
 	
