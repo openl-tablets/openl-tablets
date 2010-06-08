@@ -4,9 +4,9 @@
 
   <parent>
     <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.dev-pom</artifactId>
+    <artifactId>org.openl.rules.eclipse-pom</artifactId>
     <version>5.5.1-SNAPSHOT</version>
-    <relativePath>../org.openl.rules.dev-pom</relativePath>
+    <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
   <groupId>org.openl</groupId>
