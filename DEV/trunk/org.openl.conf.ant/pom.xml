@@ -11,22 +11,10 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.conf.ant</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Conf Ant</name>
-  <description />
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <description>OpenL ant tasks</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <dependencies>
     <dependency>
@@ -43,7 +31,6 @@
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
-      <version>1.7.0</version>
     </dependency>
   </dependencies>
 

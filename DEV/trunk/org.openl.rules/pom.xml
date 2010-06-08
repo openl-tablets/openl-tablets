@@ -9,22 +9,15 @@
     <relativePath>../org.openl.rules.dev-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Rules</name>
-  <description />
+  <description>The heart of OpenL</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -76,17 +69,24 @@
       <artifactId>org.openl.j</artifactId>
     </dependency>
 
+    <!-- poi dependencies  -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-	  <scope>test</scope> 
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+			
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
     </dependency>
     
-     <!-- poi dependency reference  -->
     <dependency>
-    	<groupId>org.openl</groupId>
-  		<artifactId>org.openl.poi.lib</artifactId>
-  		<version>${version}</version>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>ooxml-schemas</artifactId>
     </dependency>
     
     <!-- 3rd party dependencies  -->

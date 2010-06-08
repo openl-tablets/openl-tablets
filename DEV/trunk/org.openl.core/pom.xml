@@ -11,8 +11,10 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.core</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Core</name>
-  <description />
+  <description>OpenL core</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -30,18 +32,6 @@
         </includes>
       </resource>
     </resources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <dependencies>
