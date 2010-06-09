@@ -5,23 +5,30 @@ import org.openl.runtime.EngineFactory;
 import java.io.File;
 
 public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
+    public static final String RULE_OPENL_NAME = "org.openl.xls";
+    
     private File sourceFile;
 
-    public EngineFactoryInstantiationStrategy(File sourceFile, String serviceClassName, ClassLoader classLoader) {
-        super(serviceClassName, classLoader);
+    public EngineFactoryInstantiationStrategy(File sourceFile, Class<?> rulesInterfaceClass) {
+        super(rulesInterfaceClass);
+        this.sourceFile = sourceFile;
+    }
+    
+    public EngineFactoryInstantiationStrategy(File sourceFile, String rulesInterfaceClassName, ClassLoader classLoader) {
+        super(rulesInterfaceClassName, classLoader);
         this.sourceFile = sourceFile;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Object instantiate(Class<?> clazz) throws InstantiationException, IllegalAccessException {
-        EngineFactory<?> f = new EngineFactory("org.openl.xls", sourceFile, clazz);
+        EngineFactory<?> engineInstanceFactory = new EngineFactory(RULE_OPENL_NAME, sourceFile, clazz);
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
 
         try {
-            return f.makeInstance();
+            return engineInstanceFactory.makeInstance();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

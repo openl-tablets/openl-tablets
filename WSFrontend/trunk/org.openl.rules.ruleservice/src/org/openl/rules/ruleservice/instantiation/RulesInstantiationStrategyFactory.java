@@ -10,6 +10,14 @@ import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
 public class RulesInstantiationStrategyFactory {
     private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
+    /**
+     * Gets <code>RulesInstantiationStrategy</code> by information about rules project and 
+     * requires class loader that rules will be working with.
+     * 
+     * @param wsInfo information about rules project
+     * @param classLoader class loader that rules will be working with
+     * @return <code>RulesInstantiationStrategy</code> instance
+     */
     public static RulesInstantiationStrategy getStrategy(RuleServiceInfo wsInfo, ClassLoader classLoader) {
         String className = wsInfo.getClassName();
 
@@ -26,9 +34,9 @@ public class RulesInstantiationStrategyFactory {
                 return new WrapperAdjustingInstantiationStrategy(path, className, classLoader);
             case AUTO_WRAPPER:
                 return new WebServiceEngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
+            default:
+                throw new OpenLRuntimeException(String.format("Cannot resolve instantiation strategy for \"%s\"", wsInfo
+                        .getServiceType().toString()));
         }
-
-        throw new OpenLRuntimeException(String.format("Cannot resolve instantiation strategy for \"%s\"", wsInfo
-                .getServiceType().toString()));
     }
 }

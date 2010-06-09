@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.instantiation;
 
 public abstract class RulesInstantiationStrategy {
-
     private Class<?> clazz;
+    
     private String className;
     private ClassLoader loader;
 
@@ -15,6 +15,11 @@ public abstract class RulesInstantiationStrategy {
         this.className = className;
     }
 
+    /**
+     * Returns <code>Class</code> object of interface or class corresponding to rules with all published methods and fields. 
+     * @return interface or class
+     * @throws ClassNotFoundException
+     */
     public Class<?> getServiceClass() throws ClassNotFoundException {
         if (clazz == null) {
             clazz = loader.loadClass(className);
@@ -23,6 +28,15 @@ public abstract class RulesInstantiationStrategy {
         return clazz;
     }
 
+    /**
+     * Creates instance of class handling all rules invocations. The class will be instance of class 
+     * got with {@link #getServiceClass()}.
+     * 
+     * @return instance of {@link #getServiceClass()} result
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws ClassNotFoundException
+     */
     public Object instantiate() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         return instantiate(getServiceClass());
     }
