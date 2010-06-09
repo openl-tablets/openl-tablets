@@ -22,7 +22,7 @@
                 rendered="#{not empty runTestMethodBean.testDescription}" />
         </h3>
 
-        <h:outputText value="NULL" rendered="#{empty runTestMethodBean.results}" />
+        <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
 
         <a4j:repeat value="#{runTestMethodBean.results}" var="result"
             binding="#{runTestMethodBean.resultItems}">
