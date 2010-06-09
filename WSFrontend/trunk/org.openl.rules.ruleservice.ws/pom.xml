@@ -9,10 +9,12 @@
     <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-  <name>OpenL - RuleService - RuleService - Web Services</name>
   <packaging>war</packaging>
-  <description />
+  <name>OpenL - RuleService - RuleService - Web Services</name>
+  <description>OpenL Rules Webservice(war)</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <properties>
     <war.name>ws</war.name>
@@ -87,15 +89,20 @@
       <artifactId>org.openl.rules.ruleservice</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
-    </dependency>
-
     <!-- Other-->
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-bundle</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-distribution-manifest</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
     </dependency>
   </dependencies>
 </project>

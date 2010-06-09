@@ -4,39 +4,17 @@
 
   <parent>
     <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+    <artifactId>org.openl.rules.eclipse-pom</artifactId>
     <version>5.5.1-SNAPSHOT</version>
-    <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
+    <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
-  <name>OpenL - RuleService - WS Libraries</name>
-  <description />
-
-  <dependencies>
-
-  <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-bundle</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-distribution-manifest</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.1.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.3</version>
-    </dependency>
-  </dependencies>
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.ruleservice.lib</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - RuleService - Libraries</name>
+  <description>Libraries for Common OpenL Rules Service</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <plugins>
@@ -72,16 +50,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
     </plugins>
 
     <resources>
@@ -93,5 +61,17 @@
       </resource>
     </resources>
   </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>

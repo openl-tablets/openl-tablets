@@ -25,8 +25,6 @@
   <modules>
     <module>../org.openl.rules.ruleservice</module>
     <module>../org.openl.rules.ruleservice.ws</module>    
-    <module>../org.openl.rules.ruleservice.lib</module>
-	<module>../org.openl.rules.ruleservice.ws.lib</module>    
   </modules>
 
   <repositories>
@@ -110,19 +108,11 @@
 
   <dependencyManagement>
     <dependencies>
-
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice</artifactId>
         <version>${version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
-        <version>${version}</version>
-      </dependency>
-
 
       <!-- DEV -->
       <dependency>
@@ -173,7 +163,6 @@
         <artifactId>org.openl.rules.workspace</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 
