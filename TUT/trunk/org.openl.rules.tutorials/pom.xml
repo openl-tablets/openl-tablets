@@ -11,14 +11,10 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.tutorials</artifactId>
-  <version>5.5.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
   <name>OpenL - Tutorials</name>
-  <description />
-
-  <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</developerConnection>
-  </scm>
+  <description>OpenL Tutorials And Examples pack</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <sourceDirectory>.</sourceDirectory>
@@ -34,11 +30,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-       <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -83,6 +74,5 @@
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.constrainer</artifactId>
       </dependency>
-
     </dependencies>
 </project>
