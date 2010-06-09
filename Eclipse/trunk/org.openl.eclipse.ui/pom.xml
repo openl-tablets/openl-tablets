@@ -11,23 +11,12 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.eclipse.ui</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - Eclipse - Eclipse UI</name>
-  <description />
+  <description>OpenL Tutorials And Examples pack</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-
     <resources>
       <resource>
         <directory>.</directory>
