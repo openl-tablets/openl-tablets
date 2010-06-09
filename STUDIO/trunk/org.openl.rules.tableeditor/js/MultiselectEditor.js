@@ -96,8 +96,9 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.destroyed = false;
         var entries = this.entries;
         this.splitValue(this.input.value).each(function (key) {
-            if (key && entries[key]) {
-                entries[key].checked = true;
+            var checkbox = entries[key.trim()];
+            if (checkbox) {
+                checkbox.checked = true;
             }
         });
         Event.observe(document, 'click', this.documentClickListener);
