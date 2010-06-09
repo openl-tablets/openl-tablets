@@ -78,7 +78,7 @@ public class XlsArrayFormatter extends AXlsFormatter {
      */
     public Object parse(String value) {        
         Object result = null;
-        if (StringUtils.isNotEmpty(value)) {
+        if (StringUtils.isNotBlank(value)) {
             String[] elementValues = StringTool.splitAndEscape(value, ARRAY_ELEMENTS_SEPARATOR,
                     ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
             
