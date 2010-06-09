@@ -9,23 +9,14 @@
     <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.ruleservice</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - RuleService - RuleService</name>
-  <description />
+  <description>Common OpenL Rules service</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-
     <resources>
       <resource>
         <directory>src</directory>
@@ -40,15 +31,14 @@
   </build>
 
   <dependencies>
-
- 	<dependency>
+    <dependency>
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>
-	<dependency>
-		<groupId>cglib</groupId>
-		<artifactId>cglib-nodep</artifactId>
-	</dependency>
+    <dependency>
+       <groupId>cglib</groupId>
+       <artifactId>cglib-nodep</artifactId>
+    </dependency>
 
     <!-- DEV -->
     <dependency>
@@ -72,7 +62,6 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.workspace</artifactId>
     </dependency>
-
   </dependencies>
 
 </project>
