@@ -71,7 +71,7 @@
 								<h:inputHidden value="#{prop.stringValue}"
 									rendered="#{prop.enumArray}" />
 
-								<h:inputText value="#{prop.value}"
+								<h:inputText value="#{prop.stringValue}"
 									rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}" />
 							</td>
 							<td>
