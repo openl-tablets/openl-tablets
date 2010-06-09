@@ -11,7 +11,8 @@ public class DeploymentInfo {
      * Separator between deployment name and its version in
      * <code>DeployID</code> object.
      */
-    private final static char SEPARATOR = '#';
+    private static final char SEPARATOR = '#';
+    
     /**
      * Deployment name.
      */
@@ -58,6 +59,34 @@ public class DeploymentInfo {
     }
 
     /**
+     * Returns <code>DeployID</code> object corresponding to this
+     * <code>DeploymentInfo</code>.
+     *
+     * @return DeployID instance
+     */
+    public DeployID getDeployID() {
+        return new DeployID(name + SEPARATOR + version.getVersionName());
+    }
+
+    /**
+     * Returns deployment name.
+     *
+     * @return deployment name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns deployment version.
+     * 
+     * @return deployment version
+     */
+    public CommonVersionImpl getVersion() {
+        return version;
+    }
+    
+    /**
      * <code>DeploymentInfo</code>s are equal if their names and versions are
      * equal.
      *
@@ -78,7 +107,10 @@ public class DeploymentInfo {
         if (!name.equals(that.name)) {
             return false;
         }
-        if (version != null ? !version.equals(that.version) : that.version != null) {
+        if (version != null && !version.equals(that.version)) {
+            return false;
+        }
+        if (version == null && that.version != null) {
             return false;
         }
 
@@ -86,33 +118,7 @@ public class DeploymentInfo {
     }
 
     /**
-     * Returns <code>DeployID</code> object corresponding to this
-     * <code>DeploymentInfo</code>
-     *
-     * @return DeployID instance
-     */
-    public DeployID getDeployID() {
-        return new DeployID(name + SEPARATOR + version.getVersionName());
-    }
-
-    /**
-     * Returns deployment name.
-     *
-     * @return deployment name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return deployment version
-     */
-    public CommonVersionImpl getVersion() {
-        return version;
-    }
-
-    /**
-     * Computing hash code consistent with {@link #equals(Object)}
+     * Computing hash code consistent with {@link #equals(Object)}.
      *
      * @return hash code
      */

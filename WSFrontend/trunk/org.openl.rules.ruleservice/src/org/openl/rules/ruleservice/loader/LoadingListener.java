@@ -11,8 +11,8 @@ import java.util.EventListener;
  */
 public interface LoadingListener extends EventListener {
 
-    public void onAfterLoading(LoadingEventObject loadedDeployment);
+    void onAfterLoading(LoadingEventObject loadedDeployment);
 
-    public void onBeforeLoading(LoadingEventObject loadingDeployment);
+    void onBeforeLoading(LoadingEventObject loadingDeployment);
 
 }

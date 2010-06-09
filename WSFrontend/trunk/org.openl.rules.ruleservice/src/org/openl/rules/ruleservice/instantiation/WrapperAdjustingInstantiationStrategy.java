@@ -5,8 +5,7 @@ import java.lang.reflect.Field;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {
-    
+public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {  
     private static final Log LOG = LogFactory.getLog(WrapperAdjustingInstantiationStrategy.class);
 
     private final String userHomeFieldValue;

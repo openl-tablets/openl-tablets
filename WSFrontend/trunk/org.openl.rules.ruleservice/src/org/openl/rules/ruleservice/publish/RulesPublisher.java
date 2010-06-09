@@ -18,50 +18,45 @@ import java.util.Map;
 public class RulesPublisher {
     private final Log log = LogFactory.getLog(getClass());
 
-    private Map<String, ClassLoader> deployment2ClassLoader = new HashMap<String, ClassLoader>();
-
     private DeploymentAdmin deployAdmin;
     private RulesProjectResolver rulesProjectResolver;
+    private ServiceNameBuilder serviceNameBuilder;
+    
+    private Map<String, ClassLoader> deployment2ClassLoader = new HashMap<String, ClassLoader>();
 
-    private void addClasspathURL(List<URL> classPathURLs, File folder) {
+    public synchronized void deploy(DeploymentInfo di, File deploymentLocalFolder) {
         try {
-            classPathURLs.add(new URL("file:" + folder.getCanonicalPath() + "/"));
-        } catch (IOException e) {
-            log.error("could not create classpath URL", e);
+            List<RuleServiceInfo> serviceClasses = rulesProjectResolver.resolve(di, deploymentLocalFolder);
+            
+            URLClassLoader urlClassLoader = createDeploymentClassLoader(serviceClasses);
+
+            String serviceName = serviceNameBuilder.getServiceName(di);
+            
+            deployment2ClassLoader.put(serviceName, urlClassLoader);
+            deployAdmin.deploy(serviceName, urlClassLoader, serviceClasses);
+        } catch (Exception e) {
+            log.error(String.format("Failed to deploy project \"%s\"", di.getDeployID()), e);
         }
     }
 
-    public synchronized void deploy(DeploymentInfo di, File deploymentLocalFolder) {
-
-        try {
-            List<RuleServiceInfo> serviceClasses = rulesProjectResolver.resolve(di, deploymentLocalFolder);
-            List<URL> classPathURLs = new ArrayList<URL>();
-
-            for (RuleServiceInfo wsInfo : serviceClasses) {
-
-                addClasspathURL(classPathURLs, wsInfo.getProjectBin());
-            }
-
-            URLClassLoader urlClassLoader = new URLClassLoader(classPathURLs.toArray(new URL[classPathURLs.size()]),
-                    Thread.currentThread().getContextClassLoader());
-
-            String serviceName = getServiceName(di);
-            deployment2ClassLoader.put(serviceName, urlClassLoader);
-
-            deployAdmin.deploy(serviceName, urlClassLoader, serviceClasses);
-        } catch (Exception e) {
-            log.error("failed to deploy project " + di.getDeployID(), e);
+    public synchronized void undeploy(DeploymentInfo di) {
+        if (deployment2ClassLoader.remove(serviceNameBuilder.getServiceName(di)) != null) {
+            deployAdmin.undeploy(di.getName());
         }
     }
     
-    /**
-     * @param di 
-     * @return Service name for specified deployment.
-     */
-    public String getServiceName(DeploymentInfo di) {
-        return di.getName();
-    }
+    private URLClassLoader createDeploymentClassLoader(List<RuleServiceInfo> serviceClasses) {
+        List<URL> classPathURLs = new ArrayList<URL>();
 
+        for (RuleServiceInfo serviceInfo : serviceClasses) {
+            addClasspathURL(classPathURLs, serviceInfo.getProjectBin());
+        }
+
+        URLClassLoader urlClassLoader = new URLClassLoader(classPathURLs.toArray(new URL[classPathURLs.size()]),
+                Thread.currentThread().getContextClassLoader());
+        return urlClassLoader;
+    }
+    
     public void setDeployAdmin(DeploymentAdmin deployAdmin) {
         this.deployAdmin = deployAdmin;
     }
@@ -74,10 +69,12 @@ public class RulesPublisher {
         this.rulesProjectResolver = rulesProjectResolver;
     }
 
-    public synchronized void undeploy(DeploymentInfo di) {
-        if (deployment2ClassLoader.remove(getServiceName(di)) != null) {
-            deployAdmin.undeploy(di.getName());
+    private void addClasspathURL(List<URL> classPathURLs, File folder) {
+        try {
+            classPathURLs.add(new URL("file:" + folder.getCanonicalPath() + "/"));
+        } catch (IOException e) {
+            log.error("Failed to get classpath URL while publishing deployment", e);
         }
     }
-
+    
 }

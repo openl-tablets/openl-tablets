@@ -6,13 +6,10 @@ package org.openl.rules.ruleservice.loader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.SmartProps;
-import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -25,41 +22,73 @@ import org.openl.rules.workspace.production.client.JcrRulesClient;
  *
  */
 public class RulesLoaderJcr implements RulesLoader, RDeploymentListener {
-    private static final Log log = LogFactory.getLog(RulesLoaderJcr.class);
+    private static final Log LOG = LogFactory.getLog(RulesLoaderJcr.class);
 
     private JcrRulesClient rulesClient;
-    private File tempFolder;
+    private String folderToLoadIn;
+    private DeploymentsToLoadManager deploymentsToLoadManager;
+    
+    private File folderToLoadDeploymentsIn;
 
     private ArrayList<LoadingListener> loadingListeners = new ArrayList<LoadingListener>();
 
-    private Map<String, String> deployment2Version = new HashMap<String, String>();
-    
     public RulesLoaderJcr(JcrRulesClient jcrRulesClient) throws RRepositoryException {
         setRulesClient(jcrRulesClient);
-        setTempFolder(new File(getTempDirectory()));
     }
+    
+    public RulesLoaderJcr(JcrRulesClient jcrRulesClient, String theFolderToLoadIn) throws RRepositoryException {
+        setRulesClient(jcrRulesClient);
+        folderToLoadIn = theFolderToLoadIn;
+    }
+    
+    public void projectsAdded() {
+        loadRules();
+    }
+    
+    public synchronized void loadRules() {
+        try {
+            Collection<String> deploymentNames = rulesClient.getDeploymentNames();
 
-    /**
-     * @param deployments
-     * @return
-     */
-    public static Map<String, CommonVersion> computeLatestVersions(Collection<DeploymentInfo> deployments) {
-        Map<String, CommonVersion> versionMap = new HashMap<String, CommonVersion>();
+            Collection<DeploymentInfo> deployments = parseDeloyments(deploymentNames);
 
-        for (DeploymentInfo deployment : deployments) {
-            CommonVersion version = versionMap.get(deployment.getName());
+            Collection<DeploymentInfo> deploymentsToLoad = deploymentsToLoadManager.getDeploymentsToLoad(deployments);
 
-            if (version == null || deployment.getVersion().compareTo(version) > 0) {
-                version = deployment.getVersion();
+            for (DeploymentInfo deployment : deploymentsToLoad) {
+                load(deployment);
             }
-
-            versionMap.put(deployment.getName(), version);
+        } catch (Exception e) {
+            LOG.error("Exception loading new items", e);
         }
-
-        return versionMap;
     }
+    
+    public void resetLoadedDeploymentsCache() {
+        if (deploymentsToLoadManager != null) {
+            deploymentsToLoadManager.resetLoadedDeploymentsCache();
+        }
+    }
+    
+    public synchronized void load(DeploymentInfo di) throws Exception {
+        LOG.debug(String.format("Start loading deployment \"%s\"", getDeploymentFolderName(di)));
+        onBeforeLoading(di);
 
-    public static Collection<DeploymentInfo> parseDeloyments(Collection<String> deploymentNames) {
+        try {
+            File deploymentLocalFolder = downloadDeployment(di);
+
+            LOG.info(String.format("Loaded deployment \"%s\" at %s", getDeploymentFolderName(di), deploymentLocalFolder
+                    .getAbsolutePath()));
+
+            onAfterLoading(di, deploymentLocalFolder);
+        } catch (Exception e) {
+            LOG.error("Failed to load deployment project " + di.getDeployID(), e);
+            throw e;
+        }
+    }
+    
+    public void resetFolderToLoadDeploymentsIn() {
+        folderToLoadDeploymentsIn = null;
+    }
+    
+    /*internal for test*/ static Collection<DeploymentInfo> parseDeloyments(Collection<String> deploymentNames) {
         Collection<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
 
         for (String deploymentName : deploymentNames) {
@@ -71,110 +100,23 @@ public class RulesLoaderJcr implements RulesLoader, RDeploymentListener {
         return deployments;
     }
 
-    public void addLoadingListener(LoadingListener loadingListener) {
-        if (loadingListener != null) {
-            loadingListeners.add(loadingListener);
-        }
-    }
-
-    /**
-     * @param deployments
-     * @param latestVersionMap
-     */
-    private Collection<DeploymentInfo> computeDeploymentsToLoad(Collection<DeploymentInfo> deployments,
-            Map<String, CommonVersion> latestVersionMap) {
-        Collection<DeploymentInfo> deploymentsToLoad = new ArrayList<DeploymentInfo>();
-
-        for (DeploymentInfo deployment : deployments) {
-            // check whether we load only deployment with latest version
-            if (latestVersionMap.get(deployment.getName()).equals(deployment.getVersion())) {
-                final String version = deployment.getVersion().getVersionName();
-                // check whether deployment with latest version has not been
-                // loaded yet
-                if (!version.equals(deployment2Version.get(deployment.getName()))) {
-                    deploymentsToLoad.add(deployment);
-                }
-            }
-        }
-
-        return deploymentsToLoad;
-    }
-
     private File downloadDeployment(DeploymentInfo di) throws Exception {
-        File deploymentFolder = new File(tempFolder, di.getName());
+        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), getDeploymentFolderName(di));
 
         rulesClient.fetchDeployment(di.getDeployID(), deploymentFolder);
         return deploymentFolder;
     }
 
-    public synchronized void load(DeploymentInfo di) throws Exception {
-        log.debug(String.format("Start loading deployment \"{%s}\"", di.getName()));
-        onBeforeLoading(di);
-
-        try {
-            File deploymentLocalFolder = downloadDeployment(di);
-
-            deployment2Version.put(di.getName(), di.getVersion().getVersionName());
-
-            log.info(String.format("Loaded deployment \"{%s}\" at {%s}", di.getName(), deploymentLocalFolder
-                    .getAbsolutePath()));
-
-            onAfterLoading(di, deploymentLocalFolder);
-        } catch (Exception e) {
-            log.error("failed to load deployment project " + di.getDeployID(), e);
-            throw e;
-        }
-    }
-
-    public synchronized void loadRules() {
-        try {
-            Collection<String> deploymentNames;
-
-            deploymentNames = rulesClient.getDeploymentNames();
-
-            Collection<DeploymentInfo> deployments = parseDeloyments(deploymentNames);
-
-            Map<String, CommonVersion> latestVersionMap = computeLatestVersions(deployments);
-
-            deployments = computeDeploymentsToLoad(deployments, latestVersionMap);
-
-            for (DeploymentInfo deployment : deployments) {
-                load(deployment);
-            }
-        } catch (Exception e) {
-            log.error("Exception loading new items", e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void onAfterLoading(DeploymentInfo di, File deploymentLocalFolder) {
-        Collection<LoadingListener> localCopyOfListeners = (Collection<LoadingListener>) loadingListeners.clone();
-
-        for (LoadingListener loadingListener : localCopyOfListeners) {
-            loadingListener.onAfterLoading(new LoadingEventObject(this, di, deploymentLocalFolder));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void onBeforeLoading(DeploymentInfo di) {
-        Collection<LoadingListener> localCopyOfListeners = (Collection<LoadingListener>) loadingListeners.clone();
-
-        for (LoadingListener loadingListener : localCopyOfListeners) {
-            loadingListener.onBeforeLoading(new LoadingEventObject(this, di));
-        }
-    }
-
-    public void removeLoadingListener(LoadingListener loadingListener) {
-        loadingListeners.remove(loadingListener);
-    }
-
-    public void resetLoadedDeploymentsCash() {
-        deployment2Version = new HashMap<String, String>();
+    private String getDeploymentFolderName(DeploymentInfo di) {
+        return String.format("%s#%s", di.getName(), di.getVersion().getVersionName());
     }
 
     private void setRulesClient(JcrRulesClient rulesJcrClient) throws RRepositoryException {
-        this.rulesClient = rulesJcrClient;
+        rulesClient = rulesJcrClient;
+        
         final RulesLoaderJcr loader = this;
+        
+        // Subscribe to deployment update notifications from JCR and properly disconnect on shutdown
         rulesClient.addListener(loader);
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {
@@ -208,21 +150,49 @@ public class RulesLoaderJcr implements RulesLoader, RDeploymentListener {
         return value;
     }
 
-    public void setTempFolder(File tempFolder) {
-        
-        if (tempFolder == null) {
-            throw new IllegalArgumentException("Argument tempFolder can't be null");
+    private File getFolderToLoadDeploymentsIn() {
+        if (folderToLoadDeploymentsIn == null) {
+            if (folderToLoadIn == null) {
+                folderToLoadIn = getTempDirectory();
+            }
+            
+            folderToLoadDeploymentsIn = new File(folderToLoadIn);
+    
+            folderToLoadDeploymentsIn.mkdirs();
+            FolderHelper.clearFolder(folderToLoadDeploymentsIn);
+    
+            resetLoadedDeploymentsCache();
         }
-
-        this.tempFolder = tempFolder;
-
-        tempFolder.mkdirs();
-        FolderHelper.clearFolder(tempFolder);
-
-        resetLoadedDeploymentsCash();
+        
+        return folderToLoadDeploymentsIn;
     }
 
-    public void projectsAdded() {
-        loadRules();
+    @SuppressWarnings("unchecked")
+    private void onAfterLoading(DeploymentInfo di, File deploymentLocalFolder) {
+        Collection<LoadingListener> localCopyOfListeners = (Collection<LoadingListener>) loadingListeners.clone();
+
+        for (LoadingListener loadingListener : localCopyOfListeners) {
+            loadingListener.onAfterLoading(new LoadingEventObject(this, di, deploymentLocalFolder));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void onBeforeLoading(DeploymentInfo di) {
+        Collection<LoadingListener> localCopyOfListeners = (Collection<LoadingListener>) loadingListeners.clone();
+
+        for (LoadingListener loadingListener : localCopyOfListeners) {
+            loadingListener.onBeforeLoading(new LoadingEventObject(this, di));
+        }
+    }
+
+    public void addLoadingListener(LoadingListener loadingListener) {
+        if (loadingListener != null) {
+            loadingListeners.add(loadingListener);
+        }
+    }
+
+
+    public void removeLoadingListener(LoadingListener loadingListener) {
+        loadingListeners.remove(loadingListener);
     }
 }

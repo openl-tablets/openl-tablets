@@ -45,7 +45,7 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         }
 
         runningServices.put(deploymentName, projectWrappers);
-        log.info(String.format("Deployed \"{1}\" ", deploymentName));
+        log.info(String.format("Deployed \"%s\" ", deploymentName));
 
         onAfterDeployment(deploymentName, projectWrappers);
     }
