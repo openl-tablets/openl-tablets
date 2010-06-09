@@ -35,10 +35,15 @@ public class CellEditorSelector {
             //if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
             if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
                 || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
-                if (domain == null && !meta.isMultiValue()) {
-                    Number minValue = NumberUtils.getMinValue(instanceClass);
-                    Number maxValue = NumberUtils.getMaxValue(instanceClass);
-                    result = factory.makeNumericEditor(minValue, maxValue);
+                if (domain == null) {
+                    if (!meta.isMultiValue()) {
+                        Number minValue = NumberUtils.getMinValue(instanceClass);
+                        Number maxValue = NumberUtils.getMaxValue(instanceClass);
+                        result = factory.makeNumericEditor(minValue, maxValue);
+                    } else {
+                        // Numeric Array
+                        return factory.makeArrayEditor(",", ICellEditor.CE_NUMERIC);
+                    }
                 }
             // String
             } else if (instanceClass == String.class) {
@@ -66,20 +71,10 @@ public class CellEditorSelector {
                 } else {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
-            } else if (instanceClass.isArray()) {
-                result = selectArrayEditor(instanceClass.getComponentType());
             }
         }
 
         return result;
-    }
-
-    private ICellEditor selectArrayEditor(Class<?> instanceClass) {
-        if (ClassUtils.isAssignable(instanceClass, double.class, true)
-            || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {
-            return factory.makeArrayEditor(",", ICellEditor.CE_NUMERIC);
-        }
-        return null;
     }
 
     public ICellEditor selectEditor(int row, int col, TableEditorModel model) {
