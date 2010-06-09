@@ -519,7 +519,6 @@ That&apos;s all there is to it!
    </license>
 
    <requires>
-      <import feature="org.openl.lib.eclipse.feature" version="5.5.1"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui.console"/>
@@ -532,6 +531,18 @@ That&apos;s all there is to it!
       <import plugin="org.openl.eclipse.ui"/>
       <import plugin="org.openl.eclipse.ui.wizard"/>
    </requires>
+
+   <plugin
+         id="org.openl.poi.lib"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"/>
+
+   <plugin
+         id="org.openl.lib"
+         download-size="0"
+         install-size="0"
+         version="5.5.1"/>
 
    <plugin
          id="org.openl.rules"

@@ -9,10 +9,12 @@
     <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
-  <groupId>org.openl</groupId>
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.source.eclipse.feature</artifactId>
-  <name>OpenL - sources for Eclipse</name>
-  <description />
+  <packaging>jar</packaging>
+  <name>OpenL - Sources for Eclipse</name>
+  <description>OpenL sources feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -25,7 +27,6 @@
         </includes>
       </resource>
     </resources>
-
   </build>
 
 </project>

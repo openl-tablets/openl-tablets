@@ -10,8 +10,12 @@
     <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - RuleService - Eclipse Feature</name>
+  <description>OpenL RuleService feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -22,9 +26,6 @@
         </includes>
       </resource>
     </resources>
-
-    <plugins>
-    </plugins>
   </build>
 
 </project>

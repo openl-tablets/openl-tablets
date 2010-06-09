@@ -9,9 +9,12 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - STUDIO - WebStudio Eclipse Feature</name>
-  <description />
+  <description>OpenL WebStudio feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>

@@ -11,7 +11,7 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <name>OpenL - RuleService - WS Libraries</name>
   <description>Libraries for OpenL Rules Webservice</description>
   <url>http://openl-tablets.sf.net/</url>

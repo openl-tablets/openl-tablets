@@ -11,12 +11,13 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - Eclipse - All Eclipse Feature</name>
-  <description />
+  <description>Main OpenL feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <defaultGoal>package</defaultGoal>
-
     <resources>
       <resource>
         <directory>.</directory>
@@ -27,6 +28,5 @@
         </includes>
       </resource>
     </resources>
-
   </build>
 </project>

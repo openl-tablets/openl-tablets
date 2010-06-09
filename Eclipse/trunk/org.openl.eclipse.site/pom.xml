@@ -112,11 +112,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.eclipse.feature</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.eclipse.feature</artifactId>
     </dependency>
@@ -136,11 +131,6 @@
       <artifactId>org.openl.poi.lib</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.poi.lib.eclipse.feature</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
@@ -213,11 +203,6 @@
     </dependency>
 
     <!-- WSFrontend -->
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.ruleservice.lib.eclipse.feature</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice</artifactId>

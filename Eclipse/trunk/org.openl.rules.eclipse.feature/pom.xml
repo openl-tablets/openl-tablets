@@ -9,9 +9,12 @@
     <relativePath>../org.openl.rules.dev-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.eclipse.feature</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - DEV - Rules - Eclipse Feature</name>
-  <description />
+  <description>OpenL Engine feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -23,7 +26,6 @@
         </includes>
       </resource>
     </resources>
-
   </build>
 
 </project>
