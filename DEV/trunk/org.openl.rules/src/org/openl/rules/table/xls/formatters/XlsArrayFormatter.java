@@ -54,7 +54,7 @@ public class XlsArrayFormatter extends AXlsFormatter {
         String result = null;
         if (value != null) {
             if (!(value.getClass().isArray())) {
-                Log.error(String.format("Should be an array: ", value.toString()));
+                Log.error(String.format("Should be an array: %s", value.toString()));
                 return result;
             }
     
