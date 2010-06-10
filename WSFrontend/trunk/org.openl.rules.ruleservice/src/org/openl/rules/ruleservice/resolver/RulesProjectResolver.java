@@ -17,9 +17,29 @@ import org.openl.rules.ruleservice.loader.DeploymentInfo;
  *
  */
 public class RulesProjectResolver {
-    private final Log log = LogFactory.getLog(getClass());
+    private final Log LOG = LogFactory.getLog(RulesProjectResolver.class);
+    
     private File xlsFile;
     private Map<String, WSEntryPoint> openlWrappers;
+    
+    // TODO: rewrite resolving: there are logical issues
+    public synchronized List<RuleServiceInfo> resolve(DeploymentInfo di, File deploymentLocalFolder) {
+        List<RuleServiceInfo> serviceClasses = new ArrayList<RuleServiceInfo>();
+        try {
+            for (File projectFolder : deploymentLocalFolder.listFiles()) {
+                if (projectFolder.isDirectory()) {
+                    openlWrappers = findAllWrappersInProject(projectFolder);
+                    xlsFile = findXlsFileInProject(projectFolder);
+                    for (Map.Entry<String, WSEntryPoint> wsCandidate : openlWrappers.entrySet()) {
+                        addWrapperIfValid(serviceClasses, wsCandidate, projectFolder);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("failed to deploy project " + di.getDeployID(), e);
+        }
+        return serviceClasses;
+    }
 
     public static Map<String, WSEntryPoint> findAllWrappersInProject(File projectFolder) {
         final File projectGenFolder = new File(projectFolder, "gen");
@@ -54,25 +74,6 @@ public class RulesProjectResolver {
             
             serviceClasses.add(serviceInfo);
         }
-    }
-
-    // TODO: rewrite resolving: there are logical issues
-    public synchronized List<RuleServiceInfo> resolve(DeploymentInfo di, File deploymentLocalFolder) {
-        List<RuleServiceInfo> serviceClasses = new ArrayList<RuleServiceInfo>();
-        try {
-            for (File projectFolder : deploymentLocalFolder.listFiles()) {
-                if (projectFolder.isDirectory()) {
-                    openlWrappers = findAllWrappersInProject(projectFolder);
-                    xlsFile = findXlsFileInProject(projectFolder);
-                    for (Map.Entry<String, WSEntryPoint> wsCandidate : openlWrappers.entrySet()) {
-                        addWrapperIfValid(serviceClasses, wsCandidate, projectFolder);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("failed to deploy project " + di.getDeployID(), e);
-        }
-        return serviceClasses;
     }
 
 }

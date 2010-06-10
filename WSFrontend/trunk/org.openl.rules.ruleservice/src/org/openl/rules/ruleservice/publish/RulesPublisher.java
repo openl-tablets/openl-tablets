@@ -57,6 +57,14 @@ public class RulesPublisher {
         return urlClassLoader;
     }
     
+    private void addClasspathURL(List<URL> classPathURLs, File folder) {
+        try {
+            classPathURLs.add(new URL("file:" + folder.getCanonicalPath() + "/"));
+        } catch (IOException e) {
+            log.error("Failed to get classpath URL while publishing deployment", e);
+        }
+    }
+    
     public void setDeployAdmin(DeploymentAdmin deployAdmin) {
         this.deployAdmin = deployAdmin;
     }
@@ -67,14 +75,6 @@ public class RulesPublisher {
 
     public synchronized void setRulesProjectResolver(RulesProjectResolver rulesProjectResolver) {
         this.rulesProjectResolver = rulesProjectResolver;
-    }
-
-    private void addClasspathURL(List<URL> classPathURLs, File folder) {
-        try {
-            classPathURLs.add(new URL("file:" + folder.getCanonicalPath() + "/"));
-        } catch (IOException e) {
-            log.error("Failed to get classpath URL while publishing deployment", e);
-        }
     }
     
 }
