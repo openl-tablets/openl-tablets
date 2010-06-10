@@ -227,7 +227,12 @@ public abstract class AOpenClass implements IOpenClass {
 
     public Iterator<IOpenMethod> methods() {
         Map<MethodKey, IOpenMethod> methodMap = methodMap();
-        return methodMap == null ? null : methodMap.values().iterator();
+        return methodMap == null ? null : methodMap.values().iterator();        
+    }
+    
+    public List<IOpenMethod> getMethods() {
+        Map<MethodKey, IOpenMethod> methodMap = methodMap();
+        return methodMap == null ? null : new ArrayList<IOpenMethod>(methodMap.values());
     }
 
     public Object nullObject() {
