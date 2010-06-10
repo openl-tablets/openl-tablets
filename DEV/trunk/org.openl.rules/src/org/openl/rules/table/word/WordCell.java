@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.apache.poi.hwpf.usermodel.RangeHack;
 import org.apache.poi.hwpf.usermodel.TableCell;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -127,5 +128,8 @@ public class WordCell implements ICell{
         throw new UnsupportedOperationException();
     }
 
+    public CellMetaInfo getMetaInfo() {
+        return null;
+    }
 
 }

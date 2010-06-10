@@ -2,6 +2,7 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -17,16 +18,18 @@ public class Cell implements ICell {
 
     private Object objectValue;
     private String stringValue;
-  
+
     private ICellFont font;
-    
+
     private IGridRegion region;
 
     private String formula;
-    
+
     private int type;
 
     private String uri;
+
+    private CellMetaInfo metaInfo;
 
     public Cell() {
     }
@@ -153,4 +156,13 @@ public class Cell implements ICell {
     public boolean hasNativeType() {
         return false;
     }
+
+    public CellMetaInfo getMetaInfo() {
+        return metaInfo;
+    }
+
+    public void setMetaInfo(CellMetaInfo metaInfo) {
+        this.metaInfo = metaInfo;
+    }
+
 }

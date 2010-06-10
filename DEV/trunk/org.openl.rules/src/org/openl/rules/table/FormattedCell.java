@@ -7,6 +7,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -143,4 +144,9 @@ public class FormattedCell implements ICell {
     public Date getNativeDate() {
         return delegate.getNativeDate();
     }
+
+    public CellMetaInfo getMetaInfo() {
+        return delegate.getMetaInfo();
+    }
+
 }

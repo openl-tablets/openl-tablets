@@ -67,35 +67,6 @@ public interface IWritableGrid extends IGrid {
             return new XlsSheetGridExporter(workbook, new XlsSheetGridModel(sheet));
         }
 
-        public static CellMetaInfo getCellMetaInfo(IGrid grid, int col, int row) {
-            IWritableGrid wgrid = getWritableGrid(grid);
-            if (wgrid == null) {
-                return null;
-            }
-
-            return wgrid.getCellMetaInfo(col, row);
-        }
-
-        public static CellMetaInfo getCellMetaInfo(IGridTable table, int col, int row) {
-            IWritableGrid wgrid = getWritableGrid(table);
-            if (wgrid == null) {
-                return null;
-            }
-            int gcol = table.getGridColumn(col, row);
-            int grow = table.getGridRow(col, row);
-
-            return wgrid.getCellMetaInfo(gcol, grow);
-        }
-
-        public static ICellStyle getCellStyle(IGrid grid, int col, int row) {
-            IWritableGrid wgrid = getWritableGrid(grid);
-            if (wgrid == null) {
-                return null;
-            }
-
-            return wgrid.getCell(col, row).getStyle();
-        }
-
         public static IWritableGrid getWritableGrid(IGrid grid) {
             if (grid instanceof IWritableGrid) {
                 return (IWritableGrid) grid;
@@ -238,7 +209,7 @@ public interface IWritableGrid extends IGrid {
                 return null;
             }
 
-            int propertyRowIndex = getPropertyRowInsex(tableRegion, wgrid, newPropName);
+            int propertyRowIndex = getPropertyRowIndex(tableRegion, wgrid, newPropName);
             if (propertyRowIndex > 0) {
                 return setExistingPropertyValue(tableRegion, wgrid, newPropName, newPropValue, propertyRowIndex);
             } else {
@@ -246,7 +217,7 @@ public interface IWritableGrid extends IGrid {
             }
         }
 
-        private static int getPropertyRowInsex(IGridRegion tableRegion, IWritableGrid wgrid, String newPropName){
+        private static int getPropertyRowIndex(IGridRegion tableRegion, IWritableGrid wgrid, String newPropName){
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
@@ -582,8 +553,6 @@ public interface IWritableGrid extends IGrid {
      *         not found
      */
     IGridRegion findEmptyRect(int width, int height);
-
-    CellMetaInfo getCellMetaInfo(int col, int row);
 
     void removeMergedRegion(IGridRegion to);
 

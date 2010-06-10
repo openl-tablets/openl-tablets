@@ -132,7 +132,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         public Object getObjectValue() {
             if (cell == null && region == null) {
                 return null;
-            } else if (region != null) { // if cell belongs to some merged region, we try to get merged value from it.                
+            } else if (region != null) { // If cell belongs to some merged region, we try to get merged value from it.                
                 return extractValueFromRegion();
             } else {
                 return extractCellValue(true);
@@ -140,7 +140,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
         
         private ICell getTopLeftCellFromRegion() {
-            // gets the top left cell in this region
+            // Gets the top left cell in this region
             int row = region.getTop();
             int col = region.getLeft();
             return getCell(col, row);
@@ -155,8 +155,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
         
         private Object extractValueFromRegion() {   
-            // if the top left cell is the current cell instance, we just extract it`s value.
-            // in other case get string value of top left cell of the region.
+            // If the top left cell is the current cell instance, we just extract it`s value.
+            // In other case get string value of top left cell of the region.
             if (isCurrentCellATopLeftCellInRegion()) {
                 return extractCellValue(true);
             } else {
@@ -262,15 +262,15 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public int getNativeType() {
-            if (cell == null)
-                
+            if (cell == null) {
                 return IGrid.CELL_TYPE_BLANK;
-            
-           int type = cell.getCellType();
-           if (type == IGrid.CELL_TYPE_FORMULA)
-               return cell.getCachedFormulaResultType();
-           return type;
-               
+            }
+
+            int type = cell.getCellType();
+            if (type == IGrid.CELL_TYPE_FORMULA) {
+                return cell.getCachedFormulaResultType();
+            }
+            return type;
         }
 
         public boolean hasNativeType() {
@@ -279,6 +279,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         public Date getNativeDate() {
             return cell.getDateCellValue();
+        }
+
+        public CellMetaInfo getMetaInfo() {
+            return getCellMetaInfo(column, row);
         }
 
     }
@@ -526,11 +530,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return new XlsCell(column, row, region, getXlsCell(column, row));
     }
 
-    public CellMetaInfo getCellMetaInfo(int col, int row) {
+    private CellMetaInfo getCellMetaInfo(int col, int row) {
         CellKey ck = new CellKey(col, row);
         return metaInfoMap.get(ck);
     }
-    
+
     private ICellStyle getCellStyle(Cell cell) {
         CellStyle style = cell.getCellStyle();
         if (style != null) {
@@ -547,7 +551,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
    /**
      * Some magic numbers here
      */
-
     public int getColumnWidth(int col) {
         int w = sheet.getColumnWidth((short) col);
         if (w == sheet.getDefaultColumnWidth()) {
