@@ -100,14 +100,14 @@ public class SimpleBeanGeneratorTest {
     
     @Test
     public void testObjectArrayFields() {        
-        String className = String.format("%s.IntArrayBean", CLASS_NAMESPACE);
+        String className = String.format("%s.ObjectArrayBean", CLASS_NAMESPACE);
         Map<String, FieldType> fields = getFields(new FieldType(Object[].class.getSimpleName(), Object[].class));
         
         assertNotNull(getBeanClass(className, fields));
     }
     
     private Class<?> getBeanClass(String className, Map<String, FieldType> fields) {
-        SimpleBeanGenerator beanGenerator = new SimpleBeanGenerator(className, fields);
+        SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields);
         Class<?> beanClass = beanGenerator.generateAndLoadBeanClass();
         return beanClass;
     }
