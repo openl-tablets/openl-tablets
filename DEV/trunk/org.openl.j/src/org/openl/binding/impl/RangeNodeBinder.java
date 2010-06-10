@@ -34,7 +34,7 @@ public class RangeNodeBinder extends ANodeBinder {
             if (val.doubleValue() > val2.doubleValue()) {
 
                 String message = String.format("%s must be more or equal than %s", val2.toString(), val.toString());
-                BindHelper.processError(message, node, bindingContext);
+                BindHelper.processError(message, node, bindingContext, false);
 
                 return new ErrorBoundNode(node);
             }
@@ -82,7 +82,7 @@ public class RangeNodeBinder extends ANodeBinder {
             }
 
             String message = String.format("Unsupported range prefix type: %s", type);
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -108,13 +108,13 @@ public class RangeNodeBinder extends ANodeBinder {
             }        
 
             String message = String.format("Unsupported range suffix type: %s", type);
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
 
         String message = String.format("Unsupported range type: %s", type);
-        BindHelper.processError(message, node, bindingContext);
+        BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);
     }
