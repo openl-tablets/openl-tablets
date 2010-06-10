@@ -14,7 +14,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IOpenClass;
 
@@ -41,8 +40,9 @@ public class TestMetaInfo extends TestCase {
 
             for (int j = 0; j < w; j++) {
                 for (int k = 0; k < h; k++) {
-                    String value = table.getCell(j, k).getStringValue();
-                    CellMetaInfo mi = IWritableGrid.Tool.getCellMetaInfo(table, j, k);
+                    ICell cell = table.getCell(j, k);
+                    String value = cell.getStringValue();
+                    CellMetaInfo mi = cell.getMetaInfo();
                     if (mi == null)
                         continue;
                     String paramName = mi.getParamName();

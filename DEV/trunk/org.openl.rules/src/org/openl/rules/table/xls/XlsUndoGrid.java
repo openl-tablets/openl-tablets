@@ -60,7 +60,7 @@ public class XlsUndoGrid implements IUndoGrid {
     public CellMetaInfo getCellMetaInfoToRestore(int id) {
         int col = getColumn(id);
         int row = getRow(id);
-        return grid.getCellMetaInfo(col, row);
+        return grid.getCell(col, row).getMetaInfo();
     }
 
 	public synchronized int saveCell(Cell cell, CellMetaInfo meta) {
@@ -72,7 +72,8 @@ public class XlsUndoGrid implements IUndoGrid {
     }
 
     public int saveCell(IWritableGrid fromGrid, int col, int row) {
-        return saveCell(((XlsSheetGridModel) fromGrid).getXlsCell(col, row), fromGrid.getCellMetaInfo(col, row));
+        return saveCell(((XlsSheetGridModel) fromGrid).getXlsCell(col, row),
+                fromGrid.getCell(col, row).getMetaInfo());
     }
 
 }
