@@ -7,7 +7,6 @@ package org.openl.rules.tableeditor.model;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
@@ -48,7 +47,7 @@ import java.util.Vector;
 public class TableEditorModel {
 
     /**
-     * Table Headers – syntax depends on first keyword
+     * Table Headers ï¿½ syntax depends on first keyword
      */
     public static final String TH_CELL_TYPE = "TH_CELL_TYPE";
 
@@ -72,18 +71,18 @@ public class TableEditorModel {
      */
     public static final String CA_DISPLAY_COLUMN_HEADER_CELL_TYPE = "CA_DISPLAY_COLUMN_HEADER_CELL_TYPE";
     /**
-     * Condition/Action value cell – the type is defined by Parameter Definition –
+     * Condition/Action value cell ï¿½ the type is defined by Parameter Definition ï¿½
      * constrained data entry based on the Domain of the Parameter Type (also
      * known as Subtype in Exigen Rules; the RDF/OWL uses the word Range to
      * define what we used to call Domain, and the word Domain for what we in
      * Java call the Declaring Class or Declaring Type; we need to decide which
-     * terminology we are going to use – I start to lean toward RDF/OWL even
-     * though it will conflict with our Range classes – will be IntRange,
-     * DoubleRange etc. – but the superclass should be renamed to
+     * terminology we are going to use ï¿½ I start to lean toward RDF/OWL even
+     * though it will conflict with our Range classes ï¿½ will be IntRange,
+     * DoubleRange etc. ï¿½ but the superclass should be renamed to
      * ArithmeticRange); the cell editors should include comboboxes for
      * enumerations, range validators for numbers, other types of specialized
-     * editors – calendars, ranges; it also should allow to input formulas –
-     * similar to Condition/Action formula if the first character was ‘=’.
+     * editors ï¿½ calendars, ranges; it also should allow to input formulas ï¿½
+     * similar to Condition/Action formula if the first character was ï¿½=ï¿½.
      */
     public static final String CA_ENUMERATION_CELL_TYPE = "CA_ENUMERATION_CELL_TYPE";
     public static final String CA_NUMBER_CELL_TYPE = "CA_NUMBER_CELL_TYPE";
@@ -91,13 +90,13 @@ public class TableEditorModel {
     public static final String CA_DATETIME_CELL_TYPE = "CA_DATETIME_CELL_TYPE";
 
     /**
-     * Date Table Column Headers – constrained to the set of the allowed names +
+     * Date Table Column Headers ï¿½ constrained to the set of the allowed names +
      * continuations (like in address.zip)
      */
     public static final String DT_COLUMN_HEADER_CELL_TYPE = "DT_COLUMN_HEADER_CELL_TYPE";
 
     /**
-     * Data Table Foreign Keys – constrained to the list of tables with the
+     * Data Table Foreign Keys ï¿½ constrained to the list of tables with the
      * specific type
      */
     public static final String DT_FOREIGN_KEY_CELL_TYPE = "DT_FOREIGN_KEY_CELL_TYPE";
@@ -107,7 +106,7 @@ public class TableEditorModel {
      */
     public static final String DD_COLUMN_HEADER_CELL_TYPE = "DD_COLUMN_HEADER_CELL_TYPE";
     /**
-     * Data Cell – the same as for DT cell, except for formulas (for now)
+     * Data Cell ï¿½ the same as for DT cell, except for formulas (for now)
      */
     public static final String DD_FORMULA_CELL_TYPE = "DD_FORMULA_CELL_TYPE";
     public static final String DD_ENUMERATION_CELL_TYPE = "DD_ENUMERATION_CELL_TYPE";
@@ -116,7 +115,7 @@ public class TableEditorModel {
     public static final String DD_DATETIME_CELL_TYPE = "DD_DATETIME_CELL_TYPE";
 
     /**
-     * Specialty Cells – like Environment include and import cells
+     * Specialty Cells ï¿½ like Environment include and import cells
      */
     public static final String SPECIAL_CELL_TYPE = "SPECIAL_CELL_TYPE";
 
@@ -217,15 +216,6 @@ public class TableEditorModel {
      */
     public Object getCellEditorMetadata(int row, int column) {
         return null;
-    }
-
-    public CellMetaInfo getCellMetaInfo(int row, int column) {
-
-        CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(gridTable.getGrid(), tX(column), tY(row));
-
-        // System.out.println("Meta:" + metaInfo);
-        return metaInfo;
-
     }
 
     public ICell getCell(int row, int column) {

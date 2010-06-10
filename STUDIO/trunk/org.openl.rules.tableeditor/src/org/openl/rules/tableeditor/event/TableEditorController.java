@@ -12,6 +12,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
@@ -90,7 +91,8 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String getCellType() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
-            ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), editorModel);
+            ICell cell = editorModel.getCell(getRow(), getCol());
+            ICellEditor editor = new CellEditorSelector().selectEditor(cell);
             EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
             return pojo2json(typeResponse);
         }
