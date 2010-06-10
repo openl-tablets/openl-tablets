@@ -10,6 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.IncorrectFormulaException;
 
@@ -23,9 +25,9 @@ public class FormattedCell implements ICell {
     
     private ICell delegate;
 
-    private CellFont font;
+    private ICellFont font;
 
-    private CellStyle style;
+    private ICellStyle style;
 
     private IGridFilter filter;
     
@@ -46,11 +48,11 @@ public class FormattedCell implements ICell {
         this.style = new CellStyle(delegate.getStyle());
     }
 
-    public CellStyle getStyle() {
+    public ICellStyle getStyle() {
         return style;
     }
 
-    public CellFont getFont() {
+    public ICellFont getFont() {
         return font;
     }
 

@@ -5,13 +5,13 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 public class XlsCellEnumWriter extends AXlsCellWriter {
 
     public XlsCellEnumWriter(XlsSheetGridModel xlsSheetGridModel) {
-        super(xlsSheetGridModel);        
+        super(xlsSheetGridModel);
     }
 
     @Override
-    public void writeCellValue() {        
+    public void writeCellValue() {
         getCellToWrite().setCellValue(((Enum<?>) getValueToWrite()).name());
-        
+
         setMetaInfo(getValueToWrite().getClass());
     }
 

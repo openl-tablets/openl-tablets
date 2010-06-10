@@ -11,7 +11,9 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
     static {        
         formatters = new HashMap<Class<?>, AXlsFormatter>();
 
+        formatters.put(Short.class, XlsNumberFormatter.General);
         formatters.put(Integer.class, XlsNumberFormatter.General);
+        formatters.put(Float.class, XlsNumberFormatter.General);
         formatters.put(Double.class, XlsNumberFormatter.General);
         formatters.put(Boolean.class, new XlsBooleanFormatter());
         formatters.put(Date.class, new XlsDateFormatter(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));

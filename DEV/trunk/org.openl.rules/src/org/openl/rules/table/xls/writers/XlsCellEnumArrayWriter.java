@@ -15,11 +15,11 @@ public class XlsCellEnumArrayWriter extends AXlsCellWriter {
         Object[] enums = (Object[]) getValueToWrite();
         String[] names = EnumUtils.getNames(enums);
         getCellToWrite().setCellValue(StringUtils.join(names, ","));
-        
-        // we have an array of Enums. we need to set as meta info information that domain class is Enum, so we 
+
+        // We have an array of Enums. we need to set as meta info information that domain class is Enum, so we 
         // need to take a component class and multiValue to true as it is an array.
         Class<?> valueClass = getValueToWrite().getClass().getComponentType();
-        setMetaInfo(valueClass);
+        setMetaInfo(valueClass, true);
     }
 
 }

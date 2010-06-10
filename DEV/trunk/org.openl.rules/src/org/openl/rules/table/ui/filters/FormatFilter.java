@@ -5,30 +5,33 @@ import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
 public class FormatFilter extends AGridFilter {
 
-    private AXlsFormatter format;
-    
+    private AXlsFormatter formatter;
+
     public FormatFilter(AXlsFormatter format) {
-        this.format = format;
+        this.formatter = format;
     }
-    
+
     public FormattedCell filterFormat(FormattedCell cell) {
         Object value = cell.getObjectValue();
         if (value == null) {
             return cell;
         }
-        cell.setFormattedValue(format.format(value));
+
+        String formattedValue = formatter.format(value);
+
+        cell.setFormattedValue(formattedValue);
         cell.setFilter(this);
 
         return cell;
     }
 
     public AXlsFormatter getFormatter() {
-        return this.format;
+        return this.formatter;
     }
-    
+
     @Override
     public Object parse(String value) {
-        return format.parse(value);
+        return formatter.parse(value);
     }
 
 }
