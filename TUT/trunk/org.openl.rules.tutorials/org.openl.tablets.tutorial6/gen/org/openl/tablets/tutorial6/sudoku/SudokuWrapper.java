@@ -1,42 +1,43 @@
 /*
- * This class has been generated. Do not change it, if you need to modify functionality - subclass it
- */
+ * This class has been generated. Do not change it, if you need to modify functionality - subclass it 
+*/
 
 package org.openl.tablets.tutorial6.sudoku;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.syntax.impl.ISyntaxConstants;
-public class SudokuWrapper implements org.openl.main.OpenLWrapper
+
+public class SudokuWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
 {
-  Object __instance;
+  java.lang.Object __instance;
 
   public static org.openl.types.IOpenClass __class;
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
-  public static String __openlName = "org.openl.xls";
+  public static java.lang.String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/SudokuRules3.xls";
+  public static java.lang.String __src = "rules/SudokuRules3.xls";
 
-  public static String __srcModuleClass = null;
+  public static java.lang.String __srcModuleClass = null;
 
-  public static String __folder = "rules";
+  public static java.lang.String __folder = "rules";
 
-  public static String __project = "org.openl.tablets.tutorial6";
+  public static java.lang.String __project = "org.openl.tablets.tutorial6";
 
-  public static String __userHome = ".";
+  public static java.lang.String __userHome = ".";
 
-  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
-      return new org.openl.vm.SimpleVM().getRuntimeEnv();
+      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      return environment;
     }
   };
 
@@ -46,6 +47,10 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
 
   public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
     __env.set(environment);
+  }
+
+  public org.openl.rules.context.IRulesRuntimeContext getRuntimeContext() {
+    return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();
   }
 
   public SudokuWrapper(){
@@ -92,14 +97,31 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
 
 
 
-  static org.openl.types.IOpenMethod s2_Method;
-  public void s2(java.util.Vector v)  {
+  static org.openl.types.IOpenMethod s34b_Method;
+  public void s34b(java.util.Vector v)  {
     Object[] __params = new Object[1];
     __params[0] = v;
     try
     {
     Object __myInstance = __instance;
-    s2_Method.invoke(__myInstance, __params, __env.get());  }
+    s34b_Method.invoke(__myInstance, __params, __env.get());  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod s34a_Method;
+  public void s34a(java.util.Vector v)  {
+    Object[] __params = new Object[1];
+    __params[0] = v;
+    try
+    {
+    Object __myInstance = __instance;
+    s34a_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -128,14 +150,31 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod s3_Method;
-  public void s3(java.util.Vector v)  {
+  static org.openl.types.IOpenMethod sq1_Method;
+  public void sq1(java.util.Vector v)  {
     Object[] __params = new Object[1];
     __params[0] = v;
     try
     {
     Object __myInstance = __instance;
-    s3_Method.invoke(__myInstance, __params, __env.get());  }
+    sq1_Method.invoke(__myInstance, __params, __env.get());  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod s1_Method;
+  public void s1(java.util.Vector v)  {
+    Object[] __params = new Object[1];
+    __params[0] = v;
+    try
+    {
+    Object __myInstance = __instance;
+    s1_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -164,23 +203,6 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod s34a_Method;
-  public void s34a(java.util.Vector v)  {
-    Object[] __params = new Object[1];
-    __params[0] = v;
-    try
-    {
-    Object __myInstance = __instance;
-    s34a_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod runSudokuTestAll_Method;
   public org.openl.rules.testmethod.TestResult runSudokuTestAll()  {
     Object[] __params = new Object[0];
@@ -198,31 +220,14 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod s1_Method;
-  public void s1(java.util.Vector v)  {
+  static org.openl.types.IOpenMethod s3_Method;
+  public void s3(java.util.Vector v)  {
     Object[] __params = new Object[1];
     __params[0] = v;
     try
     {
     Object __myInstance = __instance;
-    s1_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod sq1_Method;
-  public void sq1(java.util.Vector v)  {
-    Object[] __params = new Object[1];
-    __params[0] = v;
-    try
-    {
-    Object __myInstance = __instance;
-    sq1_Method.invoke(__myInstance, __params, __env.get());  }
+    s3_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -249,23 +254,6 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod s34b_Method;
-  public void s34b(java.util.Vector v)  {
-    Object[] __params = new Object[1];
-    __params[0] = v;
-    try
-    {
-    Object __myInstance = __instance;
-    s34b_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod solver_Method;
   public org.openl.tablets.tutorial6.sudoku.SudokuSolver solver(java.lang.String sname, int H, int W, int[][] data)  {
     Object[] __params = new Object[4];
@@ -278,6 +266,23 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
     Object __myInstance = __instance;
     Object __res = solver_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.tablets.tutorial6.sudoku.SudokuSolver)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod s2_Method;
+  public void s2(java.util.Vector v)  {
+    Object[] __params = new Object[1];
+    __params[0] = v;
+    try
+    {
+    Object __myInstance = __instance;
+    s2_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -310,33 +315,33 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 
     runSudoku_Field = __class.getField("runSudoku");
     this_Field = __class.getField("this");
-    s2_Method = __class.getMatchingMethod("s2", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
-    run_Method = __class.getMatchingMethod("run", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class),
-      JavaOpenClass.getOpenClass(boolean.class)});
-    s3_Method = __class.getMatchingMethod("s3", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
-    solve_Method = __class.getMatchingMethod("solve", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class),
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
+    s34b_Method = __class.getMatchingMethod("s34b", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
     s34a_Method = __class.getMatchingMethod("s34a", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
+    run_Method = __class.getMatchingMethod("run", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class),
+      OpenClassHelper.getOpenClass(__class, boolean.class)});
+    sq1_Method = __class.getMatchingMethod("sq1", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
+    s1_Method = __class.getMatchingMethod("s1", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
+    solve_Method = __class.getMatchingMethod("solve", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class),
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     runSudokuTestAll_Method = __class.getMatchingMethod("runSudokuTestAll", new IOpenClass[] {
 });
-    s1_Method = __class.getMatchingMethod("s1", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
-    sq1_Method = __class.getMatchingMethod("sq1", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
+    s3_Method = __class.getMatchingMethod("s3", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
     s4_Method = __class.getMatchingMethod("s4", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
-    s34b_Method = __class.getMatchingMethod("s34b", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
     solver_Method = __class.getMatchingMethod("solver", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class),
-      JavaOpenClass.getOpenClass(int.class),
-      JavaOpenClass.getOpenClass(int.class),
-      JavaOpenClass.getOpenClass(int[][].class)});
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class),
+      OpenClassHelper.getOpenClass(__class, int.class),
+      OpenClassHelper.getOpenClass(__class, int.class),
+      OpenClassHelper.getOpenClass(__class, int[][].class)});
+    s2_Method = __class.getMatchingMethod("s2", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.util.Vector.class)});
 
     __initialized=true;
   }

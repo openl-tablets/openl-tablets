@@ -1,34 +1,57 @@
 /*
- * This class has been generated. Do not change it, if you need to modify functionality - subclass it
- */
+ * This class has been generated. Do not change it, if you need to modify functionality - subclass it 
+*/
 
 package org.openl.tablets.tutorial3;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
+import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
-{
-  Object __instance;
 
-    public org.openl.vm.IRuntimeEnv __env = new org.openl.vm.SimpleVM().getRuntimeEnv();
+public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
+{
+  java.lang.Object __instance;
 
   public static org.openl.types.IOpenClass __class;
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
-  public static String __openlName = "org.openl.xls";
+  public static java.lang.String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/Tutorial_3.xls";
+  public static java.lang.String __src = "rules/Tutorial_3.xls";
 
-  public static String __folder = "rules";
+  public static java.lang.String __srcModuleClass = null;
 
-  public static String __project = "org.openl.tablets.tutorial3";
+  public static java.lang.String __folder = "rules";
 
-  public static String __userHome = ".";
+  public static java.lang.String __project = "org.openl.tablets.tutorial3";
+
+  public static java.lang.String __userHome = ".";
+
+  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+    @Override
+    protected org.openl.vm.IRuntimeEnv initialValue() {
+      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      return environment;
+    }
+  };
+
+  public org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {
+    return __env.get();
+  }
+
+  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
+    __env.set(environment);
+  }
+
+  public org.openl.rules.context.IRulesRuntimeContext getRuntimeContext() {
+    return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();
+  }
 
   public Tutorial_3Wrapper(){
     this(false);
@@ -37,23 +60,7 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
   public Tutorial_3Wrapper(boolean ignoreErrors){
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
-    __instance = __class.newInstance(__env);
-  }
-
-
-
-  static org.openl.types.IOpenField states_Field;
-
-  public org.openl.tablets.tutorial3.USState[] getStates()
-  {
-   Object __res = states_Field.get(__instance, __env);
-   return (org.openl.tablets.tutorial3.USState[])__res;
-  }
-
-
-  public void setStates(org.openl.tablets.tutorial3.USState[] __var)
-  {
-   states_Field.set(__instance, __var, __env);
+    __instance = __class.newInstance(__env.get());
   }
 
 
@@ -62,14 +69,14 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
 
   public org.openl.tablets.tutorial3.Address[] getAddresses31()
   {
-   Object __res = addresses31_Field.get(__instance, __env);
+   Object __res = addresses31_Field.get(__instance, __env.get());
    return (org.openl.tablets.tutorial3.Address[])__res;
   }
 
 
   public void setAddresses31(org.openl.tablets.tutorial3.Address[] __var)
   {
-   addresses31_Field.set(__instance, __var, __env);
+   addresses31_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -78,14 +85,30 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
 
   public org.openl.tablets.tutorial3.Address[] getAddresses3()
   {
-   Object __res = addresses3_Field.get(__instance, __env);
+   Object __res = addresses3_Field.get(__instance, __env.get());
    return (org.openl.tablets.tutorial3.Address[])__res;
   }
 
 
   public void setAddresses3(org.openl.tablets.tutorial3.Address[] __var)
   {
-   addresses3_Field.set(__instance, __var, __env);
+   addresses3_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField states_Field;
+
+  public org.openl.tablets.tutorial3.USState[] getStates()
+  {
+   Object __res = states_Field.get(__instance, __env.get());
+   return (org.openl.tablets.tutorial3.USState[])__res;
+  }
+
+
+  public void setStates(org.openl.tablets.tutorial3.USState[] __var)
+  {
+   states_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -94,26 +117,26 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
 
   public org.openl.types.impl.DynamicObject getThis()
   {
-   Object __res = this_Field.get(__instance, __env);
+   Object __res = this_Field.get(__instance, __env.get());
    return (org.openl.types.impl.DynamicObject)__res;
   }
 
 
   public void setThis(org.openl.types.impl.DynamicObject __var)
   {
-   this_Field.set(__instance, __var, __env);
+   this_Field.set(__instance, __var, __env.get());
   }
 
 
 
-  static org.openl.types.IOpenMethod region_Method;
-  public java.lang.String region(java.lang.String state)  {
+  static org.openl.types.IOpenMethod hr24ToAmpm_Method;
+  public java.lang.String hr24ToAmpm(int hr24)  {
     Object[] __params = new Object[1];
-    __params[0] = state;
+    __params[0] = new Integer(hr24);
     try
     {
     Object __myInstance = __instance;
-    Object __res = region_Method.invoke(__myInstance, __params, __env);
+    Object __res = hr24ToAmpm_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -130,7 +153,7 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
     try
     {
     Object __myInstance = __instance;
-    Object __res = test21_Method.invoke(__myInstance, __params, __env);
+    Object __res = test21_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -148,7 +171,25 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
     try
     {
     Object __myInstance = __instance;
-    Object __res = region22_Method.invoke(__myInstance, __params, __env);
+    Object __res = region22_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod region_Method;
+  public java.lang.String region(java.lang.String state)  {
+    Object[] __params = new Object[1];
+    __params[0] = state;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = region_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -166,25 +207,7 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
     try
     {
     Object __myInstance = __instance;
-    Object __res = region21_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod hr24ToAmpm_Method;
-  public java.lang.String hr24ToAmpm(int hr24)  {
-    Object[] __params = new Object[1];
-    __params[0] = new Integer(hr24);
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = hr24ToAmpm_Method.invoke(__myInstance, __params, __env);
+    Object __res = region21_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -203,7 +226,7 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper
     try
     {
     Object __myInstance = __instance;
-    Object __res = ampmTo24_Method.invoke(__myInstance, __params, __env);
+    Object __res = ampmTo24_Method.invoke(__myInstance, __params, __env.get());
    return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
@@ -222,36 +245,36 @@ public IOpenClass getOpenClass(){return __class;}
 
 public org.openl.CompiledOpenClass getCompiledOpenClass(){return __compiledClass;}
 
-public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env);}
+public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env.get());}
 
   static synchronized protected void __init()
   {
     if (__initialized)
       return;
 
-    UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src);
+    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
-   // __env = wrapper.getEnv();
+   // __env.set(wrapper.getEnv());
 
-    states_Field = __class.getField("states");
     addresses31_Field = __class.getField("addresses31");
     addresses3_Field = __class.getField("addresses3");
+    states_Field = __class.getField("states");
     this_Field = __class.getField("this");
-    region_Method = __class.getMatchingMethod("region", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
+    hr24ToAmpm_Method = __class.getMatchingMethod("hr24ToAmpm", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, int.class)});
     test21_Method = __class.getMatchingMethod("test21", new IOpenClass[] {
 });
     region22_Method = __class.getMatchingMethod("region22", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
+    region_Method = __class.getMatchingMethod("region", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     region21_Method = __class.getMatchingMethod("region21", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
-    hr24ToAmpm_Method = __class.getMatchingMethod("hr24ToAmpm", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class)});
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     ampmTo24_Method = __class.getMatchingMethod("ampmTo24", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class),
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
+      OpenClassHelper.getOpenClass(__class, int.class),
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
 
     __initialized=true;
   }

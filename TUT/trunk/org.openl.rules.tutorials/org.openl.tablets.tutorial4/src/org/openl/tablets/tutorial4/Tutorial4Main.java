@@ -4,15 +4,18 @@
  */
 package org.openl.tablets.tutorial4;
 
+import org.openl.generated.beans.Driver;
+import org.openl.generated.beans.Policy;
+import org.openl.generated.beans.Vehicle;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.types.impl.DynamicObject;
 import org.openl.vm.Tracer;
 
 /**
  * @author snshor
  * 
  */
-public class Tutorial4Main {
+public class Tutorial4Main {    
+    
 	/**
 	 * Tutorial wrapper object instance.
 	 */
@@ -40,8 +43,8 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		DynamicObject[] policies = wrapper.getPolicyProfile1();
-		DynamicObject policy = policies[0];
+		Policy[] policies = wrapper.getPolicyProfile1();
+		Policy policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
@@ -54,8 +57,8 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		DynamicObject[] policies = wrapper.getPolicyProfile2();
-		DynamicObject policy = policies[0];
+		Policy[] policies = wrapper.getPolicyProfile2();
+		Policy policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
@@ -68,8 +71,8 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		DynamicObject[] policies = wrapper.getPolicyProfile3();
-		DynamicObject policy = policies[0];
+		Policy[] policies = wrapper.getPolicyProfile3();
+		Policy policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
@@ -83,19 +86,18 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		DynamicObject[] policies = wrapper.getPolicyProfile4();
-		DynamicObject policy = policies[0];
+		Policy[] policies = wrapper.getPolicyProfile4();
+		Policy policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
 
-	private void calculatePolicyPremium(DynamicObject policy) {
-
+	private void calculatePolicyPremium(Policy policy) {
 		SpreadsheetResult pc = wrapper.processPolicy(policy);
-
+		
 		System.out.println();
 		System.out.println(String.format("'%s' premium calculation report.", 
-				((DynamicObject)pc.getFieldValue("$Value$Policy")).getFieldValue("name")));
+				((Policy)pc.getFieldValue("$Value$Policy")).getName()));
 		System.out.println();
 
 		SpreadsheetResult[] vehicles = (SpreadsheetResult[])pc.getFieldValue("$Value$Vehicles");
@@ -103,7 +105,7 @@ public class Tutorial4Main {
 		
 		for (SpreadsheetResult vc : vehicles) {
 			System.out.println();
-			System.out.println(" Vehicle: " + ((DynamicObject)vc.getFieldValue("$Value$Vehicle")).getFieldValue("name"));
+			System.out.println(" Vehicle: " + ((Vehicle)vc.getFieldValue("$Value$Vehicle")).getName());
 			System.out.println("	Theft rating:   " + vc.getFieldValue("$Value$Theft Rating"));
 			System.out.println("	Injury rating:  " + vc.getFieldValue("$Value$Injury Rating"));
 			System.out.println("	Eligibility:    " + vc.getFieldValue("$Value$Eligibility"));
@@ -116,7 +118,7 @@ public class Tutorial4Main {
 		
 		for (SpreadsheetResult dc : drivers) {
 			System.out.println();
-			System.out.println(" Driver: " + ((DynamicObject)dc.getFieldValue("$Value$Driver")).getFieldValue("name"));
+			System.out.println(" Driver: " + ((Driver)dc.getFieldValue("$Value$Driver")).getName());
 			System.out.println("	Age Type:    " + dc.getFieldValue("$Value$Age Type"));
 			System.out.println("	Risk:        " + dc.getFieldValue("$Value$Driver Risk"));
 			System.out.println("	Eligibility: " + dc.getFieldValue("$Value$Eligibility"));

@@ -1,37 +1,38 @@
 /*
- * This class has been generated. Do not change it, if you need to modify functionality - subclass it
- */
+ * This class has been generated. Do not change it, if you need to modify functionality - subclass it 
+*/
 
 package org.openl.tablets.tutorial9;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+
 public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
 {
-  Object __instance;
+  java.lang.Object __instance;
 
   public static org.openl.types.IOpenClass __class;
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
-  public static String __openlName = "org.openl.xls";
+  public static java.lang.String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/Tutorial_9.xls";
+  public static java.lang.String __src = "rules/Tutorial_9.xls";
 
-  public static String __srcModuleClass = null;
+  public static java.lang.String __srcModuleClass = null;
 
-  public static String __folder = "rules";
+  public static java.lang.String __folder = "rules";
 
-  public static String __project = "org.openl.tablets.tutorial9";
+  public static java.lang.String __project = "org.openl.tablets.tutorial9";
 
-  public static String __userHome = ".";
+  public static java.lang.String __userHome = ".";
 
-  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
@@ -96,6 +97,23 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenMethod run1TestAll_Method;
+  public org.openl.rules.testmethod.TestResult run1TestAll()  {
+    Object[] __params = new Object[0];
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = run1TestAll_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.testmethod.TestResult)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod incomeForecast_Method;
   public org.openl.rules.calc.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
     Object[] __params = new Object[2];
@@ -106,23 +124,6 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     Object __myInstance = __instance;
     Object __res = incomeForecast_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.calc.SpreadsheetResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod run1TestAll_Method;
-  public org.openl.rules.testmethod.TestResult run1TestAll()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = run1TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -172,11 +173,11 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 
     run1_Field = __class.getField("run1");
     this_Field = __class.getField("this");
-    incomeForecast_Method = __class.getMatchingMethod("incomeForecast", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(double.class),
-      JavaOpenClass.getOpenClass(double.class)});
     run1TestAll_Method = __class.getMatchingMethod("run1TestAll", new IOpenClass[] {
 });
+    incomeForecast_Method = __class.getMatchingMethod("incomeForecast", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, double.class),
+      OpenClassHelper.getOpenClass(__class, double.class)});
     totalAssets_Method = __class.getMatchingMethod("totalAssets", new IOpenClass[] {
 });
 

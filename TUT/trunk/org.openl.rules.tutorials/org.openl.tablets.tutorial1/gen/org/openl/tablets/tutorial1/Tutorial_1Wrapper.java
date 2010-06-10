@@ -1,37 +1,38 @@
 /*
- * This class has been generated. Do not change it, if you need to modify functionality - subclass it
- */
+ * This class has been generated. Do not change it, if you need to modify functionality - subclass it 
+*/
 
 package org.openl.tablets.tutorial1;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+
 public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
 {
-  Object __instance;
+  java.lang.Object __instance;
 
   public static org.openl.types.IOpenClass __class;
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
-  public static String __openlName = "org.openl.xls";
+  public static java.lang.String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/Tutorial_1.xls";
+  public static java.lang.String __src = "rules/Tutorial_1.xls";
 
-  public static String __srcModuleClass = null;
+  public static java.lang.String __srcModuleClass = null;
 
-  public static String __folder = "rules";
+  public static java.lang.String __folder = "rules";
 
-  public static String __project = "org.openl.tablets.tutorial1";
+  public static java.lang.String __project = "org.openl.tablets.tutorial1";
 
-  public static String __userHome = ".";
+  public static java.lang.String __userHome = ".";
 
-  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
@@ -120,7 +121,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 
     this_Field = __class.getField("this");
     hello1_Method = __class.getMatchingMethod("hello1", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class)});
+      OpenClassHelper.getOpenClass(__class, int.class)});
 
     __initialized=true;
   }
