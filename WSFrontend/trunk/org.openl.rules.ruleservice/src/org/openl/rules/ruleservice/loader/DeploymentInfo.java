@@ -1,12 +1,16 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.Serializable;
+
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.deploy.DeployID;
 
 /**
  * A class that represents info on a deployment: its name and its version.
  */
-public class DeploymentInfo {
+public class DeploymentInfo implements Serializable {
+    private static final long serialVersionUID = 5284876042162952913L;
+
     /**
      * Separator between deployment name and its version in
      * <code>DeployID</code> object.

@@ -19,7 +19,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class WebServiceRulesEngineFactory extends ASourceCodeEngineFactory {
-
     public static final String RULE_OPENL_NAME = "org.openl.xls";
     private static final String FIELD_PREFIX = "get";
 

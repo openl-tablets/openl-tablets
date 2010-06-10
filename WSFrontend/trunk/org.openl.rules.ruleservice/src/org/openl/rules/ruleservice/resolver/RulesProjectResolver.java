@@ -1,79 +1,25 @@
-/**
- *
- */
 package org.openl.rules.ruleservice.resolver;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.loader.DeploymentInfo;
 
 /**
- *
+ * Finds and understands OpenL rules projects configurations. Collects and
+ * returns info about rules projects.
  */
-public class RulesProjectResolver {
-    private final Log LOG = LogFactory.getLog(RulesProjectResolver.class);
-    
-    private File xlsFile;
-    private Map<String, WSEntryPoint> openlWrappers;
-    
-    // TODO: rewrite resolving: there are logical issues
-    public synchronized List<RuleServiceInfo> resolve(DeploymentInfo di, File deploymentLocalFolder) {
-        List<RuleServiceInfo> serviceClasses = new ArrayList<RuleServiceInfo>();
-        try {
-            for (File projectFolder : deploymentLocalFolder.listFiles()) {
-                if (projectFolder.isDirectory()) {
-                    openlWrappers = findAllWrappersInProject(projectFolder);
-                    xlsFile = findXlsFileInProject(projectFolder);
-                    for (Map.Entry<String, WSEntryPoint> wsCandidate : openlWrappers.entrySet()) {
-                        addWrapperIfValid(serviceClasses, wsCandidate, projectFolder);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("failed to deploy project " + di.getDeployID(), e);
-        }
-        return serviceClasses;
-    }
+public interface RulesProjectResolver {
 
-    public static Map<String, WSEntryPoint> findAllWrappersInProject(File projectFolder) {
-        final File projectGenFolder = new File(projectFolder, "gen");
-        Map<String, WSEntryPoint> openlWrappers = new HashMap<String, WSEntryPoint>();
-        FileSystemWalker.walk(projectGenFolder, new OpenLWrapperRecognizer(projectGenFolder, openlWrappers));
-        return openlWrappers;
-    }
+    /**
+     * Returns information about all rules projects in folder. Each first-level
+     * subfolder is assessed if it's rules project and information about it is
+     * collected.
+     * 
+     * @param workspaceFolder folder with rules projects in it
+     * @return list of found rules projects
+     */
+    List<RulesProjectInfo> resolve(File workspaceFolder);
 
-    public static File findXlsFileInProject(File projectFolder) {
-        XlsFileRecognizer projectXls = new XlsFileRecognizer();
-        FileSystemWalker.walk(new File(projectFolder, "rules"), projectXls);
-        return projectXls.getFile();
-    }
-
-    private void addWrapperIfValid(List<RuleServiceInfo> serviceClasses,
-            Map.Entry<String, WSEntryPoint> wsCandidate,
-            File projectFolder) {
-
-        File binFolder = new File(projectFolder, "bin");
-        WSEntryPoint wsEntryPoint = wsCandidate.getValue();
-        String dif = wsEntryPoint.getFullFilename();
-        File file = new File(binFolder, FileSystemWalker.changeExtension(dif, "class"));
-
-        if (file.exists()) {
-            String className = FileSystemWalker.removeExtension(dif).replaceAll("[/\\\\]", ".");
-            RuleServiceInfo serviceInfo = new RuleServiceInfo(projectFolder,
-                binFolder,
-                xlsFile,
-                className,
-                wsCandidate.getKey(),
-                wsEntryPoint.isInterface() ? RulesServiceType.DYNAMIC_WRAPPER : RulesServiceType.STATIC_WRAPPER);
-            
-            serviceClasses.add(serviceInfo);
-        }
-    }
-
+    RulesProjectInfo resolveRulesProject(File rulesProjectFolder);
 }

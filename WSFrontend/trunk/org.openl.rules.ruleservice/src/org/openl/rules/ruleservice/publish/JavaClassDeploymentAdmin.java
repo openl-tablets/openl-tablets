@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,10 +10,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.WebServiceEngineFactoryInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
-import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
+import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.ruleservice.resolver.RulesModuleInfo;
+import org.openl.rules.ruleservice.resolver.RulesProjectInfo;
 
 public class JavaClassDeploymentAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(JavaClassDeploymentAdmin.class);
@@ -29,18 +27,20 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         }
     }
 
-    public synchronized void deploy(String deploymentName, ClassLoader loader, List<RuleServiceInfo> infoList) {
+    public synchronized void deploy(String deploymentName, ClassLoader loader, List<RulesProjectInfo> infoList) {
         onBeforeDeployment(deploymentName);
 
         undeploy(deploymentName);
 
         Map<String, OpenLWrapper> projectWrappers = new HashMap<String, OpenLWrapper>();
-        for (RuleServiceInfo wsInfo : infoList) {
-            try {
-                OpenLWrapper wrapper = deploy(deploymentName, loader, wsInfo);
-                projectWrappers.put(wsInfo.getName(), wrapper);
-            } catch (Exception e) {
-                log.error("failed to create service", e);
+        for (RulesProjectInfo wsInfo : infoList) {
+            for (RulesModuleInfo rulesModule : wsInfo.getRulesModules()) {
+                try {
+                    OpenLWrapper wrapper = deploy(deploymentName, loader, rulesModule);
+                    projectWrappers.put(rulesModule.getName(), wrapper);
+                } catch (Exception e) {
+                    log.error("failed to create service", e);
+                }
             }
         }
 
@@ -50,31 +50,12 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         onAfterDeployment(deploymentName, projectWrappers);
     }
 
-    private OpenLWrapper deploy(String serviceName, ClassLoader loader, RuleServiceInfo wsInfo) throws ClassNotFoundException,
-                                                                                               IllegalAccessException,
-                                                                                               InstantiationException {
-        return (OpenLWrapper) getStrategy(wsInfo, wsInfo.getClassName(), loader).instantiate();
+    private OpenLWrapper deploy(String serviceName, ClassLoader loader, RulesModuleInfo rulesModule)
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, loader);
 
-    }
+        return (OpenLWrapper) strategy.instantiate();
 
-    private RulesInstantiationStrategy getStrategy(RuleServiceInfo wsInfo, String className, ClassLoader classLoader) {
-
-        switch (wsInfo.getServiceType()) {
-            case DYNAMIC_WRAPPER:
-                return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
-            case STATIC_WRAPPER:
-                String path = ".";
-                try {
-                    path = wsInfo.getProject().getCanonicalPath();
-                } catch (IOException e) {
-                    log.error("failed to get canonical path", e);
-                }
-                return new WrapperAdjustingInstantiationStrategy(path, className, classLoader);
-            case AUTO_WRAPPER:
-                return new WebServiceEngineFactoryInstantiationStrategy(wsInfo.getXlsFile(), className, classLoader);
-        }
-        
-        throw new RuntimeException("Cannot resolve instantiation strategy");
     }
 
     private void onAfterDeployment(String deploymentName, Map<String, OpenLWrapper> projectWrappers) {
