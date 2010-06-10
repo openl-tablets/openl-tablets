@@ -131,7 +131,7 @@ public class JavaWrapperGenerator {
 
     private void addEnvVariable(StringBuffer buf) {
         // declaration
-        buf.append("  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n")
+        buf.append("  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n")
            .append("    @Override\n")
            .append("    protected org.openl.vm.IRuntimeEnv initialValue() {\n")
            .append("      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();\n")
