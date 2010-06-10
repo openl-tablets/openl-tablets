@@ -20,4 +20,6 @@ public interface ISyntaxConstants {
      */
     String OPERATORS_NAMESPACE = "org.openl.operators";
     
+    String GENERATED_BEANS = "org.openl.generated.beans";
+    
 }

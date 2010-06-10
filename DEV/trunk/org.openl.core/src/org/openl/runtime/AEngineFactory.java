@@ -12,6 +12,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
@@ -42,11 +43,11 @@ public abstract class AEngineFactory {
      * appropriate open class's members as value.
      * 
      * @param engineInterface interface that provides method for engine
-     * @param openClass open class that used by engine to invoke appropriate
+     * @param moduleOpenClass open class that used by engine to invoke appropriate
      *            rules
      * @return methods map
      */
-    protected Map<Method, IOpenMember> makeMethodMap(Class<?> engineInterface, IOpenClass openClass) {
+    protected Map<Method, IOpenMember> makeMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
 
         // Methods map.
         // 
@@ -62,8 +63,8 @@ public abstract class AEngineFactory {
             // Try to find openClass's method with appropriate name and
             // parameter types.
             //
-            IOpenMethod rulesMethod = openClass.getMatchingMethod(interfaceMethodName,
-                JavaOpenClass.getOpenClasses(interfaceMethod.getParameterTypes()));
+            IOpenMethod rulesMethod = moduleOpenClass.getMatchingMethod(interfaceMethodName,
+                OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes()));                
 
             if (rulesMethod != null) {
                 // If openClass has appropriate method then add new entry to
@@ -80,7 +81,7 @@ public abstract class AEngineFactory {
                     String fieldName = StringUtils.uncapitalize(interfaceMethodName.substring(FIELD_PREFIX.length()));
                     // Try to find appropriate field.
                     //
-                    IOpenField rulesField = openClass.getField(fieldName, true);
+                    IOpenField rulesField = moduleOpenClass.getField(fieldName, true);
 
                     if (rulesField != null) {
                         // Cast method return type to appropriate OpenClass

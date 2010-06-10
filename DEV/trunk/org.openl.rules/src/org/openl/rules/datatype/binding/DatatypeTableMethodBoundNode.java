@@ -3,7 +3,6 @@
  */
 
 package org.openl.rules.datatype.binding;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,10 +88,10 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
      */
     private Class<?> createBeanForDatatype(Map<String, FieldType> fields) throws SyntaxNodeException {
         String datatypeName = dataType.getName();
-        String beanName = getDatatypeBeanName(datatypeName);
-        SimpleBeanGenerator beanGenerator = new SimpleBeanGenerator(beanName, fields);
+        String beanName = getDatatypeBeanNameWithNamespace(datatypeName);
+        SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields);
         
-        Class<?> beanClass = beanGenerator.generateAndLoadBeanClass();
+        Class<?> beanClass = beanGenerator.generateAndLoadBeanClass(); 
         
         if (beanClass == null) {
             String errorMessage = String.format("Cant generate bean for datatype:", datatypeName);
@@ -108,8 +107,8 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
      * @param datatypeName name of the datatype (e.g. <code>Driver</code>)
      * @return the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
      */
-    private String getDatatypeBeanName(String datatypeName) {
-        return String.format("%s.%s", ISyntaxConstants.THIS_NAMESPACE, datatypeName);        
+    private String getDatatypeBeanNameWithNamespace(String datatypeName) {
+        return String.format("%s.%s", ISyntaxConstants.GENERATED_BEANS, datatypeName);        
     }
 
     private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
@@ -130,7 +129,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
              
             try {
                 dataType.addField(field);
-                fields.put(fieldName, new FieldType(field.getType().getName(), field.getType().getInstanceClass()));
+                fields.put(fieldName, getFieldType(field));
                 if (firstField) {
                     dataType.setIndexField(field);
                 }
@@ -142,6 +141,18 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
                     firstLogicalRowSrc);
             }
         }
+    }
+    
+    private FieldType getFieldType(IOpenField field) {
+        String fieldNameWithNamespace = null;
+        String fieldName = field.getType().getName();
+        if (fieldName.indexOf(".") < 0) { // it means that name of the field has no namespace. Just datatype can have empty namespace in this place.
+                                          // so we need to add our inner namespace, to the name of type.
+            fieldNameWithNamespace = getDatatypeBeanNameWithNamespace(fieldName);
+        } else {
+            fieldNameWithNamespace = fieldName;
+        }
+        return new FieldType(fieldNameWithNamespace, field.getType().getInstanceClass());
     }
 
     private IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule firstLogicalRowSrc) 
