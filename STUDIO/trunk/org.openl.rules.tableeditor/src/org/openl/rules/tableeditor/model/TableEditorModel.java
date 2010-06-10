@@ -29,7 +29,7 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.table.ui.filters.XlsSimpleFilter;
+import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
@@ -325,7 +325,7 @@ public class TableEditorModel {
             return;
         }
 
-        filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[] { new XlsSimpleFilter() });
+        filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[] { new SimpleFormatFilter() });
     }
 
     public synchronized void redo() {
