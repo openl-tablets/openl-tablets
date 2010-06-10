@@ -1,6 +1,7 @@
 package org.openl.types.impl;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -169,5 +170,13 @@ public class OpenClassDelegator implements IOpenClass {
     public Map<String, IOpenClass> getTypes() {
         // Default implementation
         return null;
+    }
+
+    public Map<String, IOpenField> getFields() {        
+        return baseClass.getFields();
+    }
+
+    public List<IOpenMethod> getMethods() {        
+        return baseClass.getMethods();
     }
 }

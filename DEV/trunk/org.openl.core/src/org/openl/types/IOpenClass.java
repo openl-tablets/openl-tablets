@@ -7,6 +7,7 @@
 package org.openl.types;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
@@ -32,7 +33,10 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
     /**
      * @return an iterator of all the fieldValues
      */
+    @Deprecated
     Iterator<IOpenField> fields();
+    
+    Map<String, IOpenField> getFields();
 
     IAggregateInfo getAggregateInfo();
 
@@ -116,8 +120,11 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @return
      */
     boolean isSimple();
-
+    
+    @Deprecated
     Iterator<IOpenMethod> methods();
+    
+    List<IOpenMethod> getMethods();
 
     Object newInstance(IRuntimeEnv env);
 
