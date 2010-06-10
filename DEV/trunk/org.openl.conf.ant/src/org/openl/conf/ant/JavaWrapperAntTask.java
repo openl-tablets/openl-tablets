@@ -89,8 +89,6 @@ public class JavaWrapperAntTask extends Task {
     private String[] implementsInterfaces = new String[] { OpenLWrapper.class.getName(),
             IRulesRuntimeContextProvider.class.getName() };    
     
-    
-    
     @Override
     public void execute() throws BuildException {
         try {
@@ -356,13 +354,15 @@ public class JavaWrapperAntTask extends Task {
         }
     }
 
-    private void writeDatatypeBeans(Map<String, IOpenClass> types) throws Exception{
-        for (Entry<String, IOpenClass> datatype : types.entrySet()) {
-            Class<?> datatypeClass = datatype.getValue().getInstanceClass();
-            SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
-            String javaClass = beanJavaGenerator.generateJavaClass();
-            String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
-            writeContentToFile(javaClass, fileName);
+    private void writeDatatypeBeans(Map<String, IOpenClass> types) throws Exception {
+        if (types != null) {
+            for (Entry<String, IOpenClass> datatype : types.entrySet()) {
+                Class<?> datatypeClass = datatype.getValue().getInstanceClass();
+                SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
+                String javaClass = beanJavaGenerator.generateJavaClass();
+                String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
+                writeContentToFile(javaClass, fileName);
+            }
         }
     }
 
