@@ -26,7 +26,7 @@ import org.openl.syntax.impl.Tokenizer;
  */
 public class DatatypeNodeBinder extends AXlsTableBinder {
 
-    private static final int TYPE_INDEX = 1, TABLE_NAME_INDEX = 2;
+    private static final int TYPE_INDEX = 1;    
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
@@ -41,7 +41,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         String errMsg;
 
         if (parsedHeader.length < 2) {
-            errMsg = "Datatype table format: Datatype <typename> [tablename]";
+            errMsg = "Datatype table format: Datatype <typename>";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, src);
         }
 
