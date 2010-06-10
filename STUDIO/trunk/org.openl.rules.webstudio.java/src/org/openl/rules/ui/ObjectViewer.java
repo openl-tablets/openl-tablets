@@ -18,7 +18,7 @@ import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
-import org.openl.rules.table.ui.filters.XlsSimpleFilter;
+import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
@@ -61,7 +61,7 @@ public class ObjectViewer {
         };
 
         TableValueFilter tvf = new TableValueFilter(gt, model);
-        IGridFilter[] filters = { tvf, new XlsSimpleFilter(), new SimpleHtmlFilter(), new LinkMaker(tvf) };
+        IGridFilter[] filters = { tvf, new SimpleFormatFilter(), new SimpleHtmlFilter(), new LinkMaker(tvf) };
 
         FilteredGrid fg = new FilteredGrid(gt.getGrid(), filters);
 

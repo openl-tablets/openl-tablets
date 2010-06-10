@@ -4,7 +4,7 @@ import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
-import org.openl.rules.table.ui.filters.XlsSimpleFilter;
+import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 
@@ -47,7 +47,7 @@ public class TableModel {
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 1;
             IGridFilter[] f1 = new IGridFilter[!filtered ? (N + 1) : (N + filters.length)];
-            f1[0] = new XlsSimpleFilter();
+            f1[0] = new SimpleFormatFilter();
             if (!filtered) {
                 f1[N] = new SimpleHtmlFilter();
             } else {
