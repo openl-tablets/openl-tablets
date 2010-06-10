@@ -15,7 +15,7 @@ public class XlsCellArrayWriter extends AXlsCellWriter {
         getCellToWrite().setCellValue(StringUtils.join(values, ","));
 
         Class<?> valueClass = getValueToWrite().getClass().getComponentType();
-        setMetaInfo(valueClass);
+        setMetaInfo(valueClass, true);
     }
 
 }

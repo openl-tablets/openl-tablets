@@ -51,17 +51,22 @@ public abstract class AXlsCellWriter {
         this.valueToWrite = valueToWrite;
         this.strValue = String.valueOf(valueToWrite);
     }
-    
+
     protected String getStringValue() {
         return strValue;
     }
-    
+
     public abstract void writeCellValue();    
-    
-    protected void setMetaInfo(Class<?> valueClass) {
-        // we need to set cell meta info for the cell, to open appropriate editor for it on UI.        
-        CellMetaInfo numberMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
-                JavaOpenClass.getOpenClass(valueClass), false);            
-        xlsSheetGridModel.setCellMetaInfo(cellToWrite.getColumnIndex(), cellToWrite.getRowIndex(), numberMeta);
+
+    protected void setMetaInfo(Class<?> valueClass, boolean multiValue) {
+        // We need to set cell meta info for the cell, to open appropriate editor for it on UI.
+        CellMetaInfo cellMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue,
+                JavaOpenClass.getOpenClass(valueClass), multiValue);
+        xlsSheetGridModel.setCellMetaInfo(cellToWrite.getColumnIndex(), cellToWrite.getRowIndex(), cellMeta);
     }
+
+    protected void setMetaInfo(Class<?> valueClass) {
+        setMetaInfo(valueClass, false);
+    }
+
 }

@@ -4,6 +4,7 @@
 package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
+import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
@@ -38,35 +39,35 @@ public class ColorGridFilter extends AGridFilter {
     }
 
     public FormattedCell filterFormat(FormattedCell formattedCell) {
-
         if ((scope & FONT) != 0) {
-            short[] fc = formattedCell.getFont().getFontColor();
+            CellFont cellFont = (CellFont) formattedCell.getFont();
+            short[] fc = cellFont.getFontColor();
             if (fc == null) {
                 fc = IColorFilter.BLACK;
             }
-            formattedCell.getFont().setFontColor(filter.filterColor(fc));
+            cellFont.setFontColor(filter.filterColor(fc));
         }
 
-        CellStyle style = formattedCell.getStyle();
+        CellStyle cellStyle = (CellStyle) formattedCell.getStyle();
         if ((scope & BACKGROUND) != 0) {
-            short[] bcg = style.getFillBackgroundColor();
+            short[] bcg = cellStyle.getFillBackgroundColor();
             if (bcg == null) {
                 bcg = IColorFilter.WHITE;
             }
 
-            style.setFillBackgroundColor(filter.filterColor(bcg));
+            cellStyle.setFillBackgroundColor(filter.filterColor(bcg));
 
-            short[] fg = style.getFillForegroundColor();
+            short[] fg = cellStyle.getFillForegroundColor();
 
             if (fg == null) {
                 fg = IColorFilter.WHITE;
             }
 
-            style.setFillForegroundColor(filter.filterColor(fg));
+            cellStyle.setFillForegroundColor(filter.filterColor(fg));
         }
 
         if ((scope & BORDERS) != 0) {
-            short[][] bb = style.getBorderRGB();
+            short[][] bb = cellStyle.getBorderRGB();
 
             if (bb != null) {
                 for (int i = 0; i < bb.length; i++) {
