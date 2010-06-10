@@ -9,11 +9,12 @@
     <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
-  <groupId>org.openl</groupId>
-  <artifactId>org.openl.eclipse.site</artifactId>
-  <name>OpenL - Eclipse - Eclipse Site</name>
-  <description />
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.eclipse.site</artifactId>
   <packaging>pom</packaging>
+  <name>OpenL - Eclipse - Eclipse Site</name>
+  <description>OpenL WebStudio feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <defaultGoal>package</defaultGoal>
@@ -40,11 +41,6 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.rules.source.eclipse.feature</artifactId>
-    </dependency>
-
     <!-- DEV -->
     <dependency>
       <groupId>org.openl.rules</groupId>
@@ -83,57 +79,7 @@
 
     <dependency>
       <groupId>org.openl</groupId>
-      <artifactId>org.openl.eclipse.ui</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.eclipse.ui.util</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.eclipse.ui</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
       <artifactId>org.openl.conf.ant</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.eclipse.ui.wizard</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.eclipse.feature</artifactId>
-    </dependency>
-
-    <dependency>
-  	  <groupId>org.openl</groupId>
-      <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
-    </dependency>
-  
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.poi.lib</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
     </dependency>
 
     <!-- STUDIO -->
@@ -194,11 +140,6 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.tomcat.lib</artifactId>
     </dependency>
 
@@ -213,12 +154,43 @@
       <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     </dependency>
 
+    <!-- Eclipse -->
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.util</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+      <artifactId>org.openl.rules.eclipse.ui</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
     </dependency>
 
     <!-- LIBs -->
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.poi.lib</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.lib</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
@@ -232,6 +204,37 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
+    </dependency>
+
+    <!-- Features -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.feature</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+    </dependency>
+
+    <dependency>
+  	  <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+    </dependency>
+  
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.rules.source.eclipse.feature</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
     </dependency>
 
     <!--SOURCES-->
@@ -388,7 +391,6 @@
       <artifactId>org.openl.rules.eclipse.ui</artifactId>
       <classifier>sources</classifier>
     </dependency>
-
   </dependencies>
 
 </project>
