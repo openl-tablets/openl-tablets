@@ -11,8 +11,10 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - Eclipse - Eclipse UI Feature</name>
-  <description />
+  <description>OpenL WebStudio feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -25,7 +27,6 @@
         </includes>
       </resource>
     </resources>
-
   </build>
 
 </project>

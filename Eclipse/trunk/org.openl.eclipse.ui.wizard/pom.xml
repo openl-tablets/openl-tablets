@@ -11,8 +11,10 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - Eclipse - Eclipse UI Wizard</name>
-  <description />
+  <description>OpenL Eclipse Wizard</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <resources>
@@ -33,18 +35,6 @@
         </includes>
       </resource>
     </resources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <dependencies>

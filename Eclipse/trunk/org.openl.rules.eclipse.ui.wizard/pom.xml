@@ -11,21 +11,13 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+  <packaging>jar</packaging>
   <name>OpenL - Eclipse - Rules - Eclipse UI Wizard</name>
-  <description />
+  <description>OpenL Rules Eclipse wizards</description>
+  <url>http://openl-tablets.sf.net/</url>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-	  
 	   <!-- Remove the folders: org.openl.tablets.tutorial*, org.openl.rules.examples*, org.openl.tablets.deploy*, 
 	   org.openl.rules.webstudio* to avoid conflicts with old version files.
 	   -->
@@ -143,31 +135,30 @@
       <artifactId>org.openl.eclipse.ui.wizard</artifactId>
     </dependency>
 
-       <dependency>
-         <groupId>org.eclipse.core</groupId>
-         <artifactId>org.eclipse.core.resources</artifactId>
-       </dependency>
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>org.eclipse.core.resources</artifactId>
+    </dependency>
 
-       <dependency>
-         <groupId>org.eclipse.equinox</groupId>
-         <artifactId>org.eclipse.equinox.common</artifactId>
-       </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>org.eclipse.equinox.common</artifactId>
+    </dependency>
 
-       <dependency>
-         <groupId>org.eclipse.ui</groupId>
-         <artifactId>org.eclipse.ui.workbench</artifactId>
-       </dependency>
+    <dependency>
+      <groupId>org.eclipse.ui</groupId>
+      <artifactId>org.eclipse.ui.workbench</artifactId>
+    </dependency>
 
-       <dependency>
-         <groupId>org.openl</groupId>
-         <artifactId>org.openl.commons</artifactId>
-       </dependency>
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.commons</artifactId>
+    </dependency>
 
-       <dependency>
-         <groupId>org.eclipse.osgi</groupId>
-         <artifactId>org.eclipse.osgi</artifactId>
-       </dependency>
-
+    <dependency>
+      <groupId>org.eclipse.osgi</groupId>
+      <artifactId>org.eclipse.osgi</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

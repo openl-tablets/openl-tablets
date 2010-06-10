@@ -13,7 +13,7 @@
   <artifactId>org.openl.eclipse.ui</artifactId>
   <packaging>jar</packaging>
   <name>OpenL - Eclipse - Eclipse UI</name>
-  <description>OpenL Tutorials And Examples pack</description>
+  <description>OpenL Common Eclipse UI plugin</description>
   <url>http://openl-tablets.sf.net/</url>
 
   <build>
