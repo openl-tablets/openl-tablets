@@ -1,5 +1,6 @@
 package org.openl.tablets.tutorial2;
 
+import org.openl.generated.beans.Person1;
 import org.openl.rules.helpers.IntRange;
 import org.openl.tablets.tutorial2.step3.Customer2_3;
 import org.openl.types.impl.DynamicObject;
@@ -39,10 +40,10 @@ public class Tutorial2Main {
 		System.out.println("\n====== Step 1 =======\n");
 
 		
-		DynamicObject[] pp = tut2.getPp1();
+		Person1[] pp = tut2.getPp1();
 		//pp = tut2.getPp11();
 		for (int i = 0; i < pp.length; i++) {
-			System.out.println(pp[i].getType().getName() + " " + (i+1) + ": " + pp[i]);
+			System.out.println(pp[i].getName() + " " + (i+1) + ": " + pp[i]);
 		}
 		
 		

@@ -1,41 +1,43 @@
 /*
- * This class has been generated. Do not change it, if you need to modify functionality - subclass it
- */
+ * This class has been generated. Do not change it, if you need to modify functionality - subclass it 
+*/
 
 package org.openl.tablets.tutorial8;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
+
+public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
 {
-  Object __instance;
+  java.lang.Object __instance;
 
   public static org.openl.types.IOpenClass __class;
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
-  public static String __openlName = "org.openl.xls";
+  public static java.lang.String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/Tutorial_8.xls";
+  public static java.lang.String __src = "rules/Tutorial_8.xls";
 
-  public static String __srcModuleClass = null;
+  public static java.lang.String __srcModuleClass = null;
 
-  public static String __folder = "rules";
+  public static java.lang.String __folder = "rules";
 
-  public static String __project = "org.openl.tablets.tutorial8";
+  public static java.lang.String __project = "org.openl.tablets.tutorial8";
 
-  public static String __userHome = ".";
+  public static java.lang.String __userHome = ".";
 
-  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
-      this.set(new org.openl.vm.SimpleVM().getRuntimeEnv());
-      return this.get();
+      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      return environment;
     }
   };
 
@@ -43,8 +45,12 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
     return __env.get();
   }
 
-  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv __env) {
-    this.__env.set(__env);
+  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
+    __env.set(environment);
+  }
+
+  public org.openl.rules.context.IRulesRuntimeContext getRuntimeContext() {
+    return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();
   }
 
   public Tutorial_8Wrapper(){
@@ -55,38 +61,6 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
-  }
-
-
-
-  static org.openl.types.IOpenField run3_Field;
-
-  public org.openl.types.impl.DynamicObject[] getRun3()
-  {
-   Object __res = run3_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
-  }
-
-
-  public void setRun3(org.openl.types.impl.DynamicObject[] __var)
-  {
-   run3_Field.set(__instance, __var, __env.get());
-  }
-
-
-
-  static org.openl.types.IOpenField test1_Field;
-
-  public org.openl.types.impl.DynamicObject[] getTest1()
-  {
-   Object __res = test1_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
-  }
-
-
-  public void setTest1(org.openl.types.impl.DynamicObject[] __var)
-  {
-   test1_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -107,6 +81,22 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
 
 
 
+  static org.openl.types.IOpenField test1_Field;
+
+  public org.openl.types.impl.DynamicObject[] getTest1()
+  {
+   Object __res = test1_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setTest1(org.openl.types.impl.DynamicObject[] __var)
+  {
+   test1_Field.set(__instance, __var, __env.get());
+  }
+
+
+
   static org.openl.types.IOpenField this_Field;
 
   public org.openl.types.impl.DynamicObject getThis()
@@ -119,6 +109,22 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
   public void setThis(org.openl.types.impl.DynamicObject __var)
   {
    this_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField run3_Field;
+
+  public org.openl.types.impl.DynamicObject[] getRun3()
+  {
+   Object __res = run3_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setRun3(org.openl.types.impl.DynamicObject[] __var)
+  {
+   run3_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -158,13 +164,13 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod run2TestAll_Method;
-  public org.openl.rules.testmethod.TestResult run2TestAll()  {
+  static org.openl.types.IOpenMethod run3TestAll_Method;
+  public org.openl.rules.testmethod.TestResult run3TestAll()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
-    Object __res = run2TestAll_Method.invoke(__myInstance, __params, __env.get());
+    Object __res = run3TestAll_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.testmethod.TestResult)__res;  }
   catch(Throwable t)
   {
@@ -184,6 +190,23 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
     Object __myInstance = __instance;
     Object __res = totalPayments_Method.invoke(__myInstance, __params, __env.get());
    return ((Double)__res).doubleValue();  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod run2TestAll_Method;
+  public org.openl.rules.testmethod.TestResult run2TestAll()  {
+    Object[] __params = new Object[0];
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = run2TestAll_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.testmethod.TestResult)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -227,23 +250,6 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper
   }
 
   }
-
-
-  static org.openl.types.IOpenMethod run3TestAll_Method;
-  public org.openl.rules.testmethod.TestResult run3TestAll()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = run3TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
   static boolean __initialized = false;
 
   static public void reset(){__initialized = false;}
@@ -267,24 +273,24 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
-    run3_Field = __class.getField("run3");
-    test1_Field = __class.getField("test1");
     run2_Field = __class.getField("run2");
+    test1_Field = __class.getField("test1");
     this_Field = __class.getField("this");
+    run3_Field = __class.getField("run3");
     test1TestAll_Method = __class.getMatchingMethod("test1TestAll", new IOpenClass[] {
 });
     totalToPay_Method = __class.getMatchingMethod("totalToPay", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial8.Loan.class)});
-    run2TestAll_Method = __class.getMatchingMethod("run2TestAll", new IOpenClass[] {
-});
-    totalPayments_Method = __class.getMatchingMethod("totalPayments", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial8.Payments.class)});
-    listPayments_Method = __class.getMatchingMethod("listPayments", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial8.Loan.class)});
-    factorial_Method = __class.getMatchingMethod("factorial", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Loan.class)});
     run3TestAll_Method = __class.getMatchingMethod("run3TestAll", new IOpenClass[] {
 });
+    totalPayments_Method = __class.getMatchingMethod("totalPayments", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Payments.class)});
+    run2TestAll_Method = __class.getMatchingMethod("run2TestAll", new IOpenClass[] {
+});
+    listPayments_Method = __class.getMatchingMethod("listPayments", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Loan.class)});
+    factorial_Method = __class.getMatchingMethod("factorial", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, int.class)});
 
     __initialized=true;
   }
