@@ -9,7 +9,7 @@ import org.junit.Test;
 public class OpenLWrapperRecognizerTest {
     @Test
     public void testGetNameWithoutPostfix() {
-        OpenLWrapperRecognizer recognizer = new OpenLWrapperRecognizer(new File("baseFolder/"), null);
+        OpenLWrapperRecognizer recognizer = new OpenLWrapperRecognizer(new File("baseFolder/"));
         assertEquals("org.openl.tut1", recognizer.getNameWithoutPostfix(new File(
                 "baseFolder/org/openl/tut1Wrapper.java"), "Wrapper.java"));
         assertEquals(null, recognizer.getNameWithoutPostfix(new File("baseFolder/org/openl/tut1.java"), "Wrapper.java"));

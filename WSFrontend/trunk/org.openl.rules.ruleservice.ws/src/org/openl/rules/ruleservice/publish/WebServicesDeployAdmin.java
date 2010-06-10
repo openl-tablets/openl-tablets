@@ -12,7 +12,8 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
+import org.openl.rules.ruleservice.resolver.RulesModuleInfo;
+import org.openl.rules.ruleservice.resolver.RulesProjectInfo;
 import org.springframework.beans.factory.ObjectFactory;
 
 public class WebServicesDeployAdmin implements DeploymentAdmin {
@@ -39,30 +40,32 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         this.serverFactory = serverFactory;
     }
 
-    public synchronized void deploy(String serviceName, ClassLoader loader, List<RuleServiceInfo> infoList) {
+    public synchronized void deploy(String serviceName, ClassLoader loader, List<RulesProjectInfo> infoList) {
         undeploy(serviceName);
 
         String address = getBaseAddress() + serviceName + "/";
 
         Collection<Server> servers = new ArrayList<Server>();
-        for (RuleServiceInfo wsInfo : infoList) {
-            try {
-                servers.add(deploy(address, loader, wsInfo));
-            } catch (Exception e) {
-                LOG.error("failed to create service", e);
+        for (RulesProjectInfo wsInfo : infoList) {
+            for (RulesModuleInfo rulesModule : wsInfo.getRulesModules()) {
+                try {
+                    servers.add(deploy(address, loader, rulesModule));
+                } catch (Exception e) {
+                    LOG.error("Failed to create service", e);
+                }
             }
         }
 
         runningServices.put(serviceName, servers);
     }
 
-    private Server deploy(String baseAddress, ClassLoader loader, RuleServiceInfo wsInfo)
+    private Server deploy(String baseAddress, ClassLoader loader, RulesModuleInfo rulesModule)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
 
-        instantiateServiceBean(loader, wsInfo, svrFactory);
+        instantiateServiceBean(loader, rulesModule, svrFactory);
 
-        return exposeWebService(baseAddress, wsInfo, svrFactory);
+        return exposeWebService(baseAddress, rulesModule, svrFactory);
     }
     
     public synchronized void undeploy(String serviceName) {
@@ -81,17 +84,17 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         return new ServerFactoryBean();
     }
  
-    private void instantiateServiceBean(ClassLoader loader, RuleServiceInfo wsInfo, ServerFactoryBean svrFactory)
+    private void instantiateServiceBean(ClassLoader loader, RulesModuleInfo rulesModule, ServerFactoryBean svrFactory)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(wsInfo, loader);
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, loader);
 
         svrFactory.setServiceClass(strategy.getServiceClass());
         svrFactory.setServiceBean(strategy.instantiate());
     }
     
-    private Server exposeWebService(String baseAddress, RuleServiceInfo wsInfo, ServerFactoryBean svrFactory) {
-        svrFactory.setAddress(baseAddress + wsInfo.getName());
+    private Server exposeWebService(String baseAddress, RulesModuleInfo rulesModule, ServerFactoryBean svrFactory) {
+        svrFactory.setAddress(baseAddress + rulesModule.getName());
         return svrFactory.create();
     }
 }

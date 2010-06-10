@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.loader.DeploymentInfo;
 import org.openl.rules.ruleservice.resolver.RulesProjectResolver;
-import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
+import org.openl.rules.ruleservice.resolver.RulesProjectInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class RulesPublisher {
 
     public synchronized void deploy(DeploymentInfo di, File deploymentLocalFolder) {
         try {
-            List<RuleServiceInfo> serviceClasses = rulesProjectResolver.resolve(di, deploymentLocalFolder);
+            List<RulesProjectInfo> serviceClasses = rulesProjectResolver.resolve(deploymentLocalFolder);
             
             URLClassLoader urlClassLoader = createDeploymentClassLoader(serviceClasses);
 
@@ -45,10 +45,10 @@ public class RulesPublisher {
         }
     }
     
-    private URLClassLoader createDeploymentClassLoader(List<RuleServiceInfo> serviceClasses) {
+    private URLClassLoader createDeploymentClassLoader(List<RulesProjectInfo> serviceClasses) {
         List<URL> classPathURLs = new ArrayList<URL>();
 
-        for (RuleServiceInfo serviceInfo : serviceClasses) {
+        for (RulesProjectInfo serviceInfo : serviceClasses) {
             addClasspathURL(classPathURLs, serviceInfo.getProjectBin());
         }
 
