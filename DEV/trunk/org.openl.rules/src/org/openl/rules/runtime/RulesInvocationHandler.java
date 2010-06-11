@@ -27,6 +27,7 @@ public class RulesInvocationHandler extends OpenLInvocationHandler implements IR
 
         if (runtimeContext == null) {
             runtimeContext = new DefaultRulesRuntimeContext();
+            getRuntimeEnv().setContext(runtimeContext);
         }
 
         return (IRulesRuntimeContext) runtimeContext;
