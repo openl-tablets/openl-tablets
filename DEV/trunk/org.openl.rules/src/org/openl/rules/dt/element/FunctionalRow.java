@@ -546,7 +546,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
                 return new ParameterDeclaration(type, paramName);
             } catch (Exception ex) {
-                throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", null, null, methodSource);
+                throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
             }
         }
 
