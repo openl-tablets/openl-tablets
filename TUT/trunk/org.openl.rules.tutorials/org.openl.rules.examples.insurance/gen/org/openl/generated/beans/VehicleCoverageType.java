@@ -4,11 +4,11 @@
 
 package org.openl.generated.beans;
 
-import org.openl.generated.beans.Vehicle;
 import org.openl.generated.beans.LimitsAndFactors;
+import org.openl.generated.beans.InsurableVehicle;
 
 public class VehicleCoverageType{
-  private org.openl.generated.beans.Vehicle vehicle;
+  private org.openl.generated.beans.InsurableVehicle vehicle;
 
   private org.openl.generated.beans.LimitsAndFactors limitMP;
 
@@ -17,10 +17,10 @@ public class VehicleCoverageType{
   private org.openl.generated.beans.LimitsAndFactors limitPD;
 
 
-  public org.openl.generated.beans.Vehicle getVehicle() {
+  public org.openl.generated.beans.InsurableVehicle getVehicle() {
    return vehicle;
 }
-  public void setVehicle(org.openl.generated.beans.Vehicle vehicle) {
+  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
    this.vehicle = vehicle;
 }
   public org.openl.generated.beans.LimitsAndFactors getLimitMP() {

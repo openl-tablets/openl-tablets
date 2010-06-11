@@ -6,7 +6,7 @@ package org.openl.generated.beans;
 
 import java.lang.String;
 
-public class Driver{
+public class InsurableDriver{
   private int dmvPoints;
 
   private int age;

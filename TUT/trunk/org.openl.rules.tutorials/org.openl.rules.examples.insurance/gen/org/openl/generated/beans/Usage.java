@@ -4,18 +4,18 @@
 
 package org.openl.generated.beans;
 
-import org.openl.generated.beans.Driver;
-import org.openl.generated.beans.Vehicle;
+import org.openl.generated.beans.InsurableDriver;
+import org.openl.generated.beans.InsurableVehicle;
 
 public class Usage{
   private int usage;
 
-  private org.openl.generated.beans.Vehicle vehicle;
+  private org.openl.generated.beans.InsurableVehicle vehicle;
 
-  private org.openl.generated.beans.Driver driver;
+  private org.openl.generated.beans.InsurableDriver driver;
 
 
-  public void setDriver(org.openl.generated.beans.Driver driver) {
+  public void setDriver(org.openl.generated.beans.InsurableDriver driver) {
    this.driver = driver;
 }
   public int getUsage() {
@@ -24,13 +24,13 @@ public class Usage{
   public void setUsage(int usage) {
    this.usage = usage;
 }
-  public org.openl.generated.beans.Vehicle getVehicle() {
+  public org.openl.generated.beans.InsurableVehicle getVehicle() {
    return vehicle;
 }
-  public void setVehicle(org.openl.generated.beans.Vehicle vehicle) {
+  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
    this.vehicle = vehicle;
 }
-  public org.openl.generated.beans.Driver getDriver() {
+  public org.openl.generated.beans.InsurableDriver getDriver() {
    return driver;
 }
 

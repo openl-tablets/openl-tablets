@@ -4,30 +4,30 @@
 
 package org.openl.generated.beans;
 
-import org.openl.generated.beans.Driver;
 import java.util.Vector;
-import org.openl.generated.beans.Vehicle;
+import org.openl.generated.beans.InsurableDriver;
+import org.openl.generated.beans.InsurableVehicle;
 
 public class VehiclePremiumCalculator{
-  private org.openl.generated.beans.Vehicle vehicle;
+  private org.openl.generated.beans.InsurableVehicle vehicle;
 
-  private org.openl.generated.beans.Driver designatedDriver;
+  private org.openl.generated.beans.InsurableDriver designatedDriver;
 
   private java.util.Vector discountsForDriver;
 
   private java.util.Vector discountsForVehicle;
 
 
-  public org.openl.generated.beans.Vehicle getVehicle() {
+  public org.openl.generated.beans.InsurableVehicle getVehicle() {
    return vehicle;
 }
-  public void setVehicle(org.openl.generated.beans.Vehicle vehicle) {
+  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
    this.vehicle = vehicle;
 }
-  public org.openl.generated.beans.Driver getDesignatedDriver() {
+  public org.openl.generated.beans.InsurableDriver getDesignatedDriver() {
    return designatedDriver;
 }
-  public void setDesignatedDriver(org.openl.generated.beans.Driver designatedDriver) {
+  public void setDesignatedDriver(org.openl.generated.beans.InsurableDriver designatedDriver) {
    this.designatedDriver = designatedDriver;
 }
   public java.util.Vector getDiscountsForDriver() {
