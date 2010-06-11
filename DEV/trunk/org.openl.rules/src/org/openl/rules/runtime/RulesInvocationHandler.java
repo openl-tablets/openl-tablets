@@ -3,6 +3,7 @@ package org.openl.rules.runtime;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.runtime.AEngineFactory;
@@ -25,7 +26,7 @@ public class RulesInvocationHandler extends OpenLInvocationHandler implements IR
         IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext) getRuntimeEnv().getContext();
 
         if (runtimeContext == null) {
-            runtimeContext = IRulesRuntimeContext.EMPTY_CONTEXT;
+            runtimeContext = new DefaultRulesRuntimeContext();
         }
 
         return (IRulesRuntimeContext) runtimeContext;
