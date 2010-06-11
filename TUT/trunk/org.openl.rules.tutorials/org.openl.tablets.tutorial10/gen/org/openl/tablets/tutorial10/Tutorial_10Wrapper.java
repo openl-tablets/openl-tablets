@@ -32,11 +32,11 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
 
   public static java.lang.String __userHome = ".";
 
-  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      environment.setContext(new org.openl.rules.context.DefaultRulesRuntimeContext());
       return environment;
     }
   };
@@ -194,6 +194,26 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
   }
 
 
+  static org.openl.types.IOpenMethod getPriceForOrder_Method;
+  public org.openl.meta.DoubleValue getPriceForOrder(org.openl.tablets.tutorial10.domain.Car car, int numberOfCars, org.openl.tablets.tutorial10.domain.Address billingAddress)  {
+    Object[] __params = new Object[3];
+    __params[0] = car;
+    __params[1] = new Integer(numberOfCars);
+    __params[2] = billingAddress;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = getPriceForOrder_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod getCarPrice2009TestTestAll_Method;
   public org.openl.rules.testmethod.TestResult getCarPrice2009TestTestAll()  {
     Object[] __params = new Object[0];
@@ -281,26 +301,6 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
   }
 
   }
-
-
-  static org.openl.types.IOpenMethod getPriceForOrder_Method;
-  public org.openl.meta.DoubleValue getPriceForOrder(org.openl.tablets.tutorial10.domain.Car car, int numberOfCars, org.openl.tablets.tutorial10.domain.Address billingAddress)  {
-    Object[] __params = new Object[3];
-    __params[0] = car;
-    __params[1] = new Integer(numberOfCars);
-    __params[2] = billingAddress;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = getPriceForOrder_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.meta.DoubleValue)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
   static boolean __initialized = false;
 
   static public void reset(){__initialized = false;}
@@ -333,6 +333,10 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     testAddresses_Field = __class.getField("testAddresses");
     getPriceForOrderTestTestAll_Method = __class.getMatchingMethod("getPriceForOrderTestTestAll", new IOpenClass[] {
 });
+    getPriceForOrder_Method = __class.getMatchingMethod("getPriceForOrder", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Car.class),
+      OpenClassHelper.getOpenClass(__class, int.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Address.class)});
     getCarPrice2009TestTestAll_Method = __class.getMatchingMethod("getCarPrice2009TestTestAll", new IOpenClass[] {
 });
     getCarPrice_Method = __class.getMatchingMethod("getCarPrice", new IOpenClass[] {
@@ -345,10 +349,6 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       OpenClassHelper.getOpenClass(__class, int.class)});
     getDiscountPercentageTestTestAll_Method = __class.getMatchingMethod("getDiscountPercentageTestTestAll", new IOpenClass[] {
 });
-    getPriceForOrder_Method = __class.getMatchingMethod("getPriceForOrder", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Car.class),
-      OpenClassHelper.getOpenClass(__class, int.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Address.class)});
 
     __initialized=true;
   }
