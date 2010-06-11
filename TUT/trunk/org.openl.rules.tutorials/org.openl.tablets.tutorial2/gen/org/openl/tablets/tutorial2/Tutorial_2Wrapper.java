@@ -29,11 +29,11 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   public static java.lang.String __userHome = ".";
 
-  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      environment.setContext(new org.openl.rules.context.DefaultRulesRuntimeContext());
       return environment;
     }
   };
