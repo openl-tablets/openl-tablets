@@ -425,7 +425,7 @@ public class TableEditorModel {
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
 
-        if (!propIsBlank) {
+        if (!propIsBlank && !propExists) {
             IGridTable table = getUpdatedFullTable();
             int tableWidth = table.getGridWidth();
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
@@ -440,8 +440,7 @@ public class TableEditorModel {
                     nRowsToInsert);
             allTable.doAction(wgrid(), undoGrid);
             createdActions.add(allTable);
-            GridRegionAction displayedTable;
-            displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT,
+            GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT,
                     isBusinessView() ? ActionType.MOVE : ActionType.EXPAND, nRowsToInsert);
             displayedTable.doAction(wgrid(), undoGrid);
             createdActions.add(displayedTable);
