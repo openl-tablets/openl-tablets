@@ -13,17 +13,19 @@ public class XlsCellDateWriter extends AXlsCellWriter{
         super(xlsSheetGridModel);
     }
 
-    public void writeCellValue() {        
+    public void writeCellValue(boolean writeMetaInfo) {        
         Date dateValue = (Date) getValueToWrite();
         getCellToWrite().setCellValue(dateValue);
-        
+
         CellStyle previousStyle = getCellToWrite().getCellStyle();
         getCellToWrite().setCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook().createCellStyle());
         getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);
         getCellToWrite().getCellStyle().setDataFormat((short) BuiltinFormats
                 .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
-        
-        setMetaInfo(Date.class);        
+
+        if (writeMetaInfo) {
+            setMetaInfo(Date.class);
+        }
     }
-    
+
 }

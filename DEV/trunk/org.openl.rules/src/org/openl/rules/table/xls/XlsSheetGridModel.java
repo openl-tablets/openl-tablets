@@ -23,6 +23,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.domain.EnumDomain;
+import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -45,6 +47,7 @@ import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
 import org.openl.rules.table.xls.writers.XlsCellFormulaWriter;
 import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.rules.table.xls.writers.XlsCellStringWriter;
+import org.openl.types.IOpenClass;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
 
@@ -709,17 +712,44 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void setCellValue(int col, int row, Object value) {        
+        Cell xlsCell = getOrCreateXlsCell(col, row);
         if (value != null) {
-            Cell cell = getOrCreateXlsCell(col, row);
-            
-            AXlsCellWriter cellWriter = getCellWriter(cell, value);
-            cellWriter.setCellToWrite(cell);
+            boolean writeCellMetaInfo = true;
+
+            // Don't write meta info for predefined String arrays to avoid removing Enum Domain meta info.
+            if (hasPredefinedStringArray(col, row)) {
+                writeCellMetaInfo = false;
+            }
+
+            AXlsCellWriter cellWriter = getCellWriter(xlsCell, value);
+            cellWriter.setCellToWrite(xlsCell);
             cellWriter.setValueToWrite(value);
-            cellWriter.writeCellValue();
-        }else{
-            Cell cell = getOrCreateXlsCell(col, row);
-            cell.setCellType(CELL_TYPE_BLANK);
+            cellWriter.writeCellValue(writeCellMetaInfo);
+        } else {
+            xlsCell.setCellType(CELL_TYPE_BLANK);
         }
+    }
+
+    /**
+     * @deprecated
+     */
+    private boolean hasPredefinedStringArray(int col, int row) {
+        boolean result = false;
+
+        ICell cell = getCell(col, row);
+        if (cell != null) {
+            CellMetaInfo cellMetaInfo = cell.getMetaInfo();
+            IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
+            if (dataType != null) {
+                IDomain<?> domain = dataType.getDomain();
+                Class<?> instanceClass = dataType.getInstanceClass();
+                if (instanceClass == String.class
+                        && domain instanceof EnumDomain<?>) {
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
     private AXlsCellWriter getCellWriter(Cell cell, Object value) {

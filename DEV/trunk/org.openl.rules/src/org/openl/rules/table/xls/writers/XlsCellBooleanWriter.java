@@ -9,10 +9,12 @@ public class XlsCellBooleanWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue() {        
+    public void writeCellValue(boolean writeMetaInfo) {        
         Boolean boolValue = (Boolean) getValueToWrite();
         getCellToWrite().setCellValue(boolValue.booleanValue());        
-        
-        setMetaInfo(Boolean.class);
+
+        if (writeMetaInfo) {
+            setMetaInfo(Boolean.class);
+        }
     }
 }
