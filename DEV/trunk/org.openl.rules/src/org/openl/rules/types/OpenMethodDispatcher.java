@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
-import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -137,7 +137,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         if (context == null) {
             //Using empty context: all methods will be matched by properties.
-            context = IRulesRuntimeContext.EMPTY_CONTEXT;
+            context = new DefaultRulesRuntimeContext();
         }
 
         // Get matching method.

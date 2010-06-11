@@ -7,6 +7,7 @@ package org.openl.rules.engine;
 import org.junit.Ignore;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
@@ -38,7 +39,7 @@ public class TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);
+      environment.setContext(new DefaultRulesRuntimeContext());
       return environment;
     }
   };

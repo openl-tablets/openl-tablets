@@ -135,7 +135,7 @@ public class JavaWrapperGenerator {
            .append("    @Override\n")
            .append("    protected org.openl.vm.IRuntimeEnv initialValue() {\n")
            .append("      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();\n")
-           .append("      environment.setContext(org.openl.rules.context.IRulesRuntimeContext.EMPTY_CONTEXT);\n")
+           .append("      environment.setContext(new org.openl.rules.context.DefaultRulesRuntimeContext());\n")
            .append("      return environment;\n")
            .append("    }\n")
            .append("  };\n\n");
@@ -303,7 +303,7 @@ public class JavaWrapperGenerator {
                 initBuf.append(",\n");
             }
 
-            IOpenClass param = params[i];
+//            IOpenClass param = params[i];
             initBuf.append("      OpenClassHelper.getOpenClass(__class, ")
             .append(getClassName(params[i].getInstanceClass()))
             .append(".class)");
