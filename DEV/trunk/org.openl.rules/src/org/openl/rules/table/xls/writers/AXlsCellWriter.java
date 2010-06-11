@@ -56,7 +56,7 @@ public abstract class AXlsCellWriter {
         return strValue;
     }
 
-    public abstract void writeCellValue();    
+    public abstract void writeCellValue(boolean writeMetaInfo);
 
     protected void setMetaInfo(Class<?> valueClass, boolean multiValue) {
         // We need to set cell meta info for the cell, to open appropriate editor for it on UI.

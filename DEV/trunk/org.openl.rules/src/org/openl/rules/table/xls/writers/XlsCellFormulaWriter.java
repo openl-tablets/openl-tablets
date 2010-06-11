@@ -9,10 +9,12 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue() {
+    public void writeCellValue(boolean writeMetaInfo) {
         getCellToWrite().setCellFormula(getStringValue().replaceFirst("=", ""));
-        
-        setMetaInfo(String.class);
+
+        if (writeMetaInfo) {
+            setMetaInfo(String.class);
+        }
     }
 
 }

@@ -9,12 +9,14 @@ public class XlsCellNumberWriter extends AXlsCellWriter{
     }
 
     @Override
-    public void writeCellValue() {
+    public void writeCellValue(boolean writeMetaInfo) {
         Number numberValue = (Number) getValueToWrite();
         getCellToWrite().setCellValue(numberValue.doubleValue());
 
-        // we need to set cell meta info for the cell, to open appropriate editor for it on UI.
-        setMetaInfo(numberValue.getClass());
+        if (writeMetaInfo) {
+            // We need to set cell meta info for the cell, to open appropriate editor for it on UI.
+            setMetaInfo(numberValue.getClass());
+        }
     }
 
 }
