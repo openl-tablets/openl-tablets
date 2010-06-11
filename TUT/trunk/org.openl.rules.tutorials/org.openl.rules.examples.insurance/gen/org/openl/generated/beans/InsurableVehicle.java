@@ -6,7 +6,7 @@ package org.openl.generated.beans;
 
 import java.lang.String;
 
-public class Vehicle{
+public class InsurableVehicle{
   private int yearlyMileage;
 
   private boolean hasAbs;
