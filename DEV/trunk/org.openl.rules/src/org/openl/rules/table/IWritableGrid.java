@@ -202,7 +202,6 @@ public interface IWritableGrid extends IGrid {
         /**
          * @return null if set new property with empty or same value
          */
-
         public static IUndoableGridAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
                 IWritableGrid wgrid, String newPropName, String newPropValue) {
             if (StringUtils.isBlank(newPropValue)) {
