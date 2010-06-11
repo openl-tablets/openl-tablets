@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.AGridTableDelegator;
+import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
@@ -419,7 +420,11 @@ public class TableEditorModel {
         int nRowsToInsert = 0;
         int nColsToInsert = 0;
 
+        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, wgrid(), name);
+
+        boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
+
         if (!propIsBlank) {
             IGridTable table = getUpdatedFullTable();
             int tableWidth = table.getGridWidth();
@@ -440,12 +445,13 @@ public class TableEditorModel {
                     isBusinessView() ? ActionType.MOVE : ActionType.EXPAND, nRowsToInsert);
             displayedTable.doAction(wgrid(), undoGrid);
             createdActions.add(displayedTable);
+        } else if (propIsBlank && propExists) {
+            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
+            return;
         }
 
-        if (propIsBlank) {return;}
-        
         IUndoableGridAction action = IWritableGrid.Tool
-            .insertProp(fullTableRegion, displayedTableRegion, wgrid(), name, value); // returns null if set new property with empty or same value
+            .insertProp(fullTableRegion, displayedTableRegion, wgrid(), name, value);
         if (action != null) {
             action.doAction(wgrid(), undoGrid);
             createdActions.add(action);
