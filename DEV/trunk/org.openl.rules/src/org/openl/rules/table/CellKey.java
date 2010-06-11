@@ -8,17 +8,13 @@ package org.openl.rules.table;
  *
  */
 public class CellKey {
-    private int col, row;
+
+    private int col;
+    private int row;
 
     public CellKey(int col, int row) {
         this.col = col;
         this.row = row;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        CellKey k = (CellKey) obj;
-        return col == k.col && row == k.row;
     }
 
     public int getColumn() {
@@ -33,4 +29,16 @@ public class CellKey {
     public int hashCode() {
         return col * 37 + row;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        CellKey k = (CellKey) obj;
+        return col == k.col && row == k.row;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("row: %d, col: %d", row, col);
+    }
+
 }
