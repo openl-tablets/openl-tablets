@@ -180,16 +180,17 @@ public interface IWritableGrid extends IGrid {
             int left = region.getLeft();
             int top = region.getTop();
 
-            String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
+            ICell propsHeaderCell = wgrid.getCell(left, top + 1);
+            String propsHeader = propsHeaderCell.getStringValue();
             if (propsHeader == null || !propsHeader.equals(PROPERTIES_SECTION_NAME)) {
-                // there is no properties
+                // There is no properties
                 return null;
             }
-            int propsCount = wgrid.getCell(left, top + 1).getHeight();
+            int propsCount = propsHeaderCell.getHeight();
 
             for (int i = 0; i < propsCount; i++) {
-
-                String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
+                ICell propNameCell = wgrid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
+                String pName = propNameCell.getStringValue();
 
                 if (pName != null && pName.equals(propName)) {
                     return new CellKey(1, 1 + i);
