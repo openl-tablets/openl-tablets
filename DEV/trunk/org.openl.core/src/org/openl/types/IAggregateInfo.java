@@ -13,19 +13,19 @@ import java.util.Iterator;
  *
  */
 public interface IAggregateInfo {
-    public IOpenClass getComponentType(IOpenClass aggregateType);
+    IOpenClass getComponentType(IOpenClass aggregateType);
 
     /**
      * @return index interface if aggregate is indexable
      */
-    public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType);
+    IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType);
 
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims);
+    IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims);
 
-    public Iterator<Object> getIterator(Object aggregate);
+    Iterator<Object> getIterator(Object aggregate);
 
-    public boolean isAggregate(IOpenClass type);
+    boolean isAggregate(IOpenClass type);
 
-    public Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues);
+    Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues);
 
 }
