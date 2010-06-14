@@ -183,7 +183,13 @@ public class RepositoryTreeState {
 
     public void processSelection(NodeSelectedEvent event) {
         UITree tree = (UITree) event.getComponent();
-        selectedNode = (AbstractTreeNode) tree.getRowData();
+        
+        try {
+            selectedNode = (AbstractTreeNode) tree.getRowData();
+        } catch (IllegalStateException ex) {
+            // If nothing selected in tree then invalidate selection. 
+            selectedNode = getSelectedNode();
+        }
     }
 
     /**
