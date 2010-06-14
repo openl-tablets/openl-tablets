@@ -24,6 +24,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.ArrayOpenClass;
 
 import static org.openl.types.java.JavaOpenClass.*;
 
@@ -96,6 +97,10 @@ public class DomainTree {
     private static boolean isAppropriateProperty(IOpenField field) {
         return !field.isStatic() && !field.getType().isAbstract();
     }
+    
+    private boolean isArrayType(IOpenClass fieldType) {
+        return fieldType instanceof ArrayOpenClass;
+    }
 
     /**
      * Private constructor, it prevents direct instantiaion of the class.
@@ -105,6 +110,10 @@ public class DomainTree {
     }
 
     private boolean addType(IOpenClass type) {
+        if (isArrayType(type)) {
+            type = getComponentType(type);
+        }
+                
         String simpleTypeName = type.getDisplayName(INamedThing.SHORT);
 
         if (!treeElements.containsKey(simpleTypeName) && !ignoredTypes.contains(simpleTypeName)) {
@@ -129,6 +138,19 @@ public class DomainTree {
         }
 
         return false;
+    }
+
+    private IOpenClass getComponentType(IOpenClass type) {
+        IOpenClass result = null;
+        if (isArrayType(type)) {
+            IOpenClass componentType = ((ArrayOpenClass)type).getComponentClass();
+            if (componentType != null) {
+                result = componentType;
+            } else {
+                result = type;
+            }
+        } 
+        return result;
     }
 
     /**
