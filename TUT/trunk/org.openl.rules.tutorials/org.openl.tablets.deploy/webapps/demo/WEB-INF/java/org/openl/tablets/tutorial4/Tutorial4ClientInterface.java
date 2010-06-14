@@ -1,6 +1,5 @@
-package org.openl.rules.tablets.tutorial4.client;
+package org.openl.tablets.tutorial4;
 
-import org.openl.tablets.tutorial4.Driver;
 
 /**
  * Web app is supposed to call web service via an instance of this interface.

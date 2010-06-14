@@ -76,5 +76,12 @@ public class RulesPublisher {
     public synchronized void setRulesProjectResolver(RulesProjectResolver rulesProjectResolver) {
         this.rulesProjectResolver = rulesProjectResolver;
     }
-    
+
+    public ServiceNameBuilder getServiceNameBuilder() {
+        return serviceNameBuilder;
+    }
+
+    public void setServiceNameBuilder(ServiceNameBuilder serviceNameBuilder) {
+        this.serviceNameBuilder = serviceNameBuilder;
+    }
 }

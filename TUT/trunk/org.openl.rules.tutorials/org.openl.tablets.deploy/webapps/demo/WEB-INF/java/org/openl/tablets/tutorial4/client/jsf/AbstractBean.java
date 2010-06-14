@@ -1,8 +1,8 @@
-package org.openl.rules.tablets.tutorial4.client.jsf;
+package org.openl.tablets.tutorial4.client.jsf;
 
-import org.openl.rules.tablets.tutorial4.client.WebServiceTemplate;
-import org.openl.rules.tablets.tutorial4.client.WebServiceCallback;
-import org.openl.rules.tablets.tutorial4.client.Tutorial4ClientInterface;
+import org.openl.tablets.tutorial4.Tutorial4ClientInterface;
+import org.openl.tablets.tutorial4.client.WebServiceCallback;
+import org.openl.tablets.tutorial4.client.WebServiceTemplate;
 
 import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;

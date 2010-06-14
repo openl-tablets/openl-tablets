@@ -1,7 +1,8 @@
-package org.openl.rules.tablets.tutorial4.client;
+package org.openl.tablets.tutorial4.client;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.openl.tablets.tutorial4.Tutorial4ClientInterface;
 
 import java.io.IOException;
 import java.io.InputStream;

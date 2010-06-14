@@ -21,8 +21,8 @@ import org.openl.rules.workspace.production.client.JcrRulesClient;
  * @author Sergey Zyrianov
  *
  */
-public class RulesLoaderJcr implements RulesLoader, RDeploymentListener {
-    private static final Log LOG = LogFactory.getLog(RulesLoaderJcr.class);
+public class JcrRulesLoader implements RulesLoader, RDeploymentListener {
+    private static final Log LOG = LogFactory.getLog(JcrRulesLoader.class);
 
     private JcrRulesClient rulesClient;
     private String folderToLoadIn;
@@ -32,15 +32,24 @@ public class RulesLoaderJcr implements RulesLoader, RDeploymentListener {
 
     private ArrayList<LoadingListener> loadingListeners = new ArrayList<LoadingListener>();
 
-    public RulesLoaderJcr(JcrRulesClient jcrRulesClient) throws RRepositoryException {
+    public JcrRulesLoader(JcrRulesClient jcrRulesClient) throws RRepositoryException {
         setRulesClient(jcrRulesClient);
+        getFolderToLoadDeploymentsIn();
     }
     
-    public RulesLoaderJcr(JcrRulesClient jcrRulesClient, String theFolderToLoadIn) throws RRepositoryException {
+    public JcrRulesLoader(JcrRulesClient jcrRulesClient, String theFolderToLoadIn) throws RRepositoryException {
         setRulesClient(jcrRulesClient);
         folderToLoadIn = theFolderToLoadIn;
     }
     
+    public DeploymentsToLoadManager getDeploymentsToLoadManager() {
+        return deploymentsToLoadManager;
+    }
+
+    public void setDeploymentsToLoadManager(DeploymentsToLoadManager deploymentsToLoadManager) {
+        this.deploymentsToLoadManager = deploymentsToLoadManager;
+    }
+
     public void projectsAdded() {
         loadRules();
     }
@@ -108,13 +117,13 @@ public class RulesLoaderJcr implements RulesLoader, RDeploymentListener {
     }
 
     private String getDeploymentFolderName(DeploymentInfo di) {
-        return String.format("%s#%s", di.getName(), di.getVersion().getVersionName());
+        return String.format("%s_v%s", di.getName(), di.getVersion().getVersionName());
     }
 
     private void setRulesClient(JcrRulesClient rulesJcrClient) throws RRepositoryException {
         rulesClient = rulesJcrClient;
         
-        final RulesLoaderJcr loader = this;
+        final JcrRulesLoader loader = this;
         
         // Subscribe to deployment update notifications from JCR and properly disconnect on shutdown
         rulesClient.addListener(loader);

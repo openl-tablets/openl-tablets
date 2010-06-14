@@ -6,7 +6,7 @@
 <faces-config>
     <managed-bean>
         <managed-bean-name>wsbean</managed-bean-name>
-        <managed-bean-class>org.openl.rules.tablets.tutorial4.client.jsf.WSBean</managed-bean-class>
+        <managed-bean-class>org.openl.tablets.tutorial4.client.jsf.WSBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 </faces-config>
