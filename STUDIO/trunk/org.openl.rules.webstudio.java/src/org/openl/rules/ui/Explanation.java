@@ -98,9 +98,7 @@ public class Explanation {
     }
 
     public String expandValue(DoubleValue value) {
-        String text = value.printValue();
-
-        // String url = findUrl(value, parentUrl);
+        String text = String.valueOf(value.getValue());
 
         String name = getName(value);
 
@@ -118,16 +116,6 @@ public class Explanation {
         int id = explanator.getUniqueId(value);
 
         return HTMLHelper.urlLink(makeExpandUrl(id), name == null ? "expand" : name, text, null);
-
-        // if (isExpandable(value))
-        // {
-        // int id = getUniqueId(value);
-        // return urlLink(makeExpandUrl(id), "expand", text);
-        // } else
-        // {
-        // return urlLink(makeUrl(url), name, text);
-        // }
-
     }
 
     public String findUrl(DoubleValue value, String parentUrl) {
@@ -163,7 +151,7 @@ public class Explanation {
     }
 
     public String[] htmlTable(DoubleValue value) {
-        String text = value.printValue();
+        String text = String.valueOf(value.getValue());
         String url = findUrl(value, null);
         IMetaInfo mi = value.getMetaInfo();
         String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
