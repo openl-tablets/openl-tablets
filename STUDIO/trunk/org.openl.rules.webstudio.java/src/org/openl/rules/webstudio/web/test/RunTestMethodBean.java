@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -133,15 +131,6 @@ public class RunTestMethodBean {
             return (DoubleValue) result;
         }
         return null;
-    }
-
-    public String getFormattedDoubleValueResult() {
-        DoubleValue doubleValueResult = getDoubleValueResult();
-        if (doubleValueResult != null) {
-            NumberFormat format = new DecimalFormat(doubleValueResult.getFormat());
-            return format.format(doubleValueResult);
-        }
-        return StringUtils.EMPTY;
     }
 
     public int getExplanatorId() {

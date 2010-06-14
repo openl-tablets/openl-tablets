@@ -64,7 +64,7 @@
                             <h:outputLink
                                 value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
                                 rendered="#{not empty runAllTestsBean.doubleValueExpected}">
-                                <h:outputText value="#{runAllTestsBean.doubleValueExpected}" />
+                                <h:outputText value="#{runAllTestsBean.doubleValueExpected.value}" />
                             </h:outputLink>
                         </td>
                         <td>
@@ -80,7 +80,7 @@
                                 <h:outputLink
                                     value="javascript: open_explain_win('?rootID=#{runAllTestsBean.resultExplanatorId}&amp;header=Explanation')"
                                     rendered="#{not empty runAllTestsBean.doubleValueResult}">
-                                    <h:outputText value="#{runAllTestsBean.doubleValueResult}" />
+                                    <h:outputText value="#{runAllTestsBean.doubleValueResult.value}" />
                                 </h:outputLink>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">

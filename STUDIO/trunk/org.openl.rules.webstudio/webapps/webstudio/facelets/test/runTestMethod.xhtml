@@ -33,7 +33,7 @@
                 <h:outputLink
                     value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
                     rendered="#{not empty runTestMethodBean.doubleValueResult}">
-                    <h:outputText value="#{runTestMethodBean.formattedDoubleValueResult}" />
+                    <h:outputText value="#{runTestMethodBean.doubleValueResult.value}" />
                 </h:outputLink>
                 <h:outputText rendered="#{not empty runTestMethodBean.spreadsheetResult}"
                     value="#{runTestMethodBean.formattedSpreadsheetResult}"
