@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.ruleservice.RuleService;
-import org.openl.rules.ruleservice.loader.RulesLoaderJcr;
+import org.openl.rules.ruleservice.loader.JcrRulesLoader;
 import org.openl.rules.ruleservice.publish.DeploymentListener;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
 import org.openl.rules.ruleservice.publish.JavaClassDeploymentAdmin;
@@ -98,7 +98,7 @@ public class RulesFrontendImpl extends RuleService implements RulesFrontend {
 
     private void init() {
         try {
-            loader = new RulesLoaderJcr(new JcrRulesClient());
+            loader = new JcrRulesLoader(new JcrRulesClient());
         } catch (RRepositoryException e) {
             LOG.error("Failed to intialize rules loader from JCR.", e);
         }

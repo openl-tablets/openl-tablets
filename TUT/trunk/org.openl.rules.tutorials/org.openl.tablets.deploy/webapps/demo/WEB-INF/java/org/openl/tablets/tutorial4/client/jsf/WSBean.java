@@ -1,7 +1,7 @@
-package org.openl.rules.tablets.tutorial4.client.jsf;
+package org.openl.tablets.tutorial4.client.jsf;
 
-import org.openl.rules.tablets.tutorial4.client.Tutorial4ClientInterface;
 import org.openl.tablets.tutorial4.Driver;
+import org.openl.tablets.tutorial4.Tutorial4ClientInterface;
 
 public class WSBean {
 	private String[] result;
