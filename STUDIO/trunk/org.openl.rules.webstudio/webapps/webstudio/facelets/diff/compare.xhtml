@@ -37,7 +37,7 @@
       <tr>
         <td valign="top">
 
-      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="editor1,editor2">
+      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="tableEditor1,tableEditor2">
         <input type="hidden" name="id" value=""  />
         <table>
           <tr>
@@ -63,15 +63,26 @@
           <tr>
             <td>
               <p />
-              <rules:tableEditor id="editor1" table="#{excelDiffController.table1}" mode="view" collapseProps="true" />
+              	<a4j:outputPanel ajaxRendered="true">
+           			<rules:tableEditor id="tableEditor1"
+           				table="#{excelDiffController.table1}" 
+           				mode="view" 
+           				collapseProps="true" />
+           		</a4j:outputPanel>
             </td>
             <td>
               <p />
-              <rules:tableEditor id="editor2" table="#{excelDiffController.table2}" mode="view" collapseProps="true"
-                filter="#{excelDiffController.filter2}" />
+              	<a4j:outputPanel ajaxRendered="true">
+	           		<rules:tableEditor id="tableEditor2"
+    	       			table="#{excelDiffController.table2}" 
+        	   			mode="view" 
+           				collapseProps="true"
+              			filter="#{excelDiffController.filter2}" />
+              	</a4j:outputPanel>
             </td>
           </tr>
         </table>
+
       </a4j:form>
       <br />
 

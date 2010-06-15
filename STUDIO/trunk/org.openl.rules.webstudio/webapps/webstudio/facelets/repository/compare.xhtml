@@ -107,15 +107,19 @@
                 <td>
                   <p />
                   <div style="width:450px; overflow-x:scroll">
+                  	<a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor1" table="#{repositoryDiffController.table1}" mode="view"
                       collapseProps="true" />
+                      </a4j:outputPanel>
                    </div>
                 </td>
                 <td>
                   <p />
                   <div style="width:450px; overflow-x:scroll">
+                  <a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor2" table="#{repositoryDiffController.table2}" mode="view"
                       collapseProps="true" filter="#{repositoryDiffController.filter2}" />
+					</a4j:outputPanel>                      
                   </div>
                 </td>
               </tr>
