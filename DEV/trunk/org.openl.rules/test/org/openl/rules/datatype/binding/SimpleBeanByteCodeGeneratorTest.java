@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-public class SimpleBeanGeneratorTest {
+public class SimpleBeanByteCodeGeneratorTest {
     
     private final String CLASS_NAMESPACE = "my.test";
     
