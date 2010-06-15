@@ -14,7 +14,9 @@ public class OpenClassHelper {
             Map<String, IOpenClass> internalTypes = moduleOpenClass.getTypes();
             if (classToFind.isArray()) {
                 IOpenClass componentType = findType(classToFind.getComponentType(), internalTypes);
-                result = componentType.getAggregateInfo().getIndexedAggregateType(componentType, 1);
+                if (componentType != null) {
+                    result = componentType.getAggregateInfo().getIndexedAggregateType(componentType, 1);
+                }
             } else {
                 result = findType(classToFind, internalTypes);
             }
@@ -31,6 +33,7 @@ public class OpenClassHelper {
         for (IOpenClass datatypeClass : internalTypes.values()) {
             if (classToFind.equals(datatypeClass.getInstanceClass())) {
                 result = datatypeClass;
+                break;
             }
         }
         return result;
