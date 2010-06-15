@@ -64,7 +64,7 @@
     </dependency>
 
 	<dependency>    
-    	<groupId>org.openl.rules</groupId>
+	  	<groupId>org.openl</groupId>
 	  	<artifactId>org.openl.test</artifactId>
 	</dependency>
   </dependencies>
