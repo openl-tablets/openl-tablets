@@ -87,8 +87,8 @@ public abstract class AEngineFactory {
                         // Cast method return type to appropriate OpenClass
                         // type.
                         //
-                        JavaOpenClass methodReturnType = JavaOpenClass.getOpenClass(interfaceMethod.getReturnType());
-
+                        IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass, interfaceMethod.getReturnType());
+                        
                         if (methodReturnType == rulesField.getType()) {
                             // If openClass's field type is equal to method
                             // return
