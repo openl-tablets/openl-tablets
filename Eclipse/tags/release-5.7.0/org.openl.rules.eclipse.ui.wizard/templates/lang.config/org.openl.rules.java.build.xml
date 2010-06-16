@@ -1,0 +1,61 @@
+<project default="build.org.openl.rules.java">
+
+<taskdef name="openl" classname="org.openl.conf.ant.AntOpenLTask"/>
+
+ <property file="OpenL.properties"/>
+
+ 
+ 
+ 
+
+<target name="build.org.openl.rules.java">
+
+ <property name="org.openl.rules.java.extends" value="org.openl.j"/>
+<!--
+   <echo message="Building org.openl.rules.java extension of ${org.openl.rules.java.extends}  "/>	
+--> 
+ 	<ant antfile="${org.openl.rules.java.extends}.build.xml" 
+ 	target="build.${org.openl.rules.java.extends}" 
+    dir="../lang.config"
+ 	/>	
+<!--
+      <echo message="imports=${org.openl.rules.java.project.imports}"/>
+--> 
+	<!--   	
+	   	classpath="${org.openl.rules.helpers.home}.jar"
+	-->	
+   <openl category="org.openl.rules.java" extendscategory="${org.openl.rules.java.extends}"
+      
+     description="This is org.openl.rules.java extension of a ${org.openl.rules.java.extends}"
+   	>
+
+  <libraries>
+  	<!--
+    <library namespace="org.openl.this">
+      <javalib classname="openl.tools.optional.Methods"/>
+    </library>
+
+    <library namespace="org.openl.operators">
+      <javalib classname="org.openl.types.science.Operators"/>
+    </library>
+-->
+	<library namespace="org.openl.this">
+		<javalib classname="org.openl.rules.helpers.RulesUtils"/>
+	</library>
+  </libraries>
+
+ 
+  <types>
+    <typelibrary namespace="org.openl.this">
+      <javaimport all="${org.openl.rules.java.project.imports}"/>
+      <javaimport all="org.openl.rules.helpers"/>
+    </typelibrary>
+  </types>
+    
+ </openl>
+ 	
+</target>
+
+
+
+</project>
