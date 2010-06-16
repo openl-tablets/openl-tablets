@@ -1,0 +1,25 @@
+<project default="copy_workspace" basedir="..">
+
+<property name="src_root" value=".."/>
+<property name="dst_root" value="/___DEV/SOURCEFORGE/dev/eclipse/workspace"/>
+<property name="dst_root1" value="/temp/ws-save"/>
+<property name="dst_root2" value="/___DEV/org.openl.dev_3.3/eclipse/workspace"/>
+	
+	
+<target name = "copy_workspace">
+	
+	<copy preservelastmodified="true" todir="${dst_root2}">
+		<fileset dir="${src_root}">
+			<exclude name="**/CVS/**" />
+			<exclude name="**/.metadata/**" />
+			<exclude name="**/bin/**/*.class" />
+			<exclude name="**/com.exigen.demo*/**" />
+			<exclude name="**/com.exigen.srp*/**" />
+			<include name="**/org.openl.*/**"/>
+		</fileset>
+	</copy>
+	
+</target>	
+	
+	
+</project>
