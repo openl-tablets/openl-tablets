@@ -1,0 +1,64 @@
+package org.openl.rules.context;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections.MapUtils;
+
+public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
+
+    private Map<String, Object> internalMap = new HashMap<String, Object>();
+
+    public void setValue(String name, Object value) {
+        internalMap.put(name, value);
+    }
+
+    public Object getValue(String name) {
+        return internalMap.get(name);
+    }
+
+    @Override
+    public synchronized String toString() {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(out);
+        MapUtils.verbosePrint(printStream, null, internalMap);
+
+        return out.toString();
+    }
+
+    // <<< INSERT >>>
+	public java.util.Date getCurrentDate() {
+		return (java.util.Date) internalMap.get("currentDate"); 
+	}
+	public void setCurrentDate(java.util.Date currentDate) {
+		internalMap.put("currentDate", currentDate);
+	}	
+	public java.lang.String getLob() {
+		return (java.lang.String) internalMap.get("lob"); 
+	}
+	public void setLob(java.lang.String lob) {
+		internalMap.put("lob", lob);
+	}	
+	public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum) internalMap.get("usRegion"); 
+	}
+	public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
+		internalMap.put("usRegion", usRegion);
+	}	
+	public org.openl.rules.enumeration.UsStatesEnum getUsState() {
+		return (org.openl.rules.enumeration.UsStatesEnum) internalMap.get("usState"); 
+	}
+	public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
+		internalMap.put("usState", usState);
+	}	
+	public org.openl.rules.enumeration.CountriesEnum getCountry() {
+		return (org.openl.rules.enumeration.CountriesEnum) internalMap.get("country"); 
+	}
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
+		internalMap.put("country", country);
+	}	
+	// <<< END INSERT >>>
+}
