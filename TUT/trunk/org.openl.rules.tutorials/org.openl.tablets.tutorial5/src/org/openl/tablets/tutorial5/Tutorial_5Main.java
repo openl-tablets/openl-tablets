@@ -80,6 +80,7 @@ public class Tutorial_5Main {
 		System.out.println("\n=======================\nBenchmarking " + m.getDisplayName(INamedThing.LONG));
 		BenchmarkInfo bi = benchmarkMethod(m, 3000);
 		System.out.println(bi);
+		System.out.println("Per Unit Tested: " + bi.runsunitsec() + " units/sec");
 	}
 	
 	
