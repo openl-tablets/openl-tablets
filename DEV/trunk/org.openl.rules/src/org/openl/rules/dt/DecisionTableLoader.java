@@ -91,6 +91,8 @@ public class DecisionTableLoader {
 
             try {
                 ILogicalTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
+                // System.out.println(TablePrinter.printGridTable(convertedTable.getGridTable()));
+
                 toParse = LogicalTableHelper.logicalTable(convertedTable.transpose());
                 tableBody = transposed;
             } catch (Exception e) {

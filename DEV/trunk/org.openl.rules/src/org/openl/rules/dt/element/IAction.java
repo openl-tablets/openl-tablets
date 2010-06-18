@@ -18,6 +18,6 @@ public interface IAction extends IDecisionRow {
             OpenL openl,
             ModuleOpenClass module,
             IBindingContextDelegator bindingContextDelegator,
-            RuleRow ruleRow) throws Exception;
+            RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception;
 
 }

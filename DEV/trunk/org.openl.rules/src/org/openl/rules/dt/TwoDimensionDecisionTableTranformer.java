@@ -13,11 +13,14 @@ import org.openl.rules.table.Point;
 public class TwoDimensionDecisionTableTranformer implements CoordinatesTransformer {
     private static final int CONDITION_HEADERS_HEIGHT = 4;
     private static final int HCONDITION_HEADERS_HEIGHT = 3;
-    private int conditionsCount;
+    private int conditionsWidth;
     private int hConditionsCount;
     private int lookupValuesTableHeight;
     private int lookupValuesTableWidth;
+    private int retTableWidth;
 
+    private int DT_HEADER_HEIGHT;
+    
     /**
      * @param conditionsCount Vertical conditions count.
      * @param hConditionsCount Horizontal conditions count.
@@ -27,11 +30,13 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      *            condition values width.
      */
     public TwoDimensionDecisionTableTranformer(int conditionsCount, int hConditionsCount, int lookupValuesTableHeight,
-            int lookupValuesTableWidth) {
-        this.conditionsCount = conditionsCount;
+            int lookupValuesTableWidth, int retTableWidth) {
+        this.conditionsWidth = conditionsCount;
         this.hConditionsCount = hConditionsCount;
         this.lookupValuesTableHeight = lookupValuesTableHeight;
         this.lookupValuesTableWidth = lookupValuesTableWidth;
+        this.retTableWidth = retTableWidth;
+        this.DT_HEADER_HEIGHT = CONDITION_HEADERS_HEIGHT+(hConditionsCount-1);
     }
 
     /**
@@ -39,21 +44,23 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      *            header).
      * @param lookupValuesTable The "values subtable"
      */
-    public TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable) {
+    public TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable, IGridTable retTable) {
         lookupValuesTableHeight = lookupValuesTable.getGridHeight();
         lookupValuesTableWidth = lookupValuesTable.getGridWidth();
-        this.conditionsCount = entireTable.getGridWidth() - lookupValuesTableWidth;
+        this.conditionsWidth = entireTable.getGridWidth() - lookupValuesTableWidth;
         this.hConditionsCount = entireTable.getGridHeight() - lookupValuesTableHeight - HCONDITION_HEADERS_HEIGHT;
+        this.retTableWidth = retTable.getGridWidth();
+        this.DT_HEADER_HEIGHT = CONDITION_HEADERS_HEIGHT+(hConditionsCount-1);
     }
 
     public Point calculateCoordinates(int column, int row) {
-        if (row < CONDITION_HEADERS_HEIGHT) {
+        if (row < DT_HEADER_HEIGHT) {
             return getCoordinatesFromConditionHeaders(column, row);
         }
-        if (column < conditionsCount) {
+        if (column < conditionsWidth) {
             return getCoordinatesFromConditionValues(column, row);
         }
-        if (column < conditionsCount + hConditionsCount) {
+        if (column < conditionsWidth + hConditionsCount) {
             return getCoordinatesFromHConditionValues(column, row);
         }
         return getCoordinatesFromLookupValues(column, row);
@@ -64,28 +71,28 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
     }
 
     private Point getCoordinatesFromConditionValues(int column, int row) {
-        int conditionValueIndex = (row - CONDITION_HEADERS_HEIGHT) % lookupValuesTableHeight;
-        return new Point(column, HCONDITION_HEADERS_HEIGHT + hConditionsCount + conditionValueIndex);
+        int conditionValueIndex = (row - DT_HEADER_HEIGHT) % lookupValuesTableHeight;
+        return new Point(column, DT_HEADER_HEIGHT + conditionValueIndex);
     }
 
     private Point getCoordinatesFromHConditionValues(int column, int row) {
-        int hConditionIndex = column - conditionsCount;
-        int hConditionValueIndex = (row - CONDITION_HEADERS_HEIGHT) / lookupValuesTableHeight;
-        return new Point(conditionsCount + hConditionValueIndex, HCONDITION_HEADERS_HEIGHT + hConditionIndex);
+        int hConditionIndex = column - conditionsWidth;
+        int hConditionValueIndex = (row - DT_HEADER_HEIGHT) / lookupValuesTableHeight * retTableWidth;
+        return new Point(conditionsWidth + hConditionValueIndex , HCONDITION_HEADERS_HEIGHT + hConditionIndex);
     }
 
     private Point getCoordinatesFromLookupValues(int column, int row) {
-        int conditionValueIndex = (row - CONDITION_HEADERS_HEIGHT) % lookupValuesTableHeight;
-        int hConditionValueIndex = (row - CONDITION_HEADERS_HEIGHT) / lookupValuesTableHeight;
-        return new Point(conditionsCount + hConditionValueIndex, HCONDITION_HEADERS_HEIGHT + hConditionsCount
+        int conditionValueIndex = (row - DT_HEADER_HEIGHT) % lookupValuesTableHeight;
+        int hConditionValueIndex = (row - DT_HEADER_HEIGHT) / lookupValuesTableHeight* retTableWidth;
+        return new Point(conditionsWidth + hConditionValueIndex + (column - conditionsWidth - hConditionsCount), HCONDITION_HEADERS_HEIGHT + hConditionsCount
                 + conditionValueIndex);
     }
 
     public int getHeight() {
-        return CONDITION_HEADERS_HEIGHT + lookupValuesTableWidth * lookupValuesTableHeight;
+        return DT_HEADER_HEIGHT + lookupValuesTableWidth / retTableWidth * lookupValuesTableHeight;
     }
 
     public int getWidth() {
-        return conditionsCount + hConditionsCount + 1;
+        return conditionsWidth + hConditionsCount + retTableWidth;
     }
 }

@@ -10,12 +10,14 @@ import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
@@ -338,10 +340,12 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
         }
 
         makeAlgorithm(evaluators);
+        
+        IBindingContextDelegator actionBindingContextDelegator = new ModuleBindingContext(bindingContextDelegator, (ModuleOpenClass)getRuleExecutionType(openl));
 
         for (int i = 0; i < actionRows.length; i++) {
             IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            actionRows[i].prepareAction(methodType, signature, openl, module, bindingContextDelegator, ruleRow);
+            actionRows[i].prepareAction(methodType, signature, openl, module, actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
         }
     }
 
@@ -380,5 +384,18 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
             }
         }
     }
+    
+    
+    IOpenClass ruleExecutionType;
+    
+    private synchronized IOpenClass getRuleExecutionType(OpenL openl)
+    {
+        if (ruleExecutionType == null)
+        {
+            ruleExecutionType = new DecisionTableDataType(this, null, getName()+ "Type", openl);
+        }    
+        return ruleExecutionType;
+    }
+    
 
 }
