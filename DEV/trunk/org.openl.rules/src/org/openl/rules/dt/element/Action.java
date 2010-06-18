@@ -4,6 +4,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -53,26 +54,31 @@ public class Action extends FunctionalRow implements IAction {
         return executeActionInternal(column, target, params, env);
     }
 
-    private Object executeActionInternal(int column, Object target, Object[] params, IRuntimeEnv env) {
+    private Object executeActionInternal(int ruleNum, Object target, Object[] params, IRuntimeEnv env) {
 
-        Object value = getParamValues()[column];
+        Object value = getParamValues()[ruleNum];
 
         if (value == null) {
             return null;
         }
-
-        return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
+        
+        RuleExecutionObject newTarget = new RuleExecutionObject(ruleExecutionType, target, ruleNum);
+        return getMethod().invoke(newTarget, mergeParams(target, params, env, (Object[]) value), env);
+//        return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
     }
 
+    IOpenClass ruleExecutionType;
+    
     public void prepareAction(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
             ModuleOpenClass module,
             IBindingContextDelegator bindingContextDelegator,
-            RuleRow ruleRow) throws Exception {
+            RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception {
 
         prepare(methodType, signature, openl, module, bindingContextDelegator, ruleRow);
-
+        this.ruleExecutionType = ruleExecutionType;
+        
         IParameterDeclaration[] params = getParams();
         CompositeMethod method = (CompositeMethod) getMethod();
         String code = method.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();

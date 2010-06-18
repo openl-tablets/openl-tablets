@@ -3,10 +3,48 @@
  */
 package org.openl.rules.helpers;
 
+import org.openl.rules.table.IGridTable;
+
 /**
  * @author snshor
  */
 public class TablePrinter {
+    
+    
+    static public String printGridTable(IGridTable gridTable)
+    {
+        return new TablePrinter(new GridTableAdaptor(gridTable), null, " ! ").print();
+    }
+    
+    
+    static class GridTableAdaptor implements ITableAdaptor
+    {
+        
+        IGridTable table;
+
+        public GridTableAdaptor(IGridTable gridTable) {
+            this.table = gridTable;
+        }
+
+        public Object get(int col, int row) {
+            return table.getCell(col, row).getStringValue();
+        }
+
+        public int height() {
+            return table.getGridHeight();
+        }
+
+        public int maxWidth() {
+            return table.getGridWidth();
+        }
+
+        public int width(int row) {
+            return table.getGridWidth();
+        }
+        
+    }
+    
+    
     static class StringArrayTableAdator implements ITableAdaptor {
         String[][] array;
 

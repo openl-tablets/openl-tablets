@@ -77,10 +77,30 @@ public class DecisionTableLookupConvertor {
             firstLookupGridColumn);
 
         IGridTable lookupValuesTable = new GridTable(lookupValuesRegion, grid);
-
+        
+        
+        // check lookupTable width is multiple of  RET column width
+        
+        if (retTable == null)
+        {
+            String message = "There must be one RET column in a lookup table";
+            throw new OpenLCompilationException(message);
+        }    
+        
+        int retTableWidth = retTable.getGridTable().getGridWidth();
+        int lookupTableWidth = lookupValuesTable.getGridWidth();
+        
+        boolean isMultiplier = lookupTableWidth/retTableWidth*retTableWidth == lookupTableWidth;
+        
+        if (!isMultiplier)
+        {
+            String message = String.format("The width of the lookup table(%d) is not a multiple of the RET width(%d)", lookupTableWidth, retTableWidth);
+            throw new OpenLCompilationException(message);            
+        }    
+        
 
         return new TransformedGridTable(table.getGridTable(), new TwoDimensionDecisionTableTranformer(table
-                .getGridTable(), lookupValuesTable)).asGridTable();
+                .getGridTable(), lookupValuesTable, retTable.getGridTable())).asGridTable();
     }
 
     private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
@@ -161,7 +181,7 @@ public class DecisionTableLookupConvertor {
                         DecisionTableColumnHeaders.RETURN.getHeaderKey()));
                 }
 
-                assertTableWidth(1, htable, DecisionTableColumnHeaders.RETURN.getHeaderKey());
+//                assertTableWidth(1, htable, DecisionTableColumnHeaders.RETURN.getHeaderKey());
                 retTable = htable;
                 continue;
             }
