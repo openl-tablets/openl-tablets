@@ -31,6 +31,7 @@
     <module>../org.openl.commons.web</module>
     <module>../org.openl.rules.webstudio.java</module>
     <module>../org.openl.rules.webstudio</module>
+	<module>../org.openl.rules.project</module>    
     <module>../org.openl.rules.security</module>
     <module>../org.openl.rules.security.standalone</module>
     <module>../org.openl.rules.diff</module>
