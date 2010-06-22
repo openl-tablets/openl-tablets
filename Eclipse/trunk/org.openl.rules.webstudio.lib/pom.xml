@@ -291,6 +291,12 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+	  <artifactId>xstream</artifactId>
+    </dependency>
+        
   </dependencies>
 
 </project>
