@@ -50,6 +50,20 @@ public class ProjectDescriptorManagerTest {
         assertEquals("path2", classpathEntry2.getPath());
     }
 
+    @Test(expected = ValidationException.class)
+    public void testReadDescriptor2() throws FileNotFoundException, ValidationException {
+
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        ProjectDescriptor descriptor = manager.readDescriptor("test/org/openl/rules/project/rules2.xml");
+    }
+
+    @Test(expected = ValidationException.class)
+    public void testReadDescriptor3() throws FileNotFoundException, ValidationException {
+
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        ProjectDescriptor descriptor = manager.readDescriptor("test/org/openl/rules/project/rules3.xml");
+    }
+
     @Test
     public void testWriteDescriptor1() throws IOException, ValidationException {
 
@@ -104,5 +118,53 @@ public class ProjectDescriptorManagerTest {
 
         assertEquals(expected, dest.toString());
     }
+    
+    @Test(expected = ValidationException.class)
+    public void testWriteDescriptor2() throws IOException, ValidationException {
 
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setId("id1");
+        descriptor.setName("name1");
+
+        Module module1 = new Module();
+        module1.setName("name1");
+        module1.setRulesRootPath(new PathEntry("path1"));
+        module1.setType(ModuleType.STATIC);
+        module1.setClassname("MyWrapper1");
+
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        ByteArrayOutputStream dest = new ByteArrayOutputStream();
+        manager.writeDescriptor(descriptor, dest);
+    }
+    
+    @Test(expected = ValidationException.class)
+    public void testWriteDescriptor3() throws IOException, ValidationException {
+
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setId("id1");
+        descriptor.setName("name1");
+
+        Module module1 = new Module();
+        module1.setName("name1");
+        module1.setRulesRootPath(new PathEntry("path1"));
+        module1.setType(ModuleType.STATIC);
+
+        List<PathEntry> classpath = new ArrayList<PathEntry>();
+        PathEntry entry1 = new PathEntry("path1");
+
+        PathEntry entry2 = new PathEntry("path2");
+
+        classpath.add(entry1);
+        classpath.add(entry2);
+
+        descriptor.setClasspath(classpath);
+
+        List<Module> modules = new ArrayList<Module>();
+        modules.add(module1);
+
+        descriptor.setModules(modules);
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        ByteArrayOutputStream dest = new ByteArrayOutputStream();
+        manager.writeDescriptor(descriptor, dest);
+    }
 }
