@@ -93,14 +93,14 @@ if (rulesUserSession != null && !WebTool.isLocalRequest(request) && (session.get
 <frameset cols="*,79%" frameborder="yes" border="4">
 <frameset rows="*,1" border="0">
     <frame src="${pageContext.request.contextPath}/faces/facelets/tree.xhtml?nodeToOpen=<%=nodeToOpen%>" name="leftFrame" scrolling="auto">
-    <frame src="html/nothing.html" name="show_app_hidden">
+    <frame src="nothing.html" name="show_app_hidden">
 </frameset>
 
 <frameset rows="*,100" border="4">
 <%if (encodedTableUri != null) {%>
 <frame src="${pageContext.request.contextPath}/faces/facelets/tableeditor/showTable.xhtml?uri=<%=encodedTableUri%>" name="mainFrame" scrolling="auto"/>
 <%} else { %>
-<frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webresource/html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
+<frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webresource/home.html")%>" name="mainFrame" scrolling="auto"/>
 <%} %>
 
 <frame src="${pageContext.request.contextPath}/faces/facelets/footerPanel.xhtml" name="footerFrame" scrolling="auto" />

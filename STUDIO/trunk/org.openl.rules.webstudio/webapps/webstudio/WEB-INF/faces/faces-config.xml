@@ -405,7 +405,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>newTableCancel</from-outcome>
-      <to-view-id>/html/ws-intro.html</to-view-id>
+      <to-view-id>/home.html</to-view-id>
       <redirect/>
     </navigation-case>
   </navigation-rule>
