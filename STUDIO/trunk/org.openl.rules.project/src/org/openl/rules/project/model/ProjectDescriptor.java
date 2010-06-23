@@ -1,5 +1,6 @@
 package org.openl.rules.project.model;
 
+import java.io.File;
 import java.util.List;
 
 public class ProjectDescriptor {
@@ -7,8 +8,17 @@ public class ProjectDescriptor {
     private String id;
     private String name;
     private String comment;
+    private File projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
+
+    public File getProjectFolder() {
+        return projectFolder;
+    }
+
+    public void setProjectFolder(File projectRoot) {
+        this.projectFolder = projectRoot;
+    }
 
     public String getId() {
         return id;
