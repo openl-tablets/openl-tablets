@@ -296,7 +296,8 @@ public class RuleRowHelper {
             } catch (Throwable t) {
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(
                         null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
-                throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { exception });
+                throw exception;
+//                throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { exception });
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
