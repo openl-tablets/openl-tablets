@@ -371,6 +371,12 @@
       <artifactId>org.openl.rules.tomcat.lib</artifactId>
       <version>${openl.version.maven}</version>
     </dependency>
+	
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.project</artifactId>
+      <version>${openl.version.maven}</version>
+    </dependency>
 
     <!-- WSFrontend -->
     <dependency>
@@ -519,6 +525,13 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.tomcat.lib</artifactId>
       <classifier>sources</classifier>
+      <version>${openl.version.maven}</version>
+    </dependency>
+	
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.project</artifactId>
+	  <classifier>sources</classifier>
       <version>${openl.version.maven}</version>
     </dependency>
 
