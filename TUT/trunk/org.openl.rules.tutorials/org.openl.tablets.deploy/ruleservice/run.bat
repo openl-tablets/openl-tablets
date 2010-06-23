@@ -120,6 +120,7 @@ lib\org.openl.rules.webstudio.java_5.7.1.jar;^
 lib\org.openl.commons.web_5.7.1.jar;^
 lib\org.openl.rules.workspace_5.7.1.jar;^
 lib\org.openl.rules_5.7.1.jar;^
+lib\org.openl.rules.project_5.7.1.jar;^
 lib\oro-2.0.8.jar;^
 lib\persistence-api-1.0.jar;^
 lib\poi-3.6.jar;^
@@ -151,6 +152,7 @@ lib\wss4j-1.5.1.jar;^
 lib\wstx-asl-3.2.1.jar;^
 lib\xalan-2.7.0.jar;^
 lib\xercesImpl-2.8.1.jar;^
+lib\xstream-1.3.1.jar;^
 lib\xml-apis-1.3.03.jar;^
 lib\xmlbeans-2.3.0.jar;^
 lib\xml-resolver-1.2.jar;^
