@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.io.OutputStream;
+
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
 import org.openl.rules.project.model.validation.ValidationException;
@@ -35,6 +37,7 @@ public class ProjectDescriptorManager {
         FileInputStream inputStream = new FileInputStream(source);
 
         ProjectDescriptor descriptor = readDescriptor(inputStream);
+        postProcess(descriptor, source);
         validator.validate(descriptor);
 
         return descriptor;
@@ -47,4 +50,15 @@ public class ProjectDescriptorManager {
         String serializedObject = serializer.serialize(descriptor);
         dest.write(serializedObject.getBytes());
     }
+    
+    private void postProcess(ProjectDescriptor descriptor, File projectDescriptorFile) {
+        
+        File projectRoot = projectDescriptorFile.getParentFile();
+        descriptor.setProjectFolder(projectRoot);
+        
+        for (Module module : descriptor.getModules()) {
+            module.setProject(descriptor);
+        }
+    }
+
 }
