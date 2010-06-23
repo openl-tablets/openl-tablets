@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<toc label="Chapter 1: Introducing OpenL Web Studio">
+<topic label="What Is OpenL Web Studio?" href="WhatIsOpenLWebStudio.html"></topic>
+<topic label="Working with Projects in OpenL Web Studio" href="WorkingWithProjectsInOpenLWebStudio.html"></topic>
+<topic label="OpenL Web Studio Components" href="OpenLWebStudioComponents.html"></topic>
+<topic label="Security Overview" href="SecurityOverview.html"></topic>
+<topic label="User Perspectives" href="UserPerspectives.html"><topic label="Business User's Perspective" href="BusinessUserSPerspective.html"></topic>
+<topic label="Developer's Perspective" href="DeveloperSPerspective.html"></topic>
+</topic>
+</toc>
