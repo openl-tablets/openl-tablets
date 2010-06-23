@@ -7,6 +7,15 @@ public class Module {
     private ModuleType type;
     private String classname;
     private PathEntry rulesRootPath;
+    private ProjectDescriptor project;
+
+    public ProjectDescriptor getProject() {
+        return project;
+    }
+
+    public void setProject(ProjectDescriptor project) {
+        this.project = project;
+    }
 
     public String getName() {
         return name;
