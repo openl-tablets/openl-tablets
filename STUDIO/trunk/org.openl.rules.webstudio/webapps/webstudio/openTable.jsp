@@ -9,7 +9,7 @@
 
     final String TREE_PAGE = contextPath + "/faces/facelets/tree.xhtml";
     final String TABLE_PAGE = contextPath + "/faces/facelets/tableeditor/showTable.xhtml";
-    final String INTRO_PAGE = contextPath + "/html/ws-intro.html";
+    final String INTRO_PAGE = contextPath + "/home.html";
     final String FOOTER_PAGE = contextPath + "/faces/facelets/footerPanel.xhtml";
 
     String leftFramePageToOpen = TREE_PAGE;

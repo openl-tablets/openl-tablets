@@ -24,7 +24,7 @@
 <frameset cols="*,<%=relwidth%>%" framespacing="0" frameborder="1" resize="resize"  scrolling="auto" >
 <frameset rows="*,1" framespacing="0" scrolling="auto" border="0">
     <frame src="<%=treejsp%>?<%=WebTool.listRequestParams(request, usedParams)%>" name="leftFrame" scrolling="auto">
-    <frame src="html/nothing.html" name="show_app_hidden">
+    <frame src="nothing.html" name="show_app_hidden">
 </frameset>    
 <frame src="<%=mainjsp%>?<%=WebTool.listRequestParams(request, usedParams)%>" name="<%=mainframe%>" scrolling="auto">
 </frameset>
