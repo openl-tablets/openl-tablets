@@ -144,8 +144,8 @@
                       <a href="#{contextPath}/main.jsp?reload=forced&amp;select_wrapper=#{headerBean.selectedProject}"
                           title="Refresh Project with dependencies" target="top"><img border='0'
                           src="#{contextPath}/webresource/images/forced_refresh.png" alt="Refresh Project(s)"/></a>
-                      <a target="mainFrame" href="#{contextPath}/home.html" title="Help"><img border='0'
-                          src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
+                      <a href="#" onclick="window.open('#{contextPath}/help/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                         title="Help"><img border='0' src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
                       <c:if test="#{not headerBean.hideLogout}">
                         <f:verbatim>&amp;nbsp;</f:verbatim>
                         <a target="top" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out"
