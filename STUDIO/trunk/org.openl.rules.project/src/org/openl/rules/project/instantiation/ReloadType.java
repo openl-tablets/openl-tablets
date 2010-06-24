@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.project.instantiation;
 
 /**
  * Type of reloading of WebStudio.

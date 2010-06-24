@@ -6,7 +6,7 @@ package org.openl.rules.ui.view;
 import org.openl.base.INamedThing;
 import org.openl.base.NamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 /**
@@ -38,10 +38,10 @@ public abstract class WebStudioViewMode extends NamedThing {
     /**
      * Gets display name.
      * 
-     * @param wrapper OpenL information wrapper
+     * @param module OpenL project module
      * @return display name
      */
-    public abstract String getDisplayName(OpenLWrapperInfo wrapper);
+    public abstract String getDisplayName(Module module);
 
     /**
      * Gets array of tree node builders.

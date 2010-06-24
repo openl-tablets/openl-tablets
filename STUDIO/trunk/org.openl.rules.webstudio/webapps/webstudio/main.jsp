@@ -4,6 +4,7 @@
 <%@page import="org.openl.rules.webstudio.web.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspace"%>
 <%@page import="org.openl.rules.ui.*"%>
+<%@page import="org.openl.rules.project.instantiation.ReloadType"%>
 <%@page import="org.openl.util.StringTool"%>
 <%@page import="java.util.*"%>
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>

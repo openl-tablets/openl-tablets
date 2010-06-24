@@ -262,6 +262,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.project</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons.web</artifactId>
         <version>${version}</version>

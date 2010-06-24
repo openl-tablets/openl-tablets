@@ -75,7 +75,7 @@ public class LocalUploadController {
                     return null;
                 }
 
-                List<File> projects = webStudio.getLocator().listOpenLFolders();
+                List<File> projects = webStudio.getProjectResolver().listOpenLFolders();
                 for (File f : projects) {
                     try {
                         if (!dtr.hasProject(f.getName())) {

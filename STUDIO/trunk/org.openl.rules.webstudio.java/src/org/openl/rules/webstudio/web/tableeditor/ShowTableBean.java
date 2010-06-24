@@ -186,7 +186,7 @@ public class ShowTableBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
 
-        CompiledOpenClass compiledOpenClass = model.getWrapper().getCompiledOpenClass();
+        CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
 
         List<OpenLMessage> messages = compiledOpenClass.getMessages();
         List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);

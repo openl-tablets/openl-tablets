@@ -1,11 +1,13 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
+import java.util.List;
+
 import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
-import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -19,18 +21,18 @@ public class HeaderBean {
     private boolean hideLogout;
 
     public SelectItem[] getProjects() throws IOException {
-        OpenLWrapperInfo[] wrappers = getWebStudio().getWrappers();
-        SelectItem[] selectItems = new SelectItem[wrappers.length];
-        for (int i = 0; i < wrappers.length; i++) {
-            selectItems[i] = new SelectItem(wrappers[i].getWrapperClassName(), wrappers[i].getDisplayName());
+        List<Module> modules = getWebStudio().getAllModules();
+        SelectItem[] selectItems = new SelectItem[modules.size()];
+        for (int i = 0; i < modules.size(); i++) {
+            selectItems[i] = new SelectItem(modules.get(i).getClassname(), modules.get(i).getName());
         }
         return selectItems;
     }
 
     public String getSelectedProject() {
-        OpenLWrapperInfo current = getWebStudio().getCurrentWrapper();
+        Module current = getWebStudio().getCurrentModule();
         if (current != null) {
-            return current.getWrapperClassName();
+            return current.getClassname();
         }
         return "";
     }
@@ -49,8 +51,8 @@ public class HeaderBean {
     }
 
     public boolean isProjectsExist() throws IOException {
-        OpenLWrapperInfo[] wrappers = getWebStudio().getWrappers();
-        return wrappers.length > 0;
+        List<Module> modules = getWebStudio().getAllModules();
+        return modules.size() > 0;
     }
 
     public boolean isRepositoryFailed() {

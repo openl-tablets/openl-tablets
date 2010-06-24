@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,12 +15,12 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 public class NavigationBean {
 
     private static class FoundResult {
-        OpenLWrapperInfo wrapperInfo;
+        Module moduleInfo;
         TableSyntaxNode syntaxNode;
 
-        private FoundResult(TableSyntaxNode syntaxNode, OpenLWrapperInfo wrapperInfo) {
+        private FoundResult(TableSyntaxNode syntaxNode, Module moduleInfo) {
             this.syntaxNode = syntaxNode;
-            this.wrapperInfo = wrapperInfo;
+            this.moduleInfo = moduleInfo;
         }
     }
 
@@ -32,13 +33,13 @@ public class NavigationBean {
         }
 
         try {
-            for (OpenLWrapperInfo w : webStudio.getWrappers()) {
+            for (Module m : webStudio.getAllModules()) {
                 try {
                     ProjectModel model = new ProjectModel(webStudio);
-                    model.setWrapperInfo(w);
+                    model.setModuleInfo(m);
                     TableSyntaxNode syntaxNode = model.findNode(parser);
                     if (syntaxNode != null) {
-                        return new FoundResult(syntaxNode, w);
+                        return new FoundResult(syntaxNode, m);
                     }
                 } catch (Exception e) {
                 }
@@ -55,13 +56,13 @@ public class NavigationBean {
         }
 
         try {
-            for (OpenLWrapperInfo w : webStudio.getWrappers()) {
+            for (Module m : webStudio.getAllModules()) {
                 try {
                     ProjectModel model = new ProjectModel(webStudio);
-                    model.setWrapperInfo(w);
+                    model.setModuleInfo(m);
                     TableSyntaxNode syntaxNode = model.findAnyTableNodeByLocation(parser);
                     if (syntaxNode != null) {
-                        return new FoundResult(syntaxNode, w);
+                        return new FoundResult(syntaxNode, m);
                     }
                 } catch (Exception e) {
                 }
@@ -92,7 +93,7 @@ public class NavigationBean {
         }
 
         try {
-            webStudio.setCurrentWrapper(res.wrapperInfo);
+            webStudio.setCurrentModule(res.moduleInfo);
         } catch (Exception e) {
             return false;
         }

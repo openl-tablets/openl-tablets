@@ -117,4 +117,11 @@ public class TreeIterator<N> extends AOpenIterator<N> {
         return result;
     }
 
+    public TreeAdaptor<N> getAdaptor() {
+        return adaptor;
+    }
+
+    public void setAdaptor(TreeAdaptor<N> adaptor) {
+        this.adaptor = adaptor;
+    }
 }

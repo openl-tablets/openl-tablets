@@ -38,7 +38,7 @@ public class FileTreeIterator extends TreeIterator<File> {
     }
 
     public FileTreeIterator(File root, int mode) {
-        super(root, new FileTreeAdaptor(), mode);
+        this(root, new FileTreeAdaptor(), mode);
     }
 
     public File nextFile() {

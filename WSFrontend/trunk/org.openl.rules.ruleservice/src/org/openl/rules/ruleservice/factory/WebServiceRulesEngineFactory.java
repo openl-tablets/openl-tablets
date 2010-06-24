@@ -46,7 +46,7 @@ public class WebServiceRulesEngineFactory extends ASourceCodeEngineFactory {
     public Object makeInstance() {
 
         try {
-            openClass = initializeOpenClass();
+            openClass = initializeOpenClass().getOpenClass();
             String className = openClass.getName();
             interfaceClass = RulesFactory.generateInterface(className, openClass, getDefaultUserClassLoader());
 

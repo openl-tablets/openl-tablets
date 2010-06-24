@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -563,6 +564,38 @@ public final class FileTool {
         String tmp = path.replace('/', File.separatorChar);
         tmp = tmp.replace(';', File.pathSeparatorChar);
         return tmp;
+    }
+
+    public static boolean containsFile(File f, String fname, boolean isDir) throws IOException {
+        File ff = new File(f.getCanonicalPath(), fname);
+        return ff.exists() && ff.isDirectory() == isDir;
+
+    }
+
+    public static boolean containsFileText(File dir, String fname, String content) throws IOException {
+        File f = new File(dir.getCanonicalPath(), fname);
+
+        FileReader fr = new FileReader(f);
+
+        BufferedReader br = new BufferedReader(fr);
+
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                if (line.indexOf(content) >= 0) {
+                    return true;
+                }
+            }
+            return false;
+
+        } finally {
+            br.close();
+            fr.close();
+        }
+
     }
 
 }

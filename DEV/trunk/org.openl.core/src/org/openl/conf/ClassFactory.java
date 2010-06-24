@@ -34,7 +34,7 @@ public class ClassFactory extends AConfigurationElement {
         } catch (ClassNotFoundException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (NoClassDefFoundError ex) {
-            Log.warn("Potential problem loading class: " + name, ex);
+            Log.debug("Potential problem loading class: " + name, ex);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (Throwable t) {
             Log.error("Error loading class: " + name, t);

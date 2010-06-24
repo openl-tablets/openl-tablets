@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Map;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.source.IOpenSourceCodeModule;
@@ -40,7 +41,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
     // These fields are initialized internally and can't be passed as a
     // parameter of constructor
-    protected IOpenClass openClass;
+    protected CompiledOpenClass compiledOpenClass;
     protected Map<Method, IOpenMember> methodMap;
 
     /**
@@ -128,14 +129,16 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
      * @return an abstraction of a "class".
      */
     public synchronized IOpenClass getOpenClass() {
-
-        if (openClass == null) {
-            openClass = initializeOpenClass();
-            // methodMap must be initialized with OpenClass it relates to
-            methodMap = makeMethodMap(engineInterface, openClass);
-        }
-
+        IOpenClass openClass = getCompiledOpenClass().getOpenClass();
+        methodMap = makeMethodMap(engineInterface, openClass);
         return openClass;
+    }
+
+    public synchronized CompiledOpenClass getCompiledOpenClass() {
+        if (compiledOpenClass == null) {
+            compiledOpenClass = initializeOpenClass();
+        }
+        return compiledOpenClass;
     }
 
     /**
@@ -143,7 +146,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
      * instance.
      */
     public void reset() {
-        openClass = null;
+        compiledOpenClass = null;
         methodMap = null;
     }
 

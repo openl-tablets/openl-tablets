@@ -9,7 +9,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.types.IOpenClass;
 
 public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
 
@@ -46,9 +45,9 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         return sourceCode;
     }
     
-    protected IOpenClass initializeOpenClass() {
+    protected CompiledOpenClass initializeOpenClass() {
         CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode());
-        return compiledOpenClass.getOpenClass();
+        return compiledOpenClass;
     }
 
 }

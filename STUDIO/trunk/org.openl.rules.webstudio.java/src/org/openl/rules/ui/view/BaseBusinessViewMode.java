@@ -3,8 +3,8 @@ package org.openl.rules.ui.view;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.ui.OpenLWrapperInfo;
 import org.openl.util.StringTool;
 
 public abstract class BaseBusinessViewMode extends WebStudioViewMode {
@@ -12,11 +12,11 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
     public static final String TYPE = "business";
 
     @Override
-    public String getDisplayName(OpenLWrapperInfo wrapper) {
+    public String getDisplayName(Module module) {
 
-        String displayName = wrapper.getDisplayName();
+        String displayName = module.getName();
 
-        if (displayName.equals(wrapper.getWrapperClassName())) {
+        if (displayName.equals(module.getClassname())) {
             displayName = StringTool.lastToken(displayName, ".");
         }
 
