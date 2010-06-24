@@ -17,7 +17,7 @@ import org.openl.util.OpenIterator;
  */
 public class FileTreeIterator extends TreeIterator<File> {
 
-    static class FileTreeAdaptor implements TreeIterator.TreeAdaptor<File> {
+    public static class FileTreeAdaptor implements TreeIterator.TreeAdaptor<File> {
 
         public Iterator<File> children(File f) {
             if (!f.isDirectory()) {
@@ -33,6 +33,10 @@ public class FileTreeIterator extends TreeIterator<File> {
      * @param adaptor
      * @param mode
      */
+    public FileTreeIterator(File root, FileTreeAdaptor adaptor, int mode) {
+        super(root, adaptor, mode);
+    }
+
     public FileTreeIterator(File root, int mode) {
         super(root, new FileTreeAdaptor(), mode);
     }
