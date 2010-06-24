@@ -1,8 +1,6 @@
 package org.openl.rules.ui;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,8 +9,8 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
-import org.openl.main.OpenLWrapper;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.ITableNodeTypes;
@@ -23,6 +21,12 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.resolving.ResolvingStrategy;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.search.IOpenLSearch;
 import org.openl.rules.search.ISearchTableRow;
 import org.openl.rules.search.OpenLAdvancedSearchResult;
@@ -82,9 +86,12 @@ import org.openl.vm.Tracer;
 
 public class ProjectModel {
 
-    private OpenLWrapper wrapper;
+    /**
+     * Compiled rules with errors. Representation of wrapper.
+     */
+    private CompiledOpenClass compiledOpenClass;
 
-    private OpenLWrapperInfo wrapperInfo;
+    private Module moduleInfo;
 
     private ProjectIndexer indexer;
 
@@ -143,16 +150,6 @@ public class ProjectModel {
         return parser.wbPath.equals(p2.wbPath) && parser.wbName.equals(p2.wbName);
     }
 
-    public static Object wrapperNewInstance(Class<?> c) throws Exception {
-        Constructor<?> ctr;
-        try {
-            ctr = c.getConstructor(new Class[] { boolean.class });
-            return ctr.newInstance(new Object[] { Boolean.TRUE });
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Using older version of OpenL Wrapper, please run Generate ... Wrapper");
-        }
-    }
-
     public BenchmarkInfo benchmarkElement(String elementUri, final String testName, String testID,
             final String testDescr, int ms) throws Exception {
 
@@ -167,7 +164,7 @@ public class ProjectModel {
         final int tid = Integer.parseInt(testID);
 
         final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        final Object target = wrapper.getOpenClass().newInstance(env);
+        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
         bu = new BenchmarkUnit() {
 
@@ -205,11 +202,11 @@ public class ProjectModel {
 
     public BenchmarkInfo benchmarkMethod(final IOpenMethod m, int ms) throws Exception {
         final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        final Object target = wrapper.getOpenClass().newInstance(env);
+        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(wrapper.getClass().getClassLoader());
+            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
 
             final Object[] params = {};
 
@@ -343,7 +340,7 @@ public class ProjectModel {
     }
 
     public List<TableSyntaxNode> getAllValidatedNodes() {
-        if (wrapper == null) {
+        if (compiledOpenClass == null) {
             return Collections.emptyList();
         }
         
@@ -494,7 +491,7 @@ public class ProjectModel {
 
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
 
-        IOpenClass openClass = wrapper.getOpenClass();
+        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         for (Iterator<IOpenMethod> iter = openClass.methods(); iter.hasNext();) {
 
@@ -799,7 +796,7 @@ public class ProjectModel {
 
     public AllTestsRunResult getAllTestMethods() {
         IOpenMethod[] testMethods = ProjectHelper.allTesters(
-                wrapper.getOpenClass());
+                compiledOpenClass.getOpenClassWithErrors());
 
         return getTestsRunner(testMethods);
     }
@@ -815,8 +812,8 @@ public class ProjectModel {
     }
 
     private XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
-        if (wrapper != null) {
-            TableSyntaxNode[] nodes = ((XlsMetaInfo) wrapper.getOpenClass().getMetaInfo()).getXlsModuleNode()
+        if (compiledOpenClass != null) {
+            TableSyntaxNode[] nodes = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
                     .getXlsTableSyntaxNodes();
             for (TableSyntaxNode node : nodes) {
                 if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
@@ -828,19 +825,19 @@ public class ProjectModel {
         return null;
     }
 
-    public OpenLWrapper getWrapper() {
-        return wrapper;
+    public CompiledOpenClass getCompiledOpenClass() {
+        return compiledOpenClass;
     }
 
     /**
      * @return Returns the wrapperInfo.
      */
-    public OpenLWrapperInfo getWrapperInfo() {
-        return wrapperInfo;
+    public Module getModuleInfo() {
+        return moduleInfo;
     }
 
     public XlsModuleSyntaxNode getXlsModuleNode() {
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
         return xsn;
     }
@@ -855,7 +852,7 @@ public class ProjectModel {
     }
 
     public boolean isReady() {
-        return wrapper != null;
+        return compiledOpenClass != null;
     }
 
     public boolean isRunnable(String elementUri) {
@@ -886,7 +883,7 @@ public class ProjectModel {
     }
 
     public synchronized void buildProjectTree() {
-        if (wrapper == null) {
+        if (compiledOpenClass == null) {
             return;
         }
 
@@ -992,7 +989,7 @@ public class ProjectModel {
 
     private ProjectTreeNode makeProjectTreeRoot() {
 
-        String name = studio.getMode().getDisplayName(wrapperInfo);
+        String name = studio.getMode().getDisplayName(moduleInfo);
 
         return new ProjectTreeNode(new String[] { name, name, name }, "root", null, null, 0, null);
     }
@@ -1012,11 +1009,8 @@ public class ProjectModel {
     }
     
     public void reset(ReloadType reloadType) throws Exception {
-        if (wrapperInfo != null) {
-            wrapperInfo.reset();
-            setWrapperInfo(wrapperInfo, reloadType);
-        } else if (wrapper != null) {
-            wrapper.reload();
+        if (moduleInfo != null) {
+            setModuleInfo(moduleInfo, reloadType);
         }
 
         savedSearches = null;
@@ -1052,7 +1046,7 @@ public class ProjectModel {
         int tid = Integer.parseInt(testID);
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        Object target = wrapper.getOpenClass().newInstance(env);
+        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
         try {
             Object res = atr.run(testName, tid, target, env, 1);
             return res;
@@ -1065,11 +1059,11 @@ public class ProjectModel {
 
     public Object runMethod(IOpenMethod m) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        Object target = wrapper.getOpenClass().newInstance(env);
+        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(wrapper.getClass().getClassLoader());
+            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
 
             Object res = null;
 
@@ -1110,62 +1104,36 @@ public class ProjectModel {
         this.readOnly = readOnly;
     }
 
-    public void setWrapper(OpenLWrapper wrapper) {
-        this.wrapper = wrapper;
+    public void setModuleInfo(Module moduleInfo) throws Exception {
+        setModuleInfo(moduleInfo, ReloadType.NO);
     }
 
-    public void setWrapperInfo(OpenLWrapperInfo wrapperInfo) throws Exception {
-        setWrapperInfo(wrapperInfo, ReloadType.NO);
-    }
-
-    public void setWrapperInfo(OpenLWrapperInfo wrapperInfo, ReloadType reloadType) throws Exception {
-        if (this.wrapperInfo == wrapperInfo && reloadType == ReloadType.NO) {
+    public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
+        if (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO) {
             return;
         }
+        
+        File projectFolder = moduleInfo.getProject().getProjectFolder();
+        if(reloadType == ReloadType.FORCED){
+            RulesProjectResolver projectResolver = studio.getProjectResolver();
+            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
+            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder, projectResolver.getProjectsTreeAdaptor()).getModuleByClassName(moduleInfo.getClassname());
+        }else{
+            this.moduleInfo = moduleInfo;
+        }
 
-        this.wrapperInfo = wrapperInfo;
-        indexer = new ProjectIndexer(wrapperInfo.getProjectInfo().projectHome());
-        Class<?> c = null;
-        ClassLoader cl = null;
-        wrapper = null;
+        indexer = new ProjectIndexer(projectFolder.getAbsolutePath());
+        compiledOpenClass = null;
         projectRoot = null;
         savedSearches = null;
-
+        
+        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(moduleInfo);
+        
         try {
-
-            cl = wrapperInfo.getProjectInfo().getClassLoader(this.getClass().getClassLoader(), reloadType == ReloadType.FORCED);
-
-            c = cl.loadClass(wrapperInfo.getWrapperClassName());
+            compiledOpenClass = instantiationStrategy.compile(reloadType);
         } catch (Throwable t) {
-            Log.error("Error instantiating wrapper", t);
-            return;
+            Log.error("Problem Loading OpenLWrapper", t);
         }
-
-        Field f = c.getField("__userHome");
-
-        if (Modifier.isStatic(f.getModifiers())) {
-            f.set(null, wrapperInfo.getProjectInfo().projectHome());
-        } else {
-            throw new RuntimeException("Field " + f.getName() + " is not static in " + c.getName());
-        }
-
-        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
-
-        try {
-            Thread.currentThread().setContextClassLoader(cl);
-            try {
-                wrapper = (OpenLWrapper) wrapperNewInstance(c);
-                if (reloadType != ReloadType.NO) {
-                    wrapper.reload();
-                }
-
-            } catch (Throwable t) {
-                Log.error("Problem Loading OpenLWrapper", t);
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(threadClassLoader);
-        }
-
     }
 
     public String showProperty(String elementUri, String propertyName) {
@@ -1222,10 +1190,10 @@ public class ProjectModel {
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(wrapper.getClass().getClassLoader());
+            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
             try {
                 IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-                Object target = wrapper.getOpenClass().newInstance(env);
+                Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
                 m.invoke(target, new Object[] {}, env);
             } finally {

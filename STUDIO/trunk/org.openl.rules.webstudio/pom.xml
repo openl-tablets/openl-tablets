@@ -29,6 +29,14 @@
         <configuration>
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
           <warName>${war.name}</warName>
+          <webResources>
+            <resource>
+              <directory>webapps</directory>
+              <includes>
+                <include>project-resolver-beans.xml</include>
+              </includes>
+            </resource>
+          </webResources>
           <packagingExcludes>
             WEB-INF/lib/poi-2.5.1-*.jar,
           </packagingExcludes>

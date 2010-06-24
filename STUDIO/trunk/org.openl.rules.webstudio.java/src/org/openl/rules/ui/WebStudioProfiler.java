@@ -3,6 +3,13 @@
  */
 package org.openl.rules.ui;
 
+import java.io.File;
+
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ResolvingStrategy;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -65,21 +72,26 @@ public class WebStudioProfiler extends Profiler.Unit {
         String wrapperClass = args[1];
         String methodName = args[2];
 
+        File projectFolder = new File(project);
         WebStudio studio = new WebStudio();
         String workspace = studio.getWorkspacePath();
 
-        OpenLWebProjectInfo pi = new OpenLWebProjectInfo(workspace, project);
-
-        OpenLWrapperInfo wrapper = new OpenLWrapperInfo(wrapperClass, pi);
-
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        projectResolver.setWorkspace(workspace);
+        ResolvingStrategy strategy = projectResolver.isRulesProject(projectFolder);
+        ProjectDescriptor projectDescriptor = strategy.resolveProject(projectFolder, projectResolver
+                .getProjectsTreeAdaptor());
+        Module module = projectDescriptor.getModuleByClassName(wrapperClass);
+        
+        
         ProjectModel model = new ProjectModel(studio);
 
-        model.setWrapperInfo(wrapper, ReloadType.NO);
+        model.setModuleInfo(module, ReloadType.NO);
 
-        Object instance = model.getWrapper().getInstance();
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        Object instance = model.getCompiledOpenClass().getOpenClassWithErrors().newInstance(env);
 
-        IOpenMethod m = model.getWrapper().getOpenClass().getMethod(methodName, null);
+        IOpenMethod m = model.getCompiledOpenClass().getOpenClass().getMethod(methodName, null);
 
         if (m == null) {
             throw new Exception("Method " + methodName + " not found");

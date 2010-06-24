@@ -38,7 +38,7 @@ public class WizardUtils {
     }
 
     public static IOpenClass getProjectOpenClass() {
-        return WebStudioUtils.getWebStudio().getModel().getWrapper().getOpenClass();
+        return WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClassWithErrors();
     }
 
     /**

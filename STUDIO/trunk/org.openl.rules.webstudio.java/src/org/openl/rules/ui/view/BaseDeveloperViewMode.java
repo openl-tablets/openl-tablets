@@ -2,7 +2,7 @@ package org.openl.rules.ui.view;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.project.model.Module;
 import org.openl.util.StringTool;
 
 public abstract class BaseDeveloperViewMode extends WebStudioViewMode {
@@ -10,14 +10,14 @@ public abstract class BaseDeveloperViewMode extends WebStudioViewMode {
     public static final String TYPE = "developer";
 
     @Override
-    public String getDisplayName(OpenLWrapperInfo wrapper) {
+    public String getDisplayName(Module module) {
 
-        String displayName = wrapper.getDisplayName();
+        String displayName = module.getName();
         
-        if (displayName.equals(wrapper.getWrapperClassName())) {
+        if (displayName.equals(module.getClassname())) {
             displayName = StringTool.lastToken(displayName, ".");
         }
-        return displayName + " (" + wrapper.getWrapperClassName() + ")";
+        return displayName + " (" + module.getClassname() + ")";
     }
 
     @Override

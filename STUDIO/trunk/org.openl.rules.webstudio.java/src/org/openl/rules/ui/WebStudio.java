@@ -8,6 +8,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ui.view.BaseBusinessViewMode;
 import org.openl.rules.ui.view.BaseDeveloperViewMode;
 import org.openl.rules.ui.view.BusinessViewMode1;
@@ -61,12 +65,12 @@ public class WebStudio {
     private List<StudioListener> listeners = new ArrayList<StudioListener>();
     private String tableUri;
     private ProjectModel model = new ProjectModel(this);
-    private OpenLProjectLocator locator;
-    private OpenLWrapperInfo[] wrappers = null;
+    private RulesProjectResolver projectResolver;
+    private List<Module> modules = null;
 
     private WebStudioViewMode mode = BUSINESS1_VIEW;
     private Set<String> writableProjects;
-    private OpenLWrapperInfo currentWrapper;
+    private Module currentModule;
     private boolean showFormulas;
     private boolean collapseProperties = true;
 
@@ -85,7 +89,8 @@ public class WebStudio {
         if (!initialized) {
             workspacePath = System.getProperty("openl.webstudio.home") == null ? ".." : System
                     .getProperty("openl.webstudio.home");
-            locator = new OpenLProjectLocator(workspacePath);
+            projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+            projectResolver.setWorkspace(workspacePath);
         }
     }
 
@@ -101,7 +106,8 @@ public class WebStudio {
 
     public WebStudio(String workspacePath) {
         this.workspacePath = workspacePath;
-        locator = new OpenLProjectLocator(workspacePath);
+        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        projectResolver.setWorkspace(workspacePath);
     }
 
     public void addBenchmark(BenchmarkInfo bi) {
@@ -160,9 +166,9 @@ public class WebStudio {
     }
 
     public UserWorkspaceProject getCurrentProject(HttpSession session) {
-        if (currentWrapper != null) {
+        if (currentModule != null) {
             try {
-                String projectName = currentWrapper.getProjectInfo().getName();
+                String projectName = currentModule.getProject().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
                 UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
                 return project;
@@ -180,19 +186,19 @@ public class WebStudio {
     /**
      * DOCUMENT ME!
      * 
-     * @return Returns the currentWrapper.
+     * @return Returns the current module.
      */
-    public OpenLWrapperInfo getCurrentWrapper() {
-        return currentWrapper;
+    public Module getCurrentModule() {
+        return currentModule;
     }
 
     /**
      * DOCUMENT ME!
      * 
-     * @return Returns the locator.
+     * @return Returns the RulesProjectResolver.
      */
-    public OpenLProjectLocator getLocator() {
-        return locator;
+    public RulesProjectResolver getProjectResolver() {
+        return projectResolver;
     }
 
     public WebStudioViewMode getMode() {
@@ -230,15 +236,20 @@ public class WebStudio {
     /**
      * DOCUMENT ME!
      * 
-     * @return Returns the wrappers.
+     * @return Returns the modules.
      * 
      * @throws IOException
      */
-    public synchronized OpenLWrapperInfo[] getWrappers() throws IOException {
-        if (wrappers == null) {
-            wrappers = locator.listOpenLProjects();
+    public synchronized List<Module> getAllModules() throws IOException {
+        if (modules == null) {
+            modules = new ArrayList<Module>();
+            for(ProjectDescriptor project: projectResolver.listOpenLProjects()){
+                if (project.getModules() != null) {
+                    modules.addAll(project.getModules());
+                }
+            }
         }
-        return wrappers;
+        return modules;
     }
 
     public boolean init(HttpSession session) {
@@ -266,7 +277,8 @@ public class WebStudio {
             }
         }
         setWritableProjects(writableProjects);
-        locator = new OpenLProjectLocator(workspacePath);
+        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        projectResolver.setWorkspace(workspacePath);
         return true;
     }
 
@@ -299,43 +311,41 @@ public class WebStudio {
     }
 
     public void select(String name) throws Exception {
-        OpenLWrapperInfo[] ww = getWrappers();
+        List<Module> modules = getAllModules();
         if (name == null) {
-            if (currentWrapper != null) {
+            if (currentModule != null) {
                 return;
             }
 
-            if (ww.length > 0) {
-                setCurrentWrapper(ww[0]);
+            if (modules.size() > 0) {
+                setCurrentModule(modules.get(0));
             }
             return;
         }
-        for (int i = 0; i < ww.length; i++) {
-            if (ww[i].getWrapperClassName().equals(name)) {
-                setCurrentWrapper(ww[i]);
+        for(Module module : modules){
+            if (module.getClassname().equals(name)) {
+                setCurrentModule(module);
                 return;
             }
         }
-        if (ww.length > 0) {
-            setCurrentWrapper(ww[0]);
+        if (modules.size() > 0) {
+            setCurrentModule(modules.get(0));
         }
-
     }
 
     /**
      * DOCUMENT ME!
      * 
-     * @param wrapper The currentWrapper to set.
+     * @param module The current module to set.
      * 
      * @throws Exception
      */
-    public void setCurrentWrapper(OpenLWrapperInfo wrapper) throws Exception {
-        if (currentWrapper != wrapper) {
-            model.setWrapperInfo(wrapper);
-            model.setReadOnly(!((writableProjects == null) || writableProjects.contains(wrapper.getProjectInfo()
-                    .getName())));
+    public void setCurrentModule(Module module) throws Exception {
+        if (currentModule != module) {
+            model.setModuleInfo(module);
+            model.setReadOnly(!((writableProjects == null) || writableProjects.contains(module.getProject().getName())));
         }
-        currentWrapper = wrapper;
+        currentModule = module;
         for (StudioListener listener : listeners) {
             listener.studioReset();
         }

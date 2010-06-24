@@ -45,7 +45,7 @@ public class ProblemsBean {
 
         if (studio.getCurrentProject() != null) {
             ProjectModel model = studio.getModel();
-            CompiledOpenClass compiledOpenClass = model.getWrapper().getCompiledOpenClass();
+            CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
 
             List<OpenLMessage> messages = compiledOpenClass.getMessages();
 
