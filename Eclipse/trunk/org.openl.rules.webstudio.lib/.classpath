@@ -22,7 +22,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-fileupload-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-validator-1.3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/concurrent-1.3.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dbunit-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/derby-10.2.1.6.jar"/>
@@ -62,6 +61,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/richfaces-api-3.3.2.SR1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/richfaces-impl-3.3.2.SR1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/richfaces-ui-3.3.2.SR1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/tomahawk12-1.1.9.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
