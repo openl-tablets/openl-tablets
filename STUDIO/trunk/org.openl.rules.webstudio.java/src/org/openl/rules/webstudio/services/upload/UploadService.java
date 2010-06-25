@@ -72,7 +72,7 @@ public class UploadService extends BaseUploadService {
             try {
                 zipFile = new ZipFile(tempFile);
             } catch (IOException e) {
-                throw new NotUnzippedFileException("File '" + params.getFile().getName()
+                throw new NotUnzippedFileException("File '" + params.getFile().getFileName()
                         + "' is not a ZIP or it is corrupted.");
             }
 
@@ -93,7 +93,7 @@ public class UploadService extends BaseUploadService {
             throw new ServiceException("Error creating project: " + e.getMessage(), e);
         }
 
-        String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
+        String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getFileName());
         File uploadDir = getFile(params, fileNameWithoutExt);
 
         // Sort zip entries names alphabetically

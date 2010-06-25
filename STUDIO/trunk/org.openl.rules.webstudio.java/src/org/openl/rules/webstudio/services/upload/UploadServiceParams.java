@@ -1,9 +1,8 @@
 package org.openl.rules.webstudio.services.upload;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.rules.webstudio.services.ServiceParams;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.richfaces.model.UploadItem;
 
 /**
  * Parameters for {@link UploadService}.
@@ -12,7 +11,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  */
 public class UploadServiceParams extends ServiceParams {
     private static final long serialVersionUID = 1L;
-    private UploadedFile file;
+    private UploadItem file;
     private String projectName;
     private UserWorkspace workspace;
     private boolean unpackZipFile = true;
@@ -22,7 +21,7 @@ public class UploadServiceParams extends ServiceParams {
      *
      * @return file to upload.
      */
-    public UploadedFile getFile() {
+    public UploadItem getFile() {
         return file;
     }
 
@@ -45,7 +44,7 @@ public class UploadServiceParams extends ServiceParams {
         return unpackZipFile;
     }
 
-    public void setFile(UploadedFile file) {
+    public void setFile(UploadItem file) {
         this.file = file;
     }
 
