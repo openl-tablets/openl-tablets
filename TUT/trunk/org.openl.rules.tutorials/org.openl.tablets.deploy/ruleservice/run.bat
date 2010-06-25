@@ -144,7 +144,6 @@ lib\spring-web-2.5.6.jar;^
 lib\standard-1.1.2.jar;^
 lib\stax-api-1.0.1.jar;^
 lib\stax-utils-20060502.jar;^
-lib\tomahawk-1.1.6.jar;^
 lib\velocity-1.4.jar;^
 lib\velocity-dep-1.4.jar;^
 lib\wsdl4j-1.6.1.jar;^
