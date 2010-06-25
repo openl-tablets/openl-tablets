@@ -9,10 +9,11 @@ import java.util.Map;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -31,8 +32,11 @@ public class DecisionTableCreationWizard extends WizardBase {
     private static final Log LOG = LogFactory.getLog(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
-    
+
+    @NotEmpty(message="Table name can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid table name")
     private String tableName;
+
     private String returnType;
     private boolean vertical;
 
@@ -254,9 +258,6 @@ public class DecisionTableCreationWizard extends WizardBase {
 
         switch (getStep()) {
             case 1:
-                if (!validateAfterStep1()) {
-                    return null;
-                }
                 break;
             case 2:
                 old = conditions.getSelectedIndex();
@@ -394,10 +395,6 @@ public class DecisionTableCreationWizard extends WizardBase {
         }
     }
 
-    private void reportError(String detail) {
-        reportError(null, detail);
-    }
-
     private void reportError(String clientId, String detail) {
         FacesContext.getCurrentInstance().addMessage(clientId,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error: ", detail));
@@ -436,7 +433,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("error while selecting action", e);
+            LOG.warn("Error while selecting action", e);
         }
     }
 
@@ -449,7 +446,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("error while selecting condition", e);
+            LOG.warn("Error while selecting condition", e);
         }
     }
 
@@ -487,15 +484,6 @@ public class DecisionTableCreationWizard extends WizardBase {
         }
     }
     
-    private boolean validateAfterStep1() {
-        if (StringUtils.isEmpty(tableName)) {
-            reportError("Table name can not be empty");
-            return false;
-        }
-
-        return validateParameterNames(parameters, "newTableWiz1:paramTable:", ":pname");
-    }
-
     private boolean validateAfterStep4() {
         return validateParameterNames(returnValue.getParameters(), "newTableWiz4:paramTable:", ":pname");
     }
