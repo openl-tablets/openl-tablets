@@ -128,26 +128,6 @@
   </filter-mapping>
 
   <filter>
-    <filter-name>MyFacesExtensionsFilter</filter-name>
-    <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
-    <init-param>
-      <description>Set the size limit for uploaded files.
-            Format: 10 - 10 bytes
-                    10k - 10 KB
-                    10m - 10 MB
-                    1g - 1 GB
-      </description>
-      <param-name>uploadMaxFileSize</param-name>
-      <param-value>1g</param-value>
-    </init-param>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>MyFacesExtensionsFilter</filter-name>
-    <url-pattern>*.xhtml</url-pattern>
-  </filter-mapping>
-
-  <filter>
     <filter-name>SessionTimeoutFilter</filter-name>
     <filter-class>org.openl.rules.webstudio.filter.SessionTimeoutFilter</filter-class>
     <init-param>

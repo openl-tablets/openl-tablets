@@ -12,6 +12,7 @@ import org.openl.rules.webstudio.services.ServiceResult;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -69,13 +70,12 @@ public abstract class BaseUploadService implements Service {
 
     private void saveFile(UploadServiceParams params, File tempFile) throws FileNotFoundException, IOException {
         OutputStream tempOS = new FileOutputStream(tempFile);
-        InputStream is = null;
+        InputStream in = new FileInputStream(params.getFile().getFile());
         try {
-            is = params.getFile().getInputStream();
-            FileCopyUtils.copy(is, tempOS);
+            FileCopyUtils.copy(in, tempOS);
         } finally {
+            IOUtils.closeQuietly(in);
             IOUtils.closeQuietly(tempOS);
-            IOUtils.closeQuietly(is);
         }
     }
 
@@ -106,7 +106,7 @@ public abstract class BaseUploadService implements Service {
             result.setUploadCount(1);
             return result;
         } catch (IOException e) {
-            String msg = "Unable to upload file '" + params.getFile().getName() + "'";
+            String msg = "Unable to upload file '" + params.getFile().getFileName() + "'";
             throw new ServiceException(msg + ": " + e.getMessage(), e);
         }
     }
@@ -123,7 +123,7 @@ public abstract class BaseUploadService implements Service {
                 tempFile.delete();
             }
             if (LOG.isDebugEnabled()) {
-                LOG.debug("File '" + params.getFile().getName() + "' unpacked");
+                LOG.debug("File '" + params.getFile().getFileName() + "' unpacked");
             }
         } catch (IOException e) {
             throw new ServiceException(e);

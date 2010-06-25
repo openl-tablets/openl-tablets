@@ -146,7 +146,7 @@
     <div style="height:200px;">
     <ul class="treeOptions">
       <h:dataTable value="#{domainTreePath.subExpressions}"  var="t">
-        <h:column><h:commandLink value="#{t}" onclick="addDotPart('#{t}'); return false" /></h:column>
+        <h:column><h:outputLink value="#{t}" onclick="addDotPart('#{t}'); return false" /></h:column>
       </h:dataTable>
     </ul>
     </div>

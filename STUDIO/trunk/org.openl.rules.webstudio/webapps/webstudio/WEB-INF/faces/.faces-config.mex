@@ -7,6 +7,7 @@
   <JSFFlowResource path="" location="180,130" dimension="36,36" />
   <JSFFlowResource path="/openTable.jsp" location="480,1030" dimension="116,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable0.xhtml" location="630,130" dimension="233,36" />
+  <JSFFlowResource path="/home.html" location="30,1130" dimension="98,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable1.xhtml" location="330,230" dimension="233,36" />
   <JSFFlowResource path="/facelets/tableWizard/datatype/newDatatypeTable1.xhtml" location="330,830" dimension="326,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableTest1.xhtml" location="630,230" dimension="254,36" />
@@ -30,7 +31,6 @@
   <JSFFlowResource path="/facelets/tableCopier/copyNamesSelectDestination.xhtml" location="480,730" dimension="317,36" />
   <JSFFlowResource path="/facelets/tableCopier/copyPropertiesSelectDestination.xhtml" location="30,930" dimension="334,36" />
   <JSFFlowResource path="/facelets/tableCopier/selectSheet.xhtml" location="480,1230" dimension="235,36" />
-  <JSFFlowResource path="/home.html" location="30,1130" dimension="98,36" />
   <JSFFlowNavigationCase id="/facelets/repository/main.xhtml,/facelets/repository/search/advanced.xhtml,search.advanced,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="225,48" />

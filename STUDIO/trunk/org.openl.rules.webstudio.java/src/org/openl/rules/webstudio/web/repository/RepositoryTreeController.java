@@ -5,8 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.jcr.JcrNT;
@@ -32,6 +30,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectImpl;
 import org.openl.util.filter.OpenLFilter;
+import org.richfaces.model.UploadItem;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,7 +64,7 @@ public class RepositoryTreeController {
     private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
     private String projectName;
     private String folderName;
-    private UploadedFile file;
+    private List<UploadItem> files = new ArrayList<UploadItem>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -547,10 +546,6 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public UploadedFile getFile() {
-        return file;
-    }
-
     public String getFileName() {
         return null;
     }
@@ -881,8 +876,12 @@ public class RepositoryTreeController {
         }
     }
 
-    public void setFile(UploadedFile file) {
-        this.file = file;
+    public List<UploadItem> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<UploadItem> files) {
+        this.files = files;
     }
 
     public void setFileName(String fileName) {
@@ -1053,7 +1052,7 @@ public class RepositoryTreeController {
         }
 
         UploadServiceParams params = new UploadServiceParams();
-        params.setFile(file);
+        params.setFile(getUploadedFile());
         params.setUnpackZipFile(false);
 
         params.setWorkspace(userWorkspace);
@@ -1078,7 +1077,7 @@ public class RepositoryTreeController {
 
     private String uploadAndUpdateFile() {
         UploadServiceParams params = new UploadServiceParams();
-        params.setFile(file);
+        params.setFile(getUploadedFile());
         params.setUnpackZipFile(false);
 
         params.setWorkspace(userWorkspace);
@@ -1098,9 +1097,16 @@ public class RepositoryTreeController {
         return null;
     }
 
+    private UploadItem getUploadedFile() {
+        if (!files.isEmpty()) {
+            return files.get(0);
+        }
+        return null;
+    }
+
     private String uploadProject() {
         UploadServiceParams params = new UploadServiceParams();
-        params.setFile(file);
+        params.setFile(getUploadedFile());
         params.setProjectName(projectName);
         params.setWorkspace(userWorkspace);
 

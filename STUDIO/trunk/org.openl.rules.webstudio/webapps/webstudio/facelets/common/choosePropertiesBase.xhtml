@@ -165,7 +165,8 @@
                 <h:panelGrid style="text-align: center; width: 100%">
                     <h:outputText value="There are no properties to add" />
                     <rich:spacer height="5px" />
-                    <h:commandButton value="Ok" onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+                    <input type="button" value="Ok"
+                        onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
                 </h:panelGrid>
             </h:panelGroup>
 		</rich:modalPanel>
