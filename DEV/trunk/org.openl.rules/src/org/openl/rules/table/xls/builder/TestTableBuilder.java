@@ -1,7 +1,5 @@
 package org.openl.rules.table.xls.builder;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,7 +8,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import org.openl.rules.annotations.Executable;
-import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -45,27 +42,6 @@ public class TestTableBuilder extends TableBuilder {
         super(gridModel);
     }
 
-    /**
-     * Returns Decision table from node.
-     *
-     * @param node Decision table node
-     * @return Decision table
-     */
-    @Deprecated
-    private static DecisionTable getDecisionTable(TableSyntaxNode node) {
-        if (node == null) {
-            throw new IllegalArgumentException("syntax node is null");
-        }
-        IOpenMember member = node.getMember();
-        if (member != null) {
-            if (!(member instanceof DecisionTable)) {
-                throw new IllegalArgumentException("syntax node is not a decision table node");
-            }
-            return (DecisionTable) member;
-        }
-        return null;
-    }
-    
     /**
      * Returns executable method from node.
      *
@@ -110,19 +86,7 @@ public class TestTableBuilder extends TableBuilder {
         }
         return result;
     }
-    
-    /**
-     * 
-     * @param decisionTable
-     * @return Default technical name for new test table. It is build 
-     * from <code>DecisionTable</code> name and postfix 'Test'.
-     */
-    @Deprecated
-    private static String getDefaultTechnicalName(DecisionTable decisionTable) {
-        String tableName = decisionTable.getName();
-        return tableName + TESTMETHOD_NAME_POSTFIX;
-    }
-    
+
     /**
      * 
      * @param executableMethod
