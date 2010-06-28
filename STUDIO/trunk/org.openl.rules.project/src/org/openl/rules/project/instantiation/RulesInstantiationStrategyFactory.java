@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.model.Module;
 
 public class RulesInstantiationStrategyFactory {
@@ -9,11 +10,15 @@ public class RulesInstantiationStrategyFactory {
      */
     public static RulesInstantiationStrategy getStrategy(Module moduleInfo) {
         switch (moduleInfo.getType()) {
-            // case DYNAMIC:
+            case DYNAMIC:
+                return new EngineFactoryInstantiationStrategy(moduleInfo);
             case STATIC:
                 return new WrapperAdjustingInstantiationStrategy(moduleInfo);
-                // case API:
+            case API:
+                return new ApiBasedEngineFactoryInstantiationStrategy(moduleInfo);
+            default:
+                throw new OpenLRuntimeException(String.format("Cannot resolve instantiation strategy for \"%s\"",
+                        moduleInfo.getType().toString()));
         }
-        return null;
     }
 }

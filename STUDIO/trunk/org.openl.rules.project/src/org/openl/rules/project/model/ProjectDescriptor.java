@@ -83,29 +83,37 @@ public class ProjectDescriptor {
      *            reloaded or used existing.
      * @return ClassLoader for this project.
      */
-    @SuppressWarnings("deprecation")
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
-            URL[] urls = new URL[classpath.size()];
-
-            int i = 0;
-
-            for (PathEntry entry : classpath) {
-                File f = new File(entry.getPath());
-
-                try {
-                    if (f.isAbsolute()) {
-                        urls[i] = f.toURL();
-                    } else {
-                        urls[i] = new File(projectFolder, entry.getPath()).toURL();
-                    }
-                    i++;
-                } catch (MalformedURLException e) {
-                    LOG.error("Bad URL in classpath \"" + entry.getPath() + "\"");
-                }
-            }
+            URL[] urls = getClassPathUrls();
             classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
         }
         return classLoader;
+    }
+
+    @SuppressWarnings("deprecation")
+    public URL[] getClassPathUrls() {
+        if(classpath == null){
+            return new URL[]{};
+        }
+        URL[] urls = new URL[classpath.size()];
+
+        int i = 0;
+
+        for (PathEntry entry : classpath) {
+            File f = new File(entry.getPath());
+
+            try {
+                if (f.isAbsolute()) {
+                    urls[i] = f.toURL();
+                } else {
+                    urls[i] = new File(projectFolder, entry.getPath()).toURL();
+                }
+                i++;
+            } catch (MalformedURLException e) {
+                LOG.error("Bad URL in classpath \"" + entry.getPath() + "\"");
+            }
+        }
+        return urls;
     }
 }
