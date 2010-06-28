@@ -48,7 +48,7 @@ public class TableWizardManager extends TableWizard{
         switch (tableType) {
             case DECISION:
                 wizard = new DecisionTableCreationWizard();
-                wizard.setStepsCount(7);
+                wizard.setStepsCount(6);
                 break;
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();

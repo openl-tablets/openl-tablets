@@ -336,22 +336,11 @@
     <managed-bean-class>org.openl.rules.ui.tablewizard.TableWizardManager</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
-  
+
   <managed-bean>
     <managed-bean-name>tableCopierWizardManager</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.tablewizard.TableCopierWizardManager</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  
-  <managed-bean>
-    <managed-bean-name>wizardPainter</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.tablewizard.WizardPainter</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-
-    <managed-property>
-      <property-name>wizardBean</property-name>
-      <value>#{tableCreatorWizardManager.wizard}</value>
-    </managed-property>
   </managed-bean>
 
   <managed-bean>
@@ -476,20 +465,8 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable6.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <navigation-rule>
-    <from-view-id>/facelets/tableWizard/newTable7.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable6.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
