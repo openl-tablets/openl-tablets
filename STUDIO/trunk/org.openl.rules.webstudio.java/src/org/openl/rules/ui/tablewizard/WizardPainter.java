@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openl.rules.tableeditor.model.ui.BorderStyle;
@@ -54,30 +55,31 @@ public class WizardPainter {
     }
 
     public String getTableHTML() {
-        int systemPropHeight = wizardDecisionTable.getSystemProperties().size();
+        Map<String, Object> systemProperties = wizardDecisionTable.buildSystemProperties();
+        int systemPropHeight = systemProperties.size();
         int conditionsWidth = countColumns(wizardDecisionTable.getConditions());
         int actionsWidth = countColumns(wizardDecisionTable.getActions());
         int returnWidth = wizardDecisionTable.getReturn().getParamsCount();
         int widthWithProp = 0;
         int width = conditionsWidth + actionsWidth + returnWidth;
-        if (width < 3 && !wizardDecisionTable.getSystemProperties().isEmpty()) {
+        if (width < 3 && !systemProperties.isEmpty()) {
             widthWithProp = 3;
         } else {
             widthWithProp = width;
-        }        
+        }
         int height = 4 + 1 + 3 + systemPropHeight; // technical info + columns headers + data rows + system properties
 
         tableModel = new TableModel(widthWithProp, height, null);
         addCell(0, 0, widthWithProp, getTableTitle());
-        
+
         int row = 1;
-        for (Entry<String, Object> sysProp : wizardDecisionTable.getSystemProperties().entrySet()) {            
+        for (Entry<String, Object> sysProp : systemProperties.entrySet()) {
             addCell(row, 0, 1, "properties");
             addCell(row, 1, 1, sysProp.getKey());
             addCell(row, 2, 1, sysProp.getValue().toString());            
             row++;
         }  
-        
+
         int col = 0;
         for (TableCondition cond : wizardDecisionTable.getConditions()) {
             int colSpan = cond.getParamsCount();

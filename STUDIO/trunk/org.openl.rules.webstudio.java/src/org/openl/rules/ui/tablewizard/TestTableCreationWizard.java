@@ -3,9 +3,9 @@ package org.openl.rules.ui.tablewizard;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
@@ -14,18 +14,14 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 /**
  * @author Aliaksandr Antonik.
  */
-public class TestTableCreationWizard extends WizardBase {
+public class TestTableCreationWizard extends BusinessTableCreationWizard {
 
     private SelectItem[] tableItems;
 
@@ -42,7 +38,6 @@ public class TestTableCreationWizard extends WizardBase {
     private String technicalName;
 
     /**
-     * 
      * @return Technical name of newly created test table.
      */
     public String getTechnicalName() {
@@ -50,7 +45,6 @@ public class TestTableCreationWizard extends WizardBase {
     }
 
     /**
-     * 
      * @param technicalName Technical name of newly created test table.
      */
     public void setTechnicalName(String technicalName) {
@@ -58,7 +52,6 @@ public class TestTableCreationWizard extends WizardBase {
     }
 
     /**
-     * 
      * @return see {@link TestTableBuilder#getDefaultTechnicalName(TableSyntaxNode)} 
      */
     protected String getDefaultTechnicalName() {
@@ -90,18 +83,18 @@ public class TestTableCreationWizard extends WizardBase {
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
         TestTableBuilder builder = new TestTableBuilder(gridModel);
 
-        Map<String, Object> systemProps = getSystemProperties();
+        Map<String, Object> properties = buildProperties();
 
         int width = params.size() + 1;
-        if (width < 3 && !systemProps.isEmpty()) {
+        if (width < 3 && !properties.isEmpty()) {
             width = 3;  // Properties require 3 columns
         }
-        int height = 3 + systemProps.size(); // 3 required rows + Properties
+        int height = 3 + properties.size(); // 3 required rows + Properties
         builder.beginTable(width, height);
 
         builder.writeHeader(header, null);
 
-        builder.writeProperties(systemProps, null);
+        builder.writeProperties(properties, null);
 
         builder.writeParams(params, null);
 
@@ -110,23 +103,6 @@ public class TestTableCreationWizard extends WizardBase {
         builder.endTable();
 
         return uri;
-    }
-
-    private Map<String, Object> getSystemProperties() {        
-        Map<String, Object> result = new HashMap<String, Object>();
-            List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils
-                    .getSystemProperties();
-            for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
-                if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
-                    Object systemValue = SystemValuesManager.getInstance().
-                        getSystemValue(systemPropDef.getSystemValueDescriptor());
-                    if (systemValue != null) {
-                        result.put(systemPropDef.getName(), systemValue);                        
-                    }
-                }
-            }
-        
-        return result;
     }
 
     public SelectItem[] getDecisionTables() {
@@ -192,7 +168,7 @@ public class TestTableCreationWizard extends WizardBase {
 
     @Override
     protected void onStepFirstVisit(int step) {
-        if (step == 2) {
+        if (step == 3) {
             initWorkbooks();
         }
     }
@@ -210,4 +186,5 @@ public class TestTableCreationWizard extends WizardBase {
         this.selectedTableNameIndex = selectedTableNameIndex;
         this.technicalName = getDefaultTechnicalName();
     }
+
 }

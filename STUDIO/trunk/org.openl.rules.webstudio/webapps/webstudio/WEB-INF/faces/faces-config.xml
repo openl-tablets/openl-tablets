@@ -476,8 +476,20 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable6.xhtml</from-view-id>
     <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable7.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable6.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
@@ -542,11 +554,23 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTableTest3.xhtml</from-view-id>
     <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest4.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
-  
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableTest4.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest3.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
   <!-- Property table wizard -->
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTableProperty1.xhtml</from-view-id>

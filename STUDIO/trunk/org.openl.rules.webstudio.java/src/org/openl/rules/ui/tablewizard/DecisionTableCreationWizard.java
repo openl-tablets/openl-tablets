@@ -2,9 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -17,24 +15,20 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
-import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 /**
  * @author Aliaksandr Antonik.
  */
-public class DecisionTableCreationWizard extends WizardBase {
+public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
     private static final Log LOG = LogFactory.getLog(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
 
-    @NotEmpty(message="Table name can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid table name")
+    @NotEmpty(message="Technical name can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
     private String tableName;
 
     private String returnType;
@@ -47,13 +41,12 @@ public class DecisionTableCreationWizard extends WizardBase {
     private DomainTree domainTree;
 
     private SelectItem[] domainTypes;
-    private Map<String, Object> systemProperties = new HashMap<String, Object>();
-    
+
     public DecisionTableCreationWizard() {
     }
 
     public void addAction() {
-        if (validateAtStep3()) {
+        if (validateAtStep4()) {
             actions.add(new TableArtifact());
             WizardUtils.autoRename(actions, "A");
             actions.selectLast();
@@ -68,7 +61,7 @@ public class DecisionTableCreationWizard extends WizardBase {
     }
 
     public void addCondition() {
-        if (validateAtStep2()) {
+        if (validateAtStep3()) {
             conditions.add(new TableCondition());
             WizardUtils.autoRename(conditions, "C");
             conditions.selectLast();
@@ -131,9 +124,9 @@ public class DecisionTableCreationWizard extends WizardBase {
         }
         sbHeader.append(")");
         builder.writeHeader(sbHeader.toString());
-       
-        builder.writeProperties(getSystemProperties(), null);        
-        
+
+        builder.writeProperties(buildProperties(), null);
+
         // writing conditions, actions and return section
         doSaveWriteArtifacts(builder, conditions);
         doSaveWriteArtifacts(builder, actions);
@@ -144,23 +137,6 @@ public class DecisionTableCreationWizard extends WizardBase {
         builder.endTable();
 
         return newTableUri;
-    }
-    
-    public Map<String, Object> getSystemProperties() {        
-        if (systemProperties.isEmpty()) {
-            List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils
-                    .getSystemProperties();
-            for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
-                if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
-                    Object systemValue = SystemValuesManager.getInstance().
-                        getSystemValue(systemPropDef.getSystemValueDescriptor());
-                    if (systemValue != null) {
-                        systemProperties.put(systemPropDef.getName(), systemValue);                        
-                    }
-                }
-            }
-        }
-        return systemProperties;
     }
 
     private void doSaveWriteArtifacts(DecisionTableBuilder builder, List<? extends TableArtifact> tableArtifacts) {
@@ -260,6 +236,8 @@ public class DecisionTableCreationWizard extends WizardBase {
             case 1:
                 break;
             case 2:
+                break;
+            case 3:
                 old = conditions.getSelectedIndex();
                 sz = conditions.size();
                 valid = true;
@@ -267,7 +245,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                     for (int i = 0; i < sz; ++i) {
                         conditions.setSelectedIndex(i);
                         valid = false;
-                        if (!validateAtStep2()) {
+                        if (!validateAtStep3()) {
                             return null;
                         }
                     }
@@ -278,7 +256,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                 }
                 break;
 
-            case 3:
+            case 4:
                 old = actions.getSelectedIndex();
                 sz = actions.size();
                 valid = true;
@@ -286,7 +264,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                     for (int i = 0; i < sz; ++i) {
                         actions.setSelectedIndex(i);
                         valid = false;
-                        if (!validateAtStep3()) {
+                        if (!validateAtStep4()) {
                             return null;
                         }
                     }
@@ -297,8 +275,8 @@ public class DecisionTableCreationWizard extends WizardBase {
                 }
                 break;
 
-            case 4:
-                if (!validateAfterStep4()) {
+            case 5:
+                if (!validateAfterStep5()) {
                     return null;
                 }
                 break;
@@ -327,12 +305,14 @@ public class DecisionTableCreationWizard extends WizardBase {
                 parameters.add(new TypeNamePair());
                 break;
             case 2:
-                addCondition();
                 break;
             case 3:
-                addAction();
+                addCondition();
                 break;
             case 4:
+                addAction();
+                break;
+            case 5:
                 initWorkbooks();
                 break;
         }
@@ -428,7 +408,7 @@ public class DecisionTableCreationWizard extends WizardBase {
         try {
             int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
             if (actions.get(index) != null) {
-                if (validateAtStep3()) {
+                if (validateAtStep4()) {
                     actions.setSelectedIndex(index);
                 }
             }
@@ -441,7 +421,7 @@ public class DecisionTableCreationWizard extends WizardBase {
         try {
             int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
             if (conditions.get(index) != null) {
-                if (validateAtStep2()) {
+                if (validateAtStep3()) {
                     conditions.setSelectedIndex(index);
                 }
             }
@@ -483,19 +463,19 @@ public class DecisionTableCreationWizard extends WizardBase {
             currentCondition.setLogicEditor(false);
         }
     }
-    
-    private boolean validateAfterStep4() {
-        return validateParameterNames(returnValue.getParameters(), "newTableWiz4:paramTable:", ":pname");
-    }
 
-    private boolean validateAtStep2() {
-        TableArtifact cond = getCurrentCondition();
-        return cond == null || validateParameterNames(cond.getParameters(), "newTableWiz2:paramTable:", ":pname");
+    private boolean validateAfterStep5() {
+        return validateParameterNames(returnValue.getParameters(), "newTableWiz5:paramTable:", ":pname");
     }
 
     private boolean validateAtStep3() {
+        TableArtifact cond = getCurrentCondition();
+        return cond == null || validateParameterNames(cond.getParameters(), "newTableWiz3:paramTable:", ":pname");
+    }
+
+    private boolean validateAtStep4() {
         TableArtifact action = getCurrentAction();
-        return action == null || validateParameterNames(action.getParameters(), "newTableWiz3:paramTable:", ":pname");
+        return action == null || validateParameterNames(action.getParameters(), "newTableWiz4:paramTable:", ":pname");
     }
 
     private boolean validateParameterNames(List<? extends TypeNamePair> parameters, String prefix, String suffix) {

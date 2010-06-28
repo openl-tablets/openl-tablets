@@ -8,11 +8,16 @@
     xmlns:c="http://java.sun.com/jstl/core"
     template="/facelets/common/wizardBase.xhtml">
 
-    <ui:define name="title">Input technical testmethod name</ui:define>
+    <ui:define name="title">Input technical name</ui:define>
 
     <ui:define name="page">
     	<h:form>  		
     	  	<h:panelGrid columns="3">
+                <h:outputText value="Business Name" />
+                <h:inputText id="businessName" value="#{tableWizard.businessName}">
+                    <rich:ajaxValidator event="onblur" />
+                </h:inputText>
+                <rich:message for="businessName" styleClass="error" />
     	    	<h:outputText value="Technical Name" />
     	        <h:inputText id="technicalName" value="#{tableWizard.technicalName}">
                     <rich:ajaxValidator event="onblur" />

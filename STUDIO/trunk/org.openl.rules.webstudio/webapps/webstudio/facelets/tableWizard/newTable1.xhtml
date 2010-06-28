@@ -16,7 +16,13 @@
             </h:panelGroup>
             <h:panelGroup>
                 <h:panelGrid columns="3">
-                    <h:outputLabel value="Table Name" for="tech_name"/>
+                  <h:outputLabel value="Business Name" for="tech_name"/>
+                    <h:inputText id="businessName" value="#{tableWizard.businessName}">
+                        <rich:ajaxValidator event="onblur" />
+                    </h:inputText>
+                    <rich:message for="businessName" styleClass="error" />
+
+                    <h:outputLabel value="Technical Name" for="tech_name"/>
                     <h:inputText id="tech_name" value="#{tableWizard.tableName}">
                         <rich:ajaxValidator event="onblur" />
                     </h:inputText>
