@@ -102,6 +102,8 @@ public class JavaWrapperGenerator {
         
         addRuntimeContextProvider(buf);
 
+        addRuntimeContextConsumer(buf);
+        
         addConstructorWithParameter(buf);
 
         addFieldMethods(moduleOpenClass, buf);
@@ -148,7 +150,13 @@ public class JavaWrapperGenerator {
         buf.append("    return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();\n");
         buf.append("  }\n\n");
     }
-    
+
+    private void addRuntimeContextConsumer(StringBuffer buf) {
+        buf.append("  public void setRuntimeContext(org.openl.rules.context.IRulesRuntimeContext context) {\n");
+        buf.append("    getRuntimeEnvironment().setContext(context);\n");
+        buf.append("  }\n\n");
+    }
+
     private void addFieldAccessor(IOpenField field, StringBuffer buf) {
 
         IOpenClass type = field.getType();
