@@ -1,21 +1,15 @@
 package org.openl.rules.ui.tablewizard;
 
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -24,27 +18,17 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
-public class PropertyTableCreationWizard extends WizardBase {
+public class PropertyTableCreationWizard extends BusinessTableCreationWizard {
+
     private PropertiesBean propertiesManager;
     private String scopeType;
-    private String categoryName;
-    private String newCategoryName;
-    private String categoryNameSelector = "existing";
+
     private String tableName;
     private List<SelectItem> scopeTypes = new ArrayList<SelectItem>(Arrays.asList(new SelectItem("Module"),
             new SelectItem("Category")));
     
     public PropertiesBean getPropertiesManager() {
         return propertiesManager;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.newCategoryName = null;
-        this.categoryName = categoryName;
     }
 
     public List<SelectItem> getScopeTypes() {
@@ -61,23 +45,6 @@ public class PropertyTableCreationWizard extends WizardBase {
 
     public void setScopeType(String scopeType) {
         this.scopeType = scopeType;
-    }
-
-    public String getCategoryNameSelector() {
-        return categoryNameSelector;
-    }
-
-    public void setCategoryNameSelector(String categoryNameSelector) {
-        this.categoryNameSelector = categoryNameSelector;
-    }
-
-    public String getNewCategoryName() {
-        return newCategoryName;
-    }
-
-    public void setNewCategoryName(String newCategoryName) {
-        this.categoryName = null;
-        this.newCategoryName = newCategoryName;
     }
 
     public String getTableName() {
@@ -116,30 +83,6 @@ public class PropertyTableCreationWizard extends WizardBase {
     @Override
     public String getName() {
         return "newTableProperty";
-    }
-
-    public List<SelectItem> getCategoryNamesList() {
-        List<SelectItem> categoryList = new ArrayList<SelectItem>();
-        Set<String> categories = getAllCategories();
-        for (String categoryName : categories) {
-            categoryList.add(new SelectItem(categoryName));
-        }
-        return categoryList;
-    }
-
-    private Set<String> getAllCategories() {
-        Set<String> categories = new TreeSet<String>();
-        TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes();
-        for (TableSyntaxNode node : syntaxNodes) {
-            ITableProperties tableProperties = node.getTableProperties();
-            if (tableProperties != null) {
-                String categoryName = tableProperties.getCategory();
-                if (StringUtils.isNotBlank(categoryName)) {
-                    categories.add(categoryName);
-                }
-            }
-        }
-        return categories;
     }
 
     public List<String> getPropertyNamesList() {
@@ -186,20 +129,8 @@ public class PropertyTableCreationWizard extends WizardBase {
         return uri;
     }
 
-    private String buildCategoryName() {
-        String categoryName;
-        if (StringUtils.isNotBlank(this.categoryName)) {
-            categoryName = this.categoryName;
-        } else if (StringUtils.isNotBlank(newCategoryName)) {
-            categoryName = this.newCategoryName;
-        } else {
-            // this for the case when sheet name selected for category name.
-            categoryName = null;
-        }
-        return categoryName;
-    }
-
-    private Map<String, Object> buildProperties() {
+    @Override
+    protected Map<String, Object> buildProperties() {
         Map<String, Object> resultProperties = new LinkedHashMap<String, Object>();
         resultProperties.put("scope", scopeType);
         if (InheritanceLevel.CATEGORY.getDisplayName().equals(scopeType)) {

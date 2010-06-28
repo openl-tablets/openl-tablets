@@ -48,7 +48,7 @@ public class TableWizardManager extends TableWizard{
         switch (tableType) {
             case DECISION:
                 wizard = new DecisionTableCreationWizard();
-                wizard.setStepsCount(6);
+                wizard.setStepsCount(7);
                 break;
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();
@@ -56,11 +56,11 @@ public class TableWizardManager extends TableWizard{
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
-                wizard.setStepsCount(3);
+                wizard.setStepsCount(4);
                 break;
             case TEST_DIRECT:
                 wizard = new TestTableCreationWizardDirect(getElementUri());
-                wizard.setStepsCount(2);
+                wizard.setStepsCount(3);
                 break;
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
