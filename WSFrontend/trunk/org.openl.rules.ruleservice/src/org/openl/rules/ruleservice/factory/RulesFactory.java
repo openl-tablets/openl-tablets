@@ -5,14 +5,12 @@ import java.util.List;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Type;
 import org.openl.binding.impl.module.ModuleOpenClass.GetOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass.ThisField;
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -140,10 +138,7 @@ public class RulesFactory {
         Class<?> returnType = method.getType().getInstanceClass();
         Class<?>[] paramTypes = OpenClassUtils.getInstanceClasses(paramClasses);
 
-        Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
-        Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(newParams, paramTypes);
-
-        RuleInfo ruleInfo = createRuleInfo(methodName, extendedParamTypes, returnType);
+        RuleInfo ruleInfo = createRuleInfo(methodName, paramTypes, returnType);
 
         return ruleInfo;
     }
@@ -156,7 +151,7 @@ public class RulesFactory {
      * @param returnType return type
      * @return rule info
      */
-    private static RuleInfo createRuleInfo(String ruleName, Class<?>[] paramTypes, Class<?> returnType) {
+    public static RuleInfo createRuleInfo(String ruleName, Class<?>[] paramTypes, Class<?> returnType) {
 
         RuleInfo ruleInfo = new RuleInfo();
         ruleInfo.setName(ruleName);

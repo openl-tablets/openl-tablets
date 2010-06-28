@@ -23,8 +23,8 @@ public class WebServiceEngineFactoryInstantiationStrategy extends RulesInstantia
         Thread.currentThread().setContextClassLoader(getLoader());
         try {
             WebServiceRulesEngineFactory factory = new WebServiceRulesEngineFactory(sourceFile);
-            serviceClass = factory.getInterfaceClass();
             instance = factory.makeInstance();
+            serviceClass = factory.getInterfaceClass();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
