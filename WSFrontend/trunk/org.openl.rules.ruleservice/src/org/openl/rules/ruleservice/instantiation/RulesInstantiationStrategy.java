@@ -9,7 +9,7 @@ public abstract class RulesInstantiationStrategy {
     public RulesInstantiationStrategy(Class<?> clazz) {
         this.clazz = clazz;
     }
-
+    
     public RulesInstantiationStrategy(String className, ClassLoader loader) {
         this.loader = loader;
         this.className = className;
@@ -44,6 +44,10 @@ public abstract class RulesInstantiationStrategy {
     protected abstract Object instantiate(Class<?> clazz) throws InstantiationException, IllegalAccessException;
 
     protected ClassLoader getLoader() {
+        if (loader == null) {
+            return clazz.getClassLoader();
+        }
+        
         return loader;
     }
 }
