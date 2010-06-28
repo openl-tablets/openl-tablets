@@ -23,6 +23,7 @@ import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.main.OpenLWrapper;
 import org.openl.meta.IVocabulary;
+import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.types.IOpenClass;
 import org.openl.util.FileTool;
@@ -87,7 +88,7 @@ public class JavaWrapperAntTask extends Task {
     private String classpathPropertiesOutputDir = ".";
 
     private String[] implementsInterfaces = new String[] { OpenLWrapper.class.getName(),
-            IRulesRuntimeContextProvider.class.getName() };    
+            IRulesRuntimeContextProvider.class.getName() , IRulesRuntimeContextConsumer.class.getName()};    
     
     @Override
     public void execute() throws BuildException {
