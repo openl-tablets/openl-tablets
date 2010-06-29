@@ -28,7 +28,7 @@ public class TemplateJavaWrapper implements org.openl.main.OpenLWrapper,org.open
 
   public static java.lang.String __folder = "rules";
 
-  public static java.lang.String __project = "bin";
+  public static java.lang.String __project = "openl-simple-project";
 
   public static java.lang.String __userHome = ".";
 

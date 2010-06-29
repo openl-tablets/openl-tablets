@@ -85,10 +85,10 @@
 
                                 <openlgen openlName="org.openl.xls" userHome="."
                                           srcFile="${basedir}/src/main/resources/rules/TemplateRules.xls"
-                                          targetClass="template.TemplateJavaWrapper"
+                                          targetClass="gen.template.TemplateJavaWrapper"
                                           displayName="New Project - test"
                                           goal="make wrapper generate datatypes"
-                                          targetSrcDir="${basedir}/src/main/java/gen">
+                                          targetSrcDir="${basedir}/src/main/java/">
                                 </openlgen>
 
                             </tasks>
