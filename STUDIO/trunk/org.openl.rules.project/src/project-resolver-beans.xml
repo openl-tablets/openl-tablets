@@ -5,6 +5,7 @@
 
   <bean id="descriptorBasedStrategy" class="org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy"/>
   <bean id="eclipseBasedStrategy" class="org.openl.rules.project.resolving.EclipseBasedResolvingStrategy"/>
+  <bean id="simpleXLSStrategy" class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
   <bean id="fileTreeAdaptor" class="org.openl.util.tree.FileTreeIterator$FileTreeAdaptor"/>
   
   <bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
@@ -12,6 +13,7 @@
       <list>
       	<ref bean="descriptorBasedStrategy"/>
         <ref bean="eclipseBasedStrategy"/>
+        <!--ref bean="simpleXLSStrategy"/-->
       </list>
     </property>
     <property name="workspace" value=".."/>

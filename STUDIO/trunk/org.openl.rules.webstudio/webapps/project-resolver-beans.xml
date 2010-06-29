@@ -5,13 +5,17 @@
 
   <!--This config has to be in classpath-->
 
+  <bean id="descriptorBasedStrategy" class="org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy"/>
   <bean id="eclipseBasedStrategy" class="org.openl.rules.project.resolving.EclipseBasedResolvingStrategy"/>
-  <bean id="fileTreeAdaptor" class="org.openl.rules.webstudio.util.WebstudioTreeIterator$WebstudioTreeAdaptor"/>
+  <bean id="simpleXLSStrategy" class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
+  <bean id="fileTreeAdaptor" class="org.openl.util.tree.FileTreeIterator$FileTreeAdaptor"/>
   
   <bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
     <property name="resolvingStrategies">
       <list>
+      	<ref bean="descriptorBasedStrategy"/>
         <ref bean="eclipseBasedStrategy"/>
+        <!--ref bean="simpleXLSStrategy"/-->
       </list>
     </property>
     <property name="projectsTreeAdaptor" ref="fileTreeAdaptor"/>
