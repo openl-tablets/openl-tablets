@@ -2,7 +2,7 @@
  * This class has been generated. Do not change it, if you need to modify functionality - subclass it 
 */
 
-package template;
+package gen.template;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
