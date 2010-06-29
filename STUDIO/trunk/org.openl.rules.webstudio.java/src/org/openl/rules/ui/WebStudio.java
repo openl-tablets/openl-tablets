@@ -168,7 +168,7 @@ public class WebStudio {
     public UserWorkspaceProject getCurrentProject(HttpSession session) {
         if (currentModule != null) {
             try {
-                String projectName = currentModule.getProject().getName();
+                String projectName = currentModule.getProject().getId();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
                 UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
                 return project;
