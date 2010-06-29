@@ -22,7 +22,7 @@ public class StaticWrapper implements org.openl.main.OpenLWrapper,org.openl.rule
 
   public static java.lang.String __openlName = "org.openl.xls";
 
-  public static java.lang.String __src = "test/org/openl/rules/project/instantiation/Rules.xls";
+  public static java.lang.String __src = "test/resources/excel/Rules.xls";
 
   public static java.lang.String __srcModuleClass = null;
 

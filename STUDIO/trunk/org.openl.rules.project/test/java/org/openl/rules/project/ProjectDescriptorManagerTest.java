@@ -22,7 +22,7 @@ public class ProjectDescriptorManagerTest {
     public void testReadDescriptor1() throws FileNotFoundException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = manager.readDescriptor("test/org/openl/rules/project/rules1.xml");
+        ProjectDescriptor descriptor = manager.readDescriptor("test/resources/descriptor/rules1.xml");
 
         assertEquals("my-project-id", descriptor.getId());
         assertEquals("Project name", descriptor.getName());
@@ -54,14 +54,14 @@ public class ProjectDescriptorManagerTest {
     public void testReadDescriptor2() throws FileNotFoundException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = manager.readDescriptor("test/org/openl/rules/project/rules2.xml");
+        manager.readDescriptor("test/resources/descriptor/rules2.xml");
     }
 
     @Test(expected = ValidationException.class)
     public void testReadDescriptor3() throws FileNotFoundException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = manager.readDescriptor("test/org/openl/rules/project/rules3.xml");
+        manager.readDescriptor("test/resources/descriptor/rules3.xml");
     }
 
     @Test
