@@ -93,6 +93,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
 
     public ProjectDescriptor resolveProject(File folder, FileTreeAdaptor fileTreeAdaptor) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setId(folder.getName());
         descriptor.setName(folder.getName());
         descriptor.setProjectFolder(folder);
         String[] wrapperClassNames;

@@ -15,16 +15,19 @@ import java.io.File;
 public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
     public static final String RULE_OPENL_NAME = "org.openl.xls";
 
+    private EngineFactory<?> engineFactoryInstance;
     public EngineFactoryInstantiationStrategy(Module module) {
         super(module);
     }
 
     @SuppressWarnings("unchecked")
     private EngineFactory<?> getEngineFactory(Class<?> clazz) {
-        File sourceFile = new File(getModule().getProject().getProjectFolder(), getModule().getRulesRootPath()
-                .getPath());
-        EngineFactory<?> engineInstanceFactory = new EngineFactory(RULE_OPENL_NAME, sourceFile, clazz);
-        return engineInstanceFactory;
+        if(engineFactoryInstance == null){
+            File sourceFile = new File(getModule().getProject().getProjectFolder(), getModule().getRulesRootPath()
+                    .getPath());
+            engineFactoryInstance = new EngineFactory(RULE_OPENL_NAME, sourceFile, clazz);
+        }
+        return engineFactoryInstance;
     }
 
     @Override

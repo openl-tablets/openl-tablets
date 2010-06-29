@@ -13,7 +13,7 @@
       <list>
       	<ref bean="descriptorBasedStrategy"/>
         <ref bean="eclipseBasedStrategy"/>
-        <!--ref bean="simpleXLSStrategy"/-->
+        <ref bean="simpleXLSStrategy"/>
       </list>
     </property>
     <property name="workspace" value=".."/>
