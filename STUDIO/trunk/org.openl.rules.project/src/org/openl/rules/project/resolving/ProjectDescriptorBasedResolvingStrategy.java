@@ -1,0 +1,33 @@
+package org.openl.rules.project.resolving;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+import org.openl.rules.project.ProjectDescriptorManager;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
+
+public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
+
+    public final static String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
+
+    public boolean isRulesProject(File folder, FileTreeAdaptor fileTreeAdaptor) {
+
+        File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
+        return descriptorFile.exists();
+    }
+
+    public ProjectDescriptor resolveProject(File folder, FileTreeAdaptor fileTreeAdaptor) {
+
+        File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
+        ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
+
+        try {
+            return descriptorManager.readDescriptor(new FileInputStream(descriptorFile));
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException("Project cannot be resolved", ex);
+        }
+    }
+
+}

@@ -26,7 +26,7 @@ public class RulesServiceEnhancerTest {
         project.setClasspath(new ArrayList<PathEntry>());
         Module module = new Module();
         module.setProject(project);
-        module.setRulesRootPath(new PathEntry("test/org/openl/rules/project/instantiation/Rules.xls"));
+        module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
         module.setClassname(ITest.class.getName());
         EngineFactoryInstantiationStrategy strategy = new EngineFactoryInstantiationStrategy(module);
 
@@ -83,7 +83,7 @@ public class RulesServiceEnhancerTest {
         project.setClasspath(new ArrayList<PathEntry>());
         Module module = new Module();
         module.setProject(project);
-        module.setRulesRootPath(new PathEntry("test/org/openl/rules/project/instantiation/Rules.xls"));
+        module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
         module.setClassname("MyTestClass");
 
         ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module);
