@@ -1,51 +1,97 @@
 package org.openl.rules.project.instantiation;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
 
+/**
+ * The simplest {@link RulesInstantiationStrategyFactory} for module that
+ * contains only Excel file.
+ * 
+ * @author PUdalau
+ */
 public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
-    private Object instance;
-    private CompiledOpenClass compiledOpenClass;
-    private Class<?> serviceClass;
+    private ApiBasedRulesEngineFactory factory;
+    private ClassLoader classLoader;
 
     public ApiBasedEngineFactoryInstantiationStrategy(Module module) {
         super(module);
-        init();
+        getEngineFactory();
     }
 
-    private void init() {
+    private ApiBasedRulesEngineFactory getEngineFactory() {
+        if (factory == null) {
+            File sourceFile = new File(getModule().getRulesRootPath().getPath());
+            factory = new ApiBasedRulesEngineFactory(sourceFile);
+        }
+        return factory;
+    }
 
+    @Override
+    protected void forcedReset() {
+        super.forcedReset();
+        factory.reset(true);
+    }
+
+    @Override
+    protected ClassLoader getClassLoader() {
+        ClassLoader projectClassloader = getProjectClassLoader();
+        if (classLoader == null || projectClassloader != classLoader.getParent()) {
+            // For all of modules resolved as API we will use different class
+            // loaders with common project class loader
+            classLoader = new URLClassLoader(new URL[] {}, projectClassloader);
+        }
+        return classLoader;
+    }
+
+    private ClassLoader getProjectClassLoader() {
+        return super.getClassLoader();
+    }
+
+    @Override
+    public Class<?> getServiceClass() {
+        // Using project class loader for interface generation.
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            File sourceFile = new File(getModule().getRulesRootPath().getPath());
-            ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(sourceFile);
-            instance = factory.makeInstance();
-            serviceClass = factory.getInterfaceClass();
-            compiledOpenClass = factory.getCompiledOpenClass();
+            return getEngineFactory().getInterfaceClass();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     @Override
-    public Class<?> getServiceClass() {
-        return serviceClass;
-    }
-
-    @Override
     protected CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
-        return compiledOpenClass;
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        try {
+            if (!useExisting) {
+                factory.reset(false);
+            }
+            return factory.getCompiledOpenClass();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     @Override
     protected Object instantiate(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
-        return instance;
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        try {
+            if (!useExisting) {
+                factory.reset(false);
+            }
+            return factory.makeInstance();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
 }

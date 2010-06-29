@@ -50,6 +50,8 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         module.setProject(project);
         module.setRulesRootPath(new PathEntry(xlsFile.getAbsolutePath()));
         module.setType(ModuleType.API);
+        //FIXME: classname just for webstudio
+        module.setClassname(FilenameUtils.removeExtension(xlsFile.getName()));
         module.setName(FilenameUtils.removeExtension(xlsFile.getName()));
         return module;
     }
@@ -57,6 +59,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
     private ProjectDescriptor createDescriptor(File folder) {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder);
+        project.setId(folder.getName());
         return project;
     }
 }

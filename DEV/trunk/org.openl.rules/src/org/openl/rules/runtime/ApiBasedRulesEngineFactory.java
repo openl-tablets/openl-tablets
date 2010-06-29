@@ -28,8 +28,24 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
     public ApiBasedRulesEngineFactory(File file) {
         super(RULE_OPENL_NAME, file);
     }
+    
+    public void reset(boolean resetInterface) {
+        compiledOpenClass = null;
+        if (resetInterface) {
+            interfaceClass = null;
+        }
+    }
 
     public Class<?> getInterfaceClass() {
+        if(interfaceClass == null){
+            IOpenClass openClass = getCompiledOpenClass().getOpenClass();
+            String className = openClass.getName();
+            try {
+                interfaceClass = RulesFactory.generateInterface(className, openClass, getDefaultUserClassLoader());
+            } catch (Exception e) {
+                throw new OpenLRuntimeException("Failed to create interface : " + className, e);
+            }
+        }
         return interfaceClass;
     }
 
@@ -40,23 +56,19 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
 
     @Override
     public Object makeInstance() {
-
         try {
-            compiledOpenClass = initializeOpenClass();
+            compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-            String className = openClass.getName();
-            interfaceClass = RulesFactory.generateInterface(className, openClass, getDefaultUserClassLoader());
 
             IRuntimeEnv runtimeEnv = getOpenL().getVm().getRuntimeEnv();
             Object openClassInstance = openClass.newInstance(runtimeEnv);
-            Map<Method, IOpenMember> methodMap = makeMethodMap(interfaceClass, openClass);
+            Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
             return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getDefaultUserClassLoader());
 
         } catch (Exception ex) {
             throw new OpenLRuntimeException("Cannot instantiate engine instance", ex);
         }
-
     }
 
     @Override
@@ -68,6 +80,9 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
+        if(compiledOpenClass == null){
+            compiledOpenClass = initializeOpenClass();
+        }
         return compiledOpenClass;
     }
 }

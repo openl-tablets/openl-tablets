@@ -21,6 +21,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -92,6 +93,8 @@ public class ProjectModel {
     private CompiledOpenClass compiledOpenClass;
 
     private Module moduleInfo;
+
+    private ModulesCache modulesCache = new ModulesCache();
 
     private ProjectIndexer indexer;
 
@@ -1127,7 +1130,7 @@ public class ProjectModel {
         projectRoot = null;
         savedSearches = null;
         
-        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(moduleInfo);
+        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(moduleInfo);
         
         try {
             compiledOpenClass = instantiationStrategy.compile(reloadType);

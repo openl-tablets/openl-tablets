@@ -52,10 +52,10 @@ public abstract class RulesInstantiationStrategy {
      * @throws IllegalAccessException
      * @throws ClassNotFoundException
      */
-    public CompiledOpenClass compile(ReloadType reloadType) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException {
+    public CompiledOpenClass compile(ReloadType reloadType) throws InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
         if (reloadType == ReloadType.FORCED) {
-            reloadWrapper();
+            forcedReset();
         }
         return compile(getServiceClass(), reloadType == ReloadType.NO);
     }
@@ -71,18 +71,23 @@ public abstract class RulesInstantiationStrategy {
      * @throws IllegalAccessException
      * @throws ClassNotFoundException
      */
-    public Object instantiate(ReloadType reloadType) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException {
+    public Object instantiate(ReloadType reloadType) throws InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
         if (reloadType == ReloadType.FORCED) {
-            reloadWrapper();
+            forcedReset();
         }
         return instantiate(getServiceClass(), reloadType == ReloadType.NO);
     }
 
-    private void reloadWrapper() {
+    protected void forcedReset() {
         getModule().getProject().getClassLoader(true);
     }
 
+    /**
+     * Returns ClassLoader for the current module inside the project.
+     * 
+     * @return {@link ClassLoader} for the current module.
+     */
     protected ClassLoader getClassLoader() {
         return module.getProject().getClassLoader(false);
     }
