@@ -21,7 +21,7 @@
 
 <f:view>
     <h:form>
-        <div 
+        <div>
             <h2>Call methods</h2>
             <table border="0">
                 <tr>
