@@ -1,8 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -24,8 +22,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
 
         try {
-            return descriptorManager.readDescriptor(new FileInputStream(descriptorFile));
-        } catch (FileNotFoundException ex) {
+            return descriptorManager.readDescriptor(descriptorFile);
+        } catch (Exception ex) {
             throw new RuntimeException("Project cannot be resolved", ex);
         }
     }

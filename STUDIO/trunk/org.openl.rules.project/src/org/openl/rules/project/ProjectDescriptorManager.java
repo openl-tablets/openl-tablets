@@ -28,19 +28,23 @@ public class ProjectDescriptorManager {
         this.serializer = serializer;
     }
 
-    public ProjectDescriptor readDescriptor(InputStream source) {
+    private ProjectDescriptor readDescriptorInternal(InputStream source) {
         return serializer.deserialize(source);
     }
 
-    public ProjectDescriptor readDescriptor(String filename) throws FileNotFoundException, ValidationException {
-        File source = new File(filename);
-        FileInputStream inputStream = new FileInputStream(source);
+    public ProjectDescriptor readDescriptor(File filename) throws FileNotFoundException, ValidationException {
+        FileInputStream inputStream = new FileInputStream(filename);
 
-        ProjectDescriptor descriptor = readDescriptor(inputStream);
-        postProcess(descriptor, source);
+        ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
+        postProcess(descriptor, filename);
         validator.validate(descriptor);
 
         return descriptor;
+    }
+    
+    public ProjectDescriptor readDescriptor(String filename) throws FileNotFoundException, ValidationException {
+        File source = new File(filename);
+        return readDescriptor(source);
     }
 
     public void writeDescriptor(ProjectDescriptor descriptor, OutputStream dest) throws IOException,

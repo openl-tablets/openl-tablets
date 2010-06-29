@@ -14,7 +14,7 @@ Require-Bundle: org.openl.rules.tomcat.lib;visibility:=reexport,
  org.openl.rules.diff;visibility:=reexport,
  org.openl.rules.webstudio.lib;visibility:=reexport,
  org.openl.rules.tableeditor,
- org.openl.rules.project
+ org.openl.rules.project;visibility:=reexport
 Export-Package: org.openl.rules.ui,
  org.openl.rules.webstudio.repository,
  org.openl.rules.webstudio.repository.dependency,
