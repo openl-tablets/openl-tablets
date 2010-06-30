@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.model.SelectItem;
@@ -8,6 +9,7 @@ import javax.faces.model.SelectItem;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -20,11 +22,14 @@ public class HeaderBean {
 
     private boolean hideLogout;
 
-    public SelectItem[] getProjects() throws IOException {
-        List<Module> modules = getWebStudio().getAllModules();
-        SelectItem[] selectItems = new SelectItem[modules.size()];
-        for (int i = 0; i < modules.size(); i++) {
-            selectItems[i] = new SelectItem(modules.get(i).getClassname(), modules.get(i).getName());
+    public List<SelectItem> getProjects() throws IOException {
+        List<ProjectDescriptor> projects = getWebStudio().getAllProjects();
+        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        for (ProjectDescriptor project : projects) {
+            selectItems.add(new SelectItem(project.getName(), project.getName(), null, true));
+            for (Module module : project.getModules()) {
+                selectItems.add(new SelectItem(module.getClassname(), module.getName()));
+            }
         }
         return selectItems;
     }

@@ -233,23 +233,20 @@ public class WebStudio {
         return workspacePath;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return Returns the modules.
-     * 
-     * @throws IOException
-     */
     public synchronized List<Module> getAllModules() throws IOException {
         if (modules == null) {
             modules = new ArrayList<Module>();
-            for(ProjectDescriptor project: projectResolver.listOpenLProjects()){
+            for (ProjectDescriptor project: projectResolver.listOpenLProjects()){
                 if (project.getModules() != null) {
                     modules.addAll(project.getModules());
                 }
             }
         }
         return modules;
+    }
+
+    public synchronized List<ProjectDescriptor> getAllProjects() {
+        return projectResolver.listOpenLProjects();
     }
 
     public boolean init(HttpSession session) {
