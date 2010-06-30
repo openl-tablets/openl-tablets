@@ -16,6 +16,13 @@
         <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
         <style>
             form { margin: 0px; }
+            .projectItem {
+                margin-top: 3px;
+                color: #337AB6;
+            }
+            .moduleItem {
+                padding-left: 10px;
+            }
         </style>
     </head>
 
@@ -48,8 +55,8 @@
                         <h:panelGroup rendered="#{not empty headerBean.projects}">
                             <span style="font-size:12px; font-weight:bold; color:black;">Select Module: </span>
                             <h:selectOneMenu value="#{headerBean.selectedProject}" onchange="sbmForm(this.form)"
-                                id="select_wrapper">
-                                <f:selectItems value="#{headerBean.projects}"/>
+                                id="select_wrapper" enabledClass="moduleItem" disabledClass="projectItem">
+                                <f:selectItems value="#{headerBean.projects}" />
                             </h:selectOneMenu>
                         </h:panelGroup>
                         <h:outputText value="No OpenL Projects in the Workspace" style="font-size:16px; color:red"
