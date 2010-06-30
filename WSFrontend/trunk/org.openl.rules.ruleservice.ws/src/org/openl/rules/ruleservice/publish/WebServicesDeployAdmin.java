@@ -10,10 +10,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.ruleservice.resolver.RulesModuleInfo;
-import org.openl.rules.ruleservice.resolver.RulesProjectInfo;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.springframework.beans.factory.ObjectFactory;
 
 public class WebServicesDeployAdmin implements DeploymentAdmin {
@@ -40,16 +41,16 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         this.serverFactory = serverFactory;
     }
 
-    public synchronized void deploy(String serviceName, ClassLoader loader, List<RulesProjectInfo> infoList) {
+    public synchronized void deploy(String serviceName, List<ProjectDescriptor> infoList) {
         undeploy(serviceName);
 
         String address = getBaseAddress() + serviceName + "/";
 
         Collection<Server> servers = new ArrayList<Server>();
-        for (RulesProjectInfo wsInfo : infoList) {
-            for (RulesModuleInfo rulesModule : wsInfo.getRulesModules()) {
+        for (ProjectDescriptor wsInfo : infoList) {
+            for (Module rulesModule : wsInfo.getModules()) {
                 try {
-                    servers.add(deploy(address, loader, rulesModule));
+                    servers.add(deploy(address, rulesModule));
                 } catch (Exception e) {
                     LOG.error("Failed to create service", e);
                 }
@@ -59,11 +60,11 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         runningServices.put(serviceName, servers);
     }
 
-    private Server deploy(String baseAddress, ClassLoader loader, RulesModuleInfo rulesModule)
+    private Server deploy(String baseAddress, Module rulesModule)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
 
-        instantiateServiceBean(loader, rulesModule, svrFactory);
+        instantiateServiceBean(rulesModule, svrFactory);
 
         return exposeWebService(baseAddress, rulesModule, svrFactory);
     }
@@ -84,17 +85,26 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         return new ServerFactoryBean();
     }
  
-    private void instantiateServiceBean(ClassLoader loader, RulesModuleInfo rulesModule, ServerFactoryBean svrFactory)
+    private void instantiateServiceBean(Module rulesModule, ServerFactoryBean svrFactory)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, loader);
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule);
 
         svrFactory.setServiceClass(strategy.getServiceClass());
-        svrFactory.setServiceBean(strategy.instantiate());
+        svrFactory.setServiceBean(strategy.instantiate(ReloadType.RELOAD));
+    }
+
+    protected String getServiceNameForModule(Module rulesModule) {
+        int postfixIndex = rulesModule.getClassname().lastIndexOf("Wrapper");
+        if (postfixIndex > 0) {
+            return rulesModule.getClassname().substring(0, postfixIndex);
+        } else {
+            return rulesModule.getClassname();
+        }
     }
     
-    private Server exposeWebService(String baseAddress, RulesModuleInfo rulesModule, ServerFactoryBean svrFactory) {
-        svrFactory.setAddress(baseAddress + rulesModule.getName());
+    private Server exposeWebService(String baseAddress, Module rulesModule, ServerFactoryBean svrFactory) {
+        svrFactory.setAddress(baseAddress + getServiceNameForModule(rulesModule));
         return svrFactory.create();
     }
 }

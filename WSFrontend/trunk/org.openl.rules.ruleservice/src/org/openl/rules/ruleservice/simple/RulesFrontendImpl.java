@@ -12,7 +12,6 @@ import org.openl.rules.ruleservice.loader.JcrRulesLoader;
 import org.openl.rules.ruleservice.publish.DeploymentListener;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
 import org.openl.rules.ruleservice.publish.JavaClassDeploymentAdmin;
-import org.openl.rules.ruleservice.resolver.SimpleRulesProjectResolver;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -103,7 +102,6 @@ public class RulesFrontendImpl extends RuleService implements RulesFrontend {
             LOG.error("Failed to intialize rules loader from JCR.", e);
         }
         publisher = new RulesPublisher();
-        publisher.setRulesProjectResolver(new SimpleRulesProjectResolver());
 
         JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
 
