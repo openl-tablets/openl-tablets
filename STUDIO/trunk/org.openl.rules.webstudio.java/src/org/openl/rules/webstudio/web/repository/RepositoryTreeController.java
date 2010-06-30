@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -10,6 +11,7 @@ import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.upload.FileProjectResource;
+import org.openl.rules.webstudio.services.upload.RProjectBuilder;
 import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
 import org.openl.rules.webstudio.services.upload.UploadServiceResult;
@@ -35,6 +37,7 @@ import org.richfaces.model.UploadItem;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -63,6 +66,8 @@ public class RepositoryTreeController {
     private UploadService uploadService;
     private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
     private String projectName;
+    private String newProjectTemplate;
+    private String[] projectTemplates = { "SampleTemplate.xls" };
     private String folderName;
     private List<UploadItem> files = new ArrayList<UploadItem>();
     private String fileName;
@@ -275,18 +280,30 @@ public class RepositoryTreeController {
 
     public String createRulesProject() {
         String errorMessage = null;
+        RProjectBuilder projectBuilder = null;
         try {
             if (NameChecker.checkName(projectName)) {
                 if (userWorkspace.hasProject(projectName)) {
                     errorMessage = "Cannot create project because project with such name already exists.";
                 } else {
-                    userWorkspace.createProject(projectName);
+                    projectBuilder = new RProjectBuilder(userWorkspace, projectName, null);
+
+                    InputStream templateSource = this.getClass().getClassLoader()
+                        .getResourceAsStream(newProjectTemplate);
+                    String rulesFileName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
+                    projectBuilder.addFile(rulesFileName, templateSource);
+
+                    projectBuilder.checkIn();
+
                     repositoryTreeState.invalidateTree();
                 }
             } else {
                 errorMessage = "Specified name is not a valid project name.";
             }
-        } catch (ProjectException e) {
+        } catch (Exception e) {
+            if (projectBuilder != null) {
+                projectBuilder.cancel();
+            }
             LOG.error("Error creating project.", e);
             errorMessage = e.getMessage();
         }
@@ -429,8 +446,8 @@ public class RepositoryTreeController {
     }
 
     public String filter() {
-        OpenLFilter filter = null;
-        if (!StringUtils.isEmpty(filterString)) {
+        OpenLFilter<?> filter = null;
+        if (StringUtils.isNotBlank(filterString)) {
             filter = new RepositoryFileExtensionFilter(filterString);
         }
         repositoryTreeState.setFilter(filter);
@@ -1156,4 +1173,17 @@ public class RepositoryTreeController {
             }
         }
     }
+
+    public String getNewProjectTemplate() {
+        return newProjectTemplate;
+    }
+
+    public void setNewProjectTemplate(String newProjectTemplate) {
+        this.newProjectTemplate = newProjectTemplate;
+    }
+
+    public SelectItem[] getNewProjectTemplates() {
+        return FacesUtils.createSelectItems(projectTemplates);
+    }
+
 }
