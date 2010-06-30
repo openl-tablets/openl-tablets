@@ -163,6 +163,12 @@
         <artifactId>org.openl.rules.workspace</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.project</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

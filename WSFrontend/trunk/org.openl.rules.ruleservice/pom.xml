@@ -62,6 +62,11 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.workspace</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.project</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
