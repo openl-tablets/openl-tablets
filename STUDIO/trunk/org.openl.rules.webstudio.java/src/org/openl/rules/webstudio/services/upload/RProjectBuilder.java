@@ -27,7 +27,7 @@ public class RProjectBuilder {
     }
 
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
-        if (!filter.accept(fileName)) {
+        if (filter != null && !filter.accept(fileName)) {
             return false;
         }
 

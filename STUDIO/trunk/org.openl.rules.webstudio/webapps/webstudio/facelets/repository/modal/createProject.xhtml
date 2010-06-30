@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets" >
 
-  <rich:modalPanel id="modalNewProject" width="400" minWidth="400" height="120" minHeight="120">
+  <rich:modalPanel id="modalNewProject" width="400" minWidth="400" height="143" minHeight="143">
     <f:facet name="header">
       <h:outputText value="New Project" />
     </f:facet>
@@ -16,8 +16,13 @@
 
     <h:form id="newProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" onkeypress="return modalInputKeyPress(event, this)"/>
+        <h:outputText styleClass="required" value="Project Name" />
+        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"
+            onkeypress="return modalInputKeyPress(event, this)"/>
+        <h:outputText styleClass="required" value="Project Template" />
+        <h:selectOneMenu value="#{repositoryTreeController.newProjectTemplate}" style="width: 196px;">
+            <f:selectItems value="#{repositoryTreeController.newProjectTemplates}" />
+        </h:selectOneMenu>
       </h:panelGrid>
 
       <br />
