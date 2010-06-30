@@ -9,10 +9,11 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.ruleservice.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.ruleservice.resolver.RulesModuleInfo;
-import org.openl.rules.ruleservice.resolver.RulesProjectInfo;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 public class JavaClassDeploymentAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(JavaClassDeploymentAdmin.class);
@@ -27,16 +28,16 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         }
     }
 
-    public synchronized void deploy(String deploymentName, ClassLoader loader, List<RulesProjectInfo> infoList) {
+    public synchronized void deploy(String deploymentName, List<ProjectDescriptor> infoList) {
         onBeforeDeployment(deploymentName);
 
         undeploy(deploymentName);
 
         Map<String, OpenLWrapper> projectWrappers = new HashMap<String, OpenLWrapper>();
-        for (RulesProjectInfo wsInfo : infoList) {
-            for (RulesModuleInfo rulesModule : wsInfo.getRulesModules()) {
+        for (ProjectDescriptor wsInfo : infoList) {
+            for (Module rulesModule : wsInfo.getModules()) {
                 try {
-                    OpenLWrapper wrapper = deploy(deploymentName, loader, rulesModule);
+                    OpenLWrapper wrapper = deploy(deploymentName, rulesModule);
                     projectWrappers.put(rulesModule.getName(), wrapper);
                 } catch (Exception e) {
                     log.error("failed to create service", e);
@@ -50,11 +51,11 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         onAfterDeployment(deploymentName, projectWrappers);
     }
 
-    private OpenLWrapper deploy(String serviceName, ClassLoader loader, RulesModuleInfo rulesModule)
+    private OpenLWrapper deploy(String serviceName, Module rulesModule)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, loader);
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule);
 
-        return (OpenLWrapper) strategy.instantiate();
+        return (OpenLWrapper) strategy.instantiate(ReloadType.RELOAD);
 
     }
 

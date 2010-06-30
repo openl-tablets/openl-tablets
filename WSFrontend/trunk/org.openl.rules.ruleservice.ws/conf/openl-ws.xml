@@ -82,10 +82,6 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
 		<property name="serverFactory" ref="serverPrototypeFactory" />
 	</bean>
 	
-	<!-- Rules project resolver (just for pulisher) -->
-	<bean id="resolverBean"
-		class="org.openl.rules.ruleservice.resolver.SimpleRulesProjectResolver" />
-
 	<!--
 		Any implementation of interface
 		"org.openl.rules.ruleservice.publish.ServiceNameBuilder".
@@ -97,7 +93,6 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
 	<!-- Rules publisher that will expose all deployments -->
 	<bean id="publisherBean" class="org.openl.rules.ruleservice.publish.RulesPublisher">
 		<property name="deployAdmin" ref="deploymentAdmin" />
-		<property name="rulesProjectResolver" ref="resolverBean" />
 		<property name="serviceNameBuilder" ref="serviceNameBuilderBean" />
 	</bean>
 
