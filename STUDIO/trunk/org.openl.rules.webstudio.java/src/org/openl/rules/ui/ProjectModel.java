@@ -24,7 +24,6 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
@@ -1120,7 +1119,7 @@ public class ProjectModel {
         if(reloadType == ReloadType.FORCED){
             RulesProjectResolver projectResolver = studio.getProjectResolver();
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder, projectResolver.getProjectsTreeAdaptor()).getModuleByClassName(moduleInfo.getClassname());
+            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder).getModuleByClassName(moduleInfo.getClassname());
         }else{
             this.moduleInfo = moduleInfo;
         }

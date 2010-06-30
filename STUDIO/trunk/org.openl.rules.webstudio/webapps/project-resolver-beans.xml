@@ -6,7 +6,9 @@
   <!--This config has to be in classpath-->
 
   <bean id="descriptorBasedStrategy" class="org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy"/>
-  <bean id="eclipseBasedStrategy" class="org.openl.rules.project.resolving.EclipseBasedResolvingStrategy"/>
+  <bean id="eclipseBasedStrategy" class="org.openl.rules.project.resolving.EclipseBasedResolvingStrategy">
+      <property name="treeAdaptor" ref="fileTreeAdaptor"/>
+  </bean>
   <bean id="simpleXLSStrategy" class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
   <bean id="fileTreeAdaptor" class="org.openl.util.tree.FileTreeIterator$FileTreeAdaptor"/>
   
@@ -18,6 +20,5 @@
         <ref bean="simpleXLSStrategy"/>
       </list>
     </property>
-    <property name="projectsTreeAdaptor" ref="fileTreeAdaptor"/>
   </bean>
 </beans>
