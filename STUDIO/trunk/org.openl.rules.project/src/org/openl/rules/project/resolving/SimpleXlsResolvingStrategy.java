@@ -9,7 +9,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
 
 /**
  * Resolver for simple OpenL project with only xls file.
@@ -20,7 +19,7 @@ import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
  */
 public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
-    public boolean isRulesProject(File folder, FileTreeAdaptor fileTreeAdaptor) {
+    public boolean isRulesProject(File folder) {
         if (!folder.isDirectory()) {
             return false;
         }
@@ -32,7 +31,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         return false;
     }
 
-    public ProjectDescriptor resolveProject(File folder, FileTreeAdaptor fileTreeAdaptor) {
+    public ProjectDescriptor resolveProject(File folder) {
         ProjectDescriptor project = createDescriptor(folder);
         List<Module> modules = new ArrayList<Module>();
         for (File f : folder.listFiles()) {
@@ -41,7 +40,6 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
             }
         }
         project.setModules(modules);
-        project.setName(folder.getName());
         return project;
     }
 
@@ -59,6 +57,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
     private ProjectDescriptor createDescriptor(File folder) {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder);
+        project.setName(folder.getName());
         project.setId(folder.getName());
         return project;
     }

@@ -8,7 +8,6 @@ import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
-import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -22,8 +21,6 @@ public class RulesProjectResolver {
     private String workspace;
 
     private ISelector<String> projectSelector;
-
-    private FileTreeAdaptor projectsTreeAdaptor;
 
     public static RulesProjectResolver loadProjectResolverFromClassPath() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
@@ -47,14 +44,6 @@ public class RulesProjectResolver {
         this.resolvingStrategies = resolvingStrategies;
     }
 
-    public FileTreeAdaptor getProjectsTreeAdaptor() {
-        return projectsTreeAdaptor;
-    }
-
-    public void setProjectsTreeAdaptor(FileTreeAdaptor projectsTreeAdaptor) {
-        this.projectsTreeAdaptor = projectsTreeAdaptor;
-    }
-
     public void setProjectSelector(ISelector<String> projectSelector) {
         this.projectSelector = projectSelector;
     }
@@ -72,7 +61,7 @@ public class RulesProjectResolver {
             }
             ResolvingStrategy strategy = isRulesProject(f[i]);
             if (strategy != null) {
-                projects.add(strategy.resolveProject(f[i], projectsTreeAdaptor));
+                projects.add(strategy.resolveProject(f[i]));
             }
         }
 
@@ -86,7 +75,7 @@ public class RulesProjectResolver {
      */
     public ResolvingStrategy isRulesProject(File folder) {
         for (ResolvingStrategy strategy : resolvingStrategies) {
-            if (strategy.isRulesProject(folder, projectsTreeAdaptor)) {
+            if (strategy.isRulesProject(folder)) {
                 return strategy;
             }
         }

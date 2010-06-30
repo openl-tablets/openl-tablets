@@ -79,8 +79,7 @@ public class WebStudioProfiler extends Profiler.Unit {
         RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         projectResolver.setWorkspace(workspace);
         ResolvingStrategy strategy = projectResolver.isRulesProject(projectFolder);
-        ProjectDescriptor projectDescriptor = strategy.resolveProject(projectFolder, projectResolver
-                .getProjectsTreeAdaptor());
+        ProjectDescriptor projectDescriptor = strategy.resolveProject(projectFolder);
         Module module = projectDescriptor.getModuleByClassName(wrapperClass);
         
         
