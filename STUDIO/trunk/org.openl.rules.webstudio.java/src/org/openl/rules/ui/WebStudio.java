@@ -29,8 +29,6 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
@@ -66,7 +64,7 @@ public class WebStudio {
     private String tableUri;
     private ProjectModel model = new ProjectModel(this);
     private RulesProjectResolver projectResolver;
-    private List<Module> modules = null;
+    private List<ProjectDescriptor> projects = null;
 
     private WebStudioViewMode mode = BUSINESS1_VIEW;
     private Set<String> writableProjects;
@@ -233,18 +231,11 @@ public class WebStudio {
         return workspacePath;
     }
 
-    public synchronized List<Module> getAllModules() throws IOException {
-        if (modules == null) {
-            modules = new ArrayList<Module>();
-            for (ProjectDescriptor project: getAllProjects()){
-                modules.addAll(project.getModules());
-            }
-        }
-        return modules;
-    }
-
     public synchronized List<ProjectDescriptor> getAllProjects() {
-        return projectResolver.listOpenLProjects();
+        if (projects == null) {
+            projects = projectResolver.listOpenLProjects();
+        }
+        return projects;
     }
 
     public boolean init(HttpSession session) {
@@ -306,25 +297,25 @@ public class WebStudio {
     }
 
     public void select(String name) throws Exception {
-        List<Module> modules = getAllModules();
         if (name == null) {
             if (currentModule != null) {
                 return;
             }
 
-            if (modules.size() > 0) {
-                setCurrentModule(modules.get(0));
+            if (getAllProjects().size() > 0) {
+                setCurrentModule(getAllProjects().get(0).getModules().get(0));
             }
             return;
         }
-        for(Module module : modules){
-            if (module.getClassname().equals(name)) {
+        for (ProjectDescriptor project : getAllProjects()) {
+            Module module = project.getModuleByClassName(name);
+            if(module != null){
                 setCurrentModule(module);
                 return;
             }
         }
-        if (modules.size() > 0) {
-            setCurrentModule(modules.get(0));
+        if (getAllProjects().size() > 0) {
+            setCurrentModule(getAllProjects().get(0).getModules().get(0));
         }
     }
 
