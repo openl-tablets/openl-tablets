@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
@@ -15,6 +17,7 @@ import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
  * @author PUdalau
  */
 public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
+    private static final Log LOG = LogFactory.getLog(ApiBasedEngineFactoryInstantiationStrategy.class);
     private ApiBasedRulesEngineFactory factory;
     private ClassLoader classLoader;
 
@@ -59,6 +62,9 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().getInterfaceClass();
+        }catch (Exception e) {
+            LOG.warn("Cannot resolve interface", e);
+            return null;
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -68,7 +74,7 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
     protected CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             if (!useExisting) {
                 factory.reset(false);

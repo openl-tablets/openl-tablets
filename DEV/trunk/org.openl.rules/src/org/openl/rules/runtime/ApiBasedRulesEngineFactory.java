@@ -38,7 +38,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
 
     public Class<?> getInterfaceClass() {
         if(interfaceClass == null){
-            IOpenClass openClass = getCompiledOpenClass().getOpenClass();
+            IOpenClass openClass = getCompiledOpenClass().getOpenClassWithErrors();
             String className = openClass.getName();
             try {
                 interfaceClass = RulesFactory.generateInterface(className, openClass, getDefaultUserClassLoader());
@@ -58,7 +58,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
     public Object makeInstance() {
         try {
             compiledOpenClass = getCompiledOpenClass();
-            IOpenClass openClass = compiledOpenClass.getOpenClass();
+            IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
             IRuntimeEnv runtimeEnv = getOpenL().getVm().getRuntimeEnv();
             Object openClassInstance = openClass.newInstance(runtimeEnv);
