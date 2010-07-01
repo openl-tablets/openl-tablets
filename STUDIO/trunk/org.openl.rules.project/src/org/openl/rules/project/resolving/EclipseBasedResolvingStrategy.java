@@ -55,6 +55,9 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
             if (!FileTool.containsFileText(folder, ".project", "openlbuilder")) {
                 return false;
             }
+            if(listPotentialOpenLWrappersClassNames(folder).length == 0){
+                return false; //no modules.
+            }
             return true;
         } catch (IOException e) {
             return false;
@@ -118,14 +121,12 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         } catch (IOException e) {
             wrapperClassNames = new String[] {};
         }
-        if (wrapperClassNames.length > 0) {
-            List<Module> projectModules = new ArrayList<Module>();
-            for (String className : wrapperClassNames) {
-                projectModules.add(createModule(descriptor, className));
-            }
-            descriptor.setModules(projectModules);
-            descriptor.setClasspath(getClassPath(folder.getAbsolutePath()));
+        List<Module> projectModules = new ArrayList<Module>();
+        for (String className : wrapperClassNames) {
+            projectModules.add(createModule(descriptor, className));
         }
+        descriptor.setModules(projectModules);
+        descriptor.setClasspath(getClassPath(folder.getAbsolutePath()));
         return descriptor;
     }
 

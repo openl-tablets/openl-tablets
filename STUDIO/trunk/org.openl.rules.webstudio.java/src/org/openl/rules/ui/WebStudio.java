@@ -236,10 +236,8 @@ public class WebStudio {
     public synchronized List<Module> getAllModules() throws IOException {
         if (modules == null) {
             modules = new ArrayList<Module>();
-            for (ProjectDescriptor project: projectResolver.listOpenLProjects()){
-                if (project.getModules() != null) {
-                    modules.addAll(project.getModules());
-                }
+            for (ProjectDescriptor project: getAllProjects()){
+                modules.addAll(project.getModules());
             }
         }
         return modules;
