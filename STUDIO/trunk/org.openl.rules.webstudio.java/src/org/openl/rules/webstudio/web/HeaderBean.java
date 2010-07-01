@@ -56,8 +56,8 @@ public class HeaderBean {
     }
 
     public boolean isProjectsExist() throws IOException {
-        List<Module> modules = getWebStudio().getAllModules();
-        return modules.size() > 0;
+        List<ProjectDescriptor> projects = getWebStudio().getAllProjects();
+        return projects.size() > 0;
     }
 
     public boolean isRepositoryFailed() {

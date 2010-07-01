@@ -1,10 +1,10 @@
 package org.openl.rules.ui;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -32,8 +32,8 @@ public class NavigationBean {
             return findMatchingWrapperByFileOnly(parser, webStudio);
         }
 
-        try {
-            for (Module m : webStudio.getAllModules()) {
+        for (ProjectDescriptor project : webStudio.getAllProjects()) {
+            for (Module m : project.getModules()) {
                 try {
                     ProjectModel model = new ProjectModel(webStudio);
                     model.setModuleInfo(m);
@@ -44,7 +44,6 @@ public class NavigationBean {
                 } catch (Exception e) {
                 }
             }
-        } catch (IOException e) {
         }
 
         return null;
@@ -55,8 +54,8 @@ public class NavigationBean {
             return null;
         }
 
-        try {
-            for (Module m : webStudio.getAllModules()) {
+        for (ProjectDescriptor project : webStudio.getAllProjects()) {
+            for (Module m : project.getModules()) {
                 try {
                     ProjectModel model = new ProjectModel(webStudio);
                     model.setModuleInfo(m);
@@ -67,7 +66,6 @@ public class NavigationBean {
                 } catch (Exception e) {
                 }
             }
-        } catch (IOException e) {
         }
 
         return null;
