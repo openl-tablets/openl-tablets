@@ -10,9 +10,6 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.base.INamedThing;
-import org.openl.meta.IMetaHolder;
-import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -42,7 +39,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Table;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -51,6 +47,7 @@ import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
@@ -66,15 +63,12 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringTool;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -131,25 +125,6 @@ public class ProjectModel {
         }
 
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
-    }
-
-    public static boolean intersects(XlsUrlParser p1, String url2) {
-        XlsUrlParser p2 = new XlsUrlParser();
-        p2.parse(url2);
-
-        if (!p1.wbPath.equals(p2.wbPath) || !p1.wbName.equals(p2.wbName) || !p1.wsName.equals(p2.wsName)) {
-            return false;
-        }
-
-        return IGridRegion.Tool.intersects(XlsSheetGridModel.makeRegion(p1.range), XlsSheetGridModel
-                .makeRegion(p2.range));
-    }
-
-    private static boolean intersectsByLocation(XlsUrlParser parser, String url) {
-        XlsUrlParser p2 = new XlsUrlParser();
-        p2.parse(url);
-
-        return parser.wbPath.equals(p2.wbPath) && parser.wbName.equals(p2.wbName);
     }
 
     public BenchmarkInfo benchmarkElement(String elementUri, final String testName, String testID,
@@ -300,7 +275,7 @@ public class ProjectModel {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i].getType().equals(ITableNodeTypes.XLS_DT)
-                    && intersectsByLocation(p1, nodes[i].getTable().getGridTable().getUri())) {
+                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getTable().getGridTable().getUri())) {
                 return nodes[i];
             }
         }
@@ -333,7 +308,7 @@ public class ProjectModel {
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
-            if (intersects(p1, nodes[i].getTable().getGridTable().getUri())) {
+            if (XlsUrlUtils.intersects(p1, nodes[i].getTable().getGridTable().getUri())) {
                 return nodes[i];
             }
         }
@@ -366,25 +341,6 @@ public class ProjectModel {
         return list;
     }
 
-    public String getDisplayName(String elementUri) {
-        ProjectTreeNode pte = getTreeNodeByUri(elementUri);
-        if (pte == null) {
-            return "";
-        }
-
-        String displayName = pte.getDisplayName(INamedThing.REGULAR);
-
-        if (displayName == null) {
-            return "NO_NAME";
-        }
-
-        if (displayName.length() > 30) {
-            return displayName.substring(0, 29);
-        }
-        return displayName;
-
-    }
-
     public String getTreeNodeId(ITreeElement<?> treeNode) {
         return idTreeCache.getKey(treeNode);
     }
@@ -401,40 +357,6 @@ public class ProjectModel {
 
     public ProjectTreeNode getTreeNodeByUri(String uri) {
         return uriTreeCache.getNode(uri);
-    }
-
-    public String getDisplayNameFull(String elementUri) {
-        ProjectTreeNode pte = getTreeNodeByUri(elementUri);
-        if (pte == null) {
-            return "";
-        }
-
-        String displayName = pte.getDisplayName(INamedThing.REGULAR);
-
-        if (displayName == null) {
-            return "NO_NAME";
-        }
-
-        return displayName;
-    }
-
-    public SyntaxNodeException[] getErrors(String elementUri) {
-
-        TableSyntaxNode tsn = getNode(elementUri);
-        SyntaxNodeException[] se = null;
-
-        if (tsn != null) {
-            se = tsn.getErrors();
-        }
-
-        return se == null ? new SyntaxNodeException[0] : se;
-    }
-    
-    public boolean hasErrors(String elementUri) {
-        
-        SyntaxNodeException[] se = getErrors(elementUri);
-        
-        return se.length > 0;
     }
 
     public ColorFilterHolder getFilterHolder() {
@@ -495,9 +417,7 @@ public class ProjectModel {
 
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
-        for (Iterator<IOpenMethod> iter = openClass.methods(); iter.hasNext();) {
-
-            IOpenMethod method = iter.next();
+        for (IOpenMethod method : openClass.getMethods()) {
             IOpenMethod resolvedMethod = null;
 
             if (method instanceof OpenMethodDispatcher) {
@@ -629,7 +549,6 @@ public class ProjectModel {
                 ISearchTableRow[] rows = tr[i].getRows();
                 if (rows.length > 0) {
                     TableSyntaxNode tsn = tr[i].getTsn();
-                    StringValue tableName = TableSyntaxNodeUtils.getTableSyntaxNodeName(tsn);
                     String tableUri = tsn.getUri();
 
                     CompositeGrid cg = searchViewer.makeGrid(rows);
@@ -640,9 +559,9 @@ public class ProjectModel {
                     newTable.setProperties(tsn.getTableProperties());
 
                     TableSearch tableSearch = new TableSearch();
-                    tableSearch.setTableUri(tableUri);
                     tableSearch.setTable(newTable);
-                    tableSearch.setXlsLink((getXlsOrDocUrlLink(tableName)));
+                    String xlsUrl = HTMLHelper.makeXlsOrDocUrl(tableUri);
+                    tableSearch.setXlsLink(xlsUrl);
 
                     searchResults.add(tableSearch);
                 }
@@ -659,33 +578,14 @@ public class ProjectModel {
             List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
             for(TableSyntaxNode foundTable : foundTables) {
                 TableSearch tableSearch = new TableSearch();
-                tableSearch.setTableUri(foundTable.getUri());
                 tableSearch.setTable(new TableSyntaxNodeAdapter(foundTable));
-                tableSearch.setXlsLink((getXlsOrDocUrlLink(
-                        TableSyntaxNodeUtils.getTableSyntaxNodeName(foundTable))));
+                String xlsUrl = HTMLHelper.makeXlsOrDocUrl(foundTable.getUri());
+                tableSearch.setXlsLink(xlsUrl);
                 searchResults.add(tableSearch);
             }
         }
 
         return searchResults;
-    }
-
-    // TODO Move to UI
-    @Deprecated
-    public String getXlsOrDocUrlLink(IMetaHolder mh) {
-        String display = String.valueOf(mh);
-        StringBuffer buf = new StringBuffer();
-        buf.append("<a ");
-
-        String url = HTMLHelper.makeXlsOrDocUrl(mh.getMetaInfo().getSourceUrl());
-        buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
-        buf.append(" target='show_app_hidden'");
-
-        buf.append(">");
-        StringTool.encodeHTMLBody(display, buf);
-        buf.append("</a>");
-
-        return buf.toString();
     }
 
     public WebStudio getStudio() {
@@ -705,6 +605,7 @@ public class ProjectModel {
         return tsn == null ? null : tsn.getTable().getGridTable();
     }
 
+    @Deprecated
     public TableInfo getTableInfo(String uri) {
         if (uri == null) {
             return null;
@@ -721,30 +622,6 @@ public class ProjectModel {
         return view == null ? studio.getMode().getTableMode() : view;
     }
 
-    public IGridTable getTableWithMode(String elementUri) {
-        return getTableWithMode(elementUri, null);
-    }
-
-    public IGridTable getTableWithMode(String elementUri, String mode) {
-
-        TableSyntaxNode tsn = getNode(elementUri);
-        if (tsn == null) {
-            return null;
-        }
-
-        IGridTable gt = tsn.getTable().getGridTable();
-        String type = getTableView(mode);
-
-        if (type != null) {
-            ILogicalTable gtx = tsn.getSubTables().get(type);
-            if (gtx != null) {
-                gt = gtx.getGridTable();
-            }
-        }
-        return gt;
-
-    }
-
     public AllTestsRunResult getTestsRunner(IOpenMethod[] testMethods) {
         String[] names = new String[testMethods.length];
 
@@ -757,8 +634,9 @@ public class ProjectModel {
     }
     
     /**
-     * Get runnable tests for tested method by uri. Runnable tests - tests with  filled rules rows data for testing 
-     * its functionality. If you need to get all test methods, including and empty ones, use {@link #getAllTestMethods(String)
+     * Get runnable tests for tested method by uri.
+     * Runnable tests - tests with  filled rules rows data for testing its functionality.
+     * If you need to get all test methods, including and empty ones, use {@link #getAllTestMethods(String).
      * 
      * @param elementUri
      * @return
@@ -801,16 +679,6 @@ public class ProjectModel {
                 compiledOpenClass.getOpenClassWithErrors());
 
         return getTestsRunner(testMethods);
-    }
-
-    public String getUri(String elementUri) {
-        IGridTable table = getGridTable(elementUri);
-
-        if (table == null) {
-            return "file://NO_FILE";
-        }
-
-        return table.getUri();
     }
 
     private XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
@@ -1138,23 +1006,6 @@ public class ProjectModel {
         }
     }
 
-    public String showProperty(String elementUri, String propertyName) {
-        TableSyntaxNode tsn = getNode(elementUri);
-        if (tsn == null) {
-            return "";
-        }
-
-        ITableProperties tp = tsn.getTableProperties();
-        if (tp == null) {
-            return "";
-        }
-
-        String p = tp.getPropertyValueAsString(propertyName);
-
-        return p == null ? "" : p;
-
-    }
-
     public String showTableWithSelection(String url, String view) {
         TableSyntaxNode tsn = findNode(url);
         if (tsn == null) {
@@ -1207,10 +1058,6 @@ public class ProjectModel {
         return t;
     }
 
-    public List<Object> validateAll() {
-        return null;
-    }
-
     public TableEditorModel getTableEditorModel(String tableUri) {
         ITable table = getTable(tableUri);
         String tableView = getTableView(null);
@@ -1218,12 +1065,12 @@ public class ProjectModel {
         return tableModel;
     }
 
-    /** @deprecated */
+    @Deprecated
     public static String showTable(IGridTable gt, boolean showgrid) {
         return showTable(gt, (IGridFilter[]) null, showgrid);
     }
 
-    /** @deprecated */
+    @Deprecated
     public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
         TableModel model = buildModel(gt, filters);
         return TableViewer.showTable(model, showgrid);

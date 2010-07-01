@@ -4,7 +4,6 @@
 package org.openl.rules.ui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -25,8 +24,7 @@ public class ProjectHelper {
     
     public static IOpenMethod[] allTesters(IOpenClass openClass) {
         List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-        for (Iterator<IOpenMethod> iter = openClass.methods(); iter.hasNext();) {
-            IOpenMethod tester = (IOpenMethod) iter.next();
+        for (IOpenMethod tester : openClass.getMethods()) {
             if (isTester(tester)) {
                 res.add(tester);
             }
@@ -85,8 +83,7 @@ public class ProjectHelper {
     public static IOpenMethod[] runners(IOpenMethod tested) {
 
         List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-        for (Iterator<IOpenMethod> iter = tested.getDeclaringClass().methods(); iter.hasNext();) {
-            IOpenMethod runner = iter.next();
+        for (IOpenMethod runner : tested.getDeclaringClass().getMethods()) {
             if (isMethodRunnedBy(tested, runner)) {
                 res.add(runner);
             }
@@ -106,8 +103,7 @@ public class ProjectHelper {
     public static IOpenMethod[] testers(IOpenMethod tested) {
 
         List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-        for (Iterator<IOpenMethod> iter = tested.getDeclaringClass().methods(); iter.hasNext();) {
-            IOpenMethod tester = (IOpenMethod) iter.next();
+        for (IOpenMethod tester : tested.getDeclaringClass().getMethods()) {
             if (isMethodTestedBy(tested, tester)) {
                 res.add(tester);
             }
@@ -126,15 +122,14 @@ public class ProjectHelper {
      */
     public static IOpenMethod[] allTesters(IOpenMethod tested) {
         List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-        for (Iterator<IOpenMethod> iter = tested.getDeclaringClass().methods(); iter.hasNext();) {
-            IOpenMethod tester = (IOpenMethod) iter.next();
+        for (IOpenMethod tester : tested.getDeclaringClass().getMethods()) {
             if (isTestForMethod(tester,tested)) {
                 res.add(tester);
             }
         }
         return (IOpenMethod[]) res.toArray(new IOpenMethod[0]);
     }
-    
+
     /**
      * If tester is an instance of {@link TestSuiteMethod} and tested method object in tester is equal to tested we 
      * consider tester is test for tested method.
