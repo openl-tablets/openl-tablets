@@ -123,21 +123,6 @@ public class XlsUrlParser implements XlsURLConstants {
 
     }
 
-    // public String toCanonicalUrl(Bundle pd, String path) throws IOException {
-    // URL url = Platform.find(pd, new Path(path));
-    // url = Platform.asLocalURL(url);
-    // if (url == null) {
-    // return null;
-    // }
-    // String s = toCanonicalURL(url.toString());
-    //
-    // // remove ending slash added by conversion
-    // if (!endsWithSlash(path) && endsWithSlash(s))
-    // s = s.substring(0, s.length() - 1);
-    //
-    // return s;
-    // }
-
     /**
      * Returns canonical URL for the path. Note: File URLs are without "file:"
      * protocol.

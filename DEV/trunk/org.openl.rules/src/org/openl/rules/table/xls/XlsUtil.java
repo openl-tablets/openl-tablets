@@ -19,12 +19,4 @@ public final class XlsUtil {
         return buf.toString();
     }
 
-    public static Object intOrDouble(double value) {
-        int intValue = (int) value;
-        Object res = value;
-        if (value == intValue)
-            res = (Integer) intValue;
-
-        return res;
-    }
 }
