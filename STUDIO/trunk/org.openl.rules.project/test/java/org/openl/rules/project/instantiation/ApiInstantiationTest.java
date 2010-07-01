@@ -3,15 +3,18 @@ package org.openl.rules.project.instantiation;
 import static junit.framework.Assert.*;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.junit.Test;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 
-public class ApiClassloadersTest {
+public class ApiInstantiationTest {
     @Test
-    public void test(){
+    public void testClassLoaders(){
         ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
         File projectFolder = new File("test/resources/excel/");
         assertTrue(resolvingStrategy.isRulesProject(projectFolder));
@@ -25,5 +28,23 @@ public class ApiClassloadersTest {
         // parent class loader now also will be used in the second class loader
         assertTrue(instantiationStrategyFirst.getClassLoader().getParent() == instantiationStrategySecond.getClassLoader().getParent());
         assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
+    }
+
+    @Test
+    public void testXlsWithErrors(){
+        ProjectDescriptor project = new ProjectDescriptor();
+        project.setClasspath(new ArrayList<PathEntry>());
+        Module module = new Module();
+        module.setProject(project);
+        module.setRulesRootPath(new PathEntry("test/resources/excel/Rules2.xls"));
+
+        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module);
+        assertNull(strategy.getServiceClass());
+        try {
+            assertNotNull(strategy.compile(ReloadType.NO));
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
     }
 }
