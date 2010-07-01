@@ -49,6 +49,7 @@ import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.rules.table.xls.writers.XlsCellStringWriter;
 import org.openl.types.IOpenClass;
 import org.openl.util.EnumUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 
 /**
@@ -183,7 +184,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                             return cell.getDateCellValue();
                         }
                         double value = cell.getNumericCellValue();
-                        return XlsUtil.intOrDouble(value);
+                        return NumberUtils.intOrDouble(value);
                     case Cell.CELL_TYPE_STRING:
                         return cell.getStringCellValue();
                     case Cell.CELL_TYPE_FORMULA:

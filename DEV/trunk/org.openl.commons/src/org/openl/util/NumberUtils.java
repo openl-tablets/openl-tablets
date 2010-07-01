@@ -7,6 +7,15 @@ public class NumberUtils {
 
     private NumberUtils() {}
 
+    public static Object intOrDouble(double value) {
+        int intValue = (int) value;
+        Object res = value;
+        if (value == intValue)
+            res = (Integer) intValue;
+
+        return res;
+    }
+
     public static Number getMinValue(Class<?> numberClass) {
         Number minValue = null;
         if (numberClass == byte.class || numberClass == Byte.class) {
