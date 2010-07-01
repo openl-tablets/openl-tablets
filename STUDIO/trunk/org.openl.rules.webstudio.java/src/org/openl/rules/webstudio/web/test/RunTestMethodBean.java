@@ -43,7 +43,7 @@ public class RunTestMethodBean {
 
         initExplanator();
 
-        tableName = studio.getModel().getDisplayNameFull(tableUri);
+        tableName = studio.getModel().getTable(tableUri).getName();
         testName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_NAME);
         if (testName != null) {
             testName = StringTool.decodeURL(testName);

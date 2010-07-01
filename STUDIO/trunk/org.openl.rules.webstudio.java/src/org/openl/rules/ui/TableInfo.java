@@ -9,6 +9,7 @@ import org.openl.rules.ui.search.FileIndexer;
 
 /**
  * @author snshor
+ * @deprecated
  *
  */
 public class TableInfo {

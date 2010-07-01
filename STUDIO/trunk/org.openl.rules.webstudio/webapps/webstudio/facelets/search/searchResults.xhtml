@@ -12,21 +12,6 @@
         <c:set var="result" value="#{sr[1]}" />
 
         <table width="80%">
-            <tr>
-                <td style="width: 16px">
-                    <h:graphicImage url="/webresource/images/excel.png" rendered="#{searchResultsBean.xlsFile}" />
-                    <h:graphicImage url="/webresource/images/word.png" rendered="#{searchResultsBean.docFile}" />
-                </td>
-                <td style="vertical-align: top">
-                    <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{searchResultsBean.xlsOrDocUrlLink}"
-                        target="show_app_hidden" title="View Result"
-                        rendered="#{!searchResultsBean.readOnly or searchResultsBean.canViewTable}">
-                        <h:outputText value="#{searchResultsBean.fileHeader}" />
-                    </h:outputLink>
-                    <h:outputText value="#{searchResultsBean.fileHeader}"
-                        rendered="#{searchResultsBean.readOnly and !searchResultsBean.canViewTable}" />
-                </td>
-            </tr>
             <h:panelGroup rendered="#{searchResultsBean.xlsFile and !searchResultsBean.canViewTable}">
             <tr>
                 <td style="width: 16px">
@@ -42,6 +27,21 @@
                 </td>
             </tr>
             </h:panelGroup>
+            <tr>
+                <td style="width: 16px">
+                    <h:graphicImage url="/webresource/images/excel.png" rendered="#{searchResultsBean.xlsFile}" />
+                    <h:graphicImage url="/webresource/images/word.png" rendered="#{searchResultsBean.docFile}" />
+                </td>
+                <td style="vertical-align: top">
+                    <h:outputText value="#{searchResultsBean.fileHeader}"
+                        rendered="#{searchResultsBean.readOnly and !searchResultsBean.canViewTable}" />
+                    <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{searchResultsBean.xlsOrDocUrlLink}"
+                        target="show_app_hidden" title="View Result"
+                        rendered="#{!searchResultsBean.readOnly or searchResultsBean.canViewTable}">
+                        <h:outputText value="#{searchResultsBean.fileHeader}" />
+                    </h:outputLink>
+                </td>
+            </tr>
             <tr>
                 <td />
                 <td>

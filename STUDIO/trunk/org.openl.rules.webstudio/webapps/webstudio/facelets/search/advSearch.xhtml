@@ -198,7 +198,6 @@
 </h:form></td></c:if>
 </tr></table>
 
-
 <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
 
 <c:if test="#{not advancedSearch.ready}">
@@ -213,16 +212,20 @@
 
     <c:forEach items="#{advancedSearchRequest.searchResults}" var="tableSearch">
         <br />
-        <h:panelGroup rendered="#{not advancedSearch.studioReadOnly}">
-            <img src="#{contextPath}/webresource/images/excel-workbook.png" />
-            <h:outputText value="#{tableSearch.xlsLink}" escape="false" />
-        </h:panelGroup>
-        <br />
         <h:panelGroup>
             <img src="#{contextPath}/webresource/images/viewTable.gif" />
             <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-                <f:param name="uri" value="#{tableSearch.tableUri}" />
+                <f:param name="uri" value="#{tableSearch.table.uri}" />
                 <h:outputText value="View Table" />
+            </h:outputLink>
+        </h:panelGroup>
+        <br />
+
+        <h:panelGroup rendered="#{not advancedSearch.studioReadOnly}">
+            <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
+            <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{tableSearch.xlsLink}"
+                target="show_app_hidden">
+                <h:outputText value="View Table in Excel" />
             </h:outputLink>
         </h:panelGroup>
 
