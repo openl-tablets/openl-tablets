@@ -646,7 +646,11 @@ public class ProjectModel {
 
         IOpenMethod method = getMethod(elementUri);
         if (method != null) {
-            testMethods = ProjectHelper.testers(method);
+            if (ProjectHelper.isTester(method)) {
+                testMethods = new IOpenMethod[] {method};
+            } else {
+                testMethods = ProjectHelper.testers(method);
+            }
             if (ArrayUtils.isNotEmpty(testMethods)) {
                 return getTestsRunner(testMethods);
             }

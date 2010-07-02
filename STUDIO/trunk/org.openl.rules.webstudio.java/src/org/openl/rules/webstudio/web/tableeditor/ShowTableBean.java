@@ -244,7 +244,7 @@ public class ShowTableBean {
         }
         return false;
     }
-    
+
     /**
      * 
      * @return true if it is possible to create tests for current table.
