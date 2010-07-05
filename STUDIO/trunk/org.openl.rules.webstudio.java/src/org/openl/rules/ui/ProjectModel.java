@@ -63,6 +63,7 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -792,16 +793,17 @@ public class ProjectModel {
         boolean treeEnlarged = false;
 
         for (int i = 0; i < tableSyntaxNodes.length; i++) {                
-                if (studio.getMode().select(tableSyntaxNodes[i])) {
+            if (studio.getMode().select(tableSyntaxNodes[i])) {
 
-                    treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-                    treeEnlarged = true;
+                treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+                treeEnlarged = true;
 
-                } else if (tableSyntaxNodes[i].getErrors() != null) {
+            } else if (tableSyntaxNodes[i].getErrors() != null
+                    && !DispatcherTableBuilder.isDispatcherTable(tableSyntaxNodes[i])) {
 
-                    treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-                    nodesWithErrors.add(tableSyntaxNodes[i]);
-                }
+                treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+                nodesWithErrors.add(tableSyntaxNodes[i]);
+            }
         }
 
         if (!treeEnlarged) {
