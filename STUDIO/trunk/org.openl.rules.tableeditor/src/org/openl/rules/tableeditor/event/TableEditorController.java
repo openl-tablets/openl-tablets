@@ -1,5 +1,7 @@
 package org.openl.rules.tableeditor.event;
 
+import java.io.IOException;
+
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
@@ -31,6 +33,9 @@ public class TableEditorController extends BaseTableEditorController implements 
     private static final Log LOG = LogFactory.getLog(TableEditorController.class);
 
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
+    private static final String ERROR_SAVE_TABLE = "Failed to save table.";
+    private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
+        + " Please close project Excel file and try again.";
 
     public String edit() {
         String editorId = getEditorId();
@@ -300,14 +305,24 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String saveTable() throws Exception {
-        if (beforeSave()) {
-            TableEditorModel editorModel = getEditorModel(getEditorId());
-            if (editorModel != null) {
-                String newUri = editorModel.save();
-                afterSave(newUri);
-                return pojo2json(new TableModificationResponse(newUri, editorModel));
+    public String saveTable() {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            try {
+                if (beforeSave()) {
+                    String newUri = editorModel.save();
+                    afterSave(newUri);
+                    tmResponse.setResponse(newUri);
+                }
+            } catch (IOException e) {
+                LOG.error(ERROR_SAVE_TABLE, e);
+                tmResponse.setStatus(ERROR_OPENED_EXCEL);
+            } catch (Exception e) {
+                LOG.error(ERROR_SAVE_TABLE, e);
+                tmResponse.setStatus(ERROR_SAVE_TABLE);
             }
+            return pojo2json(tmResponse);
         }
         return null;
     }
