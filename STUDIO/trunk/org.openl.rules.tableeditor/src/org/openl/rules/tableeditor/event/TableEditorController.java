@@ -316,7 +316,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     tmResponse.setResponse(newUri);
                 }
             } catch (IOException e) {
-                LOG.error(ERROR_SAVE_TABLE, e);
+                LOG.warn(ERROR_SAVE_TABLE, e);
                 tmResponse.setStatus(ERROR_OPENED_EXCEL);
             } catch (Exception e) {
                 LOG.error(ERROR_SAVE_TABLE, e);
