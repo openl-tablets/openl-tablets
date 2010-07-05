@@ -221,7 +221,7 @@
         </h:panelGroup>
         <br />
 
-        <h:panelGroup rendered="#{not advancedSearch.studioReadOnly}">
+        <h:panelGroup rendered="#{advancedSearch.projectEditable}">
             <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
             <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{tableSearch.xlsLink}"
                 target="show_app_hidden">

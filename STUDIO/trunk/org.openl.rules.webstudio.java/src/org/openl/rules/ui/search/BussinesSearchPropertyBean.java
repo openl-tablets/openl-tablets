@@ -74,12 +74,12 @@ public class BussinesSearchPropertyBean {
         }
         //busSearchResBean = new BussinessSearchResultBean(propForSearch);
     }
-    
-    public boolean isStudioReadOnly() {
+
+    public boolean isProjectEditable() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio == null || webStudio.getModel().isReadOnly();
+        return webStudio != null && webStudio.getModel().isEditable();
     }
-    
+
     /**
      * Initialize the conditions for business search
      */

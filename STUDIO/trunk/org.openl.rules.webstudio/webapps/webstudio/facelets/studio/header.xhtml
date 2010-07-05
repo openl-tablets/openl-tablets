@@ -52,15 +52,15 @@
             <tr>
                 <td>
                     <h:form target="top" id="headerForm">
-                        <h:panelGroup rendered="#{not empty headerBean.projects}">
+                        <h:panelGroup rendered="#{not empty headerBean.modules}">
                             <span style="font-size:12px; font-weight:bold; color:black;">Select Module: </span>
-                            <h:selectOneMenu value="#{headerBean.selectedProject}" onchange="sbmForm(this.form)"
-                                id="select_wrapper" enabledClass="moduleItem" disabledClass="projectItem">
-                                <f:selectItems value="#{headerBean.projects}" />
+                            <h:selectOneMenu value="#{headerBean.selectedModule}" onchange="sbmForm(this.form)"
+                                id="selectedModule" enabledClass="moduleItem" disabledClass="projectItem">
+                                <f:selectItems value="#{headerBean.modules}" />
                             </h:selectOneMenu>
                         </h:panelGroup>
                         <h:outputText value="No OpenL Projects in the Workspace" style="font-size:16px; color:red"
-                            rendered="#{empty headerBean.projects}" />
+                            rendered="#{empty headerBean.modules}" />
                     </h:form>
                 </td>
                 <td style="text-align: right;">
@@ -122,10 +122,10 @@
                           title="Search"><img border='0' src="#{contextPath}/webresource/images/search.png"
                           alt="Search"/></a>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
-                      <a href="#{contextPath}/main.jsp?reload=reload&amp;select_wrapper=#{headerBean.selectedProject}"
+                      <a href="#{contextPath}/main.jsp?reload=reload&amp;selectedModule=#{headerBean.selectedModule}"
                           title="Refresh Project(s)" target="top"><img border='0'
                           src="#{contextPath}/webresource/images/refresh.gif" alt="Refresh Project(s)"/></a>
-                      <h:panelGroup rendered="#{headerBean.projectsExist and not headerBean.projectReadOnly}">
+                      <h:panelGroup rendered="#{headerBean.projectEditable}">
                           <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                           <h:commandLink target="mainFrame" action="#{tableCreatorWizardManager.start}"
                               title="Create new table"><img border='0'
@@ -148,7 +148,7 @@
                             src="#{contextPath}/webresource/images/repository/storage.gif" alt="Rules Repository"/></a>
                       </c:if>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
-                      <a href="#{contextPath}/main.jsp?reload=forced&amp;select_wrapper=#{headerBean.selectedProject}"
+                      <a href="#{contextPath}/main.jsp?reload=forced&amp;selectedModule=#{headerBean.selectedModule}"
                           title="Refresh Project with dependencies" target="top"><img border='0'
                           src="#{contextPath}/webresource/images/forced_refresh.png" alt="Refresh Project(s)"/></a>
                       <a href="#" onclick="window.open('#{contextPath}/help/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"

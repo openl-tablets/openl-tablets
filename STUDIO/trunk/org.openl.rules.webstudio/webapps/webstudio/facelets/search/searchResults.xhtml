@@ -34,10 +34,10 @@
                 </td>
                 <td style="vertical-align: top">
                     <h:outputText value="#{searchResultsBean.fileHeader}"
-                        rendered="#{searchResultsBean.readOnly and !searchResultsBean.canViewTable}" />
+                        rendered="#{!searchResultsBean.projectEditable and !searchResultsBean.canViewTable}" />
                     <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{searchResultsBean.xlsOrDocUrlLink}"
                         target="show_app_hidden" title="View Result"
-                        rendered="#{!searchResultsBean.readOnly or searchResultsBean.canViewTable}">
+                        rendered="#{searchResultsBean.projectEditable or searchResultsBean.canViewTable}">
                         <h:outputText value="#{searchResultsBean.fileHeader}" />
                     </h:outputLink>
                 </td>

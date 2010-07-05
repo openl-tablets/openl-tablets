@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,22 +21,24 @@ public class HeaderBean {
 
     private boolean hideLogout;
 
-    public List<SelectItem> getProjects() throws IOException {
-        List<ProjectDescriptor> projects = getWebStudio().getAllProjects();
+    public List<SelectItem> getModules() {
+        WebStudio studio = getWebStudio();
+        List<ProjectDescriptor> projects = studio.getAllProjects();
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
         for (ProjectDescriptor project : projects) {
-            selectItems.add(new SelectItem(project.getName(), project.getName(), null, true));
+            selectItems.add(new SelectItem(project.getId(), project.getName(), null, true));
             for (Module module : project.getModules()) {
-                selectItems.add(new SelectItem(module.getClassname(), module.getName()));
+                selectItems.add(new SelectItem(studio.getModuleId(module), module.getName()));
             }
         }
         return selectItems;
     }
 
-    public String getSelectedProject() {
-        Module current = getWebStudio().getCurrentModule();
-        if (current != null) {
-            return current.getClassname();
+    public String getSelectedModule() {
+        WebStudio studio = getWebStudio();
+        Module currentModule = studio.getCurrentModule();
+        if (currentModule != null) {
+            return studio.getModuleId(currentModule);
         }
         return "";
     }
@@ -50,14 +51,9 @@ public class HeaderBean {
         return WebTool.isLocalRequest(FacesUtils.getRequest());
     }
 
-    public boolean isProjectReadOnly() {
+    public boolean isProjectEditable() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio == null || webStudio.getModel().isReadOnly();
-    }
-
-    public boolean isProjectsExist() throws IOException {
-        List<ProjectDescriptor> projects = getWebStudio().getAllProjects();
-        return projects.size() > 0;
+        return webStudio != null && webStudio.getModel().isEditable();
     }
 
     public boolean isRepositoryFailed() {
@@ -76,12 +72,6 @@ public class HeaderBean {
 
     public void setHideLogout(boolean hideLogout) {
         this.hideLogout = hideLogout;
-    }
-
-    public void setSelectedProject(String selectedProject) throws Exception {
-        // Actual select happens now in a different place.
-
-        // getWebStudio().select(selectedProject);
     }
 
 }
