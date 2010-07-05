@@ -1,6 +1,9 @@
 package org.openl.rules.domaintree;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,10 +16,13 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.openl.base.INamedThing;
+import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -25,6 +31,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.ArrayOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 import static org.openl.types.java.JavaOpenClass.*;
 
@@ -46,14 +53,32 @@ public class DomainTree {
 
     static {
         predefinedTypes = new HashMap<String, IOpenClass>();
+
+        //primitives
         predefinedTypes.put(INT.getSimpleName(), INT);
-        predefinedTypes.put(STRING.getSimpleName(), STRING);
         predefinedTypes.put(BOOLEAN.getSimpleName(), BOOLEAN);
         predefinedTypes.put(LONG.getSimpleName(), LONG);
         predefinedTypes.put(DOUBLE.getSimpleName(), DOUBLE);
         predefinedTypes.put(FLOAT.getSimpleName(), FLOAT);
         predefinedTypes.put(SHORT.getSimpleName(), SHORT);
         predefinedTypes.put(CHAR.getSimpleName(), CHAR);
+
+        // wrappers for primitives
+//      predefinedTypes.put("Integer", JavaOpenClass.getOpenClass(Integer.class));
+//      predefinedTypes.put("Boolean", JavaOpenClass.getOpenClass(Boolean.class));
+//      predefinedTypes.put("Long", JavaOpenClass.getOpenClass(Long.class));
+//      predefinedTypes.put("Double", JavaOpenClass.getOpenClass(Double.class));
+//      predefinedTypes.put("Float", JavaOpenClass.getOpenClass(Float.class));
+//      predefinedTypes.put("Short", JavaOpenClass.getOpenClass(Short.class));
+//      predefinedTypes.put("Character", JavaOpenClass.getOpenClass(Character.class));
+
+        predefinedTypes.put(STRING.getSimpleName(), STRING);
+        predefinedTypes.put("Date", JavaOpenClass.getOpenClass(Date.class));
+        predefinedTypes.put("BigInteger", JavaOpenClass.getOpenClass(BigInteger.class));
+        predefinedTypes.put("BigDecimal", JavaOpenClass.getOpenClass(BigDecimal.class));
+        predefinedTypes.put("IntRange", JavaOpenClass.getOpenClass(IntRange.class));
+        predefinedTypes.put("DoubleRange", JavaOpenClass.getOpenClass(DoubleRange.class));
+        predefinedTypes.put("DoubleValue", JavaOpenClass.getOpenClass(DoubleValue.class));
     }
 
     /**
