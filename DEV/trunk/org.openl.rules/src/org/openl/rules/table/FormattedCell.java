@@ -17,7 +17,6 @@ import org.openl.rules.table.xls.IncorrectFormulaException;
 
 /**
  * @author snshor
- * @deprecated
  */
 public class FormattedCell implements ICell {
     
