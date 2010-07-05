@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.search;
 import org.ajax4jsf.component.UIRepeat;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -29,9 +30,9 @@ public class SearchResultsBean {
         return searchResult[0];
     }
 
-    public boolean isReadOnly() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.isReadOnly();
+    public boolean isProjectEditable() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        return webStudio != null && webStudio.getModel().isEditable();
     }
 
     public boolean isCanViewTable() {

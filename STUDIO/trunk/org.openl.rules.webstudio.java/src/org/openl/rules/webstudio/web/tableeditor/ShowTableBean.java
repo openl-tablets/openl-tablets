@@ -38,7 +38,6 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringTool;
 
@@ -51,10 +50,10 @@ public class ShowTableBean {
 
     private String url;
     
-    // filled and runnable tests(this group of tests is more tight than allTests)
+    // Filled and runnable tests(this group of tests is more tight than allTests).
     private Test[] runnableTests = {};
     
-    // all checks and tests for current table (including tests with no cases, run methods)
+    // All checks and tests for current table (including tests with no cases, run methods).
     private Test[] allTests = {};
     
     private boolean runnable;    
@@ -117,17 +116,6 @@ public class ShowTableBean {
         paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
         paramsWithoutShowFormulas = WebTool.listRequestParams(
                 paramMap, new String[] { "transparency", "filterType", "showFormulas" });
-    }
-
-    public boolean canModifyCurrentProject() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        UserWorkspaceProject currentProject = studio.getCurrentProject();
-
-        if (currentProject != null) {
-            return currentProject.isCheckedOut() || currentProject.isLocalOnly();
-        }
-
-        return false;
     }
 
     public String getEncodedUri() {
@@ -230,8 +218,9 @@ public class ShowTableBean {
         return studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));
     }
 
-    public boolean isCopyable() {        
-        return canModifyCurrentProject() && !isServiceTable()  && !isDispatcherValidationNode();
+    public boolean isCopyable() {
+        ProjectModel projectModel = WebStudioUtils.getProjectModel();
+        return projectModel.isEditable() && !isServiceTable()  && !isDispatcherValidationNode();
     }
 
     public boolean isServiceTable() {
@@ -250,7 +239,7 @@ public class ShowTableBean {
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
-        return table.isExecutable() && !isDispatcherValidationNode();
+        return table.isExecutable() && isEditable();
     }
 
     private boolean isDispatcherValidationNode() {
@@ -259,11 +248,12 @@ public class ShowTableBean {
     }
 
     public boolean isEditable() {
-        return canModifyCurrentProject() && !isDispatcherValidationNode();
+        ProjectModel projectModel = WebStudioUtils.getProjectModel();
+        return projectModel.isEditable() && !isDispatcherValidationNode();
     }
-    
+
     public boolean isEditableAsNewVersion() {
-        return canModifyCurrentProject() && !isServiceTable() && !isDispatcherValidationNode();
+        return isEditable() && !isServiceTable();
     }
 
     public boolean isHasErrors() {

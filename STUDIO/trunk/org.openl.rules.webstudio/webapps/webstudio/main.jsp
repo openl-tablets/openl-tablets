@@ -82,9 +82,9 @@ if (rulesUserSession != null && !WebTool.isLocalRequest(request) && (session.get
     if (operation != null)
       studio.executeOperation(operation, session);
 
-    String selected = request.getParameter("headerForm:select_wrapper");
+    String selectedModuleId = request.getParameter("headerForm:selectedModule");
 
-  studio.select(selected);
+  studio.selectModule(selectedModuleId);
 %>
 
 <frameset rows="86,*" framespacing="0" border="3">

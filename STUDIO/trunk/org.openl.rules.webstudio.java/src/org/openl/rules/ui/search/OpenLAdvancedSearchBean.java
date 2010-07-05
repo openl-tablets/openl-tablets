@@ -180,9 +180,9 @@ public class OpenLAdvancedSearchBean {
         return savedSearches != null && savedSearches.length > 0;
     }
 
-    public boolean isStudioReadOnly() {
+    public boolean isProjectEditable() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio == null || webStudio.getModel().isReadOnly();
+        return webStudio != null && webStudio.getModel().isEditable();
     }
 
     public String save() {

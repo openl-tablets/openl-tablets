@@ -90,7 +90,7 @@
             </h:outputLink>
         </h:panelGroup>
         <br />
-        <h:panelGroup rendered="#{not bussinessSearch.studioReadOnly}">
+        <h:panelGroup rendered="#{bussinessSearch.projectEditable}">
             <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
             <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{tableSearch.xlsLink}"
                 target="show_app_hidden">

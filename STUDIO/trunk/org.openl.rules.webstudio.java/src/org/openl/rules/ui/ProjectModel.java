@@ -63,6 +63,7 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -98,8 +99,6 @@ public class ProjectModel {
 
     private OpenLSavedSearch[] savedSearches;
 
-    private boolean readOnly;
-
     private ProjectTreeNode projectRoot = null;
 
     private TreeCache<String, ITreeElement<?>> idTreeCache = new TreeCache<String, ITreeElement<?>>();
@@ -126,6 +125,10 @@ public class ProjectModel {
         }
 
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
+    }
+
+    public UserWorkspaceProject getProject() {
+        return studio.getCurrentProject();
     }
 
     public BenchmarkInfo benchmarkElement(String elementUri, final String testName, String testID,
@@ -557,6 +560,7 @@ public class ProjectModel {
 
                     Table newTable = new Table();
                     newTable.setGridTable(gridTable);
+                    newTable.setUri(tableUri);
                     newTable.setProperties(tsn.getTableProperties());
 
                     TableSearch tableSearch = new TableSearch();
@@ -577,7 +581,7 @@ public class ProjectModel {
 
         if (searchResult instanceof OpenLBussinessSearchResult) {
             List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
-            for(TableSyntaxNode foundTable : foundTables) {
+            for (TableSyntaxNode foundTable : foundTables) {
                 TableSearch tableSearch = new TableSearch();
                 tableSearch.setTable(new TableSyntaxNodeAdapter(foundTable));
                 String xlsUrl = HTMLHelper.makeXlsOrDocUrl(foundTable.getUri());
@@ -722,8 +726,14 @@ public class ProjectModel {
      * 
      * @return <code>true</code> if project is read only.
      */
-    public boolean isReadOnly() {
-        return readOnly;
+    public boolean isEditable() {
+        UserWorkspaceProject project = getProject();
+
+        if (project != null) {
+            return project.isCheckedOut() || project.isLocalOnly();
+        }
+
+        return false;
     }
 
     public boolean isReady() {
@@ -974,10 +984,6 @@ public class ProjectModel {
 
     public void setProjectTree(ProjectTreeNode projectRoot) {
         this.projectRoot = projectRoot;
-    }
-
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
     }
 
     public void setModuleInfo(Module moduleInfo) throws Exception {

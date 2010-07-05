@@ -24,7 +24,6 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
@@ -32,8 +31,6 @@ import org.openl.util.benchmark.BenchmarkInfo;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 import javax.servlet.http.HttpSession;
 
@@ -67,7 +64,6 @@ public class WebStudio {
     private List<ProjectDescriptor> projects = null;
 
     private WebStudioViewMode mode = BUSINESS1_VIEW;
-    private Set<String> writableProjects;
     private Module currentModule;
     private boolean showFormulas;
     private boolean collapseProperties = true;
@@ -166,9 +162,9 @@ public class WebStudio {
     public UserWorkspaceProject getCurrentProject(HttpSession session) {
         if (currentModule != null) {
             try {
-                String projectName = currentModule.getProject().getId();
+                String projectId = currentModule.getProject().getId();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
+                UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectId);
                 return project;
             } catch (Exception e) {
                 LOG.error("Error when trying to get current project", e);
@@ -255,14 +251,7 @@ public class WebStudio {
         }
 
         workspacePath = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
-        Set<String> writableProjects = new HashSet<String>();
-        for (Project project : userWorkspace.getProjects()) {
-            UserWorkspaceProject workspaceProject = (UserWorkspaceProject) project;
-            if (workspaceProject.isCheckedOut() || workspaceProject.isLocalOnly()) {
-                writableProjects.add(workspaceProject.getName());
-            }
-        }
-        setWritableProjects(writableProjects);
+
         projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         projectResolver.setWorkspace(workspacePath);
         return true;
@@ -296,8 +285,8 @@ public class WebStudio {
         model.buildProjectTree();
     }
 
-    public void select(String name) throws Exception {
-        if (name == null) {
+    public void selectModule(String moduleId) throws Exception {
+        if (moduleId == null) {
             if (currentModule != null) {
                 return;
             }
@@ -308,10 +297,12 @@ public class WebStudio {
             return;
         }
         for (ProjectDescriptor project : getAllProjects()) {
-            Module module = project.getModuleByClassName(name);
-            if(module != null){
-                setCurrentModule(module);
-                return;
+            for (Module module : project.getModules()) {
+                String curModuleId = getModuleId(module);
+                if (curModuleId.equals(moduleId)) {
+                    setCurrentModule(module);
+                    return;
+                }
             }
         }
         if (getAllProjects().size() > 0) {
@@ -329,7 +320,6 @@ public class WebStudio {
     public void setCurrentModule(Module module) throws Exception {
         if (currentModule != module) {
             model.setModuleInfo(module);
-            model.setReadOnly(!((writableProjects == null) || writableProjects.contains(module.getProject().getName())));
         }
         currentModule = module;
         for (StudioListener listener : listeners) {
@@ -383,10 +373,6 @@ public class WebStudio {
         this.tableUri = tableUri;
     }
 
-    public void setWritableProjects(Set<String> writableProjects) {
-        this.writableProjects = writableProjects;
-    }
-
     public boolean isShowFormulas() {
         return showFormulas;
     }
@@ -402,4 +388,12 @@ public class WebStudio {
     public void setCollapseProperties(String collapseProperties) {
         this.collapseProperties = Boolean.parseBoolean(collapseProperties);
     }
+
+    public String getModuleId(Module module) {
+        if (module != null) {
+            return module.getProject().getId() + " - " + module.getName();
+        }
+        return null;
+    }
+
 }
