@@ -43,14 +43,6 @@ if (rulesUserSession != null && !WebTool.isLocalRequest(request) && (session.get
         String path = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
 
         studio = new WebStudio(path);
-        Set<String> writableProjects = new HashSet<String>();
-        for (Project project : userWorkspace.getProjects()) {
-            UserWorkspaceProject workspaceProject = (UserWorkspaceProject) project;
-            if (workspaceProject.isCheckedOut() || workspaceProject.isLocalOnly()) {
-                writableProjects.add(workspaceProject.getName());
-            }
-        }
-        studio.setWritableProjects(writableProjects);
         session.setAttribute("studio", studio);
         session.setAttribute("studio_from_userWorkspace", "");
 }
