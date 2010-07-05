@@ -184,18 +184,21 @@ var TableEditor = Class.create({
         if (!Validation.isAllValidated()) return;
         var self = this;
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
-            parameters : {
+            parameters: {
                 editorId: this.editorId
             },
-            onSuccess  : function(response) {
+            onSuccess: function(response) {
                 response = eval(response.responseText);
-                if (response.status)
+                if (response.status) { // Error
                     alert(response.status);
-                else {
+                    if (self.actions && self.actions.saveFailure) {
+                        self.actions.saveFailure();
+                    }
+                } else {
                     self.processCallbacks(response, "do");
-                }
-                if (self.actions && self.actions.afterSave) {
-                    self.actions.afterSave();
+                    if (self.actions && self.actions.afterSave) {
+                        self.actions.afterSave();
+                    }
                 }
             },
             onFailure: function(response) {
