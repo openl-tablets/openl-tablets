@@ -65,9 +65,9 @@ public class SimpleFormatFilter implements IGridFilter {
         if (dataType != null) {
             Class<?> instanceClass = dataType.getInstanceClass();
             // Numeric
-            //if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
-            if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
-                || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
+            if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
+//            if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
+//                || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
                 String format = cell.getStyle().getTextFormat();
                 AXlsFormatter numberFormatter = findXlsNumberFormatter(format);
                 // Numeric Array
