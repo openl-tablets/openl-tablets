@@ -1163,15 +1163,33 @@ void NegLiteralBI():
 	{syntaxBuilder.uop("literal.integer.negative", pos(x));}	
 }
 
+void RangeBrackets():
+{
+	Token x; 
+	String op; 
+}
+{
+	(<LPAREN> | <LBRACKET>)
+    {syntaxBuilder.literal("literal.bracket", pos(token), token.image); }
+	(LiteralBI() | NegLiteralBI())
+	(x=<SEMICOLON> {op=";";} | x =<DDOT> {op="ddot";} )
+	(LiteralBI() | NegLiteralBI())
+	(<RPAREN> | <RBRACKET>)
+    {syntaxBuilder.literal("literal.bracket", pos(token), token.image); }
+	{syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
 void RangeBinary():
 {
 	Token x; 
 	String op; 
 }
 {
-	(	  LiteralBI() | NegLiteralBI())
+	(
+	  LiteralBI() | NegLiteralBI())
 	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
-	(	  LiteralBI() | NegLiteralBI())
+	(
+	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
 }
 
@@ -1225,6 +1243,9 @@ void RangeLiteral() :
 	LOOKAHEAD(RangeBinary())
 	RangeBinary()
 	|
+	LOOKAHEAD(RangeBrackets())
+	RangeBrackets()
+	|
 	LOOKAHEAD(RangePrefix())
 	RangePrefix()
 	| 
@@ -1235,6 +1256,24 @@ void RangeLiteral() :
 	)
 	<EOF>
 }
+
+
+void RangeBracketsFloat():
+{
+	Token x; 
+	String op; 
+}
+{
+	(<LPAREN> | <LBRACKET>)
+    {syntaxBuilder.literal("literal.bracket", pos(token), token.image); }
+	LiteralFloat()
+	(x=<SEMICOLON> {op=";";} | x =<DDOT> {op="ddot";} )
+	LiteralFloat()
+	(<RPAREN> | <RBRACKET>)
+    {syntaxBuilder.literal("literal.bracket", pos(token), token.image); }
+	{syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
 void RangeBinaryFloat():
 {
 	Token x; 
@@ -1285,6 +1324,9 @@ void RangeLiteralFloat() :
 }
 {
 	(
+	LOOKAHEAD(RangeBracketsFloat())
+	RangeBracketsFloat()
+	|
 	LOOKAHEAD(RangeBinaryFloat())
 	RangeBinaryFloat()
 	|
