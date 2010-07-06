@@ -43,84 +43,13 @@ import java.util.Vector;
 
 /**
  * @author snshor
- * 
  */
 public class TableEditorModel {
 
-    /**
-     * Table Headers � syntax depends on first keyword
-     */
-    public static final String TH_CELL_TYPE = "TH_CELL_TYPE";
-
-    /**
-     * Condition/Action header
-     */
-    public static final String CA_HEADER_CELL_TYPE = "CA_HEADER_CELL_TYPE ";
-
-    /**
-     * Condition/Action Formula (advanced feature would be the code completion)
-     */
-    public static final String CA_FORMULA_CELL_TYPE = "CA_FORMULA_CELL_TYPE";
-
-    /**
-     * Condition/Action Parameter Definition (type name)
-     */
-    public static final String CA_PARAMETER_DEFINITION_CELL_TYPE = "CA_PARAMETER_DEFINITION_CELL_TYPE";
-
-    /**
-     * Condition/Action Display Column Header
-     */
-    public static final String CA_DISPLAY_COLUMN_HEADER_CELL_TYPE = "CA_DISPLAY_COLUMN_HEADER_CELL_TYPE";
-    /**
-     * Condition/Action value cell � the type is defined by Parameter Definition �
-     * constrained data entry based on the Domain of the Parameter Type (also
-     * known as Subtype in Exigen Rules; the RDF/OWL uses the word Range to
-     * define what we used to call Domain, and the word Domain for what we in
-     * Java call the Declaring Class or Declaring Type; we need to decide which
-     * terminology we are going to use � I start to lean toward RDF/OWL even
-     * though it will conflict with our Range classes � will be IntRange,
-     * DoubleRange etc. � but the superclass should be renamed to
-     * ArithmeticRange); the cell editors should include comboboxes for
-     * enumerations, range validators for numbers, other types of specialized
-     * editors � calendars, ranges; it also should allow to input formulas �
-     * similar to Condition/Action formula if the first character was �=�.
-     */
-    public static final String CA_ENUMERATION_CELL_TYPE = "CA_ENUMERATION_CELL_TYPE";
-    public static final String CA_NUMBER_CELL_TYPE = "CA_NUMBER_CELL_TYPE";
-
-    public static final String CA_DATETIME_CELL_TYPE = "CA_DATETIME_CELL_TYPE";
-
-    /**
-     * Date Table Column Headers � constrained to the set of the allowed names +
-     * continuations (like in address.zip)
-     */
-    public static final String DT_COLUMN_HEADER_CELL_TYPE = "DT_COLUMN_HEADER_CELL_TYPE";
-
-    /**
-     * Data Table Foreign Keys � constrained to the list of tables with the
-     * specific type
-     */
-    public static final String DT_FOREIGN_KEY_CELL_TYPE = "DT_FOREIGN_KEY_CELL_TYPE";
-
-    /**
-     * Data Display Column Header
-     */
-    public static final String DD_COLUMN_HEADER_CELL_TYPE = "DD_COLUMN_HEADER_CELL_TYPE";
-    /**
-     * Data Cell � the same as for DT cell, except for formulas (for now)
-     */
-    public static final String DD_FORMULA_CELL_TYPE = "DD_FORMULA_CELL_TYPE";
-    public static final String DD_ENUMERATION_CELL_TYPE = "DD_ENUMERATION_CELL_TYPE";
-    public static final String DD_NUMBER_CELL_TYPE = "DD_NUMBER_CELL_TYPE";
-
-    public static final String DD_DATETIME_CELL_TYPE = "DD_DATETIME_CELL_TYPE";
-
-    /**
-     * Specialty Cells � like Environment include and import cells
-     */
-    public static final String SPECIAL_CELL_TYPE = "SPECIAL_CELL_TYPE";
-
-    static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
+    public static final boolean COLUMNS = true;
+    public static final boolean ROWS = false;
+    public static final boolean INSERT = true;
+    public static final boolean REMOVE = false;
 
     /** Number of columns in Properties section */
     public static final int NUMBER_PROPERTIES_COLUMNS = 3;
@@ -208,24 +137,14 @@ public class TableEditorModel {
         return IGridRegion.Tool.height(fullTableRegion) > nRows;
     }
 
-    /**
-     * Gets editor metadata for a specified cell
-     * 
-     * @param row
-     * @param column
-     * @return editor metadata
-     */
-    public Object getCellEditorMetadata(int row, int column) {
-        return null;
-    }
-
     public ICell getCell(int row, int column) {
         return gridTable.getGrid().getCell(tX(column), tY(row));
     }
 
     private AXlsFormatter getFormatter(int col, int row) {
         AXlsFormatter formatter = null;
-        FormattedCell fc = filteredGrid.getFormattedCell(fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
+        FormattedCell fc = filteredGrid.getFormattedCell(
+                fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
 
         if (fc != null) {
             IGridFilter filter = fc.getFilter();
@@ -481,7 +400,6 @@ public class TableEditorModel {
         return new UndoableCompositeAction(actions);
     }
 
-    
     /**
      * Creates actions that moves the table and executes these actions.
      * 
@@ -530,21 +448,7 @@ public class TableEditorModel {
         ((IUndoableGridAction) ua).undoAction(wgrid(), undoGrid);
     }
 
-    /**
-     * Checks if cell with row/col coordinates in system of the grid returned by
-     * <code>getUpdatedTable</code> methods is inside of table region.
-     * 
-     * @param row row number in coordinates of <code>getUpdatedTable</code>
-     *            grid
-     * @param col column number in coordinates of <code>getUpdatedTable</code>
-     *            grid
-     * @return if cell belongs to the table
-     */
-    public boolean updatedTableCellInsideTableRegion(int row, int col) {
-        return (row >= 0 && col >= 0 && row < IGridRegion.Tool.height(fullTableRegion) && col < IGridRegion.Tool.width(fullTableRegion));
-    }
-
-    IWritableGrid wgrid() {
+    private IWritableGrid wgrid() {
         return (IWritableGrid) gridTable.getGrid();
     }
 
