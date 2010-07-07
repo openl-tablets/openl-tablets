@@ -1,8 +1,6 @@
 package org.openl.rules.tableeditor.event;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,25 +11,21 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
-import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
 
 public class TableEditorDispatcher implements PhaseListener {
+
     private static final long serialVersionUID = 8617343432886373802L;
 
     private static final Log LOG = LogFactory.getLog(TableEditorDispatcher.class);
 
     private static final String AJAX_MATCH = "ajax/";
-    private static final String EXCEL_MATCH = "excel/";
 
     public void afterPhase(PhaseEvent event) {
     }
@@ -49,8 +43,6 @@ public class TableEditorDispatcher implements PhaseListener {
                     + Constants.TABLE_EDITOR_PATTERN.length());
             if (path.startsWith(AJAX_MATCH)) {
                 handleAjaxRequest(context, response, path);
-            } else if (path.startsWith(EXCEL_MATCH)) {
-                handleExcelRequest(context, response, path);
             } else {
                 handleResourceRequest(context, response, path);
             }
@@ -96,49 +88,6 @@ public class TableEditorDispatcher implements PhaseListener {
             context.responseComplete();
         } catch (IOException e) {
             LOG.error("Could not handle Resource request", e);
-        }
-    }
-
-    public void handleExcelRequest(FacesContext context, HttpServletResponse response, String path) {
-        String uri = ((HttpServletRequest)context.getExternalContext().getRequest()).getParameter(
-                Constants.REQUEST_PARAM_URI);
-        if (uri != null && !uri.equals("")) {
-            boolean local = WebTool.isLocalRequest((ServletRequest) context.getExternalContext().getRequest());
-            XlsUrlParser parser = new XlsUrlParser();
-            parser.parse(uri);
-            try {
-//                if (local) { // open file
-                    
-//                    ExcelLauncher.launch(
-//                            "scripts/LaunchExcel.vbs",
-//                            parser.wbPath,
-//                            parser.wbName, 
-//                            parser.wsName, 
-//                            parser.range);
-//                } else { // download file
-                    File xlsFile = new File(parser.wbPath, parser.wbName);
-                    if (xlsFile.isFile()) {
-                        response.setContentType("application/vnd.ms-excel");
-                        response.setHeader("Content-Disposition", "attachment;filename=\"" + xlsFile.getName() + "\"");
-                        ServletOutputStream out = response.getOutputStream();
-                        byte bytes[] = new byte[1 << 15];
-                        FileInputStream fis = new FileInputStream(xlsFile);
-                        try {
-                            int len;
-                            while ((len = fis.read(bytes)) != -1) {
-                                out.write(bytes, 0, len);
-                            }
-                        } finally {
-                            fis.close();
-                        }
-                        out.flush();
-                        out.close();
-                    }
-  //              }
-                context.responseComplete();
-            } catch (Exception e) {
-                LOG.error("Could not handle Excel request", e);
-            }
         }
     }
 
