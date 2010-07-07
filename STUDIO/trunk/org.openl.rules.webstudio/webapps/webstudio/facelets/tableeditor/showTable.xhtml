@@ -250,7 +250,15 @@
             beforeSaveAction="#{showTableBean.updateSystemProperties}"
             afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
             onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();" excludeScripts="prototype">
+
+            <h:outputLink rendered="#{showTableBean.editable}"
+                    value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}"
+                    target="show_app_hidden">
+                    Edit in Excel
+            </h:outputLink>
+            
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
+            
         </rules:tableEditor>        
 
         <h:panelGroup rendered="#{showTableBean.hasAnyTests}">
