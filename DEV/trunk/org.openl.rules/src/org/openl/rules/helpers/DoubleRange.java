@@ -24,13 +24,7 @@ public class DoubleRange implements INumberRange {
     private BoundType upperBoundType;
 
     public DoubleRange(double lowerBound, double upperBound) {
-        if (lowerBound > upperBound) {
-            throw new RuntimeException(upperBound + " must be more or equal than " + lowerBound);
-        }
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        lowerBoundType = BoundType.INCLUDING;
-        upperBoundType = BoundType.INCLUDING;
+        this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
     }
 
     public DoubleRange(double lowerBound, double upperBound, BoundType lowerBoundType, BoundType upperBoundType) {

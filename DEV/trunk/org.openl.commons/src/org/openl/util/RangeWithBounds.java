@@ -14,10 +14,7 @@ public class RangeWithBounds {
     private BoundType rightBoundType;
 
     public RangeWithBounds(Number min, Number max) {
-        this.min = min;
-        leftBoundType = BoundType.INCLUDING;
-        this.max = max;
-        rightBoundType = BoundType.INCLUDING;
+        this(min, max, BoundType.INCLUDING, BoundType.INCLUDING);
     }
 
     public RangeWithBounds(Number min, Number max, BoundType leftBoundType, BoundType rightBoundType) {
