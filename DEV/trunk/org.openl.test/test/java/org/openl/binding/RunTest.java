@@ -13,6 +13,7 @@ import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.RangeWithBounds;
+import org.openl.util.RangeWithBounds.BoundType;
 
 public class RunTest extends TestCase {
     private static interface AssertionExpression<T> {
@@ -121,10 +122,10 @@ public class RunTest extends TestCase {
         // _runNoError("-1-2", new RangeWithBounds(10, 10), "org.openl.j",
         // "range.literal");
         _runNoError("10", new RangeWithBounds(10, 10), "org.openl.j", SourceType.INT_RANGE);
-        _runNoError("< 10K", new RangeWithBounds(Integer.MIN_VALUE, 9999), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("< 10K", new RangeWithBounds(Integer.MIN_VALUE, 10000, BoundType.INCLUDING, BoundType.EXCLUDING), "org.openl.j", SourceType.INT_RANGE);
         _runNoError("<=33.3M", new RangeWithBounds(Integer.MIN_VALUE, 33300000), "org.openl.j", SourceType.INT_RANGE);
         _runNoError("5-$10", new RangeWithBounds(5, 10), "org.openl.j", SourceType.INT_RANGE);
-        _runNoError("2B<", new RangeWithBounds(2000000001, Integer.MAX_VALUE), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("2B<", new RangeWithBounds(2000000000, Integer.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING), "org.openl.j", SourceType.INT_RANGE);
         _runNoError("2.1B+", new RangeWithBounds(2100000000, Integer.MAX_VALUE), "org.openl.j", SourceType.INT_RANGE);
 
         _runWithError("10-2", CompositeSyntaxNodeException.class, "org.openl.j", SourceType.INT_RANGE);
