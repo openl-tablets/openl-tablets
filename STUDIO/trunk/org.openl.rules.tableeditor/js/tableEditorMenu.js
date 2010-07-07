@@ -31,8 +31,3 @@ function triggerEdit(editorId, url, cellToEdit) {
         onFailure: AjaxHelper.handleError
     });
 }
-
-function triggerEditXls(url) {
-    var excelUri = $(PopupMenu.lastTarget).down("input").value;
-    window.open(url + "?uri=" + escape(excelUri));
-}

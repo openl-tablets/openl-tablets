@@ -93,12 +93,11 @@ public class HTMLRenderer {
     protected String renderActionMenu(String menuId, boolean editable, List<ActionLink> actionLinks) {
         StringBuilder result = new StringBuilder();
 
-        String editLinks = "<tr><td><a href=\"javascript:triggerEdit('"
+        String editLink = "<tr><td><a href=\"javascript:triggerEdit('"
                 + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','" + WebUtil.internalPath("ajax/edit")
-                + "')\">Edit</a></td></tr>" + "<tr><td><a href=\"javascript:triggerEditXls('"
-                + WebUtil.internalPath("excel/") + "')\">Edit in Excel</a></td></tr>";
+                + "')\">Edit</a></td></tr>";
         String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
-                + (editable ? editLinks : "");
+                + (editable ? editLink : "");
         String menuEnd = "</table>" + "</div>";
 
         result.append(menuBegin).append(actionLinks == null ? "" : renderAddActionLinks(actionLinks)).append(menuEnd);
