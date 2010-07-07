@@ -1,14 +1,30 @@
 package org.openl.util;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 public class RangeWithBounds {
+    public static enum BoundType {
+        INCLUDING,
+        EXCLUDING
+    }
 
     private Number min;
     private Number max;
+    private BoundType leftBoundType;
+    private BoundType rightBoundType;
 
     public RangeWithBounds(Number min, Number max) {
-        super();
+        this.min = min;
+        leftBoundType = BoundType.INCLUDING;
+        this.max = max;
+        rightBoundType = BoundType.INCLUDING;
+    }
+
+    public RangeWithBounds(Number min, Number max, BoundType leftBoundType, BoundType rightBoundType) {
         this.min = min;
         this.max = max;
+        this.leftBoundType = leftBoundType;
+        this.rightBoundType = rightBoundType;
     }
 
     @Override
@@ -16,28 +32,32 @@ public class RangeWithBounds {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof RangeWithBounds)) {
             return false;
         }
         final RangeWithBounds other = (RangeWithBounds) obj;
-        if (max == null) {
-            if (other.max != null) {
-                return false;
-            }
-        } else if (!max.equals(other.max)) {
-            return false;
-        }
-        if (min == null) {
-            if (other.min != null) {
-                return false;
-            }
-        } else if (!min.equals(other.min)) {
-            return false;
-        }
-        return true;
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(max, other.getMax());
+        builder.append(min, other.getMin());
+        builder.append(leftBoundType, other.getLeftBoundType());
+        builder.append(rightBoundType, other.getRightBoundType());
+        return builder.isEquals();
+    }
+
+    public BoundType getLeftBoundType() {
+        return leftBoundType;
+    }
+
+    public void setLeftBoundType(BoundType leftBoundType) {
+        this.leftBoundType = leftBoundType;
+    }
+
+    public BoundType getRightBoundType() {
+        return rightBoundType;
+    }
+
+    public void setRightBoundType(BoundType rightBoundType) {
+        this.rightBoundType = rightBoundType;
     }
 
     public Number getMax() {
@@ -54,6 +74,8 @@ public class RangeWithBounds {
         int result = 1;
         result = prime * result + ((max == null) ? 0 : max.hashCode());
         result = prime * result + ((min == null) ? 0 : min.hashCode());
+        result = prime * result + leftBoundType.hashCode();
+        result = prime * result + rightBoundType.hashCode();
         return result;
     }
 
@@ -67,7 +89,19 @@ public class RangeWithBounds {
 
     @Override
     public String toString() {
-        return "[" + min + ".." + max + "]";
+        StringBuilder builder = new StringBuilder();
+        if(leftBoundType == BoundType.INCLUDING){
+            builder.append('[');
+        } else{
+            builder.append('(');
+        }
+        builder.append(min + ".." + max);
+        if(rightBoundType == BoundType.INCLUDING){
+            builder.append(']');
+        } else{
+            builder.append(')');
+        }
+        return builder.toString();
     }
 
 }

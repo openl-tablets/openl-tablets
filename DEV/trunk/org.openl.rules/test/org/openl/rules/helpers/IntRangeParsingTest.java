@@ -16,9 +16,19 @@ public class IntRangeParsingTest {
     @Test
     public void testDollarSymbol() {
         assertEquals(new IntRange(13, 200), new IntRange("$13 - 200"));
+        assertEquals(new IntRange(11, 31), new IntRange("[$11; $32)"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">$2"));
         assertEquals(new IntRange(10, 10), new IntRange("$10"));
         assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("$2 +"));
+    }
+    
+    @Test
+    public void testBrackets(){
+        assertEquals(new IntRange(13, 200), new IntRange("[13; 200]"));
+        assertEquals(new IntRange(11, 31), new IntRange("(10 .. 32)"));
+        assertEquals(new IntRange(3, 4), new IntRange("(2;4]"));
+        assertEquals(new IntRange(10, 100), new IntRange("[10 .. 101)"));
+        assertEquals(new IntRange(-10, -1), new IntRange("[-10;0)"));
     }
 
     @Test

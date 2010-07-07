@@ -33,6 +33,10 @@ public class LiteralNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Boolean.FALSE, JavaOpenClass.BOOLEAN);
         }
 
+        if (s.equals("(") || s.equals(")") || s.equals("[") || s.equals("]")) {
+            return new LiteralBoundNode(node, s.charAt(0), JavaOpenClass.CHAR);
+        }
+
         String message = String.format("Literal <%s> can not be resolved", s);
         BindHelper.processError(message, node, bindingContext);
 
