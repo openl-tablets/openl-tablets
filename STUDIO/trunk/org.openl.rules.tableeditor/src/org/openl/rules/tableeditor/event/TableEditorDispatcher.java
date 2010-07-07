@@ -24,7 +24,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.util.exec.ExcelLauncher;
 
 public class TableEditorDispatcher implements PhaseListener {
     private static final long serialVersionUID = 8617343432886373802L;
@@ -108,10 +107,15 @@ public class TableEditorDispatcher implements PhaseListener {
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(uri);
             try {
-                if (local) { // open file
-                    ExcelLauncher.launch("scripts/LaunchExcel.vbs", parser.wbPath,
-                            parser.wbName, parser.wsName, parser.range);
-                } else { // download file
+//                if (local) { // open file
+                    
+//                    ExcelLauncher.launch(
+//                            "scripts/LaunchExcel.vbs",
+//                            parser.wbPath,
+//                            parser.wbName, 
+//                            parser.wsName, 
+//                            parser.range);
+//                } else { // download file
                     File xlsFile = new File(parser.wbPath, parser.wbName);
                     if (xlsFile.isFile()) {
                         response.setContentType("application/vnd.ms-excel");
@@ -130,7 +134,7 @@ public class TableEditorDispatcher implements PhaseListener {
                         out.flush();
                         out.close();
                     }
-                }
+  //              }
                 context.responseComplete();
             } catch (Exception e) {
                 LOG.error("Could not handle Excel request", e);

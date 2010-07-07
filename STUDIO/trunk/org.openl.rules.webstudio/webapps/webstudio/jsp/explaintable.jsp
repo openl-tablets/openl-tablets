@@ -1,6 +1,6 @@
 <%@ page import = "org.openl.meta.*" %>
 <%@ page import="org.openl.rules.ui.Explanation" %>
-<%@page import="org.openl.util.exec.ExcelLauncher"%>
+<%@page import="org.openl.rules.webstudio.util.ExcelLauncher"%>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
@@ -104,15 +104,16 @@ if (header != null)
 
 
 <%
+	String excelScriptPath = pageContext.getServletContext().getRealPath("scripts/LaunchExcel.vbs");
+	
 	String wbName = request.getParameter("wbName");
+	
 	if (wbName != null)
-		ExcelLauncher.launch(
-        "scripts/LaunchExcel.vbs", 
+		ExcelLauncher.launch(excelScriptPath,
 		request.getParameter("wbPath"),
 		wbName,
 		request.getParameter("wsName"),
 		request.getParameter("range")
-		
 		);
 	
 %>
