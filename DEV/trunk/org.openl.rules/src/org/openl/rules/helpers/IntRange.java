@@ -9,6 +9,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
+import org.openl.util.RangeWithBounds.BoundType;
 
 /**
  * The <code>IntRange</code> class stores range of integers. Examples : "1-3",
@@ -52,7 +53,12 @@ public class IntRange extends IntRangeDomain implements INumberRange {
                 .run(openl, new StringSourceCodeModule(range, null), SourceType.INT_RANGE);
 
         min = res.getMin().intValue();
+        if(res.getLeftBoundType() == BoundType.EXCLUDING){
+            min++;
+        }
         max = res.getMax().intValue();
+        if(res.getRightBoundType() == BoundType.EXCLUDING){
+            max--;
+        }
     }
-
 }
