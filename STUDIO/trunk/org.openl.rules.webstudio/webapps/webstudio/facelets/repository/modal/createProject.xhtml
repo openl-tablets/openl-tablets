@@ -11,7 +11,8 @@
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalNewProject');" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+          onclick="Richfaces.hideModalPanel('modalNewProject');" />
     </f:facet>
 
     <h:form id="newProjectForm">
@@ -30,7 +31,8 @@
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" id="sbt" value="Create" action="#{repositoryTreeController.createRulesProject}" />
+        <h:commandButton styleClass="button" id="sbt" value="Create"
+            action="#{repositoryTreeController.createNewRulesProject}" />
         <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
       </h:panelGrid>
     </h:form>

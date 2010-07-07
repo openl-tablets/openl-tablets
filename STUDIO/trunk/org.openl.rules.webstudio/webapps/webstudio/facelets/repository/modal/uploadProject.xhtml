@@ -11,7 +11,8 @@
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUploadProject');" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+        onclick="Richfaces.hideModalPanel('modalUploadProject');" />
     </f:facet>
 
     <h:form id="uploadProjectForm">
@@ -19,12 +20,13 @@
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File" />
 
-        <rich:fileUpload id="file" uploadData="#{repositoryTreeController.files}"
-            immediateUpload="true" acceptedTypes="zip" allowFlash="true"
+        <rich:fileUpload id="file" uploadData="#{repositoryTreeController.uploadedFiles}"
+            immediateUpload="true" acceptedTypes="zip, xls, xlsx" allowFlash="true"
             listHeight="60px" />
 
         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" required="true" onkeypress="return modalInputKeyPress(event, this)"/>
+        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}"
+            required="true" onkeypress="return modalInputKeyPress(event, this)"/>
       </h:panelGrid>
 
       <br />

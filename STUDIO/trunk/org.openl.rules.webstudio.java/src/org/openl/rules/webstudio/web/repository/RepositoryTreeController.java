@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.jcr.JcrNT;
-import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.upload.FileProjectResource;
 import org.openl.rules.webstudio.services.upload.RProjectBuilder;
 import org.openl.rules.webstudio.services.upload.UploadService;
@@ -69,7 +68,7 @@ public class RepositoryTreeController {
     private String newProjectTemplate;
     private String[] projectTemplates = { "SampleTemplate.xls" };
     private String folderName;
-    private List<UploadItem> files = new ArrayList<UploadItem>();
+    private List<UploadItem> uploadedFiles = new ArrayList<UploadItem>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -278,7 +277,14 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String createRulesProject() {
+    public String createNewRulesProject() {
+        InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);
+        String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
+        return createRulesProject(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
+    }
+
+    public String createRulesProject(String projectName, UserWorkspace userWorkspace,
+            InputStream rulesSource, String rulesSourceName) {
         String errorMessage = null;
         RProjectBuilder projectBuilder = null;
         try {
@@ -288,10 +294,7 @@ public class RepositoryTreeController {
                 } else {
                     projectBuilder = new RProjectBuilder(userWorkspace, projectName, null);
 
-                    InputStream templateSource = this.getClass().getClassLoader()
-                        .getResourceAsStream(newProjectTemplate);
-                    String rulesFileName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
-                    projectBuilder.addFile(rulesFileName, templateSource);
+                    projectBuilder.addFile(rulesSourceName, rulesSource);
 
                     projectBuilder.checkIn();
 
@@ -893,12 +896,12 @@ public class RepositoryTreeController {
         }
     }
 
-    public List<UploadItem> getFiles() {
-        return files;
+    public List<UploadItem> getUploadedFiles() {
+        return uploadedFiles;
     }
 
-    public void setFiles(List<UploadItem> files) {
-        this.files = files;
+    public void setUploadedFiles(List<UploadItem> uploadedFiles) {
+        this.uploadedFiles = uploadedFiles;
     }
 
     public void setFileName(String fileName) {
@@ -1069,7 +1072,7 @@ public class RepositoryTreeController {
         }
 
         UploadServiceParams params = new UploadServiceParams();
-        params.setFile(getUploadedFile());
+        params.setFile(getLastUploadedFile());
         params.setUnpackZipFile(false);
 
         params.setWorkspace(userWorkspace);
@@ -1094,7 +1097,7 @@ public class RepositoryTreeController {
 
     private String uploadAndUpdateFile() {
         UploadServiceParams params = new UploadServiceParams();
-        params.setFile(getUploadedFile());
+        params.setFile(getLastUploadedFile());
         params.setUnpackZipFile(false);
 
         params.setWorkspace(userWorkspace);
@@ -1114,16 +1117,18 @@ public class RepositoryTreeController {
         return null;
     }
 
-    private UploadItem getUploadedFile() {
-        if (!files.isEmpty()) {
-            return files.get(0);
+    private UploadItem getLastUploadedFile() {
+        if (!uploadedFiles.isEmpty()) {
+            return uploadedFiles.get(uploadedFiles.size() - 1);
         }
         return null;
     }
 
+    // TODO Refactor!!!!!!!
     private String uploadProject() {
         UploadServiceParams params = new UploadServiceParams();
-        params.setFile(getUploadedFile());
+        UploadItem uploadedProjectFile = getLastUploadedFile();
+        params.setFile(uploadedProjectFile);
         params.setProjectName(projectName);
         params.setWorkspace(userWorkspace);
 
@@ -1132,16 +1137,26 @@ public class RepositoryTreeController {
         }
 
         try {
-            // UploadServiceResult result = (UploadServiceResult)
-            uploadService.execute(params);
-
-            // importFile = result.getResultFile().getName();
-        } catch (ServiceException e) {
+            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
+            File file = result.getResultFile();
+            if (file != null && file.isFile()) { // Single Excel
+                createRulesProject(projectName, userWorkspace, new FileInputStream(file),
+                        uploadedProjectFile.getFileName());
+            }
+            clearUploadedFiles();
+        } catch (Exception e) {
             LOG.error("Error while uploading project.", e);
             return "" + e.getMessage();
         }
 
         return null;
+    }
+
+    private void clearUploadedFiles() {
+        for (UploadItem uploadFile : uploadedFiles) {
+            uploadFile.getFile().delete();
+        }
+        uploadedFiles.clear();
     }
 
     private void writeOutContent(final HttpServletResponse res, final File content, final String theFilename) {
