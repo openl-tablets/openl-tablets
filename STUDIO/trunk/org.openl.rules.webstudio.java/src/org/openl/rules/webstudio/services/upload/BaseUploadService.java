@@ -8,7 +8,9 @@ import org.openl.rules.webstudio.services.Service;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.ServiceParams;
 import org.openl.rules.webstudio.services.ServiceResult;
+import org.openl.util.FileTypeHelper;
 
+import org.richfaces.model.UploadItem;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
@@ -35,16 +37,18 @@ public abstract class BaseUploadService implements Service {
         UploadServiceResult result = null;
 
         try {
-            if (params.getFile() == null) {
+            UploadItem file = params.getFile();
+            if (file == null) {
                 throw new ServiceException("File was not found.");
             }
-            if (params.isUnpackZipFile()) {
-                result = uploadZipFile(params);
+            if (FileTypeHelper.isZipFile(file.getFileName())
+                    && params.isUnpackZipFile()) {
+                result = uploadAndUnpackZipFile(params);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Zip file uploaded and unpacked: " + result.getResultFiles());
                 }
             } else {
-                result = uploadNonZipFile(params);
+                result = uploadFile(params);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("File uploaded to '" + result.getResultFile().getName() + "'");
                 }
@@ -92,7 +96,7 @@ public abstract class BaseUploadService implements Service {
     protected abstract void unpack(UploadServiceParams params, UploadServiceResult result, File zipFile)
             throws IOException, ServiceException;
 
-    private UploadServiceResult uploadNonZipFile(UploadServiceParams params) throws ServiceException {
+    private UploadServiceResult uploadFile(UploadServiceParams params) throws ServiceException {
         File targetFile;
         UploadServiceResult result = new UploadServiceResult();
 
@@ -111,7 +115,7 @@ public abstract class BaseUploadService implements Service {
         }
     }
 
-    private UploadServiceResult uploadZipFile(UploadServiceParams params) throws ServiceException {
+    private UploadServiceResult uploadAndUnpackZipFile(UploadServiceParams params) throws ServiceException {
         UploadServiceResult result = new UploadServiceResult();
 
         try {
