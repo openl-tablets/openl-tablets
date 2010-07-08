@@ -50,7 +50,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         super(0, 0);
         OpenL openl = OpenL.getInstance("org.openl.j");
         RangeWithBounds res = (RangeWithBounds) OpenLManager
-                .run(openl, new StringSourceCodeModule(range, null), SourceType.INT_RANGE);
+                .run(openl, new StringSourceCodeModule(range, ""), SourceType.INT_RANGE);
 
         min = res.getMin().intValue();
         if(res.getLeftBoundType() == BoundType.EXCLUDING){
