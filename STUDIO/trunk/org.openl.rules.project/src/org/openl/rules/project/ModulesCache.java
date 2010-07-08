@@ -1,9 +1,10 @@
 package org.openl.rules.project;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.map.AbstractReferenceMap;
+import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
@@ -15,7 +16,12 @@ import org.openl.rules.project.model.ProjectDescriptor;
  * @author PUdalau
  */
 public class ModulesCache {
-    private Map<Module, RulesInstantiationStrategy> moduleInstantiators = new HashMap<Module, RulesInstantiationStrategy>();;
+    @SuppressWarnings("unchecked")
+    /**
+     * Memory-sensitive cache.
+     */
+    private Map<Module, RulesInstantiationStrategy> moduleInstantiators = new ReferenceMap(AbstractReferenceMap.HARD,
+            AbstractReferenceMap.SOFT);
 
     public Set<Module> getModules() {
         return moduleInstantiators.keySet();
@@ -28,11 +34,13 @@ public class ModulesCache {
      * @return Instantiation strategy for the module.
      */
     public RulesInstantiationStrategy getInstantiationStrategy(Module module) {
+        System.out.println("begore   " + moduleInstantiators.size());
         RulesInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module);
             moduleInstantiators.put(module, strategy);
         }
+        System.out.println("after  " + moduleInstantiators.size());
         return strategy;
     }
 
