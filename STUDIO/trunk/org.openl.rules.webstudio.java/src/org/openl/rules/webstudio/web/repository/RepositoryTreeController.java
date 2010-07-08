@@ -9,11 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.jcr.JcrNT;
-import org.openl.rules.webstudio.services.upload.FileProjectResource;
-import org.openl.rules.webstudio.services.upload.RProjectBuilder;
-import org.openl.rules.webstudio.services.upload.UploadService;
-import org.openl.rules.webstudio.services.upload.UploadServiceParams;
-import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -22,6 +17,7 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
@@ -30,6 +26,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectImpl;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.filter.OpenLFilter;
 import org.richfaces.model.UploadItem;
 
@@ -40,10 +37,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -62,7 +64,6 @@ public class RepositoryTreeController {
     private static final Log LOG = LogFactory.getLog(RepositoryTreeController.class);
     private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
-    private UploadService uploadService;
     private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
     private String projectName;
     private String newProjectTemplate;
@@ -77,6 +78,16 @@ public class RepositoryTreeController {
     private int minor;
 
     private String filterString;
+
+    private PathFilter zipFilter;
+
+    public PathFilter getZipFilter() {
+        return zipFilter;
+    }
+
+    public void setZipFilter(PathFilter zipFilter) {
+        this.zipFilter = zipFilter;
+    }
 
     /**
      * Adds new file to active node (project or folder).
@@ -283,16 +294,17 @@ public class RepositoryTreeController {
         return createRulesProject(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
     }
 
+    // TODO Extract method to separate controller
     public String createRulesProject(String projectName, UserWorkspace userWorkspace,
             InputStream rulesSource, String rulesSourceName) {
         String errorMessage = null;
-        RProjectBuilder projectBuilder = null;
+        RulesProjectBuilder projectBuilder = null;
         try {
             if (NameChecker.checkName(projectName)) {
                 if (userWorkspace.hasProject(projectName)) {
                     errorMessage = "Cannot create project because project with such name already exists.";
                 } else {
-                    projectBuilder = new RProjectBuilder(userWorkspace, projectName, null);
+                    projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, null);
 
                     projectBuilder.addFile(rulesSourceName, rulesSource);
 
@@ -316,6 +328,56 @@ public class RepositoryTreeController {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
         }
         return null;
+    }
+
+    private String createRulesProjectFromZip(String projectName, UserWorkspace userWorkspace,
+            ZipFile zipFile, PathFilter zipFilter) {
+        String errorMessage = null;
+        RulesProjectBuilder projectBuilder = null;
+        try {
+            if (NameChecker.checkName(projectName)) {
+                if (userWorkspace.hasProject(projectName)) {
+                    errorMessage = "Cannot create project because project with such name already exists.";
+                } else {
+                    projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, zipFilter);
+
+                    // Sort zip entries names alphabetically
+                    Set<String> sortedNames = new TreeSet<String>();
+                    for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+                        ZipEntry item = items.nextElement();
+                        sortedNames.add(item.getName());
+                    }
+
+                    for (String name : sortedNames) {
+                        ZipEntry item = zipFile.getEntry(name);
+
+                        if (item.isDirectory()) {
+                            projectBuilder.addFolder(item.getName());
+                        } else {
+                            InputStream zipInputStream = zipFile.getInputStream(item);
+                            projectBuilder.addFile(item.getName(), zipInputStream);
+                        }
+                    }
+                    projectBuilder.checkIn();
+                    repositoryTreeState.invalidateTree();
+                }
+            } else {
+                errorMessage = "Specified name is not a valid project name.";
+            }
+        } catch (Exception e) {
+            if (projectBuilder != null) {
+                projectBuilder.cancel();
+            }
+            LOG.error("Error creating project.", e);
+            errorMessage = e.getMessage();
+        }
+
+        if (errorMessage != null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+        }
+        return null;
+
     }
 
     public String deleteDeploymentProject() {
@@ -1000,10 +1062,6 @@ public class RepositoryTreeController {
         this.uploadFrom = uploadFrom;
     }
 
-    public void setUploadService(UploadService uploadService) {
-        this.uploadService = uploadService;
-    }
-
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
     }
@@ -1071,22 +1129,16 @@ public class RepositoryTreeController {
             return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         }
 
-        UploadServiceParams params = new UploadServiceParams();
-        params.setFile(getLastUploadedFile());
-        params.setUnpackZipFile(false);
-
-        params.setWorkspace(userWorkspace);
+        File uploadedFile = getLastUploadedFile().getFile();
 
         try {
-            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
-
             UserWorkspaceProjectFolder node = (UserWorkspaceProjectFolder) repositoryTreeState.getSelectedNode()
                     .getDataBean();
 
-            ProjectResource projectResource = new FileProjectResource(new FileInputStream(result.getResultFile()));
+            ProjectResource projectResource = new FileProjectResource(new FileInputStream(uploadedFile));
             node.addResource(fileName, projectResource);
 
-            result.getResultFile().delete();
+            clearUploadedFiles();
         } catch (Exception e) {
             LOG.error("Error adding file to user workspace.", e);
             return e.getMessage();
@@ -1096,19 +1148,13 @@ public class RepositoryTreeController {
     }
 
     private String uploadAndUpdateFile() {
-        UploadServiceParams params = new UploadServiceParams();
-        params.setFile(getLastUploadedFile());
-        params.setUnpackZipFile(false);
-
-        params.setWorkspace(userWorkspace);
-
+        File uploadedFile = getLastUploadedFile().getFile();
         try {
-            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
-
             UserWorkspaceProjectResource node = (UserWorkspaceProjectResource) repositoryTreeState.getSelectedNode()
                     .getDataBean();
-            node.setContent(new FileInputStream(result.getResultFile()));
-            result.getResultFile().delete();
+            node.setContent(new FileInputStream(uploadedFile));
+
+            clearUploadedFiles();
         } catch (Exception e) {
             LOG.error("Error updating file in user workspace.", e);
             return e.getMessage();
@@ -1124,24 +1170,23 @@ public class RepositoryTreeController {
         return null;
     }
 
-    // TODO Refactor!!!!!!!
     private String uploadProject() {
-        UploadServiceParams params = new UploadServiceParams();
-        UploadItem uploadedProjectFile = getLastUploadedFile();
-        params.setFile(uploadedProjectFile);
-        params.setProjectName(projectName);
-        params.setWorkspace(userWorkspace);
+        UploadItem uploadedItem = getLastUploadedFile();
+        File uploadedFile = uploadedItem.getFile();
 
         if (userWorkspace.hasProject(projectName)) {
             return "Cannot create project because project with such name already exists.";
         }
 
         try {
-            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
-            File file = result.getResultFile();
-            if (file != null && file.isFile()) { // Single Excel
-                createRulesProject(projectName, userWorkspace, new FileInputStream(file),
-                        uploadedProjectFile.getFileName());
+            if (uploadedFile != null && uploadedFile.isFile()) {
+                if (FileTypeHelper.isZipFile(uploadedItem.getFileName())) {
+                    ZipFile zipFile = new ZipFile(uploadedFile);
+                    createRulesProjectFromZip(projectName, userWorkspace, zipFile, zipFilter);
+                } else if (FileTypeHelper.isExcelFile(uploadedItem.getFileName())) {
+                    createRulesProject(projectName, userWorkspace, new FileInputStream(uploadedFile),
+                            uploadedItem.getFileName());
+                }
             }
             clearUploadedFiles();
         } catch (Exception e) {

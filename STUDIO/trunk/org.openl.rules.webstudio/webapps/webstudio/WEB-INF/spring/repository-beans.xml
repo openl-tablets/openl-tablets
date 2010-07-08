@@ -21,10 +21,6 @@
     <property name="productionDeployerManager" ref="productionDeployerManager" />
   </bean>
 
-  <bean id="uploadService" class="org.openl.rules.webstudio.services.upload.UploadService">
-    <property name="zipFilter" ref="zipFilter" />
-  </bean>
-
   <bean id="workspaceUser" class="org.openl.rules.workspace.WorkspaceUserImpl">
     <!-- TODO: pass correct user -->
     <constructor-arg value=""></constructor-arg>

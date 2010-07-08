@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.services.upload;
+package org.openl.rules.webstudio.web.repository;
 
 import java.io.InputStream;
 import java.util.Collection;

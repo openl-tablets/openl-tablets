@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.services.upload;
+package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,12 +14,12 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
 import java.io.InputStream;
 
-public class RProjectBuilder {
-    private static final Log LOG = LogFactory.getLog(RProjectBuilder.class);
+public class RulesProjectBuilder {
+    private static final Log LOG = LogFactory.getLog(RulesProjectBuilder.class);
     private final UserWorkspaceProject project;
     private final PathFilter filter;
 
-    public RProjectBuilder(UserWorkspace workspace, String projectName, PathFilter filter) throws ProjectException {
+    public RulesProjectBuilder(UserWorkspace workspace, String projectName, PathFilter filter) throws ProjectException {
         workspace.createProject(projectName);
         project = workspace.getProject(projectName);
         project.checkOut();
