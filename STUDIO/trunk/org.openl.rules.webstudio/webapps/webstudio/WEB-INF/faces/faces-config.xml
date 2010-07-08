@@ -79,8 +79,8 @@
       <value>#{rulesUserSession.userWorkspace}</value>
     </managed-property>
     <managed-property>
-      <property-name>uploadService</property-name>
-      <value>#{uploadService}</value>
+      <property-name>zipFilter</property-name>
+      <value>#{zipFilter}</value>
     </managed-property>
     <managed-property>
       <property-name>repositoryTreeState</property-name>
