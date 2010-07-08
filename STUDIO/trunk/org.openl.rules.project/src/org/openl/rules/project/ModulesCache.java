@@ -34,13 +34,11 @@ public class ModulesCache {
      * @return Instantiation strategy for the module.
      */
     public RulesInstantiationStrategy getInstantiationStrategy(Module module) {
-        System.out.println("begore   " + moduleInstantiators.size());
         RulesInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module);
             moduleInstantiators.put(module, strategy);
         }
-        System.out.println("after  " + moduleInstantiators.size());
         return strategy;
     }
 
