@@ -5,6 +5,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
@@ -39,7 +40,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         Throwable originalCause = getOriginalCause();
 
         if (originalCause != null) {
+            
             String message = originalCause.getMessage();
+            
             if (StringUtils.isNotBlank(message)) {
                 return message;
             }
@@ -83,7 +86,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
         OpenLExceptionUtils.printError(this, printWriter);
-
+        SourceCodeURLTool.printSourceLocation(this, printWriter);
         printWriter.close();
 
         return stringWriter.toString();

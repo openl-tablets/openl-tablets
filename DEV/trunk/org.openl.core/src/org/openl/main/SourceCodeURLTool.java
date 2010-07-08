@@ -23,10 +23,15 @@ import org.openl.util.text.TextInfo;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class SourceCodeURLTool implements SourceCodeURLConstants {
     static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module, String openl) {
+
+        if (module != null && StringUtils.isEmpty(module.getUri(0))) {
+            return StringUtils.EMPTY;
+        }
+
         int position = 0;
 
         int start = -1, end = -1;
@@ -176,14 +181,11 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
     static public void printSourceLocation(ILocation location, IOpenSourceCodeModule module, PrintWriter pw) {
 
-        // TODO fix openl name
         String url = SourceCodeURLTool.makeSourceLocationURL(location, module, "");
 
-        // for debug purposes
-        // SourceCodeURLTool.parseUrl(url);
-
-        pw.println(SourceCodeURLConstants.AT_PREFIX + url);
-
+        if (!StringUtils.isEmpty(url)) {
+            pw.println(SourceCodeURLConstants.AT_PREFIX + url);
+        }
     }
 
     static public void printSourceLocation(OpenLException error, PrintWriter pw) {
