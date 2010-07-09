@@ -11,15 +11,18 @@
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+      onclick="Richfaces.hideModalPanel('modalCopyProject');" />
     </f:facet>
 
     <h:form id="copyProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input id="projectName1" value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input id="projectName1" value="#{artefact.name}" class="readonlyRowInput" type="text" size="35"
+            readonly="readonly" title="#{artefact.name}"/>
         <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
-        <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" onkeypress="return modalInputKeyPress(event, this)"/>
+        <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}"
+            onkeypress="return modalInputKeyPress(event, this)"/>
       </h:panelGrid>
 
       <br />
