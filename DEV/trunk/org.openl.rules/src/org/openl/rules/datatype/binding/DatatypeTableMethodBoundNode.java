@@ -27,6 +27,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.InternalDatatypeClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 
 
 /**
@@ -226,6 +227,8 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
     public void finalizeBind(IBindingContext cxt) throws Exception {
 
         addFields(cxt);
+        //adding constructor with all fields after all fields have been added
+        dataType.addMethod(new OpenFieldsConstructor(dataType));
 
     }
 
