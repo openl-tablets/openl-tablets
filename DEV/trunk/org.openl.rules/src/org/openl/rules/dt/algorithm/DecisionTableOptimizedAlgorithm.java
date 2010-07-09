@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -23,6 +24,7 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.type.BooleanAdaptorFactory;
 import org.openl.rules.dt.type.BooleanTypeAdaptor;
+import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -238,11 +240,13 @@ public class DecisionTableOptimizedAlgorithm {
 
     @SuppressWarnings("unchecked")
     private static IRangeAdaptor getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
-
-        if (JavaOpenClass.INT.equals(methodType) && org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass())) {
-            return new IntRangeAdaptor();
+        if (ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true)) {
+            if (org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass())) {
+                return new IntRangeAdaptor();
+            } else if (org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass())) {
+                return new DoubleRangeAdaptor();
+            }
         }
-
         return null;
     }
 
