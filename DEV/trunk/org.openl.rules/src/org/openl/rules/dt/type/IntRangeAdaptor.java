@@ -2,12 +2,12 @@ package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.IntRange;
 
-public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
+public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Long> {
 
     /**
      * {@inheritDoc}
      */
-    public Integer getMax(IntRange range) {
+    public Long getMax(IntRange range) {
 
         int max = range.getMax();
 
@@ -15,14 +15,14 @@ public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
             max = max + 1;
         }
 
-        return max;
+        return new Long(max);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Integer getMin(IntRange range) {
-        return range.getMin();
+    public Long getMin(IntRange range) {
+        return new Long(range.getMin());
     }
 
 }
