@@ -200,7 +200,7 @@
         <br />
 
         <script type="text/javascript">
-            function triggerSearch(f) {
+            function search(f) {
 	           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
                	    .find(function(s) {
                         return s.nodeName == "#text"
@@ -209,6 +209,11 @@
                       .reject(function(s) {
                           return !s;
                       }).join(" ");
+                f.submit();
+            }
+
+            function editInExcel(f) {
+                f.uri.value = $(PopupMenu.lastTarget).down("input[name='uri']").value;
                 f.submit();
             }
 
@@ -244,22 +249,23 @@
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
+        <form target="show_app_hidden" name="editInExcelForm" method="post" action="#{contextPath}/jsp/showLinks.jsp">
+            <input type="hidden" name="uri" value="" />
+        </form>
+
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
             beforeSaveAction="#{showTableBean.updateSystemProperties}"
             afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
-            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();" excludeScripts="prototype">
+            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
+            excludeScripts="prototype">
 
-            <h:outputLink rendered="#{showTableBean.editable}"
-                    value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}"
-                    target="show_app_hidden">
-                    Edit in Excel
-            </h:outputLink>
-            
-            <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
-            
-        </rules:tableEditor>        
+            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)">Edit in Excel</h:outputLink>
+
+            <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
+
+        </rules:tableEditor>
 
         <h:panelGroup rendered="#{showTableBean.hasAnyTests}">
             <h3>Available Checks and Tests:</h3>
