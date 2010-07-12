@@ -2,6 +2,7 @@
 <%@ page import = "org.openl.util.*" %>
 <%@ page import = "org.openl.commons.web.util.WebTool" %>
 <%@ page import="org.openl.rules.lang.xls.syntax.TableSyntaxNode" %>
+<%@page import="org.openl.rules.table.ITable"%>
 
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
@@ -63,18 +64,17 @@ visibility:hidden;
 
 
 <%
-	TableInfo ti = studio.getModel().getTableInfo(uri);   
+    ITable table = studio.getModel().getTable(uri);
  	String view = null;
- 	
-if (ti != null)
-{
+
+    if (table != null) {
 %>
 
 <table>
 <tr><td>
 <img src="../images/excel-workbook.png"/>
-<a class="left" href="showLinks.jsp?<%=ti.getUrl()%>" target="show_app_hidden" title="<%=ti.getUri()%>">
-      &nbsp;<%=ti.getText()+ " : " + ti.getDisplayName()%> : <%=text%></a>
+<a class="left" href="showLinks.jsp?uri=<%=StringTool.encodeURL(uri)%>" target="show_app_hidden" title="<%=uri%>">
+      &nbsp;<%=table.getName()%> : <%=text%></a>
 
 </td>
 <%@include file="tableViewMenu.jspf"%>

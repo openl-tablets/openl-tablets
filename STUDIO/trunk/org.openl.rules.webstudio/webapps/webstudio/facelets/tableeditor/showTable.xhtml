@@ -86,8 +86,9 @@
                 </h:commandLink>
 
                 <h:outputLink rendered="#{showTableBean.editable}"
-                    value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}"
+                    value="#{contextPath}/jsp/showLinks.jsp"
                     target="show_app_hidden">
+                    <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage
                         url="/webresource/images/excel.png"
                         title="Edit Table In Excel - #{showTableBean.uri}"

@@ -80,27 +80,27 @@
   		<p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
 	</c:if>
 	<c:if test="#{bussinessSearchRequest.searching}">
-    	<c:forEach items="#{bussinessSearchRequest.searchResults}" var="tableSearch">
+    	<c:forEach items="#{bussinessSearchRequest.searchResults}" var="table">
         <br />
         <h:panelGroup>
             <img src="#{contextPath}/webresource/images/viewTable.gif" />
             <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-                <f:param name="uri" value="#{tableSearch.table.uri}" />
+                <f:param name="uri" value="#{able.uri}" />
                 <h:outputText value="View Table" />
             </h:outputLink>
         </h:panelGroup>
         <br />
         <h:panelGroup rendered="#{bussinessSearch.projectEditable}">
             <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
-            <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{tableSearch.xlsLink}"
-                target="show_app_hidden">
+            <h:outputLink value="#{contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
+                <f:param name="uri" value="#{table.uri}" />
                 <h:outputText value="View Table in Excel" />
             </h:outputLink>
         </h:panelGroup>
         <br /><br />
-        <rules:tableEditor table="#{tableSearch.table}" editable="false" rendered="#{tableSearch.table != null}"
+        <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
             collapseProps="true" />
-        <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{tableSearch.table == null}" escape="false" />
+        <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>
 
 	   </c:if>

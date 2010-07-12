@@ -51,13 +51,11 @@ import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
-import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.AllTestsRunResult.Test;
-import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
@@ -543,8 +541,8 @@ public class ProjectModel {
         return savedSearches;
     }
 
-    public List<TableSearch> getAdvancedSearchResults(Object searchResult) {
-        List<TableSearch> searchResults = new ArrayList<TableSearch>();
+    public List<ITable> getAdvancedSearchResults(Object searchResult) {
+        List<ITable> searchResults = new ArrayList<ITable>();
 
         if (searchResult instanceof OpenLAdvancedSearchResult) {
             TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows();
@@ -563,12 +561,7 @@ public class ProjectModel {
                     newTable.setUri(tableUri);
                     newTable.setProperties(tsn.getTableProperties());
 
-                    TableSearch tableSearch = new TableSearch();
-                    tableSearch.setTable(newTable);
-                    String xlsUrl = HTMLHelper.makeXlsOrDocUrl(tableUri);
-                    tableSearch.setXlsLink(xlsUrl);
-
-                    searchResults.add(tableSearch);
+                    searchResults.add(newTable);
                 }
             }
         }
@@ -576,17 +569,13 @@ public class ProjectModel {
         return searchResults;
     }
 
-    public List<TableSearch> getBussinessSearchResults(Object searchResult) {
-        List<TableSearch> searchResults = new ArrayList<TableSearch>();
+    public List<ITable> getBussinessSearchResults(Object searchResult) {
+        List<ITable> searchResults = new ArrayList<ITable>();
 
         if (searchResult instanceof OpenLBussinessSearchResult) {
             List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
             for (TableSyntaxNode foundTable : foundTables) {
-                TableSearch tableSearch = new TableSearch();
-                tableSearch.setTable(new TableSyntaxNodeAdapter(foundTable));
-                String xlsUrl = HTMLHelper.makeXlsOrDocUrl(foundTable.getUri());
-                tableSearch.setXlsLink(xlsUrl);
-                searchResults.add(tableSearch);
+                searchResults.add(new TableSyntaxNodeAdapter(foundTable));
             }
         }
 
@@ -608,19 +597,6 @@ public class ProjectModel {
     public IGridTable getGridTable(String elementUri) {
         TableSyntaxNode tsn = getNode(elementUri);
         return tsn == null ? null : tsn.getTable().getGridTable();
-    }
-
-    @Deprecated
-    public TableInfo getTableInfo(String uri) {
-        if (uri == null) {
-            return null;
-        }
-        TableSyntaxNode node = findNode(uri);
-        if (node == null) {
-            return null;
-        }
-
-        return new TableInfo(node.getTable().getGridTable(), node.getDisplayName(), false, uri);
     }
 
     public String getTableView(String view) {

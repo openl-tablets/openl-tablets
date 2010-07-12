@@ -29,7 +29,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -48,8 +47,6 @@ public class ShowTableBean {
 
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
 
-    private String url;
-    
     // Filled and runnable tests(this group of tests is more tight than allTests).
     private Test[] runnableTests = {};
     
@@ -88,8 +85,6 @@ public class ShowTableBean {
         table = model.getTable(uri);
 
         initProblems();
-
-        url = HTMLHelper.makeXlsOrDocUrl(uri);
 
         AllTestsRunResult testsRunner = model.getTestMethods(uri);
         if (testsRunner != null) {
@@ -207,10 +202,6 @@ public class ShowTableBean {
 
     public List<ITable> getTargetTables() {
         return targetTables;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public String getView() {
