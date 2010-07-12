@@ -20,7 +20,7 @@
             <!-- possible error messages -->
             <c:if test="#{not empty ACEGI_SECURITY_LAST_EXCEPTION}">
               <p class="error">
-               Login failed
+               Wrong user name or/and password
               </p>
               <c:set var="ACEGI_SECURITY_LAST_EXCEPTION" value="#{null}"/>
             </c:if>
