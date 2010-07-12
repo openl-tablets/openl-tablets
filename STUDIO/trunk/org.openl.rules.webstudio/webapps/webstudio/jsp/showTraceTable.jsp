@@ -1,6 +1,7 @@
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.commons.web.util.WebTool" %>
 <%@page import="org.openl.rules.webstudio.web.util.Constants"%>
+<%@page import="org.openl.util.StringTool"%>
 
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
@@ -24,9 +25,9 @@
      	traceElementID = Integer.parseInt(s_id);
     }
 
-	TableInfo ti = tracer.getTableInfo(traceElementID);
-
-    String uri = tracer.getProjectNodeUri(traceElementID, studio.getModel());
+    String tracerUri = tracer.getTracerUri(traceElementID);
+    String tracerName = tracer.getTracerName(traceElementID);
+    String tracerHeader = tracer.getTracerHeader(traceElementID);
 %>
 
 
@@ -60,7 +61,7 @@ visibility:hidden;
 <%
 	String view = null;
 	
-	if (ti != null)
+	if (tracerUri != null)
 	{
 	
 %>
@@ -68,8 +69,8 @@ visibility:hidden;
 <table>
 <tr><td>
 <img src="../images/excel-workbook.png"/>
-<a class="left" href="showLinks.jsp?<%=ti.getUrl()%>" target="show_app_hidden" title="<%=ti.getUri()%>">
-      &nbsp;<%=ti.getText()+ " : " + ti.getDisplayName()%></a>
+<a class="left" href="showLinks.jsp?uri=<%=StringTool.encodeURL(tracerUri)%>" target="show_app_hidden" title="<%=tracerUri%>">
+      &nbsp;<%=tracerHeader + " : " + tracerName%></a>
 </td>
 <%@include file="tableViewMenu.jspf"%>
  </tr>

@@ -23,6 +23,7 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.ITracerObject;
@@ -48,41 +49,48 @@ public class TraceHelper {
         }
     }
 
-    public String getProjectNodeUri(int id, ProjectModel model) {
-        ITracerObject tracer = (ITracerObject) traceTreeCache.getNode(id);
-        if (!(tracer instanceof ITableTracerObject)) {
-            return null;
-        }
-        ITableTracerObject tableTracer = (ITableTracerObject) tracer;
-        return tableTracer.getTableSyntaxNode().getUri();
-    }
-
-    public TableInfo getTableInfo(int elementID) {
+    public ITableTracerObject getTableTracer(int elementID) {
         ITracerObject tt = (ITracerObject) traceTreeCache.getNode(elementID);
-
-        if (tt == null) {
-            return null;
-        }
 
         if (!(tt instanceof ITableTracerObject)) {
             return null;
         }
 
-        ITableTracerObject tto = (ITableTracerObject) tt;
-        TableSyntaxNode tsn = tto.getTableSyntaxNode();
-        IGridTable gt = tsn.getTable().getGridTable();
+        return (ITableTracerObject) tt;
+    }
 
+    public String getTracerUri(int elementID) {
+        ITableTracerObject tto = getTableTracer(elementID);
+        if (tto != null) {
+            TableSyntaxNode tsn = tto.getTableSyntaxNode();
+            return tsn.getUri();
+        }
+        return null;
+    }
+
+    public String getTracerHeader(int elementID) {
+        String tracerUri = getTracerUri(elementID);
+        if (tracerUri != null) {
+            return FileIndexer.showElementHeader(tracerUri);
+        }
+        return null;
+    }
+
+    public String getTracerName(int elementID) {
+        ITableTracerObject tto = getTableTracer(elementID);
         String displayName = null;
 
-        if (tto instanceof ATableTracerNode) {
-            displayName = tto.getDisplayName(INamedThing.REGULAR);
-        } else {
-            // ATableTracerLeaf
-            displayName = tto.getParent().getDisplayName(INamedThing.REGULAR) + ": "
-                    + tto.getDisplayName(INamedThing.REGULAR);
+        if (tto != null) {
+            if (tto instanceof ATableTracerNode) {
+                displayName = tto.getDisplayName(INamedThing.REGULAR);
+            } else {
+                // ATableTracerLeaf
+                displayName = tto.getParent().getDisplayName(INamedThing.REGULAR) + ": "
+                        + tto.getDisplayName(INamedThing.REGULAR);
+            }
         }
 
-        return new TableInfo(gt, displayName, false);
+        return displayName;
     }
 
     IGridFilter makeFilter(ITableTracerObject tto, ProjectModel model) {

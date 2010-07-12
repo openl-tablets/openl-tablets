@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.search.OpenLBussinessSearch;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
@@ -151,7 +152,7 @@ public class BussinesSearchPropertyBean {
     public static class BussinessSearchRequest {
         private boolean needSearch;
         private BussinesSearchPropertyBean bussinessSearchBean;
-        private List<TableSearch> tableSearchList;
+        private List<ITable> tableSearchList;
                 
         public BussinesSearchPropertyBean getBussinessSearchBean() {
             return bussinessSearchBean;
@@ -175,7 +176,7 @@ public class BussinesSearchPropertyBean {
             return null;
         }
         
-        public List<TableSearch> getSearchResults() {
+        public List<ITable> getSearchResults() {
             if (!isSearching() || !bussinessSearchBean.isReady() || !bussinessSearchBean.isAnyPropertyFilled()) {
                 return Collections.emptyList();
             }

@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.search;
 
 import org.ajax4jsf.component.UIRepeat;
-import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.search.FileIndexer;
@@ -62,11 +61,6 @@ public class SearchResultsBean {
             return true;
         }
         return false;
-    }
-
-    public String getXlsOrDocUrlLink() {
-        String uri = getUri();
-        return HTMLHelper.makeXlsOrDocUrl(uri);
     }
 
 }
