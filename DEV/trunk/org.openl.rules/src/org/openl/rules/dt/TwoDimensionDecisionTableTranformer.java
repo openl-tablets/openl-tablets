@@ -11,8 +11,10 @@ import org.openl.rules.table.Point;
  * @author PUdalau
  */
 public class TwoDimensionDecisionTableTranformer implements CoordinatesTransformer {
+    
     private static final int CONDITION_HEADERS_HEIGHT = 4;
     private static final int HCONDITION_HEADERS_HEIGHT = 3;
+    
     private int conditionsWidth;
     private int hConditionsCount;
     private int lookupValuesTableHeight;
@@ -45,8 +47,8 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      * @param lookupValuesTable The "values subtable"
      */
     public TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable, IGridTable retTable) {
-        lookupValuesTableHeight = lookupValuesTable.getGridHeight();
-        lookupValuesTableWidth = lookupValuesTable.getGridWidth();
+        this.lookupValuesTableHeight = lookupValuesTable.getGridHeight();
+        this.lookupValuesTableWidth = lookupValuesTable.getGridWidth();
         this.conditionsWidth = entireTable.getGridWidth() - lookupValuesTableWidth;
         this.hConditionsCount = entireTable.getGridHeight() - lookupValuesTableHeight - HCONDITION_HEADERS_HEIGHT;
         this.retTableWidth = retTable.getGridWidth();

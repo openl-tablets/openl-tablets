@@ -6,13 +6,12 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class CondOrActionParameterField implements IOpenField {
+public class ConditionOrActionParameterField implements IOpenField {
 
-    IDecisionRow conditionOrAction; 
-    int paramNum;
+    private IDecisionRow conditionOrAction; 
+    private int paramNum;
     
-
-    public CondOrActionParameterField(IDecisionRow conditionOrAction, int paramNum) {
+    public ConditionOrActionParameterField(IDecisionRow conditionOrAction, int paramNum) {
         super();
         this.conditionOrAction = conditionOrAction;
         this.paramNum = paramNum;
