@@ -4,8 +4,12 @@
 package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 
 import org.junit.Test;
+import org.openl.rules.TestHelper;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 /**
@@ -13,6 +17,10 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
  */
 public class IntRangeParsingTest {
 
+    public interface ITestI {
+        String hello1(int hour);
+    }
+    
     @Test
     public void testDollarSymbol() {
         assertEquals(new IntRange(13, 200), new IntRange("$13 - 200"));
@@ -88,5 +96,22 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(" more than 2"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(" more than 2"));
         assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
+    }
+    
+    
+    @Test
+    public void testInvalidIntRangeParsing1() {
+        File xlsFile = new File("test/rules/helpers/IntRangeParsing1.xls");
+        TestHelper<ITestI> testHelper;
+
+        try {
+            testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+
+            ITestI instance = testHelper.getInstance();
+            instance.hello1(10);
+        } catch (Exception e) {
+            assertTrue(e.toString().contains("IntRangeParsing1.xls?sheet=hello2&cell=C8"));
+            assertEquals(e.getClass(), CompositeSyntaxNodeException.class);
+        }
     }
 }
