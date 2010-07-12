@@ -41,8 +41,6 @@ public class DecisionTableLookupConvertor {
     public static final int PARAM_ROW = 2;
     public static final int DISPLAY_ROW = 3;
     
-    public static final String HORIZONTAL_CONDITION_KEY = "HC";
-
     private List<ILogicalTable> hcHeaders = new ArrayList<ILogicalTable>();
     private ILogicalTable retTable;
 
@@ -90,23 +88,23 @@ public class DecisionTableLookupConvertor {
         int retTableWidth = retTable.getGridTable().getGridWidth();
         int lookupTableWidth = lookupValuesTable.getGridWidth();
         
-        boolean isMultiplier = lookupTableWidth/retTableWidth*retTableWidth == lookupTableWidth;
+        boolean isMultiplier = lookupTableWidth % retTableWidth == 0; 
+//            lookupTableWidth/retTableWidth*retTableWidth == lookupTableWidth;
         
-        if (!isMultiplier)
-        {
+        if (!isMultiplier) {
             String message = String.format("The width of the lookup table(%d) is not a multiple of the RET width(%d)", lookupTableWidth, retTableWidth);
             throw new OpenLCompilationException(message);            
         }    
         
 
-        return new TransformedGridTable(table.getGridTable(), new TwoDimensionDecisionTableTranformer(table
-                .getGridTable(), lookupValuesTable, retTable.getGridTable())).asGridTable();
+        return new TransformedGridTable(table.getGridTable(), 
+            new TwoDimensionDecisionTableTranformer(table.getGridTable(), lookupValuesTable, retTable.getGridTable())).asGridTable();
     }
 
     private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
 
         String message = String.format("The width of the horizontal keys must be equal to the number of the %s headers", 
-            HORIZONTAL_CONDITION_KEY);
+            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
         assertEQ(hcHeaders.size(),
             hcHeaderTable.getGridTable().getLogicalHeight(),
             message);
@@ -163,14 +161,14 @@ public class DecisionTableLookupConvertor {
 
             headerStr = headerStr.toUpperCase();
 
-            if (isValidHConditionHeader(headerStr)) {
+            if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
                 if (retTable != null) {
                     throw new OpenLCompilationException(String.format("%s column must be the last one", 
                         DecisionTableColumnHeaders.RETURN.getHeaderKey()));
                 }
 
                 hcHeaders.add(htable);
-                assertTableWidth(1, htable, HORIZONTAL_CONDITION_KEY);
+                assertTableWidth(1, htable, DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
                 continue;
             }
 
@@ -187,13 +185,13 @@ public class DecisionTableLookupConvertor {
             }
 
             String message = String.format("Lookup Table allow here only %s or %s columns: %s", 
-                HORIZONTAL_CONDITION_KEY, DecisionTableColumnHeaders.RETURN.getHeaderKey(), headerStr);
+                DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey(), DecisionTableColumnHeaders.RETURN.getHeaderKey(), headerStr);
             throw new OpenLCompilationException(message);
         }
 
         if (hcHeaders.size() == 0) {
             String message = String.format("Lookup Table must have at least one Horizontal Condition (%s1)", 
-                HORIZONTAL_CONDITION_KEY);
+                DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
             throw new OpenLCompilationException(message);
         }
 
@@ -211,10 +209,6 @@ public class DecisionTableLookupConvertor {
         }
 
         throw new OpenLCompilationException(String.format("Column %s must have width=%s", type, w));
-    }
-
-    public static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith(HORIZONTAL_CONDITION_KEY) && headerStr.length() > 2 && Character.isDigit(headerStr.charAt(2));
     }
 
 }

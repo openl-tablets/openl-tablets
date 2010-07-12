@@ -51,7 +51,7 @@ public class DecisionTableHelper {
     }
 
     public static boolean isConditionHeader(String s) {
-        return isValidConditionHeader(s) || DecisionTableLookupConvertor.isValidHConditionHeader(s);
+        return isValidConditionHeader(s) || isValidHConditionHeader(s);
     }
 
     public static int countConditionsAndActions(ILogicalTable table) {
@@ -83,13 +83,17 @@ public class DecisionTableHelper {
             if (value != null) {
                 value = value.toUpperCase();
 
-                if (DecisionTableLookupConvertor.isValidHConditionHeader(value)) {
+                if (isValidHConditionHeader(value)) {
                     return true;
                 }
             }
         }
 
         return false;
+    }
+    
+    public static boolean isValidHConditionHeader(String headerStr) {
+        return headerStr.startsWith(DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character.isDigit(headerStr.charAt(2));
     }
 
 }

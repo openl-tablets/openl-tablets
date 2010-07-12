@@ -20,13 +20,12 @@ import org.openl.types.impl.DelegatedDynamicObject;
  */
 public class RuleExecutionObject extends DelegatedDynamicObject {
 
-    int ruleNum; // the index of the current rule  that is being executed
-    IDynamicObject target;
-//    DecisionTable table;
+    private int ruleNum; // the index of the current rule  that is being executed
+//    private IDynamicObject target;
 
     public RuleExecutionObject(IOpenClass rulesType, Object target, int ruleNum) {
         super(rulesType , (IDynamicObject)target);
-        this.target = (IDynamicObject)target;
+//        this.target = (IDynamicObject)target;
         this.ruleNum = ruleNum;
     }
 
@@ -37,6 +36,5 @@ public class RuleExecutionObject extends DelegatedDynamicObject {
     public void setRuleNum(int ruleNum) {
         this.ruleNum = ruleNum;
     }
-
     
 }

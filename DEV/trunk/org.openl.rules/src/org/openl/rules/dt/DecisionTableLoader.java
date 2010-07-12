@@ -17,6 +17,7 @@ import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
+import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -91,7 +92,7 @@ public class DecisionTableLoader {
 
             try {
                 ILogicalTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
-                // System.out.println(TablePrinter.printGridTable(convertedTable.getGridTable()));
+//               System.out.println(TablePrinter.printGridTable(convertedTable.getGridTable()));
 
                 toParse = LogicalTableHelper.logicalTable(convertedTable.transpose());
                 tableBody = transposed;

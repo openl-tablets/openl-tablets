@@ -2,6 +2,7 @@ package org.openl.rules.dt;
 
 public enum DecisionTableColumnHeaders {
     CONDITION("C"),
+    HORIZONTAL_CONDITION("HC"),
     ACTION("A"),
     RULE("RULE"),
     RETURN("RET");

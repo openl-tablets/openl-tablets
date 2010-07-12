@@ -16,10 +16,11 @@ public class Action extends FunctionalRow implements IAction {
 
     private boolean isReturnAction = false;
     private boolean isSingleReturnParam = false;
+    
+    private IOpenClass ruleExecutionType;
 
     public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction) {
         super(name, row, decisionTable);
-
         this.isReturnAction = isReturnAction;
     }
 
@@ -64,11 +65,8 @@ public class Action extends FunctionalRow implements IAction {
         
         RuleExecutionObject newTarget = new RuleExecutionObject(ruleExecutionType, target, ruleNum);
         return getMethod().invoke(newTarget, mergeParams(target, params, env, (Object[]) value), env);
-//        return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
     }
 
-    IOpenClass ruleExecutionType;
-    
     public void prepareAction(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,

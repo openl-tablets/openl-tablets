@@ -8,23 +8,21 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DecisionRowField implements IOpenField {
 
-    IDecisionRow condOrAction; 
-    DecisionTableDataType decisionTableDataType;
-    ConditionOrActionDataType dataType;
+    private IDecisionRow conditionOrAction; 
+    private DecisionTableDataType decisionTableDataType;
+    private ConditionOrActionDataType dataType;
 
     public DecisionRowField(IDecisionRow condOrAction, ConditionOrActionDataType dataType,  DecisionTableDataType decisionTableDataType) {
-        super();
-        this.condOrAction = condOrAction;
+        this.conditionOrAction = condOrAction;
         this.dataType = dataType;
         this.decisionTableDataType = decisionTableDataType;
-        
     }
 
     public Object get(Object target, IRuntimeEnv env) {
         RuleExecutionObject reo = (RuleExecutionObject)target;
         int ruleNum = reo.getRuleNum();
         
-        Object[] res = condOrAction.getParamValues()[ruleNum];
+        Object[] res = conditionOrAction.getParamValues()[ruleNum];
         
         return res;
     }
@@ -66,7 +64,7 @@ public class DecisionRowField implements IOpenField {
     }
 
     public String getName() {
-        return "$" + condOrAction.getName();
+        return "$" + conditionOrAction.getName();
     }
 
 }

@@ -28,7 +28,7 @@ import org.openl.types.IOpenSchema;
 
 public class DecisionTableDataType extends ModuleOpenClass{
 
-    DecisionTable dtable;
+    private DecisionTable dtable;
     
     public DecisionTableDataType(DecisionTable dtable, IOpenSchema schema, String name, OpenL openl) {
         super(schema, name, openl);
@@ -40,15 +40,10 @@ public class DecisionTableDataType extends ModuleOpenClass{
         for (int i = 0; i < dtable.getConditionRows().length; i++) {
             addDecisionRow(dtable.getConditionRows()[i]);
         }
-//        for (int i = 0; i < dtable.getActionRows().length; i++) {
-//            addDecisionRow(dtable.getActionRows()[i]);
-//        }
     }
 
     private void addDecisionRow(IDecisionRow condOrAction) {
         addField(new DecisionRowField(condOrAction, new ConditionOrActionDataType(condOrAction, this.getSchema(), this.getOpenl()), this));
     }
-
-    
     
 }
