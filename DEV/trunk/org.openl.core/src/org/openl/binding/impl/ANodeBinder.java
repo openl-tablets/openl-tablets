@@ -108,7 +108,6 @@ public abstract class ANodeBinder implements INodeBinder {
 
             ErrorBoundNode errorBoundNode = new ErrorBoundNode(parentNode);
             return new IBoundNode[] { errorBoundNode };
-            //            throw new ProblemsWithChildrenError(parentNode);
         }
 
         return children;
