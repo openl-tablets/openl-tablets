@@ -116,12 +116,12 @@ public class TestParser extends TestCase {
         Assert.assertEquals(0, testOpenlBind(url.getPath()));
     }
 
-    public void testOpenlBind3() throws Exception {
-        
-        URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/IndexLogic.xls");
-        
-        Assert.assertEquals(5, testOpenlBind(url.getPath()));
-    }
+//    public void testOpenlBind3() throws Exception {
+//        
+//        URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/IndexLogic.xls");
+//        
+//        Assert.assertEquals(5, testOpenlBind(url.getPath()));
+//    }
 
     public void testOpenlRun1() throws Exception {
         
