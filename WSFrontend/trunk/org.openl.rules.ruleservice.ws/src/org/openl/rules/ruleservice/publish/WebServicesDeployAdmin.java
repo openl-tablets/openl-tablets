@@ -13,17 +13,20 @@ import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.springframework.beans.factory.ObjectFactory;
 
 public class WebServicesDeployAdmin implements DeploymentAdmin {
+    
     private static final Log LOG = LogFactory.getLog(WebServicesDeployAdmin.class);
+    
     private ObjectFactory serverFactory;
-
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
-
-    private String baseAddress;;
+    private String baseAddress;
+    private RulesServiceEnhancer serviceEnhancer;
+    private boolean provideRuntimeContext;
 
     public String getBaseAddress() {
         return baseAddress;
@@ -39,6 +42,14 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
 
     public void setServerFactory(ObjectFactory serverFactory) {
         this.serverFactory = serverFactory;
+    }
+
+    public boolean isProvideRuntimeContext() {
+        return provideRuntimeContext;
+    }
+
+    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
+        this.provideRuntimeContext = provideRuntimeContext;
     }
 
     public synchronized void deploy(String serviceName, List<ProjectDescriptor> infoList) {
@@ -89,9 +100,16 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
         RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule);
-
-        svrFactory.setServiceClass(strategy.getServiceClass());
-        svrFactory.setServiceBean(strategy.instantiate(ReloadType.RELOAD));
+        
+        if (isProvideRuntimeContext()) {
+            serviceEnhancer = new RulesServiceEnhancer(strategy);
+            svrFactory.setServiceClass(serviceEnhancer.getServiceClass());
+            svrFactory.setServiceBean(serviceEnhancer.instantiate(ReloadType.RELOAD));
+        } else {
+            svrFactory.setServiceClass(strategy.getServiceClass());
+            svrFactory.setServiceBean(strategy.instantiate(ReloadType.RELOAD));
+        }
+            
     }
 
     protected String getServiceNameForModule(Module rulesModule) {
