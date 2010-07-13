@@ -89,10 +89,10 @@ public class RulesServiceEnhancer {
      * @return instance of service class
      * @throws InstantiationException
      */
-    public Object instantiate() throws InstantiationException {
+    public Object instantiate(ReloadType reloadType) throws InstantiationException {
 
         try {
-            InvocationHandler handler = makeInvocationHandler();
+            InvocationHandler handler = makeInvocationHandler(reloadType);
             return Proxy.newProxyInstance(instantiationStrategy.getClassLoader(), getProxyInterfaces(), handler);
         } catch (Exception e) {
             throw new InstantiationException(e.getMessage());
@@ -105,10 +105,10 @@ public class RulesServiceEnhancer {
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
-    private InvocationHandler makeInvocationHandler() throws Exception {
+    private InvocationHandler makeInvocationHandler(ReloadType reloadType) throws Exception {
 
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(), instantiationStrategy.getServiceClass());
-        return new RulesServiceEnhancerInvocationHandler(methodsMap, instantiationStrategy.instantiate(ReloadType.NO));
+        return new RulesServiceEnhancerInvocationHandler(methodsMap, instantiationStrategy.instantiate(reloadType));
     }
 
     /**

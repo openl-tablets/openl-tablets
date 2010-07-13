@@ -32,7 +32,7 @@ public class RulesServiceEnhancerTest {
 
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
+        Object instance = enhancer.instantiate(ReloadType.NO);
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
@@ -61,7 +61,7 @@ public class RulesServiceEnhancerTest {
 
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
+        Object instance = enhancer.instantiate(ReloadType.NO);
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
@@ -90,7 +90,7 @@ public class RulesServiceEnhancerTest {
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
+        Object instance = enhancer.instantiate(ReloadType.NO);
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
