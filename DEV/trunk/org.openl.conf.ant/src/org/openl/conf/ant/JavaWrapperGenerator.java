@@ -8,11 +8,15 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
+import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.AOpenIterator;
+import org.openl.util.ASelector;
 import org.openl.util.ArrayTool;
+import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.generation.JavaClassGeneratorHelper;
@@ -607,8 +611,21 @@ public class JavaWrapperGenerator {
     }
     
     private String getMethodFieldName(IOpenMethod method) {
-        return getMethodName(method) + "_Method";
+
+        String methodName = getMethodName(method);
+
+        ISelector<IOpenMethod> nameSel = (ISelector<IOpenMethod>) new ASelector.StringValueSelector(methodName, INamedThing.NAME_CONVERTOR);
+        List<IOpenMethod> list = AOpenIterator.select(moduleOpenClass.getMethods().iterator(), nameSel).asList();
+
+        if (list.size() == 1) {
+            return methodName + "_Method";
+        }
+
+        int index = list.indexOf(method);
+        
+        return methodName + index + "_Method";
     }
+
     
     private String getMethodName(IOpenMethod method) {
         return method.getName();
