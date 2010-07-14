@@ -38,7 +38,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
 
     public Class<?> getInterfaceClass() {
         if(interfaceClass == null){
-            IOpenClass openClass = getCompiledOpenClass().getOpenClassWithErrors();
+            IOpenClass openClass = getCompiledOpenClass().getOpenClass();
             String className = openClass.getName();
             try {
                 interfaceClass = RulesFactory.generateInterface(className, openClass, getDefaultUserClassLoader());
