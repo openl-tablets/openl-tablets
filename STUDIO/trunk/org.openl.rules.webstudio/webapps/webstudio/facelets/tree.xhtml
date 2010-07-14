@@ -26,16 +26,16 @@
                         </h:form>
                     </td>
                     <td style="text-align: right;">
-                        <h:outputLink value="#{contextPath}/main.jsp?reload=reload" target="top"
+                        <h:outputLink value="#{contextPath}/faces/main.xhtml?reload=reload" target="main"
                             title="Refresh Project"><img src="webresource/images/refresh.gif" /></h:outputLink>
                         <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" target="mainFrame"
                             title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
                             src="webresource/images/test_ok.gif" /></h:outputLink>
-                        <h:outputLink value="#{contextPath}/main.jsp?operation=checkIn" styleClass="actionButton"
-                            target="top" title="Check in Project" rendered="#{treeBean.projectCheckedOut}"><img
+                        <h:outputLink value="#{contextPath}/faces/main.xhtml?operation=checkIn" styleClass="actionButton"
+                            target="main" title="Check in Project" rendered="#{treeBean.projectCheckedOut}"><img
                             src="webresource/images/repository/checkin.gif" /></h:outputLink>
-                        <h:outputLink value="#{contextPath}/main.jsp?operation=checkOut" styleClass="actionButton"
-                            target="top" title="Check out Project"
+                        <h:outputLink value="#{contextPath}/faces/main.xhtml?operation=checkOut" styleClass="actionButton"
+                            target="main" title="Check out Project"
                             rendered="#{!treeBean.projectLocalOnly and !treeBean.projectLocked}"><img
                             src="webresource/images/repository/checkout.gif" /></h:outputLink>
                     </td>

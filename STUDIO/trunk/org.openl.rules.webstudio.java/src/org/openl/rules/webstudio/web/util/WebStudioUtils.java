@@ -1,13 +1,15 @@
 package org.openl.rules.webstudio.web.util;
 
-import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Contains utility methods, which can be used from any class.
@@ -15,6 +17,7 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
  * @author Aliaksandr Antonik
  */
 public abstract class WebStudioUtils {
+
     private static final String STUDIO_ATTR = "studio";
 
     public static RulesUserSession getRulesUserSession(HttpSession session) {
@@ -24,32 +27,39 @@ public abstract class WebStudioUtils {
         return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
     }
 
+    public static RulesUserSession getRulesUserSession(HttpSession session, boolean create) {
+        RulesUserSession rulesUserSession = getRulesUserSession(session);
+        if (rulesUserSession == null && create) {
+            rulesUserSession = new RulesUserSession();
+
+            rulesUserSession.setUser(((CurrentUserInfo) WebApplicationContextUtils
+                    .getWebApplicationContext(session.getServletContext()).getBean("currentUserInfo")).getUser());
+            rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager) WebApplicationContextUtils
+                    .getWebApplicationContext(session.getServletContext()).getBean("workspaceManager"));
+            session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
+        }
+        return rulesUserSession;
+    }
+
     public static WebStudio getWebStudio() {
         return (WebStudio) (FacesUtils.getSessionParam(STUDIO_ATTR));
     }
 
-    public static WebStudio getWebStudio(boolean create) {
-        if (create) {
-            WebStudio studio = getWebStudio();
-            if (studio != null) {
-                return studio;
-            }
-
-            Map<String, Object> sessionMap = FacesUtils.getSessionMap();
-            synchronized (sessionMap) {
-                WebStudio webStudio = getWebStudio();
-                if (webStudio == null) {
-                    sessionMap.put(STUDIO_ATTR, webStudio = new WebStudio());
-                }
-                return webStudio;
-            }
-        } else {
-            return getWebStudio();
-        }
-    }
-
     public static WebStudio getWebStudio(HttpSession session) {
         return session == null ? null : (WebStudio) session.getAttribute(STUDIO_ATTR);
+    }
+
+    public static WebStudio getWebStudio(boolean create) {
+        return getWebStudio(FacesUtils.getSession(), create);
+    }
+
+    public static WebStudio getWebStudio(HttpSession session, boolean create) {
+        WebStudio studio = getWebStudio(session);
+        if (studio == null && create) {
+            studio = new WebStudio(session);
+            session.setAttribute(STUDIO_ATTR, studio);
+        }
+        return studio;
     }
 
     public static boolean isRepositoryFailed() {
