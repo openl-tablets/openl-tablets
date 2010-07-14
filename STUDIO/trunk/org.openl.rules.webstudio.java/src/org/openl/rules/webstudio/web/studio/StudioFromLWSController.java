@@ -1,17 +1,18 @@
 package org.openl.rules.webstudio.web.studio;
 
-import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 
 public class StudioFromLWSController {
+
     private LocalWorkspaceManager localWorkspaceManager;
 
     public String openStudio() {
-        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
-        session.setAttribute("studio", new WebStudio());
+        HttpSession session = FacesUtils.getSession();
+        session.setAttribute("studio", new WebStudio(FacesUtils.getSession()));
         return "webstudio";
     }
 

@@ -35,12 +35,13 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 /**
- * TODO Refactor
+ * TODO Remove JSF dependency
  * 
  * @author snshor
  */
 public class WebStudio {
-    static interface StudioListener extends EventListener {
+
+    interface StudioListener extends EventListener {
         void studioReset();
     }
 
@@ -73,10 +74,10 @@ public class WebStudio {
     private int businessModeIdx = 0;
     private int developerModeIdx = 0;
 
-    public WebStudio() {
+    public WebStudio(HttpSession session) {
         boolean initialized = false;
         try {
-            initialized = init();
+            initialized = init(session);
         } catch (Exception e) {
         }
 
@@ -88,6 +89,33 @@ public class WebStudio {
         }
     }
 
+    public WebStudio() {
+        this(FacesUtils.getSession());
+    }
+
+    public boolean init(HttpSession session) {
+        UserWorkspace userWorkspace;
+        try {
+            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
+            userWorkspace = rulesUserSession.getUserWorkspace();
+        } catch (WorkspaceException e) {
+            LOG.error("Failed to get user workspace", e);
+            return false;
+        } catch (ProjectException e) {
+            LOG.error("Failed to get user workspace", e);
+            return false;
+        }
+        if (userWorkspace == null) {
+            return false;
+        }
+
+        workspacePath = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
+
+        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        projectResolver.setWorkspace(workspacePath);
+        return true;
+    }
+
     public WebStudioViewMode[] getViewSubModes(String modeType) {
         WebStudioViewMode[] modes = null;
         if (BaseDeveloperViewMode.TYPE.equals(modeType)) {
@@ -96,12 +124,6 @@ public class WebStudio {
             modes = businessModes;
         }
         return modes;
-    }
-
-    public WebStudio(String workspacePath) {
-        this.workspacePath = workspacePath;
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(workspacePath);
     }
 
     public void addBenchmark(BenchmarkInfo bi) {
@@ -232,33 +254,6 @@ public class WebStudio {
             projects = projectResolver.listOpenLProjects();
         }
         return projects;
-    }
-
-    public boolean init(HttpSession session) {
-        UserWorkspace userWorkspace;
-        try {
-            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-            userWorkspace = rulesUserSession.getUserWorkspace();
-        } catch (WorkspaceException e) {
-            LOG.error("Failed to get user workspace", e);
-            return false;
-        } catch (ProjectException e) {
-            LOG.error("Failed to get user workspace", e);
-            return false;
-        }
-        if (userWorkspace == null) {
-            return false;
-        }
-
-        workspacePath = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
-
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(workspacePath);
-        return true;
-    }
-
-    public boolean init() {
-        return init(FacesUtils.getSession());
     }
 
     public void removeBenchmark(int i) {

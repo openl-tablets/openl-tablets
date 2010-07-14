@@ -25,6 +25,12 @@
     <component-class>org.openl.commons.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
   </component>
 
+  <managed-bean>
+    <managed-bean-name>mainBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.MainBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
   <!-- repository config -->
   <managed-bean>
     <managed-bean-name>rulesUserSession</managed-bean-name>
@@ -305,7 +311,7 @@
     <from-view-id>/facelets/repository/main.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>webstudio</from-outcome>
-      <to-view-id>/index.jsp</to-view-id>
+      <to-view-id>/index.xhtml</to-view-id>
       <redirect/>
     </navigation-case>
   </navigation-rule>
