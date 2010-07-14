@@ -202,11 +202,12 @@ public class ColumnDescriptor {
                 logicalTable.getLogicalRow(i),
                 openlAdaptor);
 
-            if (res == null) {
-                res = paramType.nullObject();
+//            if (res == null) {
+//                res = paramType.nullObject();
+//            }
+            if (res != null) {
+                values.add(res);
             }
-
-            values.add(res);
         }
 
         Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });

@@ -3,11 +3,7 @@ package org.openl.rules.binding;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.IDomain;
 import org.openl.meta.IMetaHolder;
@@ -18,7 +14,6 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
-import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
@@ -27,7 +22,6 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -188,24 +182,24 @@ public class RuleRowHelper {
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
     }
 
-    static Map<String, int[]> cellTracemap = new HashMap<String, int[]>();
-    static int cnt;
+//    static Map<String, int[]> cellTracemap = new HashMap<String, int[]>();
+//    static int cnt;
 
     //private 
-    static void traceCellLoading(String paramType, int type) {
-
-        if (paramType.equals(IntRange.class.getName()) && type == 0) {
-            ++cnt;
-        }
-        int[] counts = cellTracemap.get(paramType);
-        if (counts == null) {
-            counts = new int[7];
-            cellTracemap.put(paramType, counts);
-        }
-
-        if (counts[type]++ % 100 == 0)
-            System.out.println("  **  " + paramType + "\t" + type + "\t" + counts[type]);
-    }
+//    static void traceCellLoading(String paramType, int type) {
+//
+//        if (paramType.equals(IntRange.class.getName()) && type == 0) {
+//            ++cnt;
+//        }
+//        int[] counts = cellTracemap.get(paramType);
+//        if (counts == null) {
+//            counts = new int[7];
+//            cellTracemap.put(paramType, counts);
+//        }
+//
+//        if (counts[type]++ % 100 == 0)
+//            System.out.println("  **  " + paramType + "\t" + type + "\t" + counts[type]);
+//    }
 
     private static Object loadNativeValue(ICell cell, IOpenClass paramType, IBindingContext bindingContext,
             String paramName, String ruleName, ILogicalTable table) {
@@ -294,10 +288,7 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
-                SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(
-                        null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
-                throw exception;
-//                throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { exception });
+                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
@@ -312,22 +303,22 @@ public class RuleRowHelper {
      * @return <code>null</code> if value is not convertable to expected type.
      */
     //private 
-    static Object convertObjectValue(Object value, Class<?> expectedType, IBindingContext bindingContext) {
-        if (ClassUtils.isAssignable(value.getClass(), expectedType, true)) {
-            if (expectedType == String.class) {
-                return ((String) value).trim();// we have to trim string values
-            } else {
-                return value;
-            }
-        } else {
-            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, value
-                    .getClass());
-            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                return objectConvertor.convert(value, bindingContext);
-            }
-        }
-        return null;
-    }
+//    static Object convertObjectValue(Object value, Class<?> expectedType, IBindingContext bindingContext) {
+//        if (ClassUtils.isAssignable(value.getClass(), expectedType, true)) {
+//            if (expectedType == String.class) {
+//                return ((String) value).trim();// we have to trim string values
+//            } else {
+//                return value;
+//            }
+//        } else {
+//            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, value
+//                    .getClass());
+//            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
+//                return objectConvertor.convert(value, bindingContext);
+//            }
+//        }
+//        return null;
+//    }
 
     private static Object parseStringValue(String source, Class<?> expectedType, IBindingContext bindingContext) {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
@@ -361,17 +352,6 @@ public class RuleRowHelper {
         holder.setMetaInfo(valueMetaInfo);
     }
     
-
-//    private static void setMetaInfo(IMetaHolder holder, String uri, String paramName, String ruleName) {
-//
-//        ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
-//        valueMetaInfo.setShortName(paramName);
-//        valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
-//        valueMetaInfo.setSourceUrl(uri);
-//
-//        holder.setMetaInfo(valueMetaInfo);
-//    }
-
     @SuppressWarnings("unchecked")
     private static void validateValue(Object value, IOpenClass paramType) throws Exception {
 

@@ -342,7 +342,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         int height = RuleRowHelper.calculateHeight(dataTable);
 
         List<CompositeMethod> methodsList = null;
-        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { height });
+        List<Object> values = new ArrayList<Object>();
 
         for (int i = 0; i < height; i++) { // load array values represented as
             // number of cells
@@ -353,9 +353,19 @@ public abstract class FunctionalRow implements IDecisionRow {
             if (parameter instanceof CompositeMethod) {
                 methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) parameter));
             } else {
-                Array.set(ary, i, parameter);
+                if (parameter != null) {
+                    values.add(parameter);
+//                    Array.set(ary, i, parameter);
+                }
             }
         }
+        
+        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
+        
+        for (int i = 0; i < values.size(); i++) {
+            Array.set(ary, i, values.get(i));
+        }
+        
         return methodsList == null ? ary : new ArrayHolder(ary,
             methodsList.toArray(new CompositeMethod[methodsList.size()]));
 
