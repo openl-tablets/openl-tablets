@@ -177,11 +177,6 @@
     <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>*.jsf</url-pattern>
-  </servlet-mapping>
-
   <servlet>
     <servlet-name>DownloadServlet</servlet-name>
     <servlet-class>org.openl.rules.webstudio.web.servlet.DownloadServlet</servlet-class>
