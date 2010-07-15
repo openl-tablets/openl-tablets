@@ -1,16 +1,15 @@
 package org.openl.types.java;
 
-import java.io.File;
 import java.net.URL;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.impl.MethodKey;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 /*
  * Created on May 21, 2003

@@ -22,7 +22,7 @@ import org.openl.util.ISelector;
  */
 public class StaticClassLibrary implements IOpenLibrary {
 
-    IOpenClass openClass = null;
+    private IOpenClass openClass;
 
     public StaticClassLibrary() {
     }
@@ -39,7 +39,6 @@ public class StaticClassLibrary implements IOpenLibrary {
      */
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) {
         return openClass.getMethod(name, params);
-
     }
 
     public IOpenField getVar(String name, boolean strictMatch) {
@@ -57,7 +56,6 @@ public class StaticClassLibrary implements IOpenLibrary {
             public boolean select(IOpenMethod m) {
                 return m.isStatic();
             }
-
         };
 
         return AOpenIterator.select(openClass.methods(), sel);

@@ -7,8 +7,8 @@
 package org.openl.conf;
 
 import org.openl.binding.ICastFactory;
-import org.openl.binding.impl.ACastFactory;
 import org.openl.binding.impl.StaticClassLibrary;
+import org.openl.binding.impl.cast.ACastFactory;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;

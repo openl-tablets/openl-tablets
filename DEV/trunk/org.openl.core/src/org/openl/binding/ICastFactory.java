@@ -14,5 +14,5 @@ import org.openl.types.IOpenClass;
  *
  */
 public interface ICastFactory {
-    public IOpenCast getCast(IOpenClass from, IOpenClass to);
+    IOpenCast getCast(IOpenClass from, IOpenClass to);
 }
