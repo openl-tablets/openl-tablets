@@ -10,21 +10,16 @@ package org.openl.types;
  * @author snshor IOpenCast is responsible for casting operations.
  */
 public interface IOpenCast {
-    public Object convert(Object from);
+
+    Object convert(Object from);
+
+    int getDistance(IOpenClass from, IOpenClass to);
 
     /**
-     *
-     * @return
-     */
-    // public IOpenClass getFrom();
-    // public IOpenClass getTo();
-    public int getDistance(IOpenClass from, IOpenClass to);
-
-    /**
-     *
+     * Checks that cast can be performed automatically.
+     * 
      * @return true if cast can be performed automatically, i.e. without
-     *         explicit casting.
+     *         explicit casting
      */
-    public boolean isImplicit();
-
+    boolean isImplicit();
 }
