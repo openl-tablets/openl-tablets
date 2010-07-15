@@ -672,9 +672,7 @@ public class ProjectModel {
             TableSyntaxNode[] nodes = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
                 .getXlsModuleNode().getXlsTableSyntaxNodes();
             for (TableSyntaxNode node : nodes) {
-                if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
-                    return ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
-                }
+                return ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
             }
         }
 
