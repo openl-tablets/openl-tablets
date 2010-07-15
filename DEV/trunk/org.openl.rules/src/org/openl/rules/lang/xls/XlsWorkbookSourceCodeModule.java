@@ -24,29 +24,30 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
-    public static interface WorkbookListener extends EventListener {
+    public interface WorkbookListener extends EventListener {
         void beforeSave(XlsWorkbookSourceCodeModule xwscm);
     }
 
-	Workbook workbook;
+	private Workbook workbook;
 
     private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
 
+    private File sourceFile;
+    private long lastModified;
+
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
-        this(src, false);
-    }
-    
-	/**
-	 * @deprecated ignores preserveNodes
-	 * @param src
-	 * @param preserveNodes (ignored for a sake of POI 3.5)
-	 */
-    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, boolean preserveNodes) {
         super(src);
-        workbook = loadWorkbook(src, preserveNodes);
+        this.workbook = loadWorkbook(src);
+        initSourceFile();
     }
-    
-    private Workbook loadWorkbook(IOpenSourceCodeModule src, boolean preserveNodes) {
+
+    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook) {
+        super(src);
+        this.workbook = workbook;
+        initSourceFile();
+    }
+
+    private Workbook loadWorkbook(IOpenSourceCodeModule src) {
         InputStream is = null;
         try {
             is = src.getByteStream();
@@ -65,9 +66,13 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         }
     }
 
-    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook) {
-        super(src);
-        this.workbook = workbook;
+    private void initSourceFile() {
+        try {
+            sourceFile = getFile();
+            lastModified = sourceFile.lastModified();
+        } catch (Exception e) {
+            Log.error("Error when trying to get source file", e);
+        }
     }
 
     public void addListener(WorkbookListener listener) {
@@ -98,10 +103,6 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return getDisplayName();
     }
 
-    // public IIndexElement getParent()
-    // {
-    // return null;
-    // }
     public String getType() {
         return IDocumentType.WORKBOOK.getType();
     }
@@ -114,20 +115,27 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return workbook;
     }
 
-    public void save() throws IOException {
+    private File getFile() throws IOException {
+        File sourceFile = null;
         if (src instanceof FileSourceCodeModule) {
-            String fname = ((FileSourceCodeModule) src).getFile().getCanonicalPath();
-            saveAs(fname);
+            sourceFile = ((FileSourceCodeModule) src).getFile();
         } else {
-
             try {
-                File f = new File(new URI(src.getUri(0)));
-                String fname = f.getCanonicalPath();
-                saveAs(fname);
+                sourceFile = new File(new URI(getUri()));
             } catch (URISyntaxException me) {
-                throw new IOException("The xls source is not file based, can not save");
+                throw new IOException("The xls source is not file based");
             }
         }
+        return sourceFile;
+    }
+
+    public boolean isModified() {
+        return sourceFile.lastModified() != lastModified;
+    }
+
+    public void save() throws IOException {
+        String fileName = sourceFile.getCanonicalPath();
+        saveAs(fileName);
     }
 
     public void saveAs(String fileName) throws IOException {
