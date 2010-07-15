@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:c="http://java.sun.com/jstl/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:authz="http://rules.openl.org/taglibs/acegi"
     xmlns:a4j="http://richfaces.org/a4j">
 
@@ -23,6 +23,8 @@
             padding-left: 10px;
         }
     </style>
+
+    <ui:include src="/facelets/sourceModified.xhtml" />
 
     <f:verbatim>
         <script type="text/javascript">
