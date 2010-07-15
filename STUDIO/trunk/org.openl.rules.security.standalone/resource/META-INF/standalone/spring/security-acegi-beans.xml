@@ -131,7 +131,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
-        /index.jsp=VIEW_PROJECTS
+        /faces/index.xhtml=VIEW_PROJECTS
         /faces/repository/**=VIEW_PROJECTS
       </value>
     </property>
