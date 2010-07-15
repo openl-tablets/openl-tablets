@@ -25,7 +25,6 @@
 
         String wbName = request.getParameter("wbName");
         if (wbName != null)
-        	
             ExcelLauncher.launch(excelScriptPath,
                     request.getParameter("wbPath"),
                     wbName,
@@ -44,17 +43,23 @@
                     request.getParameter("wdParEnd")
 
             );
-    } else if (wantURI) {
-%>
-<script type="text/javascript">alert("This action is available only from the machine server runs at.")</script>
-<% } else {
-    String filename = request.getParameter("wbName");
-    String path = request.getParameter("wbPath");
-    if (filename == null) {
-        filename = request.getParameter("wdName");
-        path = request.getParameter("wdPath");
-    }
-    pageContext.setAttribute("filename", new File(path, filename).getAbsolutePath());
-%>
-<jsp:forward page="/action/download"><jsp:param name="filename" value="${filename}" /></jsp:forward>
-<%}%>
+    } else { // Remote
+        String path;
+        String filename;
+        if (wantURI) {
+            XlsUrlParser parser = new XlsUrlParser();
+            parser.parse(request.getParameter("uri"));
+            path = parser.wbPath;
+            filename = parser.wbName;
+        } else {
+            path = request.getParameter("wbPath");
+            filename = request.getParameter("wbName");
+            if (filename == null) {
+                filename = request.getParameter("wdName");
+                path = request.getParameter("wdPath");
+            }
+        }
+        pageContext.setAttribute("filename", new File(path, filename).getAbsolutePath());
+    %>
+    <jsp:forward page="/action/download"><jsp:param name="filename" value="${filename}" /></jsp:forward>
+    <%}%>
