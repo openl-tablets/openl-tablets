@@ -666,10 +666,11 @@ public class ProjectModel {
         return getTestsRunner(testMethods);
     }
 
+    // TODO Refactor
     private XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
         if (compiledOpenClass != null) {
-            TableSyntaxNode[] nodes = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
-                    .getXlsTableSyntaxNodes();
+            TableSyntaxNode[] nodes = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
+                .getXlsModuleNode().getXlsTableSyntaxNodes();
             for (TableSyntaxNode node : nodes) {
                 if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
                     return ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
@@ -678,6 +679,11 @@ public class ProjectModel {
         }
 
         return null;
+    }
+
+    public boolean isSourceModified() {
+        XlsWorkbookSourceCodeModule wb = getWorkbookSourceCodeModule();
+        return wb.isModified();
     }
 
     public CompiledOpenClass getCompiledOpenClass() {

@@ -3,6 +3,7 @@
   <Drawing gridVisible="true" snapOn="true" />
   <JSFFlowResource path="/facelets/repository/main.xhtml" location="30,30" dimension="195,36" />
   <JSFFlowResource path="/facelets/repository/search/advanced.xhtml" location="330,30" dimension="256,36" />
+  <JSFFlowResource path="/index.xhtml" location="30,1430" dimension="104,36" />
   <JSFFlowResource path="" location="180,130" dimension="36,36" />
   <JSFFlowResource path="/openTable.jsp" location="480,1030" dimension="116,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTable0.xhtml" location="630,130" dimension="233,36" />
@@ -31,7 +32,6 @@
   <JSFFlowResource path="/facelets/tableCopier/copyNamesSelectDestination.xhtml" location="480,730" dimension="317,36" />
   <JSFFlowResource path="/facelets/tableCopier/copyPropertiesSelectDestination.xhtml" location="30,930" dimension="334,36" />
   <JSFFlowResource path="/facelets/tableCopier/selectSheet.xhtml" location="480,1230" dimension="235,36" />
-  <JSFFlowResource path="/index.xhtml" location="30,1430" dimension="104,36" />
   <JSFFlowNavigationCase id="/facelets/repository/main.xhtml,/facelets/repository/search/advanced.xhtml,search.advanced,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="225,48" />
