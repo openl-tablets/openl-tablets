@@ -1,5 +1,9 @@
 package org.openl.util.generation;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.util.StringTool;
@@ -66,6 +70,29 @@ public class JavaClassGeneratorHelper {
         return String.format("  private %s %s;\n\n", fieldType, fieldName);
     }
     
+    public static String getDefaultConstructor(String simpleClassName) {
+        return String.format("\npublic %s() {\n}\n", simpleClassName);
+    }
+
+    public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(String.format("\npublic %s(", simpleClassName));
+        Iterator<Entry<String, Class<?>>> fieldsIterator = fields.entrySet().iterator();
+        while (fieldsIterator.hasNext()) {
+            Entry<String, Class<?>> field = fieldsIterator.next();
+            buf.append(String.format("%s %s", ClassUtils.getShortClassName(field.getValue()), field.getKey()));
+            if (fieldsIterator.hasNext()) {
+                buf.append(", ");
+            }
+        }
+        buf.append(") {\n");
+        for (Entry<String, Class<?>> field : fields.entrySet()) {
+            buf.append(String.format("    this.%s = %s;\n", field.getKey(), field.getKey()));
+        }
+        buf.append("}\n");
+        return buf.toString();
+    }
+    
     public static String getPublicGetterMethod(String fieldType, String fieldName) {
         return String.format("  public %s %s() {\n   return %s;\n}\n", fieldType, StringTool.getGetterName(fieldName), fieldName);
     }
@@ -73,6 +100,46 @@ public class JavaClassGeneratorHelper {
     public static String getPublicSetterMethod(String fieldType, String fieldName) {
         return String.format("  public void %s(%s %s) {\n   this.%s = %s;\n}\n", StringTool.getSetterName(fieldName), 
             fieldType, fieldName, fieldName, fieldName);
+    }
+
+    public static String getEqualsMethod(String simpleClassName, Map<String, Class<?>> fields) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("\npublic boolean equals(Object obj) {\n");
+        buf.append("    EqualsBuilder builder = new EqualsBuilder();\n");
+        buf.append(String.format("    if (!(obj instanceof %s)) {;\n", simpleClassName));
+        buf.append("        return false;\n");
+        buf.append("    }\n");
+        buf.append(String.format("    %s another = (%s)obj;", simpleClassName, simpleClassName));
+        for (Entry<String, Class<?>> field : fields.entrySet()) {
+            buf.append(String.format("    builder.append(another.%s,%s);\n", field.getKey(), field.getKey()));
+        }
+        buf.append("    return builder.isEquals();\n");
+        buf.append("}\n");
+        return buf.toString();
+    }
+
+    public static String getHashCodeMethod(Map<String, Class<?>> fields) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("\npublic int hashCode() {\n");
+        buf.append("    HashCodeBuilder builder = new HashCodeBuilder();\n");
+        for (Entry<String, Class<?>> field : fields.entrySet()) {
+            buf.append(String.format("    builder.append(%s);\n", field.getKey()));
+        }
+        buf.append("    return builder.toHashCode();\n");
+        buf.append("}\n");
+        return buf.toString();
+    }
+
+    public static String getToStringMethod(Map<String, Class<?>> fields) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("\npublic String toString() {\n");
+        buf.append("    StringBuilder builder = new StringBuilder();\n");
+        for (Entry<String, Class<?>> field : fields.entrySet()) {
+            buf.append(String.format("    builder.append(%s);\n", field.getKey()));
+        }
+        buf.append("    return builder.toString();\n");
+        buf.append("}\n");
+        return buf.toString();
     }
 
     public static String getOpenBracket() {

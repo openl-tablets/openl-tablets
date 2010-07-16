@@ -4,6 +4,7 @@
 
 package org.openl.rules.datatype.binding;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openl.OpenL;
@@ -66,7 +67,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
         int tableHeight = dataTable.getLogicalHeight();
         
-        Map<String, FieldType> fields = new HashMap<String,  FieldType>();
+        Map<String, FieldType> fields = new LinkedHashMap<String,  FieldType>();
 
         for (int i = 0; i < tableHeight; i++) {
             ILogicalTable row = dataTable.getLogicalRow(i);

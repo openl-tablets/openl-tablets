@@ -6,7 +6,7 @@
 
 package org.openl.rules.lang.xls.types;
 
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -47,6 +47,24 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
+    }
+    
+    
+    /**
+     * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
+     */
+    @Override
+    protected LinkedHashMap<String, IOpenField> fieldMap() {
+        if(fieldMap == null){
+            fieldMap = new LinkedHashMap<String, IOpenField>();
+        }
+        return (LinkedHashMap<String, IOpenField>)fieldMap;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, IOpenField> getFields() {
+        return (LinkedHashMap<String, IOpenField>)fieldMap().clone();
     }
 
     public Object newInstance(IRuntimeEnv env) {
@@ -96,14 +114,16 @@ public class DatatypeOpenClass extends ADynamicClass {
         }
 
         public IMethodSignature getSignature() {
-            Collection<IOpenField> fields = openClass.getFields().values();
+            Map<String, IOpenField> fields = openClass.getFields();
             IOpenClass[] params = new IOpenClass[fields.size()];
+            String[] names = new String[fields.size()];
             int i = 0;
-            for(IOpenField field : fields){
-                params[i] = field.getType();
+            for(Entry<String, IOpenField> field : fields.entrySet()){
+                params[i] = field.getValue().getType();
+                names[i] = field.getKey();
                 i++;
             }
-            return new MethodSignature(params);
+            return new MethodSignature(params, names);
         }
 
         public IOpenClass getType() {
