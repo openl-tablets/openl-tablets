@@ -134,7 +134,7 @@ public class ProjectModel {
 
         BenchmarkUnit bu = null;
 
-        if (testName == null) {
+        if (StringUtils.isBlank(testName)) {
             IOpenMethod m = getMethod(elementUri);
             return benchmarkMethod(m, ms);
         }
