@@ -181,7 +181,15 @@ var TableEditor = Class.create({
             beforeSavePassed = this.actions.beforeSave();
         }
         if (beforeSavePassed == false) return;
-        if (!Validation.isAllValidated()) return;
+
+        if (!Validation.isAllValidated()) { // Validation failed
+            if (this.actions && this.actions.saveFailure) {
+                this.actions.saveFailure();
+            }
+            alert('There are validation errors.');
+            return;
+        }
+
         var self = this;
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
             parameters: {
