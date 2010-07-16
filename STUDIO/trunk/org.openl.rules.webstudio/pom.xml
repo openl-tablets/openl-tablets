@@ -146,6 +146,11 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
