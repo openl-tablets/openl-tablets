@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -26,6 +27,7 @@ import org.openl.meta.IVocabulary;
 import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.FileTool;
 import org.openl.util.StringTool;
 import org.openl.util.generation.SimpleBeanJavaGenerator;
@@ -359,12 +361,21 @@ public class JavaWrapperAntTask extends Task {
         if (types != null) {
             for (Entry<String, IOpenClass> datatype : types.entrySet()) {
                 Class<?> datatypeClass = datatype.getValue().getInstanceClass();
-                SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
+                SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass,
+                        getFieldsDescription(datatype.getValue()));
                 String javaClass = beanJavaGenerator.generateJavaClass();
                 String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
                 writeContentToFile(javaClass, fileName);
             }
         }
+    }
+    
+    private Map<String, Class<?>> getFieldsDescription(IOpenClass openClass) {
+        Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
+        for (Entry<String, IOpenField> field : openClass.getFields().entrySet()) {
+            fieldsDescriprtion.put(field.getKey(), field.getValue().getType().getInstanceClass());
+        }
+        return fieldsDescriprtion;
     }
 
     /**

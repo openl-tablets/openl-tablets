@@ -2,18 +2,23 @@ package org.openl.util.generation;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class SimpleBeanJavaGenerator {
     
     private String datatypeName;
     private Class<?> datatypeClass;
+    private Map<String, Class<?>> datatypeFields;
     
-    public SimpleBeanJavaGenerator(Class<?> datatypeClass) {
+    public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> fields) {
         this.datatypeName = datatypeClass.getName();
         this.datatypeClass = datatypeClass;
+        this.datatypeFields = fields;
     }
     
     public String generateJavaClass() {
@@ -39,15 +44,27 @@ public class SimpleBeanJavaGenerator {
     }
 
     private void addMethods(StringBuffer buf) {
+        addConstructors(buf);
         for (Method method : datatypeClass.getDeclaredMethods()) {
             if (method.getName().startsWith("get")) {
                 addGetter(buf, method);
             } else if (method.getName().startsWith("set")) {
                 addSetter(buf, method);
+            } else if (method.getName().equals("equals")) {
+                buf.append(JavaClassGeneratorHelper.getEqualsMethod(datatypeClass.getSimpleName(), datatypeFields));
+            } else if (method.getName().startsWith("hashCode")) {
+                buf.append(JavaClassGeneratorHelper.getHashCodeMethod(datatypeFields));
+            } else if (method.getName().equals("toString")) {
+                buf.append(JavaClassGeneratorHelper.getToStringMethod(datatypeFields));
             }
         }
     }
-
+    
+    private void addConstructors(StringBuffer buf){
+        buf.append(JavaClassGeneratorHelper.getDefaultConstructor(datatypeClass.getSimpleName()));
+        buf.append(JavaClassGeneratorHelper.getConstructorWithFields(datatypeClass.getSimpleName(), datatypeFields));
+    }
+    
     private void addSetter(StringBuffer buf, Method method) {
         String fieldName = getFieldName(method.getName());
         buf.append(JavaClassGeneratorHelper.getPublicSetterMethod(filterTypeName(method.getParameterTypes()[0]), fieldName));
@@ -96,6 +113,12 @@ public class SimpleBeanJavaGenerator {
                     importsSet.add(filterTypeNameForImport(methodReturnType));
                 }
             } 
+            if (method.getName().equals("equals")) {
+                importsSet.add(filterTypeNameForImport(EqualsBuilder.class));
+            }
+            if (method.getName().startsWith("hashCode")) {
+                importsSet.add(filterTypeNameForImport(HashCodeBuilder.class));
+            }
         }   
         return importsSet;
     }

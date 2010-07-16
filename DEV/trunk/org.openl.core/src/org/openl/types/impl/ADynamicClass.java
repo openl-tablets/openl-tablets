@@ -33,7 +33,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     private String name = "<anonymous class>";
 
-    private Map<String, IOpenField> fieldMap = new HashMap<String, IOpenField>();
+    protected Map<String, IOpenField> fieldMap;
 
     private Map<MethodKey, IOpenMethod> methodMap = new HashMap<MethodKey, IOpenMethod>();
 
@@ -45,6 +45,7 @@ public abstract class ADynamicClass extends AOpenClass {
         super(schema);
         this.name = name;
         this.instanceClass = instanceClass;
+        this.fieldMap = fieldMap();
 
         // adding defailt constructor
 
@@ -75,6 +76,9 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
+        if(fieldMap == null){
+            fieldMap = new HashMap<String, IOpenField>();
+        }
         return fieldMap;
     }
 
