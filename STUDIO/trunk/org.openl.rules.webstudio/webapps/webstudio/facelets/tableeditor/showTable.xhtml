@@ -262,8 +262,8 @@
             onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
             excludeScripts="prototype">
 
-            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)">Edit in Excel</h:outputLink>
-
+            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
+                rendered="#{showTableBean.editable}" >Edit in Excel</h:outputLink>
             <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
 
         </rules:tableEditor>

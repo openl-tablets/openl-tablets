@@ -43,19 +43,22 @@ public class TableEditorRenderer extends TableViewerRenderer {
         for (Object child : children) {
             if (child instanceof HtmlOutputLink) {
                 HtmlOutputLink link = (HtmlOutputLink) child;
-                List<UIComponent> linkChildren = link.getChildren();
-                String name = null;
-                String action = null;
-                Object value = link.getValue();
-                if (value != null) {
-                    action = value.toString();
-                }
-                if (linkChildren != null && !linkChildren.isEmpty()) {
-                    Object linkChild = linkChildren.get(0);
-                    name = linkChild.toString();
-                }
-                if (name != null && !name.equals("") && action != null && !action.equals("")) {
-                    links.add(new ActionLink(name, action));
+                boolean rendered = link.isRendered();
+                if (rendered) {
+                    List<UIComponent> linkChildren = link.getChildren();
+                    String name = null;
+                    String action = null;
+                    Object value = link.getValue();
+                    if (value != null) {
+                        action = value.toString();
+                    }
+                    if (linkChildren != null && !linkChildren.isEmpty()) {
+                        Object linkChild = linkChildren.get(0);
+                        name = linkChild.toString();
+                    }
+                    if (name != null && !name.equals("") && action != null && !action.equals("")) {
+                        links.add(new ActionLink(name, action));
+                    }
                 }
             }
         }
