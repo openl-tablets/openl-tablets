@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
+import org.openl.message.OpenLMessages;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -985,6 +986,10 @@ public class ProjectModel {
         }
 
         indexer = new ProjectIndexer(projectFolder.getAbsolutePath());
+
+        // Clear project messages (errors, warnings)
+        OpenLMessages.getCurrentInstance().clear();
+
         compiledOpenClass = null;
         projectRoot = null;
         savedSearches = null;
