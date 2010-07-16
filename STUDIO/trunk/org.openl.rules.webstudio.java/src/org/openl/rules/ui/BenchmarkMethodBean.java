@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.faces.component.html.HtmlDataTable;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkOrder;
 
@@ -175,7 +177,7 @@ public class BenchmarkMethodBean {
     public String getTestDescr() {
         String testDescr = FacesUtils.getRequestParameter("testDescr");
         if (testDescr == null) {
-            testDescr = "";
+            testDescr = StringUtils.EMPTY;
         }
         return testDescr;
     }
@@ -185,7 +187,11 @@ public class BenchmarkMethodBean {
     }
 
     public String getTestName() {
-        return FacesUtils.getRequestParameter("testName");
+        String testName = FacesUtils.getRequestParameter("testName");
+        if (testName != null) {
+            return StringTool.decodeURL(testName);
+        }
+        return StringUtils.EMPTY;
     }
 
     public String getUnitName() {
