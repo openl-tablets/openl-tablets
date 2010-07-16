@@ -57,6 +57,12 @@ public class Action extends FunctionalRow implements IAction {
 
     private Object executeActionInternal(int ruleNum, Object target, Object[] params, IRuntimeEnv env) {
 
+        Object[][] values = getParamValues();
+        
+        if (values == null) {
+            return null;
+        }
+        
         Object value = getParamValues()[ruleNum];
 
         if (value == null) {
