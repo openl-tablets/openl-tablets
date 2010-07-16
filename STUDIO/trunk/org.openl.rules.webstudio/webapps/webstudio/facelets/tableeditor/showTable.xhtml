@@ -220,20 +220,20 @@
 
             function onBeforeSave() {
                 $('saveWindow').component.show();
-                window.parent.frames.leftFrame.document.getElementById('saveWindow').component.show();
+                top.main.leftFrame.document.getElementById('saveWindow').component.show();
             }
 
             function onAfterSave() {
                 $('saveWindow').component.hide();
-                window.parent.frames.leftFrame.document.getElementById('saveWindow').component.hide();
+                top.main.leftFrame.document.getElementById('saveWindow').component.hide();
 
-                window.parent.frames.leftFrame.location.href =
+                top.main.leftFrame.location.href =
                     "#{contextPath}/openTable.jsp?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
             }
-            
+
             function onSaveFailure() {
                 $('saveWindow').component.hide();
-                window.parent.frames.leftFrame.document.getElementById('saveWindow').component.hide();
+                top.main.leftFrame.document.getElementById('saveWindow').component.hide();
             }
             
         </script>
