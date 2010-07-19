@@ -19,7 +19,7 @@ public class FilteredGrid extends GridDelegator {
 
     public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {
         super(delegate);
-        this.formatFilters = formatFilters;
+        this.formatFilters = formatFilters.clone();
     }
 
     private void formatCell(FormattedCell fcell, int col, int row) {
@@ -27,7 +27,13 @@ public class FilteredGrid extends GridDelegator {
             for (int i = 0; i < formatFilters.length; i++) {
                 if (formatFilters[i].getGridSelector() == null
                         || formatFilters[i].getGridSelector().selectCoords(col, row)) {
-                    fcell = formatFilters[i].filterFormat(fcell);
+                    try {
+                        // Side effect of method call is setting object value of the cell
+                        formatFilters[i].filterFormat(fcell);
+                    }
+                    catch (IllegalArgumentException e){
+                        //Ignore if failed to format
+                    }
                 }
             }
         }

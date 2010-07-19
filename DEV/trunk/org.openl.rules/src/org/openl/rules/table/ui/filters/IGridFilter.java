@@ -8,6 +8,12 @@ import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.xls.formatters.AXlsFormatter;
 
 public interface IGridFilter {
+    
+    /**
+     * Changes styles, formated value, object value and other display related attributes of the cell.
+     * @param cell The cell to change formats in.
+     * @return The cell which was input parameter.
+     */
     FormattedCell filterFormat(FormattedCell cell);
 
     IGridSelector getGridSelector();
