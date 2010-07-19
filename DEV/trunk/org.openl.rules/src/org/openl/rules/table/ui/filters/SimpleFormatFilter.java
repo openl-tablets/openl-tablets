@@ -3,8 +3,6 @@
  */
 package org.openl.rules.table.ui.filters;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,12 +110,13 @@ public class SimpleFormatFilter implements IGridFilter {
         if (isGeneralFormat(format)) {
             format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
         }
-        XlsDateFormatter dateFormat = (XlsDateFormatter) existingFormatters.get(format);
-        if (dateFormat != null) {
-            return dateFormat;
+        
+        AXlsFormatter formatter = existingFormatters.get(format);
+        if (formatter instanceof XlsDateFormatter) {
+            return (XlsDateFormatter) formatter;
         }
 
-        dateFormat = (XlsDateFormatter) XlsFormattersManager.getFormatter(Date.class, format);
+        XlsDateFormatter dateFormat = (XlsDateFormatter) XlsFormattersManager.getFormatter(Date.class, format);
         existingFormatters.put(format, dateFormat);
 
         return dateFormat;
@@ -129,12 +128,14 @@ public class SimpleFormatFilter implements IGridFilter {
             return XlsNumberFormatter.General;
         }
 
-        XlsNumberFormatter numberFormatter = (XlsNumberFormatter) existingFormatters.get(format);
-        if (numberFormatter != null) {
-            return numberFormatter;
+        AXlsFormatter formatter = existingFormatters.get(format);
+
+        if (formatter instanceof XlsNumberFormatter) {
+            return (XlsNumberFormatter) formatter;
         }
 
-        numberFormatter = XlsNumberFormatter.makeFormat(format, new HashMap<String, SegmentFormatter>());
+        XlsNumberFormatter numberFormatter = XlsNumberFormatter.makeFormat(format,
+                new HashMap<String, SegmentFormatter>());
         existingFormatters.put(format, numberFormatter);
 
         return numberFormatter;
