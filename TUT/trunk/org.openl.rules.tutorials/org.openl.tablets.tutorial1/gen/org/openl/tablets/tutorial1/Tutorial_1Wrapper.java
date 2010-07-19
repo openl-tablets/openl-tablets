@@ -12,7 +12,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 
-public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
+public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
   java.lang.Object __instance;
 
@@ -51,6 +51,10 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   public org.openl.rules.context.IRulesRuntimeContext getRuntimeContext() {
     return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();
+  }
+
+  public void setRuntimeContext(org.openl.rules.context.IRulesRuntimeContext context) {
+    getRuntimeEnvironment().setContext(context);
   }
 
   public Tutorial_1Wrapper(){
