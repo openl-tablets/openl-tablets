@@ -262,28 +262,21 @@ public class RuleRowHelper {
             }
 
             Class<?> expectedType = paramType.getInstanceClass();
-            try {
 
-                Object result = null;
-                // if (value != null) {
-                // result = convertObjectValue(value, expectedType,
-                // openlAdapter.getBindingContext());
-                // }
-                if (result == null) {
-                    result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
-                }
+            try {
+                // Set cell meta information at first.
+                //
+                setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
+
+                // Try to get cell object value with appropriate string parser.
+                // A parser instance will be selected using expected type of cell value.
+                //
+                Object result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
 
                 if (result instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) result, cell, paramName, ruleName);
                 }
 
-                boolean multiValue = false;
-
-                if (isPartOfArray) {
-                    multiValue = true;
-                }
-
-                setCellMetaInfo(cell, paramName, paramType, multiValue);
                 validateValue(result, paramType);
 
                 return result;
