@@ -682,6 +682,9 @@ public class ProjectModel {
 
     public boolean isSourceModified() {
         XlsWorkbookSourceCodeModule wb = getWorkbookSourceCodeModule();
+        if (wb == null) {
+            return false;
+        }
         return wb.isModified();
     }
 
