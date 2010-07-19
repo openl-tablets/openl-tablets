@@ -6,6 +6,9 @@
 
 package org.openl.binding;
 
+import java.lang.reflect.Method;
+
+import org.apache.commons.lang.ClassUtils;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -133,4 +136,41 @@ public class MethodUtil {
         }
     }
     
+    public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] paramTypes, boolean autoboxing) {
+        Method resultMethod = null;
+        Method[] methods = methodOwner.getMethods();
+        for (Method method : methods) {
+            Class<?>[] signatureParams = method.getParameterTypes();
+            if (methodName.equals(method.getName()) && signatureParams.length == paramTypes.length) {
+                if (ClassUtils.isAssignable(paramTypes, signatureParams, autoboxing)) {
+                    if (resultMethod != null) {
+                        if (isMoreConcreteMethod(resultMethod.getParameterTypes(), signatureParams)) {
+                            resultMethod = method;
+                        }
+                    } else {
+                        resultMethod = method;
+                    }
+                }
+            }
+        }
+        return resultMethod;
+    }
+
+    /**
+     * Determines which signature of two methods is more concrete. For example
+     * method "append(String)" of StringBuilder is more concrete than method
+     * "append(Object)"
+     * 
+     * @param firstMethodparams
+     * @param secondMethodParams
+     * @return <true> if the the signature of the second method is more concrete
+     */
+    private static boolean isMoreConcreteMethod(Class<?>[] firstMethodparams, Class<?>[] secondMethodParams) {
+        if (ClassUtils.isAssignable(secondMethodParams, firstMethodparams)) {
+            if (!ClassUtils.isAssignable(firstMethodparams, secondMethodParams)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

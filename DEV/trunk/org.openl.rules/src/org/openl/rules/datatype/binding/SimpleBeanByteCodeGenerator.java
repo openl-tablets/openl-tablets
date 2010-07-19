@@ -10,7 +10,6 @@ import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.ClassWriter;
@@ -18,6 +17,7 @@ import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
+import org.openl.binding.MethodUtil;
 import org.openl.util.StringTool;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -145,7 +145,7 @@ public class SimpleBeanByteCodeGenerator {
         invokeVirtual(codeVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
 
         // return
-        invokeVirtual(codeVisitor, Object.class, "toString", new Class<?>[] {});
+        invokeVirtual(codeVisitor, StringBuilder.class, "toString", new Class<?>[] {});
         codeVisitor.visitInsn(getConstantForReturn(String.class));
         if (twoStackElementFieldsCount > 0) {
             codeVisitor.visitMaxs(3, 1);
@@ -489,7 +489,7 @@ public class SimpleBeanByteCodeGenerator {
     }
 
     private void invokeVirtual(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
-        Method matchingMethod = MethodUtils.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes);
+        Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes, false);
         StringBuilder signatureBuilder = new StringBuilder();
         signatureBuilder.append('(');
         for(Class<?> paramType : matchingMethod.getParameterTypes()){
