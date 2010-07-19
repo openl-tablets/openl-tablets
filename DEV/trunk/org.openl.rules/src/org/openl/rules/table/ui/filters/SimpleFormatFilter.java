@@ -50,8 +50,23 @@ public class SimpleFormatFilter implements IGridFilter {
                 Object cellObjectValue = formatFilter.parse(cellValue.toString());
                 cell.setObjectValue(cellObjectValue);
             }
-            return formatFilter.filterFormat(cell);
+            
+            // Try to format cell value.
+            //
+            FormattedCell formattedCell = formatFilter.filterFormat(cell);
+            
+            // If cell value is not null and cell formatted value is null then
+            // a formatter cannot to format cell value in right way. In this
+            // case we are using original string value of cell as formatted
+            // value.
+            //
+            if (cellValue != null && formattedCell.getFormattedValue() == null) {
+                formattedCell.setFormattedValue(cellValue.toString());
+            }
+            
+            return formattedCell;
         }
+        
         return cell;
     }
 

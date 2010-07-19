@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
@@ -224,8 +225,8 @@ public class Table implements ITable {
         }
     }
 
-    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) 
-        throws OpenLCompilationException, SyntaxNodeException {
+    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException 
+        {
         
         boolean constructor = isConstructor();
         Object literal = null;
@@ -259,7 +260,7 @@ public class Table implements ITable {
         
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
-        if (columnDescriptor != null && !columnDescriptor.isReference()) {
+            if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
                 literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getLogicalRegion(columnNum,
                     rowNum,
@@ -271,6 +272,7 @@ public class Table implements ITable {
                     openlAdapter);
             }
         }
+
         return literal;
     }
 
