@@ -5,38 +5,72 @@
 package org.openl.generated.beans;
 
 import org.openl.generated.beans.Driver;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.generated.beans.Vehicle;
 import java.lang.String;
 
 public class Policy{
-  private org.openl.generated.beans.Driver[] drivers;
-
-  private java.lang.String clientTerm;
-
-  private org.openl.generated.beans.Vehicle[] vehicles;
+  private java.lang.String name;
 
   private java.lang.String clientTier;
 
-  private java.lang.String name;
+  private java.lang.String clientTerm;
+
+  private org.openl.generated.beans.Driver[] drivers;
+
+  private org.openl.generated.beans.Vehicle[] vehicles;
 
 
-  public org.openl.generated.beans.Driver[] getDrivers() {
-   return drivers;
+
+public Policy() {
 }
-  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
-   this.drivers = drivers;
+
+public Policy(String name, String clientTier, String clientTerm, Driver[] drivers, Vehicle[] vehicles) {
+    this.name = name;
+    this.clientTier = clientTier;
+    this.clientTerm = clientTerm;
+    this.drivers = drivers;
+    this.vehicles = vehicles;
 }
-  public java.lang.String getClientTerm() {
-   return clientTerm;
+
+public boolean equals(Object obj) {
+    EqualsBuilder builder = new EqualsBuilder();
+    if (!(obj instanceof Policy)) {;
+        return false;
+    }
+    Policy another = (Policy)obj;    builder.append(another.name,name);
+    builder.append(another.clientTier,clientTier);
+    builder.append(another.clientTerm,clientTerm);
+    builder.append(another.drivers,drivers);
+    builder.append(another.vehicles,vehicles);
+    return builder.isEquals();
 }
-  public void setClientTerm(java.lang.String clientTerm) {
-   this.clientTerm = clientTerm;
+
+public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append(name);
+    builder.append(clientTier);
+    builder.append(clientTerm);
+    builder.append(drivers);
+    builder.append(vehicles);
+    return builder.toString();
 }
-  public org.openl.generated.beans.Vehicle[] getVehicles() {
-   return vehicles;
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(name);
+    builder.append(clientTier);
+    builder.append(clientTerm);
+    builder.append(drivers);
+    builder.append(vehicles);
+    return builder.toHashCode();
 }
-  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
-   this.vehicles = vehicles;
+  public java.lang.String getName() {
+   return name;
+}
+  public void setName(java.lang.String name) {
+   this.name = name;
 }
   public java.lang.String getClientTier() {
    return clientTier;
@@ -44,11 +78,23 @@ public class Policy{
   public void setClientTier(java.lang.String clientTier) {
    this.clientTier = clientTier;
 }
-  public java.lang.String getName() {
-   return name;
+  public java.lang.String getClientTerm() {
+   return clientTerm;
 }
-  public void setName(java.lang.String name) {
-   this.name = name;
+  public void setClientTerm(java.lang.String clientTerm) {
+   this.clientTerm = clientTerm;
+}
+  public org.openl.generated.beans.Driver[] getDrivers() {
+   return drivers;
+}
+  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
+   this.drivers = drivers;
+}
+  public org.openl.generated.beans.Vehicle[] getVehicles() {
+   return vehicles;
+}
+  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
+   this.vehicles = vehicles;
 }
 
 }

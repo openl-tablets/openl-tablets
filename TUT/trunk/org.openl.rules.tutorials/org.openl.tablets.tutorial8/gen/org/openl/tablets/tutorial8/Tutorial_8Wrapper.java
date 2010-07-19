@@ -12,7 +12,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 
-public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
+public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
   java.lang.Object __instance;
 
@@ -51,6 +51,10 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   public org.openl.rules.context.IRulesRuntimeContext getRuntimeContext() {
     return (org.openl.rules.context.IRulesRuntimeContext)getRuntimeEnvironment().getContext();
+  }
+
+  public void setRuntimeContext(org.openl.rules.context.IRulesRuntimeContext context) {
+    getRuntimeEnvironment().setContext(context);
   }
 
   public Tutorial_8Wrapper(){
@@ -129,15 +133,14 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenMethod totalToPay_Method;
-  public double totalToPay(org.openl.tablets.tutorial8.Loan loan)  {
-    Object[] __params = new Object[1];
-    __params[0] = loan;
+  static org.openl.types.IOpenMethod test1TestAll_Method;
+  public org.openl.rules.testmethod.TestResult test1TestAll()  {
+    Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
-    Object __res = totalToPay_Method.invoke(__myInstance, __params, __env.get());
-   return ((Double)__res).doubleValue();  }
+    Object __res = test1TestAll_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.testmethod.TestResult)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -147,13 +150,31 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod test1TestAll_Method;
-  public org.openl.rules.testmethod.TestResult test1TestAll()  {
+  static org.openl.types.IOpenMethod factorial_Method;
+  public int factorial(int n)  {
+    Object[] __params = new Object[1];
+    __params[0] = new Integer(n);
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = factorial_Method.invoke(__myInstance, __params, __env.get());
+   return ((Integer)__res).intValue();  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod run3TestAll_Method;
+  public org.openl.rules.testmethod.TestResult run3TestAll()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
-    Object __res = test1TestAll_Method.invoke(__myInstance, __params, __env.get());
+    Object __res = run3TestAll_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.testmethod.TestResult)__res;  }
   catch(Throwable t)
   {
@@ -182,32 +203,15 @@ public class Tutorial_8Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod run3TestAll_Method;
-  public org.openl.rules.testmethod.TestResult run3TestAll()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = run3TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod factorial_Method;
-  public int factorial(int n)  {
+  static org.openl.types.IOpenMethod totalToPay_Method;
+  public double totalToPay(org.openl.tablets.tutorial8.Loan loan)  {
     Object[] __params = new Object[1];
-    __params[0] = new Integer(n);
+    __params[0] = loan;
     try
     {
     Object __myInstance = __instance;
-    Object __res = factorial_Method.invoke(__myInstance, __params, __env.get());
-   return ((Integer)__res).intValue();  }
+    Object __res = totalToPay_Method.invoke(__myInstance, __params, __env.get());
+   return ((Double)__res).doubleValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -277,16 +281,16 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     test1_Field = __class.getField("test1");
     this_Field = __class.getField("this");
     run3_Field = __class.getField("run3");
-    totalToPay_Method = __class.getMatchingMethod("totalToPay", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Loan.class)});
     test1TestAll_Method = __class.getMatchingMethod("test1TestAll", new IOpenClass[] {
-});
-    listPayments_Method = __class.getMatchingMethod("listPayments", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Loan.class)});
-    run3TestAll_Method = __class.getMatchingMethod("run3TestAll", new IOpenClass[] {
 });
     factorial_Method = __class.getMatchingMethod("factorial", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, int.class)});
+    run3TestAll_Method = __class.getMatchingMethod("run3TestAll", new IOpenClass[] {
+});
+    listPayments_Method = __class.getMatchingMethod("listPayments", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Loan.class)});
+    totalToPay_Method = __class.getMatchingMethod("totalToPay", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Loan.class)});
     totalPayments_Method = __class.getMatchingMethod("totalPayments", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial8.Payments.class)});
     run2TestAll_Method = __class.getMatchingMethod("run2TestAll", new IOpenClass[] {
