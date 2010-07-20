@@ -74,6 +74,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.project"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.tableeditor.source"
          download-size="0"
          install-size="0"
