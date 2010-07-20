@@ -55,7 +55,7 @@ public class SimpleBeanJavaGenerator {
             } else if (method.getName().startsWith("hashCode")) {
                 buf.append(JavaClassGeneratorHelper.getHashCodeMethod(datatypeFields));
             } else if (method.getName().equals("toString")) {
-                buf.append(JavaClassGeneratorHelper.getToStringMethod(datatypeFields));
+                buf.append(JavaClassGeneratorHelper.getToStringMethod(datatypeClass.getSimpleName(), datatypeFields));
             }
         }
     }

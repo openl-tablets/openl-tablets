@@ -48,11 +48,18 @@ public boolean equals(Object obj) {
 
 public String toString() {
     StringBuilder builder = new StringBuilder();
+    builder.append("Person1 {");
+    builder.append(" name=");
     builder.append(name);
+    builder.append(" ssn=");
     builder.append(ssn);
+    builder.append(" dob=");
     builder.append(dob);
+    builder.append(" gender=");
     builder.append(gender);
+    builder.append(" maritalStatus=");
     builder.append(maritalStatus);
+    builder.append(" }");
     return builder.toString();
 }
 

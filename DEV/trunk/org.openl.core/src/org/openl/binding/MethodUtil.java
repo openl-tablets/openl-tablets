@@ -9,6 +9,7 @@ package org.openl.binding;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.reflect.MethodUtils;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -136,19 +137,21 @@ public class MethodUtil {
         }
     }
     
-    public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] paramTypes, boolean autoboxing) {
+    public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] argTypes,
+            boolean autoboxing) {
         Method resultMethod = null;
         Method[] methods = methodOwner.getMethods();
         for (Method method : methods) {
             Class<?>[] signatureParams = method.getParameterTypes();
-            if (methodName.equals(method.getName()) && signatureParams.length == paramTypes.length) {
-                if (ClassUtils.isAssignable(paramTypes, signatureParams, autoboxing)) {
-                    if (resultMethod != null) {
-                        if (isMoreConcreteMethod(resultMethod.getParameterTypes(), signatureParams)) {
+            if (methodName.equals(method.getName()) && signatureParams.length == argTypes.length) {
+                if (ClassUtils.isAssignable(argTypes, signatureParams, autoboxing)) {
+                    method = MethodUtils.getAccessibleMethod(method);//kills inherited methods
+                    if (method != null) {
+                        if (resultMethod != null) {
+                            resultMethod = getCloserMethod(resultMethod, method, argTypes, autoboxing);
+                        } else {
                             resultMethod = method;
                         }
-                    } else {
-                        resultMethod = method;
                     }
                 }
             }
@@ -156,21 +159,38 @@ public class MethodUtil {
         return resultMethod;
     }
 
+    private static Method getCloserMethod(Method firstMethod, Method secondMethod, Class<?>[] argTypes,
+            boolean autoboxing) {
+        int firstTransfCount = getTransformationsCount(firstMethod.getParameterTypes(), argTypes, autoboxing);
+        if (firstTransfCount < 0) {
+            return secondMethod;
+        }
+        int secondTransfCount = getTransformationsCount(secondMethod.getParameterTypes(), argTypes, autoboxing);
+        if (secondTransfCount < 0 || secondTransfCount >= firstTransfCount) {
+            return firstMethod;
+        }
+        return secondMethod;
+    }
+
     /**
-     * Determines which signature of two methods is more concrete. For example
-     * method "append(String)" of StringBuilder is more concrete than method
-     * "append(Object)"
+     * Get differences between two signatures.
      * 
-     * @param firstMethodparams
-     * @param secondMethodParams
-     * @return <true> if the the signature of the second method is more concrete
+     * @param signatureToCheck Signature to check
+     * @param argTypes Types of existing arguments.
+     * @param autoboxing flag that indicates
+     * @return <code>-1</code> if signature to check is not suitable for
+     *         specified args and transformations count otherwise.
      */
-    private static boolean isMoreConcreteMethod(Class<?>[] firstMethodparams, Class<?>[] secondMethodParams) {
-        if (ClassUtils.isAssignable(secondMethodParams, firstMethodparams)) {
-            if (!ClassUtils.isAssignable(firstMethodparams, secondMethodParams)) {
-                return true;
+    private static int getTransformationsCount(Class<?>[] signatureToCheck, Class<?>[] argTypes, boolean autoboxing) {
+        int transformationsCount = 0;
+        for (int i = 0; i < argTypes.length; i++) {
+            if (!signatureToCheck[i].equals(argTypes[i])) {
+                if (!ClassUtils.isAssignable(argTypes[i], signatureToCheck[i], autoboxing)) {
+                    return -1;
+                }
+                transformationsCount++;
             }
         }
-        return false;
+        return transformationsCount;
     }
 }
