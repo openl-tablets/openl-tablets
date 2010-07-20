@@ -130,13 +130,16 @@ public class JavaClassGeneratorHelper {
         return buf.toString();
     }
 
-    public static String getToStringMethod(Map<String, Class<?>> fields) {
+    public static String getToStringMethod(String simpleClassName, Map<String, Class<?>> fields) {
         StringBuilder buf = new StringBuilder();
         buf.append("\npublic String toString() {\n");
         buf.append("    StringBuilder builder = new StringBuilder();\n");
+        buf.append(String.format("    builder.append(\"%s {\");\n", simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
+            buf.append(String.format("    builder.append(\" %s=\");\n", field.getKey()));
             buf.append(String.format("    builder.append(%s);\n", field.getKey()));
         }
+        buf.append("    builder.append(\" }\");\n");
         buf.append("    return builder.toString();\n");
         buf.append("}\n");
         return buf.toString();

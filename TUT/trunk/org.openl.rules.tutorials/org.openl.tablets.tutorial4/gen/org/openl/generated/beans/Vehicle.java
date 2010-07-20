@@ -71,17 +71,30 @@ public boolean equals(Object obj) {
 
 public String toString() {
     StringBuilder builder = new StringBuilder();
+    builder.append("Vehicle {");
+    builder.append(" name=");
     builder.append(name);
+    builder.append(" model=");
     builder.append(model);
+    builder.append(" year=");
     builder.append(year);
+    builder.append(" hasAlarm=");
     builder.append(hasAlarm);
+    builder.append(" type=");
     builder.append(type);
+    builder.append(" onHighTheftProbabilityList=");
     builder.append(onHighTheftProbabilityList);
+    builder.append(" airbags=");
     builder.append(airbags);
+    builder.append(" price=");
     builder.append(price);
+    builder.append(" bodyType=");
     builder.append(bodyType);
+    builder.append(" coverage=");
     builder.append(coverage);
+    builder.append(" hasRollBar=");
     builder.append(hasRollBar);
+    builder.append(" }");
     return builder.toString();
 }
 
