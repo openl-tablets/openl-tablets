@@ -8,6 +8,7 @@ import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
+import org.openl.util.Log;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -56,12 +57,16 @@ public class RulesProjectResolver {
         List<ProjectDescriptor> projects = new ArrayList<ProjectDescriptor>();
         File[] f = listProjects();
         for (int i = 0; i < f.length; i++) {
-            if (!getProjectSelector().select(f[i].getName())) {
-                continue;
-            }
-            ResolvingStrategy strategy = isRulesProject(f[i]);
-            if (strategy != null) {
-                projects.add(strategy.resolveProject(f[i]));
+            try {
+                if (!getProjectSelector().select(f[i].getName())) {
+                    continue;
+                }
+                ResolvingStrategy strategy = isRulesProject(f[i]);
+                if (strategy != null) {
+                    projects.add(strategy.resolveProject(f[i]));
+                }
+            } catch (Exception e) {
+                Log.warn(String.format("Failed to resolve project in [%s]", f[i].getAbsoluteFile()), e);
             }
         }
 
