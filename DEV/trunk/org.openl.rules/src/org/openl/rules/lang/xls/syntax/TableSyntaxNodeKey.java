@@ -67,7 +67,7 @@ public class TableSyntaxNodeKey {
                 stringBuilder.append(',');
             }
             stringBuilder.append(dimensionalPropertyNames[i]).append('=');
-            stringBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
+            stringBuilder.append(tsn.getTableProperties().getPropertyValueAsString(dimensionalPropertyNames[i]));
         }
         return stringBuilder.append(']').toString();
     }
