@@ -26,6 +26,10 @@ public class WorkbookSyntaxNode extends NaryNode {
         return tnodes.toArray(new TableSyntaxNode[0]);
     }
     
+    public XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
+        return (XlsWorkbookSourceCodeModule) getModule();
+    }
+    
     public WorksheetSyntaxNode[] getWorksheetSyntaxNodes() {
         return (WorksheetSyntaxNode[])getNodes();
     }
