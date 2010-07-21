@@ -13,11 +13,11 @@ import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -668,24 +668,27 @@ public class ProjectModel {
     }
 
     // TODO Refactor
-    private XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
+    private WorkbookSyntaxNode[] getWorkbookNodes() {
         if (compiledOpenClass != null) {
-            TableSyntaxNode[] nodes = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
-                .getXlsModuleNode().getXlsTableSyntaxNodes();
-            for (TableSyntaxNode node : nodes) {
-                return ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
-            }
+            XlsModuleSyntaxNode xlsModuleNode = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
+                .getXlsModuleNode();
+            WorkbookSyntaxNode[] workbookNodes = xlsModuleNode.getWorkbookSyntaxNodes();
+            return workbookNodes;
         }
 
         return null;
     }
 
     public boolean isSourceModified() {
-        XlsWorkbookSourceCodeModule wb = getWorkbookSourceCodeModule();
-        if (wb == null) {
-            return false;
+        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        if (workbookNodes != null) {
+            for (WorkbookSyntaxNode node : workbookNodes) {
+                if (node.getWorkbookSourceCodeModule().isModified()) {
+                    return true;
+                }
+            }
         }
-        return wb.isModified();
+        return false;
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -957,7 +960,7 @@ public class ProjectModel {
     }
 
     public void saveSearch(OpenLSavedSearch search) throws Exception {
-        XlsWorkbookSourceCodeModule module = getWorkbookSourceCodeModule();
+        XlsWorkbookSourceCodeModule module = getWorkbookNodes()[0].getWorkbookSourceCodeModule();
         if (module != null) {
             IExporter iExporter = IWritableGrid.Tool.createExporter(module);
             iExporter.persist(search);
