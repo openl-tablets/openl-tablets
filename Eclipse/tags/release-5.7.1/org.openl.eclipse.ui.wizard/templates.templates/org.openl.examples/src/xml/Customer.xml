@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Customer 
+
+ name="Robinson"
+ gender="F"
+ maritalStatus="Single"
+ age="55"
+  
+/>
