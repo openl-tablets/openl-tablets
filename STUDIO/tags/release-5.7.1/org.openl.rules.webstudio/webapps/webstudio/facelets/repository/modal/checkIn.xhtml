@@ -1,0 +1,61 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:modalPanel id="modalCheckIn" width="400" minWidth="400" height="220" minHeight="220">
+    <f:facet name="header">
+      <h:outputText value="Check In" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" alt="Close" title="Close" onclick="Richfaces.hideModalPanel('modalCheckIn');" />
+    </f:facet>
+
+    <h:form id="checkInForm">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputText value="Project Name" />
+        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <h:outputText value="Current Version" />
+        <h:outputText value="#{node.versionName}"/>
+        <h:outputText value="Next Version" />
+        <h:outputText value="#{repositoryTreeController.major}.#{repositoryTreeController.minor}.#{repositoryTreeController.revision+1}" id="nextVersion"/>
+        <h:outputLabel for="major" styleClass="required" value="Major Version" />
+        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="32000" value="#{repositoryTreeController.major}"
+                                 inputSize="4" cycled="false" onchange="checkinDlgAdjustNextVersion();"/>
+        <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
+        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false"
+                 onchange="checkinDlgAdjustNextVersion()"/>
+      </h:panelGrid>
+
+      <br />
+      <rich:separator height="1" />
+      <br />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Check In" action="#{repositoryTreeController.checkInProject}" />
+        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalCheckIn')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+
+    <script>
+      function checkinDlgAdjustNextVersion() {
+        var major = $('checkInForm:majorEdit').down().value;
+        var minor = $('checkInForm:minorEdit').down().value;
+        var rev = #{repositoryTreeController.revision+1};
+        $("checkInForm:nextVersion").innerHTML = major + "." + minor + "." + rev;
+      }
+    </script>
+  </rich:modalPanel>
+
+  <script>
+    function openCheckInDialog() {
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalCheckIn');
+        focusElement('checkInForm:projectVersion');
+      });
+    }
+  </script>
+</ui:composition>
