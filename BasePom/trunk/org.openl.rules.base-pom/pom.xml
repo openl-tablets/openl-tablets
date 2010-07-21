@@ -95,7 +95,7 @@
 
   <properties>
     <openl.version.eclipse>5.7.1</openl.version.eclipse>
-    <openl.version.maven>5.7.1-SNAPSHOT</openl.version.maven>
+    <openl.version.maven>5.7.1</openl.version.maven>
   </properties>
 
   <pluginRepositories>
