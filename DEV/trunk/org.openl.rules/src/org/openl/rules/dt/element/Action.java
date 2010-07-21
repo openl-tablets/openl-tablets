@@ -8,6 +8,7 @@ import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -49,7 +50,23 @@ public class Action extends FunctionalRow implements IAction {
             Object[] array = new Object[values.length];
             RuleRowHelper.loadParams(array, 0, values, target, params, env);
 
-            return array[0];
+            Object returnValue = array[0];
+            IOpenMethod method = getMethod();
+            IOpenClass returnType = method.getType();
+            
+            // Check that returnValue object has the same type as a return type
+            // of method. If they are same return returnValue as result of
+            // execution.
+            //
+            if (returnValue.getClass() == returnType.getInstanceClass()) {
+                return returnValue;
+            }
+            
+            // At this point of action execution we have the result value but it
+            // has different type than return type of method. We should skip
+            // optimization for this step and invoke method.
+            //
+            return method.invoke(target, new Object[] { returnValue }, env);
         }
 
         return executeActionInternal(column, target, params, env);
