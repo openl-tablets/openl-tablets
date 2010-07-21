@@ -68,6 +68,10 @@ public class WordCell implements ICell{
         return getRow();
     }
 
+    public IGridRegion getAbsoluteRegion() {
+        return getRegion();
+    }
+
     public int getColumn() {
         return column;
     }

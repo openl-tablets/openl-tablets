@@ -90,6 +90,10 @@ public class FormattedCell implements ICell {
         return delegate.getAbsoluteRow();
     }
     
+    public IGridRegion getAbsoluteRegion() {
+        return delegate.getAbsoluteRegion();
+    }
+
     public int getRow() {
         return delegate.getRow();
     }

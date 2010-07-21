@@ -36,6 +36,10 @@ class GridTableCell implements ICell {
         return cell.getAbsoluteRow();
     }
 
+    public IGridRegion getAbsoluteRegion() {
+        return cell.getAbsoluteRegion();
+    }
+
     public IGridRegion getRegion() {
         return cell.getRegion();
     }

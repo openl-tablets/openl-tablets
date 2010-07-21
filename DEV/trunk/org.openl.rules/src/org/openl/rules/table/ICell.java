@@ -24,6 +24,11 @@ public interface ICell {
      * @return Absolute column index inside the sheet.
      */
     int getAbsoluteColumn();
+    
+    /**
+     * @return Absolute region index inside the sheet.
+     */
+    IGridRegion getAbsoluteRegion();
 
     int getWidth();
 
