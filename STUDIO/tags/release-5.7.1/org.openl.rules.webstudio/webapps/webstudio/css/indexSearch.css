@@ -1,0 +1,31 @@
+html, body {
+    height: 100%;
+}
+
+.lettersPanel {
+    border-top: 1px solid rgb(50, 50, 50);
+    border-bottom: 1px solid rgb(50, 50, 50);
+    padding-top: 10px;
+    overflow-x: scroll;
+    width: 100%;
+}
+
+.searchResultsPanel {
+    height: 85%;
+    width: 100%;
+    overflow-y: scroll;
+    padding-top: 10px;
+}
+
+.lettersPanel table,.searchResultsPanel table {
+    width: 80%;
+}
+
+.lettersPanel table a {
+    font-weight: bold;
+    font-size: 210%;
+}
+
+.lettersPanel table a span {
+    padding: 0px 5px;
+}
