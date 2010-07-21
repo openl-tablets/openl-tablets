@@ -31,6 +31,10 @@ class CompositeCell implements ICell {
         return delegate.getAbsoluteRow();
     }
 
+    public IGridRegion getAbsoluteRegion() {
+        return delegate.getAbsoluteRegion();
+    }
+
     public int getColumn() {
         return column;
     }

@@ -101,6 +101,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             return getRow();
         }
 
+        public IGridRegion getAbsoluteRegion() {
+            return getRegion();
+        }
+
         public int getColumn() {
             return column;
         }

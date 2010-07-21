@@ -42,6 +42,10 @@ public class Cell implements ICell {
         return getRow();
     }
 
+    public IGridRegion getAbsoluteRegion() {
+        return getRegion();
+    }
+
     public int getRow() {
         return row;
     }

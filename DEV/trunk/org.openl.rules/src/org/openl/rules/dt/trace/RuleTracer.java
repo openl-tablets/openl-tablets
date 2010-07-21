@@ -59,12 +59,17 @@ public class RuleTracer extends ATableTracerLeaf {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
         ILogicalTable ruleTable = getRuleTable();
       
-        for (int row = 0; row < ruleTable.getLogicalHeight(); row++) {
-            for (int column = 0; column < ruleTable.getLogicalWidth(); column++) {
-                ICell cell = ruleTable.getGridTable().getCell(column, row);
-                int absoluteRow = cell.getAbsoluteRow();
-                int absoluteColumn = cell.getAbsoluteColumn();
-                regions.add(new GridRegion(absoluteRow, absoluteColumn, absoluteRow, absoluteColumn));
+        ICell cell = null;
+        for (int row = 0; row < ruleTable.getGridTable().getGridHeight(); row += cell.getHeight()) {
+            for (int column = 0; column < ruleTable.getGridTable().getGridWidth(); column += cell.getWidth()) {
+                cell = ruleTable.getGridTable().getCell(column, row);
+                IGridRegion absoluteRegion = cell.getAbsoluteRegion();
+                if (absoluteRegion == null) {
+                    int absoluteRow = cell.getAbsoluteRow();
+                    int absoluteColumn = cell.getAbsoluteColumn();
+                    absoluteRegion = new GridRegion(absoluteRow, absoluteColumn, absoluteRow, absoluteColumn);
+                }
+                regions.add(absoluteRegion);
             }
         }
         
