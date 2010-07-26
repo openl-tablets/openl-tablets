@@ -1035,12 +1035,7 @@ public class ProjectModel {
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 
-    public Tracer traceElement(String elementUri) {
-        IOpenMethod m = getMethod(elementUri);
-        return traceMethod(m);
-    }
-
-    public Tracer traceMethod(IOpenMethod m) {
+    public Tracer traceElement(String elementUri, String testName, String testID) {
         Tracer t = new Tracer();
         Tracer.setTracer(t);
 
@@ -1048,10 +1043,7 @@ public class ProjectModel {
         try {
             Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
             try {
-                IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-                Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-
-                m.invoke(target, new Object[] {}, env);
+                runElement(elementUri, testName, testID);
             } finally {
                 Tracer.setTracer(null);
             }

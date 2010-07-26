@@ -43,7 +43,11 @@ public class Cell implements ICell {
     }
 
     public IGridRegion getAbsoluteRegion() {
-        return getRegion();
+        IGridRegion absoluteRegion = getRegion();
+        if (absoluteRegion == null) {
+            absoluteRegion = new GridRegion(row, column, row, column);
+        }
+        return absoluteRegion;
     }
 
     public int getRow() {

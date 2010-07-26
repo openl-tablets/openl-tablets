@@ -102,7 +102,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public IGridRegion getAbsoluteRegion() {
-            return getRegion();
+            IGridRegion absoluteRegion = getRegion();
+            if (absoluteRegion == null) {
+                absoluteRegion = new GridRegion(row, column, row, column);
+            }
+            return absoluteRegion;
         }
 
         public int getColumn() {

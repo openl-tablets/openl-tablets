@@ -5,7 +5,6 @@ import java.util.List;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
-import org.openl.types.IOpenMethod;
 
 public class DecisionTableTraceObject extends ATableTracerNode {
 
@@ -16,7 +15,7 @@ public class DecisionTableTraceObject extends ATableTracerNode {
     }
 
     public String getDisplayName(int mode) {
-        return "DT " + asString((IOpenMethod) getTraceObject(), mode);
+        return "DT " + asString(getDecisionTable(), mode);
     }
 
     public DecisionTable getDecisionTable() {

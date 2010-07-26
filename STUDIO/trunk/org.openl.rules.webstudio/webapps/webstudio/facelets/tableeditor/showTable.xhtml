@@ -297,6 +297,12 @@
                             <h:graphicImage url="/webresource/images/test.gif" alt="test" />
                         </h:outputLink>
                         <f:verbatim>&amp;nbsp;</f:verbatim>
+                        <c:set var="traceUrl"
+                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
+                        <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
+                            <img border="0" src="webresource/images/trace.gif"
+                                title="Trace" alt="Trace" /></a>
+                        <f:verbatim>&amp;nbsp;</f:verbatim>
                         <h:outputLink
                             value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml"
                             title="Benchmark">

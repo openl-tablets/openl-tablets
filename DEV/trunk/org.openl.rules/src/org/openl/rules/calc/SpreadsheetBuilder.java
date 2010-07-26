@@ -26,6 +26,7 @@ import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -161,18 +162,16 @@ public class SpreadsheetBuilder {
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
-
-                SpreadsheetCell spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex);
-                cells[rowIndex][columnIndex] = spreadsheetCell;
-
                 ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
                         columnNamesTable.getLogicalColumn(columnIndex));
+                ICell sourceCell = cell.getGridTable().getCell(0, 0);
 
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable());
-                String code = source.getCode();
+                SpreadsheetCell spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell);
+                cells[rowIndex][columnIndex] = spreadsheetCell;
+
+                String code = sourceCell.getStringValue();
                 IOpenClass type = deriveCellType(spreadsheetCell, cell, columnHeaders.get(columnIndex), rowHeaders
                         .get(rowIndex), code);
-
                 spreadsheetCell.setType(type);
 
                 if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
