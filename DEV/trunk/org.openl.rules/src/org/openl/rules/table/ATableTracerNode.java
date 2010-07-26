@@ -26,7 +26,7 @@ public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject 
         buf.append(method.getType().getDisplayName(mode)).append(' ');
         boolean isVoidReturnType = (method.getType() == JavaOpenClass.VOID);
         if (!isVoidReturnType) {
-            buf.append("= ").append(result != null ? result.toString() : "null").append(' ');
+            buf.append("= ").append(String.valueOf(result)).append(' ');
         }
         buf.append(method.getName()).append('(');
 

@@ -1,6 +1,7 @@
 package org.openl.rules.calc.element;
 
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -9,6 +10,7 @@ public class SpreadsheetCell {
 
     private int rowIndex;
     private int columnIndex;
+    private ICell sourceCell;
 
     private SpreadsheetCellType kind = SpreadsheetCellType.EMPTY;
     private Object value;
@@ -16,9 +18,14 @@ public class SpreadsheetCell {
 
     private IOpenMethod method;
 
-    public SpreadsheetCell(int rowIndex, int columnIndex) {
+    public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell) {
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
+        this.sourceCell = sourceCell;
+    }
+
+    public ICell getSourceCell() {
+        return sourceCell;
     }
 
     public int getColumnIndex() {

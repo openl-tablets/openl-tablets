@@ -7,6 +7,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
+import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
@@ -14,6 +15,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 @Executable
 public class Spreadsheet extends AMethod implements IMemberMetaInfo {
@@ -104,12 +106,32 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (Tracer.isTracerOn()) {
+            return invokeTraced(target, params, env);
+        }
+
         SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(this, (IDynamicObject) target, params, env);
-
         return resultBuilder.makeResult(res);
-        
     }
+    
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        Tracer tracer = Tracer.getTracer();
 
+        try {
+            SpreadsheetTraceObject traceObject = new SpreadsheetTraceObject(this, params);
+            tracer.push(traceObject);
+            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(this, (IDynamicObject) target, params,
+                    env, traceObject);
+
+            Object result = resultBuilder.makeResult(res);
+            traceObject.setResult(result);
+            return result;
+        } finally {
+            tracer.pop();
+        }
+
+    }
+    
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
         
         List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();

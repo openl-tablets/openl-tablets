@@ -11,6 +11,7 @@ import org.openl.rules.ui.tree.richfaces.TreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.Tracer;
 import org.richfaces.model.TreeNode;
@@ -28,10 +29,16 @@ public class TraceTreeBean {
     public TreeNode<?> getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         String uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        String testName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_NAME);
+        if (testName != null) {
+            testName = StringTool.decodeURL(testName);
+        }
+        String testId = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_ID);
         if (StringUtils.isNotBlank(uri)) {
             studio.setTableUri(uri);
             ProjectModel model = studio.getModel();
-            Tracer tracer = model.traceElement(uri);
+            Tracer tracer = model.traceElement(uri, testName, testId);
+
             TraceHelper traceHelper = (TraceHelper) FacesUtils.getSessionParam(TRACER_NAME);
             
             if (traceHelper == null) {

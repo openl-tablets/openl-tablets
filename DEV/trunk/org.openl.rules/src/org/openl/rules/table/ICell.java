@@ -26,7 +26,7 @@ public interface ICell {
     int getAbsoluteColumn();
     
     /**
-     * @return Absolute region index inside the sheet.
+     * @return Absolute region of cell inside the sheet.
      */
     IGridRegion getAbsoluteRegion();
 
