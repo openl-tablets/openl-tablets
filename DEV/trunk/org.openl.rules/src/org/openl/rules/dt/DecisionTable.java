@@ -26,7 +26,6 @@ import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -210,12 +209,13 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
             for (int j = 0; j < actionRows.length; j++) {
 
-                returnValue = actionRows[j].executeAction(ruleN, target, params, env);
+                Object actionResult = actionRows[j].executeAction(ruleN, target, params, env);
 
-                if (actionRows[j].isReturnAction() && (returnValue != null || (actionRows[j].getParamValues()!= null && actionRows[j].getParamValues()[ruleN] != null))) {
-                    return returnValue;
+                if (actionRows[j].isReturnAction() && returnValue == null && (actionResult != null || (actionRows[j].getParamValues()!= null && actionRows[j].getParamValues()[ruleN] != null))) {
+                    returnValue = actionResult;
                 }
             }
+            return returnValue;
         }
 
         if (!atLeastOneRuleFired && shouldFailOnMiss()) {
@@ -298,13 +298,14 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                     tracer.push(traceObject.traceRule(ruleN));
 
                     for (int j = 0; j < actionRows.length; j++) {
-                        ret = actionRows[j].executeAction(ruleN, target, params, env);
+                        Object actionResult = actionRows[j].executeAction(ruleN, target, params, env);
 
-                        if (ret != null && actionRows[j].isReturnAction()) {
-                            traceObject.setResult(ret);
-                            return ret;
+                        if (actionRows[j].isReturnAction() && ret == null && (actionResult != null || (actionRows[j].getParamValues()!= null && actionRows[j].getParamValues()[ruleN] != null))) {
+                            ret = actionResult;
                         }
                     }
+                    traceObject.setResult(ret);
+                    return ret;
                 } finally {
                     tracer.pop();
                 }
