@@ -109,7 +109,7 @@ public class JavaClassGeneratorHelper {
         buf.append(String.format("    if (!(obj instanceof %s)) {;\n", simpleClassName));
         buf.append("        return false;\n");
         buf.append("    }\n");
-        buf.append(String.format("    %s another = (%s)obj;", simpleClassName, simpleClassName));
+        buf.append(String.format("    %s another = (%s)obj;\n", simpleClassName, simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
             buf.append(String.format("    builder.append(another.%s,%s);\n", field.getKey(), field.getKey()));
         }
