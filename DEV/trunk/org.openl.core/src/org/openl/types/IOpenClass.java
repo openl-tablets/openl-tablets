@@ -120,6 +120,14 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @return
      */
     boolean isSimple();
+
+    /**
+     * Determines if this {@link IOpenClass} object represents an array class.
+     * 
+     * @return <code>true</code> if this class represents an array class;
+     *         <code>false</code> otherwise.
+     */
+    boolean isArray();
     
     @Deprecated
     Iterator<IOpenMethod> methods();

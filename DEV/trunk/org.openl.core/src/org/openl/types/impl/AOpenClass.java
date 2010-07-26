@@ -207,6 +207,10 @@ public abstract class AOpenClass implements IOpenClass {
     public boolean isSimple() {
         return false;
     }
+    
+    public boolean isArray() {
+        return getInstanceClass().isArray();
+    }
 
     private void makeLowerCaseMaps() {
         uniqueLowerCaseFieldMap = new HashMap<String, IOpenField>();

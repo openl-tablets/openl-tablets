@@ -119,6 +119,10 @@ public class OpenClassDelegator implements IOpenClass {
     public boolean isSimple() {
         return baseClass.isSimple();
     }
+    
+    public boolean isArray() {
+        return baseClass.isArray();
+    }
 
     public Iterator<IOpenMethod> methods() {
         return baseClass.methods();

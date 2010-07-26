@@ -256,7 +256,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             return null;
         }
 
-        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable)) {
+        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
             // attempt to load as a single paramType(will work in case of
             // expressions)
             try {
