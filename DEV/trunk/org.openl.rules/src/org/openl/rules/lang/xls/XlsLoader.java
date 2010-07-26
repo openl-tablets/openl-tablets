@@ -53,6 +53,8 @@ import org.openl.util.PathTool;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
+import sun.net.URLCanonicalizer;
+
 /**
  * @author snshor
  * 
@@ -309,7 +311,7 @@ public class XlsLoader {
 
                 try {
                     String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
-                    src = new URLSourceCodeModule(new URL(newURL));
+                    src = new URLSourceCodeModule(new URL(new URLCanonicalizer().canonicalize(newURL)));
                 } catch (Throwable t) {
                     SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                         t,

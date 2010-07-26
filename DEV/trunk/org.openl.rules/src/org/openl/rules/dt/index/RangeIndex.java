@@ -39,6 +39,10 @@ public class RangeIndex extends ARuleIndex {
      * @return New value that is adapted for binary search.
      */
     private Object convertValueForSearch(Object value) {
+        if(index.length < 1){
+            return value; // there is no values in index to compare => no reason
+                          // to convert
+        }
         if (value instanceof Number) {
             if (index[0] instanceof Long) {
                 return ((Number) value).longValue();

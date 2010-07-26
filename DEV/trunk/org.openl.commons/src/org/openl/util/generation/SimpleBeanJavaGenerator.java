@@ -2,8 +2,10 @@ package org.openl.util.generation;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -18,7 +20,17 @@ public class SimpleBeanJavaGenerator {
     public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> fields) {
         this.datatypeName = datatypeClass.getName();
         this.datatypeClass = datatypeClass;
-        this.datatypeFields = fields;
+        this.datatypeFields = prepareFieldNames(fields);
+    }
+    
+    public LinkedHashMap<String, Class<?>> prepareFieldNames(Map<String, Class<?>> fields){
+        LinkedHashMap<String, Class<?>> preparedFields = new LinkedHashMap<String, Class<?>>();
+        for(Entry<String, Class<?>> field : fields.entrySet()){
+            String fieldName = field.getKey();
+            String processedFieldName = String.format("%s%s", fieldName.substring(0, 1).toLowerCase(), fieldName.substring(1));
+            preparedFields.put(processedFieldName, field.getValue());
+        }
+        return preparedFields;
     }
     
     public String generateJavaClass() {
