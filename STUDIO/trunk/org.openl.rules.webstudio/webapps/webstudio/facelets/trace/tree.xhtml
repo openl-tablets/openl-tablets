@@ -84,7 +84,7 @@
                 </h:outputLink>
             </rich:treeNode>
 
-            <!-- TODO: icons for spreadsheet in trace -->
+            <!-- TODO: icons for spreadsheet and method in trace -->
             <rich:treeNode type="spreadsheet" icon="webresource/images/spreadsheet.gif"
                 iconLeaf="webresource/images/spreadsheet.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
@@ -93,6 +93,12 @@
             </rich:treeNode>
             <rich:treeNode type="spreadsheetCell" icon="webresource/images/value.gif"
                 iconLeaf="webresource/images/value.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="method" icon="webresource/images/method.gif"
+                iconLeaf="webresource/images/method.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>

@@ -3,10 +3,12 @@ package org.openl.rules.method;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
-import org.openl.syntax.ISyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 /**
  * {@link IOpenMethod} implementation for table method component.
@@ -35,6 +37,29 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
 
         this.methodTableBoundNode = methodTableBoundNode;
     }
+    
+    @Override
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (Tracer.isTracerOn()) {
+            return invokeTraced(target, params, env);
+        }
+        return super.invoke(target, params, env);
+    }
+
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        Tracer tracer = Tracer.getTracer();
+
+        try {
+            MethodTableTraceObject traceObject = new MethodTableTraceObject(this, params);
+            tracer.push(traceObject);
+
+            Object result = super.invoke(target, params, env);
+            traceObject.setResult(result);
+            return result;
+        } finally {
+            tracer.pop();
+        }
+    }
 
     public BindingDependencies getDependencies() {
 
@@ -53,8 +78,8 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
         return methodTableBoundNode.getTableSyntaxNode().getUri();
     }
 
-    public ISyntaxNode getSyntaxNode() {
-        return methodTableBoundNode.getSyntaxNode();
+    public TableSyntaxNode getSyntaxNode() {
+        return methodTableBoundNode.getTableSyntaxNode();
     }
 
 }
