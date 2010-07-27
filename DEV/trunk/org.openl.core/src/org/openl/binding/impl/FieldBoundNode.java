@@ -57,10 +57,6 @@ public class FieldBoundNode extends ATargetBoundNode {
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
 
-        if (target == null && !boundField.isStatic()) {
-            throw new OpenLRuntimeException(String.format("Can not get non static field [%s] from \"null\" object",
-                    boundField.getName()));
-        }
         return boundField.get(target, env);
     }
 
