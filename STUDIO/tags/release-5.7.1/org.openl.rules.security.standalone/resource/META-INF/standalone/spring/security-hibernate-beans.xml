@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       default-autowire="no">
+
+  <bean id="openlDataSource"
+    class="org.apache.commons.dbcp.BasicDataSource">
+      <property name="driverClassName" value="@{security.standalone.db.driver}"/>
+      <property name="url" value="@{security.standalone.db.url}"/>
+      <property name="username" value="@{security.standalone.db.user}"/>
+      <property name="password" value="@{security.standalone.db.password}"/>
+
+      <!-- The maximum number of active connections that can be allocated from
+           this pool at the same time, or zero for no limit. -->
+      <property name="maxActive" value="8"/>
+
+      <!-- The maximum number of active connections that can remain idle in the
+           pool, without extra ones being released, or zero for no limit. -->
+      <property name="maxIdle" value="8"/>
+
+      <!-- The minimum number of active connections that can remain idle in the
+           pool, without extra ones being created, or 0 to create none. -->
+      <property name="minIdle" value="0"/>
+
+      <!-- The maximum number of milliseconds that the pool will wait (when there
+           are no available connections) for a connection to be returned before
+           throwing an exception, or -1 to wait indefinitely. -->
+      <property name="maxWait" value="-1"/>
+    </bean>
+
+    <bean id="dataBase" class="org.openl.rules.security.common.spring.db.HsqlServerBean">
+      <property name="enabled">
+        <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
+          <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
+          <property name="defaultObject" value="false"/>
+          <property name="casesMap">
+            <map>
+              <entry key="org\.hibernate\.dialect\.HSQLDialect" value="true"/>
+            </map>
+          </property>
+        </bean>
+      </property>
+      <property name="serverProperties">
+        <props>
+          <prop key="server.port">9102</prop>
+          <prop key="server.database.0">mem:webstudio</prop>
+          <prop key="server.dbname.0">webstudiodb</prop>
+        </props>
+      </property>
+    </bean>
+
+    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" depends-on="dataBase">
+      <property name="dataSource" ref="openlDataSource"/>
+      <property name="configLocation" value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
+      <property name="hibernateProperties">
+        <props>
+          <prop key="hibernate.dialect">@{security.standalone.db.hibernate.dialect}</prop>
+          <prop key="hibernate.show_sql">@{security.standalone.db.hibernate.show_sql}</prop>
+          <prop key="hibernate.format_sql">@{security.standalone.db.hibernate.format_sql}</prop>
+          <prop key="hibernate.use_sql_comments">@{security.standalone.db.hibernate.use_sql_comments}</prop>
+          <prop key="hibernate.jdbc.batch_size">@{security.standalone.db.hibernate.batch_size}</prop>
+          <prop key="hibernate.hbm2ddl.auto">@{security.standalone.db.hibernate.hbm2ddl.auto}</prop>
+
+          <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+          <prop key="hibernate.cache.use_query_cache">true</prop>
+          <prop key="hibernate.connection.pool_size">100</prop>
+          <prop key="hibernate.statement_cache.size">100</prop>
+          <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+          <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+        </props>
+      </property>
+    </bean>
+
+    <bean name="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"
+      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
+    <!-- Populate database with demo data  -->
+    <bean id="databasePopulator" class="org.openl.rules.security.common.spring.db.DbUnitDatabasePopulator"
+          depends-on="openlSessionFactory">
+      <property name="dataSource" ref="openlDataSource"/>
+      <property name="enabled" value="@{security.standalone.db.populateDatabase}"/>
+      <property name="ordered" value="false"/>
+      <!-- for DBMS that support multiple schemata like Oracle -->
+      <property name="dbSchema" value="@{security.standalone.db.schema}"/>
+      <property name="dataTypeFactory">
+        <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
+          <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
+          <property name="defaultObject">
+            <bean class="org.dbunit.dataset.datatype.DefaultDataTypeFactory"/>
+          </property>
+          <property name="casesMap">
+            <map>
+              <entry key="org\.hibernate\.dialect\.Oracle.*Dialect,">
+                <bean class="org.dbunit.ext.oracle.OracleDataTypeFactory"/>
+              </entry>
+            </map>
+          </property>
+        </bean>
+      </property>
+      <property name="databaseOperation">
+        <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
+          <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
+          <property name="defaultObject" ref="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"/>
+          <property name="casesMap">
+            <map>
+              <entry key="org\.hibernate\.dialect\.SQLServerDialect">
+                <bean class="org.dbunit.ext.mssql.InsertIdentityOperation">
+                  <constructor-arg ref="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"/>
+                </bean>
+              </entry>
+            </map>
+          </property>
+        </bean>
+      </property>
+      <property name="locations">
+        <list>
+          <value>classpath:META-INF/standalone/data/default_prinicipals.xml</value>
+        </list>
+      </property>
+    </bean>
+
+    <bean name="aclService" class="org.openl.rules.security.standalone.service.DefaultAclService">
+      <property name="sessionFactory" ref="openlSessionFactory"/>
+    </bean>
+</beans>
