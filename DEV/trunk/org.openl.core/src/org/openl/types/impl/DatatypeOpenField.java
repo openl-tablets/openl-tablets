@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
@@ -31,6 +32,10 @@ public class DatatypeOpenField extends AOpenField {
     }
 
     public Object get(Object target, IRuntimeEnv env) {  
+        if (target == null) {
+            throw new OpenLRuntimeException(String
+                    .format("Can not get [%s] field from \"null\" object", this.getName()));
+        }
         Object res = null;
         Class<?> targetClass = target.getClass();
         try {
