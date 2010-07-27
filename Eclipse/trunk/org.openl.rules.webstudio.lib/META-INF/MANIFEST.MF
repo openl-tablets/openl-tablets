@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.webstudio.lib
 Bundle-SymbolicName: org.openl.rules.webstudio.lib;singleton:=true
-Bundle-Version: 5.7.2
+Bundle-Version: 5.7.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: lib/acegi-security-1.0.6.jar,
