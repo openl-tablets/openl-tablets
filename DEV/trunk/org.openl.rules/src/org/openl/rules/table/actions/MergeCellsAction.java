@@ -26,8 +26,10 @@ public class MergeCellsAction implements IUndoableGridAction {
             IGridRegion reg = grid.getMergedRegion(i);
             if (IGridRegion.Tool.contains(region, reg.getLeft(), reg.getTop())) {
                 removedRegions.add(reg);
-                grid.removeMergedRegion(reg);
             }
+        }
+        for(IGridRegion regionToRemove :removedRegions){
+            grid.removeMergedRegion(regionToRemove);
         }
         grid.addMergedRegion(region);
     }
