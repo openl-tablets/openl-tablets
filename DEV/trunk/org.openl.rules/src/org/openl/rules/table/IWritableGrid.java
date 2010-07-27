@@ -258,9 +258,9 @@ public interface IWritableGrid extends IGrid {
         private static IUndoableGridAction insertNewProperty(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
                 IWritableGrid wgrid, String newPropName, String newPropValue){
             AXlsFormatter format = getFormat(newPropName);
-            int firstPropertyRow = 1;
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
+            int firstPropertyRow = IGridRegion.Tool.height(wgrid.getCell(leftCell, topCell).getAbsoluteRegion());
 
             int rowsToMove = IGridRegion.Tool.height(tableRegion) - firstPropertyRow;
             ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(IGridRegion.Tool
@@ -268,15 +268,20 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, wgrid));
 
             String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
+            int propNameCellOffset;
+            int propValueCellOffset;
+
             if (!tableContainsPropertySection(propsHeader)) {
                 actions.add(createPropertiesSection(tableRegion, diplayedTableRegion, wgrid));
+                propNameCellOffset = 1;
+                propValueCellOffset = 2;
             } else {
                 actions.add(resizePropertiesHeader(tableRegion, wgrid));
+                propNameCellOffset = wgrid.getCell(leftCell, topCell + 1).getWidth();
+                propValueCellOffset = propNameCellOffset
+                        + wgrid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
             }
-
-            int propNameCellOffset = wgrid.getCell(leftCell, topCell + 1).getWidth();
-            int propValueCellOffset = propNameCellOffset
-                    + wgrid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
+            
             actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset, topCell + firstPropertyRow,
                     newPropName, null));
             actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset, topCell + firstPropertyRow,
@@ -284,32 +289,38 @@ public interface IWritableGrid extends IGrid {
             return new UndoableCompositeAction(actions);
         }
         
-        private static IUndoableGridAction createPropertiesSection(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
-                IWritableGrid wgrid){
+        private static IUndoableGridAction createPropertiesSection(IGridRegion tableRegion,
+                IGridRegion diplayedTableRegion, IWritableGrid wgrid) {
             int regionWidth = IGridRegion.Tool.width(tableRegion);
-            int nRows = 1;
-            int beforeRow = 1;
-
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
+            IGridRegion headerRegion = wgrid.getCell(leftCell, topCell).getAbsoluteRegion();
+
             ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>();
-            actions.add(new UnmergeByColumnsAction(new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow,
-                    tableRegion.getRight())));
-            actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
+            actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1, leftCell, headerRegion
+                    .getBottom() + 1, tableRegion.getRight())));
+            actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME,
+                    null));
             if (regionWidth > 3) {
                 // clear cells
                 for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {
-                    actions.add(new UndoableClearAction(j, topCell + beforeRow));
+                    actions.add(new UndoableClearAction(j, headerRegion.getBottom() + 1));
                 }
             } else if (regionWidth < 3) {
                 // expand table by including neighboring cell in merged
                 // regions, width will equal 3
-                actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, topCell, leftCell + 2)));
-                for (int row = topCell + 2; row < tableRegion.getBottom() + nRows; row++) {
-                    actions
-                            .add(new MergeCellsAction(
-                                    new GridRegion(row, leftCell + regionWidth - 1, row, leftCell + 2)));
+                actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, headerRegion.getBottom(),
+                        leftCell + 2)));
+
+                // merge right cells in each row
+                IGridRegion cellToExpandRegion;
+                for (int row = headerRegion.getBottom() + 1; row < tableRegion.getBottom(); row = cellToExpandRegion
+                        .getBottom() + 1) {
+                    cellToExpandRegion = wgrid.getCell(leftCell + regionWidth - 1, row).getAbsoluteRegion();
+                    actions.add(new MergeCellsAction(new GridRegion(row + 1, cellToExpandRegion.getLeft(),
+                            cellToExpandRegion.getBottom() + 1, leftCell + 2)));
                 }
+
                 actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
                 actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND,
                         3 - regionWidth));
