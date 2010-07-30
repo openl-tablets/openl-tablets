@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -124,9 +125,39 @@ public class MethodSearch {
             case 1:
                 return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
             default:
-                throw new AmbiguousMethodException(name, params, matchingMethods);
+                IOpenMethod mostConcreteMethod = getMostConcreteMethod(matchingMethods);
+                //FIXME it is made for calc bestCastHolder, refactor!
+                calcMatch(mostConcreteMethod.getSignature().getParameterTypes(), params, casts, bestCastHolder);
+                return new CastingMethodCaller(mostConcreteMethod, bestCastHolder);
         }
 
+    }
+    
+    private static IOpenMethod getMostConcreteMethod(List<IOpenMethod> methods) {
+        IOpenMethod mostConcreteMethod = null;
+        for (IOpenMethod method : methods) {
+            if (mostConcreteMethod == null) {
+                mostConcreteMethod = method;
+            }
+            if (!ClassUtils.isAssignable(getParameterTypes(mostConcreteMethod), getParameterTypes(method), true)
+                    && ClassUtils.isAssignable(getParameterTypes(method), getParameterTypes(mostConcreteMethod), true)) {
+                mostConcreteMethod = method;
+            }
+        }
+        return mostConcreteMethod;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(ClassUtils.isAssignable(new Class<?>[]{int.class, int.class}, new Class<?>[]{double.class, double.class}, true));
+    }
+
+    private static Class<?>[] getParameterTypes(IOpenMethod method) {
+        IOpenClass[] signature = method.getSignature().getParameterTypes();
+        Class<?>[] paramTypes = new Class<?>[signature.length];
+        for (int i = 0; i < paramTypes.length; i++) {
+            paramTypes[i] = signature[i].getInstanceClass();
+        }
+        return paramTypes;
     }
 
     /*

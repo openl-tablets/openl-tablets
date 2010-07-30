@@ -1,5 +1,6 @@
 package org.openl.rules.dt.element;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -58,7 +59,7 @@ public class Action extends FunctionalRow implements IAction {
             // of method. If they are same return returnValue as result of
             // execution.
             //
-            if (returnValue.getClass() == returnType.getInstanceClass()) {
+            if (ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass(), true)) {
                 return returnValue;
             }
             
