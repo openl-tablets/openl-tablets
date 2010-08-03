@@ -48,6 +48,12 @@ public class TestMethodOpenClass extends ADynamicClass {
             TestMethodHelper.CONTEXT_NAME,
             JavaOpenClass.getOpenClass(DefaultRulesRuntimeContext.class));
         addField(contextField);
+        
+        IOpenField errorField = new DynamicObjectField(this,
+            TestMethodHelper.EXPECTED_ERROR,
+            JavaOpenClass.STRING);
+        addField(errorField);
+
     }
 
 }

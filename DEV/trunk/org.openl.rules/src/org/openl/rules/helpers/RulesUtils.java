@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
 
@@ -99,11 +101,11 @@ public class RulesUtils {
     }
 
     public static void error(String msg) {
-        throw new RuntimeException(msg);
+        throw new OpenLUserRuntimeException(msg);
     }
 
     public static void error(Throwable t) throws Throwable {
-        throw t;
+        throw new OpenLUserRuntimeException(t);
     }
 
     public static String format(Date date) {

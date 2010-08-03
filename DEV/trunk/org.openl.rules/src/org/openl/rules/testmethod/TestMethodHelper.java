@@ -16,6 +16,7 @@ import org.openl.types.java.JavaOpenClass;
 public class TestMethodHelper {
 
     public static final String EXPECTED_RESULT_NAME = "_res_";
+    public static final String EXPECTED_ERROR = "_error_";
     public static final String CONTEXT_NAME = "_context_";
     public static final String DESCRIPTION_NAME = "_description_";
 
