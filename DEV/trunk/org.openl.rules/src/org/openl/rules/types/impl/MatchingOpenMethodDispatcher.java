@@ -5,12 +5,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
@@ -22,9 +29,34 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     // Business Dimension will have to apply
     private Set<String> propertiesSet;
 
-    public MatchingOpenMethodDispatcher(IOpenMethod method) {
+    private XlsModuleOpenClass moduleOpenClass;
+    private OverloadedMethodChoiceTraceObject traceObject;
+
+    public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
         decorate(method);
+        this.moduleOpenClass = moduleOpenClass;
+    }
+
+    @Override
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (Tracer.isTracerOn()) {
+            return invokeTraced(target, params, env);
+        } else {
+            return super.invoke(target, params, env);
+        }
+    }
+
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        Tracer tracer = Tracer.getTracer();
+
+        try {
+            traceObject = new OverloadedMethodChoiceTraceObject((DecisionTable)getDispatcherTable().getMember(), params, getCandidates());
+            tracer.push(traceObject);
+            return super.invoke(target, params, env);
+        }finally{
+            tracer.pop();
+        }
     }
 
     @Override
@@ -41,7 +73,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         // it will be ignored by method dispatcher.
         //
         removeInactiveMethods(selected);
-        
+        if (Tracer.isTracerOn()) {
+            traceObject.setResult(selected);
+        }
         switch (selected.size()) {
             case 0:
                 // TODO add more detailed information about error, consider
@@ -62,6 +96,21 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         toString(candidates), context.toString()));
         }
 
+    }
+    
+    private TableSyntaxNode[] getTableSyntaxNodes() {
+        XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
+        return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
+    }
+
+    private TableSyntaxNode getDispatcherTable() {
+        TableSyntaxNode[] tables = getTableSyntaxNodes();
+        for (TableSyntaxNode tsn : tables) {
+            if (DispatcherTableBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
+                return tsn;
+            }
+        }
+        throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
     private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {

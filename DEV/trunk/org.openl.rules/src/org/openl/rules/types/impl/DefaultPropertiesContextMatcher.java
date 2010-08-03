@@ -62,7 +62,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			
 			@Override
 			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
-			    return GT(propertyValue, contextValue);
+			    return GE(propertyValue, contextValue);
 			}
 			
         });
