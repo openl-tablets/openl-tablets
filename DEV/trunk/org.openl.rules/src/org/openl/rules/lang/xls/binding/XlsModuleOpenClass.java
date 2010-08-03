@@ -128,7 +128,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 				
 				// Create decorator for existed method.
 				//
-				OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod);
+				OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
 				
 				// Add new method to decorator as candidate.
 				//

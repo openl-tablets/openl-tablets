@@ -22,10 +22,6 @@ public class DecisionTableTraceObject extends ATableTracerNode {
         return (DecisionTable) getTraceObject();
     }
 
-    public IGridRegion getGridRegion() {
-        return null;
-    }
-
     /*
      * (non-Javadoc)
      * 

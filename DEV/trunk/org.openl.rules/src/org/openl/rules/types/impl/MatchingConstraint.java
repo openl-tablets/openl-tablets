@@ -38,8 +38,8 @@ public abstract class MatchingConstraint<P, C> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> boolean GT(Comparable<T> cmp1, Comparable<T> cmp2) {
-        return cmp1.compareTo((T) cmp2) > 0;
+    public static <T> boolean GE(Comparable<T> cmp1, Comparable<T> cmp2) {
+        return cmp1.compareTo((T) cmp2) >= 0;
     }
 
     @SuppressWarnings("unchecked")
