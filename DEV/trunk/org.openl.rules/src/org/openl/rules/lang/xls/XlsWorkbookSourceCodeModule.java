@@ -19,6 +19,7 @@ import org.openl.rules.indexer.IIndexElement;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -32,7 +33,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
     private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
 
-    private File sourceFile;
+    /*raised for test*/ File sourceFile;
     private long lastModified;
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
@@ -119,6 +120,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         File sourceFile = null;
         if (src instanceof FileSourceCodeModule) {
             sourceFile = ((FileSourceCodeModule) src).getFile();
+        } else if (src instanceof URLSourceCodeModule) {
+            sourceFile = new File(((URLSourceCodeModule) src).getUrl().getFile());
         } else {
             try {
                 sourceFile = new File(new URI(getUri()));
