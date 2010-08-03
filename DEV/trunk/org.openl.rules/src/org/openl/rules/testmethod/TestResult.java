@@ -6,6 +6,7 @@ package org.openl.rules.testmethod;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.impl.DynamicObject;
@@ -36,14 +37,37 @@ public class TestResult implements INamedThing {
     }
 
     public void add(DynamicObject testObj, Object res, Throwable ex) {
-        tests.add(new TestStruct(testObj, res, ex));
+        
+        TestStruct testStruct = new TestStruct(testObj, res, ex);
+        tests.add(testStruct);
     }
 
     public int getCompareResult(int i) {
 
         TestStruct ts = tests.get(i);
 
-        return ts.getEx() != null ? TR_EXCEPTION : (compareResult(getResult(i), getExpected(i)) ? TR_OK : TR_NEQ);
+        if (ts.getEx() != null) {
+            Throwable rootCause = ExceptionUtils.getRootCause(ts.getEx());
+
+            if (rootCause instanceof OpenLUserRuntimeException) {
+                String message = rootCause.getMessage();
+                String expectedMessage = (String) ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+                
+                if (compareResult(message, expectedMessage)) {
+                    return TR_OK;
+                } else {
+                    return TR_NEQ;
+                }
+            }
+
+            return TR_EXCEPTION;
+        }
+        
+        if (compareResult(getResult(i), getExpected(i))) {
+            return TR_OK;
+        }
+        
+        return TR_NEQ;
     }
 
     public Object getExpected(int i) {
