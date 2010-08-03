@@ -18,10 +18,14 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class URLSourceCodeModule extends ASourceCodeModule {
 
-    URL url;
+    private URL url;
 
     public URLSourceCodeModule(URL url) {
         this.url = url;
+    }
+    
+    public URL getUrl() {
+        return url;
     }
 
     public InputStream getByteStream() {
