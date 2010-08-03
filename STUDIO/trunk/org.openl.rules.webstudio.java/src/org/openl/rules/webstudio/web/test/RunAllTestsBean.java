@@ -3,11 +3,13 @@ package org.openl.rules.webstudio.web.test;
 import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.testmethod.TestStruct;
@@ -107,6 +109,11 @@ public class RunAllTestsBean {
 
     public Object getExpected() {
         TestStruct ts = (TestStruct) testItems.getRowData();
+        
+        if (ts.getEx() != null) {
+            return ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+        }
+        
         return ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
     }
 
@@ -120,6 +127,12 @@ public class RunAllTestsBean {
 
     public Object getResult() {
         TestStruct ts = (TestStruct) testItems.getRowData();
+        
+        if (ts.getEx() != null) {
+            Throwable rootCause = ExceptionUtils.getRootCause(ts.getEx());
+            return rootCause.getMessage();
+        }
+        
         return ts.getRes();
     }
 
@@ -143,8 +156,29 @@ public class RunAllTestsBean {
 
     public int getCompareResult() {
         TestStruct ts = (TestStruct) testItems.getRowData();
-        return ts.getEx() != null ? TestResult.TR_EXCEPTION :
-            (TestResult.compareResult(getResult(), getExpected())) ? TestResult.TR_OK : TestResult.TR_NEQ;
+        
+        if (ts.getEx() != null) {
+            Throwable rootCause = ExceptionUtils.getRootCause(ts.getEx());
+
+            if (rootCause instanceof OpenLUserRuntimeException) {
+                String message = rootCause.getMessage();
+                String expectedMessage = (String) ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+                
+                if (TestResult.compareResult(message, expectedMessage)) {
+                    return TestResult.TR_OK;
+                } else {
+                    return TestResult.TR_NEQ;
+                }
+            }
+
+            return TestResult.TR_EXCEPTION;
+        }
+        
+        if (TestResult.compareResult(getResult(), getExpected())) {
+            return TestResult.TR_OK;
+        }
+        
+        return TestResult.TR_NEQ;
     }
 
     public Object getTestValue() {
