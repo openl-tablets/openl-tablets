@@ -8,7 +8,7 @@ import org.openl.generated.beans.Driver;
 import org.openl.generated.beans.Policy;
 import org.openl.generated.beans.Vehicle;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor
