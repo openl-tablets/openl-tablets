@@ -1,5 +1,6 @@
 package org.openl.rules.dt.element;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -58,7 +59,7 @@ public class Action extends FunctionalRow implements IAction {
             // of method. If they are same return returnValue as result of
             // execution.
             //
-            if (returnValue.getClass() == returnType.getInstanceClass()) {
+            if (ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass(), false)) {
                 return returnValue;
             }
             
@@ -66,7 +67,7 @@ public class Action extends FunctionalRow implements IAction {
             // has different type than return type of method. We should skip
             // optimization for this step and invoke method.
             //
-            return method.invoke(target, new Object[] { returnValue }, env);
+            return executeActionInternal(column, target, params, env);
         }
 
         return executeActionInternal(column, target, params, env);
