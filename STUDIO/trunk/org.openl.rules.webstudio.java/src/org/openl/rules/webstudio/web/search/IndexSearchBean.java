@@ -57,7 +57,7 @@ public class IndexSearchBean extends SimpleSearchBean {
             if (projectModel != null) {
                 ProjectIndexer projectIndexer = projectModel.getIndexer();
                 if (projectIndexer != null) {
-                    searchResults = projectModel.getIndexer().getResultsForIndex(getSearchQuery());
+                    searchResults = projectIndexer.getResultsForIndex(getSearchQuery());
                 }
             }
         }
