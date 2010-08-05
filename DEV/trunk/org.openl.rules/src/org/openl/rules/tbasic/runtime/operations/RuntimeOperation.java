@@ -6,7 +6,7 @@ import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 /**
  * The <code>RuntimeOperation</code> class describes operation in common.

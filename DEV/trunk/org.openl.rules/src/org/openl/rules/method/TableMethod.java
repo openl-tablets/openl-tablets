@@ -8,7 +8,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 /**
  * {@link IOpenMethod} implementation for table method component.

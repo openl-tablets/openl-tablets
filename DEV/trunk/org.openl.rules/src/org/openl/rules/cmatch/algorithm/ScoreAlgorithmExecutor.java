@@ -4,7 +4,7 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
     private static class TraceHelper {

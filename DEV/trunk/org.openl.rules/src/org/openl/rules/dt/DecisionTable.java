@@ -5,6 +5,12 @@
  */
 package org.openl.rules.dt;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
@@ -35,7 +41,9 @@ import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.DefaultTracePrinter;
+import org.openl.vm.trace.TracePrinter;
+import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor
@@ -237,42 +245,6 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
         return getSyntaxNode().getTableProperties().getFailOnMiss();
     }
 
-    /*
-     * public Object invokeStandard(Object target, Object[] params, IRuntimeEnv
-     * env) { int nRules = getColumns(); DecisionTableAlgorithm dta = new
-     * DecisionTableAlgorithm(conditionRows.length, nRules, conditionRows,
-     * target, params, env); Object ret = null;
-     * 
-     * for (int rule = 0; rule < nRules; rule++) { if (!dta.calcColumn(rule)) {
-     * continue; } for (int j = 0; j < actionRows.length; j++) { ret =
-     * actionRows[j].executeAction(rule, target, params, env); if (ret != null
-     * && actionRows[j].isReturnAction()) { return ret; } } } return ret; }
-     * 
-     * public Object invokeTraced(Object target, Object[] params, IRuntimeEnv
-     * env) {
-     * 
-     * Tracer t = Tracer.getTracer(); if (t == null) { return
-     * invokeStandard(target, params, env); }
-     * 
-     * try { DecisionTableTraceObject dtto = new DecisionTableTraceObject(this,
-     * params); t.push(dtto);
-     * 
-     * int nCol = getColumns(); DecisionTableAlgorithm dta = new
-     * DecisionTableAlgorithm(conditionRows.length, nCol, conditionRows, target,
-     * params, env); Object ret = null;
-     * 
-     * for (int i = 0; i < nCol; i++) { if (!dta.calcColumn(i)) { continue; }
-     * 
-     * try { t.push(dtto.traceRule(i)); for (int j = 0; j < actionRows.length;
-     * j++) { ret = actionRows[j].executeAction(i, target, params, env); if (ret
-     * != null && actionRows[j].isReturnAction()) { dtto.setResult(ret); return
-     * ret; }
-     * 
-     * } } finally { t.pop(); }
-     * 
-     * } dtto.setResult(ret); return ret; } finally { t.pop(); } }
-     */
-
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
 
         Tracer tracer = Tracer.getTracer();
@@ -307,7 +279,24 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                     traceObject.setResult(ret);
                     return ret;
                 } finally {
+                    
                     tracer.pop();
+                    
+//                    TracePrinter printer = new DefaultTracePrinter();
+//                    Writer writer;
+//                    try {
+//                        writer = new PrintWriter(new File("D:/out.txt"));
+//                        printer.print(tracer, writer);
+//                        writer.close();
+//                    } catch (FileNotFoundException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    } catch (IOException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    } finally {
+//                        
+//                    }
                 }
             }
 

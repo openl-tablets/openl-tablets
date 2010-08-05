@@ -17,7 +17,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 /**
  * Table Basic Algorithm component. It's runnable method inside OpenL Tablets

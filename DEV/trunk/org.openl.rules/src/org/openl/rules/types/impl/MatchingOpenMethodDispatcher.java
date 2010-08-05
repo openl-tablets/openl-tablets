@@ -17,7 +17,7 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
