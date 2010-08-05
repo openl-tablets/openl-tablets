@@ -289,12 +289,20 @@
                     items="#{test.descriptions}" varStatus="status">
                     <p>
                         <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                        <h:outputLink value="#" title="Test">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <f:param value="#{test.testName}" name="testName" />
+                            <f:param value="#{status.index}" name="testID" />
+                            <f:param value="#{description}" name="testDescr" />
+                            <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
+                        </h:outputLink>
+                        <f:verbatim>&amp;nbsp;</f:verbatim>
                         <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml" title="Run">
                             <f:param value="#{showTableBean.uri}" name="uri" />
                             <f:param value="#{test.testName}" name="testName" />
                             <f:param value="#{status.index}" name="testID" />
                             <f:param value="#{description}" name="testDescr" />
-                            <h:graphicImage url="/webresource/images/test.gif" alt="test" />
+                            <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
                         </h:outputLink>
                         <f:verbatim>&amp;nbsp;</f:verbatim>
                         <c:set var="traceUrl"
