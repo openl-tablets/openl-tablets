@@ -5,6 +5,7 @@ import java.util.Map;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.types.IDynamicObject;
@@ -132,7 +133,8 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
 
     public Object getValue(int row, int column) {
-        if (isTraceOn()) {
+        SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
+        if (isTraceOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
             getValueTraced(row, column);
         }
         
@@ -147,7 +149,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
             }
         }
 
-        result = spreadsheet.getCells()[row][column].calculate(this, targetModule, params, env);
+        result = spreadsheetCell.calculate(this, targetModule, params, env);
         results[row][column] = result;
 
         return result;
