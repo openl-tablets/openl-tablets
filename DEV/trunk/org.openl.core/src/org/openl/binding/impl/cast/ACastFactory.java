@@ -106,6 +106,7 @@ public class ACastFactory implements ICastFactory {
             Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
             
             if (castCaller == null && primitiveClass != null) {
+                distance = 2;
                 IOpenClass wrapperOpenClass = JavaOpenClass.getOpenClass(primitiveClass);
                 castCaller = methodFactory.getMatchingMethod("autocast", new IOpenClass[] { wrapperOpenClass, to });
             }
@@ -115,7 +116,7 @@ public class ACastFactory implements ICastFactory {
 
         if (castCaller == null) {
             auto = false;
-            distance = 2;
+            distance = 3;
             try {
                 castCaller = methodFactory.getMatchingMethod("cast", new IOpenClass[] { from, to });
             } catch (AmbiguousMethodException ex) {
