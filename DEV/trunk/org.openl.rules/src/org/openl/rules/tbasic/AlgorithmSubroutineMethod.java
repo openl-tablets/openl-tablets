@@ -16,7 +16,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 /**
  * Table Basic Algorithm component for internal subroutines and functions. It

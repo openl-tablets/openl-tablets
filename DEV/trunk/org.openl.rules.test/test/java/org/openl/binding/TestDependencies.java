@@ -15,8 +15,8 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.test.Tools;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.vm.ITracerObject;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor

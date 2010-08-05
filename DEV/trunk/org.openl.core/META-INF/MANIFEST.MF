@@ -36,4 +36,5 @@ Export-Package: org.openl,
  org.openl.util,
  org.openl.util.text,
  org.openl.validation,
- org.openl.vm
+ org.openl.vm,
+ org.openl.vm.trace

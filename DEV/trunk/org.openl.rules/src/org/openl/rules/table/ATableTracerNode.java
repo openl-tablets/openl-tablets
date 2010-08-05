@@ -7,9 +7,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.print.Formatter;
-import org.openl.vm.ITracerObject;
+import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.SimpleTracerObject;
 
-public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject implements ITableTracerObject {
+public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
     private Object params[];
     private Object result;
 

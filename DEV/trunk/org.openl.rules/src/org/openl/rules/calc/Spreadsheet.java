@@ -15,7 +15,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 @Executable
 public class Spreadsheet extends AMethod implements IMemberMetaInfo {

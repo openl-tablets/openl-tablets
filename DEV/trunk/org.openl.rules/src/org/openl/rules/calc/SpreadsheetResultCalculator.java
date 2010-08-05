@@ -12,7 +12,7 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 public class SpreadsheetResultCalculator implements IDynamicObject {
 

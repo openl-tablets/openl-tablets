@@ -1,8 +1,9 @@
 package org.openl.rules.table;
 
-import org.openl.vm.ITracerObject;
+import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.SimpleTracerObject;
 
-public abstract class ATableTracerLeaf extends ITracerObject.SimpleTracerObject implements ITableTracerObject {
+public abstract class ATableTracerLeaf extends SimpleTracerObject implements ITableTracerObject {
     public ATableTracerLeaf() {
         super();
     }
