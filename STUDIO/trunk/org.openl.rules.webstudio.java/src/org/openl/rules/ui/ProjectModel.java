@@ -77,7 +77,7 @@ import org.openl.util.export.IExporter;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 
 public class ProjectModel {
 
