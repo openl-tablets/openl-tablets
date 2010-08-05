@@ -26,8 +26,8 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
-import org.openl.vm.ITracerObject;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor

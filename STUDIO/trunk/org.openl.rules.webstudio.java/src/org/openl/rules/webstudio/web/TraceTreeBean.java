@@ -13,7 +13,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
-import org.openl.vm.Tracer;
+import org.openl.vm.trace.Tracer;
 import org.richfaces.model.TreeNode;
 
 /**
