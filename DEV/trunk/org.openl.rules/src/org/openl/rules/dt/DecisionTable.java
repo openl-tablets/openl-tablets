@@ -282,21 +282,6 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                     
                     tracer.pop();
                     
-//                    TracePrinter printer = new DefaultTracePrinter();
-//                    Writer writer;
-//                    try {
-//                        writer = new PrintWriter(new File("D:/out.txt"));
-//                        printer.print(tracer, writer);
-//                        writer.close();
-//                    } catch (FileNotFoundException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } catch (IOException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } finally {
-//                        
-//                    }
                 }
             }
 
