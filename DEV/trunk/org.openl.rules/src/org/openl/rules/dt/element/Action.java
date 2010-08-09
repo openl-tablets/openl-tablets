@@ -63,7 +63,7 @@ public class Action extends FunctionalRow implements IAction {
             // of method. If they are same return returnValue as result of
             // execution.
             //
-            if (ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass(), true)) {
+            if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass(), true)) {
                 return returnValue;
             }
             

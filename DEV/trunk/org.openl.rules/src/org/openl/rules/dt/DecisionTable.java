@@ -223,7 +223,9 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                     returnValue = actionResult;
                 }
             }
-            return returnValue;
+            if (returnValue != null) {
+                return returnValue;
+            }
         }
 
         if (!atLeastOneRuleFired && shouldFailOnMiss()) {
