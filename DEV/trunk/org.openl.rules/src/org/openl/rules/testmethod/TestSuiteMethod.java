@@ -112,11 +112,20 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return invokeBenchmark(target, params, env, 1);
+        return invoke(target, params, env, -1);
+    }
+
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env, int unitId) {
+        return invokeBenchmark(target, params, env, 1, unitId);
     }
 
     public Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, int ntimes) {
-        
+        return invokeBenchmark(target, params, env, ntimes, -1);
+    }
+
+    public Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env,
+            int ntimes, int unitId) {
+
         Object testArray = boundNode.getField().get(target, env);
 
         DynamicObject[] testInstances = (DynamicObject[]) testArray;
@@ -127,7 +136,10 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
 
         TestResult tres = new TestResult(this);
 
-        for (int i = 0; i < testInstances.length; i++) {
+        int unitStart = unitId > -1 ? unitId : 0;
+        int unitStop = unitId > -1 ? (unitStart + 1) : testInstances.length;
+
+        for (int i = unitStart; i < unitStop; i++) {
 
             Object[] mpvals = new Object[mpars.length];
 
