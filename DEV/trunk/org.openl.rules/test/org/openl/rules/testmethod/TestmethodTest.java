@@ -11,16 +11,28 @@ public class TestmethodTest {
     private static final String FILE_NAME = "test/rules/testmethod/UserExceptionTest.xlsx";
 
     public interface ITest {
-        TestResult driverRiskTestTestAll();
+        TestResult driverRiskTest1TestAll();
+        TestResult driverRiskTest2TestAll();
     }
     
     @Test
-    public void testUserExceptionSupport() {
+    public void testUserExceptionSupport1() {
         File xlsFile = new File(FILE_NAME);
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile, ITest.class);
         
         ITest instance = testHelper.getInstance();
-        TestResult result = instance.driverRiskTestTestAll();
+        TestResult result = instance.driverRiskTest1TestAll();
         assertEquals(0, result.getNumberOfFailures());
     }
+    
+    @Test
+    public void testUserExceptionSupport2() {
+        File xlsFile = new File(FILE_NAME);
+        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile, ITest.class);
+        
+        ITest instance = testHelper.getInstance();
+        TestResult result = instance.driverRiskTest2TestAll();
+        assertEquals(0, result.getNumberOfFailures());
+    }
+
 }
