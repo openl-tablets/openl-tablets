@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -15,9 +16,10 @@ import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.testmethod.TestStruct;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.Explanator;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 import org.openl.util.print.Formatter;
 
 /**
@@ -39,9 +41,15 @@ public class RunAllTestsBean {
     public RunAllTestsBean() {
         String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
+        String testName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_NAME);
+        if (testName != null) {
+            testName = StringTool.decodeURL(testName);
+        }
+        String unitId = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_ID);
+
         initExplanator();
 
-        runAllTests(tableUri);
+        testAll(tableUri, testName, unitId);
     }
 
     private void initExplanator() {
@@ -53,10 +61,14 @@ public class RunAllTestsBean {
         Explanator.setCurrent(explanator);
     }
 
-    private void runAllTests(String tableUri) {
-        WebStudio studio = WebStudioUtils.getWebStudio();
+    private void testAll(String tableUri, String testName, String unitId) {
+        ProjectModel model = WebStudioUtils.getProjectModel();
 
-        testsResult =  studio.getModel().runAllTests(tableUri);
+        if (StringUtils.isNotBlank(unitId)) {
+            testsResult =  model.testUnit(tableUri, testName, unitId);
+        } else {
+            testsResult =  model.testAll(tableUri);
+        }
 
         numberOfTests = testsResult.getTests().length;
         numberOfFailedTests = testsResult.numberOfFailedTests();
