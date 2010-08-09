@@ -6,6 +6,7 @@ package org.openl.rules.testmethod;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
@@ -52,6 +53,15 @@ public class TestResult implements INamedThing {
             if (rootCause instanceof OpenLUserRuntimeException) {
                 String message = rootCause.getMessage();
                 String expectedMessage = (String) ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+                
+                // OpenL engine recognizes empty cell as 'null' value.
+                // When user define 'error' expression with empty string as message
+                // test cannot be passed because expected message will be 'null' value.
+                // To avoid mentioned above use case we are using the following check.
+                // 
+                if (expectedMessage == null) {
+                	expectedMessage = StringUtils.EMPTY;
+                }
                 
                 if (compareResult(message, expectedMessage)) {
                     return TR_OK;

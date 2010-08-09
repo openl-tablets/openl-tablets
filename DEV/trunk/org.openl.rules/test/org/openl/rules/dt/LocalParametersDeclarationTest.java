@@ -31,6 +31,8 @@ public class LocalParametersDeclarationTest extends TestCase {
         int test10(int age);
         
         DoubleValue test11(int age);
+        
+        void test12(int age);
     }
 
     private static String src = "test/rules/dt/LocalParametersDeclarationTest.xls";
@@ -138,6 +140,12 @@ public class LocalParametersDeclarationTest extends TestCase {
 
         result = test.test11(40);
         assertEquals(2.0, result.doubleValue());
+    }
+
+    public void testSimplifiedReturnParamsDeclaration4() {
+
+        test.test12(10);
+        test.test12(40);
     }
 
 }
