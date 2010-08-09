@@ -89,6 +89,10 @@ public abstract class FunctionalRow implements IDecisionRow {
     public IParameterDeclaration[] getParams() {
         return params;
     }
+    
+    protected void setParams(IParameterDeclaration[] params) {
+        this.params = params;
+    }
 
     public Object[][] getParamValues() {
         return paramValues;
@@ -194,7 +198,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         paramValues = prepareParamValues(method, openlAdaptor, ruleRow);
     }
 
-    private IParameterDeclaration[] getParams(IOpenSourceCodeModule methodSource,
+    protected IParameterDeclaration[] getParams(IOpenSourceCodeModule methodSource,
             IMethodSignature signature,
             IOpenClass declaringClass,
             IOpenClass methodType,
@@ -481,7 +485,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass declaringClass,
             IOpenClass methodType) throws Exception {
 
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(codeTable.getGridTable());
+        IOpenSourceCodeModule source = getExpressionSource();
 
         IParameterDeclaration[] methodParams = getParams(source,
             signature,
@@ -494,6 +498,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         return OpenLManager.makeMethod(openl, source, methodHeader, bindingContextDelegator);
     }
+
+	protected IOpenSourceCodeModule getExpressionSource() {
+		return new GridCellSourceCodeModule(codeTable.getGridTable());
+	}
 
     /**
      * Gets local parameter declaration from specified source.

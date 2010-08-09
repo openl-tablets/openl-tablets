@@ -1,24 +1,28 @@
 package org.openl.rules.dt.element;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
 
 public class Action extends FunctionalRow implements IAction {
 
     private boolean isReturnAction = false;
     private boolean isSingleReturnParam = false;
-    
     private IOpenClass ruleExecutionType;
 
     public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction) {
@@ -59,7 +63,7 @@ public class Action extends FunctionalRow implements IAction {
             // of method. If they are same return returnValue as result of
             // execution.
             //
-            if (ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass(), false)) {
+            if (ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass(), true)) {
                 return returnValue;
             }
             
@@ -111,5 +115,35 @@ public class Action extends FunctionalRow implements IAction {
             isSingleReturnParam = false;
         }
     }
+
+	@Override
+	protected IParameterDeclaration[] getParams(
+			IOpenSourceCodeModule methodSource, IMethodSignature signature,
+			IOpenClass declaringClass, IOpenClass methodType, OpenL openl,
+			IBindingContext bindingContext) throws Exception {
+		
+		if ("extraRet".equals(methodSource.getCode()) && isReturnAction() && getParams() == null) {
+			ParameterDeclaration extraParam = new ParameterDeclaration(methodType, "extraRet");
+			
+			IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[] {extraParam};
+			setParams(parameterDeclarations);
+			return getParams();
+		} 
+		
+		return super.getParams(methodSource, signature, declaringClass, methodType,
+				openl, bindingContext);
+	}
+
+	@Override
+	protected IOpenSourceCodeModule getExpressionSource() {
+		
+		IOpenSourceCodeModule source = super.getExpressionSource();
+		
+		if (isReturnAction() && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
+			return new StringSourceCodeModule("extraRet", source.getUri(0));
+		}
+		
+		return super.getExpressionSource();
+	}
 
 }
