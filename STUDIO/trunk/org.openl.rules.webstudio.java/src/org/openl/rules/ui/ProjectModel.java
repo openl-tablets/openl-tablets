@@ -890,8 +890,7 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public AllTestsRunResult runAllTests(String elementUri) {
-
+    public AllTestsRunResult testAll(String elementUri) {
         AllTestsRunResult atr = getTestMethods(elementUri);
         if (atr == null) {
             atr = getAllTestMethods();
@@ -905,6 +904,21 @@ public class ProjectModel {
         }
 
         atr.setResults(ttr);
+        return atr;
+    }
+
+    public AllTestsRunResult testUnit(String testUri, String testName, String unitIdStr) {
+        AllTestsRunResult atr = getTestMethods(testUri);
+        if (atr != null) {
+            Test[] ttm = atr.getTests();
+            int unitId = Integer.parseInt(unitIdStr);
+            Test unit = ttm[0];
+
+            TestResult[] ttr = new TestResult[ttm.length];
+            ttr[0] = (TestResult) runTestUnit(unit.method, unitId);
+
+            atr.setResults(ttr);
+        }
         return atr;
     }
 
@@ -942,6 +956,29 @@ public class ProjectModel {
 
             try {
                 res = m.invoke(target, new Object[] {}, env);
+
+            } catch (Throwable t) {
+                Log.error("Run Error:", t);
+                return t;
+            }
+            return res;
+        } finally {
+            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
+        }
+    }
+
+    public Object runTestUnit(TestSuiteMethod m, int unitId) {
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+
+        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
+
+            Object res = null;
+
+            try {
+                res = m.invoke(target, new Object[] {}, env, unitId);
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
