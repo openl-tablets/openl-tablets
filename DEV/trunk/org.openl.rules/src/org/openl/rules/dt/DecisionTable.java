@@ -5,12 +5,6 @@
  */
 package org.openl.rules.dt;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
@@ -41,8 +35,6 @@ import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.DefaultTracePrinter;
-import org.openl.vm.trace.TracePrinter;
 import org.openl.vm.trace.Tracer;
 
 /**
@@ -278,8 +270,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                             ret = actionResult;
                         }
                     }
-                    traceObject.setResult(ret);
-                    return ret;
+                    if (ret != null) {
+                        traceObject.setResult(ret);
+                        return ret;
+                    }
                 } finally {
                     
                     tracer.pop();
