@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Webtools Plug-in
 Bundle-SymbolicName: org.openl.commons.web
-Bundle-Version: 5.7.1.1
+Bundle-Version: 5.7.2
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
  org.junit4,
