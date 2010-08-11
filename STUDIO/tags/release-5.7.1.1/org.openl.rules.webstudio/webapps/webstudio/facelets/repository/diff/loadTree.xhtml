@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core">
+
+  <f:view contentType="text/xml">
+
+    <tree id="#{param.id != null ? param.id : param.treeId}">
+      <ui:repeat var="node" value="#{repositoryDiffController.diffTreeNodes}">
+          <c:set var="element" value="#{node.elements[param.treeId-1]}" />
+          <h:panelGroup rendered="#{node.elements[1].diffStatus != 'EQUALS' or repositoryDiffController.showEqualElements}">
+            <node
+              text="#{element.projection.name}"
+              tooltip="#{element.projection.name}"
+              id="#{node.id}"
+              child="#{not empty node.children ? 1 : 0}"
+              open="0"
+              im0="#{element.diffStatus=='REMOVED'?'filedelete.gif': (element.diffStatus=='ADDED'?'fileadd.gif':(element.diffStatus=='DIFFERS'?'filemodified.gif':''))}"
+              im1="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
+              im2="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
+              />
+          </h:panelGroup>
+      </ui:repeat>
+    </tree>
+
+  </f:view>
+</ui:composition>
