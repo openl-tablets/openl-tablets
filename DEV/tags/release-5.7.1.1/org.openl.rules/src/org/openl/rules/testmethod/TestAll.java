@@ -1,0 +1,195 @@
+package org.openl.rules.testmethod;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.openl.main.OpenLWrapper;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
+
+/**
+ * 
+ * @author snshor Created May 2, 2010
+ * 
+ * This class should be used to run all the tests from command-line interface.
+ * It may be also used in JUnit test integration
+ */
+
+public class TestAll {
+
+    public class TestStatistics {
+        /**
+         * Time in milliseconds
+         */
+        private long start;
+        /**
+         * Time in milliseconds
+         */
+        private long end;
+
+        private long loadTimeMs = -1;
+
+        private ArrayList<TestResult> results = new ArrayList<TestResult>();
+        String name;
+
+        public TestStatistics(String name, long loadTimeMs) {
+            this.name = name;
+            this.loadTimeMs = loadTimeMs;
+        }
+
+        public void addTestResult(TestResult res) {
+            results.add(res);
+        }
+
+        public int getNumberOfFailedTests() {
+            int sum = 0;
+            for (TestResult tres : results) {
+                if (tres.getNumberOfFailures() > 0)
+                    sum++;
+            }
+            return sum;
+        }
+
+        @SuppressWarnings("unchecked")
+        public List<TestResult> getFilteredResults(boolean includePassedTests, boolean orderFailedFirst) {
+            List<TestResult> list = (List<TestResult>) results.clone();
+
+            return list;
+        }
+
+        public long getStart() {
+            return start;
+        }
+
+        public void setStart(long start) {
+            this.start = start;
+        }
+
+        public long getEnd() {
+            return end;
+        }
+
+        public void setEnd(long end) {
+            this.end = end;
+        }
+
+        public List<TestResult> getResults() {
+            return results;
+        }
+
+        @Override
+        public String toString() {
+            return "Loaded " + name + " in " + loadTimeMs + "ms\n" + "Executed/failed tests: " + results.size() + "/"
+                    + getNumberOfFailedTests() + " in " + (end - start) + " ms";
+        }
+        
+        public String printFailedResults()
+        {
+            StringBuilder sb = new StringBuilder(1000);
+            sb.append(toString());
+            
+            for (TestResult test : results) {
+                if (test.getNumberOfFailures() > 0)
+                    sb.append('\n').append(test);
+            }
+            
+            return sb.toString();
+        }
+
+        public long getLoadTimeMs() {
+            return loadTimeMs;
+        }
+
+        public void setLoadTimeMs(long loadTimeMs) {
+            this.loadTimeMs = loadTimeMs;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+    }
+
+    public TestStatistics testAllWrapper(Class<? extends OpenLWrapper> c) {
+
+        long start = System.currentTimeMillis();
+
+        OpenLWrapper engine;
+        try {
+            engine = c.newInstance();
+        } catch (Throwable t) {
+            throw RuntimeExceptionWrapper.wrap(t);
+        }
+
+        long end = System.currentTimeMillis();
+
+        IOpenClass ioc = engine.getOpenClass();
+
+        return runAllTests(ioc, new TestStatistics(ioc.getName(), end - start));
+
+    }
+
+    /**
+     * Runs all the tests found in OpenL module (ioc)
+     * 
+     * @param ioc
+     * @return TestStatistics object containing
+     */
+    public TestStatistics testAll(IOpenClass ioc) {
+        TestStatistics stat = new TestStatistics(ioc.getName(), -1);
+        return runAllTests(ioc, stat);
+    }
+
+    private TestStatistics runAllTests(IOpenClass ioc, TestStatistics stat) {
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        stat.setStart(System.currentTimeMillis());
+        for (Iterator<IOpenMethod> it = ioc.methods(); it.hasNext();) {
+            IOpenMethod m = it.next();
+            if (m.getType().getInstanceClass() == TestResult.class) {
+                runTestMethod(m, ioc.newInstance(env), env, stat);
+            }
+        }
+        stat.setEnd(System.currentTimeMillis());
+
+        return stat;
+
+    }
+
+    protected void runTestMethod(IOpenMethod testMethod, Object engine, IRuntimeEnv env, TestStatistics stat) {
+        TestResult res = (TestResult) testMethod.invoke(engine, new Object[0], env);
+        
+        if (!(testMethod instanceof TestSuiteMethod))
+            return;
+        if (!((TestSuiteMethod)testMethod).isRunmethodTestable())
+            return;
+        Log.info("Testing " + testMethod.getName() + ", tests: " + res.getNumberOfTests() + ", failures:"
+                + res.getNumberOfFailures());
+
+        stat.addTestResult(res);
+
+    }
+
+    /*
+     * public void _testAlltests(Class<? extends OpenLWrapper> c) throws
+     * InstantiationException, IllegalAccessException { long start =
+     * System.currentTimeMillis();
+     * 
+     * 
+     * 
+     * long end = System.currentTimeMillis();
+     * 
+     * System.out.println("Loaded wrapper in " + (end-start) + "ms");
+     * 
+     * System.out.println("Run " + tottests + " tests. Failures: " + totfailures + "
+     * Time: " + (end-start) + "ms"); Assert.assertEquals(0, totfailures);
+     */
+}
