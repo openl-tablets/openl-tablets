@@ -24,6 +24,12 @@
           <include>project-resolver-beans.xml</include>
         </includes>
       </resource>
+	  <resource>
+        <directory>templates</directory>
+        <includes>
+          <include>**/*.xls</include>
+        </includes>
+      </resource>
     </resources>
     
     <testResources>

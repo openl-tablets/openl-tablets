@@ -289,7 +289,13 @@ public class RepositoryTreeController {
     }
 
     public String createNewRulesProject() {
-        InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);
+        InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
+        String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
+        if (sampleRulesSource == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+            return null;
+        }
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
         return createRulesProject(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
     }
@@ -326,6 +332,9 @@ public class RepositoryTreeController {
         if (errorMessage != null) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, null, "New project created succesfully!"));
         }
         return null;
     }
