@@ -1,0 +1,310 @@
+
+<html>
+
+  <head>
+    <link href="Exigenstyle.css" rel="stylesheet" type="text/css" />
+
+    <title>
+OpenL Web Studio Components
+    </title>
+
+    <script>
+var file_name="OpenLWebStudioComponents.html"
+    </script>
+
+  </head>
+
+  <body>
+
+    <h2>
+<a name="openl_web_studio_components8"></a><a name="_OpenL_Web_Studio"></a>OpenL Web Studio Components
+    </h2>
+ 
+
+    <p class="MsoBodyText">
+OpenL Web Studio consists of the following main components:
+    </p>
+ 
+
+    <table border="1" cellpadding="0" cellspacing="0" class="MsoNormalTable" width="672">
+ 
+      <thead>
+ 
+        <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+          <th colspan="2" valign="top" width="672">
+ 
+
+            <p>
+OpenL Web Studio components
+            </p>
+ 
+          </th> 
+        </tr> 
+        <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+          <th valign="top" width="152">
+ 
+
+            <p>
+Component
+            </p>
+ 
+          </th> 
+          <th valign="top" width="520">
+ 
+
+            <p>
+Description
+            </p>
+ 
+          </th> 
+        </tr> 
+      </thead> 
+      <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+        <td valign="top" width="152">
+ 
+
+          <p class="Tabletext">
+Rule editor
+          </p>
+ 
+        </td> 
+        <td valign="top" width="520">
+ 
+
+          <p class="Tabletext">
+Graphic user interface running in a web browser allowing users to browse
+rule modules, modify table data, and run
+tests.
+          </p>
+ 
+
+          <p class="Tabletext">
+Rule editor is the default user interface displayed when user opens OpenL Web Studio.
+          </p>
+ 
+
+          <p class="Tabletext">
+Rule editor does not display all rule module files but provides a
+logical view of rules stored in a module. This view is convenient for
+users who modify business
+rules.
+          </p>
+ 
+
+          <p class="Tabletext">
+Rule editor displays only modules available in projects stored in
+user&#39;s workspace. To retrieve a project to user&#39;s workspace, the
+project must be opened or checked out. For information on opening and
+checking out projects, see
+<a href="WorkingWithProjectsInOpenLWebStudio.html#_Working_with_Projects">Working with Projects in OpenL Web Studio</a>.
+          </p>
+ 
+
+          <p class="Tabletext">
+For detailed information on using rule editor, see <a href="UsingRuleEditor.html#_Chapter_3:_Using">Chapter 3: Using Rule Editor</a>.
+          </p>
+ 
+        </td> 
+      </tr> 
+      <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+        <td valign="top" width="152">
+ 
+
+          <p class="Tabletext">
+Repository editor
+          </p>
+ 
+        </td> 
+        <td valign="top" width="520">
+ 
+
+          <p class="Tabletext">
+Graphic user interface running in a web browser allowing users to browse
+and manage projects in design time
+repository.
+          </p>
+ 
+
+          <p class="Tabletext">
+Unlike rule editor, repository editor displays physical contents of rule
+projects.
+          </p>
+ 
+
+          <p class="Tabletext">
+Users can easily switch between rule editor and repository editor in
+user
+interface.
+          </p>
+ 
+
+          <p class="Tabletext">
+Repository editor provides the following main functions:
+          </p>
+ 
+
+          <ul>
+            <li>
+
+              <p>
+uploading projects from the file system to design time repository
+              </p>
+
+            </li>
+          </ul>
+ 
+
+          <ul>
+            <li>
+
+              <p>
+checking out, checking in, opening, and closing projects
+              </p>
+
+            </li>
+          </ul>
+ 
+
+          <ul>
+            <li>
+
+              <p>
+modifying project structure and properties
+              </p>
+
+            </li>
+          </ul>
+ 
+
+          <ul>
+            <li>
+
+              <p>
+managing project versions and dependencies
+              </p>
+
+            </li>
+          </ul>
+ 
+
+          <ul>
+            <li>
+
+              <p>
+copying and deleting projects in design time repository
+              </p>
+
+            </li>
+          </ul>
+ 
+
+          <ul>
+            <li>
+
+              <p>
+managing and tracing project deployments
+              </p>
+
+            </li>
+          </ul>
+ 
+
+          <p class="Tabletext">
+For detailed information on using rule editor, see <a href="UsingRepositoryEditor.html#_Chapter_4:_Using">Chapter 4: Using Repository Editor</a>.
+          </p>
+ 
+        </td> 
+      </tr> 
+      <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+        <td valign="top" width="152">
+ 
+
+          <p class="Tabletext">
+Design time repository
+          </p>
+ 
+        </td> 
+        <td valign="top" width="520">
+ 
+
+          <p class="Tabletext">
+Centralized storage of rule projects accessible by all OpenL Web Studio users.Projects uploaded to design time repository are visible to other users.
+          </p>
+ 
+
+          <p class="Tabletext">
+Design time repository creates a separate project version each time a
+project is checked in. A project can be restored to any of its previous
+versions if it is checked in with incorrect
+data.
+          </p>
+ 
+        </td> 
+      </tr> 
+      <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+        <td valign="top" width="152">
+ 
+
+          <p class="Tabletext">
+Production time repository
+          </p>
+ 
+        </td> 
+        <td valign="top" width="520">
+ 
+
+          <p class="Tabletext">
+Centralized storage of final rule projects delivered to the production
+environment where solution applications use
+them.
+          </p>
+ 
+
+          <p class="Tabletext">
+Projects can be deployed to production time repository from design time
+repository using deployment projects. A
+<b>deployment project</b> is a specific OpenL Web Studio project type. It stipulates which rule projects and project versions
+must be deployed to production time repository. Deployment projects are
+saved and versioned so that developers can identify which specific rule
+project versions are
+deployed.
+          </p>
+ 
+
+          <p class="Tabletext">
+In the context of Exigen Process Backbone, the Exigen Studio run-time repository is used as production time repository.
+          </p>
+ 
+        </td> 
+      </tr> 
+      <tr bgcolor="#E6E6E6" bordercolor="#ffffff">
+ 
+        <td valign="top" width="152">
+ 
+
+          <p class="Tabletext">
+User workspace
+          </p>
+ 
+        </td> 
+        <td valign="top" width="520">
+ 
+
+          <p class="Tabletext">
+Project storage on the server containing projects checked out by users.
+Each user has a personal workspace not accessible by
+others.
+          </p>
+ 
+        </td> 
+      </tr> 
+    </table>
+ <br clear="all" />
+  </body>
+</html>
