@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Exigen WebStudio Structured Diff
 Bundle-SymbolicName: org.openl.rules.diff;singleton:=true
-Bundle-Version: 5.7.2
+Bundle-Version: 5.7.1.1
 Require-Bundle: org.openl.rules,
  org.openl.core
 Export-Package: org.openl.rules.diff.differs,
