@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Apache Commons Library
 Bundle-SymbolicName: org.openl.poi.lib
-Bundle-Version: 5.7.1.1
+Bundle-Version: 5.7.2
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Export-Package: javax.xml,
