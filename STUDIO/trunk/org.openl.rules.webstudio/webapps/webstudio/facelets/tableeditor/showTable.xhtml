@@ -288,13 +288,16 @@
                 <c:forEach var="description"
                     items="#{test.descriptions}" varStatus="status">
                     <p>
-                        <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-                        <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" title="Test">
-                            <f:param value="#{showTableBean.uri}" name="uri" />
-                            <f:param value="#{test.testName}" name="testName" />
-                            <f:param value="#{status.index}" name="testID" />
-                            <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
-                        </h:outputLink>
+                        <h:panelGroup rendered="#{showTableBean.testable}">
+                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                            <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" title="Test">
+                                <f:param value="#{showTableBean.uri}" name="uri" />
+                                <f:param value="#{test.testName}" name="testName" />
+                                <f:param value="#{status.index}" name="testID" />
+                                <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
+                            </h:outputLink>
+                         </h:panelGroup>
+
                         <f:verbatim>&amp;nbsp;</f:verbatim>
                         <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml" title="Run">
                             <f:param value="#{showTableBean.uri}" name="uri" />
