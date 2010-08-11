@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.eclipse.ui.eclipse.feature"
+      label="OpenL Core"
+      version="5.7.1.1"
+      provider-name="OpenL">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.gnu.org/copyleft/lesser.html">
+      %license
+   </license>
+
+   <requires>
+      <import feature="org.openl.rules.eclipse.feature" version="5.7.1.1"/>
+   </requires>
+
+   <plugin
+         id="org.openl.eclipse.ui"
+         download-size="0"
+         install-size="0"
+         version="5.7.1.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.util"
+         download-size="0"
+         install-size="0"
+         version="5.7.1.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.wizard"
+         download-size="0"
+         install-size="0"
+         version="5.7.1.1"/>
+
+   <plugin
+         id="org.openl.rules.eclipse.ui"
+         download-size="0"
+         install-size="0"
+         version="5.7.1.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.eclipse.ui.wizard"
+         download-size="0"
+         install-size="0"
+         version="5.7.1.1"/>
+</feature>
