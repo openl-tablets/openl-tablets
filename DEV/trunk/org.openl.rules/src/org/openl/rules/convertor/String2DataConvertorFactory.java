@@ -23,6 +23,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
+import org.openl.util.BooleanUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -40,19 +41,15 @@ public class String2DataConvertorFactory {
         public Object parse(String data, String format, IBindingContext cxt) {
             if (data == null || data.length() == 0) {
                 return Boolean.FALSE;
-            }
-
-            String lcase = data.toLowerCase().intern();
-
-            if (lcase == "true" || lcase == "yes" || lcase == "t" || lcase == "y") {
-                return Boolean.TRUE;
-            }
-
-            if (lcase == "false" || lcase == "no" || lcase == "f" || lcase == "n") {
-                return Boolean.FALSE;
-            }
-
-            throw new RuntimeException("Invalid boolean value: " + data);
+            }            
+            
+            Boolean boolValue = BooleanUtils.toBooleanObject(data);
+            
+            if (boolValue != null) {
+                return boolValue;
+            } else {
+                throw new RuntimeException("Invalid boolean value: " + data);
+            }            
         }
 
     }
