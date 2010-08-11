@@ -5,13 +5,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-base-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.7.1.1</version>
+  <version>5.7.2-SNAPSHOT</version>
   <name>OpenL BasePom SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags/release-5.7.1.1</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags/release-5.7.1.1</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/trunk</developerConnection>
   </scm>
 
   <modules>
