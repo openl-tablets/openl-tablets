@@ -13,6 +13,7 @@ import java.util.Date;
 
 import org.openl.meta.StringValue;
 import org.openl.util.ArrayTool;
+import org.openl.util.DateDifference;
 
 /**
  * @author snshor
@@ -656,8 +657,8 @@ public class Operators {
         return x >>> y;
     }
 
-    public static int subtract(Date d1, Date d2) {
-        return (int) ((d1.getTime() / SECONDS_IN_DAY) - (d2.getTime() / SECONDS_IN_DAY));
+    public static int subtract(Date d1, Date d2) {        
+        return DateDifference.getDifferenceInDays(d1, d2);
     }
 
     public static Date subtract(Date d, int days) {

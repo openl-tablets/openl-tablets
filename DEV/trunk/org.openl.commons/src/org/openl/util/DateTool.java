@@ -20,8 +20,8 @@ public class DateTool {
         return year(d) * QUARTERS_IN_YEAR + quarter(d);
     }
 
-    public static int dayDiff(Date d1, Date d2) {
-        return (int) (d1.getTime() / MILLISECONDS_IN_DAY - d2.getTime() / MILLISECONDS_IN_DAY);
+    public static int dayDiff(Date endDate, Date startDate) {        
+        return DateDifference.getDifferenceInDays(endDate, startDate);
     }
 
     public static int dayOfMonth(Date d) {
@@ -57,24 +57,17 @@ public class DateTool {
         c.setTime(d);
         return c.get(Calendar.MONTH);
     }
-
-    public static int monthDiff(Date d1, Date d2) {
-        int y1 = year(d1);
-        int m1 = month(d1);
-
-        int y2 = year(d2);
-        int m2 = month(d2);
-
-        int intraMonthCorr = 0;
-        if (m1 == m2) {
-            int dm1 = dayOfMonth(d1);
-            int dm2 = dayOfMonth(d2);
-
-            intraMonthCorr = dm1 > dm2 ? 1 : (dm1 < dm2 ? -1 : 0);
-        }
-
-        return (y1 - y2) * 12 + (m1 - m2) + intraMonthCorr;
-
+    
+    public static int monthDiff(Date endDate, Date startDate) {
+        return DateDifference.getDifferenceInMonths(endDate, startDate);
+    }
+    
+    public static int yearDiff(Date endDate, Date startDate) {
+        return DateDifference.getDifferenceInYears(endDate, startDate);
+    }
+    
+    public static int weekDiff(Date endDate, Date startDate) {
+        return DateDifference.getDifferenceInWeeks(endDate, startDate);
     }
 
     public static int quarter(Date d) {

@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
@@ -177,6 +176,14 @@ public class RulesUtils {
 
     public static int monthDiff(Date d1, Date d2) {
         return DateTool.monthDiff(d1, d2);
+    }
+    
+    public static int yearDiff(Date d1, Date d2) {
+        return DateTool.yearDiff(d1, d2);
+    }
+    
+    public static int weekDiff(Date d1, Date d2) {
+        return DateTool.weekDiff(d1, d2);
     }
 
     public static int quarter(Date d) {
