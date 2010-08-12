@@ -10,22 +10,24 @@ import java.lang.String;
 import java.util.Date;
 
 public class Person1{
-  private java.lang.String name;
+  protected java.lang.String name;
 
-  private java.lang.String ssn;
+  protected java.lang.String ssn;
 
-  private java.util.Date dob;
+  protected java.util.Date dob;
 
-  private java.lang.String gender;
+  protected java.lang.String gender;
 
-  private java.lang.String maritalStatus;
+  protected java.lang.String maritalStatus;
 
 
 
 public Person1() {
+    super();
 }
 
 public Person1(String name, String ssn, Date dob, String gender, String maritalStatus) {
+    super();
     this.name = name;
     this.ssn = ssn;
     this.dob = dob;
@@ -38,7 +40,8 @@ public boolean equals(Object obj) {
     if (!(obj instanceof Person1)) {;
         return false;
     }
-    Person1 another = (Person1)obj;    builder.append(another.name,name);
+    Person1 another = (Person1)obj;
+    builder.append(another.name,name);
     builder.append(another.ssn,ssn);
     builder.append(another.dob,dob);
     builder.append(another.gender,gender);
