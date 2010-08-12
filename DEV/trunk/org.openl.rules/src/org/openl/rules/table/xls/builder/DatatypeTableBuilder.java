@@ -28,15 +28,22 @@ public class DatatypeTableBuilder extends TableBuilder {
 
     @Override
     public void writeHeader(String tableName, ICellStyle style) {
+        writeHeader(tableName, null, style);
+    }
+
+    public void writeHeader(String tableName, String parentType, ICellStyle style) {
         String header = IXlsTableNames.DATATYPE_TABLE;
         if (StringUtils.isNotBlank(tableName)) {
             header += (" " + tableName);
         }
+        if (StringUtils.isNotBlank(parentType)) {
+            header += (" extends " + parentType);
+        }
         super.writeHeader(header, style);
     }
 
-    public void writeHeader(String tableName) {
-        writeHeader(tableName, null);
+    public void writeHeader(String tableName, String parentType) {
+        writeHeader(tableName, parentType, null);
     }
 
     public void writeParameter(String paramType, String paramName, ICellStyle cellStyle) {

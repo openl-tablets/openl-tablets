@@ -20,6 +20,13 @@
             </h:panelGrid>
 
             <br />
+            <h:panelGrid columns="3">
+                <h:outputText value="Parent type:" />
+                <h:selectOneMenu value="#{tableWizard.parent}">
+                    <f:selectItems value="#{tableWizard.definedDatatypes}" />
+                </h:selectOneMenu>
+            </h:panelGrid>
+            <br />
             <hr />
 
             <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true" />
