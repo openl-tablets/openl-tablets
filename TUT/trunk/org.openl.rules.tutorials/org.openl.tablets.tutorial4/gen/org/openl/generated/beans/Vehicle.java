@@ -9,34 +9,36 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.lang.String;
 
 public class Vehicle{
-  private java.lang.String name;
+  protected java.lang.String name;
 
-  private java.lang.String type;
+  protected java.lang.String type;
 
-  private int year;
+  protected int year;
 
-  private java.lang.String model;
+  protected java.lang.String model;
 
-  private boolean hasAlarm;
+  protected boolean hasAlarm;
 
-  private boolean onHighTheftProbabilityList;
+  protected boolean onHighTheftProbabilityList;
 
-  private java.lang.String airbags;
+  protected java.lang.String airbags;
 
-  private double price;
+  protected double price;
 
-  private java.lang.String bodyType;
+  protected java.lang.String bodyType;
 
-  private java.lang.String[] coverage;
+  protected java.lang.String[] coverage;
 
-  private boolean hasRollBar;
+  protected boolean hasRollBar;
 
 
 
 public Vehicle() {
+    super();
 }
 
 public Vehicle(String name, String model, int year, boolean hasAlarm, String type, boolean onHighTheftProbabilityList, String airbags, double price, String bodyType, String[] coverage, boolean hasRollBar) {
+    super();
     this.name = name;
     this.model = model;
     this.year = year;
@@ -55,7 +57,8 @@ public boolean equals(Object obj) {
     if (!(obj instanceof Vehicle)) {;
         return false;
     }
-    Vehicle another = (Vehicle)obj;    builder.append(another.name,name);
+    Vehicle another = (Vehicle)obj;
+    builder.append(another.name,name);
     builder.append(another.model,model);
     builder.append(another.year,year);
     builder.append(another.hasAlarm,hasAlarm);

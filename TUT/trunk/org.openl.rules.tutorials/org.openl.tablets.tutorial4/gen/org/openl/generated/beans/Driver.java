@@ -9,30 +9,32 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.lang.String;
 
 public class Driver{
-  private java.lang.String name;
+  protected java.lang.String name;
 
-  private java.lang.String state;
+  protected java.lang.String state;
 
-  private java.lang.String gender;
+  protected java.lang.String gender;
 
-  private int age;
+  protected int age;
 
-  private java.lang.String maritalStatus;
+  protected java.lang.String maritalStatus;
 
-  private int numAccidents;
+  protected int numAccidents;
 
-  private int numMovingViolations;
+  protected int numMovingViolations;
 
-  private int numDUI;
+  protected int numDUI;
 
-  private boolean hadTraining;
+  protected boolean hadTraining;
 
 
 
 public Driver() {
+    super();
 }
 
 public Driver(String name, String gender, int age, String maritalStatus, String state, int numAccidents, int numMovingViolations, int numDUI, boolean hadTraining) {
+    super();
     this.name = name;
     this.gender = gender;
     this.age = age;
@@ -49,7 +51,8 @@ public boolean equals(Object obj) {
     if (!(obj instanceof Driver)) {;
         return false;
     }
-    Driver another = (Driver)obj;    builder.append(another.name,name);
+    Driver another = (Driver)obj;
+    builder.append(another.name,name);
     builder.append(another.gender,gender);
     builder.append(another.age,age);
     builder.append(another.maritalStatus,maritalStatus);

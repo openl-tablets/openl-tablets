@@ -11,22 +11,24 @@ import org.openl.generated.beans.Vehicle;
 import java.lang.String;
 
 public class Policy{
-  private java.lang.String name;
+  protected java.lang.String name;
 
-  private java.lang.String clientTier;
+  protected java.lang.String clientTier;
 
-  private java.lang.String clientTerm;
+  protected java.lang.String clientTerm;
 
-  private org.openl.generated.beans.Driver[] drivers;
+  protected org.openl.generated.beans.Driver[] drivers;
 
-  private org.openl.generated.beans.Vehicle[] vehicles;
+  protected org.openl.generated.beans.Vehicle[] vehicles;
 
 
 
 public Policy() {
+    super();
 }
 
 public Policy(String name, String clientTier, String clientTerm, Driver[] drivers, Vehicle[] vehicles) {
+    super();
     this.name = name;
     this.clientTier = clientTier;
     this.clientTerm = clientTerm;
@@ -39,7 +41,8 @@ public boolean equals(Object obj) {
     if (!(obj instanceof Policy)) {;
         return false;
     }
-    Policy another = (Policy)obj;    builder.append(another.name,name);
+    Policy another = (Policy)obj;
+    builder.append(another.name,name);
     builder.append(another.clientTier,clientTier);
     builder.append(another.clientTerm,clientTerm);
     builder.append(another.drivers,drivers);
