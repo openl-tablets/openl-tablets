@@ -15,6 +15,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
+import org.openl.types.IOpenClass;
 import org.richfaces.component.html.HtmlDataTable;
 
 /**
@@ -30,7 +31,9 @@ public class DatatypeTableCreationWizard extends WizardBase {
     private List<TypeNamePair> parameters = new ArrayList<TypeNamePair>();
 
     private DomainTree domainTree;
+    private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
+    private String parent;
 
     private HtmlDataTable parametersTable;
 
@@ -57,6 +60,18 @@ public class DatatypeTableCreationWizard extends WizardBase {
         return domainTree;
     }
 
+    public SelectItem[] getDefinedDatatypes() {
+        return definedDatatypes;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
     public SelectItem[] getDomainTypes() {
         return domainTypes;
     }
@@ -79,6 +94,12 @@ public class DatatypeTableCreationWizard extends WizardBase {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
+        List<String> datatypes = new ArrayList<String>(WizardUtils.getProjectOpenClass().getTypes().size());
+        datatypes.add("");
+        for(IOpenClass datatype : WizardUtils.getProjectOpenClass().getTypes().values()){
+            datatypes.add(datatype.getName());
+        }
+        definedDatatypes = FacesUtils.createSelectItems(datatypes);
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
 
         addParameter();
@@ -95,7 +116,7 @@ public class DatatypeTableCreationWizard extends WizardBase {
 
         builder.beginTable(parameters.size() + 1); // params + header
 
-        builder.writeHeader(tableName);
+        builder.writeHeader(tableName, parent);
 
         for (TypeNamePair parameter : parameters) {
             String paramType = parameter.getType();
