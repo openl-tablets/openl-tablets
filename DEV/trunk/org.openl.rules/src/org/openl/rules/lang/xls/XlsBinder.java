@@ -38,6 +38,7 @@ import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
+import org.openl.rules.datatype.binding.DatatypeNodeComparator;
 import org.openl.rules.dt.DecisionTableNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
@@ -199,7 +200,8 @@ public class XlsBinder implements IOpenBinder {
             new SyntaxNodeConvertor());
 
         bindInternal(moduleNode, openl, moduleContext, module, propertiesSelector, null);
-        bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector, null);
+        bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector, new DatatypeNodeComparator(
+                moduleNode.getXlsTableSyntaxNodes()));
 
         ISelector<ISyntaxNode> notPropertiesSelector = propertiesSelector.not();
         ISelector<ISyntaxNode> notDataTypeSelector = dataTypeSelector.not();

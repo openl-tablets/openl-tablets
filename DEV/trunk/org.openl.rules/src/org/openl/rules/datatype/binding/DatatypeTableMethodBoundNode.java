@@ -3,14 +3,15 @@
  */
 
 package org.openl.rules.datatype.binding;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
@@ -45,14 +46,22 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
     private DatatypeOpenClass dataType;
 
+    private String parentClassName;
+
     private ILogicalTable table;
  
     public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
             ILogicalTable table, OpenL openl) {
+        this(tableSyntaxNode,datatype, table, openl, null);
+    }
+    
+    public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
+            ILogicalTable table, OpenL openl, String parentClassName) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
         this.openl = openl;
+        this.parentClassName = parentClassName;
     }
     
     /**
@@ -77,6 +86,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             }
             processRow(row, cxt, fields, firstField);            
         }
+        checkInheritedFieldsDuplication(cxt);
         Class<?> beanClass = createBeanForDatatype(fields);
         dataType.setInstanceClass(beanClass);
     }
@@ -91,7 +101,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
     private Class<?> createBeanForDatatype(Map<String, FieldType> fields) throws SyntaxNodeException {
         String datatypeName = dataType.getName();
         String beanName = getDatatypeBeanNameWithNamespace(datatypeName);
-        SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields);
+        SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, dataType.getSuperClass());
         
         Class<?> beanClass = beanGenerator.generateAndLoadBeanClass(); 
         
@@ -131,7 +141,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
              
             try {
                 dataType.addField(field);
-                fields.put(fieldName, getFieldType(field));
+                fields.put(fieldName, new FieldType(field));
                 if (firstField) {
                     dataType.setIndexField(field);
                 }
@@ -145,18 +155,6 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         }
     }
     
-    private FieldType getFieldType(IOpenField field) {
-        String fieldNameWithNamespace = null;
-        String fieldName = field.getType().getName();
-        if (fieldName.indexOf(".") < 0) { // it means that name of the field has no namespace. Just datatype can have empty namespace in this place.
-                                          // so we need to add our inner namespace, to the name of type.
-            fieldNameWithNamespace = getDatatypeBeanNameWithNamespace(fieldName);
-        } else {
-            fieldNameWithNamespace = fieldName;
-        }
-        return new FieldType(fieldNameWithNamespace, field.getType().getInstanceClass());
-    }
-
     private IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule firstLogicalRowSrc) 
         throws OpenLCompilationException, SyntaxNodeException {
         
@@ -226,11 +224,36 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
-
+        if(parentClassName != null){
+            IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
+            if (parentClass == null) {
+                throw new OpenLCompilationException(String.format("Parent class [%s] is not defined", parentClassName));
+            }
+            dataType.setSuperClass(parentClass);
+        }
         addFields(cxt);
         //adding constructor with all fields after all fields have been added
         dataType.addMethod(new OpenFieldsConstructor(dataType));
-
+    }
+    
+    private void checkInheritedFieldsDuplication(IBindingContext cxt) throws Exception {
+        IOpenClass superClass = dataType.getSuperClass();
+        if (superClass != null) {
+            for (Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
+                IOpenField fieldInParent = superClass.getField(field.getKey());
+                if(fieldInParent != null){
+                    if(fieldInParent.getType().getInstanceClass().equals(field.getValue().getType().getInstanceClass())){
+                        BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
+                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode);
+                    }else{
+                        throw new SyntaxNodeException(String.format(
+                                "Field [%s] has been already defined in class \"%s\" with another type",
+                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), null,
+                                tableSyntaxNode);
+                    }
+                }
+            }
+        }
     }
 
     private ILogicalTable findOrientation(IBindingContext cxt) {

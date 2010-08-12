@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -206,11 +207,13 @@ public class JavaOpenClass extends AOpenClass {
     protected synchronized Map<String, IOpenField> fieldMap() {
         if (fields == null) {
             fields = new HashMap<String, IOpenField>();
-            Field[] ff = instanceClass.getFields();
+            Field[] ff = instanceClass.getDeclaredFields();
 
-            for (int i = 0; i < ff.length; i++) {
-                if (isPublic(ff[i].getDeclaringClass())) {
-                    fields.put(ff[i].getName(), new JavaOpenField(ff[i]));
+            if (isPublic(instanceClass)) {
+                for (int i = 0; i < ff.length; i++) {
+                    if (isPublic(ff[i])) {
+                        fields.put(ff[i].getName(), new JavaOpenField(ff[i]));
+                    }
                 }
             }
             if (instanceClass.isArray()) {
@@ -289,6 +292,10 @@ public class JavaOpenClass extends AOpenClass {
         return Modifier.isPublic(declaringClass.getModifiers());
     }
 
+    protected boolean isPublic(Member member) {
+        return Modifier.isPublic(member.getModifiers());
+    }
+
     @Override
     public boolean isSimple() {
         return simple;
@@ -298,17 +305,19 @@ public class JavaOpenClass extends AOpenClass {
     protected synchronized  Map<MethodKey, IOpenMethod> methodMap() {
         if (methods == null) {
             methods = new HashMap<MethodKey, IOpenMethod>();
-            Method[] mm = instanceClass.getMethods();
-            for (int i = 0; i < mm.length; i++) {
-                if (isPublic(mm[i].getDeclaringClass())) {
-                    JavaOpenMethod om = new JavaOpenMethod(mm[i]);
-                    methods.put(new MethodKey(om), om);
+            Method[] mm = instanceClass.getDeclaredMethods();
+            if(isPublic(instanceClass)){
+                for (int i = 0; i < mm.length; i++) {
+                    if (isPublic(mm[i])) {
+                        JavaOpenMethod om = new JavaOpenMethod(mm[i]);
+                        methods.put(new MethodKey(om), om);
+                    }
                 }
             }
 
-            Constructor<?>[] cc = instanceClass.getConstructors();
+            Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
             for (int i = 0; i < cc.length; i++) {
-                if (isPublic(cc[i].getDeclaringClass())) {
+                if (isPublic(cc[i])) {
                     IOpenMethod om = new JavaOpenConstructor(cc[i]);
                     // Log.debug("Adding method " + mm[i].getName() + " code = "
                     // + new MethodKey(om).hashCode());
@@ -342,7 +351,12 @@ public class JavaOpenClass extends AOpenClass {
 
         Class superClass = instanceClass.getSuperclass();
 
-        return AOpenIterator.merge(AOpenIterator.single((IOpenClass) JavaOpenClass.getOpenClass(superClass)), interfaces);
+        if (superClass == null) {
+            return interfaces;
+        } else {
+            return AOpenIterator.merge(AOpenIterator.single((IOpenClass) JavaOpenClass.getOpenClass(superClass)),
+                    interfaces);
+        }
     }
     
     @SuppressWarnings("unchecked")

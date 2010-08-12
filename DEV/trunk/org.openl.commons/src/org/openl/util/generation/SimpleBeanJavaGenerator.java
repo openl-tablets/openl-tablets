@@ -1,5 +1,6 @@
 package org.openl.util.generation;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -43,7 +44,7 @@ public class SimpleBeanJavaGenerator {
         
         addImports(buf);
         
-        addClassDeclaration(buf, ClassUtils.getShortClassName(datatypeName));
+        addClassDeclaration(buf, ClassUtils.getShortClassName(datatypeName), ClassUtils.getShortClassName(datatypeClass.getSuperclass()));
         
         addFieldsDeclaration(buf);
         
@@ -74,7 +75,32 @@ public class SimpleBeanJavaGenerator {
     
     private void addConstructors(StringBuffer buf){
         buf.append(JavaClassGeneratorHelper.getDefaultConstructor(datatypeClass.getSimpleName()));
-        buf.append(JavaClassGeneratorHelper.getConstructorWithFields(datatypeClass.getSimpleName(), datatypeFields));
+        Map<String, Class<?>> fieldsForConstructor = new LinkedHashMap<String, Class<?>>();
+        int numberOfParamsForSuperConstructor = 0;
+        if (!datatypeClass.getSuperclass().equals(Object.class)) {
+            Constructor<?> superConstructorWithFields = getSuperConstructorWithFields();
+            int i = 0;
+            for (Class<?> paramClass : superConstructorWithFields.getParameterTypes()) {
+                fieldsForConstructor.put("arg" + i, paramClass);
+                i++;
+            }
+            numberOfParamsForSuperConstructor = superConstructorWithFields.getParameterTypes().length;
+        }
+        fieldsForConstructor.putAll(datatypeFields);
+        buf.append(JavaClassGeneratorHelper.getConstructorWithFields(datatypeClass.getSimpleName(),
+                fieldsForConstructor, numberOfParamsForSuperConstructor));
+    }
+    
+    private Constructor<?> getSuperConstructorWithFields() {
+        Class<?> superClass = datatypeClass.getSuperclass();
+        if (superClass != null && !superClass.equals(Object.class)) {
+            for (Constructor<?> constructor : superClass.getConstructors()) {
+                if (constructor.getParameterTypes().length > 0) {
+                    return constructor;
+                }
+            }
+        }
+        return null;
     }
     
     private void addSetter(StringBuffer buf, Method method) {
@@ -94,14 +120,18 @@ public class SimpleBeanJavaGenerator {
     private void addFieldsDeclaration(StringBuffer buf) {
         for (Method method : datatypeClass.getDeclaredMethods()) {
             if (method.getName().startsWith("get")) {
-                buf.append(JavaClassGeneratorHelper.getPrivateFieldDeclaration(filterTypeName(method.getReturnType()), getFieldName(method.getName())));
+                buf.append(JavaClassGeneratorHelper.getProtectedFieldDeclaration(filterTypeName(method.getReturnType()), getFieldName(method.getName())));
             } 
         }
         buf.append("\n");
     }
 
-    private void addClassDeclaration(StringBuffer buf, String className) {        
+    private void addClassDeclaration(StringBuffer buf, String className, String superClass) {        
         buf.append(JavaClassGeneratorHelper.getSimplePublicClassDeclaration(className));
+        if (superClass != null && !"Object".equals(superClass)) {
+            buf.append(" extends ");
+            buf.append(superClass);
+        }
         buf.append(JavaClassGeneratorHelper.getOpenBracket());
     }
 
@@ -131,7 +161,15 @@ public class SimpleBeanJavaGenerator {
             if (method.getName().startsWith("hashCode")) {
                 importsSet.add(filterTypeNameForImport(HashCodeBuilder.class));
             }
-        }   
+        }
+        
+        for (Constructor<?> constructor : datatypeClass.getDeclaredConstructors()) {
+            for (Class<?> paramType : constructor.getParameterTypes()) {
+                if (!paramType.isPrimitive()) {
+                    importsSet.add(filterTypeNameForImport(paramType));
+                }
+            }
+        }
         return importsSet;
     }
 

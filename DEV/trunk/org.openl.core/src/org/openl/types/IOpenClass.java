@@ -38,6 +38,13 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
     
     Map<String, IOpenField> getFields();
 
+    /**
+     * Returns public fields declared in this class.
+     * 
+     * @return map of fields declared in this class.
+     */
+    Map<String, IOpenField> getDeclaredFields();
+
     IAggregateInfo getAggregateInfo();
 
     IOpenField getField(String name);
@@ -133,6 +140,13 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
     Iterator<IOpenMethod> methods();
     
     List<IOpenMethod> getMethods();
+
+    /**
+     * Returns public methods declared in this class.
+     * 
+     * @return list of methods declared in this class.
+     */
+    List<IOpenMethod> getDeclaredMethods();
 
     Object newInstance(IRuntimeEnv env);
 

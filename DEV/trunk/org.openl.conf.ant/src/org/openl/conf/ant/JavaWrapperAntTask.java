@@ -372,7 +372,7 @@ public class JavaWrapperAntTask extends Task {
     
     private Map<String, Class<?>> getFieldsDescription(IOpenClass openClass) {
         Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
-        for (Entry<String, IOpenField> field : openClass.getFields().entrySet()) {
+        for (Entry<String, IOpenField> field : openClass.getDeclaredFields().entrySet()) {
             fieldsDescriprtion.put(field.getKey(), field.getValue().getType().getInstanceClass());
         }
         return fieldsDescriprtion;

@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.domain.IDomain;
@@ -25,9 +24,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.AOpenIterator;
-import org.openl.util.ASelector;
-import org.openl.util.ISelector;
 
 /**
  * @author snshor
@@ -70,11 +66,21 @@ public abstract class AOpenClass implements IOpenClass {
     protected abstract Map<String, IOpenField> fieldMap();
 
     public Iterator<IOpenField> fields() {
-        Map<String, IOpenField> fieldMap = fieldMap();
+        Map<String, IOpenField> fieldMap = getFields();
         return fieldMap == null ? null : fieldMap.values().iterator();
     }
     
     public Map<String, IOpenField> getFields() {
+        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+        Iterator<IOpenClass> superClasses = superClasses();
+        while (superClasses.hasNext()) {
+            fields.putAll(superClasses.next().getFields());
+        }
+        fields.putAll(fieldMap());
+        return fields;
+    }
+
+    public Map<String, IOpenField> getDeclaredFields() {
         return new HashMap<String, IOpenField>(fieldMap());
     }
 
@@ -99,7 +105,11 @@ public abstract class AOpenClass implements IOpenClass {
 
             f = m == null ? null : m.get(fname);
 
-            return f;
+            if (f != null) {
+                return f;
+            } else {
+                return searchFieldFromSuperClass(fname, strictMatch);
+            }
         }
 
         String lfname = fname.toLowerCase();
@@ -120,7 +130,19 @@ public abstract class AOpenClass implements IOpenClass {
         if (ff != null) {
             throw new AmbiguousVarException(fname, ff);
         }
+        
+        return searchFieldFromSuperClass(fname, strictMatch);
+    }
 
+    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) {
+        IOpenField f;
+        Iterator<IOpenClass> superClasses = superClasses();
+        while (superClasses.hasNext()) {
+            f = superClasses.next().getField(fname, strictMatch);
+            if (f != null) {
+                return f;
+            }
+        }
         return null;
     }
 
@@ -136,26 +158,23 @@ public abstract class AOpenClass implements IOpenClass {
         return metaInfo;
     }
 
-    @SuppressWarnings( { "cast", "unchecked" })
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
         Map<MethodKey, IOpenMethod> m = methodMap();
 
-        if (classes == null) {
-            ISelector<IOpenMethod> nameSel = (ISelector<IOpenMethod>) new ASelector.StringValueSelector(name,
-                    INamedThing.NAME_CONVERTOR);
-
-            List<IOpenMethod> list = AOpenIterator.select(methods(), nameSel).asList();
-            if (list.size() > 1) {
-                throw new AmbiguousMethodException(name, IOpenClass.EMPTY, list);
-            } else if (list.size() == 1) {
-                return list.get(0);
-            } else {
-                return null;
-            }
-
+        IOpenMethod method = m.get(new MethodKey(name, classes));
+        if(method != null){
+            return method;
         }
 
-        return m == null ? null : (IOpenMethod) m.get(new MethodKey(name, classes));
+        Iterator<IOpenClass> superClasses = superClasses();
+        while (superClasses.hasNext()) {
+            method = superClasses.next().getMethod(name, classes);
+            if (method != null) {
+                return method;
+            }
+        }
+
+        return null;
     }
 
     public String getNameSpace() {
@@ -230,13 +249,24 @@ public abstract class AOpenClass implements IOpenClass {
     protected abstract Map<MethodKey, IOpenMethod> methodMap();
 
     public Iterator<IOpenMethod> methods() {
-        Map<MethodKey, IOpenMethod> methodMap = methodMap();
-        return methodMap == null ? null : methodMap.values().iterator();        
+        List<IOpenMethod> methods = getMethods();
+        return methods == null ? null : methods.iterator();        
     }
     
     public List<IOpenMethod> getMethods() {
-        Map<MethodKey, IOpenMethod> methodMap = methodMap();
-        return methodMap == null ? null : new ArrayList<IOpenMethod>(methodMap.values());
+        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
+        Iterator<IOpenClass> superClasses = superClasses();
+        while (superClasses.hasNext()) {
+            for(IOpenMethod method : superClasses.next().getMethods()){
+                methods.put(new MethodKey(method), method);
+            }
+        }
+        methods.putAll(methodMap());
+        return new ArrayList<IOpenMethod>(methods.values());
+    }
+    
+    public List<IOpenMethod> getDeclaredMethods() {
+        return new ArrayList<IOpenMethod>(methodMap().values());
     }
 
     public Object nullObject() {

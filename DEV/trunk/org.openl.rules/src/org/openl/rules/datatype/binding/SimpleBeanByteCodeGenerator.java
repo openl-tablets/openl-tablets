@@ -4,7 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.cglib.core.ReflectUtils;
 
@@ -18,6 +20,8 @@ import org.objectweb.asm.Constants;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -29,16 +33,19 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
  */
 public class SimpleBeanByteCodeGenerator {
     
+
     private static final String JAVA_LANG_OBJECT = "java/lang/Object";
 
     private final Log LOG = LogFactory.getLog(SimpleBeanByteCodeGenerator.class);
     
     private String beanName;
+    private IOpenClass parentClass;
     private Map<String, FieldType> beanFields;
+    private Map<String, FieldType> allFields;
     /**
      * Number of fields that will take 2 stack elements(like a double and long)
      */
-    private int twoStackElementFieldsCount = 0;
+    private int twoStackElementFieldsCount;
     private byte[] generatedByteCode;
 
     private String beanNameWithPackage;
@@ -49,13 +56,26 @@ public class SimpleBeanByteCodeGenerator {
      * @param beanFields map of fields, field name as a key, and type as value.
      */
     public SimpleBeanByteCodeGenerator(String beanName, Map<String, FieldType> beanFields) {
+        this(beanName, beanFields, null);
+    }
+
+    /**
+     * 
+     * @param beanName name of the generated class, with namespace (e.g.
+     *            <code>my.test.TestClass</code>)
+     * @param beanFields map of fields, field name as a key, and type as value.
+     * @param parentClass parent class
+     */
+    public SimpleBeanByteCodeGenerator(String beanName, Map<String, FieldType> beanFields, IOpenClass parentClass) {
         this.beanName = beanName;
         this.beanFields = beanFields;
-        for (FieldType fieldType : beanFields.values()) {
-            if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
-                twoStackElementFieldsCount++;
-            }
+        this.parentClass = parentClass;
+        allFields = new LinkedHashMap<String, FieldType>();
+        if (parentClass != null) {
+            allFields.putAll(convertFields(parentClass.getFields()));
         }
+        allFields.putAll(beanFields);
+        twoStackElementFieldsCount = getTwoStackElementFieldsCount(allFields);
     }
     
     /**
@@ -131,7 +151,7 @@ public class SimpleBeanByteCodeGenerator {
         // write fields
         codeVisitor.visitLdcInsn("{ ");
         invokeVirtual(codeVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
-        for (Map.Entry<String, FieldType> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldType> field : allFields.entrySet()) {
             codeVisitor.visitLdcInsn(field.getKey() + "=");
             invokeVirtual(codeVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
 
@@ -181,7 +201,7 @@ public class SimpleBeanByteCodeGenerator {
         codeVisitor.visitVarInsn(Constants.ASTORE, 2);
 
         // comparing by fields
-        for (Map.Entry<String, FieldType> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldType> field : allFields.entrySet()) {
             pushFieldToStack(codeVisitor, 0, field.getKey());
             pushFieldToStack(codeVisitor, 2, field.getKey());
 
@@ -211,7 +231,7 @@ public class SimpleBeanByteCodeGenerator {
                 "()V");
 
         // generating hash code by fields
-        for (Map.Entry<String, FieldType> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldType> field : allFields.entrySet()) {
             pushFieldToStack(codeVisitor, 0, field.getKey());
             invokeVirtual(codeVisitor, HashCodeBuilder.class, "append",
                     new Class<?>[] { getJavaClass(field.getValue()) });
@@ -229,34 +249,68 @@ public class SimpleBeanByteCodeGenerator {
     private void writeConstructorWithFields(ClassWriter classWriter) {
         CodeVisitor codeVisitor;
         StringBuilder signatureBuilder = new StringBuilder("(");
-        for (Map.Entry<String, FieldType> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldType> field : allFields.entrySet()) {
             String javaType = getJavaType(field.getValue());
             signatureBuilder.append(javaType);
         }
         signatureBuilder.append(")V");
         codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", signatureBuilder.toString(), null, null);
         codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-        codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, JAVA_LANG_OBJECT, "<init>", "()V");
 
         int i = 1;
+        int stackSizeForParentConstructorCall = 0;
+        if (parentClass == null) {
+            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, JAVA_LANG_OBJECT, "<init>", "()V");
+        } else {
+            // invoke parent constructor with fields
+            //gather signature
+            StringBuilder parentSignatureBuilder = new StringBuilder("(");
+            Map<String, FieldType> parentFields = convertFields(parentClass.getFields());
+            for (Map.Entry<String, FieldType> field : parentFields.entrySet()) {
+                String javaType = getJavaType(field.getValue());
+                parentSignatureBuilder.append(javaType);
+            }
+            parentSignatureBuilder.append(")V");
+
+            // push to stack all parameters for parent constructor
+            for (Map.Entry<String, FieldType> field : parentFields.entrySet()) {
+                FieldType fieldType = field.getValue();
+                codeVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
+                if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+                    i += 2;
+                } else {
+                    i++;
+                }
+            }
+
+            stackSizeForParentConstructorCall = i;
+            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, Type.getInternalName(parentClass.getInstanceClass()),
+                    "<init>", parentSignatureBuilder.toString());
+        }
+
+        // set all fields that is not presented in parent
         for (Map.Entry<String, FieldType> field : beanFields.entrySet()) {
             String fieldName = field.getKey();
-            FieldType fieldType = field.getValue();
-            codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-            codeVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
-            codeVisitor.visitFieldInsn(Constants.PUTFIELD, beanNameWithPackage, fieldName, getJavaType(fieldType));
-            if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
-                i += 2;
-            } else {
-                i++;
+            if (parentClass == null || parentClass.getField(fieldName) == null) {
+                // there is no such field in parent class
+                FieldType fieldType = field.getValue();
+                codeVisitor.visitVarInsn(Constants.ALOAD, 0);
+                codeVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
+                codeVisitor.visitFieldInsn(Constants.PUTFIELD, beanNameWithPackage, fieldName, getJavaType(fieldType));
+                if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+                    i += 2;
+                } else {
+                    i++;
+                }
             }
         }
 
         codeVisitor.visitInsn(Constants.RETURN);
         if (twoStackElementFieldsCount > 0) {
-            codeVisitor.visitMaxs(3, beanFields.size() + 1 + twoStackElementFieldsCount);
+            codeVisitor.visitMaxs(3 + stackSizeForParentConstructorCall, allFields.size() + 1
+                    + twoStackElementFieldsCount);
         } else {
-            codeVisitor.visitMaxs(2, beanFields.size() + 1);
+            codeVisitor.visitMaxs(2 + stackSizeForParentConstructorCall, allFields.size() + 1);
         }
     }
     
@@ -267,7 +321,12 @@ public class SimpleBeanByteCodeGenerator {
         // pushes the 'this' variable
         codeVisitor.visitVarInsn(Constants.ALOAD, 0);
         // invokes the super class constructor
-        codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, JAVA_LANG_OBJECT, "<init>", "()V");
+        if (parentClass == null) {
+            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, JAVA_LANG_OBJECT, "<init>", "()V");
+        } else {
+            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, Type.getInternalName(parentClass.getInstanceClass()),
+                    "<init>", "()V");
+        }
         codeVisitor.visitInsn(Constants.RETURN);
         // this code uses a maximum of one stack element and one local variable
         codeVisitor.visitMaxs(1, 1);
@@ -281,7 +340,7 @@ public class SimpleBeanByteCodeGenerator {
     private void writeFields(ClassWriter classWriter) {
         for (Map.Entry<String,  FieldType> field : beanFields.entrySet()) {
           String fieldTypeName = getJavaType(field.getValue());
-          classWriter.visitField(Constants.ACC_PRIVATE, field.getKey(), fieldTypeName, null, null);
+          classWriter.visitField(Constants.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
         }
     }
     
@@ -294,10 +353,16 @@ public class SimpleBeanByteCodeGenerator {
      */
     private void writeClassDescription(String beanNameWithPackage, ClassWriter classWriter) {
         String sourceFileName = JavaClassGeneratorHelper.getClassFileName((beanNameWithPackage));
-        classWriter.visit(Constants.V1_5, Constants.ACC_PUBLIC + Constants.ACC_SUPER, beanNameWithPackage, JAVA_LANG_OBJECT, 
-            null, sourceFileName);
+        if (parentClass == null) {
+            classWriter.visit(Constants.V1_5, Constants.ACC_PUBLIC + Constants.ACC_SUPER, beanNameWithPackage,
+                    JAVA_LANG_OBJECT, null, sourceFileName);
+        } else {
+            classWriter.visit(Constants.V1_5, Constants.ACC_PUBLIC + Constants.ACC_SUPER, beanNameWithPackage, Type
+                    .getInternalName(parentClass.getInstanceClass()), null, sourceFileName);
+        }
     }
 
+    @SuppressWarnings("unused")
     private void writeBytesToFile(byte[] byteArray) {
         String strFilePath = String.format("D://%s.class", JavaClassGeneratorHelper.getShortClassName(beanName));
         try {
@@ -488,6 +553,24 @@ public class SimpleBeanByteCodeGenerator {
         }
     }
 
+    private Map<String, FieldType> convertFields(Map<String, IOpenField> fieldsToConvert) {
+        Map<String, FieldType> fields = new LinkedHashMap<String, FieldType>();
+        for (Entry<String, IOpenField> field : fieldsToConvert.entrySet()) {
+            fields.put(field.getKey(), new FieldType(field.getValue()));
+        }
+        return fields;
+    }
+
+    private int getTwoStackElementFieldsCount(Map<String, FieldType> fields) {
+        int twoStackElementsCount = 0;
+        for (FieldType fieldType : fields.values()) {
+            if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+                twoStackElementsCount++;
+            }
+        }
+        return twoStackElementsCount;
+    }
+
     private void invokeVirtual(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
         Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes, false);
         StringBuilder signatureBuilder = new StringBuilder();
@@ -502,7 +585,7 @@ public class SimpleBeanByteCodeGenerator {
 
     private void pushFieldToStack(CodeVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
         codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-        codeVisitor.visitFieldInsn(Constants.GETFIELD, beanNameWithPackage, fieldName, getJavaType(beanFields
+        codeVisitor.visitFieldInsn(Constants.GETFIELD, beanNameWithPackage, fieldName, getJavaType(allFields
                 .get(fieldName)));
     }
 }

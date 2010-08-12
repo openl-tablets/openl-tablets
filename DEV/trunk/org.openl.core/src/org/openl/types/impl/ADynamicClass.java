@@ -20,6 +20,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaNoAggregateInfo;
+import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -122,8 +123,7 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     public Iterator<IOpenClass> superClasses() {
-        // TODO Auto-generated method stub
-        return null;
+        return AOpenIterator.empty();
     }
     
     protected IOpenClass[] getArrayTypes() {

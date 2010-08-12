@@ -15,7 +15,6 @@ Export-Package: org.openl.test,
  org.openl.conf.ant,
  org.openl.domain,
  org.openl.syntax,
- org.openl.types.java,
  org.openl.util,
  org.openl.util.conf,
  org.openl.util.text
