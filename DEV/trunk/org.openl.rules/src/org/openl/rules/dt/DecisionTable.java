@@ -5,6 +5,8 @@
  */
 package org.openl.rules.dt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
@@ -42,7 +44,10 @@ import org.openl.vm.trace.Tracer;
  * 
  */
 @Executable
-public class DecisionTable extends AMethod implements IMemberMetaInfo {    
+public class DecisionTable extends AMethod implements IMemberMetaInfo {
+
+    private final Log LOG = LogFactory.getLog(DecisionTable.class);
+
     private ICondition[] conditionRows;
     private IAction[] actionRows;
     /**
@@ -240,7 +245,6 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     }
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
-
         Tracer tracer = Tracer.getTracer();
 
         if (tracer == null) {
@@ -249,10 +253,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
         Object ret = null;
 
-        try {
-            DecisionTableTraceObject traceObject = new DecisionTableTraceObject(this, params);
-            tracer.push(traceObject);
+        DecisionTableTraceObject traceObject = new DecisionTableTraceObject(this, params);
+        tracer.push(traceObject);
 
+        try {
             IIntIterator rules = algorithm.checkedRules(target, params, env);
 
             while (rules.hasNext()) {
@@ -260,13 +264,14 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                 int ruleN = rules.nextInt();
 
                 try {
-
                     tracer.push(traceObject.traceRule(ruleN));
 
                     for (int j = 0; j < actionRows.length; j++) {
                         Object actionResult = actionRows[j].executeAction(ruleN, target, params, env);
 
-                        if (actionRows[j].isReturnAction() && ret == null && (actionResult != null || (actionRows[j].getParamValues()!= null && actionRows[j].getParamValues()[ruleN] != null))) {
+                        if (actionRows[j].isReturnAction() && ret == null
+                                && (actionResult != null || (actionRows[j].getParamValues()!= null
+                                        && actionRows[j].getParamValues()[ruleN] != null))) {
                             ret = actionResult;
                         }
                     }
@@ -275,18 +280,17 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                         return ret;
                     }
                 } finally {
-                    
                     tracer.pop();
-                    
                 }
             }
-
-            traceObject.setResult(ret);
-
-            return ret;
+        } catch (Exception e) {
+            traceObject.setError(e);
+            LOG.error("Error when tracing DT rule", e);
         } finally {
             tracer.pop();
         }
+
+        return ret;
     }
 
     protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
