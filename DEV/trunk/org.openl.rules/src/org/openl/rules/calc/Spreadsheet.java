@@ -3,6 +3,8 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -19,6 +21,8 @@ import org.openl.vm.trace.Tracer;
 
 @Executable
 public class Spreadsheet extends AMethod implements IMemberMetaInfo {
+
+    private final Log LOG = LogFactory.getLog(Spreadsheet.class);
 
     private SpreadsheetBoundNode node;
 
@@ -117,19 +121,24 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         Tracer tracer = Tracer.getTracer();
 
+        Object result = null;
+
+        SpreadsheetTraceObject traceObject = new SpreadsheetTraceObject(this, params);
+        tracer.push(traceObject);
+
         try {
-            SpreadsheetTraceObject traceObject = new SpreadsheetTraceObject(this, params);
-            tracer.push(traceObject);
             SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(this, (IDynamicObject) target, params,
                     env, traceObject);
 
-            Object result = resultBuilder.makeResult(res);
+            result = resultBuilder.makeResult(res);
             traceObject.setResult(result);
-            return result;
+        } catch (Exception e) {
+           traceObject.setError(e);
+           LOG.error("Error when tracing Spreadsheet table", e);
         } finally {
             tracer.pop();
         }
-
+        return result;
     }
     
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {

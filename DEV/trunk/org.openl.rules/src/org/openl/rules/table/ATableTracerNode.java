@@ -11,8 +11,12 @@ import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 
 public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
+
+    public static final String ERROR_RESULT = "ERROR";
+
     private Object params[];
     private Object result;
+    private Throwable error;
 
     public ATableTracerNode() {
     }
@@ -27,7 +31,13 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         buf.append(method.getType().getDisplayName(mode)).append(' ');
         boolean isVoidReturnType = (method.getType() == JavaOpenClass.VOID);
         if (!isVoidReturnType) {
-            buf.append("= ").append(String.valueOf(result)).append(' ');
+            buf.append("= ");
+            if (hasError()) {
+                buf.append(ERROR_RESULT);
+            } else {
+                buf.append(String.valueOf(result));
+            }
+            buf.append(' ');
         }
         buf.append(method.getName()).append('(');
 
@@ -46,13 +56,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
         // false));
         return buf.toString();
-    }
-
-    /**
-     * @return the result
-     */
-    public Object getResult() {
-        return result;
     }
 
     /*
@@ -84,10 +87,24 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return temp;
     }
 
-    /**
-     * @param result the result to set
-     */
+    public Object getResult() {
+        return result;
+    }
+
     public void setResult(Object result) {
         this.result = result;
     }
+
+    public Throwable getError() {
+        return error;
+    }
+
+    public void setError(Throwable error) {
+        this.error = error;
+    }
+
+    public boolean hasError() {
+        return error != null;
+    }
+
 }

@@ -3,6 +3,8 @@ package org.openl.rules.tbasic;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -28,6 +30,9 @@ import org.openl.vm.trace.Tracer;
  */
 @Executable
 public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
+
+    private final Log LOG = LogFactory.getLog(Algorithm.class);
+
     private final AlgorithmBoundNode node;
 
     /***************************************************************************
@@ -66,32 +71,38 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (Tracer.isTracerOn()) {
+            return invokeTraced(target, params, env);
+        }
+
         DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(thisClass, (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
 
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
-        boolean debugMode = false;
-        TBasicAlgorithmTraceObject algorithmTracer = null;
+        return algorithmVM.run(runtimeEnvironment, false);
+    }
 
-        if (Tracer.isTracerOn() && Tracer.getTracer() != null) {
-            debugMode = true;
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(thisClass, (IDynamicObject) target);
 
-            algorithmTracer = new TBasicAlgorithmTraceObject(this, params);
-            Tracer.getTracer().push(algorithmTracer);
-        }
+        TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
+
+        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
+
+        TBasicAlgorithmTraceObject algorithmTracer = new TBasicAlgorithmTraceObject(this, params);
+        Tracer.getTracer().push(algorithmTracer);
 
         Object resultValue = null;
         try {
-
-            resultValue = algorithmVM.run(runtimeEnvironment, debugMode);
-
+            resultValue = algorithmVM.run(runtimeEnvironment, true);
+            algorithmTracer.setResult(resultValue);
+        } catch (Exception e) {
+            algorithmTracer.setError(e);
+            LOG.error("Error when tracing TBasic table", e);
         } finally {
-            if (debugMode) {
-                algorithmTracer.setResult(resultValue);
-                Tracer.getTracer().pop();
-            }
+            Tracer.getTracer().pop();
         }
 
         return resultValue;

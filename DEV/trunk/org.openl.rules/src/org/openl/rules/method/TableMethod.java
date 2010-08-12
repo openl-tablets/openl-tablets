@@ -1,5 +1,7 @@
 package org.openl.rules.method;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
@@ -15,6 +17,8 @@ import org.openl.vm.trace.Tracer;
  */
 @Executable
 public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
+
+    private final Log LOG = LogFactory.getLog(TableMethod.class);
 
     /**
      * Table syntax node that defines method table.
@@ -49,16 +53,24 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         Tracer tracer = Tracer.getTracer();
 
-        try {
-            MethodTableTraceObject traceObject = new MethodTableTraceObject(this, params);
-            tracer.push(traceObject);
+        MethodTableTraceObject traceObject = new MethodTableTraceObject(this, params);
+        tracer.push(traceObject);
 
-            Object result = super.invoke(target, params, env);
+        Object result = null; 
+
+        try {
+            result = super.invoke(target, params, env);
             traceObject.setResult(result);
             return result;
+
+        } catch (Exception e) {
+            traceObject.setError(e);
+            LOG.error("Error when tracing Method table", e);
         } finally {
             tracer.pop();
         }
+
+        return result;
     }
 
     public BindingDependencies getDependencies() {
