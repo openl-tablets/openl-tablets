@@ -66,15 +66,15 @@ public class JavaClassGeneratorHelper {
         return String.format("%s implements %s", classDeclaration, interfaces);
     }
     
-    public static String getPrivateFieldDeclaration(String fieldType, String fieldName) {
-        return String.format("  private %s %s;\n\n", fieldType, fieldName);
+    public static String getProtectedFieldDeclaration(String fieldType, String fieldName) {
+        return String.format("  protected %s %s;\n\n", fieldType, fieldName);
     }
     
     public static String getDefaultConstructor(String simpleClassName) {
-        return String.format("\npublic %s() {\n}\n", simpleClassName);
+        return String.format("\npublic %s() {\n    super();\n}\n", simpleClassName);
     }
 
-    public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields) {
+    public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields, int numberOfParamsForSuperConstructor) {
         StringBuilder buf = new StringBuilder();
         buf.append(String.format("\npublic %s(", simpleClassName));
         Iterator<Entry<String, Class<?>>> fieldsIterator = fields.entrySet().iterator();
@@ -86,7 +86,17 @@ public class JavaClassGeneratorHelper {
             }
         }
         buf.append(") {\n");
-        for (Entry<String, Class<?>> field : fields.entrySet()) {
+        buf.append("    super(");
+        fieldsIterator = fields.entrySet().iterator();
+        for (int i = 0; i < numberOfParamsForSuperConstructor; i++) {
+            if (i != 0) {
+                buf.append(", ");
+            }
+            buf.append(fieldsIterator.next().getKey());
+        }
+        buf.append(");\n");
+        while (fieldsIterator.hasNext()) {
+            Entry<String, Class<?>> field = fieldsIterator.next();
             buf.append(String.format("    this.%s = %s;\n", field.getKey(), field.getKey()));
         }
         buf.append("}\n");

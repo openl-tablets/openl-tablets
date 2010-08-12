@@ -6,6 +6,7 @@
 
 package org.openl.rules.lang.xls.types;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +26,7 @@ import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -36,6 +38,8 @@ import org.openl.vm.IRuntimeEnv;
 public class DatatypeOpenClass extends ADynamicClass {
     
     private static final Log LOG = LogFactory.getLog(DatatypeOpenClass.class);
+    
+    private IOpenClass superClass;
     
     public DatatypeOpenClass(IOpenSchema schema, String name) {
         super(schema, name, null);
@@ -49,7 +53,23 @@ public class DatatypeOpenClass extends ADynamicClass {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
     
+    public IOpenClass getSuperClass() {
+        return superClass;
+    }
+
+    public void setSuperClass(IOpenClass superClass) {
+        this.superClass = superClass;
+    }
     
+    @Override
+    public Iterator<IOpenClass> superClasses() {
+        if(superClass != null){
+            return AOpenIterator.single(superClass);
+        }else{
+            return AOpenIterator.empty();
+        }
+    }
+
     /**
      * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
      */
@@ -61,10 +81,21 @@ public class DatatypeOpenClass extends ADynamicClass {
         return (LinkedHashMap<String, IOpenField>)fieldMap;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, IOpenField> getFields() {
-        return (LinkedHashMap<String, IOpenField>)fieldMap().clone();
+        Map<String, IOpenField> fields =new LinkedHashMap<String, IOpenField>();
+        Iterator<IOpenClass> superClasses = superClasses();
+        while (superClasses.hasNext()) {
+            fields.putAll(superClasses.next().getFields());
+        }
+        fields.putAll(fieldMap());
+        return fields;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, IOpenField> getDeclaredFields() {
+        return (Map<String, IOpenField>)fieldMap().clone();
     }
 
     public Object newInstance(IRuntimeEnv env) {

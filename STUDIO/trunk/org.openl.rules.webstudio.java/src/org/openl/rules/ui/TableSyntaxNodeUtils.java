@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -84,6 +85,9 @@ public class TableSyntaxNodeUtils {
     public static String str2name(String src, String type) {
         if (src == null) {
             src = "NO NAME";
+        } else if (type.equals(ITableNodeTypes.XLS_DATATYPE)) {
+            String[] tokens = StringUtils.split(src.replaceAll("\\(.*\\)", ""));
+            src = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
         } else if (type.equals(ITableNodeTypes.XLS_DT) || type.equals(ITableNodeTypes.XLS_SPREADSHEET)
                 || type.equals(ITableNodeTypes.XLS_TBASIC) || type.equals(ITableNodeTypes.XLS_COLUMN_MATCH)
                 || type.equals(ITableNodeTypes.XLS_DATA) || type.equals(ITableNodeTypes.XLS_DATATYPE)

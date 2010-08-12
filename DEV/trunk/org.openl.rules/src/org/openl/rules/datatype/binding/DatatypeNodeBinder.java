@@ -26,7 +26,8 @@ import org.openl.syntax.impl.Tokenizer;
  */
 public class DatatypeNodeBinder extends AXlsTableBinder {
 
-    private static final int TYPE_INDEX = 1;    
+    public static final int PARENT_TYPE_INDEX = 3;
+    public static final int TYPE_INDEX = 1;    
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
@@ -40,8 +41,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         String errMsg;
 
-        if (parsedHeader.length < 2) {
-            errMsg = "Datatype table format: Datatype <typename>";
+        if (parsedHeader.length != 2 && parsedHeader.length != 4
+                || (parsedHeader.length == 4 && !parsedHeader[2].getIdentifier().equals("extends"))) {
+            errMsg = "Datatype table formats: Datatype <typename>] or [Datatype <typename> extends <parentTypeName>]";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, src);
         }
 
@@ -66,7 +68,11 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         //
         module.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
-        return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl);
+        if (parsedHeader.length == 4) {
+            return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl, parsedHeader[PARENT_TYPE_INDEX].getIdentifier());
+        } else {
+            return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl);
+        }
     }
     
 }

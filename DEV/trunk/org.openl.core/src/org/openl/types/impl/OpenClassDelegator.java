@@ -180,7 +180,15 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.getFields();
     }
 
+    public Map<String, IOpenField> getDeclaredFields() {
+        return baseClass.getDeclaredFields();
+    }
+
     public List<IOpenMethod> getMethods() {        
+        return baseClass.getMethods();
+    }
+    
+    public List<IOpenMethod> getDeclaredMethods() {
         return baseClass.getMethods();
     }
 }

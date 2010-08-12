@@ -24,6 +24,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
 
     protected IOpenClass componentClass;
     protected HashMap<String, IOpenField> fieldMap;
+    protected Map<MethodKey, IOpenMethod> methodMap = new HashMap<MethodKey, IOpenMethod>();
     protected IOpenIndex index;
 
     public ArrayOpenClass(IOpenSchema schema, IOpenClass componentClass, IOpenField lengthOpenField) {
@@ -60,7 +61,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
 
     @Override
     protected Map<MethodKey, IOpenMethod> methodMap() {
-        return null;
+        return methodMap;
     }
 
 }

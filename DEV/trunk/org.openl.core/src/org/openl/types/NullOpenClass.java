@@ -15,6 +15,7 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -167,7 +168,7 @@ public class NullOpenClass implements IOpenClass {
     }
 
     public Iterator<IOpenClass> superClasses() {
-        return null;
+        return AOpenIterator.empty();
     }
 
 	public void addType(String namespace, IOpenClass type) throws Exception {
@@ -190,7 +191,18 @@ public class NullOpenClass implements IOpenClass {
         return null;
     }
 
+    public Map<String, IOpenField> getDeclaredFields() {
+        // Default implementation
+        return null;
+    }
+
+
     public List<IOpenMethod> getMethods() {
+        // Default implementation
+        return null;
+    }
+    
+    public List<IOpenMethod> getDeclaredMethods() {
         // Default implementation
         return null;
     }
