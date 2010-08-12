@@ -31,6 +31,7 @@ import org.openl.util.benchmark.BenchmarkInfo;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -46,6 +47,8 @@ public class WebStudio {
     }
 
     private static final Log LOG = LogFactory.getLog(WebStudio.class);
+
+    public static final String TRACER_NAME = "tracer";
 
     private WebStudioViewMode DEVELOPER_BYTYPE_VIEW = new DeveloperByTypeViewMode();
     private WebStudioViewMode DEVELOPER_BYFILE_VIEW = new DeveloperByFileViewMode();
@@ -389,6 +392,18 @@ public class WebStudio {
             return module.getProject().getId() + " - " + module.getName();
         }
         return null;
+    }
+
+    public TraceHelper getTraceHelper() {
+        TraceHelper traceHelper = (TraceHelper) FacesUtils.getSessionParam(TRACER_NAME);
+
+        if (traceHelper == null) {
+            traceHelper = new TraceHelper();
+            Map<String, Object> sessionMap = FacesUtils.getSessionMap();
+            sessionMap.put(TRACER_NAME, traceHelper);
+        }
+
+        return traceHelper;
     }
 
 }

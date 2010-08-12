@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectModel;
@@ -21,8 +19,6 @@ import org.richfaces.model.TreeNode;
  */
 public class TraceTreeBean {
 
-    public static final String TRACER_NAME = "tracer";
-
     public TraceTreeBean() {
     }
 
@@ -37,16 +33,11 @@ public class TraceTreeBean {
         if (StringUtils.isNotBlank(uri)) {
             studio.setTableUri(uri);
             ProjectModel model = studio.getModel();
+
             Tracer tracer = model.traceElement(uri, testName, testId);
 
-            TraceHelper traceHelper = (TraceHelper) FacesUtils.getSessionParam(TRACER_NAME);
-            
-            if (traceHelper == null) {
-                traceHelper = new TraceHelper();
-                Map<String, Object> sessionMap = FacesUtils.getSessionMap();
-                sessionMap.put(TRACER_NAME, traceHelper);
-            }
-            
+            TraceHelper traceHelper = studio.getTraceHelper();
+
             ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
             if (tree != null) {
                 TreeBuilder treeBuilder = new TraceTreeBuilder(tree, traceHelper);

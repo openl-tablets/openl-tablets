@@ -16,8 +16,8 @@ public class TraceTreeBuilder extends TreeBuilder {
 
     @Override
     protected String getUrl(ITreeElement<?> element) {
-        return FacesUtils.getContextPath() + "/jsp/showTraceTable.jsp?" + Constants.REQUEST_PARAM_ID + "="
-            + traceHelper.getNodeKey(element);
+        return FacesUtils.getContextPath() + "/faces/facelets/trace/showTraceTable.xhtml?"
+            + Constants.REQUEST_PARAM_ID + "=" + traceHelper.getNodeKey(element);
     }
 
 }

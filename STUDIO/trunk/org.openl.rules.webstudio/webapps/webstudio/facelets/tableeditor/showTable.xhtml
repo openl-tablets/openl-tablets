@@ -115,7 +115,7 @@
                         </h:outputLink>
     
                         <c:set var="traceUrl"
-                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
+                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
                             <img border="0" src="webresource/images/trace.gif"
                                 title="Trace" alt="Trace" /></a>
@@ -308,7 +308,7 @@
                         </h:outputLink>
                         <f:verbatim>&amp;nbsp;</f:verbatim>
                         <c:set var="traceUrl"
-                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
+                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
                             <img border="0" src="webresource/images/trace.gif"
                                 title="Trace" alt="Trace" /></a>

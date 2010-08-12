@@ -233,6 +233,18 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>showTraceTableBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.trace.ShowTraceTableBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>tableViewMenuBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.TableViewMenuBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>showMessageBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.ShowMessageBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>

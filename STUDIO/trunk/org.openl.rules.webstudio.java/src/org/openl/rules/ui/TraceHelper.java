@@ -93,6 +93,19 @@ public class TraceHelper {
         return displayName;
     }
 
+    public Throwable getTracerError(int elementID) {
+        ITableTracerObject tracer = getTableTracer(elementID);
+        Throwable error = null;
+
+        if (tracer != null) {
+            if (tracer instanceof ATableTracerNode) {
+                error = ((ATableTracerNode) tracer).getError();
+            }
+        }
+
+        return error;
+    }
+
     IGridFilter makeFilter(ITableTracerObject tto, ProjectModel model) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
