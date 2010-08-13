@@ -7,6 +7,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * 
@@ -16,15 +17,40 @@ import org.openl.types.IOpenMethod;
 public final class MethodKey {
     private String name;
     private IOpenClass[] pars;
+    private IOpenClass[] internalParameters;
 
     public MethodKey(IOpenMethod om) {
-        name = om.getName();
-        pars = om.getSignature().getParameterTypes();
+        this.name = om.getName();
+        this.pars = om.getSignature().getParameterTypes();
+        this.internalParameters = getNormalizedParams(pars);
     }
 
     public MethodKey(String name, IOpenClass[] pars) {
         this.name = name;
         this.pars = pars;
+        this.internalParameters = getNormalizedParams(pars);
+    }
+    
+    private IOpenClass[] getNormalizedParams(IOpenClass[] originalParams) {
+    	
+    	if (originalParams == null) {
+    		return null;
+    	}
+    	
+    	IOpenClass[] normalizedParams = new IOpenClass[originalParams.length];
+    	
+    	for (int i = 0; i < originalParams.length; i++) {
+    		IOpenClass param = originalParams[i]; 
+    		IOpenClass normParam = param;
+    		
+    		if (param instanceof DomainOpenClass) {
+    			normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
+    		}
+    		
+    		normalizedParams[i] = normParam;
+    	}
+    	
+    	return normalizedParams;
     }
 
     @Override
@@ -34,12 +60,12 @@ public final class MethodKey {
         }
         MethodKey mk = (MethodKey) obj;
 
-        return new EqualsBuilder().append(name, mk.name).append(pars, mk.pars).isEquals();
+        return new EqualsBuilder().append(name, mk.name).append(internalParameters, mk.internalParameters).isEquals();
     }
 
     @Override
     public int hashCode() {
-        int hashCode = new HashCodeBuilder().append(name).append(pars).toHashCode();
+        int hashCode = new HashCodeBuilder().append(name).append(internalParameters).toHashCode();
         return hashCode;
     }
 

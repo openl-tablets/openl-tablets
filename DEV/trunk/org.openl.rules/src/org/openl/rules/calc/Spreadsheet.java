@@ -1,5 +1,10 @@
 package org.openl.rules.calc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +22,8 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.DefaultTracePrinter;
+import org.openl.vm.trace.TracePrinter;
 import org.openl.vm.trace.Tracer;
 
 @Executable
@@ -137,6 +144,23 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
            LOG.error("Error when tracing Spreadsheet table", e);
         } finally {
             tracer.pop();
+
+            TracePrinter printer = new DefaultTracePrinter();
+            Writer writer;
+            try {
+                writer = new PrintWriter(new File("D:/out.txt"));
+                printer.print(tracer, writer);
+                writer.close();
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                
+            }
+
         }
         return result;
     }

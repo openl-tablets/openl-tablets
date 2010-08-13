@@ -41,15 +41,12 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
     private TableSyntaxNode tableSyntaxNode;
-
-    private OpenL openl;
-
     private DatatypeOpenClass dataType;
-
     private String parentClassName;
 
     private ILogicalTable table;
- 
+    private OpenL openl;
+
     public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
             ILogicalTable table, OpenL openl) {
         this(tableSyntaxNode,datatype, table, openl, null);
@@ -72,7 +69,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
      */
     private void addFields(IBindingContext cxt) throws Exception {
 
-        ILogicalTable dataTable = findOrientation(cxt);
+        ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
         int tableHeight = dataTable.getLogicalHeight();
         
@@ -208,21 +205,6 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         tableSyntaxNode.setMember(internalClassMember);
     }
 
-    private int countTypes(ILogicalTable dataPart, IBindingContext cxt) {
-        int h = dataPart.getLogicalHeight();
-        int cnt = 0;
-        for (int i = 0; i < h; ++i) {
-
-            try {
-                IOpenClass type = findType(dataPart.getLogicalRow(i), cxt);
-                cnt += type == null ? 0 : 1;
-            } catch (Throwable t) {
-            }
-        }
-        return cnt;
-    }
-
-
     public void finalizeBind(IBindingContext cxt) throws Exception {
         if(parentClassName != null){
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
@@ -254,26 +236,6 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
                 }
             }
         }
-    }
-
-    private ILogicalTable findOrientation(IBindingContext cxt) {
-        ILogicalTable dataPart = table.rows(1);
-
-        // TODO optimize
-        int cntVertical = countTypes(dataPart, cxt);
-
-        int cntHorizontal = countTypes(dataPart.transpose(), cxt);
-
-        return cntVertical < cntHorizontal ? dataPart.transpose() : dataPart;
-
-    }
-
-    private IOpenClass findType(ILogicalTable table, IBindingContext cxt) {
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
-
-        IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);
-        return fieldType;
-
     }
 
 }

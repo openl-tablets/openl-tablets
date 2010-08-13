@@ -11,6 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.IRuntimeEnv;
@@ -63,8 +64,8 @@ public abstract class AEngineFactory {
             // Try to find openClass's method with appropriate name and
             // parameter types.
             //
-            IOpenMethod rulesMethod = moduleOpenClass.getMatchingMethod(interfaceMethodName,
-                OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes()));                
+            IOpenClass[] params = OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes());
+			IOpenMethod rulesMethod = moduleOpenClass.getMatchingMethod(interfaceMethodName, params);                
 
             if (rulesMethod != null) {
                 // If openClass has appropriate method then add new entry to
