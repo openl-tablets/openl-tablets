@@ -268,7 +268,8 @@
 
         </rules:tableEditor>
 
-        <h:panelGroup rendered="#{showTableBean.hasAnyTests}">
+        <h:panelGroup rendered="#{showTableBean.hasAnyTests}"> <!-- If table has any type of tests, including tests with 
+        test cases, run methods -->
             <h3>Available Checks and Tests:</h3>
             <a4j:repeat value="#{showTableBean.allTests}" var="test">
                 <p style="margin-left: 10px">
