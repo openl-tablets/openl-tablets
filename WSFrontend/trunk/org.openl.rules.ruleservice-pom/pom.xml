@@ -10,7 +10,7 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-  <version>5.7.1.1</version>
+  <version>5.7.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>OpenL - RuleService</name>
   <description>Rules Service Pom Project</description>
