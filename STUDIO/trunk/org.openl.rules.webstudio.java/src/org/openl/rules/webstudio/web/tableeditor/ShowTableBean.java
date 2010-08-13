@@ -48,7 +48,7 @@ public class ShowTableBean {
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
 
     // Filled and runnable tests(this group of tests is more tight than allTests).
-    private Test[] runnableTests = {};
+    private Test[] runnableTestMethods = {};
     
     // All checks and tests for current table (including tests with no cases, run methods).
     private Test[] allTests = {};
@@ -68,7 +68,7 @@ public class ShowTableBean {
     private String paramsWithoutShowFormulas;
     private String paramsWithoutUri;
 
-    @SuppressWarnings("unchecked")
+    
     public ShowTableBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
@@ -86,20 +86,19 @@ public class ShowTableBean {
 
         initProblems();
 
-        AllTestsRunResult testsRunner = model.getTestMethods(uri);
-        if (testsRunner != null) {
-            runnableTests = testsRunner.getTests();
-        }
-        AllTestsRunResult allTestRunner = model.getAllTestMethods(uri);
-        if (allTestRunner != null) {
-            allTests = allTestRunner.getTests();
-        }
+        initTests(model);
 
-        runnable = model.isRunnable(uri);         
+        runnable = model.isRunnable(uri); 
+        
         if (runnable) {
             targetTables = model.getTargetTables(uri);
         }
 
+        initParams();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void initParams() {
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
             if (entry.getValue() instanceof String) {
@@ -111,6 +110,85 @@ public class ShowTableBean {
         paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
         paramsWithoutShowFormulas = WebTool.listRequestParams(
                 paramMap, new String[] { "transparency", "filterType", "showFormulas" });
+    }
+
+    private void initTests(final ProjectModel model) {
+        initRunnableTestMethods(model);
+        
+        initAllTests(model);
+    }
+
+    private void initAllTests(final ProjectModel model) {
+        AllTestsRunResult allTestRunner = model.getAllTestMethods(uri);
+        if (allTestRunner != null) {
+            allTests = allTestRunner.getTests();
+        }
+    }
+
+    private void initRunnableTestMethods(final ProjectModel model) {
+        AllTestsRunResult testsRunner = model.getTestMethods(uri);
+        if (testsRunner != null) {
+            runnableTestMethods =  testsRunner.getTests();
+        }
+    }
+    
+    private void initProblems() {
+        initErrors();
+        initWarnings();
+
+        problems = new ArrayList<OpenLMessage>();
+        problems.addAll(errors);
+        problems.addAll(warnings);
+    }
+
+    private void initErrors() {
+        List<OpenLMessage> messages = table.getMessages();
+        errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+    }
+
+    private void initWarnings() {
+        warnings = new ArrayList<OpenLMessage>();
+
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+
+        CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
+
+        List<OpenLMessage> messages = compiledOpenClass.getMessages();
+        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+        for (OpenLMessage message : warningMessages) {
+            OpenLWarnMessage warning = (OpenLWarnMessage) message;
+            ISyntaxNode syntaxNode = warning.getSource();
+            if (syntaxNode instanceof TableSyntaxNode
+                     && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
+                warnings.add(warning);
+            }
+        }
+    }
+    
+    private boolean isDispatcherValidationNode() {
+        return ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
+                DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+    }
+    
+    private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
+        boolean result = false;
+        String systemValue = null;
+
+        if (sysProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
+            systemValue = SystemValuesManager.getInstance().getSystemValueString(
+                    sysProperty.getSystemValueDescriptor());
+            if (systemValue != null) {
+                try {
+                    editorModel.setProperty(sysProperty.getName(), systemValue);
+                    result = true;
+                } catch (Exception e) {
+                    LOG.error(String.format("Can`t update system property '%s' with value '%s'", sysProperty.getName(),
+                            systemValue), e);
+                }
+            }
+        }
+        return result;
     }
 
     public String getEncodedUri() {
@@ -147,42 +225,13 @@ public class ShowTableBean {
 
     public List<OpenLMessage> getProblems() {
         return problems;
-    }
-
-    private void initProblems() {
-        initErrors();
-        initWarnings();
-
-        problems = new ArrayList<OpenLMessage>();
-        problems.addAll(errors);
-        problems.addAll(warnings);
-    }
-
-    private void initErrors() {
-        List<OpenLMessage> messages = table.getMessages();
-        errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
-    }
-
-    private void initWarnings() {
-        warnings = new ArrayList<OpenLMessage>();
-
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
-
-        CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
-
-        List<OpenLMessage> messages = compiledOpenClass.getMessages();
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
-        for (OpenLMessage message : warningMessages) {
-            OpenLWarnMessage warning = (OpenLWarnMessage) message;
-            ISyntaxNode syntaxNode = warning.getSource();
-            if (syntaxNode instanceof TableSyntaxNode
-                     && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
-                warnings.add(warning);
-            }
-        }
-    }
-
+    }    
+    
+    /**
+     * Gets the results for run methods.
+     * 
+     * @return results of run methods.
+     */
     public TestRunsResultBean getTestRunResults() {
         AllTestsRunResult atr = WebStudioUtils.getProjectModel().getRunMethods(uri);
         Test[] tests = null;
@@ -191,9 +240,14 @@ public class ShowTableBean {
         }
         return new TestRunsResultBean(tests);
     }
-
+    
+    /**
+     * Return test methods for current table. Test methods are methods with test cases. 
+     * 
+     * @return array of tests for current table. 
+     */
     public Test[] getTests() {
-        return runnableTests;
+        return runnableTestMethods;
     }
 
     public String getUri() {
@@ -231,12 +285,7 @@ public class ShowTableBean {
      */
     public boolean isCanCreateTest() {
         return table.isExecutable() && isEditable();
-    }
-
-    private boolean isDispatcherValidationNode() {
-        return ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
-                DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
-    }
+    }    
 
     public boolean isEditable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
@@ -269,13 +318,21 @@ public class ShowTableBean {
      * @return true if there are runnable tests for current table.
      */
     public boolean isTestable() {
-        return runnableTests.length > 0;
+        return runnableTestMethods.length > 0;
     }
     
+    /**
+     * Checks if there are tests, including tests with test cases, runs with filled runs, tests without cases(empty),
+     * runs without any parameters and tests without cases and runs.
+     */
     public boolean isHasAnyTests() {
         return allTests.length > 0;
     }
-
+    
+    /**
+     * Gets all tests, including tests with test cases, runs with filled runs, tests without cases(empty),
+     * runs without any parameters and tests without cases and runs.
+     */
     public Test[] getAllTests() {
         return allTests;
     }
@@ -343,27 +400,7 @@ public class ShowTableBean {
             }
         } 
         return result;
-    }
-
-    private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
-        boolean result = false;
-        String systemValue = null;
-
-        if (sysProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-            systemValue = SystemValuesManager.getInstance().getSystemValueString(
-                    sysProperty.getSystemValueDescriptor());
-            if (systemValue != null) {
-                try {
-                    editorModel.setProperty(sysProperty.getName(), systemValue);
-                    result = true;
-                } catch (Exception e) {
-                    LOG.error(String.format("Can`t update system property '%s' with value '%s'", sysProperty.getName(),
-                            systemValue), e);
-                }
-            }
-        }
-        return result;
-    }
+    }    
 
     public String getTreeNodeId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();

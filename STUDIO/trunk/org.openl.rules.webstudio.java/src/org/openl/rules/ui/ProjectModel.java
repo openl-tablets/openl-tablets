@@ -616,8 +616,8 @@ public class ProjectModel {
     }
     
     /**
-     * Get runnable tests for tested method by uri.
-     * Runnable tests - tests with  filled rules rows data for testing its functionality.
+     * Get runnable tests for tested method by uri.<br>
+     * Runnable tests - tests with  filled rules rows data for testing its functionality (with test cases).<br>
      * If you need to get all test methods, including and empty ones, use {@link #getAllTestMethods(String).
      * 
      * @param elementUri
