@@ -172,7 +172,7 @@ Date=${TODAY_US}
     </copy>
     <copy todir="${ie.build.constrainer}/documentation" includeEmptyDirs="false" >
       <fileset dir="${ie.product.constrainer}/doc">
-        <include name="Constrainer 5.7.2 UG.pdf"/>
+        <include name="Constrainer 5.7.1.2 UG.pdf"/>
       </fileset>
     </copy>
   </target>
