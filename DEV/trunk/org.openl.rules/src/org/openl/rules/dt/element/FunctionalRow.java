@@ -6,10 +6,8 @@
 
 package org.openl.rules.dt.element;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -41,7 +39,6 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
-import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -240,150 +237,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         return params;
     }
 
-    private Object loadParam(ILogicalTable dataTable,
-            IOpenClass paramType,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            boolean indexed) throws SyntaxNodeException {
-
-        if (!indexed) {
-            return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
-        }
-
-        IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType);
-        dataTable = LogicalTableHelper.make1ColumnTable(dataTable);
-
-        int height = RuleRowHelper.calculateHeight(dataTable);
-
-        if (height == 0) {
-            return null;
-        }
-
-        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
-            // attempt to load as a single paramType(will work in case of
-            // expressions)
-            try {
-                return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
-            } catch (Exception e) {
-
-                Log.debug(e);
-                // do nothing, assume the type was wrong or this was not an
-                // expression
-                // let the regular flow of events take it's course
-            }
-        }
-
-        return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, indexedParamType);
-    }
-
-    private Object loadArrayParameters(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
-
-        int height = RuleRowHelper.calculateHeight(dataTable);
-
-        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) { // load
-            // comma
-            // separated
-            // array
-            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
-        } else {
-            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
-        }
-    }
-
-    private Object loadCommaSeparatedArrayParams(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
-
-        ILogicalTable paramSource = dataTable.getLogicalRow(0);
-        Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
-        Class<?> paramClass = params.getClass();
-        if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
-            return processAsObjectParams(paramType, (Object[]) params);
-        }
-        return params;
-    }
-
-    /**
-     * Checks if the elements of parameters array are the instances of
-     * {@link CompositeMethod}, if yes process it through {@link ArrayHolder}.
-     * If no return Object[].
-     * 
-     * @param paramType parameter type
-     * @param paramsArray array of parameters
-     * @return {@link ArrayHolder} if elements of parameters array are instances
-     *         of {@link CompositeMethod}, in other case Object[].
-     */
-    private Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
-        List<CompositeMethod> methodsList = null;
-        Object ary = null;
-        int paramsLength = paramsArray.length;
-        ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
-        for (int i = 0; i < paramsLength; i++) {
-            if (paramsArray[i] instanceof CompositeMethod) {
-                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) paramsArray[i]));
-            } else {
-                Array.set(ary, i, paramsArray[i]);
-            }
-        }
-
-        return methodsList == null ? ary : new ArrayHolder(ary,
-            methodsList.toArray(new CompositeMethod[methodsList.size()]));
-    }
-
-    private Object loadSimpleArrayParams(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
-
-        int height = RuleRowHelper.calculateHeight(dataTable);
-
-        List<CompositeMethod> methodsList = null;
-        List<Object> values = new ArrayList<Object>();
-
-        for (int i = 0; i < height; i++) { // load array values represented as
-            // number of cells
-
-            ILogicalTable cell = dataTable.getLogicalRow(i);
-            Object parameter = RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
-
-            if (parameter instanceof CompositeMethod) {
-                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) parameter));
-            } else {
-                if (parameter != null) {
-                    values.add(parameter);
-//                    Array.set(ary, i, parameter);
-                }
-            }
-        }
-        
-        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
-        
-        for (int i = 0; i < values.size(); i++) {
-            Array.set(ary, i, values.get(i));
-        }
-        
-        return methodsList == null ? ary : new ArrayHolder(ary,
-            methodsList.toArray(new CompositeMethod[methodsList.size()]));
-
-    }
-
-    private List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
-        if (methods == null) {
-            methods = new ArrayList<CompositeMethod>();
-        }
-        methods.add(method);
-
-        return methods;
-    }
-
     private Object[][] prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
 
         int len = nValues();
@@ -425,7 +278,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 Object v = null;
                 try {
                     IOpenClass paramType = paramDecl[j].getType();
-                    v = loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
+                    v = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
                         paramType,
                         paramDecl[j].getName(),
                         ruleName,

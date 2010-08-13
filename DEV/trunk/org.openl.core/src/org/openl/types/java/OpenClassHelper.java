@@ -10,6 +10,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 
 public class OpenClassHelper {
     
@@ -36,8 +37,10 @@ public class OpenClassHelper {
     private static IOpenClass findType(Class<?> classToFind, Map<String, IOpenClass> internalTypes) {
         IOpenClass result = null;
         for (IOpenClass datatypeClass : internalTypes.values()) {
-            if (classToFind.equals(datatypeClass.getInstanceClass())) {
-                result = datatypeClass;
+            if (!(datatypeClass instanceof DomainOpenClass) 
+            		&& classToFind.equals(datatypeClass.getInstanceClass())) {
+                
+            	result = datatypeClass;
                 break;
             }
         }

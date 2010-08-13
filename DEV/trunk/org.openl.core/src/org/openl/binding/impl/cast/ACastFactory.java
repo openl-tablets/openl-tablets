@@ -13,10 +13,13 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.cache.CacheUtils;
+import org.openl.types.AliasToTypeCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
+import org.openl.types.TypeToAliasCast;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -91,10 +94,31 @@ public class ACastFactory implements ICastFactory {
             typeCast = findCast(from, to, to);
         }
 
+        if (typeCast == NO_CAST) {
+            typeCast = findAliasCast(from, to);
+        }
+        
         return typeCast;
     }
 
-    public IOpenCast findCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
+    private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
+		
+    	if (from instanceof DomainOpenClass 
+    			&& !(to instanceof DomainOpenClass) 
+    			&& to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) {
+    		return new AliasToTypeCast(from, to);
+    	}
+    	
+    	if (to instanceof DomainOpenClass 
+    			&& !(from instanceof DomainOpenClass)
+    			&& from.getInstanceClass().isAssignableFrom(to.getInstanceClass())) {
+    		return new TypeToAliasCast(from, to);
+    	}
+    	
+    	return NO_CAST;
+	}
+
+	public IOpenCast findCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
 
         boolean auto = true;
         int distance = 1;

@@ -28,6 +28,7 @@ import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.FileTool;
 import org.openl.util.StringTool;
 import org.openl.util.generation.SimpleBeanJavaGenerator;
@@ -360,12 +361,18 @@ public class JavaWrapperAntTask extends Task {
     private void writeDatatypeBeans(Map<String, IOpenClass> types) throws Exception {
         if (types != null) {
             for (Entry<String, IOpenClass> datatype : types.entrySet()) {
-                Class<?> datatypeClass = datatype.getValue().getInstanceClass();
-                SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass,
-                        getFieldsDescription(datatype.getValue()));
-                String javaClass = beanJavaGenerator.generateJavaClass();
-                String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
-                writeContentToFile(javaClass, fileName);
+
+            	// Skip java code generation for types what is defined 
+            	// thru DomainOpenClass (skip java code generation for alias types).
+            	// 
+            	if (!(datatype.getValue() instanceof DomainOpenClass)) {
+	                Class<?> datatypeClass = datatype.getValue().getInstanceClass();
+	                SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass,
+	                        getFieldsDescription(datatype.getValue()));
+	                String javaClass = beanJavaGenerator.generateJavaClass();
+	                String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
+	                writeContentToFile(javaClass, fileName);
+            	}
             }
         }
     }
