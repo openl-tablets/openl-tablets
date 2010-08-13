@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Eclipse Wizard
 Bundle-SymbolicName: org.openl.eclipse.ui.wizard; singleton:=true
-Bundle-Version: 5.7.2
+Bundle-Version: 5.7.1.2
 Bundle-Activator: org.openl.eclipse.wizard.OpenlWizardPlugin
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
