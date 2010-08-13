@@ -1,0 +1,107 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/facelets/common/baseToolbar.xhtml">
+
+    <ui:define name="title">Advanced Search</ui:define>
+
+  <ui:define name="body">
+
+    <table>
+    <tr>
+      <td></td>
+      <td>
+      <h:outputText value="Search Area" styleClass="lblSearch"/>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <h:selectBooleanCheckbox value="#{searchHandler.use}" />
+      </td>
+      <td>
+        <h:selectOneMenu>
+          <f:selectItem itemValue="Rules Tables" />
+          <f:selectItem itemValue="Rules Code (snippets)" />
+          <f:selectItem itemValue="Data" />
+          <f:selectItem itemValue="Documentatio" />
+          <f:selectItem itemValue="..." />
+        </h:selectOneMenu>
+      </td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <td>
+      <h:commandLink value="Add more areas" action="addSearchArea"/>
+      </td>
+    </tr>
+
+    <tr><td colspan="2"><br/></td></tr>
+
+    <tr>
+      <td></td>
+      <td>
+        <h:outputText value="Tag" styleClass="lblSearch"/>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <h:selectBooleanCheckbox value="#{searchHandler.use}" />
+      </td>
+      <td>
+        <h:selectOneMenu>
+          <f:selectItem itemValue="Effective Date" />
+          <f:selectItem itemValue="Expiration Date" />
+          <f:selectItem itemValue="LOB" />
+          <f:selectItem itemValue="..." />
+        </h:selectOneMenu>
+        <span />
+        <h:inputText size="40" required="false" value="09/09/2007" />
+      </td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <td>
+        <h:commandLink value="Add more tags" action="addSearchTag"/>
+      </td>
+    </tr>
+
+    <tr><td colspan="2"><br/></td></tr>
+
+    <tr>
+      <td></td>
+      <td>
+        <h:outputText value="Search Text" styleClass="lblSearch"/>
+      </td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <td>
+        <h:inputText id="searchText" size="60" required="false" value="openl tablets" />
+      </td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <td>
+        <h:commandButton value="Search" action="search" type="submit" />
+        <span />
+        <h:commandButton value="Cancel" action="cancel" type="submit" immediate="true"/>
+      </td>
+    </tr>
+    </table>
+
+    <p/>
+
+    <rich:panel>
+      <ui:include src="results.xhtml" />
+    </rich:panel>
+
+  </ui:define>
+</ui:composition>

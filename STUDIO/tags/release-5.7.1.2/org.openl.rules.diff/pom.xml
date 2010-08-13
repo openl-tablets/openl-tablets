@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.studio-pom</artifactId>
+    <version>5.7.1.2</version>
+    <relativePath>../org.openl.rules.studio-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.diff</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - STUDIO - Structured Diff</name>
+  <description>API for comparing tables in Excel</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.workspace</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+  </dependencies>
+
+</project>
