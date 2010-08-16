@@ -21,7 +21,6 @@ public class ShowTraceTableBean {
 
     private String tracerUri;
     private String tracerName;
-    private String tracerHeader;
 
     public ShowTraceTableBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -35,7 +34,6 @@ public class ShowTraceTableBean {
 
         tracerUri = traceHelper.getTracerUri(traceElementId);
         tracerName = traceHelper.getTracerName(traceElementId);
-        tracerHeader = traceHelper.getTracerHeader(traceElementId);
     }
 
     public String getTracerUri() {
@@ -44,10 +42,6 @@ public class ShowTraceTableBean {
 
     public String getTracerName() {
         return tracerName;
-    }
-
-    public String getTracerHeader() {
-        return tracerHeader;
     }
 
     public String getTraceTable() {
