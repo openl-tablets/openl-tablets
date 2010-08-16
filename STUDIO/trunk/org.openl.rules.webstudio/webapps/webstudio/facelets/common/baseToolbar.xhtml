@@ -50,8 +50,9 @@
           <h:graphicImage url="/webresource/images/help.png" styleClass="actionImage" />
         </a>
 
-        <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open LWS in WebStudio">
-          <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" />
+        <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open LWS in WebStudio"
+            target="main">
+            <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" />
         </h:commandLink>
 
         <c:if test="#{not hideLogout}">
