@@ -95,6 +95,11 @@ public class RepositoryTreeController {
      * @return
      */
     public String addFile() {
+        if (getLastUploadedFile() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Please select file to be uploaded."));
+            return null;
+        }
         if (StringUtils.isEmpty(fileName)) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "File name must not be empty."));
