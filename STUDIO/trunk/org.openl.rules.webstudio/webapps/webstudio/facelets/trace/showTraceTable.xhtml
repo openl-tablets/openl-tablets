@@ -18,7 +18,7 @@
             <table>
                 <tr>
                     <td>
-                        <h:outputLink rendered="#{not empty showTraceTableBean.tracerUri}"
+                        <h:outputLink rendered="#{not empty showTraceTableBean.tracerUri and studio.model.editable}"
                             value="#{contextPath}/jsp/showLinks.jsp"
                             target="show_app_hidden">
                             <f:param name="uri" value="#{showTraceTableBean.tracerUri}" />
