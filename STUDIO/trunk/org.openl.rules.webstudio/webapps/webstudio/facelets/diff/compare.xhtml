@@ -66,20 +66,15 @@
             <td>
               <p />
               	<a4j:outputPanel ajaxRendered="true">
-           			<rules:tableEditor id="tableEditor1"
-           				table="#{excelDiffController.table1}" 
-           				mode="view" 
-           				collapseProps="true" />
+           			<rules:tableEditor id="tableEditor1" table="#{excelDiffController.table1}" editable="false"
+                    collapseProps="true" />
            		</a4j:outputPanel>
             </td>
             <td>
               <p />
               	<a4j:outputPanel ajaxRendered="true">
-	           		<rules:tableEditor id="tableEditor2"
-    	       			table="#{excelDiffController.table2}" 
-        	   			mode="view" 
-           				collapseProps="true"
-              			filter="#{excelDiffController.filter2}" />
+	           		<rules:tableEditor id="tableEditor2" table="#{excelDiffController.table2}" editable="false"
+                        collapseProps="true" filter="#{excelDiffController.filter2}" />
               	</a4j:outputPanel>
             </td>
           </tr>
