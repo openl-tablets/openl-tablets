@@ -23,7 +23,6 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
@@ -64,14 +63,6 @@ public class TraceHelper {
         if (tto != null) {
             TableSyntaxNode tsn = tto.getTableSyntaxNode();
             return tsn.getUri();
-        }
-        return null;
-    }
-
-    public String getTracerHeader(int elementID) {
-        String tracerUri = getTracerUri(elementID);
-        if (tracerUri != null) {
-            return FileIndexer.showElementHeader(tracerUri);
         }
         return null;
     }
