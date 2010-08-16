@@ -10,18 +10,20 @@
     <ui:define name="page">
 
         <style type="text/css">
-            table.top {
-                font-size: 80%;
-                background: black;
-            }
             td.menu {
                 background: lightblue;
                 text-align: center;
+                vertical-align: middle;
             }
             table.menu {
-                font-size: 100%;
                 position: absolute;
                 visibility: hidden;
+                border: 1px solid rgb(200, 200, 200);
+                font-size: 0px; /* Remove bottom padding in IE 7 */
+            }
+            td.menuButton {
+                border: 1px solid rgb(200, 200, 200);
+                font-size: 0px; /* Remove bottom padding in IE 7 */
             }
         </style>
 
@@ -36,13 +38,16 @@
 
         <c:set value="#{tableViewMenuBean.filterHolder}" var="filterHolder" />
 
-        <div class="menudiv" style="width:150px"
+        <div class="menudiv" style="width: 150px"
             onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')">
-            <table class="top">
-                <tr bgcolor="#FF8080">
-                    <td title="#{filterHolder.filterName}">
+            <table cellspacing="0">
+                <tr>
+                    <td title="#{filterHolder.filterName}" class="menuButton">
                         <h:graphicImage url="/webresource/images/#{filterHolder.imageName}" />
-                        <br />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         <table class="menu" id="blends">
                             <tr>
                             <c:forEach begin="0" end="#{fn:length(tableViewMenuBean.filterImageNames) - 1}"
