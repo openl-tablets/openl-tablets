@@ -9,6 +9,22 @@
 
     <ui:define name="page">
 
+        <style type="text/css">
+            table.top {
+                font-size: 80%;
+                background: black;
+            }
+            td.menu {
+                background: lightblue;
+                text-align: center;
+            }
+            table.menu {
+                font-size: 100%;
+                position: absolute;
+                visibility: hidden;
+            }
+        </style>
+
         <script type="text/javascript">
             function showmenu(elmnt) {
                 document.getElementById(elmnt).style.visibility = "visible";
@@ -20,11 +36,11 @@
 
         <c:set value="#{tableViewMenuBean.filterHolder}" var="filterHolder" />
 
-        <div class="menudiv" style="width:150px">
+        <div class="menudiv" style="width:150px"
+            onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')">
             <table class="top">
                 <tr bgcolor="#FF8080">
-                    <td onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')"
-                        title="#{filterHolder.filterName}">
+                    <td title="#{filterHolder.filterName}">
                         <h:graphicImage url="/webresource/images/#{filterHolder.imageName}" />
                         <br />
                         <table class="menu" id="blends">
