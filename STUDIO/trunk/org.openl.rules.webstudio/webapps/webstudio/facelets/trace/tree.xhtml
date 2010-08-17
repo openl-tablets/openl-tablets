@@ -12,25 +12,7 @@
     </ui:define>
 
     <ui:define name="page">
-        <p /><p />
-
-        <h:panelGroup>
-            <!-- Menu BEGIN -->
-            <table class="treeMenu">
-                <tr>
-                    <td><!-- Menu Items --></td>
-                    <td style="text-align: right">
-                        <h:outputLink value="#" title="Expand All"><img
-                            src="webresource/images/expandall.gif"/></h:outputLink>
-                        <h:outputLink value="#" title="Collapse All"><img
-                            src="webresource/images/collapseall.gif"/></h:outputLink>
-                    </td>
-                </tr>
-            </table>
-            <!-- Menu END -->
-        </h:panelGroup>
-
-        <p />
+        <br />
 
         <!-- Tree BEGIN -->
         <rich:tree styleClass="tree" value="#{traceTreeBean.tree}" switchType="client" var="node"
