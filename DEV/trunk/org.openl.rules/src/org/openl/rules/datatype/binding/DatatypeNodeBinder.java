@@ -54,29 +54,57 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
 		}
 
+		// Check the datatype table that is alias data type.
+		//
 		if (DatatypeHelper.isAliasDatatype(table, openl, cxt)) {
 
+			// Default type of alias type.
+			// 
 			String type = "String";
 
+			// Check header of table. If table header contains third element it
+			// is a alias type definition.
+			//
 			if (parsedHeader.length > 2 && parsedHeader[2] != null) {
 				int beginIndex = 1;
 				int endIndex = parsedHeader[2].getIdentifier().length() - 1;
 
+				// Get type name.
+				//
 				type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
 			}
 
+			// Create source code module for type definition. 
+			// Domain values are loaded as elements of array. We are create one
+			// more type for it - array with appropriate type of elements.
+			//
 			IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri(0));
 			IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri(0));
+			
+			// Create appropriate OpenL class for type definition.
+			//
 			IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, (IBindingContextDelegator) cxt);
 			IOpenClass arrayOpenClass = OpenLManager.makeType(openl, arrayAliasTypeSource, (IBindingContextDelegator) cxt);
 
+			// Load data part of table (part where domain values are defined).
+			//
 			ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+			
+			// Create appropriate domain object.
+			//
 			IDomain<?> domain = DatatypeHelper.getTypeDomain(dataPart, arrayOpenClass, openl, cxt);
 
+			// Create domain class definition which will be used by OpenL engine at runtime. 
+			//
 			DomainOpenClass tableType = new DomainOpenClass(typeName, baseOpenClass, domain, null);
+			
+			// Add domain class definition to biding context and module class as internal type.
+			//
 			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 			module.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
+			// Return bound node.
+			//
 			return new AliasDatatypeBoundNode(tsn, tableType, table, openl);
 		} else {
 
