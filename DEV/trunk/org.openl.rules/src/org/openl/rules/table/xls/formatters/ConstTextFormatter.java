@@ -10,7 +10,7 @@ public class ConstTextFormatter implements IFormatter {
     }
 
     public String format(Object obj) {
-        return format;
+        return String.valueOf(obj);
     }
 
     public Object parse(String value) {
