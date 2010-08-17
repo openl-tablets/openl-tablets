@@ -337,7 +337,8 @@ public class RuleRowHelper {
             return null;
         }
 
-        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
+//        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
+        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable)){
             // attempt to load as a single paramType(will work in case of
             // expressions)
             try {
