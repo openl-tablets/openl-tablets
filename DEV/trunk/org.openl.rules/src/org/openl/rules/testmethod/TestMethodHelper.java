@@ -23,7 +23,7 @@ public class TestMethodHelper {
     public static IOpenMethodHeader makeHeader(String tableName, IOpenMethod testedMethod) {
 
         return new OpenMethodHeader(tableName + "TestAll",
-            JavaOpenClass.getOpenClass(TestResult.class),
+            JavaOpenClass.getOpenClass(TestUnitsResults.class),
             IMethodSignature.VOID,
             testedMethod.getDeclaringClass());
     }

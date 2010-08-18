@@ -34,7 +34,7 @@ public class TestAll {
 
         private long loadTimeMs = -1;
 
-        private ArrayList<TestResult> results = new ArrayList<TestResult>();
+        private ArrayList<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
         String name;
 
         public TestStatistics(String name, long loadTimeMs) {
@@ -42,13 +42,13 @@ public class TestAll {
             this.loadTimeMs = loadTimeMs;
         }
 
-        public void addTestResult(TestResult res) {
+        public void addTestResult(TestUnitsResults res) {
             results.add(res);
         }
 
         public int getNumberOfFailedTests() {
             int sum = 0;
-            for (TestResult tres : results) {
+            for (TestUnitsResults tres : results) {
                 if (tres.getNumberOfFailures() > 0)
                     sum++;
             }
@@ -56,8 +56,8 @@ public class TestAll {
         }
 
         @SuppressWarnings("unchecked")
-        public List<TestResult> getFilteredResults(boolean includePassedTests, boolean orderFailedFirst) {
-            List<TestResult> list = (List<TestResult>) results.clone();
+        public List<TestUnitsResults> getFilteredResults(boolean includePassedTests, boolean orderFailedFirst) {
+            List<TestUnitsResults> list = (List<TestUnitsResults>) results.clone();
 
             return list;
         }
@@ -78,7 +78,7 @@ public class TestAll {
             this.end = end;
         }
 
-        public List<TestResult> getResults() {
+        public List<TestUnitsResults> getResults() {
             return results;
         }
 
@@ -93,7 +93,7 @@ public class TestAll {
             StringBuilder sb = new StringBuilder(1000);
             sb.append(toString());
             
-            for (TestResult test : results) {
+            for (TestUnitsResults test : results) {
                 if (test.getNumberOfFailures() > 0)
                     sb.append('\n').append(test);
             }
@@ -154,7 +154,7 @@ public class TestAll {
         stat.setStart(System.currentTimeMillis());
         for (Iterator<IOpenMethod> it = ioc.methods(); it.hasNext();) {
             IOpenMethod m = it.next();
-            if (m.getType().getInstanceClass() == TestResult.class) {
+            if (m.getType().getInstanceClass() == TestUnitsResults.class) {
                 runTestMethod(m, ioc.newInstance(env), env, stat);
             }
         }
@@ -165,13 +165,13 @@ public class TestAll {
     }
 
     protected void runTestMethod(IOpenMethod testMethod, Object engine, IRuntimeEnv env, TestStatistics stat) {
-        TestResult res = (TestResult) testMethod.invoke(engine, new Object[0], env);
+        TestUnitsResults res = (TestUnitsResults) testMethod.invoke(engine, new Object[0], env);
         
         if (!(testMethod instanceof TestSuiteMethod))
             return;
         if (!((TestSuiteMethod)testMethod).isRunmethodTestable())
             return;
-        Log.info("Testing " + testMethod.getName() + ", tests: " + res.getNumberOfTests() + ", failures:"
+        Log.info("Testing " + testMethod.getName() + ", tests: " + res.getNumberOfTestUnits() + ", failures:"
                 + res.getNumberOfFailures());
 
         stat.addTestResult(res);

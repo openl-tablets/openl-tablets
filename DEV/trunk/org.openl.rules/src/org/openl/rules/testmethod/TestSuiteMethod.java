@@ -134,7 +134,7 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
         IMethodSignature msign = testedMethod.getSignature();
         IOpenClass[] mpars = msign.getParameterTypes();
 
-        TestResult tres = new TestResult(this);
+        TestUnitsResults tres = new TestUnitsResults(this);
 
         int unitStart = unitId > -1 ? unitId : 0;
         int unitStop = unitId > -1 ? (unitStart + 1) : testInstances.length;
@@ -165,10 +165,10 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
                     env.setContext(oldContext);
                 }
 
-                tres.add(currentTest, res, null);
+                tres.addTestUnit(currentTest, res, null);
             } catch (Throwable t) {
                 Log.error("Testing " + currentTest, t);
-                tres.add(currentTest, null, t);
+                tres.addTestUnit(currentTest, null, t);
             }
 
         }
