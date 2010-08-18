@@ -34,30 +34,36 @@
         </h:panelGrid>
 
         <a4j:repeat value="#{runAllTestsBean.ranTests}" var="test">
-            <c:set value="#{test.result}" var="result" />
+            <c:set value="#{test.testUnitsResults}" var="testUnitsResults" />
             <h1>
                 <h:outputText value="#{test.testName}"
-                    style="color: #{result.numberOfFailures > 0 ? 'red' : '#009600'};" />
+                    style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};" />
             </h1>
 
             <table class="testtable">
                 <tr>
-                    <a4j:repeat value="#{result.testHeaders}" var="testHeader">
+                    <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}" var="testDataColumnHeader">
                         <th>
-                            <h:outputText value="#{testHeader}" />
+                            <h:outputText value="#{testDataColumnHeader}" />
                         </th>
                     </a4j:repeat>
+                    <th>Description</th>
                     <th>Expected</th>
                     <th>Result</th>
 
                 </tr>
-                <a4j:repeat value="#{result.tests}" binding="#{runAllTestsBean.testItems}">
+                
+                <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
                     <tr>
-                        <a4j:repeat value="#{result.testHeaders}" var="testHeader" binding="#{runAllTestsBean.headers}">
+                        <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}" binding="#{runAllTestsBean.testDataColumnHeaders}">
                             <td>
                                 <h:outputText value="#{runAllTestsBean.formattedTestValue}" />
                             </td>
                         </a4j:repeat>
+                        <td>
+                        	<h:outputText value="#{runAllTestsBean.unitDescription}"/>
+                        </td>
+                        
                         <td>
                             <h:outputText value="#{runAllTestsBean.expected}"
                                 rendered="#{empty runAllTestsBean.doubleValueExpected}" />

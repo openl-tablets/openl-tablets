@@ -29,10 +29,10 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.AllTestsRunResult.Test;
+import org.openl.rules.ui.tests.results.RanTestsResults;
+import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -119,14 +119,14 @@ public class ShowTableBean {
     }
 
     private void initAllTests(final ProjectModel model) {
-        AllTestsRunResult allTestRunner = model.getAllTestMethods(uri);
+        RanTestsResults allTestRunner = model.getAllTestMethods(uri);
         if (allTestRunner != null) {
             allTests = allTestRunner.getTests();
         }
     }
 
     private void initRunnableTestMethods(final ProjectModel model) {
-        AllTestsRunResult testsRunner = model.getTestMethods(uri);
+        RanTestsResults testsRunner = model.getTestMethods(uri);
         if (testsRunner != null) {
             runnableTestMethods =  testsRunner.getTests();
         }
@@ -233,7 +233,7 @@ public class ShowTableBean {
      * @return results of run methods.
      */
     public TestRunsResultBean getTestRunResults() {
-        AllTestsRunResult atr = WebStudioUtils.getProjectModel().getRunMethods(uri);
+        RanTestsResults atr = WebStudioUtils.getProjectModel().getRunMethods(uri);
         Test[] tests = null;
         if (atr != null) {
             tests = atr.getTests();

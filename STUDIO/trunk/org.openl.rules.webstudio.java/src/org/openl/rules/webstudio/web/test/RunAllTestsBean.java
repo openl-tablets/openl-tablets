@@ -10,13 +10,11 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
-import org.openl.rules.testmethod.TestMethodHelper;
-import org.openl.rules.testmethod.TestResult;
-import org.openl.rules.testmethod.TestStruct;
-import org.openl.rules.ui.AllTestsRunResult;
+import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.tests.results.RanTestsResults;
+import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
@@ -27,16 +25,10 @@ import org.openl.util.print.Formatter;
  */
 public class RunAllTestsBean {
 
-    private AllTestsRunResult testsResult;
-
-    private int numberOfTests = 0;
-    private int numberOfFailedTests = 0;
-
-    private int numberOfUnits = 0;
-    private int numberOfFailedUnits = 0;
-
-    private UIRepeat testItems;
-    private UIRepeat headers;
+    private RanTestsResults testsResult;
+    
+    private UIRepeat testUnits;
+    private UIRepeat testDataColumnHeaders;
 
     public RunAllTestsBean() {
         String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
@@ -69,64 +61,55 @@ public class RunAllTestsBean {
         } else {
             testsResult =  model.testAll(tableUri);
         }
-
-        numberOfTests = testsResult.getTests().length;
-        numberOfFailedTests = testsResult.numberOfFailedTests();
-        numberOfUnits = testsResult.totalNumberOfTestUnits();
-        numberOfFailedUnits = testsResult.totalNumberOfFailures();
     }
 
-    public AllTestsRunResult.Test[] getRanTests() {
+    public Test[] getRanTests() {
         return testsResult.getTests();
     }
 
     public int getNumberOfTests() {
-        return numberOfTests;
+        return testsResult.getTests().length;
     }
 
     public int getNumberOfFailedTests() {
-        return numberOfFailedTests;
+        return testsResult.numberOfFailedTests(); 
     }
 
     public int getNumberOfUnits() {
-        return numberOfUnits;
+        return testsResult.totalNumberOfTestUnits();
     }
 
     public int getNumberOfFailedUnits() {
-        return numberOfFailedUnits;
+        return testsResult.totalNumberOfFailures();
     }
 
     public UIRepeat getTestItems() {
-        return testItems;
+        return testUnits;
     }
 
     public void setTestItems(UIRepeat testItems) {
-        this.testItems = testItems;
+        this.testUnits = testItems;
     }
 
-    public UIRepeat getHeaders() {
-        return headers;
+    public UIRepeat getTestDataColumnHeaders() {
+        return testDataColumnHeaders;
     }
 
-    public void setHeaders(UIRepeat headers) {
-        this.headers = headers;
+    public void setTestDataColumnHeaders(UIRepeat testDataColumnHeaders) {
+        this.testDataColumnHeaders = testDataColumnHeaders;
     }
 
     public List<OpenLMessage> getErrors() {
-        TestStruct ts = (TestStruct) testItems.getRowData();
-        Throwable exception = ts.getEx();
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        Throwable exception = testUnit.getException();
 
         return OpenLMessagesUtils.newMessages(exception);
     }
 
     public Object getExpected() {
-        TestStruct ts = (TestStruct) testItems.getRowData();
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
         
-        if (ts.getEx() != null) {
-            return ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_ERROR);
-        }
-        
-        return ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
+        return testUnit.getExpectedResult();
     }
 
     public DoubleValue getDoubleValueExpected() {
@@ -138,14 +121,14 @@ public class RunAllTestsBean {
     }
 
     public Object getResult() {
-        TestStruct ts = (TestStruct) testItems.getRowData();
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
         
-        if (ts.getEx() != null) {
-            Throwable rootCause = ExceptionUtils.getRootCause(ts.getEx());
+        if (testUnit.getException() != null) {
+            Throwable rootCause = ExceptionUtils.getRootCause(testUnit.getException());
             return rootCause.getMessage();
         }
         
-        return ts.getRes();
+        return testUnit.getResult();
     }
 
     public DoubleValue getDoubleValueResult() {
@@ -167,40 +150,23 @@ public class RunAllTestsBean {
     }
 
     public int getCompareResult() {
-        TestStruct ts = (TestStruct) testItems.getRowData();
-        
-        if (ts.getEx() != null) {
-            Throwable rootCause = ExceptionUtils.getRootCause(ts.getEx());
-
-            if (rootCause instanceof OpenLUserRuntimeException) {
-                String message = rootCause.getMessage();
-                String expectedMessage = (String) ts.getTestObj().getFieldValue(TestMethodHelper.EXPECTED_ERROR);
-                
-                if (TestResult.compareResult(message, expectedMessage)) {
-                    return TestResult.TR_OK;
-                } else {
-                    return TestResult.TR_NEQ;
-                }
-            }
-
-            return TestResult.TR_EXCEPTION;
-        }
-        
-        if (TestResult.compareResult(getResult(), getExpected())) {
-            return TestResult.TR_OK;
-        }
-        
-        return TestResult.TR_NEQ;
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        return testUnit.compareResult();
     }
 
     public Object getTestValue() {
-        TestStruct ts = (TestStruct) testItems.getRowData();
-        String header = (String) headers.getRowData();
-        return ts.getTestObj().getFieldValue(header);
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        String header = (String) testDataColumnHeaders.getRowData();
+        return testUnit.getFieldValue(header);
     }
 
     public String getFormattedTestValue(){
         Object testValue = getTestValue();
         return Formatter.format(testValue, INamedThing.REGULAR, new StringBuffer()).toString();
+    }
+    
+    public String getUnitDescription() {
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        return (String)testUnit.getDescription();
     }
 }
