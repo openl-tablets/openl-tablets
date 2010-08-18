@@ -53,10 +53,11 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.testmethod.TestResult;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.ui.AllTestsRunResult.Test;
+import org.openl.rules.ui.tests.results.RanTestsResults;
+import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
@@ -139,7 +140,7 @@ public class ProjectModel {
             IOpenMethod m = getMethod(elementUri);
             return benchmarkMethod(m, ms);
         }
-        final AllTestsRunResult atr = getRunMethods(elementUri);
+        final RanTestsResults atr = getRunMethods(elementUri);
 
         final int tid = Integer.parseInt(testID);
 
@@ -260,14 +261,14 @@ public class ProjectModel {
             return null;
         }
         Class<?> clazz = res.getClass();
-        if (!(clazz == TestResult.class)) {
+        if (!(clazz == TestUnitsResults.class)) {
             return res;
         }
-        TestResult tr = (TestResult) res;
-        Object[] ores = new Object[tr.getNumberOfTests()];
+        TestUnitsResults tr = (TestUnitsResults) res;
+        Object[] ores = new Object[tr.getNumberOfTestUnits()];
 
         for (int i = 0; i < ores.length; i++) {
-            ores[i] = tr.getResult(i);
+            ores[i] = tr.getUnitResult(i);
         }
 
         return ores;
@@ -502,7 +503,7 @@ public class ProjectModel {
         return projectRoot;
     }
 
-    public AllTestsRunResult getRunMethods(String elementUri) {
+    public RanTestsResults getRunMethods(String elementUri) {
         IOpenMethod m = getMethod(elementUri);
 
         if (m == null) {
@@ -516,7 +517,7 @@ public class ProjectModel {
             names[i] = ProjectHelper.createTestName(runners[i]);
         }
 
-        return new AllTestsRunResult(runners, names);
+        return new RanTestsResults(runners, names);
 
     }
 
@@ -604,7 +605,7 @@ public class ProjectModel {
         return view == null ? studio.getMode().getTableMode() : view;
     }
 
-    public AllTestsRunResult getTestsRunner(IOpenMethod[] testMethods) {
+    public RanTestsResults getTestsRunner(IOpenMethod[] testMethods) {
         String[] names = new String[testMethods.length];
 
         for (int i = 0; i < testMethods.length; i++) {
@@ -612,7 +613,7 @@ public class ProjectModel {
             names[i] = ProjectHelper.createTestName(testMethods[i]);
         }
 
-        return new AllTestsRunResult(testMethods, names);
+        return new RanTestsResults(testMethods, names);
     }
     
     /**
@@ -623,7 +624,7 @@ public class ProjectModel {
      * @param elementUri
      * @return
      */
-    public AllTestsRunResult getTestMethods(String elementUri) {
+    public RanTestsResults getTestMethods(String elementUri) {
         IOpenMethod[] testMethods = null;
 
         IOpenMethod method = getMethod(elementUri);
@@ -647,7 +648,7 @@ public class ProjectModel {
      * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
      * runs without any parameters and tests without cases and runs.
      */
-    public AllTestsRunResult getAllTestMethods(String elementUri) {
+    public RanTestsResults getAllTestMethods(String elementUri) {
         IOpenMethod[] testMethods = null;
 
         IOpenMethod method = getMethod(elementUri);
@@ -660,7 +661,7 @@ public class ProjectModel {
         return null;
     }
 
-    public AllTestsRunResult getAllTestMethods() {
+    public RanTestsResults getAllTestMethods() {
         IOpenMethod[] testMethods = ProjectHelper.allTesters(
                 compiledOpenClass.getOpenClassWithErrors());
 
@@ -890,36 +891,36 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public AllTestsRunResult testAll(String elementUri) {
-        AllTestsRunResult atr = getTestMethods(elementUri);
-        if (atr == null) {
-            atr = getAllTestMethods();
+    public RanTestsResults testAll(String elementUri) {
+        RanTestsResults testsRunner = getTestMethods(elementUri);
+        if (testsRunner == null) {
+            testsRunner = getAllTestMethods();
         }
 
-        Test[] ttm = atr.getTests();
+        Test[] tests = testsRunner.getTests();
 
-        TestResult[] ttr = new TestResult[ttm.length];
-        for (int i = 0; i < ttr.length; i++) {
-            ttr[i] = (TestResult) runMethod(ttm[i].method);
+        TestUnitsResults[] testResults = new TestUnitsResults[tests.length];
+        for (int i = 0; i < testResults.length; i++) {
+            testResults[i] = (TestUnitsResults) runMethod(tests[i].getMethod());
         }
 
-        atr.setResults(ttr);
-        return atr;
+        testsRunner.setResults(testResults);
+        return testsRunner;
     }
 
-    public AllTestsRunResult testUnit(String testUri, String testName, String unitIdStr) {
-        AllTestsRunResult atr = getTestMethods(testUri);
-        if (atr != null) {
-            Test[] ttm = atr.getTests();
+    public RanTestsResults testUnit(String testUri, String testName, String unitIdStr) {
+        RanTestsResults testsRunner = getTestMethods(testUri);
+        if (testsRunner != null) {
+            Test[] ttm = testsRunner.getTests();
             int unitId = Integer.parseInt(unitIdStr);
-            Test unit = ttm[0];
+            Test testUnit = ttm[0];
 
-            TestResult[] ttr = new TestResult[ttm.length];
-            ttr[0] = (TestResult) runTestUnit(unit.method, unitId);
+            TestUnitsResults[] ttr = new TestUnitsResults[ttm.length];
+            ttr[0] = (TestUnitsResults) runTestUnit(testUnit.getMethod(), unitId);
 
-            atr.setResults(ttr);
+            testsRunner.setResults(ttr);
         }
-        return atr;
+        return testsRunner;
     }
 
     public Object runElement(String elementUri, String testName, String testID) {
@@ -928,14 +929,14 @@ public class ProjectModel {
             return convertTestResult(runMethod(m));
         }
 
-        AllTestsRunResult atr = getRunMethods(elementUri);
+        RanTestsResults testsRunner = getRunMethods(elementUri);
 
         int tid = Integer.parseInt(testID);
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
         try {
-            Object res = atr.run(testName, tid, target, env, 1);
+            Object res = testsRunner.run(testName, tid, target, env, 1);
             return res;
         } catch (Throwable t) {
             Log.error("Error during Method run: ", t);

@@ -7,8 +7,8 @@ import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeStateManager;
 import org.openl.rules.ui.view.WebStudioViewMode;
@@ -84,7 +84,7 @@ public class TreeBean {
 
     public boolean isProjectHasTests() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        AllTestsRunResult allTestMethods = studio.getModel().getAllTestMethods();
+        RanTestsResults allTestMethods = studio.getModel().getAllTestMethods();
         if (allTestMethods != null) {
             return allTestMethods.getTests().length > 0;
         }
