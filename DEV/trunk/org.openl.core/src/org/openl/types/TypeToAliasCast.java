@@ -33,6 +33,7 @@ public class TypeToAliasCast implements IOpenCast {
 		this.toClass = to;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object convert(Object from) {
 
 		IDomain domain = toClass.getDomain();

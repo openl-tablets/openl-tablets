@@ -31,6 +31,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
@@ -165,7 +166,7 @@ public class RuleRowHelper {
 
         ICell theCell = table.getGridTable().getCell(0, 0);
 
-        if (theCell.hasNativeType()) {
+        if (theCell.hasNativeType() && !(paramType instanceof DomainOpenClass)) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
                 Object res = loadNativeValue(theCell, paramType, openlAdapter.getBindingContext(),
                         paramName, ruleName, table);
