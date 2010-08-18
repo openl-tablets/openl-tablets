@@ -1112,6 +1112,11 @@ public class RepositoryTreeController {
      * @return
      */
     public String updateFile() {
+        if (getLastUploadedFile() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Please select file to be uploaded."));
+            return null;
+        }
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("File was successfully updated."));
