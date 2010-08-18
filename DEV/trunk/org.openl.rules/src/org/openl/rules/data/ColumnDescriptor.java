@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -91,29 +90,8 @@ public class ColumnDescriptor {
                 null,
                 valuesTable,
                 ota);
-        } else {
-
-            // FIXME:SEEMS we don`t need it. And it was copy-pasted. Always
-            // works previous branch. Can`t find use case for this branch.
-            // we can`t load array of arrays.
-            // List<Object> values = new ArrayList<Object>();
-            // int valuesHeight = valuesTable.getLogicalHeight();
-            // for (int i = 0; i < valuesHeight; i++) {
-            // Object res = FunctionalRow.loadSingleParam(paramType,
-            // field.getName(), null, valuesTable.getLogicalRow(i), null);
-            // if (res == null) {
-            // break;
-            // }
-            // values.add(res);
-            // }
-            // resultLiteral =
-            // paramType.getAggregateInfo().makeIndexedAggregate(paramType, new
-            // int[] { values.size() });
-            //
-            // for (int i = 0; i < values.size(); i++) {
-            // Array.set(resultLiteral, i, values.get(i));
-            // }
         }
+
         return resultLiteral;
     }
 
@@ -140,8 +118,9 @@ public class ColumnDescriptor {
      * Method is using to load data. Is used when data table is represents as
      * <b>NOT</b> a constructor (see {@link #isConstructor()}). Support loading
      * single value, array of values.
+     * @throws SyntaxNodeException 
      */
-    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) {
+    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
 
         IOpenClass paramType = field.getType();
         
@@ -151,19 +130,15 @@ public class ColumnDescriptor {
 
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
-        try {
-            if (!valuesAnArray) {
-                Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
+        if (!valuesAnArray) {
+            Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
 
-                if (res != null) {
-                    field.set(literal, res, getRuntimeEnv());
-                }
-            } else {
-                Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
-                field.set(literal, arrayValues, getRuntimeEnv());
+            if (res != null) {
+                field.set(literal, res, getRuntimeEnv());
             }
-        } catch (SyntaxNodeException e) {
-            BindHelper.processError(e);
+        } else {
+            Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+            field.set(literal, arrayValues, getRuntimeEnv());
         }
     }
 

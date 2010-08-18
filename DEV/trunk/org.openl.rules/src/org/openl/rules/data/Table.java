@@ -260,17 +260,24 @@ public class Table implements ITable {
         
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
-            if (columnDescriptor != null && !columnDescriptor.isReference()) {
+        
+        if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
                 literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getLogicalRegion(columnNum,
                     rowNum,
                     1,
                     1), openlAdapter);
             } else {
-                columnDescriptor.populateLiteral(literal,
-                    logicalTable.getLogicalRegion(columnNum, rowNum, 1, 1),
-                    openlAdapter);
-            }
+            	
+                try {
+					columnDescriptor.populateLiteral(literal,
+					    logicalTable.getLogicalRegion(columnNum, rowNum, 1, 1),
+					    openlAdapter);
+		        } catch (SyntaxNodeException ex) {
+		        	tableSyntaxNode.addError(ex);
+		        	BindHelper.processError(ex);
+		        }
+			}
         }
 
         return literal;
