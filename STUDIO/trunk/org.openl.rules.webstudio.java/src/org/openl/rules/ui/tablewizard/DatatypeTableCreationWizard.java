@@ -16,6 +16,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.richfaces.component.html.HtmlDataTable;
 
 /**
@@ -97,7 +98,11 @@ public class DatatypeTableCreationWizard extends WizardBase {
         List<String> datatypes = new ArrayList<String>(WizardUtils.getProjectOpenClass().getTypes().size());
         datatypes.add("");
         for(IOpenClass datatype : WizardUtils.getProjectOpenClass().getTypes().values()){
-            datatypes.add(datatype.getName());
+        	
+        	if (!(datatype instanceof DomainOpenClass)) {
+				datatypes.add(datatype.getName());
+			}
+
         }
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
