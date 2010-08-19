@@ -128,7 +128,7 @@ public class TraceIntoFileBean {
         return result.toString();
     }
 
-    public List<SelectItem> getFileTypes() {
+    public List<SelectItem> getFileFormats() {
         List<SelectItem> fileTypes = new ArrayList<SelectItem>();
         fileTypes.add(new SelectItem(TraceFormatterFactory.FORMAT_TEXT, "Text"));
         return fileTypes;
