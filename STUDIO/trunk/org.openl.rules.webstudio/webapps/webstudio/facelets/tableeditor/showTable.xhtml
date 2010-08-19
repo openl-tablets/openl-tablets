@@ -11,9 +11,23 @@
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
+        <a4j:loadStyle src="resource:///css/button.css" />
+        <a4j:loadScript src="resource:///javascript/button.js" />
+
         <script type="text/javascript">
             function open_win(url, name) {
                 window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+            }
+
+            function openTraceIntoFileDlg(button) {
+                var pos = Element.cumulativeOffset(button);
+                pos[1] += button.getHeight();
+
+                var dlgParams = {left:'', top:'' };
+                dlgParams.left = pos[0];
+                dlgParams.top = pos[1] - 1;
+
+                Richfaces.showModalPanel('traceIntoFileDlg', dlgParams);
             }
         </script>
         <style>
@@ -117,9 +131,12 @@
                         <c:set var="traceUrl"
                             value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
-                            <img border="0" src="webresource/images/trace.gif"
-                                title="Trace" alt="Trace" /></a>
-    
+                            <img border="0" src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
+
+                        <a onclick="openTraceIntoFileDlg(this);" href="#">
+                            <h:graphicImage url="/webresource/images/traceIntoFile.gif"
+                                title="Trace into File" alt="Trace into File" /></a>
+
                         <h:outputLink
                             value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml">
                             <f:param value="#{showTableBean.uri}" name="uri" />
@@ -335,6 +352,32 @@
                 </c:forEach>
             </c:forEach>
         </c:if>
+
+        <rich:modalPanel id="traceIntoFileDlg" height="70" width="135" resizeable="false">
+            <h:form>
+                <a4j:keepAlive beanName="traceIntoFileBean" />
+                <h:panelGrid columns="2">
+                    <h:outputText value="Format" />
+                    <h:selectOneMenu value="#{traceIntoFileBean.fileFormat}">
+                        <f:selectItems value="#{traceIntoFileBean.fileFormats}" />
+                    </h:selectOneMenu>
+                    <rich:spacer />
+                    <rich:spacer />
+                </h:panelGrid>
+                <h:commandLink id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
+                    onclick="Richfaces.hideModalPanel('traceIntoFileDlg');">
+                    <a4j:actionparam assignTo="#{traceIntoFileBean.tableUri}" value="#{showTableBean.uri}" />
+                </h:commandLink>
+                <rich:spacer width="3px" />
+                <h:commandLink id="cancelBtn" value="Cancel"
+                    onclick="Richfaces.hideModalPanel('traceIntoFileDlg'); return false;" />
+
+                <script type="text/javascript">
+                    new Button(#{rich:element('traceBtn')}.id);
+                    new Button(#{rich:element('cancelBtn')}.id);
+                </script>
+            </h:form>
+        </rich:modalPanel>
 
     </ui:define>
 
