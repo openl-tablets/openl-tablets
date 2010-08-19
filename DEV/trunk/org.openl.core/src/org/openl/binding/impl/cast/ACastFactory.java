@@ -72,6 +72,13 @@ public class ACastFactory implements ICastFactory {
             return to.getInstanceClass().isPrimitive() ? null : JAVA_DOWNCAST;
         }
 
+        if (from instanceof DomainOpenClass || to instanceof DomainOpenClass) {
+        	IOpenCast typeCast = findAliasCast(from, to);
+        	if (typeCast != null) {
+        		return typeCast;
+        	}
+        }
+        
         if (to instanceof JavaOpenClass) {
             Class<?> fromClass = from.getInstanceClass();
             Class<?> toClass = to.getInstanceClass();
@@ -92,10 +99,6 @@ public class ACastFactory implements ICastFactory {
         }
         if (typeCast == NO_CAST) {
             typeCast = findCast(from, to, to);
-        }
-
-        if (typeCast == NO_CAST) {
-            typeCast = findAliasCast(from, to);
         }
         
         return typeCast;

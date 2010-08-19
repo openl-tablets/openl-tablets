@@ -38,11 +38,15 @@ public class DatatypeHelper {
 		ILogicalTable dataPart = getNormalizedDataPartTable(table, openl, cxt);
 		
 		int height = dataPart.getLogicalHeight();
+		int typesCount1 = countTypes(dataPart, openl, cxt);
+		int typesCount2 = countTypes(dataPart.transpose(), openl, cxt);
 		int width = dataPart.getLogicalWidth();
 		
-		if (height == 0 // values are not provided 
-				|| width == 1
-				|| height == 1) {
+		if (typesCount1 == 0 
+				&& typesCount2 == 0 
+				&& (height == 0 // values are not provided 
+						|| width == 1
+						|| height == 1)) {
 			return true;
 		}
 			

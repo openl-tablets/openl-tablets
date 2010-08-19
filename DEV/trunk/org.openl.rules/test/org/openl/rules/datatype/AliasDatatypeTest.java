@@ -81,7 +81,7 @@ public class AliasDatatypeTest {
 	}
 	
 
-	@Test
+	@Test(expected = Exception.class)
 	public void test4() {
 		File xlsFile = new File(src);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
@@ -89,10 +89,6 @@ public class AliasDatatypeTest {
 
 		ITest instance = testHelper.getInstance();
 		int res = instance.test3(new IntRange(1, 3));
-		assertEquals(1, res);
-
-		res = instance.test3(new IntRange(5, 6));
-		assertEquals(0, res);
 	}
 	
 	@Test

@@ -28,6 +28,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 
@@ -211,6 +212,10 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             if (parentClass == null) {
                 throw new OpenLCompilationException(String.format("Parent class [%s] is not defined", parentClassName));
             }
+            if (parentClass instanceof DomainOpenClass) {
+                throw new OpenLCompilationException(String.format("Parent class [%s] cannot be domain type", parentClassName));
+            }
+            
             dataType.setSuperClass(parentClass);
         }
         addFields(cxt);
