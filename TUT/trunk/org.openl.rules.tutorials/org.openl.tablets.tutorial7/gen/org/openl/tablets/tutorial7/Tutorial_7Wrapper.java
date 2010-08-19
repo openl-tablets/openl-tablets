@@ -133,14 +133,50 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenMethod scoreIssueImportance_Method;
+  public java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue)  {
+    Object[] __params = new Object[1];
+    __params[0] = issue;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod test1TestAll_Method;
-  public org.openl.rules.testmethod.TestResult test1TestAll()  {
+  public org.openl.rules.testmethod.TestUnitsResults test1TestAll()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
     Object __res = test1TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
+   return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod scoreIssue_Method;
+  public int scoreIssue(org.openl.tablets.tutorial7.Issue issue)  {
+    Object[] __params = new Object[1];
+    __params[0] = issue;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = scoreIssue_Method.invoke(__myInstance, __params, __env.get());
+   return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -151,13 +187,13 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod test2TestAll_Method;
-  public org.openl.rules.testmethod.TestResult test2TestAll()  {
+  public org.openl.rules.testmethod.TestUnitsResults test2TestAll()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
     Object __res = test2TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
+   return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -186,49 +222,13 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod test3TestAll_Method;
-  public org.openl.rules.testmethod.TestResult test3TestAll()  {
+  public org.openl.rules.testmethod.TestUnitsResults test3TestAll()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
     Object __res = test3TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod scoreIssueImportance_Method;
-  public java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue)  {
-    Object[] __params = new Object[1];
-    __params[0] = issue;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod scoreIssue_Method;
-  public int scoreIssue(org.openl.tablets.tutorial7.Issue issue)  {
-    Object[] __params = new Object[1];
-    __params[0] = issue;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = scoreIssue_Method.invoke(__myInstance, __params, __env.get());
-   return ((Integer)__res).intValue();  }
+   return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -263,18 +263,18 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     this_Field = __class.getField("this");
     test2_Field = __class.getField("test2");
     test3_Field = __class.getField("test3");
+    scoreIssueImportance_Method = __class.getMatchingMethod("scoreIssueImportance", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
     test1TestAll_Method = __class.getMatchingMethod("test1TestAll", new IOpenClass[] {
 });
+    scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
     test2TestAll_Method = __class.getMatchingMethod("test2TestAll", new IOpenClass[] {
 });
     needApprovalOf_Method = __class.getMatchingMethod("needApprovalOf", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Expense.class)});
     test3TestAll_Method = __class.getMatchingMethod("test3TestAll", new IOpenClass[] {
 });
-    scoreIssueImportance_Method = __class.getMatchingMethod("scoreIssueImportance", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
-    scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
 
     __initialized=true;
   }
