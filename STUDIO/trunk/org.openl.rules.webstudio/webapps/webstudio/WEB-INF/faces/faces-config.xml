@@ -239,6 +239,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>traceIntoFileBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.trace.TraceIntoFileBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>tableViewMenuBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.TableViewMenuBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
