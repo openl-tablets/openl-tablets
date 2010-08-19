@@ -46,20 +46,22 @@ public class ArrayFieldIndex implements IOpenIndex {
      *      java.lang.Object)
      */
     public Object getValue(Object container, Object index) {
-
-        if (index == null) {
-            return null;
-        }
-
-        int len = Array.getLength(container);
-
-        for (int i = 0; i < len; i++) {
-            Object obj = Array.get(container, i);
-
-            Object fieldValue = indexField.get(obj, null);
-
-            if (index.equals(fieldValue)) {
-                return obj;
+        if (index != null) {
+            if (index instanceof Integer) {
+                return Array.get(container, (Integer) index);
+    
+            } else {
+                int len = Array.getLength(container);
+        
+                for (int i = 0; i < len; i++) {
+                    Object obj = Array.get(container, i);
+        
+                    Object fieldValue = indexField.get(obj, null);
+        
+                    if (index.equals(fieldValue)) {
+                        return obj;
+                    }
+                }
             }
         }
 
