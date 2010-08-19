@@ -6,7 +6,9 @@ package org.openl.tablets.tutorial7;
 
 import static java.lang.System.out;
 
-import org.openl.rules.testmethod.TestResult;
+import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.TestUnitResultComparator;
+import org.openl.rules.testmethod.TestUnitsResults;
 
 /**
  * Tutorial 7. Example of ColumnMatch tables.
@@ -57,24 +59,25 @@ public class Tutorial7Main {
         report(tutorial7.test3TestAll());
     }
 
-    private static void report(TestResult testResult) {
+    private static void report(TestUnitsResults testResult) {
         out.println(testResult.getName());
 
         int fails = testResult.getNumberOfFailures();
-        int total = testResult.getNumberOfTests();
+        int total = testResult.getNumberOfTestUnits();
         if (fails == 0) {
             out.println("  All GREEN");
         } else {
             out.printf("  %d test(s) of %d FAILED!\n", fails, total);
         }
-
-        for (int i = 0; i < total; i++) {
-            out.printf("  %d: ", i);
-            if (testResult.getCompareResult(i) == TestResult.TR_OK) {
-                out.printf("OK, %s\n", testResult.getResult(i));
+        int i = 1;
+        for (TestUnit testUnit : testResult.getTestUnits()) {          
+            out.printf(String.format("Test #%s ", i));
+            if (testUnit.compareResult() == TestUnitResultComparator.TR_OK) {
+                out.printf("OK, %s\n", testUnit.getActualResult());
             } else {
-                out.printf("FAILED! Expect <%s> but get <%s>!\n", testResult.getExpected(i), testResult.getResult(i));
+                out.printf("FAILED! Expect <%s> but get <%s>!\n", testUnit.getExpectedResult(), testUnit.getActualResult());
             }
+            i++;
         }
         out.println();
     }

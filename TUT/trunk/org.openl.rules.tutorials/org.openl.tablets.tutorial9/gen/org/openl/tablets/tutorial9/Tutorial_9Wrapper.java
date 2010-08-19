@@ -102,13 +102,13 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod run1TestAll_Method;
-  public org.openl.rules.testmethod.TestResult run1TestAll()  {
+  public org.openl.rules.testmethod.TestUnitsResults run1TestAll()  {
     Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
     Object __res = run1TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
+   return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);

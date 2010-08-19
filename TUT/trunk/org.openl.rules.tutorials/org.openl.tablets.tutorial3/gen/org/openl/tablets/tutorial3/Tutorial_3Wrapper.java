@@ -133,6 +133,24 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenMethod hr24ToAmpm_Method;
+  public java.lang.String hr24ToAmpm(int hr24)  {
+    Object[] __params = new Object[1];
+    __params[0] = new Integer(hr24);
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = hr24ToAmpm_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod test21_Method;
   public java.lang.String test21()  {
     Object[] __params = new Object[0];
@@ -168,24 +186,6 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod region21_Method;
-  public java.lang.String region21(java.lang.String state)  {
-    Object[] __params = new Object[1];
-    __params[0] = state;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = region21_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod region22_Method;
   public java.lang.String region22(java.lang.String state)  {
     Object[] __params = new Object[1];
@@ -204,14 +204,14 @@ public class Tutorial_3Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod hr24ToAmpm_Method;
-  public java.lang.String hr24ToAmpm(int hr24)  {
+  static org.openl.types.IOpenMethod region21_Method;
+  public java.lang.String region21(java.lang.String state)  {
     Object[] __params = new Object[1];
-    __params[0] = new Integer(hr24);
+    __params[0] = state;
     try
     {
     Object __myInstance = __instance;
-    Object __res = hr24ToAmpm_Method.invoke(__myInstance, __params, __env.get());
+    Object __res = region21_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -266,16 +266,16 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     addresses3_Field = __class.getField("addresses3");
     states_Field = __class.getField("states");
     this_Field = __class.getField("this");
+    hr24ToAmpm_Method = __class.getMatchingMethod("hr24ToAmpm", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, int.class)});
     test21_Method = __class.getMatchingMethod("test21", new IOpenClass[] {
 });
     region_Method = __class.getMatchingMethod("region", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
-    region21_Method = __class.getMatchingMethod("region21", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     region22_Method = __class.getMatchingMethod("region22", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
-    hr24ToAmpm_Method = __class.getMatchingMethod("hr24ToAmpm", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, int.class)});
+    region21_Method = __class.getMatchingMethod("region21", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     ampmTo24_Method = __class.getMatchingMethod("ampmTo24", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, int.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
