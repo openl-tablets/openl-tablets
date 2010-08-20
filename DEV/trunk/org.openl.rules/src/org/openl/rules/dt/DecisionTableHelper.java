@@ -71,7 +71,13 @@ public class DecisionTableHelper {
 
         return count;
     }
-
+    
+    /**
+     * Checks if given table contain any horizontal condition header.
+     * 
+     * @param table
+     * @return true if there is is any horizontal condition header in the table.
+     */
     public static boolean hasHConditions(ILogicalTable table) {
 
         int width = table.getLogicalWidth();
