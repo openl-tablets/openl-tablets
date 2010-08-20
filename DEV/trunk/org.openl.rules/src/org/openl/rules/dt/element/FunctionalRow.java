@@ -39,6 +39,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
+import org.openl.util.ArrayTool;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -240,7 +241,6 @@ public abstract class FunctionalRow implements IDecisionRow {
     private Object[][] prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
 
         int len = nValues();
-        Object[][] values = new Object[len][];
 
         IParameterDeclaration[] paramDecl = getParams(method.getMethodBodyBoundNode().getSyntaxNode().getModule(),
             method.getSignature(),
@@ -249,55 +249,16 @@ public abstract class FunctionalRow implements IDecisionRow {
             ota.getOpenl(),
             ota.getBindingContext());
 
-        boolean[] paramIndexed = new boolean[paramDecl.length];
-        for (int i = 0; i < paramIndexed.length; i++) {
-            paramIndexed[i] = paramDecl[i].getType().getAggregateInfo().isAggregate(paramDecl[i].getType());
-        }
+        boolean[] paramIndexed = getParamIndexed(paramDecl);
 
         ArrayList<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
+        Object[][] preparedValues = new Object[len][];
 
-        for (int col = 0; col < len; col++) {
-            ILogicalTable valueCell = getValueCell(col);
-            IGridTable paramGridColumn = valueCell.getGridTable();
+        for (int columnNumber = 0; columnNumber < len; columnNumber++) {
+            Object[] loadedColumnParams = loadParamsFromColumn(ota, ruleRow, paramDecl, paramIndexed, errors, columnNumber);
 
-            Object[] valueAry = new Object[paramDecl.length];
-
-            int fromHeight = 0;
-            boolean notEmpty = false;
-            String ruleName = ruleRow == null ? "R" + (col + 1) : ruleRow.getRuleName(col);
-
-            for (int j = 0; j < paramDecl.length; j++) {
-                if (paramDecl[j] == null) {
-                    continue;
-                }
-
-                int gridHeight = paramsTable.getLogicalRow(j).getGridTable().getGridHeight();
-                IGridTable singleParamGridTable = (IGridTable) paramGridColumn.rows(fromHeight,
-                    fromHeight + gridHeight - 1);
-
-                Object v = null;
-                try {
-                    IOpenClass paramType = paramDecl[j].getType();
-                    v = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
-                        paramType,
-                        paramDecl[j].getName(),
-                        ruleName,
-                        ota,
-                        paramIndexed[j]);
-                } catch (SyntaxNodeException error) {
-                    errors.add(error);
-                }
-
-                if (v != null) {
-                    notEmpty = true;
-                }
-                valueAry[j] = v;
-
-                fromHeight += gridHeight;
-            }
-
-            if (notEmpty) {
-                values[col] = valueAry;
+            if (!ArrayTool.isEmpty(loadedColumnParams)) {
+                preparedValues[columnNumber] = loadedColumnParams;
             }
         }
 
@@ -305,7 +266,52 @@ public abstract class FunctionalRow implements IDecisionRow {
             throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
         }
 
-        return values;
+        return preparedValues;
+    }
+
+    private Object[] loadParamsFromColumn(OpenlToolAdaptor ota, RuleRow ruleRow, IParameterDeclaration[] paramDecl,
+            boolean[] paramIndexed, ArrayList<SyntaxNodeException> errors, int columnNumber) {        
+        IGridTable paramGridColumn = getValueCell(columnNumber).getGridTable();        
+
+        int fromHeight = 0;        
+        String ruleName = ruleRow == null ? "R" + (columnNumber + 1) : ruleRow.getRuleName(columnNumber);
+        
+        Object[] valueAry = new Object[paramDecl.length];
+        
+        for (int j = 0; j < paramDecl.length; j++) {
+            if (paramDecl[j] == null) {
+                continue;
+            }
+
+            int gridHeight = paramsTable.getLogicalRow(j).getGridTable().getGridHeight();
+            IGridTable singleParamGridTable = (IGridTable) paramGridColumn.rows(fromHeight,
+                fromHeight + gridHeight - 1);
+
+            Object loadedValue = null;
+            try {
+                IOpenClass paramType = paramDecl[j].getType();
+                loadedValue = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
+                    paramType,
+                    paramDecl[j].getName(),
+                    ruleName,
+                    ota,
+                    paramIndexed[j]);
+            } catch (SyntaxNodeException error) {
+                errors.add(error);
+            }
+            valueAry[j] = loadedValue;
+
+            fromHeight += gridHeight;
+        }
+        return valueAry;
+    }
+
+    private boolean[] getParamIndexed(IParameterDeclaration[] paramDecl) {
+        boolean[] paramIndexed = new boolean[paramDecl.length];
+        for (int i = 0; i < paramIndexed.length; i++) {
+            paramIndexed[i] = paramDecl[i].getType().getAggregateInfo().isAggregate(paramDecl[i].getType());
+        }
+        return paramIndexed;
     }
 
     protected Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, Object[] params) {
@@ -317,7 +323,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         return newParams;
     }
-
+        
     private ILogicalTable getValueCell(int column) {
         return decisionTable.getLogicalRegion(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }

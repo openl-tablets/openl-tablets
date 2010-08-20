@@ -320,6 +320,32 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
             IBindingContextDelegator bindingContextDelegator) throws Exception {
 
         IMethodSignature signature = header.getSignature();
+        
+        IConditionEvaluator[] evaluators = prepareConditions(openl, module, bindingContextDelegator, signature);
+
+        makeAlgorithm(evaluators);
+        
+        prepareActions(header, openl, module, bindingContextDelegator, signature);
+    }
+
+    private void prepareActions(IOpenMethodHeader header,
+            OpenL openl,
+            ModuleOpenClass module,
+            IBindingContextDelegator bindingContextDelegator,
+            IMethodSignature signature) throws Exception {
+        
+        IBindingContextDelegator actionBindingContextDelegator = new ModuleBindingContext(bindingContextDelegator, (ModuleOpenClass)getRuleExecutionType(openl));
+
+        for (int i = 0; i < actionRows.length; i++) {
+            IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
+            actionRows[i].prepareAction(methodType, signature, openl, module, actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
+        }
+    }
+
+    private IConditionEvaluator[] prepareConditions(OpenL openl,
+            ModuleOpenClass module,
+            IBindingContextDelegator bindingContextDelegator,
+            IMethodSignature signature) throws Exception {
         IConditionEvaluator[] evaluators = new IConditionEvaluator[conditionRows.length];
 
         for (int i = 0; i < conditionRows.length; i++) {
@@ -329,15 +355,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                 bindingContextDelegator,
                 ruleRow);
         }
-
-        makeAlgorithm(evaluators);
-        
-        IBindingContextDelegator actionBindingContextDelegator = new ModuleBindingContext(bindingContextDelegator, (ModuleOpenClass)getRuleExecutionType(openl));
-
-        for (int i = 0; i < actionRows.length; i++) {
-            IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            actionRows[i].prepareAction(methodType, signature, openl, module, actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
-        }
+        return evaluators;
     }
 
     @Override

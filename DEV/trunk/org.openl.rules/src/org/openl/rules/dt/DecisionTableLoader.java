@@ -88,7 +88,8 @@ public class DecisionTableLoader {
         ILogicalTable transposed = tableBody.transpose();
         ILogicalTable toParse = tableBody;
 
-        if (DecisionTableHelper.hasHConditions(tableBody)) {
+        // check if table is a lookup table
+        if (isLookupDecisionTable(tableBody)) {
 
             try {
                 ILogicalTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
@@ -116,6 +117,10 @@ public class DecisionTableLoader {
         for (int i = 0; i < toParse.getLogicalHeight(); i++) {
             loadRow(i, toParse);
         }
+    }
+
+    private boolean isLookupDecisionTable(ILogicalTable tableBody) {
+        return DecisionTableHelper.hasHConditions(tableBody);
     }
 
     private void loadRow(int row, ILogicalTable table) throws SyntaxNodeException {
