@@ -10,18 +10,14 @@
     <ui:define name="header">
         <script type="text/javascript">
             //<![CDATA[
-        	function toggleSelectAll(N)
-        	{
-        	 selectAllCheckBox=document.getElementById("BMForm:BMTable:selectAll");
-        	 for(i = 0; i < N; i++)
-        	   setElementChecked("BMForm:BMTable:"+i+":BM", selectAllCheckBox.checked);
-        	}
-        
-        
-        	function setElementChecked(id,value)
-        	{
-        	 element=document.getElementById(id);
-        	   element.checked=value;
+        	function toggleSelectAll(nItems) {
+        	    var selectAllCheckBox = document.getElementById("BMForm:BMTable:selectAll");
+        	    for(i = 0; i < nItems; i++) {
+                    var checkbox = document.getElementById("BMForm:BMTable:" + i + ":BM");
+                    if (checkbox) {
+                        checkbox.checked = selectAllCheckBox.checked;
+                    }
+                }
         	}
             //]]>
         </script>
@@ -30,9 +26,7 @@
         <h:outputText style="font-size: large;"
             value="Results of benchmarking #{benchmarkMethodBean.testName} (#{benchmarkMethodBean.testDescr})" />
         <a4j:form id="BMForm">
-            <h:dataTable id="BMTable"
-                value="#{benchmarkMethodBean.benchmarks}"
-                var="item"
+            <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
                 columnClasses="none,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix"
                 headerClass="none" styleClass="ov-matrix"
                 binding="#{benchmarkMethodBean.htmlDataTableBM}">
@@ -88,10 +82,9 @@
                 <h:column>
                     <f:facet name="header">
                         <h:selectBooleanCheckbox id="selectAll"
-                            onclick="toggleSelectAll('#{benchmarkMethodBean.benchmarkCount}')" />
+                            onclick="toggleSelectAll(#{benchmarkMethodBean.benchmarkCount})" />
                     </f:facet>
-                    <h:selectBooleanCheckbox id="BM"
-                        value="#{benchmarkMethodBean.bencmarkSelected}" />
+                    <h:selectBooleanCheckbox id="BM" value="#{benchmarkMethodBean.bencmarkSelected}" />
                 </h:column>
             </h:dataTable>
 
