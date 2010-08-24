@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.table.CoordinatesTransformer;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
@@ -15,22 +16,22 @@ import org.openl.rules.table.TransformedGridTable;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup
- * tables to create a single-column return value.
+ * tables to create a single-column return value.<br><br>
  * 
  * The lookup values could appear either left of the lookup table or on top of
- * it.
+ * it.<br><br>
  * 
- * The values on the left will be called "vertical" and values on top will be
- * called "horizontal".
- * 
+ * The values on the left will be called <b>"vertical"</b> and values on top will be
+ * called <b>"horizontal"</b>.<br><br> 
  * 
  * The table should have at least one vertical condition column, it can have
  * the Rule column, it (in theory) might have vertical Actions which will be
  * processed the same way as vertical conditions, it must have one or more
- * Horizontal Conditions, and exactly one (optional in the future release) RET
- * column
+ * Horizontal Conditions, and exactly one (optional in the future release) <b>RET</b>
+ * column<br><br>. <b>RET</b> section can be placed in any place of lookup headers row, after 
+ * vertical conditions (for users convenience).
  * 
- * The Horizontal Conditions will be marked HC1, HC2 etc. The first HC column
+ * The Horizontal Conditions will be marked <b>HC1</b>, <b>HC2</b> etc. The first HC column or RET column
  * will mark the starting column of the lookup matrix
  */
 
@@ -50,9 +51,9 @@ public class DecisionTableLookupConvertor {
 
         ILogicalTable headerRow = originaltable.getLogicalRow(HEADER_ROW);
 
-        int firstLookupColumn = findFirstLookupColumn(headerRow);
+        int firstLookupColumn = findFirstLookupColumn(headerRow);        
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
-        validateLookupSection();        
+        validateLookupSection();      
 
         IGridRegion displayRowRegion = getDisplayRowRegion(originaltable);
         
@@ -65,12 +66,93 @@ public class DecisionTableLookupConvertor {
         IGridTable lookupValuesTable = getLookupValuesTable(originaltable, firstLookupGridColumn, grid);
         
         isMultiplier(lookupValuesTable);
+        
+        CoordinatesTransformer transformer = getTransformer(headerRow, table, lookupValuesTable);
+        
+        return new TransformedGridTable(table.getGridTable(), transformer).asGridTable();        
+    }    
+    
+    /**
+     * 
+     * @param headerRow row with lookup table headers.
+     * @return physical index from grid table, indicating first empty cell in the header row 
+     */
+    private int findFirstEmptyCellInHeader(ILogicalTable headerRow) {
+        int ncol = headerRow.getGridTable().getGridWidth();        
+        for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
+            String headerStr = headerRow.getGridTable().getCell(columnIndex, 0).getStringValue();
 
-        return new TransformedGridTable(table.getGridTable(), 
-            new TwoDimensionDecisionTableTranformer(table.getGridTable(), lookupValuesTable, retTable.getGridTable())).asGridTable();
+            if (headerStr == null) {
+                return columnIndex;
+            }
+        }
+        return 0;
     }
 
-    private void processHorizConditionsHeaders(IGridRegion displayRowRegion, int firstLookupGridColumn, IGrid grid) throws OpenLCompilationException {
+    private CoordinatesTransformer getTransformer(ILogicalTable headerRow, ILogicalTable table, 
+            IGridTable lookupValuesTable) throws OpenLCompilationException {
+        int retColumnStart = findRetColumnStart(headerRow);
+        int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
+        int retTableWidth = retTable.getGridTable().getGridWidth();
+        
+        if (isRetLastColumn(retColumnStart, retTableWidth, firstEmptyCell)) {
+            return new TwoDimensionDecisionTableTranformer(table.getGridTable(), lookupValuesTable, retTableWidth);
+        } else {
+            return new LookupHeadersTransformer(table.getGridTable(), lookupValuesTable, retTableWidth, retColumnStart, 
+                firstEmptyCell);
+        }
+    }
+    
+    /**
+     * Checks if the RET section is the last one in the header row
+     * 
+     * @param retColumnStart index, indicating beginning of RET section 
+     * @param retTableWidth width of RET section
+     * @param firstEmptyCell index, indicating first empty cell in the header
+     * @return true if RET section is the last one
+     */
+    private boolean isRetLastColumn(int retColumnStart, int retTableWidth, int firstEmptyCell) {
+        return retColumnStart + retTableWidth == firstEmptyCell;    
+    }
+    
+    /**
+     * Finds the physical index from grid table, indicating beginning of RET section.
+     * 
+     * @param headerRow row with lookup table headers. For example:<br>
+     * <table cellspacing="2">
+     * <tr>
+     * <td align="center" bgcolor="#8FCB52"><b>C1</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>C2</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>C3</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>HC1</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>HC2</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>HC3</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>RET1</b></td>
+     * </tr>    
+     * </table>
+     * 
+     * @return the physical index from grid table, indicating beginning of RET section 
+     * @throws OpenLCompilationException if there is no RET section in the table.
+     */
+    private int findRetColumnStart(ILogicalTable headerRow) throws OpenLCompilationException {
+        int ncol = headerRow.getGridTable().getGridWidth();
+
+        for (int columnIndex = 0; columnIndex < ncol; columnIndex ++) {
+            String headerStr = headerRow.getGridTable().getCell(columnIndex, 0).getStringValue();
+
+            if (headerStr != null) {
+                headerStr = headerStr.toUpperCase();
+
+                if (DecisionTableHelper.isValidRetHeader(headerStr)) { 
+                    return columnIndex;
+                }               
+            }
+        }
+        throw new OpenLCompilationException("Lookup table must have at least one RET column");
+    }
+
+    private void processHorizConditionsHeaders(IGridRegion displayRowRegion, int firstLookupGridColumn, IGrid grid) 
+        throws OpenLCompilationException {
         IGridRegion hcHeadersRegion = new GridRegion(displayRowRegion, IGridRegion.LEFT, firstLookupGridColumn);
         ILogicalTable hcHeaderTable = new GridTable(hcHeadersRegion, grid);
 
@@ -124,6 +206,23 @@ public class DecisionTableLookupConvertor {
         throw new OpenLCompilationException(message);
     }
     
+    /**
+     * 
+     * @param headerRow row with lookup table headers. For example:
+     * <table cellspacing="2">
+     * <tr>
+     * <td align="center" bgcolor="#8FCB52"><b>C1</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>C2</b></td>     
+     * <td align="center" bgcolor="#8FCB52"><b>HC1</b></td>
+     * <td align="center" bgcolor="#8FCB52"><b>HC2</b></td>     
+     * <td align="center" bgcolor="#8FCB52"><b>RET1</b></td>
+     * </tr>    
+     * </table>
+     * In this case the return will be <code>2</code>.
+     * 
+     * @return NOTE!!! it returns an index of logical column!
+     * @throws OpenLCompilationException when there is no lookup headers.
+     */
     private int findFirstLookupColumn(ILogicalTable headerRow) throws OpenLCompilationException {        
         int ncol = headerRow.getLogicalWidth();
 
