@@ -2,6 +2,9 @@ package org.openl.rules.table;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 /**
  * Handles two coordinates: column number and row number.
  *
@@ -33,5 +36,34 @@ public class Point implements Serializable {
     public void setRow(int row) {
         this.row = row;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        EqualsBuilder builder = new EqualsBuilder();
+        if (!(obj instanceof Point)) {;
+            return false;
+        }
+        Point another = (Point)obj;
+        builder.append(another.column, column);
+        builder.append(another.row, row);
+        
+        return builder.isEquals();
+    }
+    
+    @Override
+    public int hashCode() {
+        int hashCode = new HashCodeBuilder()
+            .append(column)
+            .append(row)
+            .toHashCode();
+        
+        return hashCode;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("column index: %s\nrow index: %s", column, row);
+    }
+    
     
 }

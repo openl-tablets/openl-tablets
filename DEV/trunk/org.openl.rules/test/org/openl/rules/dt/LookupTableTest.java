@@ -10,7 +10,19 @@ import org.openl.runtime.EngineFactory;
 
 public class LookupTableTest {
     
-    private static String src = "test/rules/LookUpTableTest.xls";
+    public interface ILookupTableTest {
+        
+        DoubleValue getCarPrice(String country, String region, String brand, String model);
+        
+        DoubleValue getCarPriceMergedHorizontalCond(String country, String region, String brand, String model);
+        
+        DoubleValue getCarPriceMergedVerticalCondWithRuleCol(String country, String region, String brand, String model);
+        
+        DoubleValue getCarPriceMergedVerticalCond(String country, String region, String brand, String model);
+
+    }
+    
+    private static String src = "test/rules/dt/lookup/LookUpTableTest.xls";
     
     private ILookupTableTest test;
     
