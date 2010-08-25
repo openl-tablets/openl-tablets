@@ -53,6 +53,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -265,13 +266,15 @@ public class ProjectModel {
             return res;
         }
         TestUnitsResults tr = (TestUnitsResults) res;
-        Object[] ores = new Object[tr.getNumberOfTestUnits()];
-
-        for (int i = 0; i < ores.length; i++) {
-            ores[i] = tr.getUnitResult(i);
+        Object[] unitResults = new Object[tr.getNumberOfTestUnits()];
+        
+        int i = 0;
+        for (TestUnit testUnit : tr.getTestUnits()) {
+            unitResults[i] = testUnit;
+            i++;
         }
 
-        return ores;
+        return unitResults;
     }
 
     public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {        
