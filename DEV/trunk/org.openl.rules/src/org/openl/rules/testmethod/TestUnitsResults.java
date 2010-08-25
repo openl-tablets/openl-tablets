@@ -41,7 +41,8 @@ public class TestUnitsResults implements INamedThing {
         TestUnit testUnit = new TestUnit(testObj, res, ex);
         testUnits.add(testUnit);
     }
-
+    
+    @Deprecated
     public Object getExpected(int i) {
         return testUnits.get(i).getExpectedResult();
     }
@@ -62,11 +63,13 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfTestUnits() {
         return testUnits.size();
     }
-
+    
+    @Deprecated
     public Object getUnitResult(int i) {
         return testUnits.get(i).getActualResult();
     }
-
+    
+    @Deprecated
     public Object getUnitDescription(int i) {        
         return testUnits.get(i).getDescription();
     }
@@ -103,7 +106,7 @@ public class TestUnitsResults implements INamedThing {
         
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).compareResult() != TestUnitResultComparator.TR_OK) {
-                sb.append('\n').append(i+1).append(". ").append(getUnitDescription(i)).append("\t").append(getExpected(i)).append(" / ").append(getUnitResult(i));
+                sb.append('\n').append(i+1).append(". ").append(testUnits.get(i).getDescription()).append("\t").append(testUnits.get(i).getExpectedResult()).append(" / ").append(testUnits.get(i).getActualResult());
             }    
         }
 
