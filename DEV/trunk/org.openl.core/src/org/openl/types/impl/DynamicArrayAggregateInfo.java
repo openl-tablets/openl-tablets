@@ -8,7 +8,6 @@ package org.openl.types.impl;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -78,16 +77,19 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
         return null;
     }
 
-    public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
-        IOpenClass componentClass = ((ArrayOpenClass) aggregateType).getComponentClass();
+    public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {        
 
-        IOpenField indexField = componentClass.getIndexField();
+//        in future we want to work with Datatype arrays like this: people["John"]
+//        but now it is not supported. Working with Datatype arrays is the same that with all others.
 
-        if (indexField != null) {
-            if (indexField.getType() == indexType) {
-                return new ArrayFieldIndex(componentClass, indexField);
-            }
-        }
+//        IOpenClass componentClass = ((ArrayOpenClass) aggregateType).getComponentClass();
+//        IOpenField indexField = componentClass.getIndexField();
+//
+//        if (indexField != null) {
+//            if (indexField.getType() == indexType) {
+//                return new ArrayFieldIndex(componentClass, indexField);
+//            }
+//        }
 
         if (indexType != JavaOpenClass.INT) {
             return null;

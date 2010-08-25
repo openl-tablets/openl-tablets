@@ -140,7 +140,10 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             try {
                 dataType.addField(field);
                 fields.put(fieldName, new FieldType(field));
-                if (firstField) {
+                if (firstField) { // this is done for operations like people["john"]
+                                   // to access one instance of datatype from array by 
+                                    // user defined index. But it`s not implemented yet.
+                                    // See DynamicArrayAggregateInfo#getIndex(IOpenClass aggregateType, IOpenClass indexType)
                     dataType.setIndexField(field);
                 }
             } catch (Throwable t) {
