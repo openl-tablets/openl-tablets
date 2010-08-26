@@ -3,6 +3,8 @@ package org.openl.rules.ui.tree;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.util.conf.Version;
@@ -18,6 +20,9 @@ import org.openl.util.conf.Version;
  * @author PUdalau
  */
 public class VersionedTreeNode extends ProjectTreeNode {
+    
+    private static Log LOG = LogFactory.getLog(VersionedTreeNode.class);
+    
     private TableSyntaxNode linkedChild;
 
     public VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
@@ -100,8 +105,16 @@ public class VersionedTreeNode extends ProjectTreeNode {
         } else {
             return 0;
         }
-        Version firstNodeVersion = Version.parseVersion(first.getTableProperties().getVersion(), 0, "..");
-        Version secondNodeVersion = Version.parseVersion(second.getTableProperties().getVersion(), 0, "..");
-        return secondNodeVersion.compareTo(firstNodeVersion);
+        try {
+            Version firstNodeVersion = Version.parseVersion(first.getTableProperties().getVersion(), 0, "..");
+            Version secondNodeVersion = Version.parseVersion(second.getTableProperties().getVersion(), 0, "..");
+            return secondNodeVersion.compareTo(firstNodeVersion);
+        } catch (RuntimeException e) {
+            // it is just fix to avoid tree crashing.
+            // we need to validate format of the versions, during compilation of Openl and also on UI.
+            LOG.error(e);
+        }
+        return 0;
+        
     }
 }
