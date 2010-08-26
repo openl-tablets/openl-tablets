@@ -101,9 +101,11 @@ public class RunAllTestsBean {
 
     public List<OpenLMessage> getErrors() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
-        Throwable exception = testUnit.getException();
-
-        return OpenLMessagesUtils.newMessages(exception);
+        Object result = testUnit.getActualResult();
+        if (result instanceof Throwable) {
+            return OpenLMessagesUtils.newMessages((Throwable)result);
+        }
+        return null;
     }
 
     public Object getExpected() {
@@ -122,13 +124,12 @@ public class RunAllTestsBean {
 
     public Object getResult() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
-        
-        if (testUnit.getException() != null) {
-            Throwable rootCause = ExceptionUtils.getRootCause(testUnit.getException());
+        Object result = testUnit.getActualResult();
+        if (result instanceof Throwable) {
+            Throwable rootCause = ExceptionUtils.getRootCause((Throwable)result);
             return rootCause.getMessage();
         }
-        
-        return testUnit.getResult();
+        return result;
     }
 
     public DoubleValue getDoubleValueResult() {
@@ -169,4 +170,5 @@ public class RunAllTestsBean {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
         return (String)testUnit.getDescription();
     }
+    
 }
