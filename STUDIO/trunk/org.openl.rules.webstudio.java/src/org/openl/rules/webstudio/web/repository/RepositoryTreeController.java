@@ -341,7 +341,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, null, "New project created succesfully!"));
         }
-        return null;
+        return errorMessage;
     }
 
     private String createRulesProjectFromZip(String projectName, UserWorkspace userWorkspace,
@@ -1137,8 +1137,9 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Project was uploaded successfully."));
             repositoryTreeState.invalidateTree();
         } else {
+            // don`t need to add errorMessage. It was added in #createRulesProject() method 
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Error while uploading project."));
         }
         return null;
     }
@@ -1190,6 +1191,7 @@ public class RepositoryTreeController {
     }
 
     private String uploadProject() {
+        String errorMessage = null;
         UploadItem uploadedItem = getLastUploadedFile();
         File uploadedFile = uploadedItem.getFile();
 
@@ -1203,7 +1205,7 @@ public class RepositoryTreeController {
                     ZipFile zipFile = new ZipFile(uploadedFile);
                     createRulesProjectFromZip(projectName, userWorkspace, zipFile, zipFilter);
                 } else if (FileTypeHelper.isExcelFile(uploadedItem.getFileName())) {
-                    createRulesProject(projectName, userWorkspace, new FileInputStream(uploadedFile),
+                    errorMessage = createRulesProject(projectName, userWorkspace, new FileInputStream(uploadedFile),
                             uploadedItem.getFileName());
                 }
             }
@@ -1213,7 +1215,7 @@ public class RepositoryTreeController {
             return "" + e.getMessage();
         }
 
-        return null;
+        return errorMessage;
     }
 
     private void clearUploadedFiles() {
