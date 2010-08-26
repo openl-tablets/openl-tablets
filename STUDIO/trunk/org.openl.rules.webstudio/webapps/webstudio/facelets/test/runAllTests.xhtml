@@ -46,8 +46,8 @@
                         <th>
                             <h:outputText value="#{testDataColumnHeader}" />
                         </th>
-                    </a4j:repeat>
-                    <th>Description</th>
+                    </a4j:repeat>                    
+                    <th><h:outputText value="Description" rendered="#{testUnitsResults.anyUnitHasDescription}"/></th>                    
                     <th>Expected</th>
                     <th>Result</th>
 
@@ -61,7 +61,7 @@
                             </td>
                         </a4j:repeat>
                         <td>
-                        	<h:outputText value="#{runAllTestsBean.unitDescription}"/>
+                        	<h:outputText value="#{runAllTestsBean.unitDescription}" rendered="#{testUnitsResults.anyUnitHasDescription}"/>
                         </td>
                         
                         <td>
