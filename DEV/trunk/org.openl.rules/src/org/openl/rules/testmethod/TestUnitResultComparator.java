@@ -38,7 +38,7 @@ public class TestUnitResultComparator {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
             String message = rootCause.getMessage();
-            String expectedMessage = (String) testUnit.getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+            String expectedMessage = (String) testUnit.getExpectedResult();
             
             // OpenL engine recognizes empty cell as 'null' value.
             // When user define 'error' expression with empty string as message

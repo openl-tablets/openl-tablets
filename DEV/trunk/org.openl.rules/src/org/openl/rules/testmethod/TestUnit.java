@@ -9,35 +9,35 @@ import org.openl.types.impl.DynamicObject;
 public class TestUnit {
 
     private DynamicObject testObj;
-    private Object res;
-    private Throwable exception;    
     
-    public static final String NO_DESCRIPTION = "No Description";
+    // the result of running test unit if exists
+    private Object runningResult;
+    
+    // the exception occurred during running test unit
+    private Throwable exception;   
+   
+    private Object expectedResult;
+    
+    private Object actualResult;
+    
+    public static final String DEFAULT_DESCRIPTION = "No Description";
 
     public TestUnit(DynamicObject obj, Object res, Throwable exception) {
         this.exception = exception;
-        this.res = res;
-        this.testObj = obj;
+        this.runningResult = res;
+        this.testObj = obj;        
     }
 
-    public DynamicObject getTestObj() {
-        return testObj;
+    private void initExpectedResult() {        
+        if (exception != null) {
+            expectedResult = getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+        } else {
+            expectedResult = getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
+        }
     }
     
-    /**     
-     * 
-     * @return the result of running if exists. see {@link TestUnit#getActualResult()}
-     */
-    public Object getResult() {
-        return res;
-    }
-    
-    /**
-     * 
-     * @return the exception occurred during running test unit.
-     */
-    public Throwable getException() {
-        return exception;
+    private void initActualResult() {        
+        actualResult = exception != null ? exception : runningResult;
     }
     
     /**
@@ -46,11 +46,10 @@ public class TestUnit {
      * @return the value of expected result.
      */
     public Object getExpectedResult() {
-        if (exception != null) {
-            return getFieldValue(TestMethodHelper.EXPECTED_ERROR);
-        } else {
-            return getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
+        if (expectedResult == null) {
+            initExpectedResult();
         }
+        return expectedResult;
     }
     
     /**
@@ -59,19 +58,22 @@ public class TestUnit {
      * @return exception that occurred during running, if it was. If no, returns the calculated result.
      */
     public Object getActualResult() {
-        return exception != null ? exception : res;
+        if (actualResult == null) {
+            initActualResult();
+        }
+        return actualResult;
     }
     
     /**
      * Gets the description field value. 
      * 
      * @return if the description field value presents, return it`s value. In other case return
-     * {@link TestUnit#NO_DESCRIPTION}
+     * {@link TestUnit#DEFAULT_DESCRIPTION}
      */
     public Object getDescription() {
         Object descr = getFieldValue(TestMethodHelper.DESCRIPTION_NAME);
         
-        return descr == null ? NO_DESCRIPTION : descr;
+        return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
     
     /**

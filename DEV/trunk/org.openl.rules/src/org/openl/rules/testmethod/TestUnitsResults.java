@@ -64,6 +64,15 @@ public class TestUnitsResults implements INamedThing {
         return testUnits.size();
     }
     
+    public boolean isAnyUnitHasDescription() {
+        for (TestUnit testUnit: testUnits) {
+            if (!testUnit.getDescription().equals(TestUnit.DEFAULT_DESCRIPTION)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @Deprecated
     public Object getUnitResult(int i) {
         return testUnits.get(i).getActualResult();
@@ -92,7 +101,7 @@ public class TestUnitsResults implements INamedThing {
 
         TestUnit testUnit = testUnits.get(i);
 
-        return testUnit.getTestObj().getFieldValue(fname);
+        return testUnit.getFieldValue(fname);
     }
 
     public StringBuilder printFailedUnits(StringBuilder sb) {
