@@ -139,9 +139,10 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
 
             result = resultBuilder.makeResult(res);
             traceObject.setResult(result);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
            traceObject.setError(e);
            LOG.error("Error when tracing Spreadsheet table", e);
+           throw e;
         } finally {
             tracer.pop();
 

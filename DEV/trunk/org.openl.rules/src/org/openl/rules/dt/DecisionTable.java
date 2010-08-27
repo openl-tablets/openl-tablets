@@ -298,9 +298,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 //                    }
                 }
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             traceObject.setError(e);
             LOG.error("Error when tracing DT rule", e);
+            throw e;
         } finally {
             tracer.pop();
         }
