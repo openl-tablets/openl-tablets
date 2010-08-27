@@ -63,14 +63,13 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
             traceObject.setResult(result);
             return result;
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             traceObject.setError(e);
             LOG.error("Error when tracing Method table", e);
+            throw e;
         } finally {
             tracer.pop();
-        }
-
-        return result;
+        }        
     }
 
     public BindingDependencies getDependencies() {

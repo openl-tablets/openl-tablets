@@ -98,9 +98,10 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
         try {
             resultValue = algorithmVM.run(runtimeEnvironment, true);
             algorithmTracer.setResult(resultValue);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             algorithmTracer.setError(e);
             LOG.error("Error when tracing TBasic table", e);
+            throw e;
         } finally {
             Tracer.getTracer().pop();
         }
