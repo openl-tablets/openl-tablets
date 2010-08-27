@@ -270,7 +270,7 @@ public class ProjectModel {
         
         int i = 0;
         for (TestUnit testUnit : tr.getTestUnits()) {
-            unitResults[i] = testUnit;
+            unitResults[i] = testUnit.getActualResult();
             i++;
         }
 
