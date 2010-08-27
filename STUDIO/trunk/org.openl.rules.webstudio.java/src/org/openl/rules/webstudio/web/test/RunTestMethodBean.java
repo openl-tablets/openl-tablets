@@ -1,13 +1,11 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ui.Explanator;
@@ -116,7 +114,8 @@ public class RunTestMethodBean {
         }
         return null;
     }
-
+        
+    @SuppressWarnings("deprecation")
     public String getFormattedSpreadsheetResult() {
         SpreadsheetResult spreadsheetResult = getSpreadsheetResult();
         if (spreadsheetResult != null) {
@@ -127,25 +126,17 @@ public class RunTestMethodBean {
 
     public DoubleValue getDoubleValueResult() {
         Object result = resultItems.getRowData();
-        if (result instanceof DoubleValue) {
-            return (DoubleValue) result;
-        }
-        return null;
+        return TestResultsHelper.getDoubleValueResult(result);
     }
 
     public int getExplanatorId() {
-        DoubleValue doubleValue = getDoubleValueResult();
-        return Explanator.getCurrent().getUniqueId(doubleValue);
+        return TestResultsHelper.getExplanatorId(getDoubleValueResult());
     }
 
     public List<OpenLMessage> getErrors() {
         Object result = resultItems.getRowData();
 
-        if (result instanceof Throwable) {
-            return OpenLMessagesUtils.newMessages((Throwable) result);
-        }
-
-        return Collections.emptyList();
+        return TestResultsHelper.getErrors(result);
     }
 
 }
