@@ -100,12 +100,14 @@ public class RunAllTestsBean {
     }
 
     public List<OpenLMessage> getErrors() {
+        Object result = getActualResult();
+        
+        return TestResultsHelper.getErrors(result);
+    }
+
+    private Object getActualResult() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
-        Object result = testUnit.getActualResult();
-        if (result instanceof Throwable) {
-            return OpenLMessagesUtils.newMessages((Throwable)result);
-        }
-        return null;
+        return testUnit.getActualResult();        
     }
 
     public Object getExpected() {
@@ -116,15 +118,11 @@ public class RunAllTestsBean {
 
     public DoubleValue getDoubleValueExpected() {
         Object expected = getExpected();
-        if (expected instanceof DoubleValue) {
-            return (DoubleValue) expected;
-        }
-        return null;
+        return TestResultsHelper.getDoubleValueResult(expected);
     }
 
     public Object getResult() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
-        Object result = testUnit.getActualResult();
+        Object result = getActualResult();
         if (result instanceof Throwable) {
             Throwable rootCause = ExceptionUtils.getRootCause((Throwable)result);
             return rootCause.getMessage();
@@ -134,20 +132,15 @@ public class RunAllTestsBean {
 
     public DoubleValue getDoubleValueResult() {
         Object result = getResult();
-        if (result instanceof DoubleValue) {
-            return (DoubleValue) result;
-        }
-        return null;
+        return TestResultsHelper.getDoubleValueResult(result);
     }
 
     public int getResultExplanatorId() {
-        DoubleValue doubleValue = getDoubleValueResult();
-        return Explanator.getCurrent().getUniqueId(doubleValue);
+        return TestResultsHelper.getExplanatorId(getDoubleValueResult());
     }
 
     public int getExpectedExplanatorId() {
-        DoubleValue doubleValue = getDoubleValueExpected();
-        return Explanator.getCurrent().getUniqueId(doubleValue);
+        return TestResultsHelper.getExplanatorId(getDoubleValueExpected());
     }
 
     public int getCompareResult() {
