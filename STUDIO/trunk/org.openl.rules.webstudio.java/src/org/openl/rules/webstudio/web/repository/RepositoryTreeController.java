@@ -60,6 +60,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Andrey Naumenko
  */
 public class RepositoryTreeController {
+    private static final String INVALID_PROJECT_NAME = "Specified name is not a valid project name.";
     private static final Date SPECIAL_DATE = new Date(0);
     private static final Log LOG = LogFactory.getLog(RepositoryTreeController.class);
     private RepositoryTreeState repositoryTreeState;
@@ -324,7 +325,7 @@ public class RepositoryTreeController {
                     repositoryTreeState.invalidateTree();
                 }
             } else {
-                errorMessage = "Specified name is not a valid project name.";
+                errorMessage = INVALID_PROJECT_NAME;
             }
         } catch (Exception e) {
             if (projectBuilder != null) {
@@ -350,33 +351,24 @@ public class RepositoryTreeController {
         RulesProjectBuilder projectBuilder = null;
         try {
             if (NameChecker.checkName(projectName)) {
-                if (userWorkspace.hasProject(projectName)) {
-                    errorMessage = "Cannot create project because project with such name already exists.";
-                } else {
-                    projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, zipFilter);
+                projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, zipFilter);
 
-                    // Sort zip entries names alphabetically
-                    Set<String> sortedNames = new TreeSet<String>();
-                    for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
-                        ZipEntry item = items.nextElement();
-                        sortedNames.add(item.getName());
+                Set<String> sortedNames = sortZipEntriesNames(zipFile);
+
+                for (String name : sortedNames) {
+                    ZipEntry item = zipFile.getEntry(name);
+                    if (item.isDirectory()) {
+                        projectBuilder.addFolder(item.getName());
+                    } else {
+                        InputStream zipInputStream = zipFile.getInputStream(item);
+                        projectBuilder.addFile(item.getName(), zipInputStream);
                     }
-
-                    for (String name : sortedNames) {
-                        ZipEntry item = zipFile.getEntry(name);
-
-                        if (item.isDirectory()) {
-                            projectBuilder.addFolder(item.getName());
-                        } else {
-                            InputStream zipInputStream = zipFile.getInputStream(item);
-                            projectBuilder.addFile(item.getName(), zipInputStream);
-                        }
-                    }
-                    projectBuilder.checkIn();
-                    repositoryTreeState.invalidateTree();
                 }
+                projectBuilder.checkIn();
+                repositoryTreeState.invalidateTree();
+
             } else {
-                errorMessage = "Specified name is not a valid project name.";
+                errorMessage = INVALID_PROJECT_NAME;
             }
         } catch (Exception e) {
             if (projectBuilder != null) {
@@ -390,8 +382,18 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
         }
-        return null;
+        return errorMessage;
 
+    }
+
+    private Set<String> sortZipEntriesNames(ZipFile zipFile) {
+        // Sort zip entries names alphabetically
+        Set<String> sortedNames = new TreeSet<String>();
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+            ZipEntry item = items.nextElement();
+            sortedNames.add(item.getName());
+        }
+        return sortedNames;
     }
 
     public String deleteDeploymentProject() {
@@ -1137,7 +1139,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Project was uploaded successfully."));
             repositoryTreeState.invalidateTree();
         } else {
-            // don`t need to add errorMessage. It was added in #createRulesProject() method 
+            // don`t need to add errorMessage. It was added in #createRulesProject() and in createRulesProjectFromZip() methods 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Error while uploading project."));
         }
@@ -1195,25 +1197,25 @@ public class RepositoryTreeController {
         UploadItem uploadedItem = getLastUploadedFile();
         File uploadedFile = uploadedItem.getFile();
 
-        if (userWorkspace.hasProject(projectName)) {
-            return "Cannot create project because project with such name already exists.";
-        }
-
-        try {
-            if (uploadedFile != null && uploadedFile.isFile()) {
-                if (FileTypeHelper.isZipFile(uploadedItem.getFileName())) {
-                    ZipFile zipFile = new ZipFile(uploadedFile);
-                    createRulesProjectFromZip(projectName, userWorkspace, zipFile, zipFilter);
-                } else if (FileTypeHelper.isExcelFile(uploadedItem.getFileName())) {
-                    errorMessage = createRulesProject(projectName, userWorkspace, new FileInputStream(uploadedFile),
-                            uploadedItem.getFileName());
+        if (!userWorkspace.hasProject(projectName)) {
+            try {
+                if (uploadedFile != null && uploadedFile.isFile()) {
+                    if (FileTypeHelper.isZipFile(uploadedItem.getFileName())) {
+                        ZipFile zipFile = new ZipFile(uploadedFile);
+                        errorMessage = createRulesProjectFromZip(projectName, userWorkspace, zipFile, zipFilter);
+                    } else if (FileTypeHelper.isExcelFile(uploadedItem.getFileName())) {
+                        errorMessage = createRulesProject(projectName, userWorkspace, new FileInputStream(uploadedFile),
+                                uploadedItem.getFileName());
+                    }
                 }
+                clearUploadedFiles();
+            } catch (Exception e) {
+                LOG.error("Error while uploading project.", e);
+                return "" + e.getMessage();
             }
-            clearUploadedFiles();
-        } catch (Exception e) {
-            LOG.error("Error while uploading project.", e);
-            return "" + e.getMessage();
-        }
+        } else {
+            errorMessage = "Cannot create project because project with such name already exists.";
+        }        
 
         return errorMessage;
     }
