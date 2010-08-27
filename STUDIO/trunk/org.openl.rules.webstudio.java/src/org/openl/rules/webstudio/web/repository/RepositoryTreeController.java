@@ -26,7 +26,6 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectImpl;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.filter.OpenLFilter;
 import org.richfaces.model.UploadItem;
 
@@ -37,15 +36,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -60,7 +54,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Andrey Naumenko
  */
 public class RepositoryTreeController {
-    private static final String INVALID_PROJECT_NAME = "Specified name is not a valid project name.";
+    
     private static final Date SPECIAL_DATE = new Date(0);
     private static final Log LOG = LogFactory.getLog(RepositoryTreeController.class);
     private RepositoryTreeState repositoryTreeState;
@@ -303,98 +297,99 @@ public class RepositoryTreeController {
             return null;
         }
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
-        return createRulesProject(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
+        ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
+        return projectCreator.createRulesProject();
     }
 
-    // TODO Extract method to separate controller
-    public String createRulesProject(String projectName, UserWorkspace userWorkspace,
-            InputStream rulesSource, String rulesSourceName) {
-        String errorMessage = null;
-        RulesProjectBuilder projectBuilder = null;
-        try {
-            if (NameChecker.checkName(projectName)) {
-                if (userWorkspace.hasProject(projectName)) {
-                    errorMessage = "Cannot create project because project with such name already exists.";
-                } else {
-                    projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, null);
+//    // TODO Extract method to separate controller
+//    public String createRulesProject(String projectName, UserWorkspace userWorkspace,
+//            InputStream rulesSource, String rulesSourceName) {
+//        String errorMessage = null;
+//        RulesProjectBuilder projectBuilder = null;
+//        try {
+//            if (NameChecker.checkName(projectName)) {
+//                if (userWorkspace.hasProject(projectName)) {
+//                    errorMessage = "Cannot create project because project with such name already exists.";
+//                } else {
+//                    projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, null);
+//
+//                    projectBuilder.addFile(rulesSourceName, rulesSource);
+//
+//                    projectBuilder.checkIn();
+//
+//                    repositoryTreeState.invalidateTree();
+//                }
+//            } else {
+//                errorMessage = INVALID_PROJECT_NAME;
+//            }
+//        } catch (Exception e) {
+//            if (projectBuilder != null) {
+//                projectBuilder.cancel();
+//            }
+//            LOG.error("Error creating project.", e);
+//            errorMessage = e.getMessage();
+//        }
+//
+//        if (errorMessage != null) {
+//            FacesContext.getCurrentInstance().addMessage(null,
+//                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+//        } else {
+//            FacesContext.getCurrentInstance().addMessage(null,
+//                new FacesMessage(FacesMessage.SEVERITY_INFO, null, "New project created succesfully!"));
+//        }
+//        return errorMessage;
+//    }
 
-                    projectBuilder.addFile(rulesSourceName, rulesSource);
-
-                    projectBuilder.checkIn();
-
-                    repositoryTreeState.invalidateTree();
-                }
-            } else {
-                errorMessage = INVALID_PROJECT_NAME;
-            }
-        } catch (Exception e) {
-            if (projectBuilder != null) {
-                projectBuilder.cancel();
-            }
-            LOG.error("Error creating project.", e);
-            errorMessage = e.getMessage();
-        }
-
-        if (errorMessage != null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
-        } else {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, null, "New project created succesfully!"));
-        }
-        return errorMessage;
-    }
-
-    private String createRulesProjectFromZip(String projectName, UserWorkspace userWorkspace,
-            ZipFile zipFile, PathFilter zipFilter) {
-        String errorMessage = null;
-        RulesProjectBuilder projectBuilder = null;
-        try {
-            if (NameChecker.checkName(projectName)) {
-                projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, zipFilter);
-
-                Set<String> sortedNames = sortZipEntriesNames(zipFile);
-
-                for (String name : sortedNames) {
-                    ZipEntry item = zipFile.getEntry(name);
-                    if (item.isDirectory()) {
-                        projectBuilder.addFolder(item.getName());
-                    } else {
-                        InputStream zipInputStream = zipFile.getInputStream(item);
-                        projectBuilder.addFile(item.getName(), zipInputStream);
-                    }
-                }
-                projectBuilder.checkIn();
-                repositoryTreeState.invalidateTree();
-
-            } else {
-                errorMessage = INVALID_PROJECT_NAME;
-            }
-        } catch (Exception e) {
-            if (projectBuilder != null) {
-                projectBuilder.cancel();
-            }
-            LOG.error("Error creating project.", e);
-            errorMessage = e.getMessage();
-        }
-
-        if (errorMessage != null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
-        }
-        return errorMessage;
-
-    }
-
-    private Set<String> sortZipEntriesNames(ZipFile zipFile) {
-        // Sort zip entries names alphabetically
-        Set<String> sortedNames = new TreeSet<String>();
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
-            ZipEntry item = items.nextElement();
-            sortedNames.add(item.getName());
-        }
-        return sortedNames;
-    }
+//    private String createRulesProjectFromZip(String projectName, UserWorkspace userWorkspace,
+//            ZipFile zipFile, PathFilter zipFilter) {
+//        String errorMessage = null;
+//        RulesProjectBuilder projectBuilder = null;
+//        try {
+//            if (NameChecker.checkName(projectName)) {
+//                projectBuilder = new RulesProjectBuilder(userWorkspace, projectName, zipFilter);
+//
+//                Set<String> sortedNames = sortZipEntriesNames(zipFile);
+//
+//                for (String name : sortedNames) {
+//                    ZipEntry item = zipFile.getEntry(name);
+//                    if (item.isDirectory()) {
+//                        projectBuilder.addFolder(item.getName());
+//                    } else {
+//                        InputStream zipInputStream = zipFile.getInputStream(item);
+//                        projectBuilder.addFile(item.getName(), zipInputStream);
+//                    }
+//                }
+//                projectBuilder.checkIn();
+//                repositoryTreeState.invalidateTree();
+//
+//            } else {
+//                errorMessage = INVALID_PROJECT_NAME;
+//            }
+//        } catch (Exception e) {
+//            if (projectBuilder != null) {
+//                projectBuilder.cancel();
+//            }
+//            LOG.error("Error creating project.", e);
+//            errorMessage = e.getMessage();
+//        }
+//
+//        if (errorMessage != null) {
+//            FacesContext.getCurrentInstance().addMessage(null,
+//                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+//        }
+//        return errorMessage;
+//
+//    }
+//
+//    private Set<String> sortZipEntriesNames(ZipFile zipFile) {
+//        // Sort zip entries names alphabetically
+//        Set<String> sortedNames = new TreeSet<String>();
+//        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+//            ZipEntry item = items.nextElement();
+//            sortedNames.add(item.getName());
+//        }
+//        return sortedNames;
+//    }
 
     public String deleteDeploymentProject() {
         String projectName = FacesUtils.getRequestParameter("deploymentProjectName");
@@ -1133,13 +1128,13 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String upload() {
+    public String upload() {        
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Project was uploaded successfully."));
             repositoryTreeState.invalidateTree();
         } else {
-            // don`t need to add errorMessage. It was added in #createRulesProject() and in createRulesProjectFromZip() methods 
+            // don`t need to add errorMessage. It was added in #processErrorMessage method 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Error while uploading project."));
         }
@@ -1195,29 +1190,25 @@ public class RepositoryTreeController {
     private String uploadProject() {
         String errorMessage = null;
         UploadItem uploadedItem = getLastUploadedFile();
-        File uploadedFile = uploadedItem.getFile();
-
-        if (!userWorkspace.hasProject(projectName)) {
-            try {
-                if (uploadedFile != null && uploadedFile.isFile()) {
-                    if (FileTypeHelper.isZipFile(uploadedItem.getFileName())) {
-                        ZipFile zipFile = new ZipFile(uploadedFile);
-                        errorMessage = createRulesProjectFromZip(projectName, userWorkspace, zipFile, zipFilter);
-                    } else if (FileTypeHelper.isExcelFile(uploadedItem.getFileName())) {
-                        errorMessage = createRulesProject(projectName, userWorkspace, new FileInputStream(uploadedFile),
-                                uploadedItem.getFileName());
-                    }
-                }
-                clearUploadedFiles();
-            } catch (Exception e) {
-                LOG.error("Error while uploading project.", e);
-                return "" + e.getMessage();
-            }
+        if (uploadedItem != null) {
+            ProjectUploader projectUploader = new ProjectUploader(uploadedItem, projectName, userWorkspace, zipFilter);
+            errorMessage = projectUploader.uploadProject();                     
         } else {
-            errorMessage = "Cannot create project because project with such name already exists.";
-        }        
-
+            errorMessage = "There are no uploaded files .";
+        } 
+        processErrorMessage(errorMessage);
+        
         return errorMessage;
+    }
+
+    private void processErrorMessage(String errorMessage) {
+        if (errorMessage == null) {
+            repositoryTreeState.invalidateTree();
+            clearUploadedFiles();
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+        }
     }
 
     private void clearUploadedFiles() {
