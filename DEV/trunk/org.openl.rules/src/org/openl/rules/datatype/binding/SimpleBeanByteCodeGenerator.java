@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import net.sf.cglib.core.ReflectUtils;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
@@ -156,6 +157,9 @@ public class SimpleBeanByteCodeGenerator {
             invokeVirtual(codeVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
 
             pushFieldToStack(codeVisitor, 0, field.getKey());
+            if (field.getValue().isArray()) { 
+                invokeStatic(codeVisitor, ArrayUtils.class, "toString", new Class<?>[] { getJavaClass(field.getValue()) });
+            }
             invokeVirtual(codeVisitor, StringBuilder.class, "append", new Class<?>[] { getJavaClass(field.getValue()) });
 
             codeVisitor.visitLdcInsn(" ");
@@ -572,6 +576,16 @@ public class SimpleBeanByteCodeGenerator {
     }
 
     private void invokeVirtual(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
+        StringBuilder signatureBuilder = getSignature(methodOwner, methodName, paramTypes);        
+        codeVisitor.visitMethodInsn(Constants.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder.toString());
+    }
+    
+    private void invokeStatic(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {        
+        StringBuilder signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
+        codeVisitor.visitMethodInsn(Constants.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder.toString());
+    }
+
+    private StringBuilder getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
         Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes, false);
         StringBuilder signatureBuilder = new StringBuilder();
         signatureBuilder.append('(');
@@ -580,7 +594,7 @@ public class SimpleBeanByteCodeGenerator {
         }
         signatureBuilder.append(')');
         signatureBuilder.append(getJavaType(matchingMethod.getReturnType()));
-        codeVisitor.visitMethodInsn(Constants.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder.toString());
+        return signatureBuilder;
     }
 
     private void pushFieldToStack(CodeVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {

@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.util.StringTool;
@@ -147,7 +148,11 @@ public class JavaClassGeneratorHelper {
         buf.append(String.format("    builder.append(\"%s {\");\n", simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
             buf.append(String.format("    builder.append(\" %s=\");\n", field.getKey()));
-            buf.append(String.format("    builder.append(%s);\n", field.getKey()));
+            if (field.getValue().isArray()) {
+                buf.append(String.format("    builder.append(ArrayUtils.toString(%s));\n", field.getKey()));
+            } else {
+                buf.append(String.format("    builder.append(%s);\n", field.getKey()));
+            }
         }
         buf.append("    builder.append(\" }\");\n");
         buf.append("    return builder.toString();\n");
