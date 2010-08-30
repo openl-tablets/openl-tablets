@@ -528,7 +528,9 @@ void EqualityExpression() :
 {
   RelationalExpression()
   (
-    ( x = <EQ>{func="eq";} | x = <NE> {func="ne";})
+    (  x = <EQ>{func="eq";}
+     | x = <NE> {func="ne";}
+   	)
     RelationalExpression()
     {syntaxBuilder.bop("op.binary." + func, pos(x));}
   )*
@@ -542,7 +544,11 @@ void RelationalExpression() :
 {
   AdditiveExpression()
   (
-    ( x = <LT> {func="lt";} | x = <GT> {func="gt";} | x = <LE>{func="le";} | x = <GE>{func="ge";} )
+    ( x = <LT> {func="lt";}
+      | x = <GT> {func="gt";}
+      | x = <LE>{func="le";}
+      | x = <GE>{func="ge";}
+    )
     AdditiveExpression()
     {
     	{syntaxBuilder.bop("op.binary." + func, pos(x));}

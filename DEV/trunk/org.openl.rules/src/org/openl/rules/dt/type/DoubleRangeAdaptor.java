@@ -8,7 +8,7 @@ public class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
     public Comparable<Double> getMax(DoubleRange range) {
         double max = range.getUpperBound();
         if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() != BoundType.INCLUDING) {
-            max += Math.ulp(max);
+            max -= Math.ulp(max);
         }
         return max;
     }

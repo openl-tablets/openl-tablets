@@ -16,6 +16,7 @@ Export-Package: org.openl.base,
  org.openl.util.filter,
  org.openl.util.generation,
  org.openl.util.impl,
+ org.openl.util.math,
  org.openl.util.meta,
  org.openl.util.print,
  org.openl.util.tree

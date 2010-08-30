@@ -316,6 +316,14 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     protected Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, Object[] params) {
 
+    	if (dtParams == null) {
+    		dtParams = new Object[0];
+    	}
+    	
+    	if (params == null) {
+    		params = new Object[0];
+    	}
+    	
         Object[] newParams = new Object[dtParams.length + params.length];
 
         System.arraycopy(dtParams, 0, newParams, 0, dtParams.length);

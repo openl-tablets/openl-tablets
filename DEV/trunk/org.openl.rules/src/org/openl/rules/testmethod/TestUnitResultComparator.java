@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.math.MathUtils;
 
 public class TestUnitResultComparator {
     
@@ -60,7 +62,7 @@ public class TestUnitResultComparator {
     }
     
     @SuppressWarnings("unchecked")
-    private static boolean compareResult(Object res, Object expected) {
+    public static boolean compareResult(Object res, Object expected) {
 
         if (res == expected) {
             return true;
@@ -68,6 +70,13 @@ public class TestUnitResultComparator {
 
         if (res == null || expected == null) {
             return false;
+        }
+        
+        if (NumberUtils.isFloatPointNumber(res)) {
+        	Double result = NumberUtils.convertToDouble(res);
+        	Double expectedResult = NumberUtils.convertToDouble(expected);
+        	
+        	return MathUtils.eq(result.doubleValue(), expectedResult.doubleValue());
         }
 
         if (res instanceof Comparable) {
@@ -100,6 +109,5 @@ public class TestUnitResultComparator {
 
         return true;
     }
-        
-
+       
 }
