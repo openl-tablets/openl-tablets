@@ -42,7 +42,10 @@ public class TestUnit {
 
 		if (exception != null) {
 			actualResult = exception;
-		} else if (NumberUtils.isFloatPointNumber(runningResult) && TestUnitResultComparator.compareResult(runningResult, getExpectedResult())) {
+			return;
+		} 
+
+		if (NumberUtils.isFloatPointNumber(runningResult) && TestUnitResultComparator.compareResult(runningResult, getExpectedResult())) {
 			Double result = NumberUtils.convertToDouble(runningResult);
 			Double expectedResult = NumberUtils.convertToDouble(getExpectedResult());
 
@@ -51,7 +54,12 @@ public class TestUnit {
 
 			if (DoubleValue.class.isAssignableFrom(runningResult.getClass())) {
 				((DoubleValue) runningResult).setValue(roundedResult);
+				actualResult = runningResult;
+				return;
 			}
+			
+			actualResult = roundedResult;
+			return;
 		} 
 	
 		actualResult = runningResult;
