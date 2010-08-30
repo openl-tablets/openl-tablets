@@ -142,7 +142,11 @@ public class DomainTree {
         String simpleTypeName = type.getDisplayName(INamedThing.SHORT);
 
         if (!treeElements.containsKey(simpleTypeName) && !ignoredTypes.contains(simpleTypeName)) {
-            if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
+            Class<?> instanceClass = type.getInstanceClass(); // instance class can be null, in case 
+                                                              // the are errors in datatype table. it cause stop 
+                                                              // processing datatype table binding.
+            
+            if (instanceClass != null && Collection.class.isAssignableFrom(instanceClass)) {
                 return false;
             }
 
