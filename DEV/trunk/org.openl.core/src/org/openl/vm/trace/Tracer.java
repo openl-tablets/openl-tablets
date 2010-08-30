@@ -90,27 +90,5 @@ public class Tracer {
     public void reset() {
         init();
     }
-//
-//    public void print(PrintStream ps) {
-//        ITracerObject[] tt = getTracerObjects();
-//        for (int i = 0; i < tt.length; i++) {
-//            printTO(tt[i], 0, ps);
-//        }
-//    }
-//
-//    public void printTO(ITracerObject to, int level, PrintStream ps) {
-//        for (int i = 0; i < level * 2; i++) {
-//            ps.print(' ');
-//        }
-//
-//        ps.println("TRACE: " + to.getDisplayName(INamedThing.REGULAR));
-//        ps.println(SourceCodeURLConstants.AT_PREFIX + to.getUri() + "&" + SourceCodeURLConstants.OPENL + "=");
-//
-//        ITracerObject[] tt = to.getTracerObjects();
-//
-//        for (int i = 0; i < tt.length; i++) {
-//            printTO(tt[i], level + 1, ps);
-//        }
-//    }
 
 }

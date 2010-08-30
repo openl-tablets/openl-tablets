@@ -68,62 +68,68 @@ public interface BExGrammarConstants {
   int TDOT = 67;
   int ASSIGN = 68;
   int GT = 69;
-  int LT = 70;
-  int BANG = 71;
-  int TILDE = 72;
-  int HOOK = 73;
-  int COLON = 74;
-  int EQ = 75;
-  int LE = 76;
-  int GE = 77;
-  int NE = 78;
-  int BOOL_OR = 79;
-  int BOOL_AND = 80;
-  int INCR = 81;
-  int DECR = 82;
-  int PLUS = 83;
-  int MINUS = 84;
-  int STAR = 85;
-  int SLASH = 86;
-  int BIT_AND = 87;
-  int BIT_OR = 88;
-  int BIT_XOR = 89;
-  int REM = 90;
-  int LSHIFT = 91;
-  int RSIGNEDSHIFT = 92;
-  int RUNSIGNEDSHIFT = 93;
-  int PLUSASSIGN = 94;
-  int MINUSASSIGN = 95;
-  int STARASSIGN = 96;
-  int SLASHASSIGN = 97;
-  int ANDASSIGN = 98;
-  int ORASSIGN = 99;
-  int XORASSIGN = 100;
-  int REMASSIGN = 101;
-  int LSHIFTASSIGN = 102;
-  int RSIGNEDSHIFTASSIGN = 103;
-  int RUNSIGNEDSHIFTASSIGN = 104;
-  int EXP = 105;
-  int IMPL = 106;
-  int INTEGER_LITERAL = 107;
-  int DECIMAL_LITERAL = 108;
-  int HEX_LITERAL = 109;
-  int OCTAL_LITERAL = 110;
-  int FP_LITERAL1 = 111;
-  int FP_LITERAL2 = 112;
-  int FLOATING_POINT_LITERAL = 113;
-  int BUSINESS_INTEGER_LITERAL = 114;
-  int PERCENT_LITERAL = 115;
-  int EXPONENT = 116;
-  int CHARACTER_LITERAL = 117;
-  int STRING_LITERAL = 118;
-  int IDENTIFIER = 119;
-  int LETTER = 120;
-  int DIGIT = 121;
-  int LABEL = 122;
-  int SINGLE_LINE_COMMENT = 125;
-  int FORMAL_COMMENT = 126;
-  int MULTI_LINE_COMMENT = 127;
+  int STRICT_GT = 70;
+  int LT = 71;
+  int STRICT_LT = 72;
+  int BANG = 73;
+  int TILDE = 74;
+  int HOOK = 75;
+  int COLON = 76;
+  int EQ = 77;
+  int STRICT_EQ = 78;
+  int LE = 79;
+  int STRICT_LE = 80;
+  int GE = 81;
+  int STRICT_GE = 82;
+  int NE = 83;
+  int STRICT_NE = 84;
+  int BOOL_OR = 85;
+  int BOOL_AND = 86;
+  int INCR = 87;
+  int DECR = 88;
+  int PLUS = 89;
+  int MINUS = 90;
+  int STAR = 91;
+  int SLASH = 92;
+  int BIT_AND = 93;
+  int BIT_OR = 94;
+  int BIT_XOR = 95;
+  int REM = 96;
+  int LSHIFT = 97;
+  int RSIGNEDSHIFT = 98;
+  int RUNSIGNEDSHIFT = 99;
+  int PLUSASSIGN = 100;
+  int MINUSASSIGN = 101;
+  int STARASSIGN = 102;
+  int SLASHASSIGN = 103;
+  int ANDASSIGN = 104;
+  int ORASSIGN = 105;
+  int XORASSIGN = 106;
+  int REMASSIGN = 107;
+  int LSHIFTASSIGN = 108;
+  int RSIGNEDSHIFTASSIGN = 109;
+  int RUNSIGNEDSHIFTASSIGN = 110;
+  int EXP = 111;
+  int IMPL = 112;
+  int INTEGER_LITERAL = 113;
+  int DECIMAL_LITERAL = 114;
+  int HEX_LITERAL = 115;
+  int OCTAL_LITERAL = 116;
+  int FP_LITERAL1 = 117;
+  int FP_LITERAL2 = 118;
+  int FLOATING_POINT_LITERAL = 119;
+  int BUSINESS_INTEGER_LITERAL = 120;
+  int PERCENT_LITERAL = 121;
+  int EXPONENT = 122;
+  int CHARACTER_LITERAL = 123;
+  int STRING_LITERAL = 124;
+  int IDENTIFIER = 125;
+  int LETTER = 126;
+  int DIGIT = 127;
+  int LABEL = 128;
+  int SINGLE_LINE_COMMENT = 131;
+  int FORMAL_COMMENT = 132;
+  int MULTI_LINE_COMMENT = 133;
 
   int DEFAULT = 0;
   int IN_FORMAL_COMMENT = 1;
@@ -200,15 +206,21 @@ public interface BExGrammarConstants {
     "\"...\"",
     "\"=\"",
     "\">\"",
+    "\">==\"",
     "\"<\"",
+    "\"<==\"",
     "\"!\"",
     "\"~\"",
     "\"?\"",
     "\":\"",
     "\"==\"",
+    "\"====\"",
     "\"<=\"",
+    "\"<===\"",
     "\">=\"",
+    "\">===\"",
     "\"!=\"",
+    "\"!===\"",
     "\"||\"",
     "\"&&\"",
     "\"++\"",
@@ -253,12 +265,12 @@ public interface BExGrammarConstants {
     "<LETTER>",
     "<DIGIT>",
     "<LABEL>",
-    "<token of kind 123>",
+    "<token of kind 129>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 128>",
+    "<token of kind 134>",
     "\"equals to\"",
     "\"is same as\"",
     "\"does not equal to\"",

@@ -2,8 +2,11 @@ package org.openl.rules.dt.index;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
+import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.math.MathUtils;
 
 public class EqualsIndex extends ARuleIndex {
 
@@ -19,7 +22,24 @@ public class EqualsIndex extends ARuleIndex {
     public DecisionTableRuleNode findNodeInIndex(Object value) {
 
         if (value != null) {
-            return (DecisionTableRuleNode) valueNodes.get(value);
+            DecisionTableRuleNode result = valueNodes.get(value);
+			
+            if (result == null && NumberUtils.isFloatPointNumber(value)) {
+            	Set<Object> keys = valueNodes.keySet();
+            	Double objectValue =  NumberUtils.convertToDouble(value);
+            	
+            	for (Object key : keys) {
+            		if (NumberUtils.isFloatPointNumber(value)) {
+            			Double keyValue = NumberUtils.convertToDouble(key);
+            			
+            			if (MathUtils.eq(objectValue.doubleValue(), keyValue.doubleValue()))
+            				return valueNodes.get(key);
+            		}
+            	}
+            }
+            
+            return result;
+            
         }
 
         return null;

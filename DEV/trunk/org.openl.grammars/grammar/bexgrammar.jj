@@ -296,16 +296,22 @@ TOKEN :
 {
   < ASSIGN: "=" >
 | < GT: ">" >
+| < STRICT_GT: ">==" >
 | < LT: "<" >
+| < STRICT_LT: "<==" >
 | < BANG: "!" >
 | < TILDE: "~" >
 | < HOOK: "?" >
 | < COLON: ":" >
 //| < DOLLAR: "$" >
 | < EQ: "==" >
+| < STRICT_EQ: "====" >
 | < LE: "<=" >
+| < STRICT_LE: "<===" >
 | < GE: ">=" >
+| < STRICT_GE: ">===" >
 | < NE: "!=" >
+| < STRICT_NE: "!===" >
 | < BOOL_OR: "||" >
 | < BOOL_AND: "&&" >
 | < INCR: "++" >
@@ -612,7 +618,15 @@ void EqualityExpression() :
 {
   RelationalExpression()
   (
-    ( (x = <EQ> | x = "equals to" | x = "is same as"){func="eq";} | (x = <NE> | x = "does not equal to" | x = "is different from"){func="ne";})
+    (
+      (x = <EQ>
+      	| x = "equals to"
+      	| x = "is same as") { func="eq"; }
+      |(x = <NE>
+      	| x = "does not equal to"
+      	| x = "is different from") { func="ne"; }
+      |(x = <STRICT_EQ>) { func="strict_eq"; }
+   	  |(x = <STRICT_NE>) { func="strict_ne"; }	)
     RelationalExpression()
     {syntaxBuilder.bop("op.binary." + func, pos(x));}
   )*
@@ -640,11 +654,22 @@ void RelationalExpression() :
 {
   ShiftExpression()
   (
-    ( x = <LT> {func="lt";} | x = "is less than" {func="lt";} | 
-    x = <GT> {func="gt";} | x = "is more than" {func="gt";} |
-    x = <LE>{func="le";} | x = "is less or equal" {func="le";} | x = "is no more than" {func="le";} | x = "is in" {func="le";} | 
-    x = <GE>{func="ge";} | x = "is more or equal" {func="ge";} | x = "is no less than" {func="ge";} 
-    
+    (
+      x = <LT> { func="lt";}
+      | x = "is less than" { func="lt";}
+      | x = <GT> { func="gt";}
+      | x = "is more than" { func="gt";}
+      | x = <LE> { func="le";}
+      | x = "is less or equal" { func="le";}
+      | x = "is no more than" { func="le";}
+      | x = "is in" { func="le";}
+      | x = <GE> { func="ge";}
+      | x = "is more or equal" { func="ge";}
+      | x = "is no less than" { func="ge";}
+      | x = <STRICT_GT> { func="strict_gt";}
+      | x = <STRICT_GE> { func="strict_ge";}
+      | x = <STRICT_LT> { func="strict_lt";}
+      | x = <STRICT_LE> { func="strict_le";}
     )
     ShiftExpression()
     {

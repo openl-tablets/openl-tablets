@@ -14,6 +14,7 @@ import java.util.Date;
 import org.openl.meta.StringValue;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateDifference;
+import org.openl.util.math.MathUtils;
 
 /**
  * @author snshor
@@ -21,7 +22,7 @@ import org.openl.util.DateDifference;
  */
 public class Operators {
 
-    public static final long SECONDS_IN_DAY = 1000L * 3600 * 24;
+	public static final long SECONDS_IN_DAY = 1000L * 3600 * 24;
 
     // Add
 
@@ -184,196 +185,369 @@ public class Operators {
     }
 
     // Equals
-
     public static boolean eq(short x, short y) {
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(short x, short y) {
         return x == y;
     }
 
     public static boolean eq(int x, int y) {
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(int x, int y) {
         return x == y;
     }
 
     public static boolean eq(long x, long y) {
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(long x, long y) {
         return x == y;
     }
 
     public static boolean eq(float x, float y) {
-        return x == y;
+    	return MathUtils.eq(x, y);
     }
 
+    public static boolean strict_eq(float x, float y) {
+    	return x == y;
+    }
+    
     public static boolean eq(double x, double y) {
-        return x == y;
+        return MathUtils.eq(x,y);
+    }
+
+    public static boolean strict_eq(double x, double y) {
+    	return x == y;
     }
 
     public static boolean eq(Object x, Object y) {
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(Object x, Object y) {
         return x == y;
     }
 
     public static boolean eq(String x, String y) {
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(String x, String y) {
         if (x == null) {
             return x == y;
         }
+        
         return x.equals(y);
     }
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
-        return x.equals(y);
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(BigDecimal x, BigDecimal y) {
+        return x.compareTo(y) == 0;
     }
 
     public static boolean eq(boolean x, boolean y) {
+    	return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(boolean x, boolean y) {
         return x == y;
     }
 
     // Not Equals
-
     public static boolean ne(short x, short y) {
+    	return strict_ne(x, y);
+    }
+    
+    public static boolean strict_ne(short x, short y) {
         return x != y;
     }
 
     public static boolean ne(int x, int y) {
+    	return strict_ne(x, y);
+    }
+    
+    public static boolean strict_ne(int x, int y) {
         return x != y;
     }
 
     public static boolean ne(long x, long y) {
+    	return strict_ne(x, y);
+    }
+    
+    public static boolean strict_ne(long x, long y) {
         return x != y;
     }
 
     public static boolean ne(float x, float y) {
+        return MathUtils.ne(x, y);
+    }
+
+    public static boolean strict_ne(float x, float y) {
         return x != y;
     }
 
     public static boolean ne(double x, double y) {
-        return x != y;
+    	return MathUtils.ne(x, y);
+    }
+
+    public static boolean strict_ne(double x, double y) {
+    	return x != y;
     }
 
     public static boolean ne(Object x, Object y) {
+    	return strict_ne(x, y);
+    }
+
+    public static boolean strict_ne(Object x, Object y) {
         return x != y;
     }
 
     public static boolean ne(boolean x, boolean y) {
+    	return strict_ne(x, y);
+    }
+
+    public static boolean strict_ne(boolean x, boolean y) {
         return x != y;
     }
 
     public static boolean ne(BigDecimal x, BigDecimal y) {
-        return !x.equals(y);
+    	return strict_ne(x, y);
+    }
+
+    public static boolean strict_ne(BigDecimal x, BigDecimal y) {
+        return x.compareTo(y) != 0;
     }
 
     public static boolean ne(String x, String y) {
+    	return strict_ne(x, y);
+    }
+
+    public static boolean strict_ne(String x, String y) {
         if (x == null) {
             return x != y;
         }
+        
         return !x.equals(y);
     }
 
     // Greater Than
-
     public static boolean gt(short x, short y) {
+        return strict_gt(x, y);
+    }
+
+    public static boolean strict_gt(short x, short y) {
         return x > y;
     }
 
     public static boolean gt(int x, int y) {
+    	return strict_gt(x, y);
+    }
+
+    public static boolean strict_gt(int x, int y) {
         return x > y;
     }
 
     public static boolean gt(long x, long y) {
+    	return strict_gt(x, y);
+    }
+
+    public static boolean strict_gt(long x, long y) {
         return x > y;
     }
 
     public static boolean gt(float x, float y) {
-        return x > y;
+    	return MathUtils.gt(x, y);
+    }
+
+    public static boolean strict_gt(float x, float y) {
+    	return x > y;
     }
 
     public static boolean gt(double x, double y) {
-        return x > y;
+    	return MathUtils.gt(x, y);
+    }
+
+    public static boolean strict_gt(double x, double y) {
+    	return x > y;
     }
 
     public static <T> boolean gt(Comparable<T> c1, T c2) {
+    	return strict_gt(c1, c2);
+    }
+
+    public static <T> boolean strict_gt(Comparable<T> c1, T c2) {
         return c1.compareTo(c2) > 0;
     }
 
     // Greater or Equals Than
-
     public static boolean ge(short x, short y) {
+        return strict_ge(x, y);
+    }
+
+    public static boolean strict_ge(short x, short y) {
         return x >= y;
     }
 
     public static boolean ge(int x, int y) {
+    	return strict_ge(x, y);
+    }
+
+    public static boolean strict_ge(int x, int y) {
         return x >= y;
     }
 
     public static boolean ge(long x, long y) {
+    	return strict_ge(x, y);
+    }
+
+    public static boolean strict_ge(long x, long y) {
         return x >= y;
     }
 
     public static boolean ge(float x, float y) {
-        return x >= y;
+    	return MathUtils.ge(x, y);
+    }
+
+    public static boolean strict_ge(float x, float y) {
+    	return x >= y;
     }
 
     public static boolean ge(double x, double y) {
-        return x >= y;
+    	return MathUtils.ge(x, y);
+    }
+
+    public static boolean strict_ge(double x, double y) {
+    	return x >= y;
     }
 
     public static <T extends Comparable<?>> boolean ge(Comparable<T> c1, T c2) {
         return c1.compareTo(c2) >= 0;
     }
 
-    // Less Than
+    public static <T extends Comparable<?>> boolean strict_ge(Comparable<T> c1, T c2) {
+        return c1.compareTo(c2) >= 0;
+    }
 
+    // Less Than
     public static boolean lt(short x, short y) {
+        return strict_lt(x, y);
+    }
+
+    public static boolean strict_lt(short x, short y) {
         return x < y;
     }
 
     public static boolean lt(int x, int y) {
+    	return strict_lt(x, y);
+    }
+
+    public static boolean strict_lt(int x, int y) {
         return x < y;
     }
 
     public static boolean lt(long x, long y) {
+    	return strict_lt(x, y);
+    }
+
+    public static boolean strict_lt(long x, long y) {
         return x < y;
     }
 
     public static boolean lt(float x, float y) {
-        return x < y;
+    	return MathUtils.lt(x, y);
+    }
+
+    public static boolean strict_lt(float x, float y) {
+    	return x < y;
     }
 
     public static boolean lt(double x, double y) {
-        return x < y;
+    	return MathUtils.lt(x, y);
+    }
+
+    public static boolean strict_lt(double x, double y) {
+    	return x < y;
     }
 
     public static boolean lt(BigDecimal x, BigDecimal y) {
+    	return strict_lt(x, y);
+    }
+
+    public static boolean strict_lt(BigDecimal x, BigDecimal y) {
         return x.compareTo(y) < 0;
     }
 
     public static <T> boolean lt(Comparable<T> c1, T c2) {
+    	return strict_lt(c1, c2);
+    }
+
+    public static <T> boolean strict_lt(Comparable<T> c1, T c2) {
         return c1.compareTo(c2) < 0;
     }
 
     // Less or Equals Than
 
     public static boolean le(short x, short y) {
+        return strict_le(x, y);
+    }
+
+    public static boolean strict_le(short x, short y) {
         return x <= y;
     }
 
     public static boolean le(int x, int y) {
+    	return strict_le(x, y);
+    }
+
+    public static boolean strict_le(int x, int y) {
         return x <= y;
     }
 
     public static boolean le(long x, long y) {
+    	return strict_le(x, y);
+    }
+
+    public static boolean strict_le(long x, long y) {
         return x <= y;
     }
 
     public static boolean le(float x, float y) {
-        return x <= y;
+    	return MathUtils.le(x, y);
+    }
+
+    public static boolean strict_le(float x, float y) {
+    	return x <= y;
     }
 
     public static boolean le(double x, double y) {
-        return x <= y;
+    	return MathUtils.le(x, y);
+    }
+
+    public static boolean strict_le(double x, double y) {
+    	return x <= y;
     }
 
     public static <T> boolean le(Comparable<T> c1, T c2) {
+    	return strict_le(c1, c2);
+    }
+
+    public static <T> boolean strict_le(Comparable<T> c1, T c2) {
         return c1.compareTo(c2) <= 0;
     }
 
     public static boolean le(String x, String[] y) {
+    	return strict_le(x, y);
+    }
+
+    public static boolean strict_le(String x, String[] y) {
         return ArrayTool.contains(y, x);
     }
 
