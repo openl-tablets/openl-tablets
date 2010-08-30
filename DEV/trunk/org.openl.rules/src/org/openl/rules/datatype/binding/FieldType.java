@@ -43,4 +43,13 @@ public class FieldType {
     private String getDatatypeBeanNameWithNamespace(String datatypeName) {
         return String.format("%s.%s", ISyntaxConstants.GENERATED_BEANS, datatypeName);        
     }
+    
+    public boolean isArray() {
+        if (type != null && type.isArray()) {
+            return true;
+        } else if (typeName.endsWith("]")){
+            return true;
+        }
+        return false;
+    }
 }

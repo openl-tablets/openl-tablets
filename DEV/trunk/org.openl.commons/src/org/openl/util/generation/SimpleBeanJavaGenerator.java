@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -160,6 +161,9 @@ public class SimpleBeanJavaGenerator {
             }
             if (method.getName().startsWith("hashCode")) {
                 importsSet.add(filterTypeNameForImport(HashCodeBuilder.class));
+            }
+            if (method.getName().startsWith("toString")) {
+                importsSet.add(filterTypeNameForImport(ArrayUtils.class));
             }
         }
         
