@@ -6,6 +6,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 
@@ -17,20 +18,23 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 
 	private TableSyntaxNode tableSyntaxNode;
 	private DomainOpenClass domainOpenClass;
+	private ModuleOpenClass moduleOpenClass;
 
-	public AliasDatatypeBoundNode(TableSyntaxNode tableSyntaxNode,
-			DomainOpenClass domain, ILogicalTable table, OpenL openl) {
+	public AliasDatatypeBoundNode(TableSyntaxNode tableSyntaxNode, DomainOpenClass domain, ModuleOpenClass moduleOpenClass,ILogicalTable table, OpenL openl ) {
 		this.tableSyntaxNode = tableSyntaxNode;
 		this.domainOpenClass = domain;
+		this.moduleOpenClass = moduleOpenClass;
 	}
 
 	public void addTo(ModuleOpenClass openClass) {
-		InternalDatatypeClass internalClassMember = new InternalDatatypeClass(
-				domainOpenClass, openClass);
+		InternalDatatypeClass internalClassMember = new InternalDatatypeClass(domainOpenClass, openClass);
 		tableSyntaxNode.setMember(internalClassMember);
 	}
 
 	public void finalizeBind(IBindingContext cxt) throws Exception {
+		// Add new type to internal types of module.
+		//
+		moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, domainOpenClass);
 	}
 
 }

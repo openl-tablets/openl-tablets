@@ -21,82 +21,108 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IBindingContext extends ICastFactory {
 
-    void addAlias(String name, String value);
+	void addAlias(String name, String value);
 
-    void addError(SyntaxNodeException error);
+	void addError(SyntaxNodeException error);
 
-    // public void addAllErrors(Vector errors);
+	// public void addAllErrors(Vector errors);
 
-    ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
+	ILocalVar addParameter(String namespace, String name, IOpenClass type)
+			throws DuplicatedVarException;
 
-    void addType(String namespace, IOpenClass type) throws Exception;
+	/**
+	 * Adds new type to binding context.
+	 * 
+	 * @param namespace
+	 *            type namespace
+	 * @param type
+	 *            type
+	 * @throws Exception
+	 *             if an error has occurred
+	 */
+	void addType(String namespace, IOpenClass type) throws Exception;
 
-    ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
+	/**
+	 * Removes type from binding context.
+	 * 
+	 * @param namespace
+	 *            type namespace
+	 * @param type
+	 *            type
+	 * @throws Exception
+	 *             if an error occurs
+	 */
+	void removeType(String namespace, IOpenClass type) throws Exception;
 
-    INodeBinder findBinder(ISyntaxNode node);
+	ILocalVar addVar(String namespace, String name, IOpenClass type)
+			throws DuplicatedVarException;
 
-    /**
-     * This method is implemented by default by calling type.getFiled(fieldName,
-     * strictMatch), but some context may override it to provide dynamic mapping
-     * functionality
-     *
-     * @param type
-     * @param fieldName
-     * @param strictMatch
-     * @return
-     */
-    IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch);
+	INodeBinder findBinder(ISyntaxNode node);
 
-    IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes)
-            throws AmbiguousMethodException;
+	/**
+	 * This method is implemented by default by calling type.getFiled(fieldName,
+	 * strictMatch), but some context may override it to provide dynamic mapping
+	 * functionality
+	 * 
+	 * @param type
+	 * @param fieldName
+	 * @param strictMatch
+	 * @return
+	 */
+	IOpenField findFieldFor(IOpenClass type, String fieldName,
+			boolean strictMatch);
 
-    IOpenClass findType(String namespace, String typeName);
+	IMethodCaller findMethodCaller(String namespace, String name,
+			IOpenClass[] parTypes) throws AmbiguousMethodException;
 
-    /**
-     *
-     * @param namespace
-     * @param name
-     * @param strictMatch
-     * @return
-     * @throws AmbiguousVarException
-     * @see {@link IOpenClass#getField(String, boolean)}
-     */
-    IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
+	IOpenClass findType(String namespace, String typeName);
 
-    String getAlias(String name);
+	/**
+	 * 
+	 * @param namespace
+	 * @param name
+	 * @param strictMatch
+	 * @return
+	 * @throws AmbiguousVarException
+	 * @see {@link IOpenClass#getField(String, boolean)}
+	 */
+	IOpenField findVar(String namespace, String vname, boolean strictMatch)
+			throws AmbiguousVarException;
 
-    IOpenCast getCast(IOpenClass from, IOpenClass to);
+	String getAlias(String name);
 
-    SyntaxNodeException[] getErrors();
+	IOpenCast getCast(IOpenClass from, IOpenClass to);
 
-    int getLocalVarFrameSize();
+	SyntaxNodeException[] getErrors();
 
-    int getNumberOfErrors();
+	int getLocalVarFrameSize();
 
-    OpenL getOpenL();
+	int getNumberOfErrors();
 
-    int getParamFrameSize();
+	OpenL getOpenL();
 
-    IOpenClass getReturnType();
+	int getParamFrameSize();
 
-    List<SyntaxNodeException> popErrors();
+	IOpenClass getReturnType();
 
-    void popLocalVarContext();
+	List<SyntaxNodeException> popErrors();
 
-    /**
-     * Used for doing temporary processing within current context
-     */
-    void pushErrors();
+	void popLocalVarContext();
 
-    void pushLocalVarContext();
+	/**
+	 * Used for doing temporary processing within current context
+	 */
+	void pushErrors();
 
-    /**
-     * @param type
-     */
-    void setReturnType(IOpenClass type);
+	void pushLocalVarContext();
+
+	/**
+	 * @param type
+	 */
+	void setReturnType(IOpenClass type);
 
 }
