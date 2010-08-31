@@ -8,7 +8,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -21,8 +20,11 @@ import org.openl.util.StringTool;
 public class RunTestMethodBean {
 
     private String tableName;
+    
     private String testName;
+    
     private String testId;
+    
     private String testDescription;
 
     private Object[] results;
@@ -39,7 +41,7 @@ public class RunTestMethodBean {
             tableUri = studio.getTableUri();
         }
 
-        initExplanator();
+        TestResultsHelper.initExplanator();
 
         tableName = studio.getModel().getTable(tableUri).getName();
         testName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_NAME);
@@ -50,15 +52,6 @@ public class RunTestMethodBean {
         testDescription = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_DESCRIPTION);
 
         runTestMethod(tableUri, testId, testName);
-    }
-
-    private void initExplanator() {
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
-        if (explanator == null) {
-            explanator = new Explanator();
-            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR, explanator);
-        }
-        Explanator.setCurrent(explanator);
     }
 
     private void runTestMethod(String tableUri, String testId, String testName) {
@@ -72,15 +65,15 @@ public class RunTestMethodBean {
     public String getTableName() {
         return tableName;
     }
-
+        
     public String getTestName() {
         return testName;
     }
-
+        
     public String getTestId() {
         return testId;
     }
-
+        
     public String getTestDescription() {
         return testDescription;
     }
@@ -106,13 +99,18 @@ public class RunTestMethodBean {
     public void setResultItems(UIRepeat resultItems) {
         this.resultItems = resultItems;
     }
+    
+    public String getStringResult() {
+        Object result = resultItems.getRowData();
+        if (result != null) {
+            return result.toString();
+        } 
+        return TestResultsHelper.getNullResult();
+    }
 
     public SpreadsheetResult getSpreadsheetResult() {
         Object result = resultItems.getRowData();
-        if (result instanceof SpreadsheetResult) {
-            return (SpreadsheetResult) result;
-        }
-        return null;
+        return TestResultsHelper.getSpreadsheetResult(result);
     }
         
     @SuppressWarnings("deprecation")

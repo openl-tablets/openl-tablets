@@ -8,10 +8,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tests.results.Test;
@@ -39,19 +37,10 @@ public class RunAllTestsBean {
         }
         String unitId = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_ID);
 
-        initExplanator();
+        TestResultsHelper.initExplanator();
 
         testAll(tableUri, testName, unitId);
-    }
-
-    private void initExplanator() {
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
-        if (explanator == null) {
-            explanator = new Explanator();
-            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR, explanator);
-        }
-        Explanator.setCurrent(explanator);
-    }
+    }    
 
     private void testAll(String tableUri, String testName, String unitId) {
         ProjectModel model = WebStudioUtils.getProjectModel();
@@ -126,6 +115,9 @@ public class RunAllTestsBean {
         if (result instanceof Throwable) {
             Throwable rootCause = ExceptionUtils.getRootCause((Throwable)result);
             return rootCause.getMessage();
+        }
+        if (result == null) {
+            return TestResultsHelper.getNullResult();
         }
         return result;
     }
