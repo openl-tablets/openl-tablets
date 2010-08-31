@@ -98,14 +98,13 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			//
 			DomainOpenClass tableType = new DomainOpenClass(typeName, baseOpenClass, domain, null);
 			
-			// Add domain class definition to biding context and module class as internal type.
+			// Add domain class definition to biding context as internal type.
 			//
 			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
-			module.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
 			// Return bound node.
 			//
-			return new AliasDatatypeBoundNode(tsn, tableType, table, openl);
+			return new AliasDatatypeBoundNode(tsn, tableType, module,table, openl);
 		} else {
 
 			if (parsedHeader.length != 2
@@ -118,16 +117,14 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			}
 			
 			DatatypeOpenClass tableType = new DatatypeOpenClass(module.getSchema(), typeName);
+			// Add domain class definition to biding context as internal type.
+			//
 			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
-			// Add new type to internal types of module.
-			//
-			module.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
-
 			if (parsedHeader.length == 4) {
-				return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl, parsedHeader[PARENT_TYPE_INDEX].getIdentifier());
+				return new DatatypeTableMethodBoundNode(tsn, tableType, module, table, openl, parsedHeader[PARENT_TYPE_INDEX].getIdentifier());
 			} else {
-				return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl);
+				return new DatatypeTableMethodBoundNode(tsn, tableType, module, table, openl);
 			}
 		}
 	}

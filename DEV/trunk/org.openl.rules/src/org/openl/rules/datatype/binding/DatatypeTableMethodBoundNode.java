@@ -44,22 +44,24 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
     private TableSyntaxNode tableSyntaxNode;
     private DatatypeOpenClass dataType;
     private String parentClassName;
+    private ModuleOpenClass moduleOpenClass;
 
     private ILogicalTable table;
     private OpenL openl;
 
     public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-            ILogicalTable table, OpenL openl) {
-        this(tableSyntaxNode,datatype, table, openl, null);
+    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl) {
+        this(tableSyntaxNode,datatype, moduleOpenClass, table, openl, null);
     }
     
     public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-            ILogicalTable table, OpenL openl, String parentClassName) {
+    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl, String parentClassName) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
         this.openl = openl;
         this.parentClassName = parentClassName;
+        this.moduleOpenClass = moduleOpenClass;
     }
     
     /**
@@ -213,9 +215,15 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         if(parentClassName != null){
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
+            	// Remove invalid type from binding context.
+            	//
+            	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                 throw new OpenLCompilationException(String.format("Parent class [%s] is not defined", parentClassName));
             }
             if (parentClass instanceof DomainOpenClass) {
+            	// Remove invalid type from binding context.
+            	//
+            	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                 throw new OpenLCompilationException(String.format("Parent class [%s] cannot be domain type", parentClassName));
             }
             
@@ -224,6 +232,9 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
         addFields(cxt);
         //adding constructor with all fields after all fields have been added
         dataType.addMethod(new OpenFieldsConstructor(dataType));
+		// Add new type to internal types of module.
+		//
+        moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, dataType);
     }
     
     private void checkInheritedFieldsDuplication(IBindingContext cxt) throws Exception {

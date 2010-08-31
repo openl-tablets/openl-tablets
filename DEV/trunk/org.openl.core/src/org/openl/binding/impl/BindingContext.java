@@ -64,8 +64,6 @@ public class BindingContext implements IBindingContext {
     }
 
     public void addError(SyntaxNodeException error) {
-        // if (errors.size() > 100)
-        // throw new TooManyErrorsError();
         errors.add(error);
     }
 
@@ -73,16 +71,11 @@ public class BindingContext implements IBindingContext {
         throw new UnsupportedOperationException();
     }
 
-    // public void addAllErrors(Vector err)
-    // {
-    // for (int i = 0; i < err.size(); i++)
-    // {
-    // errors.add(err.elementAt(i));
-    // }
-    // }
-
     public void addType(String namespace, IOpenClass type) {
-        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException();
+    }
+    
+    public void removeType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 
