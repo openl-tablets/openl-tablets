@@ -315,6 +315,9 @@ public class DataTableBindHelper {
                     
                     String message = String.format("Found duplicate of field \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+                    if(table.getTableSyntaxNode() != null){
+                        table.getTableSyntaxNode().addError(error);
+                    }
                     BindHelper.processError(error);
                 } else {
                     identifiers.add(fieldAccessorChainTokens);
