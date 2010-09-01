@@ -97,6 +97,9 @@ public class RepositoryTreeState {
         for (Project project : rulesProjects) {
             if (!(filter.supports(Project.class) && !filter.select(project))) {
                 TreeProject prj = new TreeProject(project.getName(), project.getName());
+                if (isProjectCurrentlySelected(project)) {
+                    selectedNode = prj;
+                }
                 prj.setDataBean(project);
                 rulesRepository.add(prj);
                 traverseFolder(prj, project.getArtefacts(), filter);
@@ -118,6 +121,14 @@ public class RepositoryTreeState {
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("Finishing buildTree()");
+        }
+    }
+    
+    private boolean isProjectCurrentlySelected(Project project) {
+        if (selectedNode != null && selectedNode.getDataBean() == project) {
+            return true;
+        } else {
+            return false;
         }
     }
 
