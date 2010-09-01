@@ -151,11 +151,12 @@ public class DeploymentController {
             return null;
         }
 
-        if (items != null && project.getName().equals(cachedForProject)) {
+        String projectNameWithVersion = project.getName() + project.getVersion().getVersionName();
+        if (items != null && projectNameWithVersion.equals(cachedForProject)) {
             return items;
         }
 
-        cachedForProject = project.getName();
+        cachedForProject = projectNameWithVersion;
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
         items = new ArrayList<DeploymentDescriptorItem>();
 
