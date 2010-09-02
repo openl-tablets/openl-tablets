@@ -57,6 +57,13 @@ public class DatatypeHelper {
 
 		ILogicalTable dataPart = table.rows(1);
 
+        //if datatype table has only one row
+		if (dataPart.getLogicalHeight() == 1) {
+            return dataPart;
+        } else if (dataPart.getLogicalWidth() == 1) {
+            return dataPart.transpose();
+        }
+		
 		int verticalCount = countTypes(dataPart, openl, cxt);
 		int horizontalCount = countTypes(dataPart.transpose(), openl, cxt);
 
