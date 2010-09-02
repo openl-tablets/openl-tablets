@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.message.OpenLMessages;
 import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.OpenLInvocationHandler;
@@ -81,6 +82,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
 
     public CompiledOpenClass getCompiledOpenClass() {
         if(compiledOpenClass == null){
+            OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
         return compiledOpenClass;
