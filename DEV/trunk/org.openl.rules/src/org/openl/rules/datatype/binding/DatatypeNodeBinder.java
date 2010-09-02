@@ -50,7 +50,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 		String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
 
 		if (cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
-			String message = "Duplicated Type Definition: " + typeName;
+			String message = "Duplicate type definition: " + typeName;
 			throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
 		}
 

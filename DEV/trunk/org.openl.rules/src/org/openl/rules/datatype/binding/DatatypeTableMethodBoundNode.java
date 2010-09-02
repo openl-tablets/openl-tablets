@@ -218,13 +218,14 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             	// Remove invalid type from binding context.
             	//
             	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
-                throw new OpenLCompilationException(String.format("Parent class [%s] is not defined", parentClassName));
+                throw new OpenLCompilationException(String.format("Parent class '%s' is not defined", parentClassName));
             }
+            
             if (parentClass instanceof DomainOpenClass) {
             	// Remove invalid type from binding context.
             	//
             	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
-                throw new OpenLCompilationException(String.format("Parent class [%s] cannot be domain type", parentClassName));
+                throw new OpenLCompilationException(String.format("Parent class '%s' cannot be domain type", parentClassName));
             }
             
             dataType.setSuperClass(parentClass);
