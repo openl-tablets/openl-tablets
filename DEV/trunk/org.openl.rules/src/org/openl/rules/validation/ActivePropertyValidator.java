@@ -41,8 +41,9 @@ public class ActivePropertyValidator extends TablesValidator {
                         if (validationResult == null) {
                             validationResult = new ValidationResult(ValidationStatus.FAIL);
                         }
-                        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(
-                                new SyntaxNodeException(ODD_ACTIVE_TABLE_MESSAGE, null, tsn)));
+                        SyntaxNodeException exception = new SyntaxNodeException(ODD_ACTIVE_TABLE_MESSAGE, null, tsn);
+                        tsn.addError(exception);
+                        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                     } else {
                         activeTableWasFound = true;
                     }
