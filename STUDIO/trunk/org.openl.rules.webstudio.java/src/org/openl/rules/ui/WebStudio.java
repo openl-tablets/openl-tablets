@@ -156,6 +156,7 @@ public class WebStudio {
                     return;
                 }
                 project.checkOut();
+                reset(ReloadType.RELOAD);
             } catch (Exception e) {
                 LOG.error("Can not check out!", e);
             }
