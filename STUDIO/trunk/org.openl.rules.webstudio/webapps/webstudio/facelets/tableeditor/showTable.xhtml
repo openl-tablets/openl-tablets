@@ -290,8 +290,7 @@
             <h3>Available Checks and Tests:</h3>
             <a4j:repeat value="#{showTableBean.allTests}" var="test">
                 <p style="margin-left: 10px">
-                    <h:outputLink rendered="#{showTableBean.editable}"
-                        value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
                         <f:param name="uri" value="#{test.uri}" />
                         <h:outputText value="#{test.testName}" />
                     </h:outputLink>
