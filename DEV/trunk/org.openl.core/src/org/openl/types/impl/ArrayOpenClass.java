@@ -63,5 +63,10 @@ public abstract class ArrayOpenClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> methodMap() {
         return methodMap;
     }
+    
+    @Override
+    public boolean isArray() {            
+        return true;
+    }
 
 }

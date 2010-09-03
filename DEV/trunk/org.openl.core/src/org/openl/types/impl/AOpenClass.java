@@ -263,7 +263,10 @@ public abstract class AOpenClass implements IOpenClass {
     }
     
     public boolean isArray() {
-        return getInstanceClass().isArray();
+        if (getInstanceClass() != null) {
+            return getInstanceClass().isArray();
+        }
+        return false;
     }
 
     private void makeLowerCaseMaps() {

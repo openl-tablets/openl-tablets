@@ -41,11 +41,17 @@ public class DatatypeOpenClass extends ADynamicClass {
     
     private IOpenClass superClass;
     
-    public DatatypeOpenClass(IOpenSchema schema, String name) {
+    /**
+     * see {@link #getPackageName()}
+     */
+    private String packageName;
+    
+    public DatatypeOpenClass(IOpenSchema schema, String name, String packageName) {
         super(schema, name, null);
         addMethod(new EqualsMethod(this));
         addMethod(new HashCodeMethod(this));
         addMethod(new ToStringMethod(this));
+        this.packageName = packageName;
     }
 
     @Override
@@ -69,7 +75,18 @@ public class DatatypeOpenClass extends ADynamicClass {
             return AOpenIterator.empty();
         }
     }
-
+    
+    /**
+     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype 
+     * beans classes. It is stored in this field.
+     * 
+     * 
+     * @return package name for current datatype.
+     */
+    public String getPackageName() {        
+        return packageName;
+    }
+    
     /**
      * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
      */
@@ -106,7 +123,7 @@ public class DatatypeOpenClass extends ADynamicClass {
             LOG.error(this, e);
         } catch (IllegalAccessException e) {            
             LOG.error(this, e);
-        }
+        } 
         return instance;
     }
 

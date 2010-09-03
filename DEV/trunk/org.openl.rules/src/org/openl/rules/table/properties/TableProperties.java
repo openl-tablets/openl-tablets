@@ -216,6 +216,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setScope(java.lang.String scope) {
 		setFieldValue("scope", scope);
 	}	
+	public java.lang.String getDatatypePackage() {
+		return (java.lang.String) getPropertyValue("datatypePackage"); 
+	}
+	public void setDatatypePackage(java.lang.String datatypePackage) {
+		setFieldValue("datatypePackage", datatypePackage);
+	}	
     // <<< END INSERT >>>
 
     /**

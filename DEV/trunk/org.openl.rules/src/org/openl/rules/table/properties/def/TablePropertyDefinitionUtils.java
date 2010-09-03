@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 
@@ -104,6 +105,27 @@ public class TablePropertyDefinitionUtils {
             }
         }
         return result;
+    }
+    
+    /**
+     * Gets list of properties that must me set for particular table type by default. 
+     * 
+     * @param tableType type of the table. see {@link ITableNodeTypes}. 
+     * @return list of properties that must me set for particular table type by default. If <b>tableType</b> is <code>null</code>,
+     * returns {@link #getPropertiesToBeSetByDefault()}
+     */
+    public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault(String tableType) {
+        if (tableType != null) {
+            List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
+            for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
+                if(propDefinition.getDefaultValue() != null && tableType.equals(propDefinition.getTableType())){
+                    result.add(propDefinition);
+                }
+            }
+            return result;
+        }
+        return getPropertiesToBeSetByDefault();
+        
     }
 
     /**

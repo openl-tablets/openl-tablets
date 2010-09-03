@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
@@ -601,5 +602,12 @@ public class SimpleBeanByteCodeGenerator {
         codeVisitor.visitVarInsn(Constants.ALOAD, 0);
         codeVisitor.visitFieldInsn(Constants.GETFIELD, beanNameWithPackage, fieldName, getJavaType(allFields
                 .get(fieldName)));
+    }
+    
+    public String toString() {
+        if (StringUtils.isNotBlank(beanName)) {
+            return String.format("Bean with name: %s", beanName);
+        } 
+        return super.toString();
     }
 }

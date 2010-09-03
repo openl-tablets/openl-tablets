@@ -157,6 +157,8 @@ public interface ITableProperties {
 	void setFailOnMiss(java.lang.Boolean failOnMiss);
 	java.lang.String getScope();
 	void setScope(java.lang.String scope);
+	java.lang.String getDatatypePackage();
+	void setDatatypePackage(java.lang.String datatypePackage);
 	// <<< END INSERT >>>
 	
 	
