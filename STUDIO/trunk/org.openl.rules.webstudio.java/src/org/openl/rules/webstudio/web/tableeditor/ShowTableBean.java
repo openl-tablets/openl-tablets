@@ -265,15 +265,15 @@ public class ShowTableBean {
 
     public boolean isCopyable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && !isServiceTable()  && !isDispatcherValidationNode();
+        return projectModel.isEditable() && !isServiceTable()  && !ITableNodeTypes.XLS_DATATYPE.equals(table.getType()) 
+            && !isDispatcherValidationNode();
     }
 
     public boolean isServiceTable() {
         String tableType = table.getType();
         if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType)
                 || ITableNodeTypes.XLS_OTHER.equals(tableType)
-                || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)
-                || ITableNodeTypes.XLS_DATATYPE.equals(tableType)) {
+                || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
             return true;
         }
         return false;
@@ -293,7 +293,7 @@ public class ShowTableBean {
     }
 
     public boolean isEditableAsNewVersion() {
-        return isEditable() && !isServiceTable();
+        return isEditable() && !isServiceTable() && !ITableNodeTypes.XLS_DATATYPE.equals(table.getType());
     }
 
     public boolean isHasErrors() {
