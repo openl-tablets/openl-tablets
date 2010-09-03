@@ -297,6 +297,7 @@ public class RepositoryTreeController {
             return null;
         }
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
+        repositoryTreeState.invalidateTree();
         ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
         return projectCreator.createRulesProject();
     }
