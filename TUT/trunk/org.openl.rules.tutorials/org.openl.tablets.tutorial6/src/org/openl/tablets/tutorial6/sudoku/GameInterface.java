@@ -50,6 +50,9 @@ public class GameInterface
 					return null; // the row 0 contains column headers
 				if (col < 0)
 					return null;
+				if (res == null) {				    
+				    return null;
+				}
 				if (res.length <= col || res.length < row)
 					return null;
 
