@@ -9,6 +9,8 @@ import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.table.xls.formatters.IFormatter;
+import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tests.results.RanTestsResults;
@@ -148,7 +150,10 @@ public class RunAllTestsBean {
 
     public String getFormattedTestValue(){
         Object testValue = getTestValue();
-        return Formatter.format(testValue, INamedThing.REGULAR, new StringBuffer()).toString();
+        IFormatter formatter = XlsFormattersManager.getFormatter(testValue.getClass());
+        
+        return formatter.format(testValue);
+//        return Formatter.format(testValue, INamedThing.REGULAR, new StringBuffer()).toString();
     }
     
     public String getUnitDescription() {
