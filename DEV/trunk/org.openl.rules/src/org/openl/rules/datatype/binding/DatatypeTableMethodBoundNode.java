@@ -76,6 +76,9 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
 
         int tableHeight = dataTable.getLogicalHeight();
         
+        // map of fields that will be used for byte code generation.
+        // key: name of the field, value: field type.
+        //
         Map<String, FieldType> fields = new LinkedHashMap<String,  FieldType>();
 
         for (int i = 0; i < tableHeight; i++) {
@@ -120,7 +123,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
      * @return the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
      */
     private String getDatatypeBeanNameWithNamespace(String datatypeName) {
-        return String.format("%s.%s", ISyntaxConstants.GENERATED_BEANS, datatypeName);        
+        return String.format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);        
     }
 
     private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
@@ -142,6 +145,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             try {
                 dataType.addField(field);
                 fields.put(fieldName, new FieldType(field));
+                
                 if (firstField) { // this is done for operations like people["john"]
                                    // to access one instance of datatype from array by 
                                     // user defined index. But it`s not implemented yet.

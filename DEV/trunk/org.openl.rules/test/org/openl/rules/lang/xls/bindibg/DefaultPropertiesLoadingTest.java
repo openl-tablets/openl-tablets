@@ -27,25 +27,39 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper{
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         TableSyntaxNode resultTsn = findTable(tableName, tsns);       
         if (resultTsn != null) {
-            List<TablePropertyDefinition> defaultPropDefinitions = TablePropertyDefinitionUtils
-                                                                           .getPropertiesToBeSetByDefault();
+            
             assertEquals("Check that number of properties defined in table is 0",
-                    resultTsn.getTableProperties().getPropertiesDefinedInTable().size(), 0);                
-            List<String> defaultPropDefinitionsNames = new ArrayList<String>();
-            for (TablePropertyDefinition dataPropertyDefinition : defaultPropDefinitions) {
-                defaultPropDefinitionsNames.add(dataPropertyDefinition.getName());
-            }
+                    resultTsn.getTableProperties().getPropertiesDefinedInTable().size(), 0);     
+            
             assertTrue("Tsn doesn`t have properties defined in appropriate table in excel", 
-                    !resultTsn.hasPropertiesDefinedInTable());                
-            List<String> tsnPropNames = new ArrayList<String>();
-            for (Map.Entry<String, Object> property : resultTsn.getTableProperties().getAllProperties().entrySet()) {
-                tsnPropNames.add(property.getKey());
-            }
-            assertTrue("Tsn contains all properties that must be set by default",
+                    !resultTsn.hasPropertiesDefinedInTable());
+            
+            List<String> tsnPropNames = getAllTableProperties(resultTsn);
+            
+            List<String> defaultPropDefinitionsNames = getDefaultPropDefinitions(resultTsn);
+            assertTrue("Tsn contains all properties that must be set by default for this type of table",
                     tsnPropNames.containsAll(defaultPropDefinitionsNames));
        } else {
            fail();
        }
     } 
+    
+    private List<String> getDefaultPropDefinitions(TableSyntaxNode tsn) {
+        List<String> defaultPropDefinitionsNames = new ArrayList<String>();
+        List<TablePropertyDefinition> defaultPropDefinitions = TablePropertyDefinitionUtils
+            .getPropertiesToBeSetByDefault(tsn.getType());
+        for (TablePropertyDefinition dataPropertyDefinition : defaultPropDefinitions) {
+            defaultPropDefinitionsNames.add(dataPropertyDefinition.getName());
+        }
+        return defaultPropDefinitionsNames;
+    }
+    
+    private List<String> getAllTableProperties(TableSyntaxNode tsn) {
+        List<String> tsnPropNames = new ArrayList<String>();
+        for (Map.Entry<String, Object> property : tsn.getTableProperties().getAllProperties().entrySet()) {
+            tsnPropNames.add(property.getKey());
+        }
+        return tsnPropNames;
+    }
 
 }

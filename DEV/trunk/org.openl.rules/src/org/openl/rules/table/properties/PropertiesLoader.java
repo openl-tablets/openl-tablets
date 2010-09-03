@@ -243,8 +243,7 @@ public class PropertiesLoader {
         // it will be processed during its binding.
         // author: DLiauchuk
         final String tableType = tsn.getType();
-        if (!ITableNodeTypes.XLS_PROPERTIES.equals(tableType)
-                && !ITableNodeTypes.XLS_DATATYPE.equals(tableType)) {
+        if (!ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
             try {
                 loadPropertiesAsDataTable(tsn);
 

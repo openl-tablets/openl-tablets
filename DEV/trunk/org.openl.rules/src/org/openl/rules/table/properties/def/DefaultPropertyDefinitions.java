@@ -15,7 +15,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[23];
+		definitions = new TablePropertyDefinition[24];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
@@ -343,6 +343,20 @@ public class DefaultPropertyDefinitions
 		definitions[22].setSystem(false);
 		definitions[22].setTableType("xls.properties");
 		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[23] = new TablePropertyDefinition();
+		definitions[23].setBusinessSearch(false);
+		definitions[23].setConstraints(new org.openl.rules.table.constraints.Constraints("Worksheet, Workbook, Module"));
+		definitions[23].setDefaultValue("org.openl.generated.beans");
+		definitions[23].setDescription("Defines the name of the package for datatype generation");
+		definitions[23].setDimensional(false);
+		definitions[23].setDisplayName("Datatype Package");
+		definitions[23].setGroup("Dev");
+		definitions[23].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.TABLE});
+		definitions[23].setName("datatypePackage");
+		definitions[23].setPrimaryKey(false);
+		definitions[23].setSystem(false);
+		definitions[23].setTableType("xls.datatype");
+		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }
 
