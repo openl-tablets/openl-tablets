@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls;
 
+import java.awt.Color;
 import java.util.Hashtable;
 
 import org.apache.poi.POIXMLDocumentPart;
@@ -221,31 +222,103 @@ public class XlsCellStyle2 implements ICellStyle {
             return null;
         }
 
-        byte[] rgb = ctColor.getSrgbClr().getVal();
+        // To get tint of some color we have to convert our color from RGB to
+        // HSL, adjust the luminance (L) and convert back to RGB(see
+        // http://msdn.microsoft.com/en-us/library/dd560821.aspx)
+        float hsl[];
+        if (idx > 2) {
+            byte[] rgb = ctColor.getSrgbClr().getVal();
+            hsl = convertRGBtoHSL(rgb[0] & 0xFF, rgb[1] & 0xFF, rgb[2] & 0xFF);
+        } else {
+            byte[] rgb;
+            if (ctColor.getSrgbClr() != null) {
+                rgb = ctColor.getSrgbClr().getVal();//for brown color tints
+            } else {
+                rgb = ctColor.getSysClr().getLastClr();//for tints of white and black colors
+            }
+            hsl = convertRGBtoHSL(255 - rgb[0] & 0xFF, 255 - rgb[1] & 0xFF, 255 - rgb[2] & 0xFF);
 
-        short r = applyTint(rgb[0] & 0xFF, tint);
-        short g = applyTint(rgb[1] & 0xFF, tint);
-        short b = applyTint(rgb[2] & 0xFF, tint);
-
-        return new short[] { r, g, b };
+        }
+        float lightness;
+        if (tint > 0) {
+            lightness = (float) Math.min(1.0F, Math.max(0.0F, hsl[2] * (1 - tint) + tint));
+        } else if (tint == 0) {
+            lightness = hsl[2];
+        } else {
+            lightness = (float) Math.min(1.0F, Math.max(0.0F, hsl[2] * (1 + tint)));
+        }
+        return convertHSLtoRGB(hsl[0], hsl[1], lightness);
     }
 
-    /**
-     * Apply tint to color.
-     * 
-     * @param lum color
-     * @param tint tint
-     * @return color with applied tint
-     */
-    private short applyTint(int lum, double tint) {
-
-        // downcast int primitive to short because lum values in range [0..255]
-        if (tint > 0) {
-            return (short) (lum * (1.0 - tint) + (255 - 255 * (1.0 - tint)));
-        } else if (tint < 0) {
-            return (short) (lum * (1 + tint));
-        } else {
-            return (short) lum;
+    private static float[] convertRGBtoHSL(int r, int g, int b) {
+        float varR = (float) r / 255F;
+        float varG = (float) g / 255F;
+        float varB = (float) b / 255F;
+        float varMin = Math.min(varR, Math.min(varG, varB));
+        float varMax = Math.max(varR, Math.max(varG, varB));
+        float delMax = varMax - varMin;
+        float h = 0.0F;
+        float s = 0.0F;
+        float l = (varMax + varMin) / 2.0F;
+        if (delMax == 0.0F || l == 0.0F) {
+            s = 0.0F;
+        } else if (l == 1.0F) {
+            s = 1.0F;
+        } else if ((double) l <= 0.5D) {
+            s = delMax / (2.0F * (1.0F - l));
+        } else if ((double) l > 0.5D) {
+            s = delMax / (2.0F * l);
         }
+        if (delMax == 0.0F) {
+            h = 0.0F;
+        } else if (varMax == varR && g >= b) {
+            h = (60F * (varG - varB)) / delMax + 0.0F;
+        } else if (varMax == varR && varG < (float) b) {
+            h = (60F * (varG - varB)) / delMax + 360F;
+        } else if (varMax == varG) {
+            h = (60F * (varB - varR)) / delMax + 120F;
+        } else if (varMax == varB) {
+            h = (60F * (varR - varG)) / delMax + 240F;
+        }
+        return new float[] { h, s, l };
+    }
+
+    private static short[] convertHSLtoRGB(float h, float s, float l) {
+        float q;
+        if ((double) l < 0.5D) {
+            q = l * (1.0F + s);
+        } else {
+            q = (l + s) - l * s;
+        }
+        float p = 2.0F * l - q;
+        float hNorm = h / 360F;
+        float tR = hNorm + 0.3333333F;
+        float tG = hNorm;
+        float tB = hNorm - 0.3333333F;
+        float r = convertHueToRGB(tR, p, q);
+        float g = convertHueToRGB(tG, p, q);
+        float b = convertHueToRGB(tB, p, q);
+        Color rgbColor = new Color(r, g, b);
+        return new short[] { (short) rgbColor.getRed(), (short) rgbColor.getGreen(), (short) rgbColor.getBlue() };
+    }
+
+    private static float convertHueToRGB(float tC, float p, float q) {
+        if (tC < 0.0F) {
+            tC++;
+        }
+        if (tC > 1.0F) {
+            tC--;
+        }
+        float retVal;
+        if (6F * tC < 1.0F) {
+            retVal = p + (q - p) * 6F * tC;
+        } else if (2.0F * tC < 1.0F) {
+            retVal = q;
+        } else if (3F * tC < 2.0F) {
+            retVal = p + (q - p) * 6F * (0.6666667F - tC);
+        } else {
+            retVal = p;
+        }
+        return retVal;
     }
 }
