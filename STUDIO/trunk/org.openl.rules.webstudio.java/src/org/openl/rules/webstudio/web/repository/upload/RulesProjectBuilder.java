@@ -1,9 +1,10 @@
-package org.openl.rules.webstudio.web.repository;
+package org.openl.rules.webstudio.web.repository.upload;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.FileProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;

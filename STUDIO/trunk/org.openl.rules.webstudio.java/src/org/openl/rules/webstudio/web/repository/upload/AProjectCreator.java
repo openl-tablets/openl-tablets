@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository;
+package org.openl.rules.webstudio.web.repository.upload;
 
 import org.openl.rules.workspace.uw.UserWorkspace;
 
