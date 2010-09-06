@@ -8,7 +8,6 @@ import org.openl.rules.webstudio.web.repository.FileProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
-import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
@@ -18,20 +17,15 @@ import java.io.InputStream;
 public class RulesProjectBuilder {
     private static final Log LOG = LogFactory.getLog(RulesProjectBuilder.class);
     private final UserWorkspaceProject project;
-    private final PathFilter filter;
+    
 
-    public RulesProjectBuilder(UserWorkspace workspace, String projectName, PathFilter filter) throws ProjectException {
+    public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
         workspace.createProject(projectName);
         project = workspace.getProject(projectName);
         project.checkOut();
-        this.filter = filter;
     }
 
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
-        if (filter != null && !filter.accept(fileName)) {
-            return false;
-        }
-
         UserWorkspaceProjectFolder folder = project;
         String resName;
 
@@ -54,10 +48,7 @@ public class RulesProjectBuilder {
         return true;
     }
 
-    public boolean addFolder(String folderName) throws ProjectException {
-        if (!filter.accept(folderName)) {
-            return false;
-        }
+    public boolean addFolder(String folderName) throws ProjectException {        
         folderName = folderName.substring(0, folderName.length() - 1);
 
         checkPath(project, folderName);

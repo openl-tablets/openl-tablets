@@ -14,10 +14,12 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  */
 public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     
-    private RootFolderExtractor folderExtractor;
+    private final PathFilter filter;
+    private final RootFolderExtractor folderExtractor;
     
     public ZipRulesProjectBuilder(UserWorkspace workspace, String projectName, PathFilter filter, RootFolderExtractor folderExtractor) throws ProjectException {
-        super(workspace, projectName, filter);
+        super(workspace, projectName);
+        this.filter = filter;
         this.folderExtractor = folderExtractor;
     }
     
@@ -25,6 +27,9 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
         String filteredFileName = folderExtractor.extractFromRootFolder(fileName);
         if (filteredFileName != null) {
+            if (filter != null && !filter.accept(filteredFileName)) {
+                return false;
+            }
             return super.addFile(filteredFileName, inputStream);
         }
         return false;
@@ -35,6 +40,9 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     public boolean addFolder(String folderName) throws ProjectException {
         String filteredFolderName = folderExtractor.extractFromRootFolder(folderName);
         if (filteredFolderName != null) {
+            if (!filter.accept(filteredFolderName)) {
+                return false;
+            }
             return super.addFolder(filteredFolderName);
         }
         return false;
