@@ -88,9 +88,12 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
                 if (testedMethod.getSignature().getNumberOfParameters() > 0) {
                     String name = testedMethod.getSignature().getParameterName(0);
                     Object value = dd[i].getFieldValue(name);
-                    IFormatter formatter = XlsFormattersManager.getFormatter(value.getClass());
-                    description = formatter.format(value);
-//                    description = Formatter.format(value, INamedThing.REGULAR, new StringBuffer()).toString();
+                    if (value != null) {
+                        IFormatter formatter = XlsFormattersManager.getFormatter(value.getClass());
+                        description = formatter.format(value);
+                    } else {
+                        description = Formatter.format(value, INamedThing.REGULAR, new StringBuffer()).toString();
+                    }
                 } else {
                     description = "Run with no parameters";
                 }
