@@ -27,7 +27,7 @@ public class ExcelFileProjectCreator extends AProjectCreator {
         RulesProjectBuilder projectBuilder = null;
         try {
 
-            projectBuilder = new RulesProjectBuilder(getUserWorkspace(), getProjectName(), null);
+            projectBuilder = new RulesProjectBuilder(getUserWorkspace(), getProjectName());
 
             projectBuilder.addFile(rulesSourceName, rulesSource);
 
