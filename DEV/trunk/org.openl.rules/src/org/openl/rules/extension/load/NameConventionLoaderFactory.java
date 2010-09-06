@@ -1,6 +1,7 @@
 package org.openl.rules.extension.load;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.exception.OpenLRuntimeException;
 
 public class NameConventionLoaderFactory implements ILoaderFactory {
 
@@ -11,7 +12,7 @@ public class NameConventionLoaderFactory implements ILoaderFactory {
         try {
             return (IExtensionLoader) Class.forName(className).newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Can't create loader: " + className);
+            throw new OpenLRuntimeException("Can't create loader: " + className);
         }
     }
 
