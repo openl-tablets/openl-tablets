@@ -14,9 +14,9 @@
         <h:outputText value="#{index}" styleClass="step step_not_passed" rendered="#{current lt index}" />
 
         <c:if test="#{index lt max}">
-            <h:outputText styleClass="line line_passed" rendered="#{current gt index}" />
-            <h:outputText styleClass="line line_current" rendered="#{current == index}" />
-            <h:outputText styleClass="line line_not_passed" rendered="#{current lt index}" />
+            <h:outputText value=" " styleClass="line line_passed" rendered="#{current gt index}" />
+            <h:outputText value=" " styleClass="line line_current" rendered="#{current == index}" />
+            <h:outputText value=" " styleClass="line line_not_passed" rendered="#{current lt index}" />
         </c:if>
     </c:forEach>
 </ui:composition>
