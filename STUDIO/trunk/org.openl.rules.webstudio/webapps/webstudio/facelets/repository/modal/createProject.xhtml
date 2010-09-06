@@ -18,8 +18,7 @@
     <h:form id="newProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText styleClass="required" value="Project Name" />
-        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"
-            onkeypress="return modalInputKeyPress(event, this)"/>
+        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" />
         <h:outputText styleClass="required" value="Project Template" />
         <h:selectOneMenu value="#{repositoryTreeController.newProjectTemplate}" style="width: 196px;">
             <f:selectItems value="#{repositoryTreeController.newProjectTemplates}" />

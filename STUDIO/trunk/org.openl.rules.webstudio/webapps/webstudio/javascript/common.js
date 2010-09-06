@@ -11,19 +11,6 @@ function focusElement(elementId) {
   }
 }
 
-function modalInputKeyPress(event, elm) {
-  if (Prototype.Browser.IE) {
-    event = event || window.event;
-    if (event.keyCode == 13) {
-      var submitBtn = document.getElementById(elm.form.name + ":sbt")
-      if (submitBtn)
-      document.getElementById(elm.form.name + ":sbt").click();
-      return false;
-    }
-  }
-  return true;
-}
-
 function getRadioChecked(formId, radioGroupId) {
     var radioGrp = document['forms'][formId][radioGroupId];
     for(i = 0; i < radioGrp.length; i++) {
