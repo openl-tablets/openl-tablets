@@ -24,7 +24,7 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
      * The method used for getting the appropriate formatter for the income class. If no formatter found
      * it will be returned {@link XlsStringFormatter} as default.<br>
      * Existing formatters:<ul>
-     *      <li>{@link XlsNumberFormatter} for {@link Integer} and {@link Double} types.</li>
+     *      <li>{@link XlsNumberFormatter} for {@link Integer}, {@link Double}, {@link Short}, {@link Float} types.</li>
      *      <li>{@link XlsBooleanFormatter} for {@link Boolean} type.</li>
      *      <li>{@link XlsDateFormatter} for {@link Date} type.</li>
      *      <li>{@link XlsStringFormatter} for {@link String} type.</li>
