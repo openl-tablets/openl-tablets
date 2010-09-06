@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository;
+package org.openl.rules.webstudio.web.repository.upload;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -36,12 +37,10 @@ public class ZipFileProjectCreator extends AProjectCreator {
     @Override
     public String createRulesProject() {
         String errorMessage = null;
-        RulesProjectBuilder projectBuilder = null;
+        ZipRulesProjectBuilder projectBuilder = null;
         try {
-            projectBuilder = new RulesProjectBuilder(getUserWorkspace(), getProjectName(), zipFilter);
-
             Set<String> sortedNames = sortZipEntriesNames(zipFile);
-
+            projectBuilder = getProjectBuilder(sortedNames);
             for (String name : sortedNames) {
                 ZipEntry item = zipFile.getEntry(name);
                 if (item.isDirectory()) {
@@ -64,6 +63,11 @@ public class ZipFileProjectCreator extends AProjectCreator {
         
     }
     
+    private ZipRulesProjectBuilder getProjectBuilder(Set<String> sortedNames) throws ProjectException{        
+        RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames);
+        return new ZipRulesProjectBuilder(getUserWorkspace(), getProjectName(), zipFilter, folderExtractor);
+    }
+    
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
         Set<String> sortedNames = new TreeSet<String>();
@@ -73,5 +77,4 @@ public class ZipFileProjectCreator extends AProjectCreator {
         }
         return sortedNames;
     }
-
 }
