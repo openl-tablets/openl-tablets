@@ -59,14 +59,22 @@ public class TableSyntaxNodeAdapter implements ITable {
     }
 
     public String getName() {
+        String tableName = getNameFromHeader();
         ITableProperties properties = getProperties();
         if (properties != null) {
             String name = properties.getName();
+            String version = properties.getVersion();
             if (StringUtils.isNotBlank(name)) {
-                return name;
+                tableName = name;
+            }            
+            if (StringUtils.isNotBlank(version)) { 
+                // version was added for links to target tables.
+                // see showTable.xhtml, Target table section.
+                //
+                return String.format("%s: %s", tableName, version);
             }
         }
-        return getNameFromHeader();
+        return tableName;
     }
 
     public boolean isExecutable() {
