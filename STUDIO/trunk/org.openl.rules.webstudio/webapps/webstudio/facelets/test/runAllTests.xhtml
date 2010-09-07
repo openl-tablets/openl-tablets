@@ -36,8 +36,11 @@
         <a4j:repeat value="#{runAllTestsBean.ranTests}" var="test">
             <c:set value="#{test.testUnitsResults}" var="testUnitsResults" />
             <h1>
-                <h:outputText value="#{test.testName}"
-                    style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};" />
+                <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                		<f:param name="uri" value="#{test.uri}" />
+                	<h:outputText value="#{test.testName}" 
+                		style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};"/>
+            	</h:outputLink>
             </h1>
 
             <table class="testtable">
