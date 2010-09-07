@@ -77,6 +77,10 @@ public class CompiledOpenClass {
     }
     
     public Map<String, IOpenClass> getTypes() {
+        if (openClass == null) {
+            return null;
+        }
+        
         return openClass.getTypes();
     }
     
