@@ -39,7 +39,7 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
  * @author snshor
  * 
  */
-public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
+public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private TableSyntaxNode tableSyntaxNode;
     private DatatypeOpenClass dataType;
@@ -49,12 +49,12 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
     private ILogicalTable table;
     private OpenL openl;
 
-    public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
+    public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
     		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl) {
         this(tableSyntaxNode,datatype, moduleOpenClass, table, openl, null);
     }
     
-    public DatatypeTableMethodBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
+    public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
     		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl, String parentClassName) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
@@ -90,8 +90,24 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
             processRow(row, cxt, fields, firstField);            
         }
         checkInheritedFieldsDuplication(cxt);
-        Class<?> beanClass = createBeanForDatatype(fields);
-        dataType.setInstanceClass(beanClass);
+        
+        if (beanClassCanBeGenerated(cxt)) {
+            Class<?> beanClass = createBeanForDatatype(fields);
+            dataType.setInstanceClass(beanClass);
+        }
+    }
+    
+    private boolean beanClassCanBeGenerated(IBindingContext cxt) {
+        if (tableSyntaxNode.hasErrors()) {
+            return false;
+        }
+        if (parentClassName != null) {
+            IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
+            if (parentClass.getInstanceClass() == null) {
+                return false;// parent bean was not generated
+            }
+        }
+        return true;
     }
     
     /**
