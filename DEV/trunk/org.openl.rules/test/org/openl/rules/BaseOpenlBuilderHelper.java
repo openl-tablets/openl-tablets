@@ -35,9 +35,20 @@ public abstract class BaseOpenlBuilderHelper {
         return wrapper;
     }
     
+    @Deprecated
     protected TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
         TableSyntaxNode result = null;
         for (TableSyntaxNode tsn : tsns) {
+            if (tableName.equals(tsn.getDisplayName())) {
+                result = tsn;   
+            }
+        }
+        return result;
+    }
+    
+    protected TableSyntaxNode findTable(String tableName) {
+        TableSyntaxNode result = null;
+        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             if (tableName.equals(tsn.getDisplayName())) {
                 result = tsn;   
             }

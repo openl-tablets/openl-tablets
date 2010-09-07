@@ -17,7 +17,6 @@ import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -31,6 +30,11 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
  * 
  */
 public class DecisionTableLoader {
+    
+    /**
+     * protected modified is for tests access.
+     */
+    protected static final String EMPTY_BODY = "Decision table must contain body section.";
 
     private int columnsNumber;
 
@@ -84,7 +88,10 @@ public class DecisionTableLoader {
 
         decisionTable.setTableSyntaxNode(tableSyntaxNode);
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
-
+        
+        if (tableBody == null) {
+            throw new SyntaxNodeException(EMPTY_BODY, null, tableSyntaxNode);
+        }
         ILogicalTable transposed = tableBody.transpose();
         ILogicalTable toParse = tableBody;
 
