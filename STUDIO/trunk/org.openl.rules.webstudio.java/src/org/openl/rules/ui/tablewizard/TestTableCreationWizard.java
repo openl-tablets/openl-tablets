@@ -27,7 +27,7 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
 
     /**
      * index of the selected item, when selecting table name to test.
-     */
+     */        
     private int selectedTableNameIndex;
     
     /**
@@ -36,6 +36,8 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
     @NotEmpty(message="Technical name can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
     private String technicalName;
+    
+    private List<TableSyntaxNode> executableTables;
 
     /**
      * @return Technical name of newly created test table.
@@ -66,11 +68,11 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
      * technical name of the table we have selected. 
      */
     protected TableSyntaxNode getSelectedNode() {   
-        TableSyntaxNode[] nodes = getSyntaxNodes();
-        if (selectedTableNameIndex < 0 || selectedTableNameIndex >= nodes.length) {
-            throw new IllegalStateException("not table is selected");
+        List<TableSyntaxNode> nodes = getSyntaxNodes();
+        if (selectedTableNameIndex < 0 || selectedTableNameIndex >= nodes.size()) {
+            throw new IllegalStateException("Not table is selected");
         }
-        return nodes[selectedTableNameIndex];          
+        return nodes.get(selectedTableNameIndex);          
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -118,8 +120,18 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
         return selectedTableNameIndex;
     }
 
-    private TableSyntaxNode[] getSyntaxNodes() {
-        return getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
+    private List<TableSyntaxNode> getSyntaxNodes() {
+        if (executableTables == null) {
+            TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
+            
+            executableTables = new ArrayList<TableSyntaxNode>();
+            for (TableSyntaxNode syntaxNode : syntaxNodes) {
+                if (isExecutableAndTestableNode(syntaxNode)) {
+                    executableTables.add(syntaxNode);
+                }
+            }
+        }
+        return executableTables;
     }
 
     @Override
@@ -132,14 +144,12 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
     protected void onStart() {
         selectedTableNameIndex = 0;
 
-        TableSyntaxNode[] syntaxNodes = getSyntaxNodes();
+        List<TableSyntaxNode> syntaxNodes = getSyntaxNodes();
         List<SelectItem> result = new ArrayList<SelectItem>();
 
-        for (int i = 0; i < syntaxNodes.length; i++) {
-            TableSyntaxNode node = syntaxNodes[i];
-            if (isExecutableAndTestableNode(node)) {
-                result.add(new SelectItem(i, node.getMember().getName()));
-            }
+        for (int i = 0; i < syntaxNodes.size(); i++) {
+            TableSyntaxNode node = syntaxNodes.get(i);            
+            result.add(new SelectItem(i, node.getMember().getName()));
         }
 
         tableItems = result.toArray(new SelectItem[result.size()]);
