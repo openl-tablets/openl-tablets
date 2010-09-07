@@ -6,7 +6,11 @@ package org.openl.rules.project.instantiation;
  * @author PUdalau
  */
 public enum ReloadType {
-    NO, // Simple reload without reloading of wrapper
+    NO, // Simple reload without reloading of wrappers
+    SINGLE, // Only for current project: reload wrapper but with using of old
+            // class loader
     RELOAD, // Usual reload: reload wrapper but with using of old class loader
-    FORCED, // Forced reloading with new class loader after reload
+            // and clear all compiled wrappers from cache
+    FORCED, // Forced reloading with new class loader after reload and clear all
+            // compiled wrappers from cache
 }
