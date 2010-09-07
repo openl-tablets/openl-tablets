@@ -5,6 +5,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:c="http://java.sun.com/jstl/core"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
   template="/facelets/common/studioBase.xhtml">
 
@@ -45,7 +46,7 @@
             <h:column>
 	            <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
                    timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.date}" />
-                		
+
                 <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
                     value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enum}">
                     <f:attribute name="property" value="#{prop}"/>
@@ -58,7 +59,10 @@
                 </h:outputText>
                 <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
 
-  		    	<h:inputText value="#{prop.value}" rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}" />
+                <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
+
+  		    	<h:inputText value="#{prop.value}"
+                    rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray || prop.stringArray)}" />
 
                 <input type="hidden" name="id" value="#{prop.name}" />
             </h:column>
