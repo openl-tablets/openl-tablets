@@ -3,7 +3,9 @@ package org.openl.rules.table.xls;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.table.ui.ICellFont;
 
 public class XlsCellFont implements ICellFont {
@@ -18,8 +20,8 @@ public class XlsCellFont implements ICellFont {
 
     public short[] getFontColor() {
 		if (font instanceof XSSFFont) {
-			// TODO FIXME
-			return new short[]{0, 0, 0};
+		    XSSFColor color = ((XSSFFont)font).getXSSFColor();
+			return XlsCellStyle2.colorToArray(color, (XSSFWorkbook)workbook);
 		} else {
 			short x = font.getColor();
 			return XlsCellStyle.colorToArray(x, (HSSFWorkbook)workbook);

@@ -63,6 +63,10 @@ public class XlsCellStyle2 implements ICellStyle {
 
         return ccRgb;
     }
+    
+    public static short[] colorToArray(XSSFColor color, XSSFWorkbook workbook){
+        return new XlsCellStyle2(null, workbook).colorToArray(color);
+    }
 
     private short[] colorToArray(XSSFColor color) {
 
@@ -114,8 +118,7 @@ public class XlsCellStyle2 implements ICellStyle {
 
         short[] result = new short[3];
         for (int i = 1; i < 4; i++) {
-            // TODO FIXME (byte: -128 .. 127), short-color: 0..255 or 0..65xxx ?
-            result[i - 1] = rgb[i];
+            result[i - 1] = (short)(rgb[i] & 0xFF);
         }
 
         return result;
@@ -226,13 +229,13 @@ public class XlsCellStyle2 implements ICellStyle {
         // HSL, adjust the luminance (L) and convert back to RGB(see
         // http://msdn.microsoft.com/en-us/library/dd560821.aspx)
         float hsl[];
-        if (idx > 2) {
+        if (idx > 3) {
             byte[] rgb = ctColor.getSrgbClr().getVal();
             hsl = convertRGBtoHSL(rgb[0] & 0xFF, rgb[1] & 0xFF, rgb[2] & 0xFF);
         } else {
             byte[] rgb;
             if (ctColor.getSrgbClr() != null) {
-                rgb = ctColor.getSrgbClr().getVal();//for brown color tints
+                rgb = ctColor.getSrgbClr().getVal();//for tints of brown and blue colors
             } else {
                 rgb = ctColor.getSysClr().getLastClr();//for tints of white and black colors
             }
@@ -251,36 +254,59 @@ public class XlsCellStyle2 implements ICellStyle {
     }
 
     private static float[] convertRGBtoHSL(int r, int g, int b) {
-        float varR = (float) r / 255F;
-        float varG = (float) g / 255F;
-        float varB = (float) b / 255F;
-        float varMin = Math.min(varR, Math.min(varG, varB));
-        float varMax = Math.max(varR, Math.max(varG, varB));
-        float delMax = varMax - varMin;
-        float h = 0.0F;
-        float s = 0.0F;
-        float l = (varMax + varMin) / 2.0F;
-        if (delMax == 0.0F || l == 0.0F) {
-            s = 0.0F;
-        } else if (l == 1.0F) {
-            s = 1.0F;
-        } else if ((double) l <= 0.5D) {
-            s = delMax / (2.0F * (1.0F - l));
-        } else if ((double) l > 0.5D) {
-            s = delMax / (2.0F * l);
+
+        float var_R = (r / 255f);
+        float var_G = (g / 255f);
+        float var_B = (b / 255f);
+
+        float var_Min; // Min. value of RGB
+        float var_Max; // Max. value of RGB
+        float del_Max; // Delta RGB value
+
+        if (var_R > var_G) {
+            var_Min = var_G;
+            var_Max = var_R;
+        } else {
+            var_Min = var_R;
+            var_Max = var_G;
         }
-        if (delMax == 0.0F) {
-            h = 0.0F;
-        } else if (varMax == varR && g >= b) {
-            h = (60F * (varG - varB)) / delMax + 0.0F;
-        } else if (varMax == varR && varG < (float) b) {
-            h = (60F * (varG - varB)) / delMax + 360F;
-        } else if (varMax == varG) {
-            h = (60F * (varB - varR)) / delMax + 120F;
-        } else if (varMax == varB) {
-            h = (60F * (varR - varG)) / delMax + 240F;
+
+        if (var_B > var_Max)
+            var_Max = var_B;
+        if (var_B < var_Min)
+            var_Min = var_B;
+
+        del_Max = var_Max - var_Min;
+
+        float H = 0, S, L;
+        L = (var_Max + var_Min) / 2f;
+
+        if (del_Max == 0) {
+            H = 0;
+            S = 0;
+        } // gray
+        else { // Chroma
+            if (L < 0.5)
+                S = del_Max / (var_Max + var_Min);
+            else
+                S = del_Max / (2 - var_Max - var_Min);
+
+            float del_R = (((var_Max - var_R) / 6f) + (del_Max / 2f)) / del_Max;
+            float del_G = (((var_Max - var_G) / 6f) + (del_Max / 2f)) / del_Max;
+            float del_B = (((var_Max - var_B) / 6f) + (del_Max / 2f)) / del_Max;
+
+            if (var_R == var_Max)
+                H = del_B - del_G;
+            else if (var_G == var_Max)
+                H = (1 / 3f) + del_R - del_B;
+            else if (var_B == var_Max)
+                H = (2 / 3f) + del_G - del_R;
+            if (H < 0)
+                H += 1;
+            if (H > 1)
+                H -= 1;
         }
-        return new float[] { h, s, l };
+        return new float[] { H * 360, S, L };
     }
 
     private static short[] convertHSLtoRGB(float h, float s, float l) {
