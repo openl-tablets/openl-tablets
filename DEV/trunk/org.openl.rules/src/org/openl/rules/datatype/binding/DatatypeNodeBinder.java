@@ -123,9 +123,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
 			if (parsedHeader.length == 4) {
-				return new DatatypeTableMethodBoundNode(tsn, tableType, module, table, openl, parsedHeader[PARENT_TYPE_INDEX].getIdentifier());
+				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl, parsedHeader[PARENT_TYPE_INDEX].getIdentifier());
 			} else {
-				return new DatatypeTableMethodBoundNode(tsn, tableType, module, table, openl);
+				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl);
 			}
 		}
 	}
