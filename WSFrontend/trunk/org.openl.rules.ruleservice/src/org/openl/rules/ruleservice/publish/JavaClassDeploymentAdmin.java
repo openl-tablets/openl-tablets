@@ -55,7 +55,7 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule);
 
-        return (OpenLWrapper) strategy.instantiate(ReloadType.RELOAD);
+        return (OpenLWrapper) strategy.instantiate(ReloadType.SINGLE);
 
     }
 

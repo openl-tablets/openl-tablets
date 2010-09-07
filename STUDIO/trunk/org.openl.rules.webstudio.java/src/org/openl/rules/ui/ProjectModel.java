@@ -912,10 +912,12 @@ public class ProjectModel {
     }
     
     public void reset(ReloadType reloadType) throws Exception {
+        if (reloadType == ReloadType.FORCED || reloadType == ReloadType.RELOAD) {
+            modulesCache.reset();
+        }
         if (moduleInfo != null) {
             setModuleInfo(moduleInfo, reloadType);
         }
-
         savedSearches = null;
         projectRoot = null;
     }
@@ -1047,7 +1049,7 @@ public class ProjectModel {
             IExporter iExporter = IWritableGrid.Tool.createExporter(module);
             iExporter.persist(search);
             module.save();
-            reset(ReloadType.RELOAD);
+            reset(ReloadType.SINGLE);
         }
     }
 

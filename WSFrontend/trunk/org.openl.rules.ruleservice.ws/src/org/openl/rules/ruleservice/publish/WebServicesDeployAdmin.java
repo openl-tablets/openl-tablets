@@ -104,10 +104,10 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         if (isProvideRuntimeContext()) {
             serviceEnhancer = new RulesServiceEnhancer(strategy);
             svrFactory.setServiceClass(serviceEnhancer.getServiceClass());
-            svrFactory.setServiceBean(serviceEnhancer.instantiate(ReloadType.RELOAD));
+            svrFactory.setServiceBean(serviceEnhancer.instantiate(ReloadType.SINGLE));
         } else {
             svrFactory.setServiceClass(strategy.getServiceClass());
-            svrFactory.setServiceBean(strategy.instantiate(ReloadType.RELOAD));
+            svrFactory.setServiceBean(strategy.instantiate(ReloadType.SINGLE));
         }
             
     }

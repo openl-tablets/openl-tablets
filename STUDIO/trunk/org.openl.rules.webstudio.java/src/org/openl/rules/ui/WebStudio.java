@@ -156,7 +156,7 @@ public class WebStudio {
                     return;
                 }
                 project.checkOut();
-                reset(ReloadType.RELOAD);
+                reset(ReloadType.SINGLE);
             } catch (Exception e) {
                 LOG.error("Can not check out!", e);
             }
@@ -188,9 +188,9 @@ public class WebStudio {
     public UserWorkspaceProject getCurrentProject(HttpSession session) {
         if (currentModule != null) {
             try {
-                String projectId = currentModule.getProject().getProjectFolder().getName();
+                String projectFolder = currentModule.getProject().getProjectFolder().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectId);
+                UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
                 return project;
             } catch (Exception e) {
                 LOG.error("Error when trying to get current project", e);
@@ -253,6 +253,10 @@ public class WebStudio {
         return workspacePath;
     }
 
+    public synchronized void invalidateProjects(){
+        projects = null;
+    }
+
     public synchronized List<ProjectDescriptor> getAllProjects() {
         if (projects == null) {
             projects = projectResolver.listOpenLProjects();
@@ -270,6 +274,9 @@ public class WebStudio {
 
     public void reset(ReloadType reloadType) {
         try {
+            if(reloadType == ReloadType.FORCED){
+                invalidateProjects();
+            }
             model.reset(reloadType);
             for (StudioListener listener : listeners) {
                 listener.studioReset();
@@ -280,7 +287,7 @@ public class WebStudio {
     }
 
     public void rebuildModel() {
-        reset(ReloadType.RELOAD);
+        reset(ReloadType.SINGLE);
         model.buildProjectTree();
     }
 
