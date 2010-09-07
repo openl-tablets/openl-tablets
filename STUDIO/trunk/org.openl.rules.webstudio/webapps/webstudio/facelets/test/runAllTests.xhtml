@@ -46,8 +46,12 @@
                         <th>
                             <h:outputText value="#{testDataColumnHeader}" />
                         </th>
-                    </a4j:repeat>                    
-                    <th><h:outputText value="Description" rendered="#{testUnitsResults.anyUnitHasDescription}"/></th>                    
+                    </a4j:repeat>
+                    <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                    <th>
+                        <h:outputText value="Description" />
+                    </th>
+                    </h:panelGroup>
                     <th>Expected</th>
                     <th>Result</th>
 
@@ -55,15 +59,18 @@
                 
                 <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
                     <tr>
-                        <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}" binding="#{runAllTestsBean.testDataColumnHeaders}">
+                        <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}"
+                            binding="#{runAllTestsBean.testDataColumnHeaders}">
                             <td>
                                 <h:outputText value="#{runAllTestsBean.formattedTestValue}" />
                             </td>
                         </a4j:repeat>
+                        <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                         <td>
-                        	<h:outputText value="#{runAllTestsBean.unitDescription}" rendered="#{testUnitsResults.anyUnitHasDescription}"/>
+                        	<h:outputText value="#{runAllTestsBean.unitDescription}" />
                         </td>
-                        
+                        </h:panelGroup>
+
                         <td>
                             <h:outputText value="#{runAllTestsBean.expected}"
                                 rendered="#{empty runAllTestsBean.doubleValueExpected}" />
