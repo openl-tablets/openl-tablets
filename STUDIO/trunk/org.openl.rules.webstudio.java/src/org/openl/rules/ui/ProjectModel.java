@@ -9,8 +9,11 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -53,9 +56,9 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tests.results.Test;
@@ -64,11 +67,13 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -422,6 +427,10 @@ public class ProjectModel {
 
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
 
+        if(!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+            
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         for (IOpenMethod method : openClass.getMethods()) {
@@ -665,14 +674,22 @@ public class ProjectModel {
     }
 
     public RanTestsResults getAllTestMethods() {
-        IOpenMethod[] testMethods = ProjectHelper.allTesters(
-                compiledOpenClass.getOpenClassWithErrors());
+        
+        if (isProjectCompiledSuccessfully()) {
+            IOpenMethod[] testMethods = ProjectHelper.allTesters(compiledOpenClass.getOpenClassWithErrors());
 
-        return getTestsRunner(testMethods);
+            return getTestsRunner(testMethods);
+        }
+        
+        return null;
     }
 
     // TODO Refactor
     private WorkbookSyntaxNode[] getWorkbookNodes() {
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+        
         if (compiledOpenClass != null) {
             XlsModuleSyntaxNode xlsModuleNode = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
                 .getXlsModuleNode();
@@ -707,6 +724,11 @@ public class ProjectModel {
     }
 
     public XlsModuleSyntaxNode getXlsModuleNode() {
+        
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+        
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
         return xsn;
@@ -825,9 +847,13 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode[] getTableSyntaxNodes() {
-        XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
-        TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
-        return tableSyntaxNodes;
+        if (isProjectCompiledSuccessfully()) {
+            XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
+            TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
+            return tableSyntaxNodes;
+        }
+
+        return new TableSyntaxNode[0];
     }
 
     private void cacheTree(String key, ProjectTreeNode treeNode) {
@@ -927,6 +953,11 @@ public class ProjectModel {
     }
 
     public Object runElement(String elementUri, String testName, String testID) {
+
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+        
         if (testName == null) {
             IOpenMethod m = getMethod(elementUri);
             return convertTestResult(runMethod(m));
@@ -949,6 +980,11 @@ public class ProjectModel {
     }
 
     public Object runMethod(IOpenMethod m) {
+        
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+        
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
@@ -972,6 +1008,11 @@ public class ProjectModel {
     }
 
     public Object runTestUnit(TestSuiteMethod m, int unitId) {
+        
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+        
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
@@ -1047,6 +1088,10 @@ public class ProjectModel {
             compiledOpenClass = instantiationStrategy.compile(reloadType);
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
+            OpenLMessage message = new OpenLMessage(String.format("Cannot load the module: %s", ExceptionUtils.getRootCauseMessage(t)), StringUtils.EMPTY, Severity.ERROR);
+            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+            messages.add(message);
+            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0], new SyntaxNodeException[0]);
         }
     }
 
@@ -1110,6 +1155,12 @@ public class ProjectModel {
     public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
         TableModel model = buildModel(gt, filters);
         return TableViewer.showTable(model, showgrid);
+    }
+    
+    private boolean isProjectCompiledSuccessfully() {
+        return compiledOpenClass != null 
+            && compiledOpenClass.getOpenClassWithErrors() != null 
+            && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass);
     }
 
 }
