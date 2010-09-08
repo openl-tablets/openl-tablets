@@ -47,10 +47,7 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
                 view = tableProperties.getPropertyValueAsString("view");
                 name = tableProperties.getName();
             }
-        } else {
-            name = tsn.getHeader().getSourceString();
         }
-
         return name != null && (view == null || view.indexOf(IXlsTableNames.VIEW_BUSINESS) >= 0);
     }
 
