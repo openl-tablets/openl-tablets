@@ -103,7 +103,7 @@
         </h:panelGroup>
         <br /><br />
         <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
-            collapseProps="true" />
+            collapseProps="true" excludeScripts="prototype" />
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>
 
