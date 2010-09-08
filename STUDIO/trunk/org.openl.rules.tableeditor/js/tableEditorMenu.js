@@ -10,19 +10,24 @@ function closeMenu(td) {
     PopupMenu.cancelShowMenu();
 }
 
-function triggerEdit(editorId, url, cellToEdit) {
-    var cell = cellToEdit;
-    if (!cell) {
-        cell = $(PopupMenu.lastTarget);
+function triggerEdit(editorCompId, url, cellToEdit) {
+    var cellElement = cellToEdit;
+    if (!cellElement) {
+        cellElement = $(PopupMenu.lastTarget);
     }
-    var editor = $(editorId);
+    var cellUri = encodeURI(cellElement.firstChild.value);
+    var cell = cellUri.toQueryParams().cell;
+
+    var editor = $(editorCompId);
+    var editorId = editor.id.replace('te_comp','');
+
     new Ajax.Request(url, {
         method: "get",
         encoding: "utf-8",
         contentType: "text/javascript",
         parameters: {
-            cell: cell.firstChild.value.toQueryParams().cell,
-            editorId: editor.id.replace('te_comp','')
+            cell: cell,
+            editorId: editorId
         },
         onSuccess: function(data) {
             editor.innerHTML = data.responseText.stripScripts();
