@@ -9,11 +9,13 @@
     <f:facet name="header">
         <h:outputText value="Add dependency" />
     </f:facet>
-    <a4j:outputPanel id="addDependencyPanel">
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalNewDependency');" />
+        <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+            onclick="Richfaces.hideModalPanel('modalNewDependency');" />
     </f:facet>
+
+    <a4j:outputPanel id="addDependencyPanel">
 
     <h:form id="modaNewDependencyForm">
       <a4j:keepAlive beanName="dependencyController" />
