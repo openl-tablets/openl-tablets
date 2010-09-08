@@ -51,11 +51,13 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             }
             buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
             buf.append(method.getSignature().getParameterName(i)).append(" = ");
-            IFormatter formatter = XlsFormattersManager.getFormatter(params[i].getClass());
-            buf.append(formatter.format(params[i]));
-//            Formatter.format(params[i], mode, buf);
+            if (params[i] != null) {
+                IFormatter formatter = XlsFormattersManager.getFormatter(params[i].getClass());
+                buf.append(formatter.format(params[i]));
+            } else {
+                Formatter.format(params[i], mode, buf);
+            }
         }
-
         buf.append(')');
         // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
         // false));
