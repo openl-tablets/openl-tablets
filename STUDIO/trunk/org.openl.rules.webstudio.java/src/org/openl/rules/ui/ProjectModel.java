@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.poi.hssf.util.HSSFColor.TAN;
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
@@ -820,10 +821,10 @@ public class ProjectModel {
 
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
                 treeEnlarged = true;
-
+            } else if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNodes[i].getType())) {
+                treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
             } else if (tableSyntaxNodes[i].getErrors() != null
                     && !DispatcherTableBuilder.isDispatcherTable(tableSyntaxNodes[i])) {
-
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
                 nodesWithErrors.add(tableSyntaxNodes[i]);
             }
