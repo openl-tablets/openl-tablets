@@ -112,7 +112,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 					|| (parsedHeader.length == 4 && !parsedHeader[2]
 							.getIdentifier().equals("extends"))) {
 				
-				String message = "Datatype table formats: Datatype <typename>] or [Datatype <typename> extends <parentTypeName>]";
+				String message = "Datatype table formats: [Datatype <typename>] or [Datatype <typename> extends <parentTypeName>]";
 				throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
 			}
 			
