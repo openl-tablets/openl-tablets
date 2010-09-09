@@ -832,11 +832,11 @@ public class ProjectModel {
         if (!treeEnlarged) {
             // No selection have been made (usually in a business mode)
             for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
-                    if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
-                            && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
-                        
-                        treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-                    }
+                if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
+                        && !ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNodes[i].getType())
+                        && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
+                    treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+                }
             }
         }
 

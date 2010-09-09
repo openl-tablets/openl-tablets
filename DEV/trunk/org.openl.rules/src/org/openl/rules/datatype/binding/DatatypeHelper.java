@@ -168,6 +168,7 @@ public class DatatypeHelper {
                         if (map.containsKey(datatypeName)) {
                             String message = String.format("Type with name '%s' already exists", datatypeName);
                             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
+                            tsn.addError(error);
                             BindHelper.processError(error);
                         } else {
                             map.put(datatypeName, tsn);
@@ -175,11 +176,13 @@ public class DatatypeHelper {
                     } else {
                         String message = "Cannot recognize type name";
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
+                        tsn.addError(error);
                         BindHelper.processError(error);
                     }
                 } catch (OpenLCompilationException e) {
                     String message = "An error has occurred during compilation";
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, tsn);
+                    tsn.addError(error);
                     BindHelper.processError(error);
                 }
             }
@@ -199,6 +202,7 @@ public class DatatypeHelper {
             } catch (OpenLCompilationException e) {
                 String message = "An error has occurred during compilation";
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, node);
+                node.addError(error);
                 BindHelper.processError(error);
             }
         }
