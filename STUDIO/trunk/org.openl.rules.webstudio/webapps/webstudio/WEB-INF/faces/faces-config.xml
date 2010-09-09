@@ -142,32 +142,6 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
-  <navigation-rule>
-    <from-view-id>/facelets/repository/main.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>search.advanced</from-outcome>
-      <to-view-id>/facelets/repository/search/advanced.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>success</from-outcome>
-      <to-view-id>/facelets/repository/main.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>failure</from-outcome>
-      <to-view-id>/facelets/repository/main.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <navigation-rule>
-    <from-view-id>/facelets/repository/search/advanced.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>cancel</from-outcome>
-      <to-view-id>/facelets/repository/main.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-  </navigation-rule>
-
   <!-- studio config -->
   <managed-bean>
     <managed-bean-name>benchmarkMethodBean</managed-bean-name>
