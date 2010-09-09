@@ -28,8 +28,9 @@
 
     <f:verbatim>
         <script type="text/javascript">
-            function selectModule(module) {
-                top.main.location.href = '#{contextPath}/faces/main.xhtml?selectedModule=' + module;
+            function selectModule(moduleList) {
+                moduleList.disabled = true;
+                top.main.location.href = '#{contextPath}/faces/main.xhtml?selectedModule=' + moduleList.value;
             }
         </script>
     </f:verbatim>
@@ -49,7 +50,7 @@
                 <h:form id="headerForm">
                     <h:panelGroup rendered="#{not empty headerBean.modules}">
                         <span style="font-size:12px; font-weight:bold; color:black;">Select Module: </span>
-                        <h:selectOneMenu value="#{headerBean.selectedModule}" onchange="selectModule(this.value)"
+                        <h:selectOneMenu value="#{headerBean.selectedModule}" onchange="selectModule(this)"
                             id="selectedModule" enabledClass="moduleItem" disabledClass="projectItem">
                             <f:selectItems value="#{headerBean.modules}" />
                         </h:selectOneMenu>
