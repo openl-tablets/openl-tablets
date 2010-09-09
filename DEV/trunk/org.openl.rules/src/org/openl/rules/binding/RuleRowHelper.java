@@ -22,6 +22,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.utils.exception.ExceptionUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -262,7 +263,7 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
+                ExceptionUtils.processError(cell, t);
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
@@ -271,7 +272,7 @@ public class RuleRowHelper {
         }
 
         return null;
-    }
+    }    
 
    private static Object parseStringValue(String source, Class<?> expectedType, IBindingContext bindingContext) {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
