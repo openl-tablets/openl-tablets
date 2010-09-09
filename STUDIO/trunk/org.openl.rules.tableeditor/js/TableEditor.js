@@ -56,7 +56,11 @@ var TableEditor = Class.create({
         // Handle Properties Editor events START
         var propIdSelector = 'id^="' + this.propIdPrefix + '"';
         $$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {
+            elem.observe("focus", function(e) {
+                this.addClassName('te_props_prop_focused');
+            });
             elem.observe("blur", function(e) {
+                this.removeClassName('te_props_prop_focused');
                 self.handlePropBlur(e);
             });
         });
