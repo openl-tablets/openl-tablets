@@ -204,6 +204,8 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] propertyNodes = getTableSyntaxNodes(moduleNode, propertiesSelector, null);
         bindInternal(moduleNode, module, propertyNodes, openl, moduleContext);
 
+        bindPropertiesForAllTables(moduleNode, module, openl, moduleContext);
+        
         // Bind datatype nodes.
         //
         ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_DATATYPE, new SyntaxNodeConvertor());
@@ -226,6 +228,28 @@ public class XlsBinder implements IOpenBinder {
         dispTableBuilder.buildDispatcherTables();
 
         return topNode;
+    }
+    
+    private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext){
+        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
+                ITableNodeTypes.XLS_PROPERTIES, new SyntaxNodeConvertor());
+        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes(moduleNode, dataTypeSelector.not(), null);
+
+        PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, module);
+        for (TableSyntaxNode tsn : tableSyntaxNodes) {
+            try {
+                propLoader.loadProperties(tsn);
+            } catch (SyntaxNodeException error) {
+                processError(error, tsn, bindingContext);
+            } catch (CompositeSyntaxNodeException ex) {
+                for (SyntaxNodeException error : ex.getErrors()) {
+                    processError(error, tsn, bindingContext);
+                }
+            } catch (Throwable t) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tsn);
+                processError(error, tsn, bindingContext);
+            }
+        }
     }
 
     /**
@@ -355,10 +379,6 @@ public class XlsBinder implements IOpenBinder {
         }
 
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) syntaxNode;
-
-        PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, moduleOpenClass);
-        propLoader.loadProperties(tableSyntaxNode);
-
         return binder.preBind(tableSyntaxNode, openl, bindingContext, moduleOpenClass);
     }
 
