@@ -15,6 +15,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.FailOnMissException;
@@ -244,9 +245,9 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
         return getSyntaxNode().getTableProperties().getFailOnMiss();
     }
 
-    private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
+    private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {        
         Tracer tracer = Tracer.getTracer();
-
+        
         if (tracer == null) {
             return invokeOptimized(target, params, env);
         }
@@ -255,6 +256,13 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
         DecisionTableTraceObject traceObject = new DecisionTableTraceObject(this, params);
         tracer.push(traceObject);
+        
+        // if there are errors in the table we want to run,
+        // we need to add them to trace, to expalain the problem.
+        //
+        if (tableSyntaxNode.hasErrors() && algorithm == null) {
+            addErrorToTrace(traceObject, tableSyntaxNode.getErrors()[0]);
+        }
 
         try {
             IIntIterator rules = algorithm.checkedRules(target, params, env);
@@ -299,14 +307,18 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                 }
             }
         } catch (RuntimeException e) {
-            traceObject.setError(e);
-            LOG.error("Error when tracing DT rule", e);
-            throw e;
+            addErrorToTrace(traceObject, e);
         } finally {
             tracer.pop();
         }
 
         return ret;
+    }
+
+    private void addErrorToTrace(DecisionTableTraceObject traceObject, Throwable e) {
+        traceObject.setError(e);
+        LOG.error("Error when tracing DT rule", e);
+        throw new OpenLRuntimeException(e);
     }
 
     protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {

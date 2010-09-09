@@ -13,13 +13,13 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
     private static final long serialVersionUID = -8075090606797764194L;
 
-    private Throwable cause;
+    private Throwable insideCause;
     private ILocation location;
     private IOpenSourceCodeModule source;
 
-    public OpenLCompilationException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
+    public OpenLCompilationException(String message, Throwable insideCause, ILocation location, IOpenSourceCodeModule source) {
         super(message);
-        this.cause = cause;
+        this.insideCause = insideCause;
         this.location = location;
         this.source = source;
     }
@@ -56,13 +56,13 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
      */
     public Throwable getOriginalCause() {
 
-        Throwable rootCause = ExceptionUtils.getRootCause(cause);
+        Throwable rootCause = ExceptionUtils.getRootCause(insideCause);
 
         if (rootCause != null) {
             return rootCause;
         }
 
-        return cause;
+        return insideCause;
     }
 
     /* (non-Javadoc)
@@ -77,6 +77,11 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
      */
     public IOpenSourceCodeModule getSourceModule() {
         return source;
+    }
+    
+    @Override
+    public Throwable getCause() {        
+        return getOriginalCause();
     }
 
     @Override
