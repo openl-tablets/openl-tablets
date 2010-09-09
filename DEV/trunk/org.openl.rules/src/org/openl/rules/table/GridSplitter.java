@@ -28,8 +28,17 @@ public class GridSplitter {
         return pool.getRegionContaining(col, row) != null;
     }
 
-    boolean containsCell(int x, int y) {
-        return !grid.isEmpty(x, y) || grid.isPartOfTheMergedRegion(x, y);
+    boolean containsCell(int column, int row) {
+        if (!grid.isEmpty(column, row)) {
+            return true;// not empty cell
+        }
+        if (grid.isPartOfTheMergedRegion(column, row)) {
+            IGridRegion region = grid.getRegionContaining(column, row);
+            if (!grid.isEmpty(region.getLeft(), region.getTop())) {
+                return true;// part of not empty merged cell
+            }
+        }
+        return false;
     }
 
     boolean containsRow(int scol, int ecol, int row) {
