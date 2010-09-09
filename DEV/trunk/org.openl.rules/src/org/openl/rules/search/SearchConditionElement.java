@@ -13,9 +13,9 @@ public class SearchConditionElement implements ISearchConstants {
     private boolean notFlag = false;
     protected String type;
     private String opType1;
-    private String elementValueName = ANY;
+    private String elementValueName;
     private String opType2;
-    private String elementValue = ANY;
+    private String elementValue;
 
     public SearchConditionElement(String type) {
         this.type = type;
@@ -59,7 +59,7 @@ public class SearchConditionElement implements ISearchConstants {
     }
 
     public boolean isAny(String value) {
-        return value == null || value.trim().length() == 0 || ANY.equals(value);
+        return value == null || value.trim().length() == 0;
     }
 
     public boolean isNotFlag() {
