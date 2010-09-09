@@ -13,8 +13,6 @@ public interface ISearchConstants {
     
     String COLUMN_PARAMETER = "Column Parameter", COLUMN_TYPE = "Column Type";
 
-    String ANY = "--ANY--";
-
     String[] typeValues = { HEADER, PROPERTY };
     
     String[] colTypeValues = { COLUMN_PARAMETER, COLUMN_TYPE };
