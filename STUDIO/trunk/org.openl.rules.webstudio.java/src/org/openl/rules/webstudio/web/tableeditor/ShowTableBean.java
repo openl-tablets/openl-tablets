@@ -83,16 +83,16 @@ public class ShowTableBean {
         final ProjectModel model = studio.getModel();
 
         table = model.getTable(uri);
-
-        initProblems();
-
-        initTests(model);
-
+        
         runnable = model.isRunnable(uri); 
         
         if (runnable) {
             targetTables = model.getTargetTables(uri);
         }
+        
+        initProblems();
+
+        initTests(model);        
 
         initParams();
     }
@@ -148,6 +148,14 @@ public class ShowTableBean {
 
     private void initWarnings() {
         warnings = new ArrayList<OpenLMessage>();
+        
+        if (targetTables != null) {
+            for (ITable targetTable : targetTables) {
+                if (targetTable.getMessages().size() > 0) {
+                    warnings.add(new OpenLMessage("Tested rules has errors", "Yeeee"));
+                }
+            }
+        }
 
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
