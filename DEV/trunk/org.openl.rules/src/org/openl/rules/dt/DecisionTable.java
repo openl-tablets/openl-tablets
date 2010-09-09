@@ -28,8 +28,8 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -193,7 +193,14 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-
+        
+        // if there are errors in the table we want to run,
+        // we need to inform user about the exception on invoking.
+        //
+        if (tableSyntaxNode.hasErrors() && algorithm == null) {
+            throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
+        }
+        
         if (Tracer.isTracerOn()) {
             return invokeTracedOptimized(target, params, env);
         }
@@ -256,13 +263,6 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
         DecisionTableTraceObject traceObject = new DecisionTableTraceObject(this, params);
         tracer.push(traceObject);
-        
-        // if there are errors in the table we want to run,
-        // we need to add them to trace, to expalain the problem.
-        //
-        if (tableSyntaxNode.hasErrors() && algorithm == null) {
-            addErrorToTrace(traceObject, tableSyntaxNode.getErrors()[0]);
-        }
 
         try {
             IIntIterator rules = algorithm.checkedRules(target, params, env);

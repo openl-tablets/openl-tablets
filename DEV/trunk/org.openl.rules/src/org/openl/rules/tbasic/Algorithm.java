@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -71,6 +72,10 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (((TableSyntaxNode)node.getSyntaxNode()).hasErrors()) {
+            throw new OpenLRuntimeException(((TableSyntaxNode)node.getSyntaxNode()).getErrors()[0]);
+        }
+        
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);
         }
