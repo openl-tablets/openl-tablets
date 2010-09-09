@@ -36,11 +36,6 @@ function jsclean(id,def_value)
  }  
 }
 
-function jscleanAny(el) {
-    if (el.value == '--ANY--')
-        el.value = '';
-}
-
 function jssetType(id) {
     var el = document.getElementById(id);
     el.checked = 'checked';

@@ -40,10 +40,12 @@
 
 <fieldset><legend>Table Selector</legend>
   <table class="search-table">
+  <tr>
     <th/>
     <th class="search" colspan='3'>Table Attribute</th>
     <th class="search">Condition</th>
     <th class="search">Value</th>
+    </tr>
 
     <c:forEach items="#{advancedSearch.tableElements}" var="searchTableElem" varStatus="status">
       <c:if test="#{status.index > 0}">
@@ -71,7 +73,7 @@
         </td>
 
         <td>
-          <h:inputText value="#{searchTableElem.elementValueName}" id="typeValue_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
+          <h:inputText value="#{searchTableElem.elementValueName}" id="typeValue_#{status.index}" styleClass="search-input" />
         </td>
 
         <td>
@@ -81,7 +83,7 @@
         </td>
 
         <td>
-          <h:inputText value="#{searchTableElem.elementValue}" styleClass="search-input" onclick="jscleanAny(this)"/>
+          <h:inputText value="#{searchTableElem.elementValue}" styleClass="search-input" />
         </td>
 
         <td>
@@ -108,10 +110,12 @@
 
 <fieldset><legend>Column Selector</legend>
 <table class="search-table">
+<tr>
 <th/>
 <th class="search" colspan ='3'>Column Attribute</th>
 <th class="search" colspan="2">Condition</th>
 <th class="search">Value</th>
+</tr>
 
 <c:forEach items="#{advancedSearch.columnElements}" var="searchColumnElem" varStatus="status">
   <c:if test="#{status.index > 0}">
@@ -146,7 +150,7 @@
     </td>
 
     <td>
-      <h:inputText value="#{searchColumnElem.elementValueName}" styleClass="search-input" onclick="jscleanAny(this)"/>
+      <h:inputText value="#{searchColumnElem.elementValueName}" styleClass="search-input" />
     </td>
 
     <td>
@@ -156,7 +160,7 @@
     </td>
 
     <td>
-      <h:inputText value="#{searchColumnElem.elementValue}" styleClass="search-input" onclick="jscleanAny(this)"/>
+      <h:inputText value="#{searchColumnElem.elementValue}" styleClass="search-input" />
     </td>
 
      <td>
