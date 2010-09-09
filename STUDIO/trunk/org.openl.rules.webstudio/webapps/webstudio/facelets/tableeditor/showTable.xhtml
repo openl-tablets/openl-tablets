@@ -122,6 +122,13 @@
                 </h:commandLink>
 
                 <c:if test="#{!showTableBean.serviceTable}">
+                    <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
+                        value="#{contextPath}/faces/facelets/test/runAllTests.xhtml">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <h:graphicImage url="/webresource/images/test_ok.gif"
+                            title="Test" alt="Test" />
+                    </h:outputLink>
+
                     <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
                         <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
                             <f:param value="#{showTableBean.uri}" name="uri" />
@@ -144,13 +151,6 @@
                                 title="Benchmark" alt="Benchmark" />
                         </h:outputLink>
                     </c:if>
-    
-                    <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
-                        value="#{contextPath}/faces/facelets/test/runAllTests.xhtml">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/test_ok.gif"
-                            title="Test" alt="Test" />
-                    </h:outputLink>
 
                     <h:outputLink value="?#{showTableBean.notViewParams}">
                         <f:param value="view.business" name="view" />
