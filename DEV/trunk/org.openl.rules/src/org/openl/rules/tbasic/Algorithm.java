@@ -72,8 +72,11 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (((TableSyntaxNode)node.getSyntaxNode()).hasErrors()) {
-            throw new OpenLRuntimeException(((TableSyntaxNode)node.getSyntaxNode()).getErrors()[0]);
+        if (node.getSyntaxNode() instanceof TableSyntaxNode) {
+            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)node.getSyntaxNode();
+            if (tableSyntaxNode.hasErrors()) {
+                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
+            }
         }
         
         if (Tracer.isTracerOn()) {

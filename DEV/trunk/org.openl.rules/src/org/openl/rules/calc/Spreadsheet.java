@@ -118,10 +118,13 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        
-        if (((TableSyntaxNode)node.getSyntaxNode()).hasErrors() && resultBuilder == null) {
-            throw new OpenLRuntimeException(((TableSyntaxNode)node.getSyntaxNode()).getErrors()[0]);
+        if (node.getSyntaxNode() instanceof TableSyntaxNode) {
+            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)node.getSyntaxNode();
+            if (tableSyntaxNode.hasErrors() && resultBuilder == null) {
+                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
+            }
         }
+        
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);
         }

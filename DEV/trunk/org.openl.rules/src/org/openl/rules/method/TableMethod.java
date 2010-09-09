@@ -45,8 +45,11 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
     
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (((TableSyntaxNode)methodTableBoundNode.getSyntaxNode()).hasErrors()) {
-            throw new OpenLRuntimeException(((TableSyntaxNode)methodTableBoundNode.getSyntaxNode()).getErrors()[0]);
+        if (methodTableBoundNode.getSyntaxNode() instanceof TableSyntaxNode) {
+            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)methodTableBoundNode.getSyntaxNode();
+            if (tableSyntaxNode.hasErrors()) {
+                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
+            }
         }
         
         if (Tracer.isTracerOn()) {
