@@ -3,6 +3,7 @@ package org.openl.rules.cmatch;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -86,6 +87,9 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (((TableSyntaxNode)node.getSyntaxNode()).hasErrors() && algorithmExecutor == null) {
+            throw new OpenLRuntimeException(((TableSyntaxNode)node.getSyntaxNode()).getErrors()[0]);
+        }
         Object result = algorithmExecutor.invoke(target, params, env, this);
 
         if (result == null) {

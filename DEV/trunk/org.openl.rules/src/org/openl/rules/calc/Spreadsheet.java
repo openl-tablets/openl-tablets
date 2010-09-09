@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
@@ -117,6 +118,10 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        
+        if (((TableSyntaxNode)node.getSyntaxNode()).hasErrors() && resultBuilder == null) {
+            throw new OpenLRuntimeException(((TableSyntaxNode)node.getSyntaxNode()).getErrors()[0]);
+        }
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);
         }
