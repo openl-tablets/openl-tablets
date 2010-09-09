@@ -36,7 +36,7 @@ public class WordLauncher {
             wdParEnd = wdParStart;
         }
 
-        String[] cmdarray = { "wscript", "" + "/" + scriptPath, wdPath, wdName, wdParStart, wdParEnd };
+        String[] cmdarray = { "wscript", scriptPath, wdPath, wdName, wdParStart, wdParEnd };
 
         Runtime.getRuntime().exec(cmdarray).waitFor();
     }
