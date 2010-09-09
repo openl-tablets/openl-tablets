@@ -54,7 +54,11 @@ public class ShowTraceTableBean {
         Throwable error = traceHelper.getTracerError(traceElementId);
 
         if (error != null) {
-            return OpenLMessagesUtils.newMessages(error.getCause());
+            Throwable cause = error.getCause();
+            if (cause != null) {
+                return OpenLMessagesUtils.newMessages(cause);
+            }
+            return OpenLMessagesUtils.newMessages(error);
         }
 
         return Collections.emptyList();
