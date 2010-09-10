@@ -1159,7 +1159,7 @@ public class ProjectModel {
         return TableViewer.showTable(model, showgrid);
     }
     
-    private boolean isProjectCompiledSuccessfully() {
+    public boolean isProjectCompiledSuccessfully() {
         return compiledOpenClass != null 
             && compiledOpenClass.getOpenClassWithErrors() != null 
             && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass);

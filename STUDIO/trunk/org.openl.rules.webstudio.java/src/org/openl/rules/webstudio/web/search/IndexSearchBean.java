@@ -36,16 +36,16 @@ public class IndexSearchBean extends SimpleSearchBean {
         return new String[0];
     }
 
-    public TokenBucket[] getIndexTokens() {
-        String letter = (String) searchLetters.getRowData();
+    public TokenBucket[] getIndexTokens() {        
+        if (isReady()) {
+            ProjectModel model = WebStudioUtils.getProjectModel();
+            String letter = (String) searchLetters.getRowData();
+            ProjectIndexer indexer = model.getIndexer();
 
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        ProjectIndexer indexer = model.getIndexer();
-
-        if (indexer != null) {
-            return indexer.getBuckets(letter);
+            if (indexer != null) {
+                return indexer.getBuckets(letter);
+            }
         }
-
         return new TokenBucket[0];
     }
 
@@ -65,6 +65,11 @@ public class IndexSearchBean extends SimpleSearchBean {
         setSearchResults(searchResults);
 
         return null;
+    }
+    
+    public boolean isReady() {
+        ProjectModel model = WebStudioUtils.getProjectModel();        
+        return model.isProjectCompiledSuccessfully(); 
     }
 
 }
