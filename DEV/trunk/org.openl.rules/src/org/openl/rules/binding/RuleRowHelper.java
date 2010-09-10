@@ -263,7 +263,7 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
-                ExceptionUtils.processError(cell, t);
+                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
