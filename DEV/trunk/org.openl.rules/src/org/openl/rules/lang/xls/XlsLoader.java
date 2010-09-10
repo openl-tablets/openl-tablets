@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -48,7 +50,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.util.Log;
 import org.openl.util.PathTool;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
@@ -58,6 +59,8 @@ import org.openl.util.StringTool;
  * 
  */
 public class XlsLoader {
+    
+    private static Log LOG = LogFactory.getLog(XlsLoader.class);
 
     private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, ITableNodeTypes.XLS_DT },
             { IXlsTableNames.DECISION_TABLE2, ITableNodeTypes.XLS_DT },
@@ -423,7 +426,7 @@ public class XlsLoader {
 
             return workbookNode;
         } catch (Exception e) {
-            e.printStackTrace();            
+            LOG.error("Error while preprocessing workbook", e);            
             OpenLMessagesUtils.addError(e);
             throw RuntimeExceptionWrapper.wrap(e);
         } finally {
@@ -433,7 +436,7 @@ public class XlsLoader {
                 }
 
             } catch (Throwable e) {
-                Log.error("Error trying close input stream:", e);
+                LOG.error("Error trying close input stream:", e);
                 return null;
             }
         }
