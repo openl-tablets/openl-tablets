@@ -68,7 +68,7 @@ public class Test0 {
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
-        }, "java.lang.NumberFormatException", "cell=E6");
+        }, "org.openl.exception.OpenLRuntimeException", "cell=E6");
     }
 
     @Test
