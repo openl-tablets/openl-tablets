@@ -24,6 +24,18 @@ public class OpenLMessagesUtils {
         OpenLErrorMessage message = new OpenLErrorMessage(error);
         addMessage(message);
     }
+    
+    public static void addError(Throwable exception) {
+        String errorMessage = null;
+        errorMessage = exception.getMessage();
+        if (StringUtils.isBlank(errorMessage)) {
+            Throwable cause = exception.getCause();
+            if (cause != null) {
+                errorMessage = cause.getMessage();
+            }
+        }
+        addError(errorMessage);
+    }
 
     public static void addErrors(OpenLCompilationException[] errors) {
 
