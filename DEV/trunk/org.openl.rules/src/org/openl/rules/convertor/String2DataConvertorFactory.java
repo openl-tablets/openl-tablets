@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.utils.exception.ExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.BooleanUtils;
@@ -257,7 +258,11 @@ public class String2DataConvertorFactory {
 
         public Object parse(String data, String format, IBindingContext cxt) {
             if (format == null) {
-                return Integer.valueOf(data);
+                try {
+                    return Integer.valueOf(data);
+                } catch (NumberFormatException e) {
+                    ExceptionUtils.processNumberFormatException(e);
+                }
             }
             DecimalFormat df = new DecimalFormat(format);
 
