@@ -16,11 +16,10 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
     }    
     private OpenLAdvancedSearch search = new OpenLAdvancedSearch();
     
-    @Test 
+    @Test
     public void testTableSearch() {      
         SearchConditionElement searchElem =  new SearchConditionElement(ISearchConstants.HEADER);
         searchElem.setNotFlag(false);        
-        searchElem.setElementValueName("--ANY--");
         searchElem.setOpType2("contains");
         searchElem.setElementValue("Driver");
         
@@ -29,10 +28,10 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         search.setTableElements(tableElements);
         Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
-            assertTrue(true);   
+            assertTrue(true);
             assertTrue(8 == ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows().length);
             for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).getFoundTableAndRows()) {
-                assertTrue(tabAndRows.getRows().length>0);
+                assertTrue(tabAndRows.getRows().length > 0);
             }
             
         } else {
@@ -44,7 +43,6 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
     public void testPropertySearch() {      
         SearchConditionElement searchElem =  new SearchConditionElement(ISearchConstants.PROPERTY);
         searchElem.setNotFlag(false);        
-        searchElem.setElementValueName("--ANY--");
         searchElem.setOpType2("contains");
         searchElem.setElementValue("Driver");
         
@@ -68,16 +66,12 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
     public void testAllSearch() {         
         SearchConditionElement searchTableElem =  new SearchConditionElement(ISearchConstants.HEADER);
         searchTableElem.setNotFlag(false);        
-        searchTableElem.setElementValueName("--ANY--");
         searchTableElem.setOpType2("contains");
-        searchTableElem.setElementValue("--ANY--");
         
         SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_PARAMETER);
         columnSearchElem.setNotFlag(false); 
         columnSearchElem.setOpType1("contains");
-        columnSearchElem.setElementValueName("--ANY--");
         columnSearchElem.setOpType2("contains");
-        columnSearchElem.setElementValue("--ANY--");
         
         SearchConditionElement[] tableElements = {searchTableElem};
         SearchConditionElement[] columnElements = {columnSearchElem};
@@ -101,7 +95,6 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
         SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_PARAMETER);
         columnSearchElem.setNotFlag(false); 
         columnSearchElem.setOpType1("contains");
-        columnSearchElem.setElementValueName("--ANY--");
         columnSearchElem.setOpType2("contains");
         columnSearchElem.setElementValue("Moderate");
         
