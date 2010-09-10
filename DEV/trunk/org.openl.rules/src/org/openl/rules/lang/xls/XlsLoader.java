@@ -423,8 +423,8 @@ public class XlsLoader {
 
             return workbookNode;
         } catch (Exception e) {
-            e.printStackTrace();
-            OpenLMessagesUtils.addError(e.getMessage());
+            e.printStackTrace();            
+            OpenLMessagesUtils.addError(e);
             throw RuntimeExceptionWrapper.wrap(e);
         } finally {
             try {
