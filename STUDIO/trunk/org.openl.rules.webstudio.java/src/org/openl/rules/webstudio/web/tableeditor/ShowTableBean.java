@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -152,7 +153,7 @@ public class ShowTableBean {
         if (targetTables != null) {
             for (ITable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
-                    warnings.add(new OpenLMessage("Tested rules has errors", "Yeeee"));
+                    warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY));
                 }
             }
         }
