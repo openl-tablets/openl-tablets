@@ -87,16 +87,24 @@ public class TreeProject extends TreeFolder {
         if (userProject.isCheckedOut()) {
             return "Checked-out";
         }
+        
+        StringBuilder status = new StringBuilder();
 
         if (userProject.isOpened()) {
             if (userProject.isOpenedOtherVersion()) {
-                return "Old Version";
+                status.append("Opened Old Version");
             } else {
-                return "Open";
+                status.append("Opened");
             }
+        }else{
+            status.append("Closed");
+        }
+        
+        if(userProject.isLocked()){
+            status.append(" - Locked");
         }
 
-        return null;
+        return status.toString();
     }
 
     public TreeProject(String id, String name) {
