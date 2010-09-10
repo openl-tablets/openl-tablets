@@ -52,7 +52,7 @@ public class Test4 {
                 TestHelper<ITest4> testHelper;
                 testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
             }
-        }, "NumberFormatException", "cell=F6");
+        }, "OpenLRuntimeException", "cell=F6");
     }
 
     @Test
