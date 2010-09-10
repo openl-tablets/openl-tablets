@@ -1,7 +1,7 @@
 .multiselect_container_outer {
     position: absolute;
     background-color: rgb(205, 220, 255);
-    border: 1px solid;
+    border: 1px solid rgb(90,90,90);
     padding-top: 3px;
     width: 240px;
     z-index: 9001;
@@ -10,7 +10,7 @@
 .multiselect_container {
     overflow: auto;
     max-height: 300px;
-    border-top: 1px solid;
+    border-top: 1px solid rgb(90,90,90);
     padding: 0;
     margin-top: 5px;
     //height: expression(this.scrollHeight > 300 ? '300px' : 'auto'); /* IE */
