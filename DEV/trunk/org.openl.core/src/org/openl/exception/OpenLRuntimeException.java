@@ -18,6 +18,9 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.ILocation;
 
 /**
+ * Exception, that happens at runtime time of OpenL, when rules are invoking.
+ * NOTE! Don`t use it as wrapper for java runtime exceptions on compile time of OpenL. 
+ * 
  * @author snshor
  *
  */
