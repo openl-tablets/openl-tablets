@@ -10,9 +10,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.table.syntax.XlsURLConstants;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  *
@@ -54,7 +54,7 @@ public class WordUrlParser implements XlsURLConstants {
         try {
             return new File(url).getCanonicalFile().toURL();
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
@@ -152,7 +152,7 @@ public class WordUrlParser implements XlsURLConstants {
         try {
             return new URL(path);
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 

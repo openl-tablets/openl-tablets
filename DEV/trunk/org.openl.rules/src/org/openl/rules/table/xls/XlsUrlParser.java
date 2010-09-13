@@ -11,10 +11,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author sam
@@ -57,7 +57,7 @@ public class XlsUrlParser implements XlsURLConstants {
         try {
             return new File(url).getCanonicalFile().toURL();
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
@@ -107,7 +107,7 @@ public class XlsUrlParser implements XlsURLConstants {
             wbPath = f.getParent();
             wbName = f.getName();
         } catch (IOException e) {
-            throw new OpenLRuntimeException(e);
+            throw RuntimeExceptionWrapper.wrap(e);
         } catch (NullPointerException ex) {
             // there is no file representation
             // FIXME tempory hack to support generated dispatch tables
@@ -159,7 +159,7 @@ public class XlsUrlParser implements XlsURLConstants {
         try {
             return new URL(path);
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 

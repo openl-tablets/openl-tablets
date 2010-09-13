@@ -12,12 +12,11 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ArrayTool;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -63,7 +62,7 @@ public class BeanOpenField implements IOpenField {
                 }
             }
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
 
     }
@@ -83,7 +82,7 @@ public class BeanOpenField implements IOpenField {
         try {
             return descriptor.getReadMethod().invoke(target, ArrayTool.ZERO_OBJECT);
         } catch (Exception ex) {
-            throw new OpenLRuntimeException(StringUtils.EMPTY, ex);
+            throw RuntimeExceptionWrapper.wrap("", ex);
         }
     }
 
@@ -170,7 +169,7 @@ public class BeanOpenField implements IOpenField {
         try {
             descriptor.getWriteMethod().invoke(target, new Object[] { value });
         } catch (Exception ex) {
-            throw new OpenLRuntimeException(StringUtils.EMPTY, ex);
+            throw RuntimeExceptionWrapper.wrap("", ex);
         }
     }
 

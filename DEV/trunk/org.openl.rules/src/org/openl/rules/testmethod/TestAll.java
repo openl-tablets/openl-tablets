@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.main.OpenLWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -127,7 +127,7 @@ public class TestAll {
         try {
             engine = c.newInstance();
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
 
         long end = System.currentTimeMillis();

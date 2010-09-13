@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.GridSplitter;
@@ -23,6 +22,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class Xls2TextConverter {
 
@@ -90,7 +90,7 @@ public class Xls2TextConverter {
             }
 
         } catch (IOException e) {
-            throw new OpenLRuntimeException(e);
+            throw RuntimeExceptionWrapper.wrap(e);
         } finally {
             try {
                 if (is != null) {

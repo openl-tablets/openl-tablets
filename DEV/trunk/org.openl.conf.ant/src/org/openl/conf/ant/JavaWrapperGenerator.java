@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -18,6 +17,7 @@ import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
 import org.openl.util.ArrayTool;
 import org.openl.util.ISelector;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -662,7 +662,7 @@ public class JavaWrapperGenerator {
             return tokens[tokens.length - 1];
 
         } catch (IOException e) {
-            throw new OpenLRuntimeException(e);
+            throw RuntimeExceptionWrapper.wrap(e);
         }
 
     }

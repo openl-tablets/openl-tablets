@@ -33,7 +33,6 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -67,6 +66,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Implements {@link IOpenBinder} abstraction for Excel files.
@@ -100,7 +100,7 @@ public class XlsBinder implements IOpenBinder {
                 try {
                     binderFactory.put(binders[i][0], (AXlsTableBinder) Class.forName(binders[i][1]).newInstance());
                 } catch (Exception ex) {
-                    throw new OpenLRuntimeException(ex);
+                    throw RuntimeExceptionWrapper.wrap(ex);
                 }
             }
         }

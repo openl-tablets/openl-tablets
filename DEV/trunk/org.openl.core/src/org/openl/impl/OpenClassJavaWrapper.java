@@ -13,13 +13,13 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.util.PropertiesLocator;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -86,7 +86,7 @@ public class OpenClassJavaWrapper {
                 source = new URLSourceCodeModule(new URL(fileOrURL));
             }
         } catch (MalformedURLException e) {
-            throw new OpenLRuntimeException(e);
+            throw RuntimeExceptionWrapper.wrap(e);
         }
 
         return createWrapper(openlName, userContext, source);

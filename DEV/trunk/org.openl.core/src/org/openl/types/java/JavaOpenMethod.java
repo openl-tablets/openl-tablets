@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.openl.binding.MethodUtil;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IParameterDeclaration;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -143,7 +143,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
         try {
             return method.invoke(target, params);
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 

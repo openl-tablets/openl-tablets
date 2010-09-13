@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IConfigurableResourceContext;
-import org.openl.exception.OpenLRuntimeException;
 
 /**
  * @author snshor
@@ -45,7 +44,7 @@ public class PropertiesLocator {
                 p.load(is);
                 return p.getProperty(propertyName);
             } catch (IOException e) {
-                throw new OpenLRuntimeException(e);
+                throw RuntimeExceptionWrapper.wrap(e);
             } finally {
                 try {
                     if (is != null) {
@@ -66,7 +65,7 @@ public class PropertiesLocator {
                 p.load(is);
                 return p.getProperty(propertyName);
             } catch (IOException e) {
-                throw new OpenLRuntimeException(e);
+                throw RuntimeExceptionWrapper.wrap(e);
             } finally {
                 try {
                     if (is != null) {

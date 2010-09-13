@@ -14,8 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-import org.apache.commons.lang.StringUtils;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -52,7 +51,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new OpenLRuntimeException(StringUtils.EMPTY, e);            
+            throw RuntimeExceptionWrapper.wrap("", e);
         }
     }
 
@@ -65,7 +64,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         try {
             return new FileReader(file);
         } catch (FileNotFoundException e) {
-            throw new OpenLRuntimeException(StringUtils.EMPTY, e);
+            throw RuntimeExceptionWrapper.wrap("", e);
         }
     }
 
@@ -88,7 +87,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
 
             return new FileSourceCodeModule(newFile, null);
         } catch (IOException e) {
-            throw new OpenLRuntimeException(StringUtils.EMPTY, e);
+            throw RuntimeExceptionWrapper.wrap(e);
         }
 
     }
@@ -98,7 +97,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         try {
             return externalUri != null ? externalUri : file.getCanonicalFile().toURL().toExternalForm();
         } catch (Exception e) {
-            throw new OpenLRuntimeException(StringUtils.EMPTY, e);
+            throw RuntimeExceptionWrapper.wrap("", e);
         }
     }
 

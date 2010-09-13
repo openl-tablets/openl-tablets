@@ -2,11 +2,11 @@ package org.openl.rules.tbasic.runtime;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * The <code>AlgorithmErrorHelper</code> class is the utility class which
@@ -60,7 +60,7 @@ class AlgorithmErrorHelper {
 
         // throw new RuntimeException(String.format("Execution of algorithm
         // failed: %s", error.getMessage()), error);
-        throw new OpenLRuntimeException(error);
+        throw RuntimeExceptionWrapper.wrap(error);
 
     }
 

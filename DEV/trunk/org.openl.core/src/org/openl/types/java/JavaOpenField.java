@@ -9,10 +9,10 @@ package org.openl.types.java;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -31,7 +31,7 @@ public class JavaOpenField implements IOpenField {
         try {
             return field.get(target);
         } catch (Exception t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
@@ -95,7 +95,7 @@ public class JavaOpenField implements IOpenField {
         try {
             field.set(target, value);
         } catch (Exception t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
