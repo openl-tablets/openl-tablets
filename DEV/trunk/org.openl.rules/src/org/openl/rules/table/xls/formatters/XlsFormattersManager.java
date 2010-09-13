@@ -29,7 +29,7 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
      *      <li>{@link XlsDateFormatter} for {@link Date} type.</li>
      *      <li>{@link XlsStringFormatter} for {@link String} type.</li>
      *      <li>{@link XlsEnumFormatter} for Enum types.</li>
-     *      <li>{@link XlsArrayFormatter} for array types.</li>
+     *      <li>{@link XlsArrayFormatter} for array types, also supports primitive arrays.</li>
      * </ul>
      * 
      * @param clazz formatter will be returned for this {@link Class}.
