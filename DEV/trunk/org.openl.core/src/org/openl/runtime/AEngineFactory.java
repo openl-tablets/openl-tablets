@@ -11,8 +11,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -84,6 +82,11 @@ public abstract class AEngineFactory {
                     //
                     IOpenField rulesField = moduleOpenClass.getField(fieldName, true);
 
+                    if (rulesField == null) {
+                        fieldName = StringUtils.capitalize(fieldName);
+                        rulesField = moduleOpenClass.getField(fieldName, true);
+                    }
+                    
                     if (rulesField != null) {
                         // Cast method return type to appropriate OpenClass
                         // type.
