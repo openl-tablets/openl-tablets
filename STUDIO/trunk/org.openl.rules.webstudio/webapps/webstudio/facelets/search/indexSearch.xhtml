@@ -26,6 +26,10 @@
         </div>
 
         <br />
+        
+        <c:if test="#{not indexSearchBean.ready}">
+            <p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
+        </c:if>
 
         <!-- Index Letters -->
         <div class="lettersPanel">
@@ -81,6 +85,8 @@
             </a4j:repeat>
 
         </div>
+        
+        
 
     </ui:define>
 </ui:composition>
