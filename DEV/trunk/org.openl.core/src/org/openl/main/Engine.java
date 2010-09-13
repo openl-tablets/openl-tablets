@@ -11,13 +11,13 @@ import java.net.URL;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -71,7 +71,7 @@ public class Engine {
             instance = openClass.newInstance(env);
         } catch (Exception ex) {
             Log.error(ex);
-            throw RuntimeExceptionWrapper.wrap(ex);
+            throw new OpenLRuntimeException(ex);
         }
     }
 

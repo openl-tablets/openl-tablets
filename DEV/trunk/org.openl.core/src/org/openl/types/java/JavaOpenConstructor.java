@@ -9,12 +9,12 @@ package org.openl.types.java;
 import java.lang.reflect.Constructor;
 
 import org.openl.binding.MethodUtil;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -138,7 +138,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
         try {
             return constructor.newInstance(params);
         } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
+            throw new OpenLRuntimeException(t);
         }
     }
 

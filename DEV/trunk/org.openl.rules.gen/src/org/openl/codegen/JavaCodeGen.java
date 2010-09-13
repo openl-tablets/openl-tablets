@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
@@ -21,7 +22,6 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ISelector;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 public class JavaCodeGen implements ICodeGen {
@@ -390,7 +390,7 @@ public class JavaCodeGen implements ICodeGen {
         try {
             info = Introspector.getBeanInfo(beanClass);
         } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
+            throw new OpenLRuntimeException(t);
         }
 
         PropertyDescriptor[] pdd = info.getPropertyDescriptors();
@@ -438,7 +438,7 @@ public class JavaCodeGen implements ICodeGen {
             try {
                 value = propertyDescriptor.getReadMethod().invoke(bean, new Object[] {});
             } catch (Throwable t) {
-                throw RuntimeExceptionWrapper.wrap(t);
+                throw new OpenLRuntimeException(t);
             }
 
             if (value == null) {

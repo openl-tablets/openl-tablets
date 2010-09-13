@@ -9,10 +9,10 @@ import java.util.Stack;
 import org.openl.ICompileContext;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
@@ -90,7 +90,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             op.setVm(new SimpleVM());
             op.setCompileContext(buildCompileContext());
         } catch (Exception ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
+            throw new OpenLRuntimeException(ex);
         } finally {
             if (changedClassLoader) {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -134,7 +134,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             p.load(is);
             return p;
         } catch (IOException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new OpenLRuntimeException(e);
         } finally {
             try {
                 if (is != null) {

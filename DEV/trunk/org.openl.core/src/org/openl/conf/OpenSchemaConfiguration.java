@@ -9,10 +9,10 @@ package org.openl.conf;
 import java.io.File;
 import java.net.URL;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenFactory;
 import org.openl.types.IOpenSchema;
 import org.openl.types.ITypeLibrary;
-import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -44,7 +44,7 @@ public class OpenSchemaConfiguration extends AConfigurationElement implements IT
                 IOpenFactory factory = cxt.getConfiguration().getOpenFactory(factoryName);
                 schema = factory.getSchema(url.toExternalForm(), false);
             } catch (Exception ex) {
-                throw RuntimeExceptionWrapper.wrap(ex);
+                new OpenLRuntimeException(ex);
             }
         }
         return schema;

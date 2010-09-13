@@ -5,12 +5,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.poi.hwpf.HWPFDocument;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 
 public class WordDocSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
@@ -25,7 +25,7 @@ public class WordDocSourceCodeModule extends SourceCodeModuleDelegator implement
 
             document = new HWPFDocument(is);
         } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
+            throw new OpenLRuntimeException(t);
         } finally {
             try {
                 if (is != null) {
@@ -63,7 +63,7 @@ public class WordDocSourceCodeModule extends SourceCodeModuleDelegator implement
             return index < 0 ? file : file.substring(index);
 
         } catch (MalformedURLException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new OpenLRuntimeException(e);
         }
 
     }

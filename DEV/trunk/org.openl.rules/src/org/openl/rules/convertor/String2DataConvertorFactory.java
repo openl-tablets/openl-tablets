@@ -19,19 +19,21 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.utils.exception.ExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.BooleanUtils;
-import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
  * 
  */
 public class String2DataConvertorFactory {
+    
+    private static final String TYPE_NOT_FOUND = "Type %s is not found";
 
     public static class String2BooleanConvertor implements IString2DataConvertor {
 
@@ -49,7 +51,7 @@ public class String2DataConvertorFactory {
             if (boolValue != null) {
                 return boolValue;
             } else {
-                throw new RuntimeException("Invalid boolean value: " + data);
+                throw new OpenLRuntimeException("Invalid boolean value: " + data);
             }            
         }
 
@@ -105,7 +107,7 @@ public class String2DataConvertorFactory {
             IOpenClass c = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, data);
 
             if (c == null) {
-                throw new RuntimeException("Type " + data + " is not found");
+                throw new OpenLRuntimeException(String.format(TYPE_NOT_FOUND, data));
             }
 
             return c.getInstanceClass();
@@ -130,7 +132,7 @@ public class String2DataConvertorFactory {
             try {
                 return ctr.newInstance(new Object[] { data });
             } catch (Exception e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
         }
 
@@ -168,7 +170,7 @@ public class String2DataConvertorFactory {
                 } catch (NumberFormatException t) {
                     LOG.debug(t);
                 }
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
         }
 
@@ -197,7 +199,7 @@ public class String2DataConvertorFactory {
 
                     return new Double(n.doubleValue());
                 } catch (ParseException e) {
-                    throw RuntimeExceptionWrapper.wrap("", e);
+                    throw new OpenLRuntimeException(e);
                 }
             }
 
@@ -238,7 +240,7 @@ public class String2DataConvertorFactory {
             }
 
             if (resolvedConstant == null) {
-                throw new RuntimeException(String.format(
+                throw new OpenLRuntimeException(String.format(
                         "Constant corresponding to value \"%s\" can't be found in Enum %s ", data, enumType.getName()));
             }
 
@@ -270,7 +272,7 @@ public class String2DataConvertorFactory {
             try {
                 n = df.parse(data);
             } catch (ParseException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
 
             return Integer.valueOf(n.intValue());
@@ -298,7 +300,7 @@ public class String2DataConvertorFactory {
             try {
                 n = df.parse(data);
             } catch (ParseException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
 
             return Long.valueOf(n.longValue());
@@ -326,7 +328,7 @@ public class String2DataConvertorFactory {
             try {
                 n = df.parse(data);
             } catch (ParseException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
 
             return Byte.valueOf(n.byteValue());
@@ -353,7 +355,7 @@ public class String2DataConvertorFactory {
             try {
                 n = df.parse(data);
             } catch (ParseException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
 
             return Short.valueOf(n.shortValue());
@@ -383,7 +385,7 @@ public class String2DataConvertorFactory {
 
                     return new Float(n.floatValue());
                 } catch (ParseException e) {
-                    throw RuntimeExceptionWrapper.wrap("", e);
+                    throw new OpenLRuntimeException(e);
                 }
             }
 
@@ -397,6 +399,8 @@ public class String2DataConvertorFactory {
 
     public static class String2OpenClassConvertor implements IString2DataConvertor {
         
+        
+
         public String format(Object data, String format) {
             return String.valueOf(data);
         }
@@ -419,7 +423,7 @@ public class String2DataConvertorFactory {
             IOpenClass c = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, data);
 
             if (c == null) {
-                throw new RuntimeException("Type " + data + " is not found");
+                throw new OpenLRuntimeException(String.format(TYPE_NOT_FOUND, data));                
             }
 
             return c;
@@ -489,8 +493,8 @@ public class String2DataConvertorFactory {
             this.clazz = clazz;
         }
 
-        public String format(Object data, String format) {
-            throw new RuntimeException("Should not call this method");
+        public String format(Object data, String format) {            
+            throw new OpenLRuntimeException("Should not call this method");
         }
 
         public Object parse(String data, String format, IBindingContext cxt) {
