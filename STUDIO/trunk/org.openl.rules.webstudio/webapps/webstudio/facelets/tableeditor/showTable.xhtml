@@ -299,7 +299,7 @@
         </h:panelGroup>
 
         <c:set value="#{showTableBean.testRunResults}" var="testResult" />
-        <c:if test="#{testResult.notEmpty}">
+        <c:if test="#{testResult.notEmpty and !showTableBean.hasErrors}">
             <h3>Available Runs:</h3>
             <c:forEach var="test" items="#{testResult.tests}">
                 <c:forEach var="description"
