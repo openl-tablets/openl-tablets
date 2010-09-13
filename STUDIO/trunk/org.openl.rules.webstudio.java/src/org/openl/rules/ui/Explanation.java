@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.DoubleValueFormula;
 import org.openl.meta.DoubleValueFunction;
@@ -12,7 +13,6 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.tree.TreeIterator;
 
@@ -223,7 +223,7 @@ public class Explanation {
         try {
             parser.parse(url);
         } catch (Exception e) {
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new OpenLRuntimeException(e);
         }
 
         String ret = makeBasicUrl() + "&wbPath=" + parser.wbPath + "&wbName=" + parser.wbName + "&wsName="
