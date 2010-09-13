@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.source.IOpenSourceCodeModule;
@@ -21,7 +22,6 @@ import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
@@ -54,7 +54,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             is = src.getByteStream();
             return WorkbookFactory.create(is);
         } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
+            throw new OpenLRuntimeException(t);
         } finally {
             try {
                 if (is != null) {
@@ -95,7 +95,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             return index < 0 ? file : file.substring(index + 1);
 
         } catch (MalformedURLException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new OpenLRuntimeException(e);
         }
 
     }

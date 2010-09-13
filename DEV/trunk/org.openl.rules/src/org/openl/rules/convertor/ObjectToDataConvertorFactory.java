@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.openl.binding.IBindingContext;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.IntRange;
-import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Gives convertors from one class to another.
@@ -61,7 +61,7 @@ public class ObjectToDataConvertorFactory {
             try {
                 return ctr.newInstance(new Object[] { data });
             } catch (Exception e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
         }
 

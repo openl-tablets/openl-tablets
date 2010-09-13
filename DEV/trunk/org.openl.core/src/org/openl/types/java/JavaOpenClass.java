@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -38,7 +39,6 @@ import org.openl.util.CollectionsUtil;
 import org.openl.util.IConvertor;
 import org.openl.util.IOpenIterator;
 import org.openl.util.OpenIterator;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 
@@ -333,7 +333,7 @@ public class JavaOpenClass extends AOpenClass {
         try {
             return getInstanceClass().newInstance();
         } catch (Exception e) {
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new OpenLRuntimeException(e);
         }
     }
 
@@ -475,7 +475,7 @@ public class JavaOpenClass extends AOpenClass {
                 equals = Object.class.getMethod("equals", Object.class);
                 hashCode = Object.class.getMethod("hashCode");
             } catch (NoSuchMethodException nsme) {
-                throw RuntimeExceptionWrapper.wrap(nsme);
+                throw new OpenLRuntimeException(nsme);
             }
         }
 
@@ -506,7 +506,7 @@ public class JavaOpenClass extends AOpenClass {
                 return Proxy.newProxyInstance(instanceClass.getClassLoader(), new Class[] { instanceClass },
                         getInvocationHandler());
             } catch (Exception e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
 
         }

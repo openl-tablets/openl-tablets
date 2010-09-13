@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
-import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.exception.OpenLRuntimeException;
 
 /**
  * @author snshor
@@ -33,7 +33,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         try {
             return url.openStream();
         } catch (IOException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new OpenLRuntimeException(e);
         }
     }
 

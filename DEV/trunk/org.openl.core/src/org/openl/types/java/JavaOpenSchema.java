@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenClassHolder;
 import org.openl.types.IOpenFactory;
@@ -22,7 +23,6 @@ import org.openl.util.IConvertor;
 import org.openl.util.IOpenIterator;
 import org.openl.util.ISelector;
 import org.openl.util.OpenIterator;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.tree.FileTreeIterator;
 
 /**
@@ -110,7 +110,7 @@ public class JavaOpenSchema extends AOpenSchema {
                 }
                 return javaOpenClass;
             } catch (Exception ex) {
-                throw RuntimeExceptionWrapper.wrap(ex);
+                throw new OpenLRuntimeException(ex);
             }
         }
 
@@ -143,7 +143,7 @@ public class JavaOpenSchema extends AOpenSchema {
                     map.put(className, new JavaOpenClassHolder(className, classLoader));
                 }
             } catch (Exception ex) {
-                RuntimeExceptionWrapper.wrap(ex);
+                throw new OpenLRuntimeException(ex);
             }
         }
 

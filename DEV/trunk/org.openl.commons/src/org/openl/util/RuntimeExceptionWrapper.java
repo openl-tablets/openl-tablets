@@ -8,8 +8,11 @@ package org.openl.util;
 
 import org.apache.commons.lang.exception.NestableRuntimeException;
 
+
+
 /**
  * @author snshor
+ * TODO: delete this class. use functionality of org.openl.exception.OpenLRuntimeException
  *
  */
 public class RuntimeExceptionWrapper {

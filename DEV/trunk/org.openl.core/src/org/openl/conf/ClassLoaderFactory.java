@@ -20,10 +20,10 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.OpenL;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.tree.FileTreeIterator;
 
 /**
@@ -171,7 +171,7 @@ public class ClassLoaderFactory {
             try {
                 urls.add(f.toURL());
             } catch (MalformedURLException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
+                throw new OpenLRuntimeException(e);
             }
         }
 
