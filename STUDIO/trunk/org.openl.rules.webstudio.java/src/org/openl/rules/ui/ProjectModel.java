@@ -11,7 +11,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
@@ -77,6 +76,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -162,7 +162,7 @@ public class ProjectModel {
 
             @Override
             public void run() throws Exception {
-                throw new OpenLRuntimeException();
+                throw new RuntimeException();
             }
 
             @Override
@@ -171,7 +171,7 @@ public class ProjectModel {
                     atr.run(testName, tid, target, env, times);
                 } catch (Throwable t) {
                     Log.error("Error during Method run: ", t);
-                    throw new OpenLRuntimeException(t);
+                    throw RuntimeExceptionWrapper.wrap(t);
                 }
             }
 
@@ -217,7 +217,7 @@ public class ProjectModel {
 
                         @Override
                         protected void run() throws Exception {
-                            throw new OpenLRuntimeException();
+                            throw new RuntimeException();
                         }
 
                         @Override
