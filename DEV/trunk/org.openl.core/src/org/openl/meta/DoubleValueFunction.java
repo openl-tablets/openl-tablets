@@ -117,7 +117,7 @@ public class DoubleValueFunction extends DoubleValue {
 
     @Override
     public String printValue() {
-        return result.printValue(format);
+        return result.printValue(getFormat());
     }
 
     public void setFunctionName(String functionName) {
@@ -130,7 +130,7 @@ public class DoubleValueFunction extends DoubleValue {
 
     public void setResult(DoubleValue result) {
         this.result = result;
-        value = result.doubleValue();
+        this.value = result.doubleValue();
     }
 
 }

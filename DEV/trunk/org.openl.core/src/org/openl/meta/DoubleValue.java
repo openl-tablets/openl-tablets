@@ -11,12 +11,10 @@ import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
 import org.openl.util.tree.ITreeElement;
 
-public class DoubleValue extends Number implements IMetaHolder, Comparable<Number>, ITreeElement<DoubleValue>,
-        INamedThing {
-    static class DoubleValueOne extends DoubleValue {
-        /**
-         *
-         */
+public class DoubleValue extends Number implements IMetaHolder, Comparable<Number>, ITreeElement<DoubleValue>, INamedThing {
+
+    public static class DoubleValueOne extends DoubleValue {
+
         private static final long serialVersionUID = 6347462002516785250L;
 
         @Override
@@ -27,13 +25,10 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         public DoubleValue multiply(DoubleValue dv) {
             return dv;
         }
-
     }
 
-    static class DoubleValueZero extends DoubleValue {
-        /**
-         *
-         */
+    public static class DoubleValueZero extends DoubleValue {
+
         private static final long serialVersionUID = 3329865368482848868L;
 
         public DoubleValue add(DoubleValue dv) {
@@ -57,55 +52,51 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 
     private static final long serialVersionUID = -4594250562069599646L;
 
-    static public final int VALUE = 0x01, SHORT_NAME = 0x02, LONG_NAME = 0x04, URL = 0x08, EXPAND_FORMULA = 0x10,
-            EXPAND_FUNCTION = 0x20, PRINT_VALUE_IN_EXPANDED = 0x40, EXPAND_ALL = EXPAND_FORMULA | EXPAND_FUNCTION
-                    | PRINT_VALUE_IN_EXPANDED, PRINT_ALL = EXPAND_ALL | LONG_NAME;
+    public static final int VALUE = 0x01, SHORT_NAME = 0x02, LONG_NAME = 0x04, URL = 0x08, EXPAND_FORMULA = 0x10,
+            EXPAND_FUNCTION = 0x20, PRINT_VALUE_IN_EXPANDED = 0x40,
+            EXPAND_ALL = EXPAND_FORMULA | EXPAND_FUNCTION | PRINT_VALUE_IN_EXPANDED,
+            PRINT_ALL = EXPAND_ALL | LONG_NAME;
 
-    static final public DoubleValue ZERO = new DoubleValueZero();
+    public static final DoubleValue ZERO = new DoubleValueZero();
+    public static final DoubleValue ONE = new DoubleValueOne();
 
-    static final public DoubleValue ONE = new DoubleValueOne();
-
-    public static final DoubleValue[] EMPTY = {};
-
-    static Map<String, Format> formats = new HashMap<String, Format>();
-
-    // ValueMetaInfo metaInfo;
-    IMetaInfo metaInfo;
-
-    double value;
-
-    String format = "#0.####";
-
+    private static Map<String, Format> formats = new HashMap<String, Format>();
+    
     public static DoubleValue add(DoubleValue dv1, DoubleValue dv2) {
+
         if (dv1 == null || dv1.getValue() == 0) {
             return dv2;
         }
+
         if (dv2 == null || dv2.getValue() == 0) {
             return dv1;
         }
+
         return new DoubleValueFormula(dv1, dv2, dv1.getValue() + dv2.getValue(), "+", false);
     }
 
-    static public DoubleValue autocast(double x, DoubleValue y) {
+    public static DoubleValue autocast(double x, DoubleValue y) {
         return new DoubleValue(x);
     }
 
-    static public DoubleValue autocast(int x, DoubleValue y) {
+    public static DoubleValue autocast(int x, DoubleValue y) {
         return new DoubleValue(x);
     }
 
-    static public DoubleValue autocast(long x, DoubleValue y) {
+    public static DoubleValue autocast(long x, DoubleValue y) {
         return new DoubleValue(x);
     }
-    
-    
+
     public static DoubleValue copy(DoubleValue value, String name) {
+
         if (value.getName() == null) {
             value.setName(name);
+
             return value;
         } else if (!value.getName().equals(name)) {
             DoubleValue dv = new DoubleValueFunction(value.doubleValue(), "COPY", new DoubleValue[] { value });
             dv.setName(name);
+
             return dv;
         }
 
@@ -124,12 +115,15 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return dv1.getValue() >= dv2.getValue();
     }
 
-    static synchronized Format getFormat(String fmt) {
+    public static synchronized Format getFormat(String fmt) {
+
         Format format = formats.get(fmt);
+
         if (format == null) {
             format = new DecimalFormat(fmt);
             formats.put(fmt, format);
         }
+
         return format;
     }
 
@@ -145,21 +139,19 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return dv1.getValue() < dv2.getValue();
     }
 
-    static public DoubleValue max(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFunction(dv2.getValue() > dv1.getValue() ? dv2 : dv1, "max",
-                new DoubleValue[] { dv1, dv2 });
+    public static DoubleValue max(DoubleValue dv1, DoubleValue dv2) {
+        return new DoubleValueFunction(dv2.getValue() > dv1.getValue() ? dv2 : dv1,
+            "max",
+            new DoubleValue[] { dv1, dv2 });
     }
 
-    static public DoubleValue min(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFunction(dv2.getValue() < dv1.getValue() ? dv2 : dv1, "min",
-                new DoubleValue[] { dv1, dv2 });
+    public static DoubleValue min(DoubleValue dv1, DoubleValue dv2) {
+        return new DoubleValueFunction(dv2.getValue() < dv1.getValue() ? dv2 : dv1,
+            "min",
+            new DoubleValue[] { dv1, dv2 });
     }
 
     public static DoubleValue multiply(DoubleValue dv1, DoubleValue dv2) {
-//        if (dv1.getValue() == 0 || dv2.getValue() == 0) {
-//            return DoubleValue.ZERO;
-//        }
-
         return new DoubleValueFormula(dv1, dv2, dv1.getValue() * dv2.getValue(), "*", true);
     }
 
@@ -170,40 +162,41 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     public static DoubleValue negative(DoubleValue dv) {
         DoubleValue neg = new DoubleValue(-dv.value);
         neg.metaInfo = dv.metaInfo;
+
         return neg;
     }
 
-    static public DoubleValue pow(DoubleValue dv1, DoubleValue dv2) {
+    public static DoubleValue pow(DoubleValue dv1, DoubleValue dv2) {
         return new DoubleValueFunction(Math.pow(dv1.value, dv2.value), "pow", new DoubleValue[] { dv1, dv2 });
     }
 
-    static public DoubleValue round(DoubleValue dv1) {
+    public static DoubleValue round(DoubleValue dv1) {
         return new DoubleValueFunction(Math.round(dv1.getValue()), "round", new DoubleValue[] { dv1 });
     }
 
-    static public DoubleValue round(DoubleValue d, DoubleValue p) {
+    public static DoubleValue round(DoubleValue d, DoubleValue p) {
 
         if (d == null) {
             return ZERO;
         }
-        return new DoubleValueFunction(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue(), "round",
-                new DoubleValue[] { d, p });
+
+        return new DoubleValueFunction(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue(),
+            "round",
+            new DoubleValue[] { d, p });
     }
 
-//    static public DoubleValue subtract(double x, DoubleValue dv) {
-//        return new DoubleValueFormula(new DoubleValue(x), dv, x - dv.getValue(), "-", false);
-//    }
-
     public static DoubleValue subtract(DoubleValue dv1, DoubleValue dv2) {
+
         if (dv2 == null || dv2.getValue() == 0) {
             return dv1;
         }
+
         return new DoubleValueFormula(dv1, dv2, dv1.getValue() - dv2.getValue(), "-", false);
     }
 
-//    static public DoubleValue subtract(int x, DoubleValue dv) {
-//        return new DoubleValueFormula(new DoubleValue(x), dv, x - dv.getValue(), "-", false);
-//    }
+    private String format = "#0.####";
+    private IMetaInfo metaInfo;
+    protected double value;
 
     public DoubleValue() {
     }
@@ -213,7 +206,6 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public DoubleValue(double value, IMetaInfo metaInfo, String format) {
-        super();
         this.metaInfo = metaInfo;
         this.value = value;
         this.format = format;
@@ -253,6 +245,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public String getDisplayName(int mode) {
+
         switch (mode) {
             case SHORT:
                 return printValue();
@@ -271,9 +264,11 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public String getName() {
+
         if (metaInfo == null) {
             return null;
         }
+
         return metaInfo.getDisplayName(IMetaInfo.LONG);
     }
 
@@ -307,40 +302,30 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return printValue();
     }
 
-    // public DoubleValue multiply(double d)
-    // {
-    // return multiply(new DoubleValue(d));
-    // }
-
-    // public DoubleValue divide(double d)
-    // {
-    // return divide(new DoubleValue(d));
-    // }
-
     public String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls) {
 
         if (urls != null && metaInfo != null && metaInfo.getSourceUrl() != null) {
             urls.add("" + metaInfo.getDisplayName(IMetaInfo.LONG) + " -> " + metaInfo.getSourceUrl());
         }
+
         return printExplanationLocal(mode, fromMultiplicativeExpr);
     }
 
     protected String printExplanationLocal(int mode, boolean fromMultiplicativeExpr) {
+
         switch (mode & (~EXPAND_ALL)) {
             case VALUE:
                 return printContent(mode, fromMultiplicativeExpr, false);
             case SHORT_NAME:
-                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false) : metaInfo
-                        .getDisplayName(IMetaInfo.LONG)
-                        + "(" + printContent(mode, false, true) + ")";
+                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false)
+                                       : metaInfo.getDisplayName(IMetaInfo.LONG) + "(" + printContent(mode, false, true) + ")";
             case LONG_NAME:
-                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false) : metaInfo
-                        .getDisplayName(IMetaInfo.LONG)
-                        + "(" + printContent(mode, false, true) + ")";
+                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false)
+                                       : metaInfo.getDisplayName(IMetaInfo.LONG) + "(" + printContent(mode, false, true) + ")";
             default:
         }
-        throw new RuntimeException("Wrong print mode!!");
 
+        throw new RuntimeException("Wrong print mode!!");
     }
 
     public String printValue() {
@@ -395,19 +380,18 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return printValue();
     }
 
-    @Override 
+    @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DoubleValue)
-        {
-            DoubleValue secondObj = (DoubleValue)obj;
-            return value == secondObj.doubleValue();// && metaInfo == secondObj.metaInfo;
-        }    
+        if (obj instanceof DoubleValue) {
+            DoubleValue secondObj = (DoubleValue) obj;
+            return value == secondObj.doubleValue();
+        }
+
         return false;
     }
 
     @Override
     public int hashCode() {
-        return ((Double)value).hashCode();
+        return ((Double) value).hashCode();
     }
-
 }
