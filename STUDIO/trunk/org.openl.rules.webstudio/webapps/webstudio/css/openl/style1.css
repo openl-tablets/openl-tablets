@@ -13,6 +13,10 @@ table,input,textarea {
     font-size: 100%;
 }
 
+input[type='text'], textarea, select {
+    border: 1px inset rgb(190,190,190) !important;
+}
+
 .error_box {
     padding: 12px 7px 12px 43px;
     background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;
