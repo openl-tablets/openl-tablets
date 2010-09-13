@@ -1,9 +1,7 @@
 package org.openl.conf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.grammar.IGrammar;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Allows Java based configuration without Ant
@@ -13,8 +11,6 @@ import org.openl.syntax.grammar.IGrammar;
  */
 
 public class NoAntOpenLTask {
-    
-    private static Log LOG = LogFactory.getLog(NoAntOpenLTask.class);
 
     public static IOpenLConfiguration lastConfiguration;
 
@@ -122,8 +118,8 @@ public class NoAntOpenLTask {
             // conf);
             saveConfiguration(conf);
         } catch (Exception e) {
-            LOG.error(e);
-            throw new OpenLRuntimeException(e);
+            e.printStackTrace(System.err);
+            throw RuntimeExceptionWrapper.wrap(e);
         }
     }
 

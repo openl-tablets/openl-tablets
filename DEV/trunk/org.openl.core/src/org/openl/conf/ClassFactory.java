@@ -11,8 +11,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.openl.binding.MethodUtil;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -32,13 +32,13 @@ public class ClassFactory extends AConfigurationElement {
         try {
             return cl.loadClass(name);
         } catch (ClassNotFoundException ex) {
-            throw new OpenLRuntimeException(ex);
+            throw RuntimeExceptionWrapper.wrap(ex);
         } catch (NoClassDefFoundError ex) {
             Log.debug("Potential problem loading class: " + name, ex);
-            throw new OpenLRuntimeException(ex);
+            throw RuntimeExceptionWrapper.wrap(ex);
         } catch (Throwable t) {
             Log.error("Error loading class: " + name, t);
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
@@ -63,7 +63,7 @@ public class ClassFactory extends AConfigurationElement {
         try {
             return forName(className, cl).newInstance();
         } catch (Exception ex) {
-            throw new OpenLRuntimeException(ex);
+            throw RuntimeExceptionWrapper.wrap(ex);
         }
     }
 

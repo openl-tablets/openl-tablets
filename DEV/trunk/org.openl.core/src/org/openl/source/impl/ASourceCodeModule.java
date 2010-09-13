@@ -8,8 +8,8 @@ package org.openl.source.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -34,7 +34,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
                     buf.append(c, 0, len);
                 }
             } catch (IOException e) {
-                throw new OpenLRuntimeException(e);
+                throw RuntimeExceptionWrapper.wrap(e);
             }
             code = buf.toString();
         }

@@ -12,13 +12,13 @@ import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -69,7 +69,7 @@ public class MethodBindingContext extends BindingContextDelegator {
             try {
                 addParameter(ISyntaxConstants.THIS_NAMESPACE, signature.getParameterName(i), params[i]);
             } catch (DuplicatedVarException e) {
-                throw new OpenLRuntimeException(e);
+                throw RuntimeExceptionWrapper.wrap(e.getMessage(), e);
             }
         }
 

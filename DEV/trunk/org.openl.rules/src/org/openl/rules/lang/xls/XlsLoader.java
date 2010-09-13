@@ -23,7 +23,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.extension.load.IExtensionLoader;
@@ -52,6 +51,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 /**
@@ -428,7 +428,7 @@ public class XlsLoader {
         } catch (Exception e) {
             LOG.error("Error while preprocessing workbook", e);            
             OpenLMessagesUtils.addError(e);
-            throw new OpenLRuntimeException(e);
+            throw RuntimeExceptionWrapper.wrap(e);
         } finally {
             try {
                 if (is != null) {

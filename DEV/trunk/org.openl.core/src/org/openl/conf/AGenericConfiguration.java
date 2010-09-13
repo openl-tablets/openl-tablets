@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -104,7 +104,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
 
             return res;
         } catch (Throwable t) {
-            throw new OpenLRuntimeException(t);
+            throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
