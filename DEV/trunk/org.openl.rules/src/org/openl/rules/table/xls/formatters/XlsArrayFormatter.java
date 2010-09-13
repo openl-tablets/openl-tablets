@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.util.ArrayTool;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 
@@ -64,8 +65,8 @@ public class XlsArrayFormatter extends AXlsFormatter {
                 Log.error(String.format("Should be an array: %s", value.toString()));
                 return result;
             }
-
-            Object[] array = (Object[]) value;
+            
+            Object[] array = ArrayTool.toArray(value);
 
             String[] elementResults = new String[array.length];
 
