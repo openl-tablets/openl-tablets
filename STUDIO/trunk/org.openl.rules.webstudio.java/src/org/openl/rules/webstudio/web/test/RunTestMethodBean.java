@@ -102,10 +102,7 @@ public class RunTestMethodBean {
     
     public String getStringResult() {
         Object result = resultItems.getRowData();
-        if (result != null) {
-            return result.toString();
-        } 
-        return TestResultsHelper.getNullResult();
+        return TestResultsHelper.getFormattedResult(result);        
     }
 
     public SpreadsheetResult getSpreadsheetResult() {

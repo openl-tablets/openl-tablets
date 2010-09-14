@@ -150,11 +150,7 @@ public class RunAllTestsBean {
 
     public String getFormattedTestValue(){
         Object testValue = getTestValue();
-        if (testValue != null) {
-            IFormatter formatter = XlsFormattersManager.getFormatter(testValue.getClass());
-            return formatter.format(testValue);
-        }
-        return Formatter.format(testValue, INamedThing.REGULAR, new StringBuffer()).toString();
+        return TestResultsHelper.getFormattedResult(testValue);
     }
     
     public String getUnitDescription() {
