@@ -1,0 +1,54 @@
+<project name="makestandalone.webstudio" default="copy_studio" basedir="../">
+
+	<taskdef name="cpcopy" classname="org.openl.conf.ant.ClasspathCopy" />
+
+	<property name="targetDir" value="/temp/webstudio1/workspace" />
+	<property name="tomcat.project" value="org.openl.rules.tomcat.lib" />
+	<property name="webstudio.project" value="org.openl.rules.webstudio" />
+<!--
+	
+	<property name="demo.project" value="org.openl.tablets.tutorial4" />
+-->
+	<target name="copy_studio">
+
+		<echo message="Copying Webstudio Classpath" />
+
+		<!--
+		The following parameters are required for ClasspathCopy task:
+            
+		
+		                  	  
+		The following parameters are optional for ClasspathCopy task:
+			 
+-->
+		<cpcopy 
+			targetDir="${targetDir}" 
+			copyMode="copy.workspace" 
+			startupFileName="StartWebstudio"
+			copyTomcat="true"
+		/>
+
+		<copy preservelastmodified="true" todir="${targetDir}/${webstudio.project}">
+			<fileset dir="../${webstudio.project}">
+				<exclude name="**/CVS/**" />
+				<exclude name="**/work/**" />
+			</fileset>
+		</copy>
+
+
+	</target>
+
+	<!--
+	This target must be called in project's Eclipse environment!!! 
+	-->
+
+	<target name="copy_project">
+		<cpcopy targetDir="${targetDir}" copyMode="copy.workspace" validateThisDir="${demo.project}" />
+		<copy preservelastmodified="true" todir="${targetDir}/${demo.project}">
+			<fileset dir="../${demo.project}">
+				<exclude name="**/CVS/**" />
+			</fileset>
+		</copy>
+	</target>
+
+</project>
