@@ -167,11 +167,17 @@ public class RuleRowHelper {
 
         ICell theCell = table.getGridTable().getCell(0, 0);
 
-        if (theCell.hasNativeType() && !(paramType instanceof DomainOpenClass)) {
+        if (theCell.hasNativeType()) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
                 Object res = loadNativeValue(theCell, paramType, openlAdapter.getBindingContext(),
                         paramName, ruleName, table);
                 if (res != null) {
+                    try {
+                        validateValue(res, paramType);
+                    } catch (Throwable t) {
+                        throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(table
+                                .getGridTable()));
+                    }
                     setCellMetaInfo(table, paramName, paramType, false);
                     return res;
                 }
