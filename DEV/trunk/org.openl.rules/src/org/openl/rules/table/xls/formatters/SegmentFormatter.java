@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls.formatters;
 
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.util.formatters.IFormatter;
 
 public class SegmentFormatter {
     

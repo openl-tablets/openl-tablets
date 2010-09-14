@@ -5,6 +5,12 @@ import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Manager of xls formatters. Use it only in org.openl.rules project.
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class XlsFormattersManager {
 private static HashMap<Class<?>, AXlsFormatter> formatters;
     

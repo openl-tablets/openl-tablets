@@ -1,11 +1,9 @@
 package org.openl.rules.testmethod;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.xls.formatters.IFormatter;
-import org.openl.rules.table.xls.formatters.XlsFormattersManager;
+import org.openl.rules.table.xls.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -17,7 +15,7 @@ import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
-import org.openl.util.print.Formatter;
+import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchmarkableMethod {
@@ -88,12 +86,8 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
                 if (testedMethod.getSignature().getNumberOfParameters() > 0) {
                     String name = testedMethod.getSignature().getParameterName(0);
                     Object value = dd[i].getFieldValue(name);
-                    if (value != null) {
-                        IFormatter formatter = XlsFormattersManager.getFormatter(value.getClass());
-                        description = formatter.format(value);
-                    } else {
-                        description = Formatter.format(value, INamedThing.REGULAR, new StringBuffer()).toString();
-                    }
+                    IFormatter formatter = FormattersManager.getFormatter(value);
+                    description = formatter.format(value);
                 } else {
                     description = "Run with no parameters";
                 }

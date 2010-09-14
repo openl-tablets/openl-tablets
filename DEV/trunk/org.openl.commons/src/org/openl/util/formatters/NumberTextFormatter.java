@@ -1,4 +1,4 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.util.formatters;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
