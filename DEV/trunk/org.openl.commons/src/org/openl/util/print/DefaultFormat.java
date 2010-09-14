@@ -13,17 +13,20 @@ import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
 
 /**
+ * Default format to convert <code>Object</code> values to <code>String</code> representations.
+ * Supports:<br>
+ *           - <code>null</code> objects<br>
+ *           - arrays (Object and primitives)<br>
+ *           - object that are instances of {@link Collection}<br>
+ *           - maps of objects.
+ * 
  * @author snshor
  *
  */
 public class DefaultFormat implements IFormat {
 
-    /**
-     *
-     */
     public DefaultFormat() {
-        super();
-        // TODO Auto-generated constructor stub
+        super();        
     }
 
     public StringBuffer format(Object obj, int mode, StringBuffer buf) {
@@ -35,11 +38,11 @@ public class DefaultFormat implements IFormat {
             return formatArray(obj, mode, buf);
         }
 
-        if (obj instanceof Collection) {
+        if (obj instanceof Collection<?>) {
             return formatCollection((Collection<?>) obj, mode, buf);
         }
 
-        if (obj instanceof Map) {
+        if (obj instanceof Map<?,?>) {
             return formatMap((Map<?,?>) obj, mode, buf);
         }
 
@@ -50,24 +53,12 @@ public class DefaultFormat implements IFormat {
         return buf.append(obj);
     }
 
-    /**
-     * @param obj
-     * @param mode
-     * @param buf
-     * @return
-     */
     protected StringBuffer formatArray(Object obj, int mode, StringBuffer buf) {
         int maxLen = maxCollectionLength(mode);
 
         return formatIterator(OpenIterator.fromArrayObj(obj), mode, buf, maxLen, Array.getLength(obj), "[]");
     }
 
-    /**
-     * @param obj
-     * @param mode
-     * @param buf
-     * @return
-     */
     protected StringBuffer formatBean(Object obj, int mode, StringBuffer buf) {
         if (obj instanceof INamedThing) {
             return buf.append(((INamedThing) obj).getDisplayName(mode));
@@ -77,12 +68,6 @@ public class DefaultFormat implements IFormat {
         return buf.append(printer.getBuffer());
     }
 
-    /**
-     * @param collection
-     * @param mode
-     * @param buf
-     * @return
-     */
     protected StringBuffer formatCollection(Collection<?> collection, int mode, StringBuffer buf) {
 
         int maxLength = maxCollectionLength(mode);
@@ -132,20 +117,10 @@ public class DefaultFormat implements IFormat {
         return buf;
     }
 
-    /**
-     * @param map
-     * @param mode
-     * @param buf
-     * @return
-     */
     protected StringBuffer formatMap(Map<?,?> map, int mode, StringBuffer buf) {
         return formatCollection(map.keySet(), mode, buf);
     }
 
-    /**
-     * @param obj
-     * @return
-     */
     protected boolean isPrimitive(Class<?> c) {
         return c.isPrimitive();
     }
@@ -162,10 +137,6 @@ public class DefaultFormat implements IFormat {
 
     }
 
-    /**
-     * @param collection
-     * @return
-     */
     public String shortClassName(Object obj) {
         return StringTool.lastToken(obj.getClass().getName(), ".");
     }
