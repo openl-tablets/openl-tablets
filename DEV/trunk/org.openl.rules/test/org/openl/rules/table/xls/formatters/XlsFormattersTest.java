@@ -3,6 +3,7 @@ package org.openl.rules.table.xls.formatters;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.util.formatters.IFormatter;
 
 public class XlsFormattersTest {
     

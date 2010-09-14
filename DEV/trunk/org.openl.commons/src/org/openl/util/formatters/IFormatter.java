@@ -1,7 +1,7 @@
 /**
  * Created Feb 28, 2007
  */
-package org.openl.rules.table.xls.formatters;
+package org.openl.util.formatters;
 
 /**
  * @author snshor

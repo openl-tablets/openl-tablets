@@ -1,4 +1,5 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.util.formatters;
+
 
 
 public class ConstTextFormatter implements IFormatter {
