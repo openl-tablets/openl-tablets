@@ -36,6 +36,7 @@
     	<include name="**/WebStudio Starter.launch"/>
     	<include name="**/build.xml"/>
     	<include name="**/run.bat"/>
+    	<include name="openl-simple-project/pom.xml"/>
     </fileset>
 
     <target name="change" description="Change Version">

@@ -94,7 +94,11 @@
 	</target>
 	
 	<target name="sonatypeDeploy">
-		<maven dir="${moduleFolder}/target/checkout">
+		<!-- Revert changes that maven release plugin have done in phase "perform" -->
+		<exec executable="svn">
+			<arg line="revert ${moduleFolder}/target/checkout/ -R"/>
+		</exec>
+		<maven dir="${moduleFolder}/target/checkout/">
 			<arg line="clean deploy -P sonatype-deploy,gpg-sign -Dgpg.passphrase=${passphrase}" />
 		</maven>
 	</target>
@@ -129,6 +133,21 @@
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
 		</antcall>
+	</target>
+	<target name="changeVersionInArchetypePom">
+		<antcall target="changeVersionsBefore">
+			<param name="moduleFolder" value="${root_folder}/${util_folder}"/>
+		</antcall>
+	</target>
+	
+	<target name="releaseOpenL">
+		<antcall target="releaseBasePom"/>
+		<antcall target="releaseDEV"/>
+		<antcall target="releaseSTUDIO"/>
+		<antcall target="releaseFrontEnd"/>
+		<antcall target="releaseTUT"/>
+		<antcall target="releaseSITE"/>
+		<antcall target="changeVersionInArchetypePom"/>
 	</target>
 	
 	<target name="LiveExcelRelease">
