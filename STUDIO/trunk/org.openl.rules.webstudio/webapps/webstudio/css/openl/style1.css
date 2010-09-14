@@ -14,7 +14,12 @@ table,input,textarea {
 }
 
 input[type='text'], textarea, select {
-    border: 1px inset rgb(190,190,190) !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-left-color: rgb(130,130,130) !important;
+    border-top-color: rgb(130,130,130) !important;
+    border-right-color: rgb(230,230,230) !important;
+    border-bottom-color: rgb(230,230,230) !important;
 }
 
 .error_box {
