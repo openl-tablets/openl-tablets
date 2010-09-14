@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.openl.tablets.deploy
+Bundle-SymbolicName: org.openl.tablets.deploy
+Bundle-Version: 5.5.0
+Bundle-Localization: plugin
+Bundle-Vendor: OpenL Tablets
+Require-Bundle: org.openl.commons,
+ org.openl.rules.ruleservice.lib,
+ org.openl.rules.webstudio.lib,
+ org.openl.rules.ruleservice.ws.lib
