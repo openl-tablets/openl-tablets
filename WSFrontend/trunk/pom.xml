@@ -5,13 +5,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-ruleservice-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.7.2-SNAPSHOT</version>
+  <version>5.7.2</version>
   <name>OpenL WSFrontend SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/trunk</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/trunk</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/tags/release-5.7.2</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/tags/release-5.7.2</developerConnection>
   </scm>
 
   <modules>
