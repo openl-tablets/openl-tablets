@@ -10,7 +10,7 @@
     <name>OpenL Simple Project</name>
 
     <properties>
-        <openl.rules.version>5.7.0</openl.rules.version>
+        <openl.rules.version>5.7.2</openl.rules.version>
     </properties>
 
     <dependencies>
