@@ -8,6 +8,6 @@ package org.openl.util.print;
  *
  */
 public interface IFormat {
-    public StringBuffer format(Object obj, int mode, StringBuffer buf);
+    StringBuffer format(Object obj, int mode, StringBuffer buf);
 
 }

@@ -9,11 +9,8 @@ package org.openl.util.print;
  */
 public class Formatter {
 
-    static IFormat defaultFormat = new DefaultFormat();
+    private static IFormat defaultFormat = new DefaultFormat();
 
-    /**
-     * @return
-     */
     public static IFormat defaultFormat() {
         return defaultFormat;
     }
@@ -21,15 +18,6 @@ public class Formatter {
     public static String filterCategory() {
         return OutputFilter.class.getName();
     }
-
-    /**
-     *
-     * @param obj
-     * @param pc
-     * @param mode
-     * @param buf
-     * @return
-     */
 
     public static StringBuffer format(Object obj, int mode, StringBuffer buf) {
         Object key = obj == null ? (Object) "null" : (Object) obj.getClass();
@@ -56,9 +44,6 @@ public class Formatter {
         return cxt.print(obj, mode, buf);
     }
 
-    /**
-     * @return
-     */
     public static String formatCategory() {
         return IFormat.class.getName();
     }

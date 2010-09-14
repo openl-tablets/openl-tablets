@@ -12,9 +12,9 @@ import java.util.Stack;
  */
 public class CategorizedSearchContext implements ICategorizedSearchContext {
 
-    static class CKey {
-        Object key;
-        String category;
+    private static class CKey {
+        private Object key;
+        private String category;
 
         CKey(Object key, String category) {
             this.key = key;
@@ -33,13 +33,13 @@ public class CategorizedSearchContext implements ICategorizedSearchContext {
         }
     }
 
-    static ThreadLocal<Stack<ICategorizedSearchContext>> contexts = new ThreadLocal<Stack<ICategorizedSearchContext>>();
+    private static ThreadLocal<Stack<ICategorizedSearchContext>> contexts = new ThreadLocal<Stack<ICategorizedSearchContext>>();
 
-    static CategorizedSearchContext defaultContext;
+    private static CategorizedSearchContext defaultContext;
 
-    ICategorizedSearchContext parent;
+    private ICategorizedSearchContext parent;
 
-    HashMap<CKey, Object> map = new HashMap<CKey, Object>();
+    private HashMap<CKey, Object> map = new HashMap<CKey, Object>();
 
     public static ICategorizedSearchContext current() {
         Stack<ICategorizedSearchContext> s = contexts.get();
@@ -49,9 +49,6 @@ public class CategorizedSearchContext implements ICategorizedSearchContext {
         return s.peek();
     }
 
-    /**
-     * @return
-     */
     private static synchronized ICategorizedSearchContext defaultSearchContext() {
         if (defaultContext == null) {
             defaultContext = new CategorizedSearchContext(null);
@@ -60,9 +57,6 @@ public class CategorizedSearchContext implements ICategorizedSearchContext {
         return defaultContext;
     };
 
-    /**
-     *
-     */
     private static void initDefaultContext() {
         // TODO Auto-generated method stub
 

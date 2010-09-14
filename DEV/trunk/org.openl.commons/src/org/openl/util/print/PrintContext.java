@@ -9,13 +9,8 @@ package org.openl.util.print;
  */
 public class PrintContext {
 
-    IFormat format;
-    OutputFilter filter;
-
-    /**
-     * @param format
-     * @param filter
-     */
+    private IFormat format;
+    private OutputFilter filter;
 
     public PrintContext(IFormat format, OutputFilter filter) {
         this.format = format;
