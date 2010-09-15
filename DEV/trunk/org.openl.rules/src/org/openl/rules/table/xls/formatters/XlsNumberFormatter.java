@@ -128,7 +128,7 @@ public class XlsNumberFormatter extends AXlsFormatter {
         }
 
         if (javaFormat.indexOf('#') < 0 && javaFormat.indexOf('0') < 0) {
-            IFormatter textFormatter = new ConstTextFormatter(javaFormat);
+            IFormatter textFormatter = new ConstTextFormatter();
             segmentFormatter.setFormatter(textFormatter);
             return segmentFormatter;
 
