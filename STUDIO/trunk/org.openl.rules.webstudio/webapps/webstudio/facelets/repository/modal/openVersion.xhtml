@@ -5,7 +5,7 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalOpenVersion" width="400" minWidth="400" height="145" minHeight="#{artefact.opened ? 195:145}">
+  <rich:modalPanel id="modalOpenVersion" width="400" minWidth="400" height="145" minHeight="#{node.type == 'project' and artefact.opened ? 195:145}">
     <f:facet name="header">
       <h:outputText value="Open Version" />
     </f:facet>
@@ -24,7 +24,7 @@
         </h:selectOneMenu>
       </h:panelGrid>
 
-      <h:panelGroup  rendered="#{artefact.opened}">
+      <h:panelGroup  rendered="#{node.type == 'project' and artefact.opened}">
         <br />
         <h:outputText value="Are you sure you want to open the project '#{node.name}'? All your local changes will be lost. 
             Your project in local workspace will be replaced by project of specified version that will be checked out from repository." />
