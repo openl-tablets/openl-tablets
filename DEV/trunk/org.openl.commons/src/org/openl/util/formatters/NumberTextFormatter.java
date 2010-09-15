@@ -21,7 +21,11 @@ public class NumberTextFormatter implements IFormatter {
     public String format(Object obj) {
         return format.format(obj);
     }
-
+    
+    /**
+     * Tries to parse value using inner {@link DecimalFormat}, if can`t, tries
+     * to parse the income value by {@link DateFormat#parse(String)}
+     */
     public Object parse(String value) {
         try {
             return format.parse(value);
