@@ -91,4 +91,15 @@ public class FormatterTest {
         String devStr = printDevView(intMas);
         assertTrue(StringUtils.contains(devStr, "[345, ... 2 more]"));     
     }
+    
+    @Test
+    public void testString() {
+        String str = "text to format";
+        
+        String busStr = printBusView(str);
+        assertEquals(str, busStr);
+        
+        String devStr = printDevView(str);
+        assertEquals(str, devStr);
+    }
 }

@@ -33,7 +33,9 @@ public class FormattersManager {
                                                             // so we try to format the value by other way.
                 formatter = new FormatterAdapter();
             }
-        } formatter = new FormatterAdapter();
+        } else {
+            formatter = new FormatterAdapter();
+        }
         
         return formatter;
     }
