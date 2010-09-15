@@ -4,10 +4,7 @@ package org.openl.util.formatters;
 
 public class ConstTextFormatter implements IFormatter {
 
-    private String format;
-
-    public ConstTextFormatter(String format) {
-        this.format = format;
+    public ConstTextFormatter() {        
     }
 
     public String format(Object obj) {
