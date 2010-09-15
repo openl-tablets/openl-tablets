@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL WebStudio TableEditor component
 Bundle-SymbolicName: org.openl.rules.tableeditor;singleton:=true
-Bundle-Version: 5.7.2
+Bundle-Version: 5.7.3
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.tomcat.lib;visibility:=reexport,
