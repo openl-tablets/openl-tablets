@@ -9,7 +9,6 @@ import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.table.xls.formatters.IFormatter;
 import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.ProjectModel;
@@ -18,6 +17,7 @@ import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
+import org.openl.util.formatters.IFormatter;
 import org.openl.util.print.Formatter;
 
 /**
@@ -119,7 +119,7 @@ public class RunAllTestsBean {
             return rootCause.getMessage();
         }
         if (result == null) {
-            return TestResultsHelper.getNullResult();
+            return TestResultsHelper.format(result);
         }
         return result;
     }
@@ -150,7 +150,7 @@ public class RunAllTestsBean {
 
     public String getFormattedTestValue(){
         Object testValue = getTestValue();
-        return TestResultsHelper.getFormattedResult(testValue);
+        return TestResultsHelper.format(testValue);
     }
     
     public String getUnitDescription() {
