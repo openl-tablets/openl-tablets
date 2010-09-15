@@ -1,0 +1,33 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:modalPanel id="modalCloseProject" width="400" minWidth="400" height="110" minHeight="110">
+    <f:facet name="header">
+      <h:outputText value="Confirm Close" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCloseProject');" />
+    </f:facet>
+
+    <h:form id="closeProjectForm">
+      <h:outputText value="Are you sure you want to close the project '#{node.name}'? All your local changes will be lost. 
+          Project will be removed from local workspace." />
+
+      <br />
+      <rich:separator height="1" />
+      <br />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Close Project" action="#{repositoryTreeController.closeProject}" />
+        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalCloseProject')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+
+  </rich:modalPanel>
+
+</ui:composition>
