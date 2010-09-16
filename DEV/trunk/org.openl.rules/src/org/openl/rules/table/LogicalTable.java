@@ -10,7 +10,7 @@ package org.openl.rules.table;
  * @author snshor
  *
  */
-public class LogicalTable extends ALogicalTable implements ILogicalTable {
+public class LogicalTable extends ALogicalTable {
     
     private IGridTable gridTable;
     
