@@ -9,6 +9,7 @@ package org.openl.rules.table;
 /**
  * @author snshor
  * 
+ * TODO: rename to AOriginalGridTable (or ASourceGridTable)
  */
 public abstract class AGridTableDelegator extends AGridTable {
     protected IGridTable gridTable;
