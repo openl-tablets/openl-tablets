@@ -102,10 +102,10 @@ public class TableEditorModel {
     }
     
     public boolean canInsertCols(int nCols) {
-        GridRegion testRegion = new GridRegion(fullTableRegion.getTop() - 1, fullTableRegion.getRight() + 1, fullTableRegion.getBottom() + 1,
-                fullTableRegion.getRight() + 1 + nCols);
+        GridRegion testRegion = new GridRegion(fullTableRegion.getTop() - 1, fullTableRegion.getRight() + 1,
+                fullTableRegion.getBottom() + 1, fullTableRegion.getRight() + 1 + nCols);
         for (int i = 0; i < othertables.length; i++) {
-            if (IGridRegion.Tool.intersects(testRegion, othertables[i])) {
+            if (IGridRegion.Tool.intersects(testRegion, othertables[i].getRegion())) {
                 return false;
             }
         }
@@ -113,10 +113,10 @@ public class TableEditorModel {
     }
 
     public boolean canInsertRows(int nRows) {
-        GridRegion testRegion = new GridRegion(fullTableRegion.getBottom() + 1, fullTableRegion.getLeft() - 1, fullTableRegion.getBottom() + 1
-                + nRows, fullTableRegion.getRight() + 1);
+        GridRegion testRegion = new GridRegion(fullTableRegion.getBottom() + 1, fullTableRegion.getLeft() - 1,
+                fullTableRegion.getBottom() + 1 + nRows, fullTableRegion.getRight() + 1);
         for (int i = 0; i < othertables.length; i++) {
-            if (IGridRegion.Tool.intersects(testRegion, othertables[i])) {
+            if (IGridRegion.Tool.intersects(testRegion, othertables[i].getRegion())) {
                 return false;
             }
         }
@@ -294,7 +294,7 @@ public class TableEditorModel {
     private synchronized void removeThisTable(GridTable[] otherTables) {
         Vector<GridTable> v = new Vector<GridTable>();
         for (int i = 0; i < otherTables.length; i++) {
-            if (!IGridRegion.Tool.intersects(otherTables[i], fullTableRegion)) {
+            if (!IGridRegion.Tool.intersects(otherTables[i].getRegion(), fullTableRegion)) {
                 v.add(otherTables[i]);
             }
         }
