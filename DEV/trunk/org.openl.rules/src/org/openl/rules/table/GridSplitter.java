@@ -73,8 +73,7 @@ public class GridSplitter {
 
         GridTable table = new GridTable(row, stX, y - 1, x - 1, grid);
         tables.add(table);
-        pool.add(table);
-
+        pool.add(table.getRegion());
     }
 
     private int expandLeft(int y, int stX) {
