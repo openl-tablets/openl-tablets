@@ -7,13 +7,12 @@ package org.openl.rules.table;
  * 
  * @author PUdalau
  */
-// TODO: It have to be AGridTableDelegator except AGridModel.
-public class TransformedGridTable extends AGridModel {
-    private IGridTable gridTable;
+public class TransformedGridTable extends AGridTableDelegator {
+    
     private CoordinatesTransformer transformer;
 
-    public TransformedGridTable(IGridTable grid, CoordinatesTransformer transformer) {
-        this.gridTable = grid;
+    public TransformedGridTable(IGridTable gridTable, CoordinatesTransformer transformer) {
+        super(gridTable);
         this.transformer = transformer;
     }
 
@@ -28,52 +27,9 @@ public class TransformedGridTable extends AGridModel {
         Point point = getCoordinates(column, row);
         return gridTable.getCell(point.getColumn(), point.getRow());
     }
-
-    public int getColumnWidth(int col) {
-        Point point = getCoordinates(col, 0);
-        return gridTable.getGrid().getColumnWidth(point.getColumn());
-    }
-
-    public int getMaxColumnIndex(int row) {
-        return transformer.getWidth() - 1;
-    }
-
-    public int getMaxRowIndex() {
-        return transformer.getHeight() - 1;
-    }
-
-    public IGridRegion getMergedRegion(int i) {
-        return null;
-    }
-
-    public int getMinColumnIndex(int row) {
-        return 0;
-    }
-
-    public int getMinRowIndex() {
-        return 0;
-    }
-
-    public int getNumberOfMergedRegions() {
-        return 0;
-    }
-
-    public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
-        if (colStart == colEnd && rowStart == rowEnd) {
-            return getUri() + "&" + "cell=" + getCell(colStart, rowStart).getUri();
-        }
-
-        return getUri() + "&" + "range=" + getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR
-            + getCell(colEnd, rowEnd).getUri();
-    }
-
+    
     public String getUri() {
         return gridTable.getGrid().getUri();
-    }
-
-    public boolean isEmpty(int col, int row) {
-        Point point = getCoordinates(col, row);
-        return gridTable.getGrid().isEmpty(point.getColumn(), point.getRow());
     }
 
     private Point getCoordinates(int col, int row) {
@@ -81,7 +37,25 @@ public class TransformedGridTable extends AGridModel {
         return point;
     }
 
-    public IGridTable asGridTable() {
-        return new GridTable(0, 0, getMaxRowIndex(), getMaxColumnIndex(0), this);
+    public int getGridColumn(int column, int row) {        
+        Point point = getCoordinates(column, row);
+        return gridTable.getGridColumn(point.getColumn(), point.getRow());
+    }
+
+    public int getGridHeight() {        
+        return transformer.getHeight();
+    }
+
+    public int getGridRow(int column, int row) {
+        Point point = getCoordinates(column, row);
+        return gridTable.getGridRow(point.getColumn(), point.getRow());
+    }
+
+    public int getGridWidth() {
+        return transformer.getWidth();
+    }
+
+    public boolean isNormalOrientation() {        
+        return gridTable.isNormalOrientation();
     }
 }
