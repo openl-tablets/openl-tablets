@@ -4,21 +4,23 @@
 package org.openl.rules.table.ui;
 
 import org.openl.rules.table.FormattedCell;
-import org.openl.rules.table.GridDelegator;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.filters.IGridFilter;
 
 /**
  * @author snshor
  *
  */
-public class FilteredGrid extends GridDelegator {
+public class FilteredGrid implements IGrid {
 
     private IGridFilter[] formatFilters;
+    
+    protected IGrid delegate;
 
-    public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {
-        super(delegate);
+    public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {     
+        this.delegate = delegate;
         this.formatFilters = formatFilters.clone();
     }
 
@@ -39,10 +41,9 @@ public class FilteredGrid extends GridDelegator {
         }
     }
 
-    @Override
     public ICell getCell(int column, int row) {
         if (isEmpty(column, row)) {
-            super.getCell(column, row);
+            delegate.getCell(column, row);
         }
 
         return getFormattedCell(column, row);
@@ -54,6 +55,58 @@ public class FilteredGrid extends GridDelegator {
         formatCell(cellToFormat, col, row);
 
         return cellToFormat;
+    }
+
+    public int getColumnWidth(int col) {
+        return delegate.getColumnWidth(col);
+    }
+
+    public int getMaxColumnIndex(int row) {        
+        return delegate.getMaxColumnIndex(row);
+    }
+
+    public int getMaxRowIndex() {
+        return delegate.getMaxRowIndex();
+    }
+
+    public IGridRegion getMergedRegion(int i) {
+        return delegate.getMergedRegion(i);
+    }
+
+    public int getMinColumnIndex(int row) {
+        return delegate.getMaxColumnIndex(row);
+    }
+    
+    public int getMinRowIndex() {
+        return delegate.getMinRowIndex();
+    }
+
+    public int getNumberOfMergedRegions() {
+        return delegate.getNumberOfMergedRegions();
+    }
+
+    public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
+        return delegate.getRangeUri(colStart, rowStart, colEnd, rowEnd);
+    }
+
+    public IGridRegion getRegionStartingAt(int colFrom, int rowFrom) {
+        return delegate.getRegionStartingAt(colFrom, rowFrom);
+    }
+
+    public String getUri() {
+        return delegate.getUri();
+    }
+
+    public boolean isEmpty(int col, int row) {
+        return delegate.isEmpty(col, row);
+    }
+
+    public boolean isPartOfTheMergedRegion(int col, int row) {
+        return delegate.isPartOfTheMergedRegion(col, row);
+    }
+
+    public IGridRegion getRegionContaining(int column, int row) {
+        return delegate.getRegionContaining(column, row);
     }
 
 }
