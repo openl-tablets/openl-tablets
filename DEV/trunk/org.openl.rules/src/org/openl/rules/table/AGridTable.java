@@ -79,7 +79,7 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
             bottom = getGridRow(getGridWidth() - 1, 0);
         }
 
-        return new GridTable(top, left, bottom, right, getGrid());
+        return new GridRegion(top, left, bottom, right);
     }
 
     public String getUri() {
@@ -115,7 +115,8 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
     @Override
     public String toString() {
         StringBuffer tableVizualization = new StringBuffer();
-        tableVizualization.append(super.toString() + (isNormalOrientation() ? "N" : "T") +  getRegion().toString() +"\n");
+        tableVizualization.append(super.toString() + (isNormalOrientation() ? "N" : "T")
+                +  getRegion().toString() +"\n");
         for (int i = 0; i < getLogicalHeight(); i++) {
             int length = 0;
             for (int j = 0; j < getLogicalWidth(); j++) {

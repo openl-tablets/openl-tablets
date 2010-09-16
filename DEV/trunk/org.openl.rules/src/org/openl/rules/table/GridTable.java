@@ -10,36 +10,23 @@ package org.openl.rules.table;
  * @author snshor
  *
  */
-public class GridTable extends AGridTable implements IGridRegion {
+public class GridTable extends AGridTable {
 
+    private IGridRegion region;
     private IGrid grid;
 
-    private int top;
-    
-    private int left; 
-    
-    private int right;
-    
-    private int bottom;
-
     public GridTable(IGridRegion reg, IGrid grid) {
-        top = reg.getTop();
-        left = reg.getLeft();
-        bottom = reg.getBottom();
-        right = reg.getRight();
+        this.region = reg;
         this.grid = grid;
     }
 
     public GridTable(int top, int left, int bottom, int right, IGrid grid) {
-        this.top = top;
-        this.left = left;
-        this.bottom = bottom;
-        this.right = right;
+        this.region = new GridRegion(top, left, bottom, right);
         this.grid = grid;
     }
 
     public int getBottom() {
-        return bottom;
+        return region.getBottom();
     }
 
     public IGrid getGrid() {
@@ -47,36 +34,36 @@ public class GridTable extends AGridTable implements IGridRegion {
     }
 
     public int getGridColumn(int column, int row) {
-        return left + column;
+        return region.getLeft() + column;
     }
 
     public int getGridHeight() {
-        return bottom - top + 1;
+        return region.getBottom() - region.getTop() + 1;
     }
 
     public int getGridRow(int column, int row) {
-        return top + row;
+        return region.getTop() + row;
     }
 
     public int getGridWidth() {
-        return right - left + 1;
+        return region.getRight() - region.getLeft() + 1;
     }
 
     public int getLeft() {
-        return left;
+        return region.getLeft();
     }
 
     @Override
     public IGridRegion getRegion() {
-        return this;
+        return region;
     }
 
     public int getRight() {
-        return right;
+        return region.getRight();
     }
 
     public int getTop() {
-        return top;
+        return region.getTop();
     }
 
     public boolean isNormalOrientation() {
