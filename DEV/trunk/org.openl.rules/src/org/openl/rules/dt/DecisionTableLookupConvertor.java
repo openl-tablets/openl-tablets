@@ -69,7 +69,7 @@ public class DecisionTableLookupConvertor {
         
         CoordinatesTransformer transformer = getTransformer(headerRow, table, lookupValuesTable);
         
-        return new TransformedGridTable(table.getGridTable(), transformer).asGridTable();        
+        return new TransformedGridTable(table.getGridTable(), transformer);        
     }    
     
     /**
