@@ -10,9 +10,8 @@ package org.openl.rules.table;
  * @author snshor
  *
  */
-public abstract class AGridTable extends ALogicalTable implements IGridTable {
+public abstract class AGridTable implements IGridTable {
 
-    @Override
     protected ILogicalTable columnsInternal(int from, int to) {
         return new GridTableColumns(this, from, to);
     }
@@ -47,7 +46,6 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         return getGridHeight();
     }
 
-    @Override
     protected ILogicalTable getLogicalRegionInternal(int column, int row, int width, int height) {
         return new GridTableRegion(this, column, row, width, height);
     }
@@ -99,7 +97,6 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         return getGrid().isPartOfTheMergedRegion(getGridColumn(column, row), getGridRow(column, row));
     }
 
-    @Override
     protected ILogicalTable rowsInternal(int from, int to) {
         return new GridTableRows(this, from, to);
     }
@@ -137,4 +134,41 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         
         return  tableVizualization.toString();
     }
- }
+    
+    public ILogicalTable columns(int from) {
+        return columns(from, getLogicalWidth() - 1);
+    }
+
+    public ILogicalTable columns(int from, int to) {
+        if (getLogicalWidth() == to - from + 1) {
+            return this;
+        }
+
+        return columnsInternal(from, to);
+    }    
+
+    public ILogicalTable getLogicalRegion(int column, int row, int width, int height) {
+        if (column == 0 && width == getLogicalWidth()) {
+            return rows(row, row + height - 1);
+        }
+
+        if (row == 0 && height == getLogicalHeight()) {
+            return columns(column, column + width - 1);
+        }
+
+        return getLogicalRegionInternal(column, row, width, height);
+    }
+    
+    public ILogicalTable rows(int from) {
+        return rows(from, getLogicalHeight() - 1);
+    }
+
+    public ILogicalTable rows(int from, int to) {
+        if (getLogicalHeight() == to - from + 1) {
+            return this;
+        }
+
+        return rowsInternal(from, to);
+    }
+
+}
