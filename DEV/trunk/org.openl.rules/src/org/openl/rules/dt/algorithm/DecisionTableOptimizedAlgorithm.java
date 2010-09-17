@@ -350,7 +350,8 @@ public class DecisionTableOptimizedAlgorithm {
                 params.add(precalculatedParams);
                 // memory optimization: clear condition values because this
                 // values will be used in index
-                table.getConditionRows()[i].clearParamValues();
+                //removed due to possibility to get values from condition(for example $C1.varName)
+//                table.getConditionRows()[i].clearParamValues();
             } else {
                 break;
             }
