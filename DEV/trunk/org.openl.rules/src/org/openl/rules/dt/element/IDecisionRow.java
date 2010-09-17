@@ -38,6 +38,8 @@ public interface IDecisionRow {
 
     Object[][] getParamValues();
 
+    void clearParamValues();
+
     int numberOfParams();
 
     boolean isAction();

@@ -95,6 +95,10 @@ public abstract class FunctionalRow implements IDecisionRow {
     public Object[][] getParamValues() {
         return paramValues;
     }
+    
+    public void clearParamValues(){
+        paramValues = null;
+    }
 
     public DecisionTableParameterInfo getParameterInfo(int i) {
         return new DecisionTableParameterInfo(i, this);

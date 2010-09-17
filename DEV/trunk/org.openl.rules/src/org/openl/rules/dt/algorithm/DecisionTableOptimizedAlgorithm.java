@@ -348,6 +348,9 @@ public class DecisionTableOptimizedAlgorithm {
                 Object[][] values = table.getConditionRows()[i].getParamValues();
                 Object[][] precalculatedParams = prepareIndexedParams(values);
                 params.add(precalculatedParams);
+                // memory optimization: clear condition values because this
+                // values will be used in index
+                table.getConditionRows()[i].clearParamValues();
             } else {
                 break;
             }

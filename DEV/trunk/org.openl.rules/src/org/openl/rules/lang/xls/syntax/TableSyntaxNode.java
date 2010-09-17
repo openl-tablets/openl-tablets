@@ -20,6 +20,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -98,8 +99,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     public StringValue getHeaderLineValue() {
         String value = table.getGridTable().getCell(0, 0).getStringValue();
-        String uri = table.getGridTable().getUri(0, 0);
-        return new StringValue(value, value, value, uri);
+        return new StringValue(value, value, value, new GridCellSourceCodeModule(table.getGridTable(), 0, 0));
     }
 
     public String getIndexedText() {

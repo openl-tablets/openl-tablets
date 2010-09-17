@@ -276,15 +276,14 @@ public class DataTableBindHelper {
 
             ILogicalTable titleCell = dataWithTitleRows.getLogicalRegion(column, 0, 1, 1);
             value = titleCell.getGridTable().getCell(0, 0).getStringValue();
-            String uri = titleCell.getGridTable().getUri(0, 0);
 
             // remove extra spaces
             value = StringUtils.trimToEmpty(value);
 
-            return new StringValue(value, value, value, uri);
+            return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getGridTable()));
         }
 
-        return new StringValue(value, value, value, value);
+        return new StringValue(value, value, value, null);
     }
 
     public static ColumnDescriptor[] makeDescriptors(ITable table,

@@ -362,15 +362,6 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         }
     }
 
-    public void setSourceUri(String uri) {
-        if (metaInfo == null) {
-            metaInfo = new ValueMetaInfo();
-        }
-        if (metaInfo instanceof ValueMetaInfo) {
-            ((ValueMetaInfo) metaInfo).setSourceUrl(uri);
-        }
-    }
-
     public void setValue(double value) {
         this.value = value;
     }

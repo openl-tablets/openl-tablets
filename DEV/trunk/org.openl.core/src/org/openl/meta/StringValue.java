@@ -15,12 +15,12 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         metaInfo = new ValueMetaInfo();
     }
 
-    public StringValue(String value, String shortName, String fullName, String sourceUrl) {
+    public StringValue(String value, String shortName, String fullName, IOpenSourceCodeModule source) {
         if (value == null) {
             throw new IllegalArgumentException("Error initializing StringValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
-        metaInfo = new ValueMetaInfo(shortName, fullName, sourceUrl);
+        metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 
     public IOpenSourceCodeModule asSourceCodeModule() {

@@ -14,6 +14,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -113,13 +114,12 @@ public class AlgorithmBuilder {
                 aRow.setValueGridRegion(column.id, valueTable.getGridTable().getRegion());
 
                 String value = grid.getCell(c, r).getStringValue();
-                String uri = grid.getUri(c, r);
 
                 if (value == null) {
                     value = "";
                 }
 
-                StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, uri);
+                StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, new GridCellSourceCodeModule(grid, c, r));
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {

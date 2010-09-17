@@ -1,18 +1,20 @@
 package org.openl.meta;
 
+import org.openl.source.IOpenSourceCodeModule;
+
 public class ValueMetaInfo implements IMetaInfo {
 
-    String shortName;
-    String fullName;
-    String sourceUrl;
+    private String shortName;
+    private String fullName;
+    private IOpenSourceCodeModule source;
 
     public ValueMetaInfo() {
     }
 
-    public ValueMetaInfo(String shortName, String fullName, String sourceUrl) {
+    public ValueMetaInfo(String shortName, String fullName, IOpenSourceCodeModule source) {
         this.shortName = shortName;
         this.fullName = fullName;
-        this.sourceUrl = sourceUrl;
+        this.source = source;
     }
 
     /*
@@ -41,7 +43,11 @@ public class ValueMetaInfo implements IMetaInfo {
     }
 
     public String getSourceUrl() {
-        return sourceUrl;
+        if(source != null){
+            return source.getUri(0);
+        }else{
+            return null;
+        }
     }
 
     public void setFullName(String fullName) {
@@ -52,8 +58,8 @@ public class ValueMetaInfo implements IMetaInfo {
         this.shortName = shortName;
     }
 
-    public void setSourceUrl(String sourceUrl) {
-        this.sourceUrl = sourceUrl;
+    public void setSource(IOpenSourceCodeModule source) {
+        this.source = source;
     }
 
 }
