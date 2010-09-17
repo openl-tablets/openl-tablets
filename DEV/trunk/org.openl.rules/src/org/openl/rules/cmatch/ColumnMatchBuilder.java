@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -104,7 +105,6 @@ public class ColumnMatchBuilder {
 
         for (int c = 0; c < subColumns; c++) {
             String value = grid.getCell(c, r).getStringValue();
-            String uri = grid.getUri(c, r);
 
             if (value == null) {
                 value = "";
@@ -114,7 +114,7 @@ public class ColumnMatchBuilder {
             }
 
             String cellName = "cell" + r + "_" + column.getColumnIndex() + "_" + c;
-            StringValue sv = new StringValue(value, cellName, cellName, uri);
+            StringValue sv = new StringValue(value, cellName, cellName, new GridCellSourceCodeModule(grid, c, r));
             values[c] = new SubValue(sv, grid.getCell(c, r).getStyle());
             ILogicalTable lr = grid.getLogicalRegion(c, r, 1, 1);
             values[c].setGridRegion(lr.getGridTable().getRegion());

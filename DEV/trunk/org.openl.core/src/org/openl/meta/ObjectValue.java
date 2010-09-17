@@ -2,6 +2,8 @@ package org.openl.meta;
 
 import java.util.Date;
 
+import org.openl.source.IOpenSourceCodeModule;
+
 public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     
     private IMetaInfo metaInfo;
@@ -15,12 +17,12 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
         metaInfo = new ValueMetaInfo();
     }
     
-    public ObjectValue(Object value, String shortName, String fullName, String sourceUrl) {
+    public ObjectValue(Object value, String shortName, String fullName, IOpenSourceCodeModule source) {
         if (value == null) {
             throw new IllegalArgumentException("Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
-        metaInfo = new ValueMetaInfo(shortName, fullName, sourceUrl);
+        metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
     
     public IMetaInfo getMetaInfo() {        

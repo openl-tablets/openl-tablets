@@ -16,10 +16,10 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
+import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.element.CellLoader;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellMetaInfo;
 import org.openl.rules.calc.result.ArrayResultBuilder;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
@@ -122,7 +122,7 @@ public class SpreadsheetBuilder {
 
             if (value != null) {
                 String shortName = "scol" + column + "_" + i;
-                StringValue stringValue = new StringValue(value, shortName, null, nameCell.getUri());
+                StringValue stringValue = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell));
 
                 addColumnHeader(column, stringValue);
             }
@@ -140,7 +140,7 @@ public class SpreadsheetBuilder {
 
             if (value != null) {
                 String shortName = "srow" + row + "_" + i;
-                StringValue sv = new StringValue(value, shortName, null, nameCell.getUri());
+                StringValue sv = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell));
 
                 addRowHeader(row, sv);
             }
@@ -219,7 +219,7 @@ public class SpreadsheetBuilder {
                 String name = "$" + columnHeaders.get(columnIndex).getFirstname() + '$'
                         + rowHeaders.get(rowIndex).getFirstname();
 
-                IMetaInfo meta = new SpreadsheetCellMetaInfo(name, source);
+                IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
                 IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheet.getHeader(),
                         spreadsheetCell.getType());

@@ -22,7 +22,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.utils.exception.ExceptionUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -32,7 +31,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
@@ -307,7 +305,7 @@ public class RuleRowHelper {
         ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
         valueMetaInfo.setShortName(paramName);
         valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
-        valueMetaInfo.setSourceUrl(cell.getGridTable().getUri(0,0));
+        valueMetaInfo.setSource(new GridCellSourceCodeModule(cell.getGridTable()));
 
         holder.setMetaInfo(valueMetaInfo);
     }
