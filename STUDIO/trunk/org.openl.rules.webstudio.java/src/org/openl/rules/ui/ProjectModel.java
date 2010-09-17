@@ -287,7 +287,7 @@ public class ProjectModel {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i].getType().equals(ITableNodeTypes.XLS_DT)
-                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getTable().getGridTable().getUri())) {
+                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getGridTable().getUri())) {
                 return nodes[i];
             }
         }
@@ -320,7 +320,7 @@ public class ProjectModel {
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
-            if (XlsUrlUtils.intersects(p1, nodes[i].getTable().getGridTable().getUri())) {
+            if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUri())) {
                 return nodes[i];
             }
         }
@@ -544,7 +544,7 @@ public class ProjectModel {
                     String code = node.getHeader().getModule().getCode();
                     if ((IXlsTableNames.PERSISTENCE_TABLE + " " + OpenLSavedSearch.class.getName()).equals(code)) {
                         OpenLSavedSearch savedSearch = new OpenLSavedSearch().restore(new XlsSheetGridImporter(
-                                (XlsSheetGridModel) node.getTable().getGridTable().getGrid(), node));
+                                (XlsSheetGridModel) node.getGridTable().getGrid(), node));
                         savedSearches.add(savedSearch);
                     }
                 }
@@ -610,7 +610,7 @@ public class ProjectModel {
 
     public IGridTable getGridTable(String elementUri) {
         TableSyntaxNode tsn = getNode(elementUri);
-        return tsn == null ? null : tsn.getTable().getGridTable();
+        return tsn == null ? null : tsn.getGridTable();
     }
 
     public String getTableView(String view) {
@@ -1112,7 +1112,7 @@ public class ProjectModel {
             view = IXlsTableNames.VIEW_BUSINESS;
         }
         ILogicalTable gtx = tsn.getSubTables().get(view);
-        IGridTable gt = tsn.getTable().getGridTable();
+        IGridTable gt = tsn.getGridTable();
         if (gtx != null) {
             gt = gtx.getGridTable();
         }
