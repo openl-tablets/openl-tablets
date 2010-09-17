@@ -39,7 +39,7 @@ public class TableIndexParser implements IIndexParser {
     public IIndexElement[] parse(IIndexElement root) {
         TableSyntaxNode tableSrc = (TableSyntaxNode) root;
 
-        IGridTable table = tableSrc.getTable().getGridTable();
+        IGridTable table = tableSrc.getGridTable();
 
         int w = table.getLogicalWidth();
         int h = table.getLogicalHeight();

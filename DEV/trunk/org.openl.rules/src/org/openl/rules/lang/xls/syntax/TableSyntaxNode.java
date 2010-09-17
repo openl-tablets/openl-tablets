@@ -119,9 +119,13 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public Map<String, ILogicalTable> getSubTables() {
         return subTables;
     }
-    
+
     public ILogicalTable getTable() {
         return table;
+    }
+
+    public IGridTable getGridTable() {
+        return table.getGridTable();
     }
 
     public ILogicalTable getTableBody() {        

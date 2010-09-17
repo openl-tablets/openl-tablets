@@ -207,7 +207,7 @@ public class XlsLoader {
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
 
-        IGridTable table = tableSyntaxNode.getTable().getGridTable();
+        IGridTable table = tableSyntaxNode.getGridTable();
         ILogicalTable logicalTable = LogicalTableHelper.logicalTable(table);
 
         int height = logicalTable.getLogicalHeight();

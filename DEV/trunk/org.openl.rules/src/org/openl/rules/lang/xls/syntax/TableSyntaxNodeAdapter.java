@@ -24,7 +24,7 @@ public class TableSyntaxNodeAdapter implements ITable {
     }
 
     public IGridTable getGridTable() {
-        return tsn.getTable().getGridTable();
+        return tsn.getGridTable();
     }
 
     public IGridTable getGridTable(String view) {
