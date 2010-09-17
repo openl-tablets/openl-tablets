@@ -42,11 +42,11 @@ public class TableSyntaxNodeUtils {
         }
 
         if (name == null) {
-            name = str2name(tableSyntaxNode.getTable().getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getType());
+            name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getType());
         }
 
         if (display == null) {
-            display = str2display(tableSyntaxNode.getTable().getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getType());
+            display = str2display(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getType());
         }
 
         String sfx = (i < 2 ? "" : " (" + i + ")");
