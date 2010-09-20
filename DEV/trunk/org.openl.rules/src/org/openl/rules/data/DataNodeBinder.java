@@ -70,7 +70,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             XlsModuleOpenClass module) throws Exception {
 
         DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module);
-        ILogicalTable table = LogicalTableHelper.logicalTable(tableSyntaxNode.getTable());
+        ILogicalTable table = tableSyntaxNode.getTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable());
 
         parsedHeader = Tokenizer.tokenize(source, " \n\r");

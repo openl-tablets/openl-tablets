@@ -81,7 +81,7 @@ public class PropertyTableBinder extends DataNodeBinder {
      */
     private String parseHeader(TableSyntaxNode tsn) throws Exception {
 
-        ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
+        ILogicalTable table = tsn.getTable();
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");

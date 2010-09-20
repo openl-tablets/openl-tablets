@@ -19,6 +19,7 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -99,10 +100,10 @@ public class DecisionTableLoader {
         if (isLookupDecisionTable(tableBody)) {
 
             try {
-                ILogicalTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
+                IGridTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
 //               System.out.println(TablePrinter.printGridTable(convertedTable.getGridTable()));
-
-                toParse = LogicalTableHelper.logicalTable(convertedTable.transpose());
+                ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
+                toParse = offsetConvertedTable.transpose();
                 tableBody = transposed;
             } catch (Exception e) {
                 throw new SyntaxNodeException("Cannot convert table", e, tableSyntaxNode);

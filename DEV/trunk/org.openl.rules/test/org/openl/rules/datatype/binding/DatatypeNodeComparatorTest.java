@@ -30,7 +30,7 @@ public class DatatypeNodeComparatorTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode findTableSyntaxNodeByDatatypeName(String datatypeName) {
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-                ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
+                ILogicalTable table = tsn.getTable();
                 IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
                 try {
                     IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");

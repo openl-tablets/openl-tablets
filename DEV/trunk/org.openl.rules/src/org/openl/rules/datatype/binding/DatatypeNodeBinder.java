@@ -38,7 +38,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 	@Override
 	public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module) throws Exception {
 
-		ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
+		ILogicalTable table = tsn.getTable();
 		IOpenSourceCodeModule tableSource = new GridCellSourceCodeModule(table.getGridTable());
 		IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableSource, " \n\r");
 
