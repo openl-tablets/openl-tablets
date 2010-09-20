@@ -9,8 +9,7 @@ package org.openl.rules.table;
 /**
  * @author snshor
  *
- * TODO: rename to something like this: OffSetGridTable, as it perfoms 
- * offSet operations over gridTable.
+ * TODO: Write javadocs!!!!
  * 
  */
 public class OffSetGridTable extends AGridTableDelegator {
@@ -29,13 +28,13 @@ public class OffSetGridTable extends AGridTableDelegator {
         super(gridTable);
         
         if (columnOffset == null) {
-            int width = LogicalTableHelper.calcLogicalColumns(getGridTable());
+            int width = OffSetGridTableHelper.calcLogicalColumns(getGridTable());
             calculateColumnOffsets(width);
         }    
         else this.columnOffset = columnOffset;
         
         if (rowOffset == null) {
-            int height = LogicalTableHelper.calcLogicalRows(getGridTable());
+            int height = OffSetGridTableHelper.calcLogicalRows(getGridTable());
             calculateRowOffsets(height);
         }    
         else this.rowOffset = rowOffset;
@@ -71,7 +70,7 @@ public class OffSetGridTable extends AGridTableDelegator {
 
     @Override
     protected IGridTable columnsInternal(int from, int to) {
-        return LogicalTableHelper.logicalTable(getGridTable().columns(columnOffset[from], columnOffset[to + 1] - 1));
+        return OffSetGridTableHelper.offSetTable(getGridTable().columns(columnOffset[from], columnOffset[to + 1] - 1));
     }
 
     public int findColumnStart(int gridOffset) throws TableException {
@@ -115,7 +114,7 @@ public class OffSetGridTable extends AGridTableDelegator {
         int startColumn = columnOffset[column];
         int endColumn = columnOffset[column + width];
 
-        return LogicalTableHelper.logicalTable(getGridTable().getRegion(startColumn, startRow, endColumn - startColumn,
+        return OffSetGridTableHelper.offSetTable(getGridTable().getRegion(startColumn, startRow, endColumn - startColumn,
                 endRow - startRow));
     }
 
@@ -129,11 +128,11 @@ public class OffSetGridTable extends AGridTableDelegator {
 
      @Override
     protected IGridTable rowsInternal(int from, int to) {
-        return LogicalTableHelper.logicalTable(getGridTable().rows(rowOffset[from], rowOffset[to + 1] - 1));
+        return OffSetGridTableHelper.offSetTable(getGridTable().rows(rowOffset[from], rowOffset[to + 1] - 1));
     }
 
     public IGridTable transpose() {
-        return LogicalTableHelper.logicalTable(new TransposedGridTable(getGridTable()));
+        return OffSetGridTableHelper.offSetTable(new TransposedGridTable(getGridTable()));
     }
 
     public int[] getRowOffset() {

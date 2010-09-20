@@ -39,7 +39,7 @@ public class TablesTest extends TestCase {
             Assert.assertEquals(17, xsGrid.getNumberOfMergedRegions());
             Assert.assertEquals(6, tables.length);
 
-            IGridTable lt = LogicalTableHelper.logicalTable(tables[5]);
+            IGridTable lt = OffSetGridTableHelper.offSetTable(tables[5]);
 
             subtestRegion(lt.rows(1));
 
@@ -75,7 +75,7 @@ public class TablesTest extends TestCase {
             Assert.assertEquals(1, row222.getGridHeight());
             Assert.assertEquals(3, row222.getGridWidth());
 
-            IGridTable invRow2 = LogicalTableHelper.logicalTable(new TransposedGridTable(row2.getGridTable()));
+            IGridTable invRow2 = OffSetGridTableHelper.offSetTable(new TransposedGridTable(row2.getGridTable()));
 
             Assert.assertEquals(2, invRow2.getGridHeight());
             Assert.assertEquals(1, invRow2.getGridWidth());

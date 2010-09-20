@@ -21,7 +21,7 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -294,7 +294,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             Object loadedValue = null;
             try {
                 IOpenClass paramType = paramDecl[j].getType();
-                loadedValue = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(singleParamGridTable),
+                loadedValue = RuleRowHelper.loadParam(OffSetGridTableHelper.offSetTable(singleParamGridTable),
                     paramType,
                     paramDecl[j].getName(),
                     ruleName,

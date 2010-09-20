@@ -19,7 +19,7 @@ import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
@@ -51,13 +51,13 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
         super(type, pos, null, module);
-        table = LogicalTableHelper.logicalTable(gridtable);
+        table = OffSetGridTableHelper.offSetTable(gridtable);
         headerNode = header;
         header.setParent(this);
     }
 
     public void setTable(IGridTable gridTable) {
-        table = LogicalTableHelper.logicalTable(gridTable);
+        table = OffSetGridTableHelper.offSetTable(gridTable);
     }
 
     public void addError(SyntaxNodeException error) {

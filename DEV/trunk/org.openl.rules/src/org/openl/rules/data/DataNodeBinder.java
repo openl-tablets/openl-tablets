@@ -17,7 +17,7 @@ import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -122,7 +122,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         IGridTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
         IGridTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTableBody);
 
-        dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows, descriptorRows, null);
+        dataWithTitleRows = OffSetGridTableHelper.offSetTable(dataWithTitleRows, descriptorRows, null);
 
         ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(tableToProcess,
             tableType,
