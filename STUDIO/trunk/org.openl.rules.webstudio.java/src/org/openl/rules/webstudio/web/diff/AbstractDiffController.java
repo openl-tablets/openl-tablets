@@ -115,7 +115,7 @@ public abstract class AbstractDiffController {
     private IGridFilter makeFilter(IGridTable table, List<ICell> selectedCells) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
         for (ICell cell : selectedCells) {
-            IGridRegion region = table.getLogicalRegion(cell.getColumn(), cell.getRow(), 1, 1)
+            IGridRegion region = table.getRegion(cell.getColumn(), cell.getRow(), 1, 1)
                 .getGridTable().getRegion();
             regions.add(region);
         }

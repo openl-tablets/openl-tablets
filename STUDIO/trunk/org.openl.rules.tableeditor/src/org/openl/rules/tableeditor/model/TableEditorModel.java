@@ -191,7 +191,7 @@ public class TableEditorModel {
      */
     public static IGridTable getOriginalTable(IGridTable table) {
         while (table instanceof AGridTableDelegator) {
-            table = ((AGridTableDelegator) table).getOriginalGridTable();
+            table = ((AGridTableDelegator) table).getGridTable();
         }
         return table;
     }
