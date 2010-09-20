@@ -64,8 +64,7 @@ public class PropertiesLoader {
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
 
-        if (propertiesSection != null) {
-            propertiesSection = LogicalTableHelper.logicalTable(propertiesSection);
+        if (propertiesSection != null) {            
             dataNodeBinder.processTable(module,
                 propertyTable,
                 propertiesSection,

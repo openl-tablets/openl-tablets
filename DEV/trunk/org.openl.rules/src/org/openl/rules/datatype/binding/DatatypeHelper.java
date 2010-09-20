@@ -122,7 +122,7 @@ public class DatatypeHelper {
     private static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-            ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
+            ILogicalTable table = tsn.getTable();
             IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
@@ -135,7 +135,7 @@ public class DatatypeHelper {
     private static String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-            ILogicalTable table = LogicalTableHelper.logicalTable(tsn.getTable());
+            ILogicalTable table = tsn.getTable();
             IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
