@@ -35,7 +35,7 @@ import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
@@ -207,15 +207,15 @@ public class XlsLoader {
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
 
-        IGridTable table = tableSyntaxNode.getGridTable();
-        ILogicalTable logicalTable = LogicalTableHelper.logicalTable(table);
+        IGridTable table = tableSyntaxNode.getOriginalGridTable();
+        IGridTable logicalTable = LogicalTableHelper.logicalTable(table);
 
-        int height = logicalTable.getLogicalHeight();
+        int height = logicalTable.getGridHeight();
 
         for (int i = 1; i < height; i++) {
-            ILogicalTable row = logicalTable.getLogicalRow(i);
+            IGridTable row = logicalTable.getRow(i);
 
-            String name = row.getLogicalColumn(0).getGridTable().getCell(0, 0).getStringValue();
+            String name = row.getColumn(0).getGridTable().getCell(0, 0).getStringValue();
 
             if (IXlsTableNames.LANG_PROPERTY.equals(name)) {
                 preprocessOpenlTable(row.getGridTable(), source);
@@ -240,7 +240,7 @@ public class XlsLoader {
     }
 
     private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
-        int height = table.getLogicalHeight();
+        int height = table.getGridHeight();
 //        List<String> importsList = new ArrayList<String>();
 
         for (int i = 0; i < height; i++) {
@@ -272,7 +272,7 @@ public class XlsLoader {
             IGridTable table,
             XlsSheetSourceCodeModule sheetSource) {
 
-        int height = table.getLogicalHeight();
+        int height = table.getGridHeight();
 
         for (int i = 0; i < height; i++) {
 
@@ -299,7 +299,7 @@ public class XlsLoader {
                     SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                         null,
                         null,
-                        new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
+                        new GridCellSourceCodeModule(table.getRegion(1, i, 1, 1).getGridTable()));
 
                     addError(se);
                     tableSyntaxNode.addError(se);
@@ -317,7 +317,7 @@ public class XlsLoader {
                     SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                         t,
                         null,
-                        new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
+                        new GridCellSourceCodeModule(table.getRegion(1, i, 1, 1).getGridTable()));
                     addError(se);
                     tableSyntaxNode.addError(se);
                     OpenLMessagesUtils.addError(se.getMessage());
@@ -331,7 +331,7 @@ public class XlsLoader {
                 SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                     t,
                     null,
-                    new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
+                    new GridCellSourceCodeModule(table.getRegion(1, i, 1, 1).getGridTable()));
                 addError(se);
                 tableSyntaxNode.addError(se);
                 OpenLMessagesUtils.addError(se.getMessage());

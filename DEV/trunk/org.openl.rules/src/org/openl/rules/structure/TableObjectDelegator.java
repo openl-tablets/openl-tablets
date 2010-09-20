@@ -1,6 +1,6 @@
 package org.openl.rules.structure;
 
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
@@ -9,14 +9,14 @@ public class TableObjectDelegator implements ITableObject {
     Object target;
     IOpenClass openClass;
 
-    public void addParsedTable(String name, ILogicalTable table) {
+    public void addParsedTable(String name, IGridTable table) {
         IOpenField field = openClass.getField(name, true);
         field.set(target, table, null);
     }
 
-    public ILogicalTable getParsedTable(String name) {
+    public IGridTable getParsedTable(String name) {
         IOpenField field = openClass.getField(name, true);
-        return (ILogicalTable) field.get(target, null);
+        return (IGridTable) field.get(target, null);
     }
 
 }

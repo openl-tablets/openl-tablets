@@ -13,7 +13,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
@@ -44,16 +44,16 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
         TableSyntaxNode tsn = getTableSyntaxNode();
 
-        ILogicalTable logicalTable = tsn.getTable();
+        IGridTable logicalTable = tsn.getTable();
         boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
-        ILogicalTable bodyTable = logicalTable.rows(tableHasProperties ? 2 : 1);
+        IGridTable bodyTable = logicalTable.rows(tableHasProperties ? 2 : 1);
 
-        int height = bodyTable.getLogicalHeight();
+        int height = bodyTable.getGridHeight();
 
         IOpenSourceCodeModule[] cellSources = new IOpenSourceCodeModule[height];
 
         for (int i = 0; i < height; i++) {
-            cellSources[i] = new GridCellSourceCodeModule(bodyTable.getLogicalRow(i).getGridTable());
+            cellSources[i] = new GridCellSourceCodeModule(bodyTable.getRow(i).getGridTable());
         }
 
         IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");

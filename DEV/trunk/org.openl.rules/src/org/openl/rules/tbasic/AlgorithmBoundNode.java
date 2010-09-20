@@ -7,7 +7,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
@@ -25,7 +25,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     public void finalizeBind(IBindingContext cxt) throws Exception {
         AlgorithmBuilder builder = new AlgorithmBuilder(cxt, getAlgorithm(), getTableSyntaxNode());
 
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
+        IGridTable tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.rows(1));

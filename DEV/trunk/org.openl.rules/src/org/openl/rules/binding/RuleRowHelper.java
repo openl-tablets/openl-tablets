@@ -18,7 +18,7 @@ import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -42,14 +42,14 @@ public class RuleRowHelper {
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     public static final String CONSTRUCTOR = "constructor";
 
-    public static int calculateHeight(ILogicalTable table) {
+    public static int calculateHeight(IGridTable table) {
 
-        int height = table.getLogicalHeight();
+        int height = table.getGridHeight();
 
         int last = -1;
 
         for (int i = 0; i < height; i++) {
-            String source = table.getLogicalRow(i).getGridTable().getCell(0, 0).getStringValue();
+            String source = table.getRow(i).getGridTable().getCell(0, 0).getStringValue();
 
             if (source != null && source.trim().length() != 0) {
                 last = i;
@@ -59,7 +59,7 @@ public class RuleRowHelper {
         return last + 1;
     }
 
-    public static String[] extractElementsFromCommaSeparatedArray(ILogicalTable cell) {
+    public static String[] extractElementsFromCommaSeparatedArray(IGridTable cell) {
 
         String[] tokens = null;
         String src = cell.getGridTable().getCell(0, 0).getStringValue();
@@ -86,7 +86,7 @@ public class RuleRowHelper {
      * @throws SyntaxNodeException
      */
     public static Object loadCommaSeparatedParam(IOpenClass paramType, String paramName, String ruleName,
-            ILogicalTable cell, OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
+            IGridTable cell, OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
 
         Object arrayValues = null;
         String[] tokens = null;
@@ -160,7 +160,7 @@ public class RuleRowHelper {
         }
     }
 
-    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable table,
+    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, IGridTable table,
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
         ICell theCell = table.getGridTable().getCell(0, 0);
@@ -188,7 +188,7 @@ public class RuleRowHelper {
     }
 
     private static Object loadNativeValue(ICell cell, IOpenClass paramType, IBindingContext bindingContext,
-            String paramName, String ruleName, ILogicalTable table) {
+            String paramName, String ruleName, IGridTable table) {
         Class<?> expectedType = paramType.getInstanceClass();
         double value = cell.getNativeNumber();
         IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
@@ -216,7 +216,7 @@ public class RuleRowHelper {
         return res;
     }
 
-    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
+    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, IGridTable cell,
             OpenlToolAdaptor openlAdapter, String source, Object value, boolean isPartOfArray)
             throws SyntaxNodeException {
 
@@ -283,7 +283,7 @@ public class RuleRowHelper {
         return convertor.parse(source, null, bindingContext);
     }
 
-    public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {
+    public static boolean isCommaSeparatedArray(IGridTable valuesTable) {
 
         String stringValue = valuesTable.getGridTable().getCell(0, 0).getStringValue();
 
@@ -294,13 +294,13 @@ public class RuleRowHelper {
         return false;
     }
 
-    public static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean isMultiValue) {
+    public static void setCellMetaInfo(IGridTable cell, String paramName, IOpenClass paramType, boolean isMultiValue) {
 
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
         IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
     }
     
-    private static void setMetaInfo(IMetaHolder holder, ILogicalTable cell, String paramName, String ruleName) {
+    private static void setMetaInfo(IMetaHolder holder, IGridTable cell, String paramName, String ruleName) {
 
         ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
         valueMetaInfo.setShortName(paramName);
@@ -323,7 +323,7 @@ public class RuleRowHelper {
         throw new Exception(message);
     }
     
-    public static Object loadParam(ILogicalTable dataTable,
+    public static Object loadParam(IGridTable dataTable,
             IOpenClass paramType,
             String paramName,
             String ruleName,
@@ -361,7 +361,7 @@ public class RuleRowHelper {
         return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, indexedParamType);
     }
 
-    private static Object loadArrayParameters(ILogicalTable dataTable,
+    private static Object loadArrayParameters(IGridTable dataTable,
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
@@ -379,13 +379,13 @@ public class RuleRowHelper {
         }
     }
     
-    private static Object loadCommaSeparatedArrayParams(ILogicalTable dataTable,
+    private static Object loadCommaSeparatedArrayParams(IGridTable dataTable,
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
             IOpenClass paramType) throws SyntaxNodeException {
 
-        ILogicalTable paramSource = dataTable.getLogicalRow(0);
+        IGridTable paramSource = dataTable.getRow(0);
         Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
@@ -430,7 +430,7 @@ public class RuleRowHelper {
         return methods;
     }
 
-    private static Object loadSimpleArrayParams(ILogicalTable dataTable,
+    private static Object loadSimpleArrayParams(IGridTable dataTable,
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
@@ -443,7 +443,7 @@ public class RuleRowHelper {
 
         for (int i = 0; i < height; i++) { // load array values represented as
             // number of cells
-            ILogicalTable cell = dataTable.getLogicalRow(i);
+            IGridTable cell = dataTable.getRow(i);
             Object parameter = RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
 
             if (parameter instanceof CompositeMethod) {

@@ -9,7 +9,7 @@ package org.openl.rules.data;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.binding.DuplicatedTableException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 
 /**
  * @author snshor
@@ -21,6 +21,6 @@ public interface IDataBase {
 
     ITable getTable(String name);
 
-    void preLoadTable(ITable table, ITableModel dataModel, ILogicalTable dataWithHeader, OpenlToolAdaptor ota) throws Exception;
+    void preLoadTable(ITable table, ITableModel dataModel, IGridTable dataWithHeader, OpenlToolAdaptor ota) throws Exception;
 
 }

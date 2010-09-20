@@ -12,7 +12,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
@@ -73,8 +73,8 @@ public class AlgorithmBuilder {
                 grid.getRegion(), r), meta);
     }
 
-    public void build(ILogicalTable tableBody) throws Exception {
-        if (tableBody.getLogicalHeight() <= 2) {
+    public void build(IGridTable tableBody) throws Exception {
+        if (tableBody.getGridHeight() <= 2) {
             throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2!", null, tsn);
         }
 
@@ -92,25 +92,25 @@ public class AlgorithmBuilder {
         compiler.compile(algorithm);
     }
 
-    private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
+    private List<AlgorithmRow> buildRows(IGridTable tableBody) throws SyntaxNodeException {
         List<AlgorithmRow> result = new ArrayList<AlgorithmRow>();
 
         IGridTable grid = tableBody.rows(2).getGridTable();
-        for (int r = 0; r < grid.getLogicalHeight(); r++) {
+        for (int r = 0; r < grid.getGridHeight(); r++) {
 
             AlgorithmRow aRow = new AlgorithmRow();
 
             // set sequential number of the row in table
             aRow.setRowNumber(r + 1);
 
-            ILogicalTable rowTable = grid.getLogicalRow(r);
+            IGridTable rowTable = grid.getRow(r);
             aRow.setGridRegion(rowTable.getGridTable().getRegion());
 
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 int c = column.columnIndex;
 
-                ILogicalTable valueTable = rowTable.getLogicalColumn(c);
+                IGridTable valueTable = rowTable.getColumn(c);
                 aRow.setValueGridRegion(column.id, valueTable.getGridTable().getRegion());
 
                 String value = grid.getCell(c, r).getStringValue();
@@ -136,14 +136,14 @@ public class AlgorithmBuilder {
         return result;
     }
 
-    private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
+    private void prepareColumns(IGridTable tableBody) throws SyntaxNodeException {
         columns = new HashMap<String, AlgorithmColumn>();
 
-        ILogicalTable ids = tableBody.getLogicalRow(0);
+        IGridTable ids = tableBody.getRow(0);
 
         // parse ids, row=0
-        for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = safeId(ids.getLogicalColumn(c).getGridTable().getCell(0, 0).getStringValue());
+        for (int c = 0; c < ids.getGridWidth(); c++) {
+            String id = safeId(ids.getColumn(c).getGridTable().getCell(0, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

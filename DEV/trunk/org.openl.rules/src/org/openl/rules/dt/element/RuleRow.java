@@ -1,14 +1,14 @@
 package org.openl.rules.dt.element;
 
 import org.openl.rules.dt.IDecisionTableConstants;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 
 public class RuleRow {
     
     private int row;
-    private ILogicalTable table;
+    private IGridTable table;
 
-    public RuleRow(int row, ILogicalTable table) {
+    public RuleRow(int row, IGridTable table) {
         this.row = row;
         this.table = table;
     }
@@ -17,8 +17,8 @@ public class RuleRow {
         return getValueCell(col).getGridTable().getCell(0, 0).getStringValue();
     }
 
-    private ILogicalTable getValueCell(int col) {
-        return table.getLogicalRegion(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
+    private IGridTable getValueCell(int col) {
+        return table.getRegion(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
 }

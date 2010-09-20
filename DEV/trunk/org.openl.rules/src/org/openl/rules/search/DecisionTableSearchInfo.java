@@ -83,7 +83,7 @@ public class DecisionTableSearchInfo implements ITableSearchInfo {
     }
 
     public IGridTable getRowTable(int row) {
-//        return dt.getRuleTable(row).getGridTable();
+//        return dt.getRuleTable(row).getOriginalGridTable();
         return dt.getRuleByIndex(row).getGridTable();
     }
 

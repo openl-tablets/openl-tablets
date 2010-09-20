@@ -10,7 +10,7 @@ import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.TransformedGridTable;
 
@@ -42,14 +42,14 @@ public class DecisionTableLookupConvertor {
     public static final int PARAM_ROW = 2;
     public static final int DISPLAY_ROW = 3;
     
-    private List<ILogicalTable> hcHeaders = new ArrayList<ILogicalTable>();
-    private ILogicalTable retTable;
+    private List<IGridTable> hcHeaders = new ArrayList<IGridTable>();
+    private IGridTable retTable;
 
-    public IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
+    public IGridTable convertTable(IGridTable table) throws OpenLCompilationException {
         
-        ILogicalTable originaltable = LogicalTableHelper.logicalTable(table);
+        IGridTable originaltable = LogicalTableHelper.logicalTable(table);
 
-        ILogicalTable headerRow = originaltable.getLogicalRow(HEADER_ROW);
+        IGridTable headerRow = originaltable.getRow(HEADER_ROW);
 
         int firstLookupColumn = findFirstLookupColumn(headerRow);        
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
@@ -57,7 +57,7 @@ public class DecisionTableLookupConvertor {
 
         IGridRegion displayRowRegion = getDisplayRowRegion(originaltable);
         
-        int firstLookupGridColumn = headerRow.getLogicalColumn(firstLookupColumn).getGridTable().getGridColumn(0, 0);        
+        int firstLookupGridColumn = headerRow.getColumn(firstLookupColumn).getGridTable().getGridColumn(0, 0);        
         
         IGrid grid = table.getGridTable().getGrid();
         
@@ -77,7 +77,7 @@ public class DecisionTableLookupConvertor {
      * @param headerRow row with lookup table headers.
      * @return physical index from grid table, indicating first empty cell in the header row 
      */
-    private int findFirstEmptyCellInHeader(ILogicalTable headerRow) {
+    private int findFirstEmptyCellInHeader(IGridTable headerRow) {
         int ncol = headerRow.getGridTable().getGridWidth();        
         for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
             String headerStr = headerRow.getGridTable().getCell(columnIndex, 0).getStringValue();
@@ -89,7 +89,7 @@ public class DecisionTableLookupConvertor {
         return 0;
     }
 
-    private CoordinatesTransformer getTransformer(ILogicalTable headerRow, ILogicalTable table, 
+    private CoordinatesTransformer getTransformer(IGridTable headerRow, IGridTable table, 
             IGridTable lookupValuesTable) throws OpenLCompilationException {
         int retColumnStart = findRetColumnStart(headerRow);
         int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
@@ -134,7 +134,7 @@ public class DecisionTableLookupConvertor {
      * @return the physical index from grid table, indicating beginning of RET section 
      * @throws OpenLCompilationException if there is no RET section in the table.
      */
-    private int findRetColumnStart(ILogicalTable headerRow) throws OpenLCompilationException {
+    private int findRetColumnStart(IGridTable headerRow) throws OpenLCompilationException {
         int ncol = headerRow.getGridTable().getGridWidth();
 
         for (int columnIndex = 0; columnIndex < ncol; columnIndex ++) {
@@ -154,13 +154,13 @@ public class DecisionTableLookupConvertor {
     private void processHorizConditionsHeaders(IGridRegion displayRowRegion, int firstLookupGridColumn, IGrid grid) 
         throws OpenLCompilationException {
         IGridRegion hcHeadersRegion = new GridRegion(displayRowRegion, IGridRegion.LEFT, firstLookupGridColumn);
-        ILogicalTable hcHeaderTable = new GridTable(hcHeadersRegion, grid);
+        IGridTable hcHeaderTable = new GridTable(hcHeadersRegion, grid);
 
         validateHCHeaders(hcHeaderTable);
     }
 
-    private IGridTable getLookupValuesTable(ILogicalTable originaltable, int firstLookupGridColumn, IGrid grid) {
-        ILogicalTable valueTable = originaltable.rows(DISPLAY_ROW + 1);
+    private IGridTable getLookupValuesTable(IGridTable originaltable, int firstLookupGridColumn, IGrid grid) {
+        IGridTable valueTable = originaltable.rows(DISPLAY_ROW + 1);
 
         IGridRegion lookupValuesRegion = new GridRegion(valueTable.getGridTable().getRegion(),
             IGridRegion.LEFT,
@@ -182,19 +182,19 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    private IGridRegion getDisplayRowRegion(ILogicalTable originaltable) {        
-        ILogicalTable tableWithDisplay = originaltable.rows(DISPLAY_ROW);
-        ILogicalTable displayRow = tableWithDisplay.getLogicalRow(0);
+    private IGridRegion getDisplayRowRegion(IGridTable originaltable) {        
+        IGridTable tableWithDisplay = originaltable.rows(DISPLAY_ROW);
+        IGridTable displayRow = tableWithDisplay.getRow(0);
         IGridRegion displayRowRegion = displayRow.getGridTable().getRegion();
         return displayRowRegion;
     }
 
-    private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
+    private void validateHCHeaders(IGridTable hcHeaderTable) throws OpenLCompilationException {
 
         String message = String.format("The width of the horizontal keys must be equal to the number of the %s headers", 
             DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
         assertEQ(hcHeaders.size(),
-            hcHeaderTable.getGridTable().getLogicalHeight(),
+            hcHeaderTable.getGridTable().getGridHeight(),
             message);
     }
 
@@ -223,11 +223,11 @@ public class DecisionTableLookupConvertor {
      * @return NOTE!!! it returns an index of logical column!
      * @throws OpenLCompilationException when there is no lookup headers.
      */
-    private int findFirstLookupColumn(ILogicalTable headerRow) throws OpenLCompilationException {        
-        int ncol = headerRow.getLogicalWidth();
+    private int findFirstLookupColumn(IGridTable headerRow) throws OpenLCompilationException {        
+        int ncol = headerRow.getGridWidth();
 
         for (int columnIndex = 0; columnIndex < ncol; columnIndex ++) {
-            String headerStr = headerRow.getLogicalColumn(columnIndex).getGridTable().getCell(0, 0).getStringValue();
+            String headerStr = headerRow.getColumn(columnIndex).getGridTable().getCell(0, 0).getStringValue();
 
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
@@ -250,13 +250,13 @@ public class DecisionTableLookupConvertor {
         return false;
     }
 
-    private void loadHorizConditionsAndReturnColumns(ILogicalTable rowHeader, int firstLookupColumn) throws OpenLCompilationException {
+    private void loadHorizConditionsAndReturnColumns(IGridTable rowHeader, int firstLookupColumn) throws OpenLCompilationException {
 
-        int ncol = rowHeader.getLogicalWidth();
+        int ncol = rowHeader.getGridWidth();
 
         for (; firstLookupColumn < ncol; firstLookupColumn++) {
 
-            ILogicalTable htable = rowHeader.getLogicalColumn(firstLookupColumn);
+            IGridTable htable = rowHeader.getColumn(firstLookupColumn);
             String headerStr = htable.getGridTable().getCell(0, 0).getStringValue();
 
             if (headerStr != null) {
@@ -275,7 +275,7 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    private void loadReturnColumn(ILogicalTable htable) throws OpenLCompilationException {
+    private void loadReturnColumn(IGridTable htable) throws OpenLCompilationException {
         if (retTable != null) {
             throw new OpenLCompilationException(String.format("Lookup Table can have only one %s column",
                 DecisionTableColumnHeaders.RETURN.getHeaderKey()));
@@ -286,7 +286,7 @@ public class DecisionTableLookupConvertor {
         retTable = htable;
     }
 
-    private void loadHorizontalCondition(ILogicalTable htable) throws OpenLCompilationException {
+    private void loadHorizontalCondition(IGridTable htable) throws OpenLCompilationException {
         // if (retTable != null) {
         // throw new
         // OpenLCompilationException(String.format("%s column must be the last one",
@@ -312,7 +312,7 @@ public class DecisionTableLookupConvertor {
         
     }
 
-    private void assertTableWidth(int w, ILogicalTable htable, String type) throws OpenLCompilationException {
+    private void assertTableWidth(int w, IGridTable htable, String type) throws OpenLCompilationException {
         if (htable.getGridTable().getGridWidth() == w) {
             return;
         }
