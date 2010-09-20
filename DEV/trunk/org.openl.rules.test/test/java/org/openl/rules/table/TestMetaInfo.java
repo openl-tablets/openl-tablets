@@ -34,7 +34,7 @@ public class TestMetaInfo extends TestCase {
         TableSyntaxNode[] nodes = nodes(module);
 
         for (int i = 0; i < nodes.length; i++) {
-            IGridTable table = nodes[i].getGridTable();
+            IGridTable table = nodes[i].getOriginalGridTable();
             int w = table.getGridWidth();
             int h = table.getGridHeight();
 

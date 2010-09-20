@@ -28,7 +28,7 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -56,8 +56,8 @@ public class SpreadsheetBuilder {
 
     private TableSyntaxNode tableSyntaxNode;
 
-    private ILogicalTable rowNamesTable;
-    private ILogicalTable columnNamesTable;
+    private IGridTable rowNamesTable;
+    private IGridTable columnNamesTable;
 
     private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
     private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
@@ -74,7 +74,7 @@ public class SpreadsheetBuilder {
         this.tableSyntaxNode = tableSyntaxNode;
     }
 
-    public void build(ILogicalTable tableBody) {
+    public void build(IGridTable tableBody) {
 
         buildColumnRowNames(tableBody);
         buildHeaderTypes();
@@ -113,11 +113,11 @@ public class SpreadsheetBuilder {
         parseHeader(header, value);
     }
 
-    private void addColumnNames(int column, ILogicalTable logicalColumn) {
+    private void addColumnNames(int column, IGridTable logicalColumn) {
 
-        for (int i = 0; i < logicalColumn.getLogicalHeight(); i++) {
+        for (int i = 0; i < logicalColumn.getGridHeight(); i++) {
 
-            IGridTable nameCell = logicalColumn.getLogicalRow(i).getGridTable();
+            IGridTable nameCell = logicalColumn.getRow(i).getGridTable();
             String value = nameCell.getCell(0, 0).getStringValue();
 
             if (value != null) {
@@ -131,11 +131,11 @@ public class SpreadsheetBuilder {
         }
     }
 
-    private void addRowNames(int row, ILogicalTable logicalRow) {
+    private void addRowNames(int row, IGridTable logicalRow) {
 
-        for (int i = 0; i < logicalRow.getLogicalWidth(); i++) {
+        for (int i = 0; i < logicalRow.getGridWidth(); i++) {
 
-            IGridTable nameCell = logicalRow.getLogicalColumn(i).getGridTable();
+            IGridTable nameCell = logicalRow.getColumn(i).getGridTable();
             String value = nameCell.getCell(0, 0).getStringValue();
 
             if (value != null) {
@@ -151,8 +151,8 @@ public class SpreadsheetBuilder {
 
     private void buildCells() {
 
-        int rowsCount = rowNamesTable.getLogicalHeight();
-        int columnsCount = columnNamesTable.getLogicalWidth();
+        int rowsCount = rowNamesTable.getGridHeight();
+        int columnsCount = columnNamesTable.getGridWidth();
 
         SpreadsheetOpenClass spreadsheetOpenClass = spreadsheet.getSpreadsheetType();
         ModuleBindingContext bindingContext = new ModuleBindingContext(this.bindingContext, spreadsheetOpenClass);
@@ -162,8 +162,8 @@ public class SpreadsheetBuilder {
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
-                ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
-                        columnNamesTable.getLogicalColumn(columnIndex));
+                IGridTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
+                        columnNamesTable.getColumn(columnIndex));
                 ICell sourceCell = cell.getGridTable().getCell(0, 0);
 
                 SpreadsheetCell spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell);
@@ -205,8 +205,8 @@ public class SpreadsheetBuilder {
 
                 IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext);
 
-                ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
-                        columnNamesTable.getLogicalColumn(columnIndex));
+                IGridTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
+                        columnNamesTable.getColumn(columnIndex));
 
                 SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
                 IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable());
@@ -282,23 +282,23 @@ public class SpreadsheetBuilder {
         }
     }
 
-    protected void buildColumnRowNames(ILogicalTable tableBody) {
+    protected void buildColumnRowNames(IGridTable tableBody) {
 
-        rowNamesTable = tableBody.getLogicalColumn(0).rows(1);
-        columnNamesTable = tableBody.getLogicalRow(0).columns(1);
+        rowNamesTable = tableBody.getColumn(0).rows(1);
+        columnNamesTable = tableBody.getRow(0).columns(1);
 
-        int height = rowNamesTable.getLogicalHeight();
-        int width = columnNamesTable.getLogicalWidth();
+        int height = rowNamesTable.getGridHeight();
+        int width = columnNamesTable.getGridWidth();
 
         spreadsheet.setRowNames(new String[height]);
         spreadsheet.setColumnNames(new String[width]);
 
         for (int row = 0; row < height; row++) {
-            addRowNames(row, rowNamesTable.getLogicalRow(row));
+            addRowNames(row, rowNamesTable.getRow(row));
         }
 
         for (int col = 0; col < width; col++) {
-            addColumnNames(col, columnNamesTable.getLogicalColumn(col));
+            addColumnNames(col, columnNamesTable.getColumn(col));
         }
     }
 
@@ -348,10 +348,10 @@ public class SpreadsheetBuilder {
     private int calculateNonEmptyCells(SpreadsheetHeaderDefinition headerDefinition) {
 
         int fromRow = 0;
-        int toRow = rowNamesTable.getLogicalHeight();
+        int toRow = rowNamesTable.getGridHeight();
 
         int fromColumn = 0;
-        int toColumn = columnNamesTable.getLogicalWidth();
+        int toColumn = columnNamesTable.getGridWidth();
 
         if (headerDefinition.isRow()) {
             fromRow = headerDefinition.getRow();
@@ -366,8 +366,8 @@ public class SpreadsheetBuilder {
         for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
             for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
 
-                ILogicalTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getLogicalRow(rowIndex),
-                        columnNamesTable.getLogicalColumn(columnIndex));
+                IGridTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
+                        columnNamesTable.getColumn(columnIndex));
 
                 String value = cell.getGridTable().getCell(0, 0).getStringValue();
 
@@ -380,7 +380,7 @@ public class SpreadsheetBuilder {
         return nonEmptyCellsCount;
     }
 
-    private IOpenClass deriveCellType(SpreadsheetCell spreadsheetCell, ILogicalTable cell,
+    private IOpenClass deriveCellType(SpreadsheetCell spreadsheetCell, IGridTable cell,
             SpreadsheetHeaderDefinition columnHeader, SpreadsheetHeaderDefinition rowHeader, String cellValue) {
 
         if (columnHeader != null && columnHeader.getType() != null) {

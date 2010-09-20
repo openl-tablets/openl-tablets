@@ -12,7 +12,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 
@@ -66,7 +66,7 @@ public interface ITable {
 
     void preLoad(OpenlToolAdaptor ota) throws Exception;
 
-    void setData(ILogicalTable dataWithHeader);
+    void setData(IGridTable dataWithHeader);
 
     void setModel(ITableModel dataModel);
 

@@ -2,7 +2,7 @@ package org.openl.rules.table.properties;
 
 import java.util.Map;
 
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -83,13 +83,13 @@ public interface ITableProperties {
     /**
      * Gets the logical table of the properties defined in table.
      */
-    ILogicalTable getPropertiesSection();
+    IGridTable getPropertiesSection();
 
-    ILogicalTable getModulePropertiesTable();
-    void setModulePropertiesTable(ILogicalTable modulePropertiesTable);
+    IGridTable getModulePropertiesTable();
+    void setModulePropertiesTable(IGridTable modulePropertiesTable);
 
-    ILogicalTable getCategoryPropertiesTable();
-    void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable);
+    IGridTable getCategoryPropertiesTable();
+    void setCategoryPropertiesTable(IGridTable categoryPropertiesTable);
 
     /**
      * Goes through the hierarchy of properties from TABLE to CATEGORY and then to MODULE and returns the level

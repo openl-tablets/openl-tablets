@@ -24,40 +24,40 @@ public class LogicalTableHelper {
         return rows;
     }
 
-    public static ILogicalTable logicalTable(ILogicalTable table, ILogicalTable columnOffsetsTable, ILogicalTable rowOffsetsTable) {
+    public static IGridTable logicalTable(IGridTable table, IGridTable columnOffsetsTable, IGridTable rowOffsetsTable) {
         IGridTable gridTable = table.getGridTable();
         
         int[] columnOffsets = null;
-        if (columnOffsetsTable != null && columnOffsetsTable instanceof LogicalTable)
+        if (columnOffsetsTable != null && columnOffsetsTable instanceof OffSetGridTable)
         {
-            columnOffsets = ((LogicalTable)columnOffsetsTable).getColumnOffset();
+            columnOffsets = ((OffSetGridTable)columnOffsetsTable).getColumnOffset();
         }    
     
         int[] rowOffsets = null;
-        if (rowOffsetsTable != null && rowOffsetsTable instanceof LogicalTable)
+        if (rowOffsetsTable != null && rowOffsetsTable instanceof OffSetGridTable)
         {
-            rowOffsets = ((LogicalTable)rowOffsetsTable).getRowOffset();
+            rowOffsets = ((OffSetGridTable)rowOffsetsTable).getRowOffset();
         }
         
         if (rowOffsets == null && columnOffsets == null)
           return LogicalTableHelper.logicalTable(gridTable);
         
-        return new LogicalTable(gridTable, columnOffsets, rowOffsets);
+        return new OffSetGridTable(gridTable, columnOffsets, rowOffsets);
     }
 
     /**
      * @param table Original table.
      * @return Another logical table with correctly calculated height and width.
      */
-    public static ILogicalTable logicalTable(ILogicalTable table) {
+    public static IGridTable logicalTable(IGridTable table) {
         IGridTable gridTable = table.getGridTable();
         int width = calcLogicalColumns(gridTable);
         int height = calcLogicalRows(gridTable);
-        if (width == gridTable.getLogicalWidth() && height == gridTable.getLogicalHeight()) {
+        if (width == gridTable.getGridWidth() && height == gridTable.getGridHeight()) {
             return gridTable;
         }
     
-        return new LogicalTable(gridTable, width, height);
+        return new OffSetGridTable(gridTable, width, height);
     }
 
     /**
@@ -71,7 +71,7 @@ public class LogicalTableHelper {
      * @param topColumns
      * @return
      */
-    public static ILogicalTable mergeBounds(ILogicalTable leftRows, ILogicalTable topColumns) {
+    public static IGridTable mergeBounds(IGridTable leftRows, IGridTable topColumns) {
         IGridTable leftRowsGrid = leftRows.getGridTable();
         if (!leftRowsGrid.isNormalOrientation()) {
             throw new RuntimeException("Left Rows must have Normal Orientation");
@@ -116,10 +116,10 @@ public class LogicalTableHelper {
     
         IGridTable gt = new GridTable(top, left, bottom, right, leftRowsGrid.getGrid());
     
-        int nRows = leftRows.getLogicalHeight() - startRow;
-        int nColumns = topColumns.getLogicalWidth() - startColumn;
+        int nRows = leftRows.getGridHeight() - startRow;
+        int nColumns = topColumns.getGridWidth() - startColumn;
     
-        if (gt.getLogicalHeight() == nRows && gt.getLogicalWidth() == nColumns) {
+        if (gt.getGridHeight() == nRows && gt.getGridWidth() == nColumns) {
             return gt;
         }
     
@@ -129,7 +129,7 @@ public class LogicalTableHelper {
         int i = 0;
         for (; i < nRows; i++) {
             rowsOffset[i] = rOffset;
-            rOffset += leftRows.getLogicalRowGridHeight(i + startRow);
+            rOffset += leftRows.getRowGridHeight(i + startRow);
         }
         rowsOffset[i] = rOffset;
     
@@ -137,11 +137,11 @@ public class LogicalTableHelper {
         i = 0;
         for (; i < nColumns; i++) {
             columnsOffset[i] = cOffset;
-            cOffset += topColumns.getLogicalColumnGridWidth(i + startColumn);
+            cOffset += topColumns.getColumnGridWidth(i + startColumn);
         }
         columnsOffset[i] = cOffset;
     
-        return new LogicalTable(gt, columnsOffset, rowsOffset);
+        return new OffSetGridTable(gt, columnsOffset, rowsOffset);
     }
 
     /**
@@ -149,12 +149,12 @@ public class LogicalTableHelper {
      * @return table with 1 column, if necessary transposed, caller is
      *         responsible to check that table is either 1xN or Nx1
      */    
-    public static ILogicalTable make1ColumnTable(ILogicalTable t) {
-        if (t.getLogicalWidth() == 1) {
+    public static IGridTable make1ColumnTable(IGridTable t) {
+        if (t.getGridWidth() == 1) {
             return t;
         }
     
-        if (t.getLogicalHeight() == 1) {
+        if (t.getGridHeight() == 1) {
             return t.transpose();
         }
     

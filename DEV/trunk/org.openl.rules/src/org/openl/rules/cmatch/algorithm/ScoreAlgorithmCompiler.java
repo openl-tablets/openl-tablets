@@ -80,7 +80,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
         if (retClass != int.class && retClass != Integer.class) {
             String msg = "Score algorithm supports int or Integer return type only!";
             // String uri =
-            // columnMatch.getTableSyntaxNode().getTableBody().getGridTable().getUri(0,
+            // columnMatch.getTableSyntaxNode().getTableBody().getOriginalGridTable().getUri(0,
             // 0);
             String uri = columnMatch.getSourceUrl();
             throw SyntaxNodeExceptionUtils.createError(msg, new StringSourceCodeModule(null, uri));

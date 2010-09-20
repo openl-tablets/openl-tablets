@@ -9,7 +9,7 @@ package org.openl.rules.dt.element;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -56,6 +56,6 @@ public interface IDecisionRow {
     /**
      * @return Parsed table that contains this decision row.
      */
-    ILogicalTable getDecisionTable();
+    IGridTable getDecisionTable();
 
 }

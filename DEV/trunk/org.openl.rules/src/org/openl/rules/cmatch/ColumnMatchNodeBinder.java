@@ -46,7 +46,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
 
     @Override
     protected OpenMethodHeader createHeader(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt) throws Exception {
-        IGridTable table = tsn.getGridTable();
+        IGridTable table = tsn.getOriginalGridTable();
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
 

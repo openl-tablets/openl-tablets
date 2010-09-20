@@ -11,7 +11,7 @@ import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.element.FunctionalRow;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -54,7 +54,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * @param cellTable
      * @return
      */
-    private String getCellStringValue(ILogicalTable cellTable) {
+    private String getCellStringValue(IGridTable cellTable) {
 
         String value = cellTable.getGridTable().getCell(0, 0).getStringValue();
 
@@ -80,13 +80,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * @return
      * @throws BoundError
      */
-    private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
+    private ArrayList<Object> getArrayValuesByForeignKey(IGridTable valuesTable,
             IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
             DomainOpenClass domainClass) throws SyntaxNodeException {
 
-        int valuesHeight = valuesTable.getLogicalHeight();
+        int valuesHeight = valuesTable.getGridHeight();
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
 
@@ -114,7 +114,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             for (int i = 0; i < valuesHeight; i++) {
                 // we take the appropriate cell for the current value.
-                ILogicalTable valueTable = valuesTable.getLogicalRow(i);
+                IGridTable valueTable = valuesTable.getRow(i);
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {
@@ -148,7 +148,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private Object getValueByForeignKeyIndex(IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
-            ILogicalTable valueTable,
+            IGridTable valueTable,
             String key) throws SyntaxNodeException {
 
         Object result = null;
@@ -166,7 +166,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return result;
     }
 
-    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
+    private void throwIndexNotFound(IGridTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
 
         String message = String.format("Index Key %s not found", src);
 
@@ -182,7 +182,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * represents <b>AS</b> a constructor (see {@link #isConstructor()}).
      */
     public Object getLiteralByForeignKey(IOpenClass fieldType,
-            ILogicalTable valuesTable,
+            IGridTable valuesTable,
             IDataBase db,
             IBindingContext bindingContext) throws Exception {
 
@@ -224,11 +224,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         } else {
 
             List<Object> values = new ArrayList<Object>();
-            int valuesHeight = valuesTable.getLogicalHeight();
+            int valuesHeight = valuesTable.getGridHeight();
 
             for (int i = 0; i < valuesHeight; i++) {
 
-                ILogicalTable valueTable = valuesTable.getLogicalRow(i);
+                IGridTable valueTable = valuesTable.getRow(i);
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {
@@ -264,7 +264,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
-    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt) throws Exception {
+    public void populateLiteralByForeignKey(Object target, IGridTable valuesTable, IDataBase db, IBindingContext cxt) throws Exception {
 
         if (foreignKeyTable != null) {
 

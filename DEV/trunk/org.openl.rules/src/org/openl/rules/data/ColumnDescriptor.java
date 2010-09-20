@@ -14,7 +14,7 @@ import org.openl.OpenL;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -74,7 +74,7 @@ public class ColumnDescriptor {
      * <b>AS</b> a constructor (see {@link #isConstructor()}).
      * @throws SyntaxNodeException 
      */
-    public Object getLiteral(IOpenClass paramType, ILogicalTable valuesTable, OpenlToolAdaptor ota) throws SyntaxNodeException  {
+    public Object getLiteral(IOpenClass paramType, IGridTable valuesTable, OpenlToolAdaptor ota) throws SyntaxNodeException  {
         Object resultLiteral = null;
         boolean valuesAnArray = isValuesAnArray(paramType);
 
@@ -120,7 +120,7 @@ public class ColumnDescriptor {
      * single value, array of values.
      * @throws SyntaxNodeException 
      */
-    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
+    public void populateLiteral(Object literal, IGridTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
 
         IOpenClass paramType = field.getType();
         
@@ -146,13 +146,13 @@ public class ColumnDescriptor {
         return false;
     }
 
-    private Object getArrayValues(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
+    private Object getArrayValues(IGridTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
 
-        if (valuesTable.getLogicalHeight() == 1 && valuesTable.getLogicalWidth() == 1) {
+        if (valuesTable.getGridHeight() == 1 && valuesTable.getGridWidth() == 1) {
             return loadSingleRowArray(valuesTable, ota, paramType);
         }
 
-        if (valuesTable.getLogicalHeight() != 1) {
+        if (valuesTable.getGridHeight() != 1) {
             valuesTable.transpose();
             return loadMultiRowArray(valuesTable, ota, paramType);
         }
@@ -160,13 +160,13 @@ public class ColumnDescriptor {
         return loadMultiRowArray(valuesTable, ota, paramType);
     }
 
-    private Object loadSingleRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType) throws SyntaxNodeException {
+    private Object loadSingleRowArray(IGridTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType) throws SyntaxNodeException {
         return getValuesArrayCommaSeparated(logicalTable, openlAdaptor, paramType);
     }
 
-    private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType) throws SyntaxNodeException {
+    private Object loadMultiRowArray(IGridTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType) throws SyntaxNodeException {
 
-        int valuesTableHeight = logicalTable.getLogicalHeight();
+        int valuesTableHeight = logicalTable.getGridHeight();
         ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
 
         for (int i = 0; i < valuesTableHeight; i++) {
@@ -174,7 +174,7 @@ public class ColumnDescriptor {
             Object res = RuleRowHelper.loadSingleParam(paramType,
                 field.getName(),
                 null,
-                logicalTable.getLogicalRow(i),
+                logicalTable.getRow(i),
                 openlAdaptor);
 
 //            if (res == null) {
@@ -194,11 +194,11 @@ public class ColumnDescriptor {
         return arrayValues;
     }
 
-    private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
+    private Object getValuesArrayCommaSeparated(IGridTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
         return RuleRowHelper.loadCommaSeparatedParam(paramType,
             field.getName(),
             null,
-            valuesTable.getLogicalRow(0),
+            valuesTable.getRow(0),
             ota);
     }
 

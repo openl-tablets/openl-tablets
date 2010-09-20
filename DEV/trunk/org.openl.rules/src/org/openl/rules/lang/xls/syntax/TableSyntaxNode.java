@@ -18,7 +18,7 @@ import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
@@ -32,7 +32,7 @@ import org.openl.types.IOpenMember;
  */
 public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
-    private ILogicalTable table;
+    private IGridTable table;
     // String header;
 
     private HeaderSyntaxNode headerNode;
@@ -42,7 +42,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     private IOpenMember member;
 
-    private Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
+    private Map<String, IGridTable> subTables = new HashMap<String, IGridTable>();
 
     private ArrayList<SyntaxNodeException> errors;
 
@@ -103,7 +103,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     }
 
     public String getIndexedText() {
-        // return table.getGridTable().getStringValue(0, 0);
+        // return table.getOriginalGridTable().getStringValue(0, 0);
         return null;
     }
 
@@ -116,25 +116,25 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         return tableProperties;
     }
 
-    public Map<String, ILogicalTable> getSubTables() {
+    public Map<String, IGridTable> getSubTables() {
         return subTables;
     }
 
-    public ILogicalTable getTable() {
+    public IGridTable getTable() {
         return table;
     }
 
-    public IGridTable getGridTable() {
+    public IGridTable getOriginalGridTable() {
         return table.getGridTable();
     }
 
-    public ILogicalTable getTableBody() {        
+    public IGridTable getTableBody() {        
         int startRow = !hasPropertiesDefinedInTable() ? 1 : 2;
 
-        if (table.getLogicalHeight() <= startRow) {
+        if (table.getGridHeight() <= startRow) {
             return null;
         }
-        ILogicalTable tableBody = table.rows(startRow);
+        IGridTable tableBody = table.rows(startRow);
         return tableBody;
     }
 

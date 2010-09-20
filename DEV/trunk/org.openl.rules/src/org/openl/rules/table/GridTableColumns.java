@@ -26,7 +26,7 @@ public class GridTableColumns extends AGridTableDelegator {
     }
 
     @Override
-    protected ILogicalTable columnsInternal(int from, int to) {
+    protected IGridTable columnsInternal(int from, int to) {
         return new GridTableColumns(gridTable, fromColumn + from, fromColumn + to);
     }
 

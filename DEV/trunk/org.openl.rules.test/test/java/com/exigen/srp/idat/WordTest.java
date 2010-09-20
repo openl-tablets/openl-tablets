@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 import org.openl.rules.indexer.WordDocIndexParser;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.word.WordDocSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
@@ -24,15 +24,15 @@ public class WordTest extends TestCase {
         
         for (int i = 0; i < gt.length; i++) {
         
-            int nrows = gt[i].getLogicalHeight();
+            int nrows = gt[i].getGridHeight();
             
             for (int j = 0; j < nrows; j++) {
             
-                ILogicalTable lrow = gt[i].getLogicalRow(j);
-                int w = lrow.getLogicalWidth();
+                IGridTable lrow = gt[i].getRow(j);
+                int w = lrow.getGridWidth();
                 
                 lrow = LogicalTableHelper.logicalTable(lrow);
-                int ww = lrow.getLogicalWidth();
+                int ww = lrow.getGridWidth();
 
                 System.out.println("" + i + "." + j + ". " + w + "-" + ww);
             }

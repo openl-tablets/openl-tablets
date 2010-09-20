@@ -20,7 +20,7 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -44,24 +44,24 @@ public class DecisionTableLoader {
     private List<ICondition> conditions = new ArrayList<ICondition>();
     private List<IAction> actions = new ArrayList<IAction>();
 
-    private void addAction(String name, int row, ILogicalTable table) {
+    private void addAction(String name, int row, IGridTable table) {
         actions.add(new Action(name, row, table, false));
     }
 
-    private void addCondition(String name, int row, ILogicalTable table) {
+    private void addCondition(String name, int row, IGridTable table) {
         conditions.add(new Condition(name, row, table));
     }
 
-    private void addReturnAction(String name, int row, ILogicalTable table) {
+    private void addReturnAction(String name, int row, IGridTable table) {
         actions.add(new Action(name, row, table, true));
     }
 
-    private void addRule(int row, ILogicalTable table) throws SyntaxNodeException {
+    private void addRule(int row, IGridTable table) throws SyntaxNodeException {
 
         if (ruleRow != null) {
 
             throw SyntaxNodeExceptionUtils.createError("Only one rule row/column allowed",
-                new GridCellSourceCodeModule(table.getLogicalRow(row).getGridTable(),
+                new GridCellSourceCodeModule(table.getRow(row).getGridTable(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0));
         }
@@ -88,21 +88,21 @@ public class DecisionTableLoader {
     private void loadTableStructure(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable) throws SyntaxNodeException {
 
         decisionTable.setTableSyntaxNode(tableSyntaxNode);
-        ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        IGridTable tableBody = tableSyntaxNode.getTableBody();
         
         if (tableBody == null) {
             throw new SyntaxNodeException(EMPTY_BODY, null, tableSyntaxNode);
         }
-        ILogicalTable transposed = tableBody.transpose();
-        ILogicalTable toParse = tableBody;
+        IGridTable transposed = tableBody.transpose();
+        IGridTable toParse = tableBody;
 
         // check if table is a lookup table
         if (isLookupDecisionTable(tableBody)) {
 
             try {
                 IGridTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
-//               System.out.println(TablePrinter.printGridTable(convertedTable.getGridTable()));
-                ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
+//               System.out.println(TablePrinter.printGridTable(convertedTable.getOriginalGridTable()));
+                IGridTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
                 tableBody = transposed;
             } catch (Exception e) {
@@ -113,27 +113,27 @@ public class DecisionTableLoader {
             toParse = tableBody = transposed;
         }
 
-        if (toParse.getLogicalWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (toParse.getGridWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             throw new SyntaxNodeException("Invalid structure of decision table", null, tableSyntaxNode);
         }
 
-        columnsNumber = toParse.getLogicalWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        columnsNumber = toParse.getGridWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
 
-        ILogicalTable businessView = tableBody.columns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
+        IGridTable businessView = tableBody.columns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
         tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
 
-        for (int i = 0; i < toParse.getLogicalHeight(); i++) {
+        for (int i = 0; i < toParse.getGridHeight(); i++) {
             loadRow(i, toParse);
         }
     }
 
-    private boolean isLookupDecisionTable(ILogicalTable tableBody) {
+    private boolean isLookupDecisionTable(IGridTable tableBody) {
         return DecisionTableHelper.hasHConditions(tableBody);
     }
 
-    private void loadRow(int row, ILogicalTable table) throws SyntaxNodeException {
+    private void loadRow(int row, IGridTable table) throws SyntaxNodeException {
 
-        String headerStr = table.getLogicalRow(row)
+        String headerStr = table.getRow(row)
             .getGridTable()
             .getCell(IDecisionTableConstants.INFO_COLUMN_INDEX, 0)
             .getStringValue();
@@ -156,7 +156,7 @@ public class DecisionTableLoader {
             // do nothing
         } else {
             throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header:" + headerStr,
-                new GridCellSourceCodeModule(table.getLogicalRow(row).getGridTable(),
+                new GridCellSourceCodeModule(table.getRow(row).getGridTable(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0));
 

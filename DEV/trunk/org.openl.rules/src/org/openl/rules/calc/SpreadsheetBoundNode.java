@@ -7,7 +7,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -30,15 +30,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
 
         SpreadsheetBuilder builder = new SpreadsheetBuilder(bindingContext, getSpreadsheet(), getTableSyntaxNode());
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
+        IGridTable tableBody = getTableSyntaxNode().getTableBody();
 
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Table has no body! Try to merge header cell horizontally to identify table.",
                 getTableSyntaxNode());
         }
 
-        int height = tableBody.getLogicalHeight();
-        int width = tableBody.getLogicalWidth();
+        int height = tableBody.getGridHeight();
+        int width = tableBody.getGridWidth();
 
         if (height < 2 || width < 2) {
             String message = String.format("Spreadsheet must have at least 2x2 cells! Actual size %dx%d.",

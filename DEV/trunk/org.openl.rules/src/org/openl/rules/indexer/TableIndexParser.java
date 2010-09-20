@@ -39,10 +39,10 @@ public class TableIndexParser implements IIndexParser {
     public IIndexElement[] parse(IIndexElement root) {
         TableSyntaxNode tableSrc = (TableSyntaxNode) root;
 
-        IGridTable table = tableSrc.getGridTable();
+        IGridTable table = tableSrc.getOriginalGridTable();
 
-        int w = table.getLogicalWidth();
-        int h = table.getLogicalHeight();
+        int w = table.getGridWidth();
+        int h = table.getGridHeight();
 
         List<GridCellSourceCodeModule> gridCells = new ArrayList<GridCellSourceCodeModule>();
                 
@@ -109,16 +109,16 @@ public class TableIndexParser implements IIndexParser {
         return cellBelongsToProssedRegion;
     }
     
-//  private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
+//  private void prepareColumns(IGridTable tableBody) throws SyntaxNodeException {
 //  columns = new ArrayList<TableColumn>();
 //  Set<String> addedIds = new HashSet<String>();
 //
-//  ILogicalTable ids = tableBody.getLogicalRow(0);
+//  IGridTable ids = tableBody.getLogicalRow(0);
 //  
 //  Map<String, IGridRegion> valuesFromRegions = new HashMap<String, IGridRegion>();
 //  // parse ids, row=0
-//  for (int c = 0; c < ids.getLogicalWidth(); c++) {
-//      ICell columnCell = ids.getLogicalColumn(c).getGridTable().getCell(0, 0);
+//  for (int c = 0; c < ids.getGridWidth(); c++) {
+//      ICell columnCell = ids.getLogicalColumn(c).getOriginalGridTable().getCell(0, 0);
 //      
 //      String id = safeId(columnCell.getStringValue());
 //      if (id.length() == 0) {

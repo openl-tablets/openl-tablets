@@ -1,16 +1,16 @@
 package org.openl.rules.dt;
 
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 
 public class DecisionTableHelper {
 
-    public static boolean looksLikeTransposed(ILogicalTable table) {
+    public static boolean looksLikeTransposed(IGridTable table) {
 
-        if (table.getLogicalWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getGridWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
         }
 
-        if (table.getLogicalHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getGridHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return false;
         }
 
@@ -21,7 +21,7 @@ public class DecisionTableHelper {
             return cnt1 > cnt2;
         }
 
-        return table.getLogicalWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        return table.getGridWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
     
     public static boolean isValidConditionHeader(String s) {
@@ -54,14 +54,14 @@ public class DecisionTableHelper {
         return isValidConditionHeader(s) || isValidHConditionHeader(s);
     }
 
-    public static int countConditionsAndActions(ILogicalTable table) {
+    public static int countConditionsAndActions(IGridTable table) {
 
-        int width = table.getLogicalWidth();
+        int width = table.getGridWidth();
         int count = 0;
 
         for (int i = 0; i < width; i++) {
 
-            String value = table.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+            String value = table.getColumn(i).getGridTable().getCell(0, 0).getStringValue();
 
             if (value != null) {
                 value = value.toUpperCase();
@@ -78,13 +78,13 @@ public class DecisionTableHelper {
      * @param table
      * @return true if there is is any horizontal condition header in the table.
      */
-    public static boolean hasHConditions(ILogicalTable table) {
+    public static boolean hasHConditions(IGridTable table) {
 
-        int width = table.getLogicalWidth();
+        int width = table.getGridWidth();
 
         for (int i = 0; i < width; i++) {
 
-            String value = table.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+            String value = table.getColumn(i).getGridTable().getCell(0, 0).getStringValue();
 
             if (value != null) {
                 value = value.toUpperCase();
