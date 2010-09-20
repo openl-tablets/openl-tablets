@@ -36,7 +36,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -208,7 +208,7 @@ public class XlsLoader {
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
 
         IGridTable table = tableSyntaxNode.getOriginalGridTable();
-        IGridTable logicalTable = LogicalTableHelper.logicalTable(table);
+        IGridTable logicalTable = OffSetGridTableHelper.offSetTable(table);
 
         int height = logicalTable.getGridHeight();
 

@@ -12,7 +12,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -301,7 +301,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             // table will have 1xN size
             //
-            valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
+            valuesTable = OffSetGridTableHelper.make1ColumnTable(valuesTable);
 
             IOpenClass fieldType = getField().getType();
 

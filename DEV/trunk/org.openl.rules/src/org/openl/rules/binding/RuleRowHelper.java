@@ -20,7 +20,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -335,7 +335,7 @@ public class RuleRowHelper {
         }
 
         IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType);
-        dataTable = LogicalTableHelper.make1ColumnTable(dataTable);
+        dataTable = OffSetGridTableHelper.make1ColumnTable(dataTable);
 
         int height = RuleRowHelper.calculateHeight(dataTable);
 

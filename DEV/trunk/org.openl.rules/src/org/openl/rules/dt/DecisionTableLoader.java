@@ -21,7 +21,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -102,7 +102,7 @@ public class DecisionTableLoader {
             try {
                 IGridTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
 //               System.out.println(TablePrinter.printGridTable(convertedTable.getOriginalGridTable()));
-                IGridTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
+                IGridTable offsetConvertedTable = OffSetGridTableHelper.offSetTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
                 tableBody = transposed;
             } catch (Exception e) {

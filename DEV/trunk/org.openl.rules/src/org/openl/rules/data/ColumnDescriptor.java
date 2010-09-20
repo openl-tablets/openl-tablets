@@ -15,7 +15,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -82,7 +82,7 @@ public class ColumnDescriptor {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
 
-        valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
+        valuesTable = OffSetGridTableHelper.make1ColumnTable(valuesTable);
 
         if (!valuesAnArray) {
             resultLiteral = RuleRowHelper.loadSingleParam(paramType,
@@ -128,7 +128,7 @@ public class ColumnDescriptor {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
 
-        valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
+        valuesTable = OffSetGridTableHelper.make1ColumnTable(valuesTable);
 
         if (!valuesAnArray) {
             Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);

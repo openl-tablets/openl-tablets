@@ -29,7 +29,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -162,7 +162,7 @@ public class SpreadsheetBuilder {
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
-                IGridTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
+                IGridTable cell = OffSetGridTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
                         columnNamesTable.getColumn(columnIndex));
                 ICell sourceCell = cell.getGridTable().getCell(0, 0);
 
@@ -205,7 +205,7 @@ public class SpreadsheetBuilder {
 
                 IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext);
 
-                IGridTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
+                IGridTable cell = OffSetGridTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
                         columnNamesTable.getColumn(columnIndex));
 
                 SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
@@ -366,7 +366,7 @@ public class SpreadsheetBuilder {
         for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
             for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
 
-                IGridTable cell = LogicalTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
+                IGridTable cell = OffSetGridTableHelper.mergeBounds(rowNamesTable.getRow(rowIndex),
                         columnNamesTable.getColumn(columnIndex));
 
                 String value = cell.getGridTable().getCell(0, 0).getStringValue();

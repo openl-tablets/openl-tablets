@@ -44,12 +44,12 @@ public class LookupTest extends TestCase {
        
         Assert.assertEquals(2, tables.length);
 
-        IGridTable lookupTable = LogicalTableHelper.logicalTable(tables[0]);
+        IGridTable lookupTable = OffSetGridTableHelper.offSetTable(tables[0]);
         IGridTable t1 = lookupTable.rows(1);
         IGridTable lookupRow1 = t1.getRow(0);
         IGridTable t2 = t1.rows(1);
         IGridTable lookupColumn1 = t2.getColumn(0);
-        IGridTable body = LogicalTableHelper.mergeBounds(lookupColumn1, lookupRow1);
+        IGridTable body = OffSetGridTableHelper.mergeBounds(lookupColumn1, lookupRow1);
 
         Assert.assertEquals(5, body.getGridHeight());
         Assert.assertEquals(3, body.getGridWidth());

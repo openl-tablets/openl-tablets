@@ -11,7 +11,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.OffSetGridTableHelper;
 import org.openl.rules.table.TransformedGridTable;
 
 /**
@@ -47,7 +47,7 @@ public class DecisionTableLookupConvertor {
 
     public IGridTable convertTable(IGridTable table) throws OpenLCompilationException {
         
-        IGridTable originaltable = LogicalTableHelper.logicalTable(table);
+        IGridTable originaltable = OffSetGridTableHelper.offSetTable(table);
 
         IGridTable headerRow = originaltable.getRow(HEADER_ROW);
 

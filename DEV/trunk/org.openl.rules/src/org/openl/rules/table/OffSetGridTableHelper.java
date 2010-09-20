@@ -1,8 +1,8 @@
 package org.openl.rules.table;
 
-public class LogicalTableHelper {
+public class OffSetGridTableHelper {
     
-    private LogicalTableHelper(){}
+    private OffSetGridTableHelper(){}
 
     public static int calcLogicalColumns(IGridTable gridTable) {
     
@@ -24,7 +24,7 @@ public class LogicalTableHelper {
         return rows;
     }
 
-    public static IGridTable logicalTable(IGridTable table, IGridTable columnOffsetsTable, IGridTable rowOffsetsTable) {
+    public static IGridTable offSetTable(IGridTable table, IGridTable columnOffsetsTable, IGridTable rowOffsetsTable) {
         IGridTable gridTable = table.getGridTable();
         
         int[] columnOffsets = null;
@@ -40,7 +40,7 @@ public class LogicalTableHelper {
         }
         
         if (rowOffsets == null && columnOffsets == null)
-          return LogicalTableHelper.logicalTable(gridTable);
+          return OffSetGridTableHelper.offSetTable(gridTable);
         
         return new OffSetGridTable(gridTable, columnOffsets, rowOffsets);
     }
@@ -49,7 +49,7 @@ public class LogicalTableHelper {
      * @param table Original table.
      * @return Another logical table with correctly calculated height and width.
      */
-    public static IGridTable logicalTable(IGridTable table) {
+    public static IGridTable offSetTable(IGridTable table) {
         IGridTable gridTable = table.getGridTable();
         int width = calcLogicalColumns(gridTable);
         int height = calcLogicalRows(gridTable);
