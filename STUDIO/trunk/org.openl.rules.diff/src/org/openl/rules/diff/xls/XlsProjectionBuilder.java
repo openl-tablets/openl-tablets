@@ -10,7 +10,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.ui.ICellFont;
@@ -57,7 +57,7 @@ public class XlsProjectionBuilder {
         projection.addProperty(grid);
         IGridTable gridTable = table.getGridTable();
         /*for (int i = 1; i < gridTable.getLogicalHeight(); i++) {
-            ILogicalTable row = gridTable.getLogicalRow(i);
+            IGridTable row = gridTable.getLogicalRow(i);
             projection.addChild(buildRow(row, "row" + i));
         }*/
         int height = gridTable.getGridHeight();
@@ -72,7 +72,7 @@ public class XlsProjectionBuilder {
         return projection;
     }
 
-    public static AbstractProjection buildRow(ILogicalTable row, String rowName) {
+    public static AbstractProjection buildRow(IGridTable row, String rowName) {
         AbstractProjection projection = new AbstractProjection(rowName, ROW.name());
         IGridTable grid = row.getGridTable();
         int height = grid.getGridHeight();

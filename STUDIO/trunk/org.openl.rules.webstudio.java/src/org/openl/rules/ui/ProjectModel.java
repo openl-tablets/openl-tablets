@@ -39,7 +39,7 @@ import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Table;
@@ -287,7 +287,7 @@ public class ProjectModel {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i].getType().equals(ITableNodeTypes.XLS_DT)
-                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getGridTable().getUri())) {
+                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getOriginalGridTable().getUri())) {
                 return nodes[i];
             }
         }
@@ -320,7 +320,7 @@ public class ProjectModel {
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
-            if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUri())) {
+            if (XlsUrlUtils.intersects(p1, nodes[i].getOriginalGridTable().getUri())) {
                 return nodes[i];
             }
         }
@@ -544,7 +544,7 @@ public class ProjectModel {
                     String code = node.getHeader().getModule().getCode();
                     if ((IXlsTableNames.PERSISTENCE_TABLE + " " + OpenLSavedSearch.class.getName()).equals(code)) {
                         OpenLSavedSearch savedSearch = new OpenLSavedSearch().restore(new XlsSheetGridImporter(
-                                (XlsSheetGridModel) node.getGridTable().getGrid(), node));
+                                (XlsSheetGridModel) node.getOriginalGridTable().getGrid(), node));
                         savedSearches.add(savedSearch);
                     }
                 }
@@ -610,7 +610,7 @@ public class ProjectModel {
 
     public IGridTable getGridTable(String elementUri) {
         TableSyntaxNode tsn = getNode(elementUri);
-        return tsn == null ? null : tsn.getGridTable();
+        return tsn == null ? null : tsn.getOriginalGridTable();
     }
 
     public String getTableView(String view) {
@@ -1111,8 +1111,8 @@ public class ProjectModel {
         if (view == null) {
             view = IXlsTableNames.VIEW_BUSINESS;
         }
-        ILogicalTable gtx = tsn.getSubTables().get(view);
-        IGridTable gt = tsn.getGridTable();
+        IGridTable gtx = tsn.getSubTables().get(view);
+        IGridTable gt = tsn.getOriginalGridTable();
         if (gtx != null) {
             gt = gtx.getGridTable();
         }
