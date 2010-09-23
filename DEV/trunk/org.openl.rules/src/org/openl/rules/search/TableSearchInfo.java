@@ -43,7 +43,7 @@ public class TableSearchInfo implements ITableSearchInfo {
     }
 
     public IGridTable getRowTable(int row) {
-        return table.getRow(row).getGridTable();
+        return table.getLogicalRow(row).getGridTable();
     }
 
     public Object getTableValue(int col, int row) {

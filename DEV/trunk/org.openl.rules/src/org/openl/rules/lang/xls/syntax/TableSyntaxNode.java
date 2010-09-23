@@ -18,8 +18,8 @@ import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.OffSetGridTableHelper;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
@@ -32,7 +32,7 @@ import org.openl.types.IOpenMember;
  */
 public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
-    private IGridTable table;
+    private ILogicalTable table;
     // String header;
 
     private HeaderSyntaxNode headerNode;
@@ -42,7 +42,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     private IOpenMember member;
 
-    private Map<String, IGridTable> subTables = new HashMap<String, IGridTable>();
+    private Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
 
     private ArrayList<SyntaxNodeException> errors;
 
@@ -51,13 +51,13 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
         super(type, pos, null, module);
-        table = OffSetGridTableHelper.offSetTable(gridtable);
+        table = LogicalTableHelper.logicalTable(gridtable);
         headerNode = header;
         header.setParent(this);
     }
 
     public void setTable(IGridTable gridTable) {
-        table = OffSetGridTableHelper.offSetTable(gridTable);
+        table = LogicalTableHelper.logicalTable(gridTable);
     }
 
     public void addError(SyntaxNodeException error) {
@@ -103,7 +103,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     }
 
     public String getIndexedText() {
-        // return table.getOriginalGridTable().getStringValue(0, 0);
+        // return table.getGridTable().getStringValue(0, 0);
         return null;
     }
 
@@ -116,25 +116,25 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         return tableProperties;
     }
 
-    public Map<String, IGridTable> getSubTables() {
+    public Map<String, ILogicalTable> getSubTables() {
         return subTables;
     }
 
-    public IGridTable getTable() {
+    public ILogicalTable getTable() {
         return table;
     }
 
-    public IGridTable getOriginalGridTable() {
+    public IGridTable getGridTable() {
         return table.getGridTable();
     }
 
-    public IGridTable getTableBody() {        
+    public ILogicalTable getTableBody() {        
         int startRow = !hasPropertiesDefinedInTable() ? 1 : 2;
 
-        if (table.getGridHeight() <= startRow) {
+        if (table.getLogicalHeight() <= startRow) {
             return null;
         }
-        IGridTable tableBody = table.rows(startRow);
+        ILogicalTable tableBody = table.rows(startRow);
         return tableBody;
     }
 

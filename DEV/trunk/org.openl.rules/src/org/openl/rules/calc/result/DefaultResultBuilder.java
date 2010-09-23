@@ -7,7 +7,7 @@ import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenField;
 
@@ -29,16 +29,16 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, fieldsCoordinates);
         
-        IGridTable table = getSpreadsheetTable(result);        
+        ILogicalTable table = getSpreadsheetTable(result);        
         spreadsheetBean.setLogicalTable(table);
         
         return spreadsheetBean;
     }
 
-    private IGridTable getSpreadsheetTable(SpreadsheetResultCalculator result) {
+    private ILogicalTable getSpreadsheetTable(SpreadsheetResultCalculator result) {
         TableSyntaxNode tsn = (TableSyntaxNode) result.getSpreadsheet().getInfo().getSyntaxNode();
         
-        IGridTable table = null;
+        ILogicalTable table = null;
         if (tsn != null) {
             table = tsn.getTableBody();
         }        

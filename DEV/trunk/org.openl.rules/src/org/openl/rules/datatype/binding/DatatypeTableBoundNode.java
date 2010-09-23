@@ -17,7 +17,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -46,16 +46,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private String parentClassName;
     private ModuleOpenClass moduleOpenClass;
 
-    private IGridTable table;
+    private ILogicalTable table;
     private OpenL openl;
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-    		ModuleOpenClass moduleOpenClass, IGridTable table, OpenL openl) {
+    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl) {
         this(tableSyntaxNode,datatype, moduleOpenClass, table, openl, null);
     }
     
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-    		ModuleOpenClass moduleOpenClass, IGridTable table, OpenL openl, String parentClassName) {
+    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl, String parentClassName) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
@@ -72,9 +72,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      */
     private void addFields(IBindingContext cxt) throws Exception {
 
-        IGridTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
-        int tableHeight = dataTable.getGridHeight();
+        int tableHeight = dataTable.getLogicalHeight();
         
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
@@ -82,7 +82,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         Map<String, FieldType> fields = new LinkedHashMap<String,  FieldType>();
 
         for (int i = 0; i < tableHeight; i++) {
-            IGridTable row = dataTable.getRow(i);
+            ILogicalTable row = dataTable.getLogicalRow(i);
             boolean firstField = false;
             if (i == 0) {
                 firstField = true;
@@ -142,14 +142,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return String.format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);        
     }
 
-    private void processRow(IGridTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
+    private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
         throws SyntaxNodeException, OpenLCompilationException {
         
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getGridTable());
         
         if (canProcessRow(rowSrc)) {
             GridCellSourceCodeModule firstLogicalRowSrc = 
-                        new GridCellSourceCodeModule(row.getColumn(1).getGridTable());
+                        new GridCellSourceCodeModule(row.getLogicalColumn(1).getGridTable());
 
             IdentifierNode[] idn = getIdentifierNode(firstLogicalRowSrc);
             
@@ -205,7 +205,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return true;
     }
 
-    private IOpenClass getFieldType(IBindingContext cxt, IGridTable row, GridCellSourceCodeModule tableSrc) 
+    private IOpenClass getFieldType(IBindingContext cxt, ILogicalTable row, GridCellSourceCodeModule tableSrc) 
         throws SyntaxNodeException {
         
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, (IBindingContextDelegator) cxt);
@@ -216,7 +216,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                   tableSrc);
         }
 
-        if (row.getGridWidth() < 2) {
+        if (row.getLogicalWidth() < 2) {
             String errorMessage = "Bad table structure: must be {header} / {type | name}";
             throw SyntaxNodeExceptionUtils.createError(errorMessage,
                 null,

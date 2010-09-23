@@ -26,7 +26,7 @@ public class XlsSheetGridImporter implements IImporter {
 
     public XlsSheetGridImporter(XlsSheetGridModel gridModel, TableSyntaxNode node) {
         this.gridModel = gridModel;
-        region = node.getOriginalGridTable().getRegion();
+        region = node.getGridTable().getRegion();
         region = new GridRegion(region.getTop() + 1, region.getLeft(), region.getBottom(), region.getRight());
     }
 

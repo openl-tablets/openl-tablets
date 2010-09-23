@@ -11,8 +11,8 @@ import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.element.FunctionalRow;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.OffSetGridTableHelper;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -54,7 +54,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * @param cellTable
      * @return
      */
-    private String getCellStringValue(IGridTable cellTable) {
+    private String getCellStringValue(ILogicalTable cellTable) {
 
         String value = cellTable.getGridTable().getCell(0, 0).getStringValue();
 
@@ -80,13 +80,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * @return
      * @throws BoundError
      */
-    private ArrayList<Object> getArrayValuesByForeignKey(IGridTable valuesTable,
+    private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
             IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
             DomainOpenClass domainClass) throws SyntaxNodeException {
 
-        int valuesHeight = valuesTable.getGridHeight();
+        int valuesHeight = valuesTable.getLogicalHeight();
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
 
@@ -114,7 +114,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             for (int i = 0; i < valuesHeight; i++) {
                 // we take the appropriate cell for the current value.
-                IGridTable valueTable = valuesTable.getRow(i);
+                ILogicalTable valueTable = valuesTable.getLogicalRow(i);
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {
@@ -148,7 +148,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private Object getValueByForeignKeyIndex(IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
-            IGridTable valueTable,
+            ILogicalTable valueTable,
             String key) throws SyntaxNodeException {
 
         Object result = null;
@@ -166,7 +166,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return result;
     }
 
-    private void throwIndexNotFound(IGridTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
+    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
 
         String message = String.format("Index Key %s not found", src);
 
@@ -182,7 +182,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * represents <b>AS</b> a constructor (see {@link #isConstructor()}).
      */
     public Object getLiteralByForeignKey(IOpenClass fieldType,
-            IGridTable valuesTable,
+            ILogicalTable valuesTable,
             IDataBase db,
             IBindingContext bindingContext) throws Exception {
 
@@ -224,11 +224,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         } else {
 
             List<Object> values = new ArrayList<Object>();
-            int valuesHeight = valuesTable.getGridHeight();
+            int valuesHeight = valuesTable.getLogicalHeight();
 
             for (int i = 0; i < valuesHeight; i++) {
 
-                IGridTable valueTable = valuesTable.getRow(i);
+                ILogicalTable valueTable = valuesTable.getLogicalRow(i);
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {
@@ -264,7 +264,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
-    public void populateLiteralByForeignKey(Object target, IGridTable valuesTable, IDataBase db, IBindingContext cxt) throws Exception {
+    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt) throws Exception {
 
         if (foreignKeyTable != null) {
 
@@ -301,7 +301,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             // table will have 1xN size
             //
-            valuesTable = OffSetGridTableHelper.make1ColumnTable(valuesTable);
+            valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
             IOpenClass fieldType = getField().getType();
 

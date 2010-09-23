@@ -29,7 +29,7 @@ import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -85,10 +85,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
         return getHeader().getInfo().getDisplayName(mode);
     }
 
-    public IGridTable getDisplayTable() {
-        IGridTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
+    public ILogicalTable getDisplayTable() {
+        ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
-        return table.getColumn(0);
+        return table.getLogicalColumn(0);
     }
 
     public IMemberMetaInfo getInfo() {
@@ -120,10 +120,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
         return ruleRow;
     }
 
-    public IGridTable getRuleTable(int col) {
-        IGridTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
+    public ILogicalTable getRuleTable(int col) {
+        ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
-        return table.getColumn(col + 1);
+        return table.getLogicalColumn(col + 1);
     }
     
     /**
@@ -131,13 +131,13 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
      * all return, action and condition cells for rule specified by index.
      * 
      * @param ruleNumber Index of rule.
-     * @return IGridTable that contains rule column.
+     * @return ILogicalTable that contains rule column.
      */
-    public IGridTable getRuleByIndex(int ruleNumber) {
-        IGridTable dt = actionRows[0].getDecisionTable();
-        int starColumn = dt.getGridWidth() - columns;
+    public ILogicalTable getRuleByIndex(int ruleNumber) {
+        ILogicalTable dt = actionRows[0].getDecisionTable();
+        int starColumn = dt.getLogicalWidth() - columns;
         
-        return dt.getColumn(starColumn + ruleNumber);
+        return dt.getLogicalColumn(starColumn + ruleNumber);
     }
 
     public String getSourceUrl() {

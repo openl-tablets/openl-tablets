@@ -1,6 +1,6 @@
 package org.openl.rules.table.properties;
 
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 
 public class PropertiesHelper {
     
@@ -8,13 +8,13 @@ public class PropertiesHelper {
     
     private PropertiesHelper(){};
     
-    public static IGridTable getPropertiesTableSection(IGridTable table) {
+    public static ILogicalTable getPropertiesTableSection(ILogicalTable table) {
 
-        if (table.getGridHeight() < 2) {
+        if (table.getLogicalHeight() < 2) {
             return null;
         }
 
-        IGridTable propTable = table.rows(1, 1);
+        ILogicalTable propTable = table.rows(1, 1);
         String header = propTable.getGridTable().getCell(0, 0).getStringValue();
         
         if (!PROPERTIES_HEADER.equals(header)) {

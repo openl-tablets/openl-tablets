@@ -1,11 +1,11 @@
 package org.openl.rules.structure;
 
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 
 public interface ITableParserElement {
 
     String getName();
 
-    IGridTable parse(IGridTable unparsedTable, ITableObject tobj);
+    ILogicalTable parse(ILogicalTable unparsedTable, ITableObject tobj);
 
 }

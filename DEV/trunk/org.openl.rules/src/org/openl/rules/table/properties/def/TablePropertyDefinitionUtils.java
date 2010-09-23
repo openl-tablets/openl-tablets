@@ -50,13 +50,14 @@ public class TablePropertyDefinitionUtils {
      * @param displayName
      * @return name
      */
-    public static String getPropertyName(String displayName) {        
+    public static String getPropertyName(String displayName) {
+        String result = null;
         for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
             if(propDefinition.getDisplayName().equals(displayName)){
-                return propDefinition.getName();
+                result = propDefinition.getName();
             }
         }
-        return null;
+        return result;
     }
 
     /**
@@ -65,13 +66,14 @@ public class TablePropertyDefinitionUtils {
      * @param name
      * @return diplayName
      */
-    public static String getPropertyDisplayName(String name) {        
+    public static String getPropertyDisplayName(String name) {
+        String result = null;
         for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
             if(propDefinition.getName().equals(name)){
-                return propDefinition.getDisplayName();
+                result = propDefinition.getDisplayName();
             }
         }
-        return null;
+        return result;
     }
 
     /**
@@ -80,13 +82,14 @@ public class TablePropertyDefinitionUtils {
      * @param name
      * @return property definition
      */
-    public static TablePropertyDefinition getPropertyByName(String name) {        
+    public static TablePropertyDefinition getPropertyByName(String name) {
+        TablePropertyDefinition result = null;
         for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
             if(propDefinition.getName().equals(name)){
-                return propDefinition;
+                result = propDefinition;
             }
         }
-        return null;
+        return result;
     }
 
     /**
@@ -158,19 +161,21 @@ public class TablePropertyDefinitionUtils {
      * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for 
      * each type of tables.
      */
-    public static String getTableTypeByPropertyName(String name) {        
+    public static String getTableTypeByPropertyName(String name) {
+        String result = null;
         TablePropertyDefinition propDefinition = getPropertyByName(name);
         if (propDefinition != null) {
-            return propDefinition.getTableType();
+            result = propDefinition.getTableType();
         }
-        return null;
+        return result;
     }
     
-    public static Class<?> getPropertyTypeByPropertyName(String name) {       
+    public static Class<?> getPropertyTypeByPropertyName(String name) {
+        Class<?> result = null;
         TablePropertyDefinition propDefinition = getPropertyByName(name);
         if (propDefinition != null) {
-            return propDefinition.getType().getInstanceClass();
+            result = propDefinition.getType().getInstanceClass();
         }
-        return null;
+        return result;
     }
 }

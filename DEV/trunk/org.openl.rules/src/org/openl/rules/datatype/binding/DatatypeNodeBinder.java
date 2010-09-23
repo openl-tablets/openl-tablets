@@ -14,8 +14,8 @@ import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.OffSetGridTableHelper;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -38,7 +38,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 	@Override
 	public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module) throws Exception {
 
-		IGridTable table = tsn.getTable();
+		ILogicalTable table = tsn.getTable();
 		IOpenSourceCodeModule tableSource = new GridCellSourceCodeModule(table.getGridTable());
 		IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableSource, " \n\r");
 
@@ -88,7 +88,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
 			// Load data part of table (part where domain values are defined).
 			//
-			IGridTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+			ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 			
 			// Create appropriate domain object.
 			//

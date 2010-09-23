@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.StringUtils;
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -29,11 +29,11 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      * Table section that contains properties in appropriate table in data
      * source.
      */
-    private IGridTable propertySection;
+    private ILogicalTable propertySection;
 
-    private IGridTable modulePropertiesTable;
+    private ILogicalTable modulePropertiesTable;
 
-    private IGridTable categoryPropertiesTable;
+    private ILogicalTable categoryPropertiesTable;
 
     private Map<String, Object> categoryProperties = new HashMap<String, Object>();
 
@@ -293,27 +293,27 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     /**
      * {@inheritDoc}
      */
-    public IGridTable getPropertiesSection() {
+    public ILogicalTable getPropertiesSection() {
         return propertySection;
     }
 
-    public void setPropertiesSection(IGridTable propertySection) {
+    public void setPropertiesSection(ILogicalTable propertySection) {
         this.propertySection = propertySection;
     }
 
-    public IGridTable getModulePropertiesTable() {
+    public ILogicalTable getModulePropertiesTable() {
         return modulePropertiesTable;
     }
 
-    public void setModulePropertiesTable(IGridTable modulePropertiesTable) {
+    public void setModulePropertiesTable(ILogicalTable modulePropertiesTable) {
         this.modulePropertiesTable = modulePropertiesTable;
     }
 
-    public IGridTable getCategoryPropertiesTable() {
+    public ILogicalTable getCategoryPropertiesTable() {
         return categoryPropertiesTable;
     }
 
-    public void setCategoryPropertiesTable(IGridTable categoryPropertiesTable) {
+    public void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable) {
         this.categoryPropertiesTable = categoryPropertiesTable;
     }
 
