@@ -28,6 +28,7 @@ public class XlsModuleSyntaxNode extends NaryNode  {
     private IdentifierNode vocabularyNode;
     
     private List<String> allImports = new ArrayList<String>();
+//    private List<String> modules = new ArrayList<String>();
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode, List<String> allImports, List<IdentifierNode> extensionNodes) {
@@ -38,10 +39,25 @@ public class XlsModuleSyntaxNode extends NaryNode  {
         this.allImports = allImports;
         this.extensionNodes = extensionNodes;
     }
+    
+//    public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
+//            IdentifierNode vocabularyNode, List<String> allImports, List<IdentifierNode> extensionNodes, List<String> modules) {
+//        super(ITableNodeTypes.XLS_MODULE, null, nodes, module);
+//
+//        this.openlNode = openlNode;
+//        this.vocabularyNode = vocabularyNode;
+//        this.allImports = allImports;
+//        this.extensionNodes = extensionNodes;
+//        this.modules = modules;
+//    }
 
     public List<String> getAllImports() {
         return allImports;
     }
+    
+//    public List<String> getImportedModules() {
+//        return modules;
+//    }
 
     public OpenlSyntaxNode getOpenlNode() {
         return openlNode;

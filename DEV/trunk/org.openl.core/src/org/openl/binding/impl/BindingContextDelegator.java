@@ -6,6 +6,7 @@
 
 package org.openl.binding.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.OpenL;
@@ -155,4 +156,13 @@ public class BindingContextDelegator implements IBindingContextDelegator {
             ((IBindingContextDelegator) this.delegate).setTopDelegate(delegate);
         }
     }
+
+//  NOTE: A temporary implementation of multi-module feature.
+//    public void addImport(IOpenClass type) {
+//       delegate.addImport(type);
+//    }
+//    
+//    public Collection<IOpenClass> getImports() {
+//        return delegate.getImports();
+//    }
 }

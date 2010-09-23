@@ -11,19 +11,19 @@ import java.net.URL;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IConfigurableResourceContext {
-    public Class<?> findClass(String className);
 
-    public URL findClassPathResource(String url);
+    Class<?> findClass(String className);
 
-    public File findFileSystemResource(String url);
+    URL findClassPathResource(String url);
 
-    public String findProperty(String propertyName);
+    File findFileSystemResource(String url);
 
-    public ClassLoader getClassLoader();
+    String findProperty(String propertyName);
+
+    ClassLoader getClassLoader();
 
     IOpenLConfiguration getConfiguration();
-
 }

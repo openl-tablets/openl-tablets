@@ -24,6 +24,7 @@ public interface IXlsTableNames {
     String DATATYPE_TABLE = "Datatype";
     String LANG_PROPERTY = "language";
     String INCLUDE_TABLE = "include";
+    String IMPORT_MODULE = "module";
     String IMPORT_PROPERTY = "import";
     String VOCABULARY_PROPERTY = "vocabulary";
     String ENVIRONMENT_TABLE = "Environment";

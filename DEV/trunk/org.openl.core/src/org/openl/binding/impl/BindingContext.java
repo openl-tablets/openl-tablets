@@ -28,24 +28,25 @@ import org.openl.types.NullOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class BindingContext implements IBindingContext {
 
     private IOpenBinder binder;
-
     private IOpenClass returnType;
-    
     private OpenL openl;
 
     private LocalFrameBuilder localFrame = new LocalFrameBuilder();
-
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
-
     private Map<String, String> aliases = new HashMap<String, String>();
-
     private Stack<List<SyntaxNodeException>> errorStack = new Stack<List<SyntaxNodeException>>();
-
+    
+/*
+//  NOTE: A temporary implementation of multi-module feature.     
+ 
+    private Set<IOpenClass> imports = new LinkedHashSet<IOpenClass>();
+*/
+    
     public BindingContext(Binder binder, IOpenClass returnType, OpenL openl) {
         this.binder = binder;
         this.returnType = returnType;
@@ -54,9 +55,9 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#addAlias(java.lang.String,
-     *      java.lang.String)
+     * java.lang.String)
      */
     public synchronized void addAlias(String name, String value) {
         aliases.put(name, value);
@@ -74,16 +75,16 @@ public class BindingContext implements IBindingContext {
     public void addType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
-    
+
     public void removeType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#addVar(java.lang.String,
-     *      java.lang.String)
+     * java.lang.String)
      */
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return localFrame.addVar(namespace, name, type);
@@ -91,8 +92,10 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBindingContext#findBinder(org.openl.syntax.ISyntaxNode)
+     * 
+     * @see
+     * org.openl.binding.IBindingContext#findBinder(org.openl.syntax.ISyntaxNode
+     * )
      */
     public INodeBinder findBinder(ISyntaxNode node) {
         return binder.getNodeBinderFactory().getNodeBinder(node);
@@ -104,9 +107,9 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#findMethod(java.lang.String,
-     *      org.openl.types.IOpenClass[])
+     * org.openl.types.IOpenClass[])
      */
     public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
         return binder.getMethodFactory().getMethodCaller(namespace, name, parTypes, binder.getCastFactory());
@@ -114,16 +117,16 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#findType(java.lang.String,
-     *      java.lang.String)
+     * java.lang.String)
      */
     public IOpenClass findType(String namespace, String typeName) {
         return binder.getTypeFactory().getType(namespace, typeName);
     }
 
     public IOpenField findVar(String namespace, String name, boolean strictMatch) // throws
-                                                                                    // Exception
+    // Exception
     {
         ILocalVar var = localFrame.findLocalVar(namespace, name);
         if (var != null) {
@@ -139,7 +142,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#getBinder()
      */
     public IOpenBinder getBinder() {
@@ -151,15 +154,15 @@ public class BindingContext implements IBindingContext {
         return binder.getCastFactory().getCast(from, to);
     }
 
-    static final SyntaxNodeException[] NO_ERRORS = {}; 
-    
+    static final SyntaxNodeException[] NO_ERRORS = {};
+
     public SyntaxNodeException[] getErrors() {
         return errors.size() == 0 ? NO_ERRORS : ((SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]));
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#getError(int)
      */
     public SyntaxNodeException getError(int i) {
@@ -183,7 +186,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#getParamFrameSize()
      */
     public int getParamFrameSize() {
@@ -203,7 +206,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.binding.IBindingContext#popLocalVarcontext()
      */
     public void popLocalVarContext() {
@@ -217,8 +220,10 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBindingContext#pushLocalVarContext(org.openl.binding.ILocalVarContext)
+     * 
+     * @see
+     * org.openl.binding.IBindingContext#pushLocalVarContext(org.openl.binding
+     * .ILocalVarContext)
      */
     public void pushLocalVarContext() {
         localFrame.pushLocalVarContext();
@@ -231,4 +236,14 @@ public class BindingContext implements IBindingContext {
         returnType = type;
     }
 
+//  NOTE: A temporary implementation of multi-module feature.
+/*    
+    public void addImport(IOpenClass type) {
+        imports.add(type);
+    }
+    
+    public Collection<IOpenClass> getImports() {
+        return imports;
+    }
+*/
 }
