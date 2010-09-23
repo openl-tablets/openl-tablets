@@ -50,7 +50,7 @@ public class GridTableRows extends AGridTableDelegator {
     }
 
     @Override
-    protected IGridTable rowsInternal(int from, int to) {
+    protected ILogicalTable rowsInternal(int from, int to) {
         return new GridTableRows(gridTable, fromRow + from, fromRow + to);
     }
 

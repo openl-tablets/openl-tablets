@@ -19,7 +19,8 @@ import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -32,7 +33,7 @@ import org.openl.util.ArrayTool;
 
 public class DatatypeHelper {
 
-    public static IDomain<?> getTypeDomain(IGridTable table, IOpenClass type, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
+    public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
         Object values = loadAliasDatatypeValues(table, type, openl, cxt);
 
         if (values != null) {
@@ -42,21 +43,21 @@ public class DatatypeHelper {
         return new EnumDomain<Object>(new Object[] {});
     }
 
-    public static Object loadAliasDatatypeValues(IGridTable table, IOpenClass type, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
+    public static Object loadAliasDatatypeValues(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
 
         return RuleRowHelper.loadParam(table, type, "Values", "", openlAdaptor, true);
     }
 
-    public static boolean isAliasDatatype(IGridTable table, OpenL openl, IBindingContext cxt) {
+    public static boolean isAliasDatatype(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
-        IGridTable dataPart = getNormalizedDataPartTable(table, openl, cxt);
+        ILogicalTable dataPart = getNormalizedDataPartTable(table, openl, cxt);
 
-        int height = dataPart.getGridHeight();
+        int height = dataPart.getLogicalHeight();
         int typesCount1 = countTypes(dataPart, openl, cxt);
         int typesCount2 = countTypes(dataPart.transpose(), openl, cxt);
-        int width = dataPart.getGridWidth();
+        int width = dataPart.getLogicalWidth();
 
         if (typesCount1 == 0 && typesCount2 == 0 && (height == 0 // values are
                 // not provided
@@ -67,9 +68,9 @@ public class DatatypeHelper {
         return false;
     }
 
-    public static IGridTable getNormalizedDataPartTable(IGridTable table, OpenL openl, IBindingContext cxt) {
+    public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, OpenL openl, IBindingContext cxt) {
         
-        IGridTable dataPart = null;
+        ILogicalTable dataPart = null;
         if (PropertiesHelper.getPropertiesTableSection(table) != null) {
              dataPart = table.rows(2);
         } else {
@@ -77,9 +78,9 @@ public class DatatypeHelper {
         }
         
         //if datatype table has only one row
-        if (dataPart.getGridHeight() == 1) {
+        if (dataPart.getLogicalHeight() == 1) {
             return dataPart;
-        } else if (dataPart.getGridWidth() == 1) {
+        } else if (dataPart.getLogicalWidth() == 1) {
             return dataPart.transpose();
         }
 
@@ -93,14 +94,14 @@ public class DatatypeHelper {
         return dataPart;
     }
 
-    private static int countTypes(IGridTable table, OpenL openl, IBindingContext cxt) {
+    private static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
-        int height = table.getGridHeight();
+        int height = table.getLogicalHeight();
         int count = 0;
 
         for (int i = 0; i < height; ++i) {
             try {
-                IOpenClass type = makeType(table.getRow(i), openl, cxt);
+                IOpenClass type = makeType(table.getLogicalRow(i), openl, cxt);
                 if (type != null) {
                     count += 1;
                 }
@@ -112,7 +113,7 @@ public class DatatypeHelper {
         return count;
     }
 
-    private static IOpenClass makeType(IGridTable table, OpenL openl, IBindingContext cxt) {
+    private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
         GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable());
         return OpenLManager.makeType(openl, source, (IBindingContextDelegator) cxt);
@@ -121,7 +122,7 @@ public class DatatypeHelper {
     private static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-            IGridTable table = tsn.getTable();
+            ILogicalTable table = tsn.getTable();
             IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
@@ -134,7 +135,7 @@ public class DatatypeHelper {
     private static String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-            IGridTable table = tsn.getTable();
+            ILogicalTable table = tsn.getTable();
             IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 

@@ -11,7 +11,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -20,7 +20,7 @@ import org.openl.util.BiMap;
 
 public class Table implements ITable {
 
-    private IGridTable logicalTable;
+    private ILogicalTable logicalTable;
     private ITableModel dataModel;
 
     private String tableName;
@@ -31,7 +31,7 @@ public class Table implements ITable {
     private BiMap<Integer, Object> rowIndexMap = new BiMap<Integer, Object>();
     private BiMap<Integer, String> primaryIndexMap = new BiMap<Integer, String>();
 
-    public Table(ITableModel dataModel, IGridTable data) {
+    public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
         this.logicalTable = data;
     }
@@ -41,7 +41,7 @@ public class Table implements ITable {
         this.tableSyntaxNode = tsn;
     }
 
-    public void setData(IGridTable dataWithHeader) {
+    public void setData(ILogicalTable dataWithHeader) {
         logicalTable = dataWithHeader;
     }
 
@@ -97,7 +97,7 @@ public class Table implements ITable {
     }
 
     public IGridTable getHeaderTable() {
-        return logicalTable.getRow(0).getGridTable();
+        return logicalTable.getLogicalRow(0).getGridTable();
     }
 
     public String getName() {
@@ -109,7 +109,7 @@ public class Table implements ITable {
     }
 
     public int getNumberOfRows() {
-        return logicalTable.getGridHeight() - 1;
+        return logicalTable.getLogicalHeight() - 1;
     }
 
     public String getPrimaryIndexKey(int row) {
@@ -121,7 +121,7 @@ public class Table implements ITable {
     }
 
     public IGridTable getRowTable(int row) {
-        return logicalTable.getRow(row + 1).getGridTable();
+        return logicalTable.getLogicalRow(row + 1).getGridTable();
     }
 
     public int getSize() {
@@ -151,11 +151,11 @@ public class Table implements ITable {
 
         Map<String, Integer> index = new HashMap<String, Integer>();
 
-        int rows = logicalTable.getGridHeight();
+        int rows = logicalTable.getLogicalHeight();
 
         for (int i = 1; i < rows; i++) {
 
-            IGridTable gridTable = logicalTable.getRegion(colIdx, i, 1, 1).getGridTable();
+            IGridTable gridTable = logicalTable.getLogicalRegion(colIdx, i, 1, 1).getGridTable();
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
@@ -178,8 +178,8 @@ public class Table implements ITable {
 
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
 
-        int rows = logicalTable.getGridHeight();
-        int columns = logicalTable.getGridWidth();
+        int rows = logicalTable.getLogicalHeight();
+        int columns = logicalTable.getLogicalWidth();
 
         int startRow = 1;
 
@@ -198,12 +198,12 @@ public class Table implements ITable {
 
                         if (descriptor.isConstructor()) {
                             target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
-                                logicalTable.getRegion(j, i, 1, 1),
+                                logicalTable.getLogicalRegion(j, i, 1, 1),
                                 dataBase,
                                 bindingContext);
                         } else {
                             fkDescriptor.populateLiteralByForeignKey(target,
-                                logicalTable.getRegion(j, i, 1, 1),
+                                logicalTable.getLogicalRegion(j, i, 1, 1),
                                 dataBase,
                                 bindingContext);
                         }
@@ -215,7 +215,7 @@ public class Table implements ITable {
 
     public void preLoad(OpenlToolAdaptor openlAdapter) throws Exception {
 
-        int rows = logicalTable.getGridHeight();
+        int rows = logicalTable.getLogicalHeight();
         int startRow = getStartRowForData();
 
         dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);        
@@ -242,7 +242,7 @@ public class Table implements ITable {
             addToRowIndex(rowIndex, literal);
         }
 
-        int columns = logicalTable.getGridWidth();
+        int columns = logicalTable.getLogicalWidth();
 
         for (int columnNum = 0; columnNum < columns; columnNum++) {
             literal = processColumn(openlAdapter, constructor, rowNum, literal, columnNum);
@@ -263,7 +263,7 @@ public class Table implements ITable {
         
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
-                literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getRegion(columnNum,
+                literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getLogicalRegion(columnNum,
                     rowNum,
                     1,
                     1), openlAdapter);
@@ -271,7 +271,7 @@ public class Table implements ITable {
             	
                 try {
 					columnDescriptor.populateLiteral(literal,
-					    logicalTable.getRegion(columnNum, rowNum, 1, 1),
+					    logicalTable.getLogicalRegion(columnNum, rowNum, 1, 1),
 					    openlAdapter);
 		        } catch (SyntaxNodeException ex) {
 		        	tableSyntaxNode.addError(ex);

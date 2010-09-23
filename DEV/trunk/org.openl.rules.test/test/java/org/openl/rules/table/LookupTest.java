@@ -44,18 +44,18 @@ public class LookupTest extends TestCase {
        
         Assert.assertEquals(2, tables.length);
 
-        IGridTable lookupTable = OffSetGridTableHelper.offSetTable(tables[0]);
-        IGridTable t1 = lookupTable.rows(1);
-        IGridTable lookupRow1 = t1.getRow(0);
-        IGridTable t2 = t1.rows(1);
-        IGridTable lookupColumn1 = t2.getColumn(0);
-        IGridTable body = OffSetGridTableHelper.mergeBounds(lookupColumn1, lookupRow1);
+        ILogicalTable lookupTable = LogicalTableHelper.logicalTable(tables[0]);
+        ILogicalTable t1 = lookupTable.rows(1);
+        ILogicalTable lookupRow1 = t1.getLogicalRow(0);
+        ILogicalTable t2 = t1.rows(1);
+        ILogicalTable lookupColumn1 = t2.getLogicalColumn(0);
+        ILogicalTable body = LogicalTableHelper.mergeBounds(lookupColumn1, lookupRow1);
 
-        Assert.assertEquals(5, body.getGridHeight());
-        Assert.assertEquals(3, body.getGridWidth());
+        Assert.assertEquals(5, body.getLogicalHeight());
+        Assert.assertEquals(3, body.getLogicalWidth());
 
-        Assert.assertEquals("1", body.getRegion(0, 0, 1, 1).getGridTable().getCell(0, 0).getStringValue());
-        Assert.assertEquals("7", body.getRegion(0, 2, 1, 1).getGridTable().getCell(0, 0).getStringValue());
-        Assert.assertEquals("15", body.getRegion(2, 4, 1, 1).getGridTable().getCell(0, 0).getStringValue());
+        Assert.assertEquals("1", body.getLogicalRegion(0, 0, 1, 1).getGridTable().getCell(0, 0).getStringValue());
+        Assert.assertEquals("7", body.getLogicalRegion(0, 2, 1, 1).getGridTable().getCell(0, 0).getStringValue());
+        Assert.assertEquals("15", body.getLogicalRegion(2, 4, 1, 1).getGridTable().getCell(0, 0).getStringValue());
     }
 }

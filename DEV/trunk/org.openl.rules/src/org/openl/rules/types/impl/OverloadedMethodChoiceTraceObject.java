@@ -9,7 +9,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -46,7 +46,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
         for (IOpenMethod method : getSelectedMethods()) {
             int methodIndex = methodCandidates.indexOf(method);
-            IGridTable ruleTable = getDispatcherTable().getRuleByIndex(methodIndex);
+            ILogicalTable ruleTable = getDispatcherTable().getRuleByIndex(methodIndex);
 
             ICell cell = null;
             for (int row = 0; row < ruleTable.getGridTable().getGridHeight(); row += cell.getHeight()) {

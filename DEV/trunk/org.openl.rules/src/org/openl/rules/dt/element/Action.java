@@ -8,7 +8,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.RuleExecutionObject;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
@@ -25,7 +25,7 @@ public class Action extends FunctionalRow implements IAction {
     private boolean isSingleReturnParam = false;
     private IOpenClass ruleExecutionType;
 
-    public Action(String name, int row, IGridTable decisionTable, boolean isReturnAction) {
+    public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction) {
         super(name, row, decisionTable);
         this.isReturnAction = isReturnAction;
     }

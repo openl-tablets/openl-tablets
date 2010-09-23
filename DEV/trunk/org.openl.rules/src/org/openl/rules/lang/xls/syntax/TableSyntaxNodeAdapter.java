@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -24,12 +24,12 @@ public class TableSyntaxNodeAdapter implements ITable {
     }
 
     public IGridTable getGridTable() {
-        return tsn.getOriginalGridTable();
+        return tsn.getGridTable();
     }
 
     public IGridTable getGridTable(String view) {
         if (view != null) {
-            IGridTable gtx = tsn.getSubTables().get(view);
+            ILogicalTable gtx = tsn.getSubTables().get(view);
             if (gtx != null) {
                 return gtx.getGridTable();
             }

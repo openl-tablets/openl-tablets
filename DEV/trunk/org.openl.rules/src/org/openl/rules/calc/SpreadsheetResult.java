@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 
 /**
@@ -26,7 +26,7 @@ public class SpreadsheetResult implements Serializable {
      * logical representation of calculated spreadsheet table
      * it is needed for web studio to display results
      */
-    private transient IGridTable logicalTable;
+    private transient ILogicalTable logicalTable;
     
     public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames, 
             Map<String, Point> fieldsCoordinates) {
@@ -113,11 +113,11 @@ public class SpreadsheetResult implements Serializable {
      * @return logical representation of calculated spreadsheet table
      * it is needed for web studio to display results
      */
-    public IGridTable getLogicalTable() {
+    public ILogicalTable getLogicalTable() {
         return logicalTable;
     }
 
-    public void setLogicalTable(IGridTable logicalTable) {
+    public void setLogicalTable(ILogicalTable logicalTable) {
         this.logicalTable = logicalTable;
     }
 

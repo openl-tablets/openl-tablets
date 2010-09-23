@@ -74,9 +74,9 @@ public class GridTable extends AGridTable {
     public String toString() { 
         StringBuffer tableVizualization = new StringBuffer();
         tableVizualization.append("G[" + getTop() + "," + getLeft() + "," + getBottom() + "," + getRight() + "]\n");
-        for (int i = 0; i < getGridHeight(); i++) {
+        for (int i = 0; i < getLogicalHeight(); i++) {
             int length = 0;
-            for (int j = 0; j < getGridWidth(); j++) {
+            for (int j = 0; j < getLogicalWidth(); j++) {
                 String strValue = getCell(j, i).getStringValue();
                 if (strValue == null) {
                     strValue = "EMPTY";

@@ -16,8 +16,8 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.OffSetGridTableHelper;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -62,7 +62,7 @@ public class PropertiesLoader {
 
         ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, tableSyntaxNode);
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
-        IGridTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
+        ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
 
         if (propertiesSection != null) {            
             dataNodeBinder.processTable(module,

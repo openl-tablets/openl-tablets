@@ -37,7 +37,7 @@ public class TransposedGridTable extends AGridTableDelegator {
     }
 
     @Override
-    public IGridTable transpose() {
+    public ILogicalTable transpose() {
         return gridTable;
     }
 

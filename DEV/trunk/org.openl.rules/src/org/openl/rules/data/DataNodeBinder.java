@@ -16,8 +16,8 @@ import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.OffSetGridTableHelper;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -59,7 +59,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         return new DataTableBoundNode(tsn, module);
     }
 
-    protected IGridTable getTableBody(TableSyntaxNode tsn) {
+    protected ILogicalTable getTableBody(TableSyntaxNode tsn) {
         return DataTableBindHelper.getTableBody(tsn);
     }
 
@@ -70,7 +70,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             XlsModuleOpenClass module) throws Exception {
 
         DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module);
-        IGridTable table = tableSyntaxNode.getTable();
+        ILogicalTable table = tableSyntaxNode.getTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable());
 
         parsedHeader = Tokenizer.tokenize(source, " \n\r");
@@ -94,7 +94,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
     /**
      * Populate the <code>ITable</code> with data from
-     * <code>IGridTable</code>.
+     * <code>ILogicalTable</code>.
      * 
      * @param xlsOpenClass Open class representing OpenL module.
      * @param tableToProcess Table to be processed.
@@ -111,18 +111,18 @@ public class DataNodeBinder extends AXlsTableBinder {
      */
     public void processTable(XlsModuleOpenClass xlsOpenClass,
             ITable tableToProcess,
-            IGridTable tableBody,
+            ILogicalTable tableBody,
             String tableName,
             IOpenClass tableType,
             IBindingContext bindingContext,
             OpenL openl,
             boolean hasColumnTitleRow) throws Exception {
 
-        IGridTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
-        IGridTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
-        IGridTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTableBody);
+        ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
+        ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
+        ILogicalTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTableBody);
 
-        dataWithTitleRows = OffSetGridTableHelper.offSetTable(dataWithTitleRows, descriptorRows, null);
+        dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows, descriptorRows, null);
 
         ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(tableToProcess,
             tableType,
@@ -151,9 +151,9 @@ public class DataNodeBinder extends AXlsTableBinder {
      */
     private void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
 
-        IGridTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
-        IGridTable horizDataTable = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
-        IGridTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTable);
+        ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
+        ILogicalTable horizDataTable = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
+        ILogicalTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTable);
 
         tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, dataWithTitleRows);
     }
@@ -162,7 +162,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * Default method. It is called during processing OpenL module. If you call
      * this method, you want to process table with cell title row set to
      * <code>TRUE</code>. calls
-     * {@link #processTable(XlsModuleOpenClass, ITable, IGridTable, String, IOpenClass, IBindingContext, OpenL, boolean)}
+     * {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, IBindingContext, OpenL, boolean)}
      * to populate <code>ITable</code> with data. Also adds to
      * <code>TableSyntaxNode</code> sub table for displaying on bussiness view.
      * 
@@ -181,7 +181,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             OpenL openl) throws Exception {
 
         ITable resultTable = xlsOpenClass.getDataBase().addNewTable(tableName, tableSyntaxNode);
-        IGridTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
+        ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
 
         processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, bindingContext, openl, true);
         putSubTableForBussinesView(tableSyntaxNode, tableType);

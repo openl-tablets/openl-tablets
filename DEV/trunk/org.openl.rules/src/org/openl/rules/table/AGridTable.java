@@ -12,19 +12,19 @@ package org.openl.rules.table;
  */
 public abstract class AGridTable implements IGridTable {
 
-    protected IGridTable columnsInternal(int from, int to) {
+    protected ILogicalTable columnsInternal(int from, int to) {
         return new GridTableColumns(this, from, to);
     }
 
     public int findColumnStart(int gridOffset) throws TableException {
-        if (gridOffset < getGridWidth()) {
+        if (gridOffset < getLogicalWidth()) {
             return gridOffset;
         }
         throw new TableException("gridOffset is higher than table's width");
     }
 
     public int findRowStart(int gridOffset) throws TableException {
-        if (gridOffset < getGridHeight()) {
+        if (gridOffset < getLogicalHeight()) {
             return gridOffset;
         }
         throw new TableException("gridOffset is higher than table's height");
@@ -34,25 +34,33 @@ public abstract class AGridTable implements IGridTable {
         return this;
     }
 
-    public IGridTable getColumn(int column) {
+    public ILogicalTable getLogicalColumn(int column) {
         return columns(column, column);
     }
 
-    public int getColumnGridWidth(int column) {
+    public int getLogicalColumnGridWidth(int column) {
         return 1;
     }
 
-    protected IGridTable getRegionInternal(int column, int row, int width, int height) {
+    public int getLogicalHeight() {
+        return getGridHeight();
+    }
+
+    protected ILogicalTable getLogicalRegionInternal(int column, int row, int width, int height) {
         return new GridTableRegion(this, column, row, width, height);
     }
 
-    public IGridTable getRow(int row) {
+    public ILogicalTable getLogicalRow(int row) {
         return rows(row, row);
     }
 
-    public int getRowGridHeight(int row) {
+    public int getLogicalRowGridHeight(int row) {
         return 1;
     }
+
+    public int getLogicalWidth() {
+        return getGridWidth();
+    }    
 
     public IGridRegion getRegion() {
         int left = getGridColumn(0, 0);
@@ -89,11 +97,11 @@ public abstract class AGridTable implements IGridTable {
         return getGrid().isPartOfTheMergedRegion(getGridColumn(column, row), getGridRow(column, row));
     }
 
-    protected IGridTable rowsInternal(int from, int to) {
+    protected ILogicalTable rowsInternal(int from, int to) {
         return new GridTableRows(this, from, to);
     }
 
-    public IGridTable transpose() {
+    public ILogicalTable transpose() {
         return new TransposedGridTable(this);
     }
 
@@ -106,9 +114,9 @@ public abstract class AGridTable implements IGridTable {
         StringBuffer tableVizualization = new StringBuffer();
         tableVizualization.append(super.toString() + (isNormalOrientation() ? "N" : "T")
                 +  getRegion().toString() +"\n");
-        for (int i = 0; i < getGridHeight(); i++) {
+        for (int i = 0; i < getLogicalHeight(); i++) {
             int length = 0;
-            for (int j = 0; j < getGridWidth(); j++) {
+            for (int j = 0; j < getLogicalWidth(); j++) {
                 String strValue = getCell(j, i).getStringValue();
                 if (strValue == null) {
                     strValue = "EMPTY";
@@ -127,36 +135,36 @@ public abstract class AGridTable implements IGridTable {
         return  tableVizualization.toString();
     }
     
-    public IGridTable columns(int from) {
-        return columns(from, getGridWidth() - 1);
+    public ILogicalTable columns(int from) {
+        return columns(from, getLogicalWidth() - 1);
     }
 
-    public IGridTable columns(int from, int to) {
-        if (getGridWidth() == to - from + 1) {
+    public ILogicalTable columns(int from, int to) {
+        if (getLogicalWidth() == to - from + 1) {
             return this;
         }
 
         return columnsInternal(from, to);
     }    
 
-    public IGridTable getRegion(int column, int row, int width, int height) {
-        if (column == 0 && width == getGridWidth()) {
+    public ILogicalTable getLogicalRegion(int column, int row, int width, int height) {
+        if (column == 0 && width == getLogicalWidth()) {
             return rows(row, row + height - 1);
         }
 
-        if (row == 0 && height == getGridHeight()) {
+        if (row == 0 && height == getLogicalHeight()) {
             return columns(column, column + width - 1);
         }
 
-        return getRegionInternal(column, row, width, height);
+        return getLogicalRegionInternal(column, row, width, height);
     }
     
-    public IGridTable rows(int from) {
-        return rows(from, getGridHeight() - 1);
+    public ILogicalTable rows(int from) {
+        return rows(from, getLogicalHeight() - 1);
     }
 
-    public IGridTable rows(int from, int to) {
-        if (getGridHeight() == to - from + 1) {
+    public ILogicalTable rows(int from, int to) {
+        if (getLogicalHeight() == to - from + 1) {
             return this;
         }
 

@@ -13,7 +13,7 @@ package org.openl.rules.table;
  * Table based on Grid coordinates
  *
  */
-public interface IGridTable extends IGridTableOperations {
+public interface IGridTable extends ILogicalTable {
 
     boolean ORIENTATION_NORMAL = true;
     boolean ORIENTATION_TRANSPOSED = false;
@@ -22,9 +22,13 @@ public interface IGridTable extends IGridTableOperations {
 
     IGrid getGrid();
 
-    int getGridColumn(int column, int row);    
+    int getGridColumn(int column, int row);
+
+    int getGridHeight();
 
     int getGridRow(int column, int row);
+
+    int getGridWidth();
 
     IGridRegion getRegion();
 
@@ -35,14 +39,5 @@ public interface IGridTable extends IGridTableOperations {
     boolean isNormalOrientation();
 
     public boolean isPartOfTheMergedRegion(int column, int row);
-    
-    int getGridHeight();
-    
-    int getGridWidth();
-    
-    /**
-     * @return underlying grid table
-     */
-    IGridTable getGridTable();
 
 }

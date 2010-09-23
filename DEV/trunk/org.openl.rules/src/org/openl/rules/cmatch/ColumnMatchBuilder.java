@@ -11,8 +11,8 @@ import org.openl.rules.cmatch.algorithm.IMatchAlgorithmCompiler;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.OffSetGridTableHelper;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -31,8 +31,8 @@ public class ColumnMatchBuilder {
         this.tsn = tsn;
     }
 
-    public void build(IGridTable tableBody) throws Exception {
-        if (tableBody.getGridHeight() < 4) {
+    public void build(ILogicalTable tableBody) throws Exception {
+        if (tableBody.getLogicalHeight() < 4) {
             throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. At least 4 are expected!", null, tsn);
         }
 
@@ -55,10 +55,10 @@ public class ColumnMatchBuilder {
         algorithm.compile(bindingContext, columnMatch);
     }
 
-    private List<TableRow> buildRows(IGridTable tableBody) throws SyntaxNodeException {
-        IGridTable leftRows = tableBody.getColumn(0).rows(2);
+    private List<TableRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
+        ILogicalTable leftRows = tableBody.getLogicalColumn(0).rows(2);
 
-        int dataRowsCount = leftRows.getGridHeight();
+        int dataRowsCount = leftRows.getLogicalHeight();
 
         // init rows
         List<TableRow> rows = new ArrayList<TableRow>(dataRowsCount);
@@ -68,25 +68,25 @@ public class ColumnMatchBuilder {
 
         // fill all rows (per column)
         for (TableColumn column : columns) {
-            IGridTable colTable = tableBody.getRegion(column.getColumnIndex(), 2, 1, 1);
+            ILogicalTable colTable = tableBody.getLogicalRegion(column.getColumnIndex(), 2, 1, 1);
 
-            IGridTable data;
+            ILogicalTable data;
             if (column.getColumnIndex() == 0) {
-                if (colTable.getGridWidth() != 1) {
+                if (colTable.getLogicalWidth() != 1) {
                     throw SyntaxNodeExceptionUtils.createError("First column must have width=1!", null, tsn);
                 }
 
                 data = leftRows.rows(1);
             } else {
-                data = OffSetGridTableHelper.mergeBounds(leftRows, colTable);
+                data = LogicalTableHelper.mergeBounds(leftRows, colTable);
             }
 
             // fill rows of particular column
             // fills from 1th till last (0-th will be filled below)
-            int subColumns = data.getGridWidth();
+            int subColumns = data.getLogicalWidth();
             IGridTable grid = data.getGridTable();
 
-            for (int r = 0; r < data.getGridHeight(); r++) {
+            for (int r = 0; r < data.getLogicalHeight(); r++) {
                 SubValue[] values = createSV(column, grid, r, subColumns);
                 rows.get(r + 1).add(column.getId(), values);
             }
@@ -116,22 +116,22 @@ public class ColumnMatchBuilder {
             String cellName = "cell" + r + "_" + column.getColumnIndex() + "_" + c;
             StringValue sv = new StringValue(value, cellName, cellName, new GridCellSourceCodeModule(grid, c, r));
             values[c] = new SubValue(sv, grid.getCell(c, r).getStyle());
-            IGridTable lr = grid.getRegion(c, r, 1, 1);
+            ILogicalTable lr = grid.getLogicalRegion(c, r, 1, 1);
             values[c].setGridRegion(lr.getGridTable().getRegion());
         }
 
         return values;
     }    
     
-    private void prepareColumns(IGridTable tableBody) throws SyntaxNodeException {
+    private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new ArrayList<TableColumn>();
         Set<String> addedIds = new HashSet<String>();
 
-        IGridTable ids = tableBody.getRow(0);
+        ILogicalTable ids = tableBody.getLogicalRow(0);
 
         // parse ids, row=0
-        for (int c = 0; c < ids.getGridWidth(); c++) {
-            String id = safeId(ids.getColumn(c).getGridTable().getCell(0, 0).getStringValue());
+        for (int c = 0; c < ids.getLogicalWidth(); c++) {
+            String id = safeId(ids.getLogicalColumn(c).getGridTable().getCell(0, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

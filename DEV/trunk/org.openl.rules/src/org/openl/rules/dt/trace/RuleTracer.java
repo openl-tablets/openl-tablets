@@ -7,7 +7,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 
 public class RuleTracer extends ATableTracerLeaf {
 
@@ -31,7 +31,7 @@ public class RuleTracer extends ATableTracerLeaf {
         return decisionTableTraceObject;
     }
 
-    public IGridTable getRuleTable() {
+    public ILogicalTable getRuleTable() {
         return decisionTableTraceObject.getDecisionTable().getRuleByIndex(ruleIndex);
     }
 
@@ -56,7 +56,7 @@ public class RuleTracer extends ATableTracerLeaf {
     public List<IGridRegion> getGridRegions() {
         
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        IGridTable ruleTable = getRuleTable();
+        ILogicalTable ruleTable = getRuleTable();
       
         ICell cell = null;
         for (int row = 0; row < ruleTable.getGridTable().getGridHeight(); row += cell.getHeight()) {
