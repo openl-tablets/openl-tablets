@@ -38,7 +38,7 @@ public class ModuleOpenClass extends ADynamicClass {
     public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
         super(schema, name, DynamicObject.class);
         this.openl = openl;
-        init = new DefaultInitializer();
+        this.init = new DefaultInitializer();
         addField(new ThisField());
         addMethod(new GetOpenClass());
     }    

@@ -11,7 +11,6 @@ public class SyntaxNodeException extends OpenLCompilationException {
 
     private ISyntaxNode syntaxNode;
     private ISyntaxNode topLevelSyntaxNode;
-//    private String phase;
 
     public SyntaxNodeException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
         super(message, cause, location, source);

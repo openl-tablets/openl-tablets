@@ -61,7 +61,6 @@ public class OpenL {
      * @throws OpenConfigurationException
      */
     public static OpenL getInstance(String name) throws OpenConfigurationException {
-
         return getInstance(name, config.getClassLoader());
     }
 
@@ -102,13 +101,10 @@ public class OpenL {
             throws OpenConfigurationException {
 
         Object key = CacheUtils.makeKey(name, userContext);
-
         OpenL openl = openlCache.get(key);
 
         if (openl == null) {
-
             IOpenLBuilder builder = config.getBuilder(name, userContext);
-
             openl = createInstance(name, userContext, builder);
 
             openlCache.put(key, openl);
@@ -133,11 +129,9 @@ public class OpenL {
     public static OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
 
         Object key = CacheUtils.makeKey(name, userContext);
-
         OpenL openl = openlCache.get(key);
 
         if (openl == null) {
-
             openl = createInstance(name, userContext, builder);
 
             openlCache.put(key, openl);
@@ -156,7 +150,6 @@ public class OpenL {
      * @return new instance of OpenL
      */
     private static OpenL createInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
-
         OpenL openl = builder.build(name);
         openl.setName(name);
 
@@ -171,7 +164,6 @@ public class OpenL {
      * @throws OpenConfigurationException
      */
     public static synchronized OpenL remove(String name) throws OpenConfigurationException {
-
         return remove(name, config.getClassLoader());
     }
 
@@ -188,7 +180,6 @@ public class OpenL {
      * @see IUserContext
      */
     public static synchronized OpenL remove(String name, ClassLoader classLoader) throws OpenConfigurationException {
-
         return remove(name, new UserContext(classLoader, DEFAULT_USER_HOME));
     }
 
@@ -205,7 +196,6 @@ public class OpenL {
     public static synchronized OpenL remove(String name, IUserContext userContext) {
 
         Object key = CacheUtils.makeKey(name, userContext);
-
         OpenL openl = openlCache.get(key);
 
         if (openl == null) {

@@ -29,8 +29,6 @@ public interface IBindingContext extends ICastFactory {
 
 	void addError(SyntaxNodeException error);
 
-	// public void addAllErrors(Vector errors);
-
 	ILocalVar addParameter(String namespace, String name, IOpenClass type)
 			throws DuplicatedVarException;
 
@@ -57,6 +55,12 @@ public interface IBindingContext extends ICastFactory {
 	 *             if an error occurs
 	 */
 	void removeType(String namespace, IOpenClass type) throws Exception;
+
+//	NOTE: A temporary implementation of multi-module feature.
+/*
+ void addImport(IOpenClass type);
+ Collection<IOpenClass> getImports();
+*/	
 
 	ILocalVar addVar(String namespace, String name, IOpenClass type)
 			throws DuplicatedVarException;

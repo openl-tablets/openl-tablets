@@ -32,7 +32,6 @@ import org.openl.conf.IExecutable;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -40,7 +39,6 @@ import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
-import org.openl.rules.datatype.binding.DatatypeNodeLevelComparator;
 import org.openl.rules.dt.DecisionTableNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
@@ -169,11 +167,35 @@ public class XlsBinder implements IOpenBinder {
         IBindingContext bindingContext = openlBinder.makeBindingContext();
         bindingContext = BindHelper.delegateContext(bindingContext, bindingContextDelegator);
 
+        //NOTE: A temporary implementation of multi-module feature.
+/*
+        List<String> modulesToImport = moduleNode.getImportedModules();
+        
+        if (CollectionUtils.isNotEmpty(modulesToImport)) {
+            loadModules(modulesToImport, bindingContext);
+        }
+*/        
         IBoundNode topNode = bind(moduleNode, openl, bindingContext);
 
         return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
     }
 
+//    NOTE: A temporary implementation of multi-module feature.
+/*    
+    private void loadModules(List<String> modules, IBindingContext bindingContext) {
+        
+        for (String modulePath : modules) {
+            ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(modulePath);
+            CompiledOpenClass compiledOpenClass = factory.getCompiledOpenClass();
+            
+            if (compiledOpenClass.hasErrors()) {
+                System.out.println("SNAG at work");
+            } else {
+                bindingContext.addImport(compiledOpenClass.getOpenClass());
+            }
+        }
+    }
+  */  
     /*
      * (non-Javadoc)
      * 
@@ -206,6 +228,11 @@ public class XlsBinder implements IOpenBinder {
 
         bindPropertiesForAllTables(moduleNode, module, openl, moduleContext);
         
+        // Import types, fields, methods from imported module class.
+        //
+        // NOTE: A temporary implementation of multi-module feature.  
+        // bindImports(moduleNode, module, bindingContext.getImports());
+        
         // Bind datatype nodes.
         //
         ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_DATATYPE, new SyntaxNodeConvertor());
@@ -229,7 +256,50 @@ public class XlsBinder implements IOpenBinder {
 
         return topNode;
     }
+
+// NOTE: A temporary implementation of multi-module feature.    
+/*
+    private void bindImports(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, Collection<IOpenClass> imports) {
+
+        for (IOpenClass moduleToImport : imports) {
+            bindModuleImport(moduleNode, module, moduleToImport);
+        }
+    }
     
+    private void bindModuleImport(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, IOpenClass moduleToImport) {
+        
+        Map<String, IOpenClass> types =  moduleToImport.getTypes();
+        
+        if (types != null) {
+            for (String name : types.keySet()) {
+                try {
+                    module.addType(name, types.get(name));
+                } catch (Exception e) {
+                    BindHelper.processError(String.format("Cannot import type '%s'", name), null);                
+                }
+            }
+        }
+        
+        Map<String, IOpenField> fields = moduleToImport.getFields();
+        
+//        if (fields != null) {
+//            for (String name : fields.keySet()) {
+//                try {
+//                    module.addField(fields.get(name));
+//                } catch (Exception e) {
+//                    BindHelper.processError(String.format("Cannot import field '%s'", name), null);                
+//                }
+//            }
+//        }
+        
+        List<IOpenMethod> methods = moduleToImport.getMethods();
+        
+        for (IOpenMethod method: methods) {
+            module.addMethod(method);
+        }
+        
+    }
+*/
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext){
         ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
                 ITableNodeTypes.XLS_PROPERTIES, new SyntaxNodeConvertor());

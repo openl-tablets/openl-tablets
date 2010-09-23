@@ -59,7 +59,7 @@ import org.openl.util.StringTool;
  * 
  */
 public class XlsLoader {
-    
+
     private static Log LOG = LogFactory.getLog(XlsLoader.class);
 
     private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, ITableNodeTypes.XLS_DT },
@@ -93,6 +93,8 @@ public class XlsLoader {
     }
 
     private List<String> imports = new ArrayList<String>();
+//  NOTE: A temporary implementation of multi-module feature.    
+//    private List<String> modules = new ArrayList<String>();
 
     private String searchPath;
 
@@ -113,33 +115,27 @@ public class XlsLoader {
     private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
 
     public XlsLoader(IConfigurableResourceContext ucxt, String searchPath) {
-
         this.ucxt = ucxt;
         this.searchPath = searchPath;
     }
 
     public static Map<String, String> getTableHeaders() {
-
         return tableHeaders;
     }
 
     public void addError(SyntaxNodeException error) {
-
         errors.add(error);
     }
 
     public void addNode(ISyntaxNode node) {
-
         nodesList.add(node);
     }
 
     public void addExtensionNode(IdentifierNode node) {
-
         extensionNodes.add(node);
     }
 
     public Set<String> getPreprocessedWorkBooks() {
-
         return preprocessedWorkBooks;
     }
 
@@ -203,11 +199,20 @@ public class XlsLoader {
             vocabulary,
             imports,
             extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
+
+// NOTE: A temporary implementation of multi-module feature.        
+//        return new ParsedCode(new XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]),
+//            source,
+//            openl,
+//            vocabulary,
+//            imports,
+//            extensionNodes,
+//            modules), source, errors.toArray(new SyntaxNodeException[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
 
-        IGridTable table = tableSyntaxNode.getGridTable();
+        IGridTable table = tableSyntaxNode.getTable().getGridTable();
         ILogicalTable logicalTable = LogicalTableHelper.logicalTable(table);
 
         int height = logicalTable.getLogicalHeight();
@@ -223,9 +228,19 @@ public class XlsLoader {
                 preprocessIncludeTable(tableSyntaxNode, row.getGridTable(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
                 preprocessImportTable(row.getGridTable(), source);
+
+// NOTE: A temporary implementation of multi-module feature.
+//            } else if (IXlsTableNames.IMPORT_MODULE.equals(name)) {
+//                preprocessModuleImportTable(row.getGridTable(), source);
             } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getGridTable(), source);
-            } else if (name == null || StringUtils.isEmpty(name) || DecisionTableHelper.isValidCommentHeader(name)) {
+            } else if (StringUtils.isBlank(name) || DecisionTableHelper.isValidCommentHeader(name)) { // TODO:
+                // DecisionTableHelper
+                // rename
+                // or
+                // extract
+                // common
+                // methods
                 ;// ignore comment
             } else {
                 // TODO: why do we consider everything else an extension?
@@ -233,37 +248,91 @@ public class XlsLoader {
 
                 if (loader != null) {
                     loader.process(this, tableSyntaxNode, table, source);
+                } else {
+                    LOG.warn(String.format("Doesn't find extension loader for '%s'", name));
                 }
             }
         }
 
     }
-
-    private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
+//  NOTE: A temporary implementation of multi-module feature.
+/*    
+    private void preprocessModuleImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
         int height = table.getLogicalHeight();
-//        List<String> importsList = new ArrayList<String>();
 
         for (int i = 0; i < height; i++) {
-            String singleImport = table.getCell(1, i).getStringValue();   
+            String singleImport = table.getCell(1, i).getStringValue();
             if (StringUtils.isNotBlank(singleImport)) {
                 singleImport = singleImport.trim();
-            }            
+
+                String path = null;
+                
+                findInclude(singleImport);
+
+                URL url = ucxt.findClassPathResource(singleImport);
+                if (url != null) {
+                    path = url.getPath();
+                }
+                
+                if (path == null) {
+                    File f = ucxt.findFileSystemResource(singleImport);
+                    
+                    if (f != null) {
+                        path = f.getAbsolutePath();
+                    }
+                } 
+                
+                if (path == null) {
+                    File file = new File(singleImport);
+                    if (file.exists()) {
+                        path = file.getAbsolutePath();
+                    }
+                }
+
+                if (path == null) {
+                    URL fileUrl;
+                    try {
+                        fileUrl = new URL(PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), singleImport));
+                        File file = new File(fileUrl.getPath());
+                        if (file.exists()) {
+                            path = file.getAbsolutePath();
+                        }
+                    } catch (MalformedURLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                if (path != null && !modules.contains(path)) {
+                    modules.add(path);
+                }
+            }
+        }
+    }
+*/
+    private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
+        int height = table.getLogicalHeight();
+        // List<String> importsList = new ArrayList<String>();
+
+        for (int i = 0; i < height; i++) {
+            String singleImport = table.getCell(1, i).getStringValue();
+            if (StringUtils.isNotBlank(singleImport)) {
+                singleImport = singleImport.trim();
+            }
             if (StringUtils.isNotEmpty(singleImport)) {
                 addImport(singleImport);
             }
         }
-        
+
         addInnerImports();
     }
-    
-    
-    private void addImport(String singleImport)
-    {
+
+    private void addImport(String singleImport) {
         if (!imports.contains(singleImport))
             imports.add(singleImport);
-        
+
     }
-    
+
     private void addInnerImports() {
         addImport("org.openl.rules.enumeration");
     }
@@ -278,66 +347,45 @@ public class XlsLoader {
 
             String include = table.getCell(1, i).getStringValue();
 
-            if (include == null) {
-                continue;
-            }
+            if (StringUtils.isNotBlank(include)) {
+                include = include.trim();
+                IOpenSourceCodeModule src = null;
 
-            include = include.trim();
+                if (include.startsWith("<")) {
+                    src = findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
 
-            if (include.length() == 0) {
-                continue;
-            }
-
-            IOpenSourceCodeModule src = null;
-
-            if (include.startsWith("<")) {
-
-                src = findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
-
-                if (src == null) {
-
-                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
-                        null,
-                        null,
-                        new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
-
-                    addError(se);
-                    tableSyntaxNode.addError(se);
-
-                    OpenLMessagesUtils.addError(se.getMessage());
-
-                    continue;
+                    if (src == null) {
+                        registerError(tableSyntaxNode, table, i, include, null);
+                        continue;
+                    }
+                } else {
+                    try {
+                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
+                        src = new URLSourceCodeModule(new URL(newURL));
+                    } catch (Throwable t) {
+                        registerError(tableSyntaxNode, table, i, include, t);
+                        continue;
+                    }
                 }
-            } else {
 
                 try {
-                    String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
-                    src = new URLSourceCodeModule(new URL(newURL));
+                    preprocessWorkbook(src);
                 } catch (Throwable t) {
-                    SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
-                        t,
-                        null,
-                        new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
-                    addError(se);
-                    tableSyntaxNode.addError(se);
-                    OpenLMessagesUtils.addError(se.getMessage());
+                    registerError(tableSyntaxNode, table, i, include, t);
                     continue;
                 }
             }
-
-            try {
-                preprocessWorkbook(src);
-            } catch (Throwable t) {
-                SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
-                    t,
-                    null,
-                    new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
-                addError(se);
-                tableSyntaxNode.addError(se);
-                OpenLMessagesUtils.addError(se.getMessage());
-                continue;
-            }
         }
+    }
+
+    private void registerError(TableSyntaxNode tableSyntaxNode, IGridTable table, int i, String include, Throwable t) {
+        SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
+            t,
+            null,
+            new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
+        addError(se);
+        tableSyntaxNode.addError(se);
+        OpenLMessagesUtils.addError(se.getMessage());
     }
 
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
@@ -360,8 +408,8 @@ public class XlsLoader {
 
         if (xls_type == null) {
             xls_type = ITableNodeTypes.XLS_OTHER;
-        }        
-        
+        }
+
         TableSyntaxNode tsn = new TableSyntaxNode(xls_type, new GridLocation(table), source, table, headerNode);
 
         if (header.equals(IXlsTableNames.ENVIRONMENT_TABLE)) {
@@ -426,7 +474,7 @@ public class XlsLoader {
 
             return workbookNode;
         } catch (Exception e) {
-            LOG.error("Error while preprocessing workbook", e);            
+            LOG.error("Error while preprocessing workbook", e);
             OpenLMessagesUtils.addError(e);
             throw RuntimeExceptionWrapper.wrap(e);
         } finally {

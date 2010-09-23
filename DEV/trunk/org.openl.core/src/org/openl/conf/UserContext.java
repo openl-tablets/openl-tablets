@@ -107,7 +107,7 @@ public class UserContext extends AUserContext {
         if (ucl instanceof URLClassLoader) {
             URL[] urls = ((URLClassLoader) ucl).getURLs();
             StringBuilder sb = new StringBuilder();
-            sb.append("ClassLoadr URLs: ");
+            sb.append("ClassLoader URLs: ");
             for (URL url : urls) {
                 sb.append(url.toExternalForm());
                 sb.append(',');

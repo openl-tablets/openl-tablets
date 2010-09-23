@@ -10,78 +10,74 @@ import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
-// import org.openl.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author snshor
- *
+ * 
  */
 
 public class ConfigurableResourceContext implements IConfigurableResourceContext {
-    static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
-    IOpenLConfiguration conf;
+    private static final Log LOG = LogFactory.getLog(ConfigurableResourceContext.class);
 
-    ClassLoader classLoader = null;
+    private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
-    String[] fileSystemRoots = null;
+    private IOpenLConfiguration config;
+    private ClassLoader classLoader;
+    private String[] fileSystemRoots;
+    private Properties properties;
 
-    Properties properties = null;
-
-    public ConfigurableResourceContext(ClassLoader cl, IOpenLConfiguration conf) {
-        this(cl, DEFAULT_FILESYSTEM_ROOTS, conf);
-
+    public ConfigurableResourceContext(ClassLoader classLoader, IOpenLConfiguration config) {
+        this(classLoader, DEFAULT_FILESYSTEM_ROOTS, config);
     }
 
-    public ConfigurableResourceContext(ClassLoader cl, String[] fileSystemRoots) {
-        this(cl, fileSystemRoots, null);
+    public ConfigurableResourceContext(ClassLoader classLoader, String[] fileSystemRoots) {
+        this(classLoader, fileSystemRoots, null);
     }
 
-    public ConfigurableResourceContext(ClassLoader cl, String[] fileSystemRoots, IOpenLConfiguration conf) {
-        classLoader = cl;
+    public ConfigurableResourceContext(ClassLoader classLoader, String[] fileSystemRoots, IOpenLConfiguration config) {
+        this.classLoader = classLoader;
         this.fileSystemRoots = fileSystemRoots;
-        this.conf = conf;
+        this.config = config;
     }
 
-    public ConfigurableResourceContext(IOpenLConfiguration conf) {
-        this(Thread.currentThread().getContextClassLoader(), DEFAULT_FILESYSTEM_ROOTS, conf);
+    public ConfigurableResourceContext(IOpenLConfiguration config) {
+        this(Thread.currentThread().getContextClassLoader(), DEFAULT_FILESYSTEM_ROOTS, config);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IConfigurableResourceContext#findClass(java.lang.String)
-     */
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
     public Class<?> findClass(String className) {
         try {
             return getClassLoader().loadClass(className);
         } catch (Throwable t) {
-            // Log.debug("", t);
+            LOG.debug(String.format("Cannot load class '%s'", className), t);
             return null;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IConfigurableResourceContext#findURLResource(java.lang.String)
-     */
     public URL findClassPathResource(String url) {
         return getClassLoader().getResource(url);
     }
 
     public File findFileSystemResource(String url) {
-        File f = new File(url);
+        File file = new File(url);
 
-        if (f.isAbsolute()) {
-            if (f.exists()) {
-                return f;
-            }
+        if (file.isAbsolute() && file.exists()) {
+            return file;
         } else {
             for (int i = 0; i < fileSystemRoots.length; i++) {
-                f = new File(fileSystemRoots[i], url);
-                if (f.exists()) {
-                    return f;
+                file = new File(fileSystemRoots[i], url);
+                if (file.exists()) {
+                    return file;
                 }
             }
         }
@@ -91,11 +87,19 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String)
+     * 
+     * @see
+     * org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String
+     * )
      */
     public String findProperty(String propertyName) {
-        String property = properties == null ? null : properties.getProperty(propertyName);
+
+        String property = null;
+        
+        if (properties != null) {
+            property = properties.getProperty(propertyName);
+        }
+        
         if (property != null) {
             return property;
         }
@@ -104,33 +108,21 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     }
 
     public ClassLoader getClassLoader() {
+        
         if (classLoader == null) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
+        
         return classLoader;
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.conf.IConfigurableResourceContext#getConfiguration()
      */
     public IOpenLConfiguration getConfiguration() {
-        return conf;
-    }
-
-    /**
-     * @return
-     */
-    public Properties getProperties() {
-        return properties;
-    }
-
-    /**
-     * @param properties
-     */
-    public void setProperties(Properties properties) {
-        this.properties = properties;
+        return config;
     }
 
 }
