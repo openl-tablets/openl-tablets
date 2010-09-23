@@ -12,7 +12,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -35,11 +35,11 @@ public class ObjectViewer {
     }
 
     public static Object displaySpreadsheetResult(final SpreadsheetResult res) {
-        IGridTable table = res.getLogicalTable();
+        ILogicalTable table = res.getLogicalTable();
         IGridTable gt = table.getGridTable();
 
-        final int firstRowHeight = table.getRow(0).getGridTable().getGridHeight();
-        final int firstColWidth = table.getColumn(0).getGridTable().getGridWidth();
+        final int firstRowHeight = table.getLogicalRow(0).getGridTable().getGridHeight();
+        final int firstColWidth = table.getLogicalColumn(0).getGridTable().getGridWidth();
 
         TableValueFilter.Model model = new TableValueFilter.Model() {
 

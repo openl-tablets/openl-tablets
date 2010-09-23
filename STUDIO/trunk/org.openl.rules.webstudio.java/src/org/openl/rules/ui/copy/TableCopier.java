@@ -10,7 +10,7 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -103,7 +103,7 @@ public abstract class TableCopier extends WizardBase {
             logicBaseTableStartRow += baseTablePhysicalProperties == null ? 0 : baseTablePhysicalProperties.size();
         }
 
-        IGridTable gridTable = originalTable.getRegion(0, logicBaseTableStartRow, originalTable.getGridWidth(),
+        IGridTable gridTable = originalTable.getLogicalRegion(0, logicBaseTableStartRow, originalTable.getGridWidth(),
                 originalTable.getGridHeight() - logicBaseTableStartRow).getGridTable();
 
         // calculate new table size
@@ -274,7 +274,7 @@ public abstract class TableCopier extends WizardBase {
      */
     protected ICellStyle getPropertiesStyle(ITableProperties tableProperties) {
         ICellStyle propertiesStyle = null;
-        IGridTable propertiesSection = tableProperties.getPropertiesSection();
+        ILogicalTable propertiesSection = tableProperties.getPropertiesSection();
         if (propertiesSection != null) {
             IGridTable propertiesTable = propertiesSection.getGridTable();
             propertiesStyle = propertiesTable.getCell(0, 0).getStyle();

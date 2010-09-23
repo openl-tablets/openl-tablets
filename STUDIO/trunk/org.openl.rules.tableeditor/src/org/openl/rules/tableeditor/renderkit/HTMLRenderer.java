@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
@@ -613,7 +613,7 @@ public class HTMLRenderer {
 
         private String getProprtiesTablePageUrl(TableProperty prop, String mode) {
             String url = null;
-            IGridTable propertiesTable = null;
+            ILogicalTable propertiesTable = null;
             if (prop.isModuleLevelProperty()) {
                 propertiesTable = props.getModulePropertiesTable();
             } else if (prop.isCategoryLevelProperty()) {
