@@ -12,6 +12,7 @@ import java.util.Map;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.EngineFactoryDefinition;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
@@ -62,7 +63,7 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     public RuleEngineFactory(String userHome, String sourceFile, Class<T> engineInterface) {
         super(RULE_OPENL_NAME, userHome, sourceFile, engineInterface);
     }
-
+    
     /**
      * 
      * @param url Url to rule file
@@ -70,6 +71,10 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
      */
     public RuleEngineFactory(URL url, Class<T> engineInterface) {
         super(RULE_OPENL_NAME, url, engineInterface);
+    }
+
+    public RuleEngineFactory(IOpenSourceCodeModule source, Class<T> engineInterface) {
+        super(RULE_OPENL_NAME, source, engineInterface);
     }
 
     @Override

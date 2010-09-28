@@ -22,31 +22,27 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class FileSourceCodeModule extends ASourceCodeModule {
 
-    File file;
-    String externalUri;
-
-    /**
-     *
-     */
-    public FileSourceCodeModule(File file, String uri) {
-        this.file = file;
-        externalUri = uri;
-    }
+    private File file;
+    private String externalUri;
 
     public FileSourceCodeModule(String fileName, String uri) {
         this(new File(fileName), uri);
+    }
+
+    public FileSourceCodeModule(File file, String uri) {
+        this.file = file;
+        this.externalUri = uri;
     }
 
     public FileSourceCodeModule(String fileName, String uri, int tabSize) {
         this(new File(fileName), uri);
         this.tabSize = tabSize;
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getByteStream()
-     */
+    
+    public File getFile() {
+        return file;
+    }
+    
     public InputStream getByteStream() {
         try {
             return new FileInputStream(file);
@@ -55,21 +51,12 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getCharacterStream()
-     */
     public Reader getCharacterStream() {
         try {
             return new FileReader(file);
         } catch (FileNotFoundException e) {
             throw RuntimeExceptionWrapper.wrap("", e);
         }
-    }
-
-    public File getFile() {
-        return file;
     }
 
     /**
@@ -89,11 +76,10 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
-
     }
 
     @Override
-    public String makeUri() {
+    protected String makeUri() {
         try {
             return externalUri != null ? externalUri : file.getCanonicalFile().toURL().toExternalForm();
         } catch (Exception e) {

@@ -9,41 +9,44 @@ package org.openl.source.impl;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
-    IOpenSourceCodeModule[] modules;
-    int[] len;
 
+    private IOpenSourceCodeModule[] modules;
     private String source;
+    
+    private int[] modulesCount;
+    private Map<String, Object> params;
 
     public CompositeSourceCodeModule(IOpenSourceCodeModule[] modules, String separator) {
         this.modules = modules;
-        len = new int[modules.length];
+        this.modulesCount = new int[modules.length];
+
         makeCode(separator);
     }
-    
-    
-    private void makeCode(String separator)
-    {
+
+    private void makeCode(String separator) {
         StringBuffer buf = new StringBuffer(100);
+    
         for (int i = 0; i < modules.length; i++) {
             if (modules[i] == null) {
                 continue;
             }
+    
             String code = modules[i].getCode();
-            len[i] = code.length() + separator.length();
+            modulesCount[i] = code.length() + separator.length();
             buf.append(code);
             buf.append(separator);
         }
 
         source = buf.toString();
-        
     }
 
     public InputStream getByteStream() {
@@ -70,16 +73,26 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         int relPos = textpos;
         int sum = 0;
         int pos = -1;
-        for (int i = 0; i < len.length; i++) {
-            if (sum + len[i] > textpos) {
+
+        for (int i = 0; i < modulesCount.length; i++) {
+            if (sum + modulesCount[i] > textpos) {
                 pos = i;
                 relPos = textpos - sum;
                 break;
             }
-            sum += len[i];
+            sum += modulesCount[i];
         }
 
         return pos < 0 ? null : modules[pos].getUri(relPos);
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+
+    
 }

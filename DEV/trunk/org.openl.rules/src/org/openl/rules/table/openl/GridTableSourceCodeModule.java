@@ -8,6 +8,7 @@ package org.openl.rules.table.openl;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Map;
 
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -19,6 +20,8 @@ import org.openl.source.IOpenSourceCodeModule;
 public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 
     IGridTable table;
+    
+    private Map<String, Object> params;
 
     public GridTableSourceCodeModule(IGridTable table) {
         this.table = table;
@@ -57,4 +60,12 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
         return table.getUri();
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+    
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -75,10 +76,12 @@ public class JavaWrapperGenerator {
     
     private void initImports() {
         defaultImports = new ArrayList<String>();
+        defaultImports.add("java.util.Map");
         defaultImports.add("org.openl.types.IOpenClass");
         defaultImports.add("org.openl.conf.IUserContext");
         defaultImports.add("org.openl.conf.UserContext");
         defaultImports.add("org.openl.impl.OpenClassJavaWrapper");
+        defaultImports.add("org.openl.source.impl.FileSourceCodeModule");
         
         methodImports = new ArrayList<String>();
         methodImports.add("org.openl.util.Log");
@@ -228,6 +231,8 @@ public class JavaWrapperGenerator {
 
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldDeclaration(CompiledOpenClass.class.getName(), "__compiledClass"));
 
+        buf.append("  private static Map<String, Object> __externalParams;\n");
+
         String initializationValue = String.format("\"%s\"", StringEscapeUtils.escapeJava(openlName));
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__openlName", 
             initializationValue));
@@ -267,11 +272,22 @@ public class JavaWrapperGenerator {
     }
     
     private void addConstructorWithParameter(StringBuffer buf) {
-        buf.append("  public ").append(s_class).append("(){\n").append("    this(false);\n").append("  }\n\n");
+        buf.append("  public ")
+            .append(s_class)
+            .append("(){\n")
+            .append("    this(false, null);\n")
+            .append("  }\n\n");
+        
+        buf.append("  public ")
+            .append(s_class)
+            .append("(Map<String, Object> params){\n")
+            .append("    this(false, params);\n")
+            .append("  }\n\n");
 
         buf.append("  public ")
             .append(s_class)
-            .append("(boolean ignoreErrors){\n")
+            .append("(boolean ignoreErrors, Map<String, Object> params){\n")
+            .append("    __externalParams = params;\n")
             .append("    __init();\n")
             .append("    if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();\n")
             .append("    __instance = __class.newInstance(__env.get());\n")
@@ -353,9 +369,15 @@ public class JavaWrapperGenerator {
 
         + "public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env.get());}\n\n"
 
-        + "  static synchronized protected void __init()\n" + "  {\n" + "    if (__initialized)\n" + "      return;\n\n" +
-
-        "    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);\n" + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);\n"
+        + "  static synchronized protected void __init()\n" + "  {\n" + "    if (__initialized)\n" + "      return;\n\n" 
+        
+        + "    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);\n" 
+        
+        + "    FileSourceCodeModule source = new FileSourceCodeModule(__src, null);\n"
+        
+        + "    source.setParams(__externalParams);\n"
+        
+        + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source);\n"
 
         + "    __compiledClass = wrapper.getCompiledClass();\n" + "    __class = wrapper.getOpenClassWithErrors();\n"
 

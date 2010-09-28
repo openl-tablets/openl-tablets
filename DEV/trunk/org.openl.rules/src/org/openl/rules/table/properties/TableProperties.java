@@ -37,6 +37,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     private Map<String, Object> categoryProperties = new HashMap<String, Object>();
 
+    private Map<String, Object> externalModuleProperties = new HashMap<String, Object>();
+
     private Map<String, Object> moduleProperties = new HashMap<String, Object>();
 
     private Map<String, Object> defaultProperties = new HashMap<String, Object>();
@@ -323,7 +325,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public Map<String, Object> getAllProperties() {
         Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp, moduleProperties);
-        return mergeLevelProperties(tableAndCategoryAndModuleProp, defaultProperties);
+        Map<String, Object> tableAndCategoryAndModuleAndExteranlProp = mergeLevelProperties(tableAndCategoryAndModuleProp, externalModuleProperties);
+        return mergeLevelProperties(tableAndCategoryAndModuleAndExteranlProp, defaultProperties);
     }
 
     @Override
@@ -398,4 +401,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return currentTableType;
     }
 
+    public Map<String, Object> getExternalPropertiesAppliedForModule() {
+        return externalModuleProperties;
+    }
+
+    public void setExternalPropertiesAppliedForModule(Map<String, Object> moduleProperties) {
+        this.externalModuleProperties = moduleProperties;
+    }
+    
 }

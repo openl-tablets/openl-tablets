@@ -6,6 +6,8 @@
 
 package org.openl.syntax.code;
 
+import java.util.Map;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -40,4 +42,7 @@ public interface IParsedCode {
      * @return top node
      */
     ISyntaxNode getTopNode();
+    
+    void setExternalParams(Map<String, Object> params);
+    Map<String, Object> getExternalParams();
 }

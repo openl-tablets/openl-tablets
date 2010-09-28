@@ -1,5 +1,7 @@
 package org.openl.engine;
 
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
@@ -68,6 +70,12 @@ public class OpenLSourceManager extends OpenLHolder {
             throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
 
+        Map<String, Object> externalParams = source.getParams();
+
+        if (externalParams != null) {
+            parsedCode.setExternalParams(externalParams);
+        }
+        
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
@@ -79,7 +87,7 @@ public class OpenLSourceManager extends OpenLHolder {
         ProcessedCode processedCode = new ProcessedCode();
         processedCode.setParsedCode(parsedCode);
         processedCode.setBoundCode(boundCode);
-
+        
         return processedCode;
     }
 

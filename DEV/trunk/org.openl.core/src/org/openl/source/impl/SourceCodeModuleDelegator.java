@@ -2,11 +2,14 @@ package org.openl.source.impl;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
 
 public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
+    
     protected IOpenSourceCodeModule src;
+    private Map<String, Object> params;
 
     public SourceCodeModuleDelegator(IOpenSourceCodeModule src) {
         this.src = src;
@@ -36,4 +39,13 @@ public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
         return src.getUri(textpos);
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+
+    
 }
