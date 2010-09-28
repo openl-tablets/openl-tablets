@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.source.impl.FileSourceCodeModule;
 
@@ -47,16 +48,16 @@ public class XlsSheetGridModelTest {
     
     @Test
     public void testCellsFromMergedRegions() {
-        XlsCell cell = xsGrid.getCell(2, 2);        
+        ICell cell = xsGrid.getCell(2, 2);        
         assertEquals("Rules void hello1(int hour)", cell.getStringValue());
         
-        XlsCell cell1 = xsGrid.getCell(4, 2);        
+        ICell cell1 = xsGrid.getCell(4, 2);        
         assertEquals("Rules void hello1(int hour)", cell1.getStringValue());
         
-        XlsCell cell2 = xsGrid.getCell(2, 8);        
+        ICell cell2 = xsGrid.getCell(2, 8);        
         assertEquals("R20", cell2.getStringValue());
         
-        XlsCell cell3 = xsGrid.getCell(2, 9);        
+        ICell cell3 = xsGrid.getCell(2, 9);        
         assertEquals("R20", cell3.getStringValue());
     }
     
