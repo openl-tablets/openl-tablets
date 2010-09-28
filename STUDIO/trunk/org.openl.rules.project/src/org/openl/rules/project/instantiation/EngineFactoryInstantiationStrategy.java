@@ -2,7 +2,10 @@ package org.openl.rules.project.instantiation;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.runtime.EngineFactory;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 import java.io.File;
 
@@ -25,8 +28,13 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
         if(engineFactoryInstance == null){
             File sourceFile = new File(getModule().getProject().getProjectFolder(), getModule().getRulesRootPath()
                     .getPath());
-            engineFactoryInstance = new EngineFactory(RULE_OPENL_NAME, sourceFile, clazz);
+            
+            IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
+            source.setParams(getModule().getProperties());
+
+            engineFactoryInstance = new RuleEngineFactory(source, clazz);
         }
+        
         return engineFactoryInstance;
     }
 

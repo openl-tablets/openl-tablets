@@ -1,5 +1,7 @@
 package org.openl.rules.project.model;
 
+import java.util.Map;
+
 
 public class Module {
 
@@ -8,6 +10,8 @@ public class Module {
     private String classname;
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
+    
+    private Map<String, Object> properties;
 
     public ProjectDescriptor getProject() {
         return project;
@@ -49,4 +53,11 @@ public class Module {
         this.rulesRootPath = rulesRootPath;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
 }

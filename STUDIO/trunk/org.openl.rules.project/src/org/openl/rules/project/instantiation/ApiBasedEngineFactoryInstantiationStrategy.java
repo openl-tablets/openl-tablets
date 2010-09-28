@@ -9,6 +9,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
 
 /**
  * The simplest {@link RulesInstantiationStrategyFactory} for module that
@@ -29,7 +31,10 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
     private ApiBasedRulesEngineFactory getEngineFactory() {
         if (factory == null) {
             File sourceFile = new File(getModule().getRulesRootPath().getPath());
-            factory = new ApiBasedRulesEngineFactory(sourceFile);
+            IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
+            source.setParams(getModule().getProperties());
+            
+            factory = new ApiBasedRulesEngineFactory(source);
         }
         return factory;
     }
