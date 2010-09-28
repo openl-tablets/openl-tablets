@@ -6,8 +6,8 @@
 
 package org.openl.binding.impl;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -157,6 +157,14 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         }
     }
 
+    public Map<String, Object> getExternalParams() {
+        return delegate.getExternalParams();
+    }
+
+    public void setExternalParams(Map<String, Object> params) {
+        delegate.setExternalParams(params);
+    }
+    
 //  NOTE: A temporary implementation of multi-module feature.
 //    public void addImport(IOpenClass type) {
 //       delegate.addImport(type);

@@ -9,6 +9,7 @@ package org.openl.source.impl;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
 
@@ -22,16 +23,13 @@ import org.openl.source.IOpenSourceCodeModule;
  *
  */
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
+    
+    private IOpenSourceCodeModule baseModule;
+    private int startPosition;
+    private int endPosition = 0;
 
-    IOpenSourceCodeModule baseModule;
-    int startPosition;
-    int endPosition = 0;
+    private Map<String, Object> params;
 
-    boolean skipStart = false;
-
-    /**
-     *
-     */
     public SubTextSourceCodeModule(IOpenSourceCodeModule baseModule, int startPosition) {
         this.baseModule = baseModule;
         this.startPosition = startPosition;
@@ -43,10 +41,6 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         this.endPosition = endPosition;
     }
 
-    /**
-     *
-     */
-
     public InputStream getByteStream() {
         return null;
     }
@@ -55,10 +49,6 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return new StringReader(getCode());
     }
 
-    /**
-     *
-     */
-
     public String getCode() {
         String code = baseModule.getCode();
 
@@ -66,28 +56,24 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return code.substring(startPosition, end);
     }
 
-    /**
-     *
-     */
-
     public int getStartPosition() {
         return startPosition;
     }
-
-    /**
-     *
-     */
 
     public int getTabSize() {
         return baseModule.getTabSize();
     }
 
-    /**
-     *
-     */
-
     public String getUri(int textpos) {
         return baseModule.getUri(textpos + startPosition);
+    }
+
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
     }
 
 }

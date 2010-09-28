@@ -29,7 +29,6 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     }
 
     public InputStream getByteStream() {
-
         try {
             return url.openStream();
         } catch (IOException e) {
@@ -42,7 +41,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     }
 
     @Override
-    public String makeUri() {
+    protected String makeUri() {
         return url.toExternalForm();
     }
 

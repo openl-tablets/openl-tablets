@@ -40,7 +40,8 @@ public class BindingContext implements IBindingContext {
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
     private Map<String, String> aliases = new HashMap<String, String>();
     private Stack<List<SyntaxNodeException>> errorStack = new Stack<List<SyntaxNodeException>>();
-    
+  
+    private Map<String, Object> externalParams;
 /*
 //  NOTE: A temporary implementation of multi-module feature.     
  
@@ -234,6 +235,14 @@ public class BindingContext implements IBindingContext {
             throw new RuntimeException("Can not override return type " + returnType.getName());
         }
         returnType = type;
+    }
+
+    public Map<String, Object> getExternalParams() {
+        return externalParams;
+    }
+
+    public void setExternalParams(Map<String, Object> externalParams) {
+        this.externalParams = externalParams;
     }
 
 //  NOTE: A temporary implementation of multi-module feature.

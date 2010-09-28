@@ -7,6 +7,7 @@
 package org.openl.binding;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -129,4 +130,6 @@ public interface IBindingContext extends ICastFactory {
 	 */
 	void setReturnType(IOpenClass type);
 
+	void setExternalParams(Map<String, Object> params);
+	Map<String, Object> getExternalParams();
 }

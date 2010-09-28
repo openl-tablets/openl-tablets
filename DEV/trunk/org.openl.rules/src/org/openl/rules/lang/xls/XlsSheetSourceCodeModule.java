@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.indexer.IDocumentType;
@@ -15,6 +16,8 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     private XlsWorkbookSourceCodeModule workbookSource;
 
 	private Sheet sheet;
+	
+	private Map<String, Object> params;
 
     public XlsSheetSourceCodeModule(Sheet sheet, String sheetName, XlsWorkbookSourceCodeModule workbookSource) {
         this.sheet = sheet;
@@ -84,4 +87,13 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return workbookSource;
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+
+    
 }

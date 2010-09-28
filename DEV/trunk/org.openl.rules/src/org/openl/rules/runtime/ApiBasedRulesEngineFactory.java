@@ -11,6 +11,7 @@ import org.openl.message.OpenLMessages;
 import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.OpenLInvocationHandler;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
@@ -28,6 +29,10 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
 
     public ApiBasedRulesEngineFactory(File file) {
         super(RULE_OPENL_NAME, file);
+    }
+    
+    public ApiBasedRulesEngineFactory(IOpenSourceCodeModule source) {
+        super(RULE_OPENL_NAME, source);
     }
     
     public void reset(boolean resetInterface) {

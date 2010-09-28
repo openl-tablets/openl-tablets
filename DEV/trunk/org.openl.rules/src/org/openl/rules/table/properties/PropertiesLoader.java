@@ -17,7 +17,6 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -35,6 +34,8 @@ import org.openl.types.java.JavaOpenClass;
  * 
  */
 public class PropertiesLoader {
+
+    private static final String EXTERNAL_MODULE_PROPERTIES_KEY = "external-module-properties";
 
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
 
@@ -254,9 +255,25 @@ public class PropertiesLoader {
                 throw ex;
             }
 
+            loadExternalProperties(tsn);
             loadCategoryProperties(tsn);
             loadModuleProperties(tsn);
             loadDefaultProperties(tsn);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void loadExternalProperties(TableSyntaxNode tsn) {
+        
+        Map<String, Object> externalParams = cxt.getExternalParams();
+        
+        if (externalParams != null && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) != null) {
+            if (tsn.getTableProperties() == null) {
+                createTableProperties(tsn);
+            }
+
+            ITableProperties properties = tsn.getTableProperties();
+            properties.setExternalPropertiesAppliedForModule((Map<String, Object>) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY));
         }
     }
 }

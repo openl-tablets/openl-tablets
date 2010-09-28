@@ -6,25 +6,26 @@
 
 package org.openl.source.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class StringSourceCodeModule implements IOpenSourceCodeModule {
 
-    String code, uri;
+    private String code;
+    private String uri;
 
-    int tabSize = 2;
+    private int tabSize = 2;
+    private Map<String, Object> params;
 
-    /**
-     *
-     */
     public StringSourceCodeModule(String code, String uri) {
         this.code = code;
         this.uri = uri;
@@ -35,29 +36,14 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
         this.tabSize = tabSize;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getByteStream()
-     */
     public InputStream getByteStream() {
-        return null;
+        return new ByteArrayInputStream(code.getBytes());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getCharacterStream()
-     */
     public Reader getCharacterStream() {
         return new StringReader(code);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getCode()
-     */
     public String getCode() {
         return code;
     }
@@ -66,20 +52,20 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    /**
-     * @return
-     */
     public int getTabSize() {
         return tabSize;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenSourceCodeModule#getUri(int)
-     */
     public String getUri(int textpos) {
         return uri == null ? "http://www.openl.org/uri#internal_string" : uri;
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+    
 }

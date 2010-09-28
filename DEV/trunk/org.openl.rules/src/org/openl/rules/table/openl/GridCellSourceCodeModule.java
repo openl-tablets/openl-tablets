@@ -9,6 +9,7 @@ package org.openl.rules.table.openl;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -30,6 +31,8 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     int column = 0;
 
     String uri;
+    
+    private Map<String, Object> params;
 
     public GridCellSourceCodeModule(IGridTable table) {
         this.table = table;
@@ -100,4 +103,12 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return table.getUri(column, row);
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+    
 }

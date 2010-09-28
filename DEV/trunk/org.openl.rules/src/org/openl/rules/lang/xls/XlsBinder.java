@@ -167,6 +167,10 @@ public class XlsBinder implements IOpenBinder {
         IBindingContext bindingContext = openlBinder.makeBindingContext();
         bindingContext = BindHelper.delegateContext(bindingContext, bindingContextDelegator);
 
+        if (parsedCode.getExternalParams() != null) {
+            bindingContext.setExternalParams(parsedCode.getExternalParams());
+        }
+        
         //NOTE: A temporary implementation of multi-module feature.
 /*
         List<String> modulesToImport = moduleNode.getImportedModules();

@@ -51,6 +51,8 @@ public interface ITableProperties {
      */
     Map<String, Object> getPropertiesAppliedForModule();
     
+    Map<String, Object> getExternalPropertiesAppliedForModule();
+    
     /**
      * <code>{@link Map}</code> of properties that must be set by default. Default properties are set to the table when 
      * there is no such property defined on TABLE, CATEGORY and MODULE levels. 
@@ -165,6 +167,7 @@ public interface ITableProperties {
     void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties);
     
     void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);    
+    void setExternalPropertiesAppliedForModule(Map<String, Object> moduleProperties);
     
     void setPropertiesAppliedByDefault(Map<String, Object> defaultProperties);    
     

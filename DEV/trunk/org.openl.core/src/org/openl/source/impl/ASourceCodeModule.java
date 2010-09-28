@@ -7,6 +7,7 @@ package org.openl.source.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -17,10 +18,10 @@ import org.openl.util.RuntimeExceptionWrapper;
 public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
 
     protected String code;
-
-    protected int tabSize = 2;
-
     protected String uri;
+    protected int tabSize = 2;
+    
+    private Map<String, Object> params;
 
     public synchronized String getCode() {
 
@@ -69,4 +70,12 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
         this.tabSize = tabSize;
     }
 
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+    
 }
