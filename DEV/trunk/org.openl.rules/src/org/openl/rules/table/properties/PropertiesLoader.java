@@ -262,18 +262,21 @@ public class PropertiesLoader {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private void loadExternalProperties(TableSyntaxNode tsn) {
         
         Map<String, Object> externalParams = cxt.getExternalParams();
         
-        if (externalParams != null && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) != null) {
+        if (externalParams != null 
+                && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) != null 
+                && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
+            
             if (tsn.getTableProperties() == null) {
                 createTableProperties(tsn);
             }
 
             ITableProperties properties = tsn.getTableProperties();
-            properties.setExternalPropertiesAppliedForModule((Map<String, Object>) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY));
+            ITableProperties externalProperties = (ITableProperties) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY);
+            properties.setExternalPropertiesAppliedForModule(externalProperties.getAllProperties());
         }
     }
 }
