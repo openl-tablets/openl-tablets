@@ -1,10 +1,11 @@
 package org.openl.rules.method;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -25,6 +26,7 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
      * Table syntax node that defines method table.
      */
     private MethodTableBoundNode methodTableBoundNode;
+    private Map<String, Object> properties;
 
     /**
      * Constructs new instance of class.
@@ -41,17 +43,23 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
         super(header, methodBodyBoundNode);
 
         this.methodTableBoundNode = methodTableBoundNode;
+        properties = getSyntaxNode().getTableProperties().getAllProperties();
     }
     
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public MethodTableBoundNode getMethodTableBoundNode() {
+        return methodTableBoundNode;
+    }
+
+    public void setMethodTableBoundNode(MethodTableBoundNode methodTableBoundNode) {
+        this.methodTableBoundNode = methodTableBoundNode;
+    }
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (methodTableBoundNode.getSyntaxNode() instanceof TableSyntaxNode) {
-            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)methodTableBoundNode.getSyntaxNode();
-            if (tableSyntaxNode.hasErrors()) {
-                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
-            }
-        }
-        
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);
         }

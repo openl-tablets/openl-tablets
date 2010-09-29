@@ -37,9 +37,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     private long lastModified;
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
-        super(src);
-        this.workbook = loadWorkbook(src);
-        initSourceFile();
+        this(src, loadWorkbook(src));
     }
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook) {
@@ -48,7 +46,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         initSourceFile();
     }
 
-    private Workbook loadWorkbook(IOpenSourceCodeModule src) {
+    private static Workbook loadWorkbook(IOpenSourceCodeModule src) {
         InputStream is = null;
         try {
             is = src.getByteStream();

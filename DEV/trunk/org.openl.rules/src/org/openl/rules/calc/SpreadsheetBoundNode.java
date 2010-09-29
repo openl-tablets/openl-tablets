@@ -51,6 +51,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
 
         builder.build(tableBody);
+        if (bindingContext.isExecutionMode()) {
+            getSpreadsheet().setBoundNode(null);
+        }
     }
 
     public Spreadsheet getSpreadsheet() {

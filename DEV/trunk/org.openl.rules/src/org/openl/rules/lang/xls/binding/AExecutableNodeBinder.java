@@ -44,7 +44,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
     protected OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) throws Exception {
 
         IGridTable table = tableSyntaxNode.getGridTable();
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table);
+        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
 
         SubTextSourceCodeModule headerSource = new SubTextSourceCodeModule(source, tableSyntaxNode.getHeader()
             .getHeaderToken()

@@ -199,7 +199,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 
                 openl = getOpenlConfiguration(file);
                 if (openl != null) {
-                    OpenLManager.compileModule(openl, new EclipseFileSourceCodeModule(file));
+                    OpenLManager.compileModule(openl, new EclipseFileSourceCodeModule(file), false);
                 }
             } catch (CompositeSyntaxNodeException se) {
                 addMarker(file, se, openl.getName());

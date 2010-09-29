@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
@@ -268,7 +269,8 @@ public class DataTableBindHelper {
      * @param hasColumnTitleRow Flag shows if data table has column tytle row.
      * @return Column title (aka Display name).
      */
-    public static StringValue makeColumnTitle(ILogicalTable dataWithTitleRows, int column, boolean hasColumnTitleRow) {
+    public static StringValue makeColumnTitle(IBindingContext bindingContext, ILogicalTable dataWithTitleRows,
+            int column, boolean hasColumnTitleRow) {
 
         String value = StringUtils.EMPTY;
 
@@ -280,18 +282,14 @@ public class DataTableBindHelper {
             // remove extra spaces
             value = StringUtils.trimToEmpty(value);
 
-            return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getGridTable()));
+            return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getGridTable(), bindingContext));
         }
 
         return new StringValue(value, value, value, null);
     }
 
-    public static ColumnDescriptor[] makeDescriptors(ITable table,
-            IOpenClass type,
-            OpenL openl,
-            ILogicalTable descriptorRows,
-            ILogicalTable dataWithTitleRows,
-            boolean hasForeignKeysRow,
+    public static ColumnDescriptor[] makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
+            OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
             boolean hasColumnTytleRow) throws Exception {
 
         int width = descriptorRows.getLogicalWidth();
@@ -302,7 +300,7 @@ public class DataTableBindHelper {
         for (int columnNum = 0; columnNum < width; columnNum++) {
 
             IGridTable gridTable = descriptorRows.getLogicalColumn(columnNum).getGridTable();
-            GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable);
+            GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable, bindingContext);
 
             String code = cellSourceModule.getCode();
 
@@ -360,15 +358,14 @@ public class DataTableBindHelper {
                 IdentifierNode foreignKey = null;
 
                 if (hasForeignKeysRow) {
-                    IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(descriptorRows, columnNum);
+                    IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(bindingContext, descriptorRows, columnNum);
 
                     foreignKeyTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
                     foreignKey = foreignKeyTokens.length > 1 ? foreignKeyTokens[1] : null;
                 }
 
-                StringValue header = DataTableBindHelper.makeColumnTitle(dataWithTitleRows,
-                    columnNum,
-                    hasColumnTytleRow);
+                StringValue header = DataTableBindHelper.makeColumnTitle(bindingContext, dataWithTitleRows, columnNum,
+                        hasColumnTytleRow);
 
                 ColumnDescriptor currentColumnDescriptor;
 
@@ -399,10 +396,10 @@ public class DataTableBindHelper {
      * 
      * @see {@link #hasForeignKeysRow(ILogicalTable)}.
      */
-    private static IdentifierNode[] getForeignKeyTokens(ILogicalTable descriptorRows, int columnNum) throws OpenLCompilationException {
+    private static IdentifierNode[] getForeignKeyTokens(IBindingContext bindingContext, ILogicalTable descriptorRows, int columnNum) throws OpenLCompilationException {
 
         ILogicalTable logicalRegion = descriptorRows.getLogicalRegion(columnNum, 1, 1, 1);
-        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(logicalRegion.getGridTable());
+        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(logicalRegion.getGridTable(), bindingContext);
 
         // Should be in format
         // "> reference_table_name [reference_table_key_column]"

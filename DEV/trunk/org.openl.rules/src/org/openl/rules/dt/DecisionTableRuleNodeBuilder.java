@@ -19,7 +19,7 @@ public class DecisionTableRuleNodeBuilder {
     }
 
     public DecisionTableRuleNode makeNode(Object value) {
-        return new DecisionTableRuleNode(makeRulesAry(), value);
+        return new DecisionTableRuleNode(makeRulesAry());
     }
 
     public int[] makeRulesAry() {

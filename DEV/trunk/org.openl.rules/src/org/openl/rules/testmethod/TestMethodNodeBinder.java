@@ -3,7 +3,9 @@
  */
 package org.openl.rules.testmethod;
 
+import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -23,6 +25,16 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     @Override
     protected String getFormatErrorMessage() {
         return FORMAT_ERROR_MESSAGE;
+    }
+    
+    @Override
+    public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext,
+            XlsModuleOpenClass module) throws Exception {
+        if (bindingContext.isExecutionMode()) {
+            return null;//skipped in execution mode
+        } else {
+            return super.preBind(tableSyntaxNode, openl, bindingContext, module);
+        }
     }
 
     @Override

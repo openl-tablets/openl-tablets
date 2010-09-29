@@ -50,6 +50,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
         EngineFactory<IAlgorithmTableParserManager> engineFactory = new EngineFactory<IAlgorithmTableParserManager>(
                 sourceType, sourceFile, IAlgorithmTableParserManager.class);
+        engineFactory.setExecutionMode(true);
         rulesWrapperInstance = engineFactory.makeInstance();
     }
 

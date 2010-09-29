@@ -65,7 +65,7 @@ public class TableIndexParser implements IIndexParser {
                         if (isCellFromMergedRegion(cell)) {
                             processedValuesFromRegions.put(cellValue, cell.getRegion());
                         }                        
-                        gridCells.add(new GridCellSourceCodeModule(table, j, i));                       
+                        gridCells.add(new GridCellSourceCodeModule(table, j, i, null));                       
                     }
                 }
             }

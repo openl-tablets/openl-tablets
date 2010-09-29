@@ -122,7 +122,7 @@ public class SpreadsheetBuilder {
 
             if (value != null) {
                 String shortName = "scol" + column + "_" + i;
-                StringValue stringValue = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell));
+                StringValue stringValue = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell, bindingContext));
 
                 addColumnHeader(column, stringValue);
             }
@@ -140,7 +140,7 @@ public class SpreadsheetBuilder {
 
             if (value != null) {
                 String shortName = "srow" + row + "_" + i;
-                StringValue sv = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell));
+                StringValue sv = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell, bindingContext));
 
                 addRowHeader(row, sv);
             }
@@ -166,7 +166,12 @@ public class SpreadsheetBuilder {
                         columnNamesTable.getLogicalColumn(columnIndex));
                 ICell sourceCell = cell.getGridTable().getCell(0, 0);
 
-                SpreadsheetCell spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell);
+                SpreadsheetCell spreadsheetCell;
+                if (bindingContext.isExecutionMode()) {
+                    spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, null);
+                }else{
+                    spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell);
+                }
                 cells[rowIndex][columnIndex] = spreadsheetCell;
 
                 String code = sourceCell.getStringValue();
@@ -209,7 +214,7 @@ public class SpreadsheetBuilder {
                         columnNamesTable.getLogicalColumn(columnIndex));
 
                 SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable());
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getGridTable(), bindingContext);
                 String code = source.getCode();
 
                 if (CellLoader.isFormula(code)) {

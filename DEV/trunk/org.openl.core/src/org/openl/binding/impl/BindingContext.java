@@ -237,6 +237,10 @@ public class BindingContext implements IBindingContext {
         returnType = type;
     }
 
+    public boolean isExecutionMode() {
+        return false;
+    }
+
     public Map<String, Object> getExternalParams() {
         return externalParams;
     }

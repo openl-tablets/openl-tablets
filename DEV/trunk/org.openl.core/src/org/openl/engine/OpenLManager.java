@@ -125,13 +125,15 @@ public class OpenLManager {
      * 
      * @param opel OpenL engine context
      * @param source source
+     * @param executionMode <code>true</code> if module should be compiled in
+     *            memory optimized mode for only execution
      * @return {@link IOpenClass} instance
      */
-    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source) {
+    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
 
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
-        return compileManager.compileModule(source);
+        return compileManager.compileModule(source, executionMode);
     }
 
     /**
@@ -140,13 +142,15 @@ public class OpenLManager {
      * 
      * @param opel OpenL engine context
      * @param source source
+     * @param executionMode <code>true</code> if module should be compiled in
+     *            memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
+    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
 
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
-        return compileManager.compileModuleWithErrors(source);
+        return compileManager.compileModuleWithErrors(source, executionMode);
 
     }
 

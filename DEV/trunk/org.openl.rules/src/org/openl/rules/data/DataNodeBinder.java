@@ -71,7 +71,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module);
         ILogicalTable table = tableSyntaxNode.getTable();
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable());
+        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable(), bindingContext);
 
         parsedHeader = Tokenizer.tokenize(source, " \n\r");
         checkParsedHeader(source);
@@ -124,7 +124,8 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows, descriptorRows, null);
 
-        ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(tableToProcess,
+        ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
+            tableToProcess,
             tableType,
             openl,
             descriptorRows,

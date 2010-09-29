@@ -73,7 +73,7 @@ public class IdentifierBinder extends ANodeBinder {
             if (target.isStaticTarget() != field.isStatic()) {
 
                 if (field.isStatic()) {
-                    BindHelper.processWarn("Access of a static field from non-static object", node);
+                    BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
                 } else {
                     BindHelper.processError("Access non-static field from a static object", node, bindingContext);
 

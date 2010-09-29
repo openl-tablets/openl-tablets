@@ -29,7 +29,7 @@ public class TestMetaInfo extends TestCase {
         OpenL openl = OpenL.getInstance("org.openl.xls");
 
         FileSourceCodeModule src = new FileSourceCodeModule(url.getPath(), null);
-        XlsModuleOpenClass module = (XlsModuleOpenClass) OpenLManager.compileModule(openl, src);
+        XlsModuleOpenClass module = (XlsModuleOpenClass) OpenLManager.compileModule(openl, src, false);
 
         TableSyntaxNode[] nodes = nodes(module);
 

@@ -37,6 +37,9 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         new DecisionTableLoader().loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), (IBindingContextDelegator) bindingContext);
+        if (bindingContext.isExecutionMode()) {
+            getDecisionTable().setTableSyntaxNode(null);
+        }
     }
 
     public final DecisionTable getDecisionTable() {

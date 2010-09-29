@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +18,6 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
@@ -41,11 +41,20 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     private String[] columnNames;
 
     private SpreadsheetOpenClass spreadsheetType;
+    private Map<String, Object> properties;
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header);
-
         this.node = boundNode;
+        properties = ((TableSyntaxNode) node.getSyntaxNode()).getTableProperties().getAllProperties();
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setBoundNode(SpreadsheetBoundNode node) {
+        this.node = node;
     }
 
     public SpreadsheetBoundNode getBoundNode() {
@@ -77,8 +86,8 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
         return spreadsheetType;
     }
 
-    public ISyntaxNode getSyntaxNode() {
-        return node.getSyntaxNode();
+    public TableSyntaxNode getSyntaxNode() {
+        return node.getTableSyntaxNode();
     }
 
     public int getHeight() {
@@ -118,11 +127,8 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (node.getSyntaxNode() instanceof TableSyntaxNode) {
-            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)node.getSyntaxNode();
-            if (tableSyntaxNode.hasErrors() && resultBuilder == null) {
-                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
-            }
+        if (resultBuilder == null) {
+            throw new OpenLRuntimeException(getSyntaxNode().getErrors()[0]);
         }
         
         if (Tracer.isTracerOn()) {

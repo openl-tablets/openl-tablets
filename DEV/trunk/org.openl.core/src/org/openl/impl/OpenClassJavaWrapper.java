@@ -61,7 +61,7 @@ public class OpenClassJavaWrapper {
 
         OpenL openl = OpenL.getInstance(openlName, userContext);
         OpenLMessages.getCurrentInstance().clear();
-        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source);
+        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, false);
 
         return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
     }

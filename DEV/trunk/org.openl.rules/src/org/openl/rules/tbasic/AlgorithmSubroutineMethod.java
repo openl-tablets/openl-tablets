@@ -24,7 +24,7 @@ import org.openl.vm.trace.Tracer;
  * doesn't have any links to parent Algorithm, but relies on invocation
  * arguments.
  */
-public class AlgorithmSubroutineMethod extends AlgorithmFunction implements IMemberMetaInfo {
+public class AlgorithmSubroutineMethod extends AlgorithmFunction {
 
     /***************************************************************************
      * Compile artifacts
@@ -34,11 +34,6 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction implements IMem
 
     public AlgorithmSubroutineMethod(IOpenMethodHeader header) {
         super(header);
-    }
-
-    public BindingDependencies getDependencies() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public IGridRegion getGridRegion() {
@@ -68,11 +63,6 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction implements IMem
         }
 
         return sourceUrl;
-    }
-
-    public ISyntaxNode getSyntaxNode() {
-        // no syntax node for algorithm method
-        return null;
     }
 
     /*

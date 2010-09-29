@@ -156,24 +156,24 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         try {
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
         } catch (SyntaxNodeException ex) {
-            throwIndexNotFound(valueTable, key, ex);
+            throwIndexNotFound(valueTable, key, ex, bindingContext);
         }
 
         if (result == null) {
-            throwIndexNotFound(valueTable, key, null);
+            throwIndexNotFound(valueTable, key, null, bindingContext);
         }
 
         return result;
     }
 
-    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex) throws SyntaxNodeException {
+    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) throws SyntaxNodeException {
 
         String message = String.format("Index Key %s not found", src);
 
         throw SyntaxNodeExceptionUtils.createError(message,
             ex,
             null,
-            new GridCellSourceCodeModule(valuesTable.getGridTable()));
+            new GridCellSourceCodeModule(valuesTable.getGridTable(), bindingContext));
     }
 
     /**
