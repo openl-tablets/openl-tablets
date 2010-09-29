@@ -94,7 +94,7 @@ public class MethodNodeBinder extends ANodeBinder {
         if (target.isStaticTarget() != methodCaller.getMethod().isStatic()) {
 
             if (methodCaller.getMethod().isStatic()) {
-                BindHelper.processWarn("Access of a static method from non-static object", node);
+                BindHelper.processWarn("Access of a static method from non-static object", node, bindingContext);
             } else {
                 BindHelper.processError("Access of a non-static method from a static object", node, bindingContext);
 

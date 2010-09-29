@@ -5,6 +5,8 @@
  */
 package org.openl.rules.dt;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
@@ -60,6 +62,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
     private TableSyntaxNode tableSyntaxNode;
     private DecisionTableOptimizedAlgorithm algorithm;
+    private Map<String, Object> properties;
 
     public DecisionTable(IOpenMethodHeader header) {
         super(header);
@@ -178,7 +181,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;
-        this.ruleRow = ruleRow;
+        properties = tableSyntaxNode.getTableProperties().getAllProperties();
+        if (!cxtd.isExecutionMode()) {
+            this.ruleRow = ruleRow;
+        }
         this.columns = columns;
 
         prepare(getHeader(), openl, module, cxtd);
@@ -193,11 +199,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        
         // if there are errors in the table we want to run,
         // we need to inform user about the exception on invoking.
         //
-        if (tableSyntaxNode.hasErrors() && algorithm == null) {
+        if (algorithm == null) {
             throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
         }
         
@@ -249,7 +254,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
      * fired.
      */
     private boolean shouldFailOnMiss() {
-        return getSyntaxNode().getTableProperties().getFailOnMiss();
+        return (Boolean)properties.get("failOnMiss");
     }
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {        
@@ -335,10 +340,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
         IMethodSignature signature = header.getSignature();
         
         IConditionEvaluator[] evaluators = prepareConditions(openl, module, bindingContextDelegator, signature);
-
-        makeAlgorithm(evaluators);
         
         prepareActions(header, openl, module, bindingContextDelegator, signature);
+
+        makeAlgorithm(evaluators);
     }
 
     private void prepareActions(IOpenMethodHeader header,
@@ -417,6 +422,10 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
             ruleExecutionType = new DecisionTableDataType(this, null, getName()+ "Type", openl);
         }    
         return ruleExecutionType;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
     
 

@@ -64,6 +64,9 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
         table.populate(module.getDataBase(), cxt);
+        if (cxt.isExecutionMode()) {
+            field.setTable(null);
+        }
     }
 
 }

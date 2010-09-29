@@ -174,7 +174,7 @@ public class RuleRowHelper {
                         validateValue(res, paramType);
                     } catch (Throwable t) {
                         throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(table
-                                .getGridTable()));
+                                .getGridTable(), openlAdapter.getBindingContext()));
                     }
                     setCellMetaInfo(table, paramName, paramType, false);
                     return res;
@@ -210,7 +210,7 @@ public class RuleRowHelper {
             }
         }
         if (res != null && res instanceof IMetaHolder) {
-            setMetaInfo((IMetaHolder) res, table, paramName, ruleName);
+            setMetaInfo((IMetaHolder) res, table, paramName, ruleName, bindingContext);
         }
 
         return res;
@@ -232,7 +232,7 @@ public class RuleRowHelper {
                 openlAdapter.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
-                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getGridTable());
+                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getGridTable(), openlAdapter.getBindingContext());
 
                     return openlAdapter.makeMethod(srcCode);
                 }
@@ -240,7 +240,7 @@ public class RuleRowHelper {
                 if (source.startsWith("=")
                         && (source.length() > 2 || source.length() == 2 && Character.isLetterOrDigit(source.charAt(1)))) {
 
-                    GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getGridTable());
+                    GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getGridTable(), openlAdapter.getBindingContext());
                     IOpenSourceCodeModule code = new SubTextSourceCodeModule(gridSource, 1);
 
                     return openlAdapter.makeMethod(code);
@@ -260,14 +260,14 @@ public class RuleRowHelper {
                 Object result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
 
                 if (result instanceof IMetaHolder) {
-                    setMetaInfo((IMetaHolder) result, cell, paramName, ruleName);
+                    setMetaInfo((IMetaHolder) result, cell, paramName, ruleName, openlAdapter.getBindingContext());
                 }
 
                 validateValue(result, paramType);
 
                 return result;
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getGridTable()));
+                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getGridTable(), openlAdapter.getBindingContext()));
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
@@ -300,14 +300,16 @@ public class RuleRowHelper {
         IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
     }
     
-    private static void setMetaInfo(IMetaHolder holder, ILogicalTable cell, String paramName, String ruleName) {
+    private static void setMetaInfo(IMetaHolder holder, ILogicalTable cell, String paramName, String ruleName,
+            IBindingContext bindingContext) {
+        if (!bindingContext.isExecutionMode()) {
+            ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
+            valueMetaInfo.setShortName(paramName);
+            valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
+            valueMetaInfo.setSource(new GridCellSourceCodeModule(cell.getGridTable(), bindingContext));
 
-        ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
-        valueMetaInfo.setShortName(paramName);
-        valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
-        valueMetaInfo.setSource(new GridCellSourceCodeModule(cell.getGridTable()));
-
-        holder.setMetaInfo(valueMetaInfo);
+            holder.setMetaInfo(valueMetaInfo);
+        }
     }
     
     @SuppressWarnings("unchecked")

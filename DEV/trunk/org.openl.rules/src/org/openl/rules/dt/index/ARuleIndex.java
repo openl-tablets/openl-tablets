@@ -30,7 +30,7 @@ public abstract class ARuleIndex {
 
         DecisionTableRuleNode node = findNodeInIndex(value);
 
-        return node == null || node.getRules().length == 0 ? emptyOrFormulaNodes : node;
+        return node == null ? emptyOrFormulaNodes : node;
     }
 
     public abstract DecisionTableRuleNode findNodeInIndex(Object value);

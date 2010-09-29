@@ -145,11 +145,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
         throws SyntaxNodeException, OpenLCompilationException {
         
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getGridTable());
+        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getGridTable(), cxt);
         
         if (canProcessRow(rowSrc)) {
             GridCellSourceCodeModule firstLogicalRowSrc = 
-                        new GridCellSourceCodeModule(row.getLogicalColumn(1).getGridTable());
+                        new GridCellSourceCodeModule(row.getLogicalColumn(1).getGridTable(), cxt);
 
             IdentifierNode[] idn = getIdentifierNode(firstLogicalRowSrc);
             
@@ -266,7 +266,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if(fieldInParent != null){
                     if(fieldInParent.getType().getInstanceClass().equals(field.getValue().getType().getInstanceClass())){
                         BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
-                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode);
+                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                     }else{
                         throw new SyntaxNodeException(String.format(
                                 "Field [%s] has been already defined in class \"%s\" with another type",

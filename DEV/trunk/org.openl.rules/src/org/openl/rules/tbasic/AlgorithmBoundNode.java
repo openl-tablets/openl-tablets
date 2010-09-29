@@ -29,6 +29,9 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
         builder.build(tableBody);
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.rows(1));
+        if (cxt.isExecutionMode()) {
+            getAlgorithm().setNode(null);
+        }
     }
 
     public Algorithm getAlgorithm() {

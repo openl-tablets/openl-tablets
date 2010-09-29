@@ -43,6 +43,13 @@ public class ModuleOpenClass extends ADynamicClass {
         addMethod(new GetOpenClass());
     }    
 
+    /**
+     * Clears all unnecessary data for "Execution Mode"
+     */
+    public void clearOddDataForExecutionMode() {
+        setMetaInfo(null);
+    }
+
     public void addInitializerNode(IBoundNode node) {
         init.addNode(node);
     }

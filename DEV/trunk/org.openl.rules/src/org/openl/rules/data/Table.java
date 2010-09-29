@@ -160,14 +160,14 @@ public class Table implements ITable {
 
             if (key == null) {
                 throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
-                    new GridCellSourceCodeModule(gridTable));
+                    new GridCellSourceCodeModule(gridTable, null));
             }
 
             key = key.trim();
 
             if (index.containsKey(key)) {
                 throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key,
-                    new GridCellSourceCodeModule(gridTable));
+                    new GridCellSourceCodeModule(gridTable, null));
             }
 
             index.put(key, i - 1);

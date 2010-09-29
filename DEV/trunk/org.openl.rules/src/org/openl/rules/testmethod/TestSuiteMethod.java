@@ -1,11 +1,12 @@
 package org.openl.rules.testmethod;
 
+import java.util.Map;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -24,6 +25,7 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
     private IOpenMethod testedMethod;
     private TestMethodBoundNode boundNode;
     private IOpenClass methodBasedClass; 
+    private Map<String, Object> properties;
     
     public TestSuiteMethod(String tableName, IOpenMethod testedMethod, TestMethodBoundNode boundNode) {
         super(TestMethodHelper.makeHeader(tableName, testedMethod));
@@ -31,10 +33,19 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
         this.tableName = tableName;
         this.testedMethod = testedMethod;
         this.boundNode = boundNode;
+        properties = getSyntaxNode().getTableProperties().getAllProperties();
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
     public TestMethodBoundNode getBoundNode() {
         return boundNode;
+    }
+
+    public void setBoundNode(TestMethodBoundNode boundNode) {
+        this.boundNode = boundNode;
     }
 
     public String[] unitName() {
@@ -56,23 +67,23 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
 
     public int getNumberOfTests() {
 
-        Object testArray = boundNode.getField().getTable().getDataArray();
+        Object testArray = boundNode.getField().getData();
         DynamicObject[] dd = (DynamicObject[]) testArray;
         
         return dd.length;
     }
 
     public String getSourceUrl() {
-        return ((TableSyntaxNode) getSyntaxNode()).getUri();
+        return getSyntaxNode().getUri();
     }
 
-    public ISyntaxNode getSyntaxNode() {
-        return boundNode.getSyntaxNode();
+    public TableSyntaxNode getSyntaxNode() {
+        return boundNode.getTableSyntaxNode();
     }
 
     public String[] getTestDescriptions() {
         
-        Object testArray = boundNode.getField().getTable().getDataArray();
+        Object testArray = boundNode.getField().getData();
 
         DynamicObject[] dd = (DynamicObject[]) testArray;
 
@@ -191,7 +202,7 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
      */
     public boolean isRunmethodTestable() {
         // gets the data from rows that have test parameters.
-        Object testArray = boundNode.getField().getTable().getDataArray();
+        Object testArray = boundNode.getField().getData();
 
         DynamicObject[] testArrayDynamicObj = (DynamicObject[]) testArray;
 

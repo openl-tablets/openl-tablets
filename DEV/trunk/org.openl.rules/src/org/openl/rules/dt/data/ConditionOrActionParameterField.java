@@ -24,6 +24,10 @@ public class ConditionOrActionParameterField implements IOpenField {
         return params[paramNum];
     }
 
+    public IDecisionRow getConditionOrAction() {
+        return conditionOrAction;
+    }
+
     public boolean isConst() {
         return true;
     }

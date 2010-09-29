@@ -36,7 +36,7 @@ public class DefaultResultBuilder implements IResultBuilder {
     }
 
     private ILogicalTable getSpreadsheetTable(SpreadsheetResultCalculator result) {
-        TableSyntaxNode tsn = (TableSyntaxNode) result.getSpreadsheet().getInfo().getSyntaxNode();
+        TableSyntaxNode tsn = result.getSpreadsheet().getSyntaxNode();
         
         ILogicalTable table = null;
         if (tsn != null) {

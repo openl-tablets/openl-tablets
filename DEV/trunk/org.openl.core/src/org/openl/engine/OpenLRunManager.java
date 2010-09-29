@@ -51,7 +51,7 @@ public class OpenLRunManager extends OpenLHolder {
     public Object runMethod(IOpenSourceCodeModule source, String methodName, IOpenClass[] paramTypes, Object[] params)
             throws OpenLRuntimeException, MethodNotFoundException, SyntaxNodeException {
 
-        IOpenClass openClass = compileManager.compileModule(source);
+        IOpenClass openClass = compileManager.compileModule(source, false);
         IOpenVM vm = getOpenL().getVm();
 
         Object target = openClass.newInstance(vm.getRuntimeEnv());

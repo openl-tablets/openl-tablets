@@ -135,15 +135,15 @@ public class Action extends FunctionalRow implements IAction {
 	}
 
 	@Override
-	protected IOpenSourceCodeModule getExpressionSource() {
+	protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext) {
 		
-		IOpenSourceCodeModule source = super.getExpressionSource();
+		IOpenSourceCodeModule source = super.getExpressionSource(bindingContext);
 		
 		if (isReturnAction() && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
 			return new StringSourceCodeModule("extraRet", source.getUri(0));
 		}
 		
-		return super.getExpressionSource();
+		return super.getExpressionSource(bindingContext);
 	}
 
 }

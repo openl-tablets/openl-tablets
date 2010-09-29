@@ -1,6 +1,7 @@
 package org.openl.rules.cmatch;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.exception.OpenLRuntimeException;
@@ -8,7 +9,6 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -17,7 +17,7 @@ import org.openl.vm.IRuntimeEnv;
 
 @Executable
 public class ColumnMatch extends AMethod implements IMemberMetaInfo {
-    private final ColumnMatchBoundNode node;
+    private ColumnMatchBoundNode boundNode;
 
     private List<TableColumn> columns;
     private List<TableRow> rows;
@@ -30,14 +30,28 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     // WEIGHT algorithm
     private MatchNode totalScore;
     private int[] columnScores;
+    private Map<String, Object> properties;
 
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header);
-        this.node = node;
+        this.boundNode = node;
+        properties = getSyntaxNode().getTableProperties().getAllProperties();
+    }
+    
+    public ColumnMatchBoundNode getBoundNode() {
+        return boundNode;
+    }
+
+    public void setBoundNode(ColumnMatchBoundNode boundNode) {
+        this.boundNode = boundNode;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
     public IOpenSourceCodeModule getAlgorithm() {
-        return node.getAlgorithm();
+        return boundNode.getAlgorithm();
     }
 
     public MatchNode getCheckTree() {
@@ -71,15 +85,11 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     }
 
     public String getSourceUrl() {
-        return getTableSyntaxNode().getUri();
+        return getSyntaxNode().getUri();
     }
 
-    public ISyntaxNode getSyntaxNode() {
-        return node.getSyntaxNode();
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return (TableSyntaxNode) getSyntaxNode();
+    public TableSyntaxNode getSyntaxNode() {
+        return boundNode.getTableSyntaxNode();
     }
 
     public MatchNode getTotalScore() {
@@ -87,11 +97,8 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (node.getSyntaxNode() instanceof TableSyntaxNode) {
-            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)node.getSyntaxNode();
-            if (tableSyntaxNode.hasErrors()&& algorithmExecutor == null) {
-                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
-            }
+        if (algorithmExecutor == null) {
+            throw new OpenLRuntimeException(getSyntaxNode().getErrors()[0]);
         }
         
         Object result = algorithmExecutor.invoke(target, params, env, this);

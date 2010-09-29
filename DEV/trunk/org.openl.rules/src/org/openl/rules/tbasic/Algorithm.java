@@ -13,7 +13,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.rules.tbasic.runtime.debug.TBasicAlgorithmTraceObject;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -34,7 +33,7 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
 
     private final Log LOG = LogFactory.getLog(Algorithm.class);
 
-    private final AlgorithmBoundNode node;
+    private AlgorithmBoundNode node;
 
     /***************************************************************************
      * Compile artifacts
@@ -43,6 +42,7 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     private IOpenClass thisClass;
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
+    private Map<String, Object> properties;
 
     public static Algorithm createAlgorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         return new Algorithm(header, node);
@@ -51,11 +51,24 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         super(header);
         this.node = node;
+        properties = getSyntaxNode().getTableProperties().getAllProperties();
+    }
+    
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
     public BindingDependencies getDependencies() {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    public AlgorithmBoundNode getNode() {
+        return node;
+    }
+
+    public void setNode(AlgorithmBoundNode node) {
+        this.node = node;
     }
 
     @Override
@@ -64,19 +77,16 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     }
 
     public String getSourceUrl() {
-        return ((TableSyntaxNode) getSyntaxNode()).getUri();
+        return getSyntaxNode().getUri();
     }
 
-    public ISyntaxNode getSyntaxNode() {
-        return node.getSyntaxNode();
+    public TableSyntaxNode getSyntaxNode() {
+        return node.getTableSyntaxNode();
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (node.getSyntaxNode() instanceof TableSyntaxNode) {
-            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode)node.getSyntaxNode();
-            if (tableSyntaxNode.hasErrors()) {
-                throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
-            }
+        if (algorithmSteps == null) {
+            throw new OpenLRuntimeException(getSyntaxNode().getErrors()[0]);
         }
         
         if (Tracer.isTracerOn()) {

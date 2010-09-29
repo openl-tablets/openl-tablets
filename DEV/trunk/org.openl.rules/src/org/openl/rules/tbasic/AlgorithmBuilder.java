@@ -119,7 +119,8 @@ public class AlgorithmBuilder {
                     value = "";
                 }
 
-                StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, new GridCellSourceCodeModule(grid, c, r));
+                StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, new GridCellSourceCodeModule(grid,
+                        c, r, bindingContext));
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {

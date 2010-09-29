@@ -7,7 +7,9 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
 import org.openl.binding.impl.module.MethodBindingContext;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
@@ -45,13 +47,26 @@ public class OpenLCompileManager extends OpenLHolder {
      * Compiles module. As a result a module open class will be returned by engine.
      * 
      * @param source source
+     * @param executionMode <code>true</code> if module should be compiled in
+     *            memory optimized mode for only execution
      * @return {@link IOpenClass} instance
      */
-    public IOpenClass compileModule(IOpenSourceCodeModule source) {
+    public IOpenClass compileModule(IOpenSourceCodeModule source, boolean executionMode) {
 
-        ProcessedCode processedCode = sourceManager.processSource(source, SourceType.MODULE);
+        ProcessedCode processedCode;
+        if(executionMode){
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), false);
+        }else{
+            processedCode = sourceManager.processSource(source, SourceType.MODULE);
+            
+        }
 
-        return processedCode.getBoundCode().getTopNode().getType();
+        IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
+        if (executionMode) {
+            ((ModuleOpenClass)openClass).clearOddDataForExecutionMode();
+        }
+
+        return openClass;
     }
 
     /**
@@ -59,22 +74,32 @@ public class OpenLCompileManager extends OpenLHolder {
      * compilation are suppressed.
      * 
      * @param source source
+     * @param executionMode <code>true</code> if module should be compiled in
+     *            memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
-    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source) {
+    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode) {
 
-        ProcessedCode processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true);
-
+        ProcessedCode processedCode;
+        if(executionMode){
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), true);
+        }else{
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true);
+        }
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
 
-        List<ValidationResult> validationResults = validationManager.validate(openClass);
-        List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
-
-        OpenLMessages.getCurrentInstance().addMessages(validationMessages);
+        if (!executionMode) {
+            List<ValidationResult> validationResults = validationManager.validate(openClass);
+            List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
+            OpenLMessages.getCurrentInstance().addMessages(validationMessages);
+        }
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
 
+        if (executionMode) {
+            ((ModuleOpenClass)openClass).clearOddDataForExecutionMode();
+        }
         return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
     }
 
@@ -108,7 +133,6 @@ public class OpenLCompileManager extends OpenLHolder {
                 bindingContext);
 
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
-
         } finally {
             bindingContext.popErrors();
         }

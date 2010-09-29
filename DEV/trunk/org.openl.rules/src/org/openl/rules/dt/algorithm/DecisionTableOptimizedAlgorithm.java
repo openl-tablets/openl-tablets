@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.binding.BindingDependencies;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
@@ -20,6 +21,7 @@ import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
+import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.type.BooleanAdaptorFactory;
@@ -31,6 +33,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
@@ -224,10 +227,13 @@ public class DecisionTableOptimizedAlgorithm {
     private IConditionEvaluator[] evaluators;
     private DecisionTable table;
     private ARuleIndex indexRoot;
+    private BindingDependencies dependencies;
 
     public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table) {
         this.evaluators = evaluators;
         this.table = table;
+        dependencies = new BindingDependencies();
+        table.updateDependency(dependencies);
     }
 
     public IConditionEvaluator[] getEvaluators() {
@@ -349,13 +355,17 @@ public class DecisionTableOptimizedAlgorithm {
                 Object[][] precalculatedParams = prepareIndexedParams(values);
                 params.add(precalculatedParams);
                 // memory optimization: clear condition values because this
-                // values will be used in index
-                //removed due to possibility to get values from condition(for example $C1.varName)
-//                table.getConditionRows()[i].clearParamValues();
+                // values will be used in index(only if it condition is not used
+                // )
+                if (!isDependecyOnConditionExists(table.getConditionRows()[i])) {
+                    table.getConditionRows()[i].clearParamValues();
+                }
             } else {
                 break;
             }
         }
+        // we do not need dependencies after clearing conditions
+        dependencies = null;
 
         if (params.size() == 0) {
             return;
@@ -365,6 +375,16 @@ public class DecisionTableOptimizedAlgorithm {
         indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length - 1).intIterator());
 
         indexNodes(indexRoot, params, 1);
+    }
+    
+    private boolean isDependecyOnConditionExists(ICondition condition){
+        for (IOpenField field : dependencies.getFieldsMap().values()) {
+            if (field instanceof ConditionOrActionParameterField
+                    && ((ConditionOrActionParameterField) field).getConditionOrAction() == condition) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -99,7 +99,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     public StringValue getHeaderLineValue() {
         String value = table.getGridTable().getCell(0, 0).getStringValue();
-        return new StringValue(value, value, value, new GridCellSourceCodeModule(table.getGridTable(), 0, 0));
+        return new StringValue(value, value, value, new GridCellSourceCodeModule(table.getGridTable(), 0, 0, null));
     }
 
     public String getIndexedText() {

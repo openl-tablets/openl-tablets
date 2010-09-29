@@ -27,7 +27,7 @@ public class Tools {
 
         OpenL openl = getOpenL();
 
-        XlsModuleOpenClass xmo = (XlsModuleOpenClass) OpenLManager.compileModule(openl, new FileSourceCodeModule(fname, null));
+        XlsModuleOpenClass xmo = (XlsModuleOpenClass) OpenLManager.compileModule(openl, new FileSourceCodeModule(fname, null), false);
         return xmo;
     }
 

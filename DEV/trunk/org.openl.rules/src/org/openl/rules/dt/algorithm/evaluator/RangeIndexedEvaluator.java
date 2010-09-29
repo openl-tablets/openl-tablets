@@ -114,7 +114,7 @@ public class RangeIndexedEvaluator implements IConditionEvaluator {
                 idxAry[j] = list.get(j);
             }
 
-            rules.add(new DecisionTableRuleNode(idxAry, indexObj));
+            rules.add(new DecisionTableRuleNode(idxAry));
             index.add(indexObj);
         }
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.dt.element.Action;
@@ -56,14 +57,14 @@ public class DecisionTableLoader {
         actions.add(new Action(name, row, table, true));
     }
 
-    private void addRule(int row, ILogicalTable table) throws SyntaxNodeException {
+    private void addRule(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (ruleRow != null) {
 
             throw SyntaxNodeExceptionUtils.createError("Only one rule row/column allowed",
                 new GridCellSourceCodeModule(table.getLogicalRow(row).getGridTable(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
-                    0));
+                    0, bindingContext));
         }
 
         ruleRow = new RuleRow(row, table);
@@ -75,7 +76,7 @@ public class DecisionTableLoader {
             ModuleOpenClass module,
             IBindingContextDelegator bindingContext) throws Exception {
 
-        loadTableStructure(tableSyntaxNode, decisionTable);
+        loadTableStructure(tableSyntaxNode, decisionTable, bindingContext);
 
         ICondition[] conditionsArray = conditions.toArray(new ICondition[conditions.size()]);
         IAction[] actionsArray = actions.toArray(new IAction[actions.size()]);
@@ -85,7 +86,8 @@ public class DecisionTableLoader {
         return decisionTable;
     }
 
-    private void loadTableStructure(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable) throws SyntaxNodeException {
+    private void loadTableStructure(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable,
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         decisionTable.setTableSyntaxNode(tableSyntaxNode);
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
@@ -123,7 +125,7 @@ public class DecisionTableLoader {
         tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
 
         for (int i = 0; i < toParse.getLogicalHeight(); i++) {
-            loadRow(i, toParse);
+            loadRow(i, toParse, bindingContext);
         }
     }
 
@@ -131,7 +133,7 @@ public class DecisionTableLoader {
         return DecisionTableHelper.hasHConditions(tableBody);
     }
 
-    private void loadRow(int row, ILogicalTable table) throws SyntaxNodeException {
+    private void loadRow(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
 
         String headerStr = table.getLogicalRow(row)
             .getGridTable()
@@ -149,7 +151,7 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidActionHeader(header)) {
             addAction(headerStr, row, table);
         } else if (DecisionTableHelper.isValidRuleHeader(header)) {
-            addRule(row, table);
+            addRule(row, table, bindingContext);
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             addReturnAction(headerStr, row, table);
         } else if (DecisionTableHelper.isValidCommentHeader(header)) {
@@ -158,7 +160,7 @@ public class DecisionTableLoader {
             throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header:" + headerStr,
                 new GridCellSourceCodeModule(table.getLogicalRow(row).getGridTable(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
-                    0));
+                    0, bindingContext));
 
         }
     }

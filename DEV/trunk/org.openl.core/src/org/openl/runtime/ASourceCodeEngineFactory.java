@@ -13,6 +13,15 @@ import org.openl.source.impl.URLSourceCodeModule;
 public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
 
     private IOpenSourceCodeModule sourceCode;
+    private boolean executionMode;
+
+    public boolean isExecutionMode() {
+        return executionMode;
+    }
+
+    public void setExecutionMode(boolean executionMode) {
+        this.executionMode = executionMode;
+    }
 
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext) {
         super(openlName, userContext);
@@ -46,7 +55,7 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     }
     
     protected CompiledOpenClass initializeOpenClass() {
-        CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode());
+        CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode);
         return compiledOpenClass;
     }
 

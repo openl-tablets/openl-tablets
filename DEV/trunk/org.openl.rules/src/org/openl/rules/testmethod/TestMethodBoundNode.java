@@ -3,6 +3,7 @@
  */
 package org.openl.rules.testmethod;
 
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -30,4 +31,13 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     protected void setTestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
     }
+    
+    @Override
+    public void finalizeBind(IBindingContext cxt) throws Exception {
+        super.finalizeBind(cxt);
+        if (cxt.isExecutionMode()) {
+            testSuiteMethod.setBoundNode(null);
+        }
+    }
+    
 }

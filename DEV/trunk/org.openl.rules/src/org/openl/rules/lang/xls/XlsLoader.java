@@ -382,7 +382,7 @@ public class XlsLoader {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
             t,
             null,
-            new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
+            new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable(), null));
         addError(se);
         tableSyntaxNode.addError(se);
         OpenLMessagesUtils.addError(se.getMessage());
@@ -397,7 +397,7 @@ public class XlsLoader {
 
     private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
 
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
+        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table, null);
 
         IdentifierNode headerToken = Tokenizer.firstToken(src, " \n\r");
         HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);

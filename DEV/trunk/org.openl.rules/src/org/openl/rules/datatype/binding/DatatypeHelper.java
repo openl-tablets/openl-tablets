@@ -20,7 +20,6 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -115,15 +114,14 @@ public class DatatypeHelper {
 
     private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
-        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable());
+        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable(), cxt);
         return OpenLManager.makeType(openl, source, (IBindingContextDelegator) cxt);
     }
 
     private static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-            ILogicalTable table = tsn.getTable();
-            IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
+            IOpenSourceCodeModule src = tsn.getHeader().getModule();
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
             return parsedHeader[DatatypeNodeBinder.TYPE_INDEX].getIdentifier();
@@ -135,8 +133,7 @@ public class DatatypeHelper {
     private static String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
-            ILogicalTable table = tsn.getTable();
-            IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
+            IOpenSourceCodeModule src = tsn.getHeader().getModule();
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
             if (parsedHeader.length == 4) {

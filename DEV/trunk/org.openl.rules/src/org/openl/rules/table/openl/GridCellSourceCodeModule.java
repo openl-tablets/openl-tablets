@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
+import org.openl.binding.IBindingContext;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.IGridTable;
@@ -22,29 +23,34 @@ import org.openl.source.IOpenSourceCodeModule;
  */
 public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
 
-    IGridTable table;
-    String code;
+    private IGridTable table;
+    private String code;
 
     // TableSyntaxNode parent;
 
-    int row = 0;
-    int column = 0;
+    private int row;
+    private int column;
 
-    String uri;
+    private String uri;
     
     private Map<String, Object> params;
 
-    public GridCellSourceCodeModule(IGridTable table) {
-        this.table = table;
+    public GridCellSourceCodeModule(IGridTable table, IBindingContext bindingContext) {
+        this(table, 0, 0, bindingContext);
     }
 
-    public GridCellSourceCodeModule(IGridTable table, int column, int row
+    public GridCellSourceCodeModule(IGridTable table, int column, int row, IBindingContext bindingContext
     // , TableSyntaxNode parent
     ) {
         this.table = table;
         this.column = column;
         this.row = row;
-        // this.parent = parent;
+//         this.parent = parent;
+        if (bindingContext != null && bindingContext.isExecutionMode()) {
+            getCode();
+            getUri();
+            this.table = null;
+        }
     }
 
     public InputStream getByteStream() {
@@ -94,13 +100,13 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public String getUri() {
         if (uri == null) {
-            uri = getUri(0);
+            uri = table.getUri(column, row);
         }
         return uri;
     }
 
     public String getUri(int textpos) {
-        return table.getUri(column, row);
+        return getUri();
     }
 
     public Map<String, Object> getParams() {

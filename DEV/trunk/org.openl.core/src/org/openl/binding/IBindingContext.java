@@ -130,6 +130,10 @@ public interface IBindingContext extends ICastFactory {
 	 */
 	void setReturnType(IOpenClass type);
 
+    /**
+     * @return <code>true</code> if it is execution mode binding.
+     */
+	boolean isExecutionMode();
 	void setExternalParams(Map<String, Object> params);
 	Map<String, Object> getExternalParams();
 }

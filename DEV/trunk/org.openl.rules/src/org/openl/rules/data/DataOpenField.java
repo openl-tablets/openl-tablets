@@ -8,7 +8,7 @@ import org.openl.vm.IRuntimeEnv;
 public class DataOpenField extends AOpenField {
 
     private ITable table;
-    private TableSyntaxNode tableSyntaxNode;
+    private Object data;
 
     public DataOpenField(ITable table, TableSyntaxNode tableSyntaxNode) {
 
@@ -18,15 +18,19 @@ public class DataOpenField extends AOpenField {
             .getIndexedAggregateType(table.getDataModel().getType(), 1));
         
         this.table = table;
-        this.tableSyntaxNode = tableSyntaxNode;
+        data = table.getDataArray();
     }
 
     public ITable getTable() {
         return table;
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
+    public Object getData() {
+        return data;
+    }
+
+    public void setTable(ITable table) {
+        this.table = table;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class DataOpenField extends AOpenField {
         Object data = ((IDynamicObject) target).getFieldValue(getName());
 
         if (data == null) {
-            data = table.getDataArray();
+            data = this.data;
             ((IDynamicObject) target).setFieldValue(getName(), data);
         }
 

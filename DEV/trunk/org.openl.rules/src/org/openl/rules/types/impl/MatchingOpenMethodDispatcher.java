@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -12,6 +13,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.runtime.IRuntimeContext;
@@ -160,7 +162,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private ITableProperties getTableProperties(IOpenMethod method) {
-        return ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties();
+        //FIXME
+        TableProperties properties = new TableProperties();
+        if(method.getInfo().getProperties() != null){
+            for (Entry<String, Object> property : method.getInfo().getProperties().entrySet()) {
+                properties.setFieldValue(property.getKey(), property.getValue());
+            }
+        }
+        return properties;
     }
 
     private void removeInactiveMethods(Set<IOpenMethod> candidates) {
@@ -178,7 +187,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private boolean isActive(IOpenMethod method) {
 
-        ITableProperties tableProperties = ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties();
+        ITableProperties tableProperties = getTableProperties(method);
 
         return tableProperties.getActive() == null || tableProperties.getActive().booleanValue();
     }

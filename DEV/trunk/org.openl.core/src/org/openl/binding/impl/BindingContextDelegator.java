@@ -157,6 +157,10 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         }
     }
 
+    public boolean isExecutionMode() {
+        return delegate.isExecutionMode();
+    }
+
     public Map<String, Object> getExternalParams() {
         return delegate.getExternalParams();
     }

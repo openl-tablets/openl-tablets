@@ -170,4 +170,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	public Map<String, IOpenClass> getTypes() {
 	    return new HashMap<String, IOpenClass>(internalTypes);
 	}
+
+	@Override
+	public void clearOddDataForExecutionMode() {
+	    super.clearOddDataForExecutionMode();
+	    dataBase = null;
+    }
 }

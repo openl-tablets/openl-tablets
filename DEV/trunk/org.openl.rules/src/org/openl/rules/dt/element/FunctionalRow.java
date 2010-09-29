@@ -198,6 +198,14 @@ public abstract class FunctionalRow implements IDecisionRow {
         openlAdaptor.setHeader(header);
 
         paramValues = prepareParamValues(method, openlAdaptor, ruleRow);
+        
+        if (bindingContextDelegator.isExecutionMode()) {
+            decisionTable = null;
+            paramsTable = null;
+            codeTable = null;
+            presentationTable = null;
+        }
+        
     }
 
     protected IParameterDeclaration[] getParams(IOpenSourceCodeModule methodSource,
@@ -217,7 +225,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             for (int i = 0; i < length; i++) {
 
                 ILogicalTable paramTable = paramsTable.getLogicalRow(i);
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getGridTable());
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getGridTable(), bindingContext);
 
                 IParameterDeclaration parameterDeclaration = getParameterDeclaration(source,
                     methodSource,
@@ -356,7 +364,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass declaringClass,
             IOpenClass methodType) throws Exception {
 
-        IOpenSourceCodeModule source = getExpressionSource();
+        IOpenSourceCodeModule source = getExpressionSource(bindingContextDelegator);
 
         IParameterDeclaration[] methodParams = getParams(source,
             signature,
@@ -370,8 +378,8 @@ public abstract class FunctionalRow implements IDecisionRow {
         return OpenLManager.makeMethod(openl, source, methodHeader, bindingContextDelegator);
     }
 
-	protected IOpenSourceCodeModule getExpressionSource() {
-		return new GridCellSourceCodeModule(codeTable.getGridTable());
+	protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext) {
+		return new GridCellSourceCodeModule(codeTable.getGridTable(), bindingContext);
 	}
 
     /**
