@@ -216,7 +216,7 @@ public class TableBuilder {
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
-            Cell cell = gridModel.getOrCreateXlsCell(x, y);
+            Cell cell = gridModel.getOrCreatePoiXlsCell(x, y);
             gridModel.setCellValue(x, y, value);
             // we need to create new style if value is of type date.
             if (value instanceof Date) {
@@ -230,7 +230,7 @@ public class TableBuilder {
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
             for (int col = x; col <= x2; col++) {
                 for (int row = y; row <= y2; row++) {
-                    Cell newCell = gridModel.getOrCreateXlsCell(col, row);
+                    Cell newCell = gridModel.getOrCreatePoiXlsCell(col, row);
                     gridModel.setCellValue(x, y, value);
                     setCellStyle(newCell, cellStyle);
                 }

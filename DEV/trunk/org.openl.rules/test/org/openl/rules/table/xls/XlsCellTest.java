@@ -15,7 +15,6 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.source.impl.FileSourceCodeModule;
-import org.openl.rules.table.xls.XlsSheetGridModel.XlsCell;
 
 public class XlsCellTest {
     

@@ -14,7 +14,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.xls.XlsSheetGridModel.XlsCell;
+import org.openl.rules.table.xls.XlsCell;
 import org.openl.source.impl.FileSourceCodeModule;
 
 import static org.junit.Assert.*;
@@ -139,8 +139,8 @@ public class MergedRegionsTest {
             for (int column = 0; column <= width; column++) {
                 XlsCell resultCell = grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
                 XlsCell expectedCell = grid.getCell(expectedRegion.getLeft() + column, expectedRegion.getTop() + row);
-                Cell resultXLSCell = grid.getOrCreateXlsCell(testRegion.getLeft() + column, testRegion.getTop() + row);
-                Cell expectedXLSCell = grid.getOrCreateXlsCell(expectedRegion.getLeft() + column, expectedRegion
+                Cell resultXLSCell = grid.getOrCreatePoiXlsCell(testRegion.getLeft() + column, testRegion.getTop() + row);
+                Cell expectedXLSCell = grid.getOrCreatePoiXlsCell(expectedRegion.getLeft() + column, expectedRegion
                         .getTop() + row);
                 if (resultCell != expectedCell && resultCell.getStringValue() != expectedCell.getStringValue()) {
                     if (!isEqualCells(resultCell, expectedCell, grid)
