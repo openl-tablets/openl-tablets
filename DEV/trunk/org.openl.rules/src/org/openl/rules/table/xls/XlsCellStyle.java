@@ -15,10 +15,11 @@ import org.openl.rules.table.ui.ICellStyle;
  * @author snshor
  */
 public class XlsCellStyle implements ICellStyle {
-    HSSFCellStyle xlsStyle;
-    HSSFWorkbook workbook;
+    
+    private HSSFCellStyle xlsStyle;
+    private HSSFWorkbook workbook;
 
-    static public short[] colorToArray(short x, HSSFWorkbook workbook) {
+    public static short[] colorToArray(short x, HSSFWorkbook workbook) {
         HSSFColor cc = workbook.getCustomPalette().getColor(x);
 
         if (cc == null) {
@@ -49,9 +50,7 @@ public class XlsCellStyle implements ICellStyle {
         for (int i = 0; i < cc.length; i++) {
             ccRgb[i] = colorToArray(cc[i], workbook);
         }
-
         return ccRgb;
-
     }
 
     public short[] getBorderStyle() {
@@ -79,10 +78,6 @@ public class XlsCellStyle implements ICellStyle {
         return colorToArray(x, workbook);
     }
 
-    /**
-     *
-     */
-
     public int getHorizontalAlignment() {
         return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getAlignment();
     }
@@ -99,11 +94,6 @@ public class XlsCellStyle implements ICellStyle {
         return xlsStyle.getDataFormatString();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.rules.table.ui.ICellStyle#getVerticalAlignment()
-     */
     public int getVerticalAlignment() {
         return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
     }

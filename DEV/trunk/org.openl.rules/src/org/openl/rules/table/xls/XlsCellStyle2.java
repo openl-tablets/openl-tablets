@@ -16,6 +16,11 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTColorScheme;
 import org.openxmlformats.schemas.drawingml.x2006.main.ThemeDocument;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
+/**
+ * 
+ * TODO: rename it, and write javaDocs.
+ *
+ */
 public class XlsCellStyle2 implements ICellStyle {
 
     @SuppressWarnings("unchecked")

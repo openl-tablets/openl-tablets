@@ -164,7 +164,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
         }
         return null;
     }
-
+    
+    // TODO: don`t return POI types, wrap it to OpenL analogs.
     private CellRangeAddress getMergedRegionAt(int index) {
         return sheet.getMergedRegion(index);
     }

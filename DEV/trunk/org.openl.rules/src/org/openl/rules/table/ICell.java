@@ -43,7 +43,8 @@ public interface ICell {
     Object getObjectValue();
 
     String getStringValue();
-
+    
+    // TODO: move this method to ICellStyle
     ICellFont getFont();
     
     /**
