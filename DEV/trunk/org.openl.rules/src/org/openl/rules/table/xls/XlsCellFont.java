@@ -10,8 +10,8 @@ import org.openl.rules.table.ui.ICellFont;
 
 public class XlsCellFont implements ICellFont {
 	
-	Font font;
-	Workbook workbook;
+	private Font font;
+	private Workbook workbook;
 
     public XlsCellFont(Font font, Workbook workbook) {
         this.font = font;
@@ -37,7 +37,7 @@ public class XlsCellFont implements ICellFont {
     }
 
     public boolean isBold() {
-        return font.getBoldweight() == Font.BOLDWEIGHT_BOLD;
+        return font.getBoldweight() == BOLDWEIGHT_BOLD;
     }
 
     public boolean isItalic() {
@@ -49,7 +49,7 @@ public class XlsCellFont implements ICellFont {
     }
 
     public boolean isUnderlined() {
-        return font.getUnderline() != Font.U_NONE;
+        return font.getUnderline() != U_NONE;
     }
 
 }
