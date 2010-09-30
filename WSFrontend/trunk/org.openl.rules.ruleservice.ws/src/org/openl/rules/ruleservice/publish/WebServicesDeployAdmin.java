@@ -65,13 +65,6 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
                 } catch (Throwable t) {
                     LOG.error("Failed to create service", t);
                 }
-                System.gc();
-                System.gc();
-                System.gc();
-                System.gc();
-                System.gc();
-                System.gc();
-                System.err.println("Memory used : " + new Long((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1048576) + "M");
             }
         }
 
