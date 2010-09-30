@@ -23,8 +23,8 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
     private ApiBasedRulesEngineFactory factory;
     private ClassLoader classLoader;
 
-    public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean execurionMode) {
-        super(module, execurionMode);
+    public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean executionMode) {
+        super(module, executionMode);
         getEngineFactory();
     }
 

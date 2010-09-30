@@ -19,8 +19,8 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
     public static final String RULE_OPENL_NAME = "org.openl.xls";
 
     private EngineFactory<?> engineFactoryInstance;
-    public EngineFactoryInstantiationStrategy(Module module, boolean execurionMode) {
-        super(module, execurionMode);
+    public EngineFactoryInstantiationStrategy(Module module, boolean executionMode) {
+        super(module, executionMode);
     }
 
     @SuppressWarnings("unchecked")

@@ -18,8 +18,8 @@ import org.openl.rules.project.model.Module;
 public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {
     private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
-    public WrapperAdjustingInstantiationStrategy(Module module, boolean execurionMode) {
-        super(module, execurionMode);
+    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode) {
+        super(module, executionMode);
     }
 
     @Override
