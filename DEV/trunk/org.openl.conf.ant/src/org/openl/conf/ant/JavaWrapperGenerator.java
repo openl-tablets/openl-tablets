@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -233,6 +232,8 @@ public class JavaWrapperGenerator {
 
         buf.append("  private static Map<String, Object> __externalParams;\n");
 
+        buf.append("  private static boolean __executionMode;\n");
+
         String initializationValue = String.format("\"%s\"", StringEscapeUtils.escapeJava(openlName));
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__openlName", 
             initializationValue));
@@ -273,21 +274,28 @@ public class JavaWrapperGenerator {
     
     private void addConstructorWithParameter(StringBuffer buf) {
         buf.append("  public ")
+        .append(s_class)
+        .append("(){\n")
+        .append("    this(false);\n")
+        .append("  }\n\n");
+    
+        buf.append("  public ")
+        .append(s_class)
+        .append("(boolean executionMode){\n")
+        .append("    this(false, executionMode, null);\n")
+        .append("  }\n\n");
+    
+        buf.append("  public ")
             .append(s_class)
-            .append("(){\n")
-            .append("    this(false, null);\n")
+            .append("(Map<String, Object> params){\n")
+            .append("    this(false, false, params);\n")
             .append("  }\n\n");
         
         buf.append("  public ")
             .append(s_class)
-            .append("(Map<String, Object> params){\n")
-            .append("    this(false, params);\n")
-            .append("  }\n\n");
-
-        buf.append("  public ")
-            .append(s_class)
-            .append("(boolean ignoreErrors, Map<String, Object> params){\n")
+            .append("(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){\n")
             .append("    __externalParams = params;\n")
+            .append("    __executionMode = executionMode;\n")
             .append("    __init();\n")
             .append("    if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();\n")
             .append("    __instance = __class.newInstance(__env.get());\n")
@@ -377,7 +385,7 @@ public class JavaWrapperGenerator {
         
         + "    source.setParams(__externalParams);\n"
         
-        + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source);\n"
+        + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);\n"
 
         + "    __compiledClass = wrapper.getCompiledClass();\n" + "    __class = wrapper.getOpenClassWithErrors();\n"
 

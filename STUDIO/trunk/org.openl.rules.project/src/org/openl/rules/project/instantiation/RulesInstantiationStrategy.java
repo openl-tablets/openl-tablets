@@ -13,13 +13,19 @@ public abstract class RulesInstantiationStrategy {
     private Module module;
 
     private Class<?> clazz;
+    private boolean executionMode;
 
-    public RulesInstantiationStrategy(Module module) {
+    public RulesInstantiationStrategy(Module module, boolean executionMode) {
         this.module = module;
+        this.executionMode = executionMode;
     }
 
     public Module getModule() {
         return module;
+    }
+
+    protected boolean isExecutionMode() {
+        return executionMode;
     }
 
     public void setModule(Module module) {

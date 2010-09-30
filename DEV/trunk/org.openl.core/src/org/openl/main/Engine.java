@@ -58,7 +58,7 @@ public class Engine {
             IOpenSourceCodeModule src = looksLikeFile(fileName) ? (IOpenSourceCodeModule) new FileSourceCodeModule(
                     fileName, null) : (IOpenSourceCodeModule) new URLSourceCodeModule(new URL(fileName));
 
-            openClass = OpenLManager.compileModule(openl, src, false);
+            openClass = OpenLManager.compileModule(openl, src);
 
             if (methodName != null) {
                 method = openClass.getMatchingMethod(methodName, null);

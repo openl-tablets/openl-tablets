@@ -38,7 +38,7 @@ public class ApiInstantiationTest {
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules2.xls"));
 
-        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module);
+        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module, false);
         assertNull(strategy.getServiceClass());
         try {
             assertNotNull(strategy.compile(ReloadType.NO));

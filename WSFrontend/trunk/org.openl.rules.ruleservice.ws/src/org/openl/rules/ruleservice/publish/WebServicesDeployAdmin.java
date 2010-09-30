@@ -62,9 +62,16 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
             for (Module rulesModule : wsInfo.getModules()) {
                 try {
                     servers.add(deploy(address, rulesModule));
-                } catch (Exception e) {
-                    LOG.error("Failed to create service", e);
+                } catch (Throwable t) {
+                    LOG.error("Failed to create service", t);
                 }
+                System.gc();
+                System.gc();
+                System.gc();
+                System.gc();
+                System.gc();
+                System.gc();
+                System.err.println("Memory used : " + new Long((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1048576) + "M");
             }
         }
 
@@ -99,7 +106,7 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
     private void instantiateServiceBean(Module rulesModule, ServerFactoryBean svrFactory)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule);
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true);
         
         if (isProvideRuntimeContext()) {
             serviceEnhancer = new RulesServiceEnhancer(strategy);

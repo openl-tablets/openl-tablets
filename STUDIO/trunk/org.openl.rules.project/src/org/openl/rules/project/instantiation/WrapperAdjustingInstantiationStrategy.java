@@ -18,8 +18,8 @@ import org.openl.rules.project.model.Module;
 public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {
     private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
-    public WrapperAdjustingInstantiationStrategy(Module module) {
-        super(module);
+    public WrapperAdjustingInstantiationStrategy(Module module, boolean execurionMode) {
+        super(module, execurionMode);
     }
 
     @Override
@@ -29,25 +29,38 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
         return wrapper.getCompiledOpenClass();
     }
 
-    public static Object wrapperNewInstance(Class<?> c) throws Exception {
+    public Object wrapperNewInstance(Class<?> c) throws Exception {
         Constructor<?> ctr;
         try {
-            ctr = c.getConstructor(new Class[] { boolean.class });
-            return ctr.newInstance(new Object[] { Boolean.TRUE });
+            if (isExecutionMode()) {
+                ctr = c.getConstructor(new Class[] { boolean.class });
+                return ctr.newInstance(new Object[] { Boolean.TRUE });
+            } else {
+                ctr = c.getConstructor(new Class[] {});
+                return ctr.newInstance(new Object[] {});
+            }
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Using older version of OpenL Wrapper, please run Generate ... Wrapper");
         }
     }
 
     private void preInitWrapper(Class<?> clazz) throws Exception {
+        String projectFolder = getModule().getProject().getProjectFolder().getAbsolutePath();
         Field userHomeField = clazz.getField("__userHome");
         if (Modifier.isStatic(userHomeField.getModifiers())) {
-            String projectFolder = getModule().getProject().getProjectFolder().getAbsolutePath();
             userHomeField.set(null, projectFolder);
         } else {
             throw new RuntimeException("Field " + userHomeField.getName() + " is not static in "
                     + userHomeField.getDeclaringClass().getName());
         }
+        try {
+            Field field = clazz.getField("__src");
+            String sourcePath = (String) field.get(null);
+            field.set(null, projectFolder + '/' + sourcePath);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to set up __src", e);
+        }
+
     }
 
     @Override
