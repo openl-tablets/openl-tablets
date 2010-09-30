@@ -55,19 +55,26 @@ public class OpenClassJavaWrapper {
         return getOpenClass().newInstance(env);
     }
 
-    public static OpenClassJavaWrapper createWrapper(String openlName,
-            IUserContext userContext,
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext,
             IOpenSourceCodeModule source) {
+        return createWrapper(openlName, userContext, source, false);
+    }
 
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext,
+            IOpenSourceCodeModule source, boolean executionMode) {
         OpenL openl = OpenL.getInstance(openlName, userContext);
         OpenLMessages.getCurrentInstance().clear();
-        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, false);
+        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, executionMode);
 
         return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
     }
 
     public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, String filename) {
+        return createWrapper(openlName, userContext, filename, false);
+    }
 
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, String filename,
+            boolean executionMode) {
         String fileOrURL = PropertiesLocator.locateFileOrURL(filename,
             userContext.getUserClassLoader(),
             new String[] { userContext.getUserHome() });
@@ -89,17 +96,20 @@ public class OpenClassJavaWrapper {
             throw RuntimeExceptionWrapper.wrap(e);
         }
 
-        return createWrapper(openlName, userContext, source);
+        return createWrapper(openlName, userContext, source, executionMode);
+    }
+
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, String filename,
+            String srcClass) {
+        return createWrapper(openlName, userContext, filename, false);
     }
 
     @SuppressWarnings("unchecked")
-    public static OpenClassJavaWrapper createWrapper(String openlName,
-            IUserContext userContext,
-            String filename,
-            String srcClass) {
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, String filename,
+            String srcClass, boolean executionMode) {
 
         if (srcClass == null) {
-            return createWrapper(openlName, userContext, filename);
+            return createWrapper(openlName, userContext, filename, executionMode);
         }
 
         try {
@@ -108,7 +118,7 @@ public class OpenClassJavaWrapper {
                 IUserContext.class);
             IOpenSourceCodeModule module = constructor.newInstance(filename, userContext);
 
-            return createWrapper(openlName, userContext, module);
+            return createWrapper(openlName, userContext, module, executionMode);
         } catch (Exception e) {
             throw new RuntimeException("Can not instantiate source code module class(String source, IUserContext cxt):",
                 e);

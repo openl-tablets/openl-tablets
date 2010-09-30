@@ -19,8 +19,8 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
     public static final String RULE_OPENL_NAME = "org.openl.xls";
 
     private EngineFactory<?> engineFactoryInstance;
-    public EngineFactoryInstantiationStrategy(Module module) {
-        super(module);
+    public EngineFactoryInstantiationStrategy(Module module, boolean execurionMode) {
+        super(module, execurionMode);
     }
 
     @SuppressWarnings("unchecked")
@@ -33,6 +33,7 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
             source.setParams(getModule().getProperties());
 
             engineFactoryInstance = new RuleEngineFactory(source, clazz);
+            engineFactoryInstance.setExecutionMode(isExecutionMode());
         }
         
         return engineFactoryInstance;

@@ -23,8 +23,8 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
     private ApiBasedRulesEngineFactory factory;
     private ClassLoader classLoader;
 
-    public ApiBasedEngineFactoryInstantiationStrategy(Module module) {
-        super(module);
+    public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean execurionMode) {
+        super(module, execurionMode);
         getEngineFactory();
     }
 
@@ -35,6 +35,7 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
             source.setParams(getModule().getProperties());
             
             factory = new ApiBasedRulesEngineFactory(source);
+            factory.setExecutionMode(isExecutionMode());
         }
         return factory;
     }

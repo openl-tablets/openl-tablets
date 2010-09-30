@@ -53,7 +53,7 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
 
     private OpenLWrapper deploy(String serviceName, Module rulesModule)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule);
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true);
 
         return (OpenLWrapper) strategy.instantiate(ReloadType.SINGLE);
 

@@ -125,6 +125,30 @@ public class OpenLManager {
      * 
      * @param opel OpenL engine context
      * @param source source
+     * @return {@link IOpenClass} instance
+     */
+    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source) {
+        return compileModule(openl, source, false);
+    }
+
+    /**
+     * Compiles module. As a result a module open class will be returned by
+     * engine. All errors that occurred during compilation are suppressed.
+     * 
+     * @param opel OpenL engine context
+     * @param source source
+     * @return {@link CompiledOpenClass} instance
+     */
+    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
+        return compileModuleWithErrors(openl, source, false);
+    }
+
+    /**
+     * Compiles module. As a result a module open class will be returned by
+     * engine.
+     * 
+     * @param opel OpenL engine context
+     * @param source source
      * @param executionMode <code>true</code> if module should be compiled in
      *            memory optimized mode for only execution
      * @return {@link IOpenClass} instance
