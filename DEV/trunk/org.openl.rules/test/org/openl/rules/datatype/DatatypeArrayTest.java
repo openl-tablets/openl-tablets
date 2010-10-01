@@ -7,6 +7,8 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 
 public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
     
@@ -27,7 +29,7 @@ public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
      * 
      */
     @Test
-    public void testArrays() {
+    public void testCase1() {
         IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
         
         IOpenMethod testMethod = __class.getMatchingMethod("testArraysTestTestAll", new IOpenClass[] {});
@@ -38,6 +40,42 @@ public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
         Object __res = testMethod.invoke(__myInstance, __params, environment);
         TestUnitsResults testUnitsResult = (TestUnitsResults) __res;        
         assertEquals(0, testUnitsResult.getNumberOfFailures());
+    }
+    
+    /**
+     * Test accessing datatype array via user defined string index (e.g. people["David"])
+     */
+    @Test
+    public void testStringUserIndex() {
+        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
+        
+        IOpenMethod testMethod = __class.getMatchingMethod("foo", new IOpenClass[] {});
+        
+        Object[] __params = new Object[0];
+        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+        Object __myInstance = __class.newInstance(environment);
+        Object __res = testMethod.invoke(__myInstance, __params, environment);
+                
+        assertEquals("passed", __res.toString());
+    }
+    
+    @Test
+    public void testUnsupportedIndexCall() {
+        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
+        
+        IOpenMethod testMethod = __class.getMatchingMethod("foo2", new IOpenClass[] {});
+        
+        Object[] __params = new Object[0];
+        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+        Object __myInstance = __class.newInstance(environment);
+        
+        try {
+            testMethod.invoke(__myInstance, __params, environment);
+            fail();
+        } catch (NullPointerException e) {
+            // fail during invoking, as we don`t support Object index, in datatype arrays.
+            assertTrue(true);
+        }
     }
 
 }
