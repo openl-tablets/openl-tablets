@@ -6,7 +6,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.BooleanUtils;
@@ -17,7 +17,7 @@ import org.openl.util.BooleanUtils;
 public class TableEditor {
 
     private String id;
-    private ITable table;
+    private IOpenLTable table;
     private boolean editable;
     private String mode;
     private String view;
@@ -38,7 +38,7 @@ public class TableEditor {
     public TableEditor(FacesContext context, UIComponent component) {
         Map<String, Object> attributes = component.getAttributes();
         id = component.getClientId(context);
-        table = (ITable) attributes.get(Constants.ATTRIBUTE_TABLE);
+        table = (IOpenLTable) attributes.get(Constants.ATTRIBUTE_TABLE);
         Boolean editableObj = BooleanUtils.toBooleanObject(attributes.get(Constants.ATTRIBUTE_EDITABLE));
         if (editableObj == null) {
             editable = true; // The default is 'true'
@@ -67,11 +67,11 @@ public class TableEditor {
         this.id = id;
     }
 
-    public ITable getTable() {
+    public IOpenLTable getTable() {
         return table;
     }
 
-    public void setTable(ITable table) {
+    public void setTable(IOpenLTable table) {
         this.table = table;
     }
 

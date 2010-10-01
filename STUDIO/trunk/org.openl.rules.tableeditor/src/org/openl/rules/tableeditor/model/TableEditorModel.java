@@ -7,7 +7,7 @@ package org.openl.rules.tableeditor.model;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.table.AGridTableDelegator;
+import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
@@ -17,7 +17,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.actions.GridRegionAction;
@@ -54,7 +54,7 @@ public class TableEditorModel {
     /** Number of columns in Properties section */
     public static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
-    private ITable table;
+    private IOpenLTable table;
     private IGridTable gridTable;
     private IGridRegion fullTableRegion;
     private IGridRegion displayedTableRegion;
@@ -65,7 +65,7 @@ public class TableEditorModel {
     private String afterSaveAction;
     private String saveFailureAction;
 
-    private GridTable[] othertables;
+    private IGridTable[] othertables;
 
     private UndoableActions actions = new UndoableActions();
 
@@ -80,7 +80,7 @@ public class TableEditorModel {
         setTableEditor(editor);
     }
 
-    public TableEditorModel(ITable table, String view, boolean showFormulas) {
+    public TableEditorModel(IOpenLTable table, String view, boolean showFormulas) {
         this.table = table;
         this.view = view;
         this.gridTable = table.getGridTable(view);
@@ -161,7 +161,7 @@ public class TableEditorModel {
         undoGrid = other.undoGrid;
     }
 
-    public ITable getTable() {
+    public IOpenLTable getTable() {
         return table;
     }
 
@@ -190,8 +190,8 @@ public class TableEditorModel {
      * @return Original table that includes our table.
      */
     public static IGridTable getOriginalTable(IGridTable table) {
-        while (table instanceof AGridTableDelegator) {
-            table = ((AGridTableDelegator) table).getOriginalGridTable();
+        while (table instanceof AGridTableDecorator) {
+            table = ((AGridTableDecorator) table).getOriginalGridTable();
         }
         return table;
     }
@@ -291,15 +291,15 @@ public class TableEditorModel {
      * @param otherTables
      * 
      */
-    private synchronized void removeThisTable(GridTable[] otherTables) {
-        Vector<GridTable> v = new Vector<GridTable>();
+    private synchronized void removeThisTable(IGridTable[] otherTables) {
+        Vector<IGridTable> v = new Vector<IGridTable>();
         for (int i = 0; i < otherTables.length; i++) {
             if (!IGridRegion.Tool.intersects(otherTables[i].getRegion(), fullTableRegion)) {
                 v.add(otherTables[i]);
             }
         }
 
-        othertables = v.toArray(new GridTable[v.size()]);
+        othertables = v.toArray(new IGridTable[v.size()]);
     }
     
     /**     
@@ -346,7 +346,7 @@ public class TableEditorModel {
 
         if (!propIsBlank && !propExists) {
             IGridTable table = getUpdatedFullTable();
-            int tableWidth = table.getGridWidth();
+            int tableWidth = table.getWidth();
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }

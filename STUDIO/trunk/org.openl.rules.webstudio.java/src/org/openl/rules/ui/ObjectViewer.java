@@ -36,10 +36,10 @@ public class ObjectViewer {
 
     public static Object displaySpreadsheetResult(final SpreadsheetResult res) {
         ILogicalTable table = res.getLogicalTable();
-        IGridTable gt = table.getGridTable();
+        IGridTable gt = table.getSource();
 
-        final int firstRowHeight = table.getLogicalRow(0).getGridTable().getGridHeight();
-        final int firstColWidth = table.getLogicalColumn(0).getGridTable().getGridWidth();
+        final int firstRowHeight = table.getRow(0).getSource().getHeight();
+        final int firstColWidth = table.getColumn(0).getSource().getWidth();
 
         TableValueFilter.Model model = new TableValueFilter.Model() {
 

@@ -11,6 +11,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.ui.ICellFont;
@@ -38,7 +39,7 @@ public class XlsProjectionBuilder {
                 sheetProjections.put(sheetName, sheetProjection);
             }
 
-            ITable table = new TableSyntaxNodeAdapter(node);
+            IOpenLTable table = new TableSyntaxNodeAdapter(node);
             String header = table.getGridTable().getCell(0, 0).getStringValue();
             String tableName = header == null ? "" : header;
             GridLocation location = node.getGridLocation();
@@ -51,17 +52,17 @@ public class XlsProjectionBuilder {
         return projection;
     }
 
-    public static AbstractProjection buildTable(ITable table, String tableName) {
+    public static AbstractProjection buildTable(IOpenLTable table, String tableName) {
         AbstractProjection projection = new AbstractProjection(tableName, TABLE.name());
-        AbstractProperty grid = new AbstractProperty("grid", ITable.class, table, false);
+        AbstractProperty grid = new AbstractProperty("grid", IOpenLTable.class, table, false);
         projection.addProperty(grid);
         IGridTable gridTable = table.getGridTable();
         /*for (int i = 1; i < gridTable.getLogicalHeight(); i++) {
             ILogicalTable row = gridTable.getLogicalRow(i);
             projection.addChild(buildRow(row, "row" + i));
         }*/
-        int height = gridTable.getGridHeight();
-        int width = gridTable.getGridWidth();
+        int height = gridTable.getHeight();
+        int width = gridTable.getWidth();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 ICell cell = gridTable.getCell(j, i);
@@ -74,9 +75,9 @@ public class XlsProjectionBuilder {
 
     public static AbstractProjection buildRow(ILogicalTable row, String rowName) {
         AbstractProjection projection = new AbstractProjection(rowName, ROW.name());
-        IGridTable grid = row.getGridTable();
-        int height = grid.getGridHeight();
-        int width = grid.getGridWidth();
+        ITable<?> grid = row.getSource();
+        int height = grid.getHeight();
+        int width = grid.getWidth();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 ICell cell = grid.getCell(j, i);

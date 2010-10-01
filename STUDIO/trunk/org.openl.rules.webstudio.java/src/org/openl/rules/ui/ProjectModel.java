@@ -40,9 +40,9 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.Table;
+import org.openl.rules.table.OpenLTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -410,14 +410,14 @@ public class ProjectModel {
         return targetMethods;
     }
 
-    public List<ITable> getTargetTables(String testOrRunUri) {
-        List<ITable> targetTables = new ArrayList<ITable>();
+    public List<IOpenLTable> getTargetTables(String testOrRunUri) {
+        List<IOpenLTable> targetTables = new ArrayList<IOpenLTable>();
         List<IOpenMethod> targetMethods = getTargetMethods(testOrRunUri);
 
         for (IOpenMethod targetMethod : targetMethods) {
             if (targetMethod != null) {
                 TableSyntaxNode tsn = (TableSyntaxNode) targetMethod.getInfo().getSyntaxNode();
-                ITable targetTable = new TableSyntaxNodeAdapter(tsn);
+                IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
                 targetTables.add(targetTable);
             }
         }
@@ -555,8 +555,8 @@ public class ProjectModel {
         return savedSearches;
     }
 
-    public List<ITable> getAdvancedSearchResults(Object searchResult) {
-        List<ITable> searchResults = new ArrayList<ITable>();
+    public List<IOpenLTable> getAdvancedSearchResults(Object searchResult) {
+        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
 
         if (searchResult instanceof OpenLAdvancedSearchResult) {
             TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows();
@@ -570,7 +570,7 @@ public class ProjectModel {
                     CompositeGrid cg = searchViewer.makeGrid(rows);
                     IGridTable gridTable = cg != null ? cg.asGridTable() : null;
 
-                    Table newTable = new Table();
+                    OpenLTable newTable = new OpenLTable();
                     newTable.setGridTable(gridTable);
                     newTable.setUri(tableUri);
                     newTable.setProperties(tsn.getTableProperties());
@@ -583,8 +583,8 @@ public class ProjectModel {
         return searchResults;
     }
 
-    public List<ITable> getBussinessSearchResults(Object searchResult) {
-        List<ITable> searchResults = new ArrayList<ITable>();
+    public List<IOpenLTable> getBussinessSearchResults(Object searchResult) {
+        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
 
         if (searchResult instanceof OpenLBussinessSearchResult) {
             List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
@@ -600,7 +600,7 @@ public class ProjectModel {
         return studio;
     }
 
-    public ITable getTable(String elementUri) {
+    public IOpenLTable getTable(String elementUri) {
         TableSyntaxNode tsn = getNode(elementUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
@@ -1114,7 +1114,7 @@ public class ProjectModel {
         ILogicalTable gtx = tsn.getSubTables().get(view);
         IGridTable gt = tsn.getGridTable();
         if (gtx != null) {
-            gt = gtx.getGridTable();
+            gt = gtx.getSource();
         }
 
         TableModel tableModel = buildModel(gt, new IGridFilter[] { new ColorGridFilter(new RegionGridSelector(region,
@@ -1142,7 +1142,7 @@ public class ProjectModel {
     }
 
     public TableEditorModel getTableEditorModel(String tableUri) {
-        ITable table = getTable(tableUri);
+        IOpenLTable table = getTable(tableUri);
         String tableView = getTableView(null);
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;
