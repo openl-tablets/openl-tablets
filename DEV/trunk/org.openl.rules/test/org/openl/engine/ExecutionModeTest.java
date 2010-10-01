@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Calendar;
 
 import org.junit.Test;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -126,5 +127,22 @@ public class ExecutionModeTest {
         IOpenClass moduleOpenClass2 = engineFactory2.getCompiledOpenClass().getOpenClass();
         IOpenField runMethod = moduleOpenClass2.getField("driverRiskTest");
         assertNull(runMethod);
+    }
+
+    @Test
+    public void testRuntimeErrors() {
+        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory("./test/rules/dt/RuntimeErrorTest.xls");
+        engineFactory.setExecutionMode(true);
+        IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
+        IOpenMethod methodWithError = moduleOpenClass.getMethod("getStrLength", new IOpenClass[] { JavaOpenClass.INT });
+        assertNotNull(methodWithError);
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        try {
+            methodWithError.invoke(moduleOpenClass.newInstance(env), new Object[] { 5 }, env);
+        } catch (OpenLRuntimeException e) {
+            assertNotNull(e.getSourceModule());
+        } catch (Throwable t) {
+            assertFalse(true);
+        }
     }
 }
