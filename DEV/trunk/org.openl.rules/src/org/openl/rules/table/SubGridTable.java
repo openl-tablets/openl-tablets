@@ -43,4 +43,9 @@ public class SubGridTable extends AGridTableDecorator {
         return table.getSubtable(fromColumn + column, fromRow + row, width, height);
     }
 
+    @Override
+    public ICell getCell(int column, int row) {
+        return table.getCell(fromColumn + column, fromRow + row);
+    }
+
 }
