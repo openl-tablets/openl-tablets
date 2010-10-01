@@ -225,6 +225,102 @@ public class Operators {
     	return x == y;
     }
 
+    public static boolean eq(Short x, Short y) {
+        return eq(x, y);
+    }
+
+    public static boolean strict_eq(Short x, Short y) {
+        if (x == y) {
+            return false;
+        }
+        
+        if (x != null && y != null) {
+            return x.equals(y);
+        }
+        
+        return false;
+    }
+
+    public static boolean eq(Integer x, Integer y) {
+        return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(Integer x, Integer y) {
+        if (x == y) {
+            return true;
+        }
+        
+        if (x != null && y != null) {
+            return eq(x.intValue(), y.intValue());
+        }
+        
+        return false; 
+    }
+
+    public static boolean eq(Long x, Long y) {
+        return strict_eq(x, y);
+    }
+
+    public static boolean strict_eq(Long x, Long y) {
+        if (x == y) {
+            return true;
+        }
+        
+        if (x != null && y != null) {
+            return eq(x.longValue(), y.longValue());
+        }
+        
+        return false;
+    }
+
+    public static boolean eq(Float x, Float y) {
+        if (x == y) {
+            return true;
+        }
+        
+        if (x != null && y != null) {
+            return eq(x.floatValue(), y.floatValue());
+        }
+        
+        return false;
+    }
+
+    public static boolean strict_eq(Float x, Float y) {
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return strict_eq(x.floatValue(), y.floatValue());
+        }
+        
+        return false;
+    }
+
+    public static boolean eq(Double x, Double y) {
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return eq(x.doubleValue(), y.doubleValue());
+        }
+        
+        return false;
+    }
+
+    public static boolean strict_eq(Double x, Double y) {
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return strict_eq(x.doubleValue(), y.doubleValue());
+        }
+        
+        return false;
+    }
+
     public static boolean eq(Object x, Object y) {
     	return strict_eq(x, y);
     }
@@ -238,11 +334,15 @@ public class Operators {
     }
     
     public static boolean strict_eq(String x, String y) {
-        if (x == null) {
-            return x == y;
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return x.equals(y);
         }
         
-        return x.equals(y);
+        return false;    
     }
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
@@ -250,7 +350,15 @@ public class Operators {
     }
     
     public static boolean strict_eq(BigDecimal x, BigDecimal y) {
-        return x.compareTo(y) == 0;
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return x.compareTo(y) == 0;
+        }
+        
+        return false;
     }
 
     public static boolean eq(boolean x, boolean y) {
@@ -261,13 +369,29 @@ public class Operators {
         return x == y;
     }
 
+    public static boolean eq(Boolean x, Boolean y) {
+        return strict_eq(x, y);
+    }
+    
+    public static boolean strict_eq(Boolean x, Boolean y) {
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return x.booleanValue() == y.booleanValue();
+        }
+        
+        return false;
+    }
+
     // Not Equals
     public static boolean ne(short x, short y) {
     	return strict_ne(x, y);
     }
     
     public static boolean strict_ne(short x, short y) {
-        return x != y;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(int x, int y) {
@@ -275,7 +399,7 @@ public class Operators {
     }
     
     public static boolean strict_ne(int x, int y) {
-        return x != y;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(long x, long y) {
@@ -283,7 +407,7 @@ public class Operators {
     }
     
     public static boolean strict_ne(long x, long y) {
-        return x != y;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(float x, float y) {
@@ -291,7 +415,7 @@ public class Operators {
     }
 
     public static boolean strict_ne(float x, float y) {
-        return x != y;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(double x, double y) {
@@ -299,7 +423,47 @@ public class Operators {
     }
 
     public static boolean strict_ne(double x, double y) {
-    	return x != y;
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(Short x, Short y) {
+        return !eq(x, y);
+    }
+    
+    public static boolean strict_ne(Short x, Short y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(Integer x, Integer y) {
+        return !eq(x, y);
+    }
+    
+    public static boolean strict_ne(Integer x, Integer y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(Long x, Long y) {
+        return !eq(x, y);
+    }
+    
+    public static boolean strict_ne(Long x, Long y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(Float x, Float y) {
+        return !eq(x, y);
+    }
+
+    public static boolean strict_ne(Float x, Float y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(Double x, Double y) {
+        return !eq(x, y);
+    }
+
+    public static boolean strict_ne(Double x, Double y) {
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(Object x, Object y) {
@@ -311,31 +475,35 @@ public class Operators {
     }
 
     public static boolean ne(boolean x, boolean y) {
-    	return strict_ne(x, y);
+    	return !eq(x, y);
     }
 
     public static boolean strict_ne(boolean x, boolean y) {
-        return x != y;
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(Boolean x, Boolean y) {
+        return !eq(x, y);
+    }
+
+    public static boolean strict_ne(Boolean x, Boolean y) {
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(BigDecimal x, BigDecimal y) {
-    	return strict_ne(x, y);
+        return !eq(x, y);
     }
 
     public static boolean strict_ne(BigDecimal x, BigDecimal y) {
-        return x.compareTo(y) != 0;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(String x, String y) {
-    	return strict_ne(x, y);
+        return !eq(x, y);
     }
 
     public static boolean strict_ne(String x, String y) {
-        if (x == null) {
-            return x != y;
-        }
-        
-        return !x.equals(y);
+        return !strict_eq(x, y);
     }
 
     // Greater Than
