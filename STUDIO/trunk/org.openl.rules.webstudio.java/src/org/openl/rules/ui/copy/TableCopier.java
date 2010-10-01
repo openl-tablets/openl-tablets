@@ -103,11 +103,11 @@ public abstract class TableCopier extends WizardBase {
             logicBaseTableStartRow += baseTablePhysicalProperties == null ? 0 : baseTablePhysicalProperties.size();
         }
 
-        IGridTable gridTable = originalTable.getLogicalRegion(0, logicBaseTableStartRow, originalTable.getGridWidth(),
-                originalTable.getGridHeight() - logicBaseTableStartRow).getGridTable();
+        IGridTable gridTable = originalTable.getSubtable(0, logicBaseTableStartRow, originalTable.getWidth(),
+                originalTable.getHeight() - logicBaseTableStartRow);
 
         // calculate new table size
-        int tableWidth = originalTable.getGridWidth();
+        int tableWidth = originalTable.getWidth();
         if (tableWidth < 3 && buildedPropForNewTable != null && !buildedPropForNewTable.isEmpty()) {
             tableWidth = 3;
         }
@@ -119,7 +119,7 @@ public abstract class TableCopier extends WizardBase {
         if (buildedPropForNewTable != null) {
             tableHeight += buildedPropForNewTable.size();
         }
-        tableHeight += gridTable.getGridHeight();
+        tableHeight += gridTable.getHeight();
 
         // build table
         builder.beginTable(tableWidth, tableHeight);
@@ -276,8 +276,7 @@ public abstract class TableCopier extends WizardBase {
         ICellStyle propertiesStyle = null;
         ILogicalTable propertiesSection = tableProperties.getPropertiesSection();
         if (propertiesSection != null) {
-            IGridTable propertiesTable = propertiesSection.getGridTable();
-            propertiesStyle = propertiesTable.getCell(0, 0).getStyle();
+            propertiesStyle = propertiesSection.getSource().getCell(0, 0).getStyle();
         }        
         return propertiesStyle;
     }

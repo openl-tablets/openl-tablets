@@ -16,7 +16,7 @@ import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearch;
 import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.SearchConditionElement;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 
@@ -330,13 +330,13 @@ public class OpenLAdvancedSearchBean {
     public static class SearchRequest {
         private boolean needSearch;
         private OpenLAdvancedSearchBean advancedSearchBean;
-        private List<ITable> tableSearchList;
+        private List<IOpenLTable> tableSearchList;
 
         public OpenLAdvancedSearchBean getAdvancedSearchBean() {
             return advancedSearchBean;
         }
 
-        public List<ITable> getSearchResults() {
+        public List<IOpenLTable> getSearchResults() {
             if (!isSearching() || !advancedSearchBean.isReady()) {
                 return Collections.emptyList();
             }

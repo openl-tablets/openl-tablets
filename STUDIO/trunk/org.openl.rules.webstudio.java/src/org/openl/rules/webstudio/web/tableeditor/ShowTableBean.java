@@ -25,7 +25,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
@@ -55,10 +55,10 @@ public class ShowTableBean {
     private Test[] allTests = {};
     
     private boolean runnable;    
-    private List<ITable> targetTables;
+    private List<IOpenLTable> targetTables;
 
     private String uri;
-    private ITable table;
+    private IOpenLTable table;
 
     private List<OpenLMessage> errors;
     private List<OpenLMessage> warnings;
@@ -151,7 +151,7 @@ public class ShowTableBean {
         warnings = new ArrayList<OpenLMessage>();
         
         if (targetTables != null) {
-            for (ITable targetTable : targetTables) {
+            for (IOpenLTable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
                     warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY));
                 }
@@ -220,7 +220,7 @@ public class ShowTableBean {
         return paramsWithoutShowFormulas;
     }
 
-    public ITable getTable() {
+    public IOpenLTable getTable() {
         return table;
     }
 
@@ -263,7 +263,7 @@ public class ShowTableBean {
         return uri;
     }
 
-    public List<ITable> getTargetTables() {
+    public List<IOpenLTable> getTargetTables() {
         return targetTables;
     }
 

@@ -15,7 +15,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -151,7 +151,7 @@ public class TraceHelper {
         ITableTracerObject tto = (ITableTracerObject) tt;
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
 
-        ITable table = new TableSyntaxNodeAdapter(tsn);
+        IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
         IGridTable gt = new TableEditorModel(table, view, false).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });

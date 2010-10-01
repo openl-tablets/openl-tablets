@@ -14,7 +14,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.constraints.LessThanConstraint;
@@ -310,7 +310,7 @@ public class HTMLRenderer {
         return result.toString();
     }
 
-    protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
+    protected String renderPropsEditor(String editorId, IOpenLTable table, String mode, boolean collapseProps) {
         final String tableType = table.getType();
         if (tableType != null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
                 && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)
@@ -620,7 +620,7 @@ public class HTMLRenderer {
                 propertiesTable = props.getCategoryPropertiesTable();
             }
             if (propertiesTable != null) {
-                String tableUri = propertiesTable.getGridTable().getUri();
+                String tableUri = propertiesTable.getSource().getUri();
                 url = "?uri=" + StringTool.encodeURL(tableUri);
                 if ("edit".equals(mode)) {
                     url += "&mode=edit";

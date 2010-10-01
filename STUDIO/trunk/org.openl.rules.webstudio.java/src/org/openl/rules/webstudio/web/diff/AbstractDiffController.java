@@ -7,7 +7,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -53,15 +53,15 @@ public abstract class AbstractDiffController {
         this.showEqualElements = showEqualElements;
     }
 
-    public ITable getTable1() {
+    public IOpenLTable getTable1() {
         return getTable(0);
     }
 
-    public ITable getTable2() {
+    public IOpenLTable getTable2() {
         return getTable(1);
     }
 
-    public ITable getTable(int i) {
+    public IOpenLTable getTable(int i) {
         DiffTreeNode tree = DiffHelper.getDiffNodeById(getDiffTree(), getCurrentNodeId());
         if (tree != null) {
             DiffElement[] elems = tree.getElements();
@@ -71,7 +71,7 @@ public abstract class AbstractDiffController {
                     String projType = projection.getType();
                     if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
                         ProjectionProperty[] props = projection.getProperties();
-                        return (ITable) DiffHelper.getPropValue(props, "grid");
+                        return (IOpenLTable) DiffHelper.getPropValue(props, "grid");
                     }
                 }
             }
@@ -93,7 +93,7 @@ public abstract class AbstractDiffController {
                     String projType = projection.getType();
                     if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
                         ProjectionProperty[] props = projection.getProperties();
-                        ITable table = (ITable) DiffHelper.getPropValue(props, "grid");
+                        IOpenLTable table = (IOpenLTable) DiffHelper.getPropValue(props, "grid");
                         List<DiffTreeNode> cells = DiffHelper.getDiffNodesByType(tree, XlsProjectionType.CELL.name());
                         List<ICell> diffCells = new ArrayList<ICell>();
                         for (DiffTreeNode cellNode : cells) {
@@ -115,8 +115,7 @@ public abstract class AbstractDiffController {
     private IGridFilter makeFilter(IGridTable table, List<ICell> selectedCells) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
         for (ICell cell : selectedCells) {
-            IGridRegion region = table.getLogicalRegion(cell.getColumn(), cell.getRow(), 1, 1)
-                .getGridTable().getRegion();
+            IGridRegion region = table.getSubtable(cell.getColumn(), cell.getRow(), 1, 1).getRegion();
             regions.add(region);
         }
         if (regions.isEmpty()) {
