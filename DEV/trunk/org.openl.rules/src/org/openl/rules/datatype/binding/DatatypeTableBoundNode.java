@@ -30,6 +30,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 
 
@@ -162,11 +163,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 dataType.addField(field);
                 fields.put(fieldName, new FieldType(field));
                 
-                if (firstField) { // this is done for operations like people["john"]
+                if (firstField) { // this is done for operations like people["john"] in OpenL rules
                                    // to access one instance of datatype from array by 
-                                    // user defined index. But it`s not implemented yet.
+                                    // user defined String index.
+                                    // If first field type is not String, we can`t process it. The only possibility to work
+                                    // with array of such elements just using java array indexing.
                                     // See DynamicArrayAggregateInfo#getIndex(IOpenClass aggregateType, IOpenClass indexType)
-                    dataType.setIndexField(field);
+                    if (fieldType == JavaOpenClass.STRING) {
+                        dataType.setIndexField(field);
+                    } else {
+                        String message = String.format("Can`t set index field for datatype, as it`s first value [%s] is not of String type.", fieldName);
+                        BindHelper.processWarn(message, tableSyntaxNode, cxt);
+                        // this warning message is tested in DatatypeArrayUserIndexTest class.
+                        // see also DatatypeArrayTest
+                    }                    
                 }
             } catch (Throwable t) {
                 String errorMessage = String.format("Can not add field %s: %s", fieldName, t.getMessage());
