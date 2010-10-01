@@ -121,8 +121,8 @@ public class SquigglySudoku extends SudokuSolver {
 		public RegionColorSelector(IGridTable table) {
 			super();
 			this.table = table;
-			this.w = table.getGridWidth();
-			this.h = table.getGridHeight();
+			this.w = table.getWidth();
+			this.h = table.getHeight();
 		}
 
 		static boolean sameColor(short[] c1, short[] c2) {
