@@ -281,8 +281,15 @@ public class JavaWrapperGenerator {
     
         buf.append("  public ")
         .append(s_class)
-        .append("(boolean executionMode){\n")
-        .append("    this(false, executionMode, null);\n")
+        .append("(boolean ignoreErrors){\n")
+        .append("    this(ignoreErrors, false);\n")
+         .append("  }\n\n");
+
+
+        buf.append("  public ")
+        .append(s_class)
+        .append("(boolean ignoreErrors, boolean executionMode){\n")
+        .append("    this(ignoreErrors, executionMode, null);\n")
         .append("  }\n\n");
     
         buf.append("  public ")
