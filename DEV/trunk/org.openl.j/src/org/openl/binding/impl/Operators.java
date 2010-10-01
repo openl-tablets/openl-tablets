@@ -226,7 +226,7 @@ public class Operators {
     }
 
     public static boolean eq(Short x, Short y) {
-        return eq(x, y);
+        return strict_eq(x, y);
     }
 
     public static boolean strict_eq(Short x, Short y) {
