@@ -62,7 +62,7 @@ public class DecisionTableLoader {
         if (ruleRow != null) {
 
             throw SyntaxNodeExceptionUtils.createError("Only one rule row/column allowed",
-                new GridCellSourceCodeModule(table.getLogicalRow(row).getGridTable(),
+                new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0, bindingContext));
         }
@@ -115,16 +115,16 @@ public class DecisionTableLoader {
             toParse = tableBody = transposed;
         }
 
-        if (toParse.getLogicalWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             throw new SyntaxNodeException("Invalid structure of decision table", null, tableSyntaxNode);
         }
 
-        columnsNumber = toParse.getLogicalWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
 
-        ILogicalTable businessView = tableBody.columns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
+        ILogicalTable businessView = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
         tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
 
-        for (int i = 0; i < toParse.getLogicalHeight(); i++) {
+        for (int i = 0; i < toParse.getHeight(); i++) {
             loadRow(i, toParse, bindingContext);
         }
     }
@@ -135,8 +135,8 @@ public class DecisionTableLoader {
 
     private void loadRow(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
 
-        String headerStr = table.getLogicalRow(row)
-            .getGridTable()
+        String headerStr = table.getRow(row)
+            .getSource()
             .getCell(IDecisionTableConstants.INFO_COLUMN_INDEX, 0)
             .getStringValue();
 
@@ -158,7 +158,7 @@ public class DecisionTableLoader {
             // do nothing
         } else {
             throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header:" + headerStr,
-                new GridCellSourceCodeModule(table.getLogicalRow(row).getGridTable(),
+                new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0, bindingContext));
 

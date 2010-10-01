@@ -56,7 +56,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      */
     private String getCellStringValue(ILogicalTable cellTable) {
 
-        String value = cellTable.getGridTable().getCell(0, 0).getStringValue();
+        String value = cellTable.getSource().getCell(0, 0).getStringValue();
 
         if (value != null) {
             value = value.trim();
@@ -86,7 +86,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             int foreignKeyIndex,
             DomainOpenClass domainClass) throws SyntaxNodeException {
 
-        int valuesHeight = valuesTable.getLogicalHeight();
+        int valuesHeight = valuesTable.getHeight();
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
 
@@ -114,7 +114,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             for (int i = 0; i < valuesHeight; i++) {
                 // we take the appropriate cell for the current value.
-                ILogicalTable valueTable = valuesTable.getLogicalRow(i);
+                ILogicalTable valueTable = valuesTable.getRow(i);
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {
@@ -173,7 +173,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         throw SyntaxNodeExceptionUtils.createError(message,
             ex,
             null,
-            new GridCellSourceCodeModule(valuesTable.getGridTable(), bindingContext));
+            new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
     }
 
     /**
@@ -224,11 +224,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         } else {
 
             List<Object> values = new ArrayList<Object>();
-            int valuesHeight = valuesTable.getLogicalHeight();
+            int valuesHeight = valuesTable.getHeight();
 
             for (int i = 0; i < valuesHeight; i++) {
 
-                ILogicalTable valueTable = valuesTable.getLogicalRow(i);
+                ILogicalTable valueTable = valuesTable.getRow(i);
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {

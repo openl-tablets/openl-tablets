@@ -42,14 +42,14 @@ public class DataTableBindHelper {
      */
     public static boolean hasForeignKeysRow(ILogicalTable dataTable) {
 
-        ILogicalTable potentialForeignKeysRow = dataTable.rows(1, 1);
+        ILogicalTable potentialForeignKeysRow = dataTable.getRows(1, 1);
 
-        int columnsCount = potentialForeignKeysRow.getLogicalWidth();
+        int columnsCount = potentialForeignKeysRow.getWidth();
 
         for (int i = 0; i < columnsCount; i++) {
 
-            ILogicalTable cell = potentialForeignKeysRow.getLogicalColumn(i);
-            String value = cell.getGridTable().getCell(0, 0).getStringValue();
+            ILogicalTable cell = potentialForeignKeysRow.getColumn(i);
+            String value = cell.getSource().getCell(0, 0).getStringValue();
 
             if (value == null || value.trim().length() == 0) {
                 continue;
@@ -78,7 +78,7 @@ public class DataTableBindHelper {
             startRow = 2;
         }
 
-        return tsn.getTable().rows(startRow);
+        return tsn.getTable().getRows(startRow);
     }
 
     /**
@@ -106,7 +106,7 @@ public class DataTableBindHelper {
 
         // If data table body contains only one row, we consider it is vertical.
         //
-        if (dataTableBody.getLogicalHeight() != 1) {
+        if (dataTableBody.getHeight() != 1) {
             int fieldsCount1 = countFields(dataTableBody, tableType);
             int fieldsCount2 = countFields(dataTableBody.transpose(), tableType);
 
@@ -128,11 +128,11 @@ public class DataTableBindHelper {
     private static int countFields(ILogicalTable dataTable, IOpenClass tableType) {
 
         int count = 0;
-        int width = dataTable.getLogicalWidth();
+        int width = dataTable.getWidth();
 
         for (int i = 0; i < width; ++i) {
 
-            String fieldName = dataTable.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+            String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (fieldName == null) {
                 continue;
@@ -192,7 +192,7 @@ public class DataTableBindHelper {
     public static ILogicalTable getDataWithTitleRows(ILogicalTable horizDataTableBody) {
         int startRow = getStartRowForDataWithTitlesSection(horizDataTableBody);
 
-        return horizDataTableBody.rows(startRow);
+        return horizDataTableBody.getRows(startRow);
     }
 
     /**
@@ -229,7 +229,7 @@ public class DataTableBindHelper {
 
         int endRow = getEndRowForDescriptorSection(horizDataTableBody);
 
-        return horizDataTableBody.rows(0, endRow);
+        return horizDataTableBody.getRows(0, endRow);
     }
 
     /**
@@ -276,13 +276,14 @@ public class DataTableBindHelper {
 
         if (hasColumnTitleRow) {
 
-            ILogicalTable titleCell = dataWithTitleRows.getLogicalRegion(column, 0, 1, 1);
-            value = titleCell.getGridTable().getCell(0, 0).getStringValue();
+            ILogicalTable titleCell = dataWithTitleRows.getSubtable(column, 0, 1, 1);
+            value = titleCell.getSource().getCell(0, 0).getStringValue();
 
             // remove extra spaces
             value = StringUtils.trimToEmpty(value);
 
-            return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getGridTable(), bindingContext));
+            return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getSource(),
+                    bindingContext));
         }
 
         return new StringValue(value, value, value, null);
@@ -292,14 +293,14 @@ public class DataTableBindHelper {
             OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
             boolean hasColumnTytleRow) throws Exception {
 
-        int width = descriptorRows.getLogicalWidth();
+        int width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
         List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>(width);
 
         for (int columnNum = 0; columnNum < width; columnNum++) {
 
-            IGridTable gridTable = descriptorRows.getLogicalColumn(columnNum).getGridTable();
+            IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
             GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable, bindingContext);
 
             String code = cellSourceModule.getCode();
@@ -398,8 +399,9 @@ public class DataTableBindHelper {
      */
     private static IdentifierNode[] getForeignKeyTokens(IBindingContext bindingContext, ILogicalTable descriptorRows, int columnNum) throws OpenLCompilationException {
 
-        ILogicalTable logicalRegion = descriptorRows.getLogicalRegion(columnNum, 1, 1, 1);
-        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(logicalRegion.getGridTable(), bindingContext);
+        ILogicalTable logicalRegion = descriptorRows.getSubtable(columnNum, 1, 1, 1);
+        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(
+                logicalRegion.getSource(), bindingContext);
 
         // Should be in format
         // "> reference_table_name [reference_table_key_column]"

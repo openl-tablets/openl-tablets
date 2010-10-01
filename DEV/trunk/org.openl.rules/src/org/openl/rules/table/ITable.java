@@ -1,35 +1,34 @@
 package org.openl.rules.table;
 
-import java.util.List;
+/**
+ * Base interface that represents abstract table.
+ * 
+ * @author Andrei Astrouski
+ */
+public interface ITable<T extends ITable<T>> {
 
-import org.openl.message.OpenLMessage;
-import org.openl.rules.table.properties.ITableProperties;
+    int getWidth();
 
-public interface ITable {
+    int getHeight();
 
-    IGridTable getGridTable();
+    boolean isNormalOrientation();
 
-    IGridTable getGridTable(String view);
+    ICell getCell(int column, int row);
 
-    ITableProperties getProperties();
+    T getColumn(int column);
 
-    String getType();
+    T getColumns(int from);
 
-    List<OpenLMessage> getMessages();
+    T getColumns(int from, int to);
 
-    /**
-     * @return Table name for user. (Firstly will be searched in table
-     *         properties and then from table header)
-     */
-    String getName();
-    
-    /**
-     * 
-     * @return true if table is executable at OpenL rules runtime. Also it indicates that tests can be created for this 
-     * table.   
-     */
-    boolean isExecutable();
+    T getRow(int row);
 
-    String getUri();
+    T getRows(int from);
+
+    T getRows(int from, int to);
+
+    T getSubtable(int column, int row, int width, int height);
+
+    T transpose();
 
 }

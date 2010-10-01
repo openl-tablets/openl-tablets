@@ -19,8 +19,8 @@ public class GridLocation implements ILocation {
 
     public GridLocation(IGridTable table) {
 
-        int width = table.getGridWidth();
-        int height = table.getGridHeight();
+        int width = table.getWidth();
+        int height = table.getHeight();
 
         start = new GridPosition(table.getGridColumn(0, 0), table.getGridRow(0, 0), table.getGrid());
         end = new GridPosition(table.getGridColumn(width - 1, height - 1),

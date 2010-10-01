@@ -91,7 +91,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     public ILogicalTable getDisplayTable() {
         ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
-        return table.getLogicalColumn(0);
+        return table.getColumn(0);
     }
 
     public IMemberMetaInfo getInfo() {
@@ -126,7 +126,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     public ILogicalTable getRuleTable(int col) {
         ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
-        return table.getLogicalColumn(col + 1);
+        return table.getColumn(col + 1);
     }
     
     /**
@@ -138,9 +138,9 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
      */
     public ILogicalTable getRuleByIndex(int ruleNumber) {
         ILogicalTable dt = actionRows[0].getDecisionTable();
-        int starColumn = dt.getLogicalWidth() - columns;
+        int starColumn = dt.getWidth() - columns;
         
-        return dt.getLogicalColumn(starColumn + ruleNumber);
+        return dt.getColumn(starColumn + ruleNumber);
     }
 
     public String getSourceUrl() {

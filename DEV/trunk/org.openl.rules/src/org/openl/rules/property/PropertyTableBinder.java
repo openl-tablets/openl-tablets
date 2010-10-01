@@ -78,7 +78,6 @@ public class PropertyTableBinder extends DataNodeBinder {
      * @throws Exception
      */
     private String parseHeader(TableSyntaxNode tsn) throws Exception {
-
         IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");

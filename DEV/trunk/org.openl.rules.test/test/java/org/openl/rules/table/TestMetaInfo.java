@@ -35,8 +35,8 @@ public class TestMetaInfo extends TestCase {
 
         for (int i = 0; i < nodes.length; i++) {
             IGridTable table = nodes[i].getGridTable();
-            int w = table.getGridWidth();
-            int h = table.getGridHeight();
+            int w = table.getWidth();
+            int h = table.getHeight();
 
             for (int j = 0; j < w; j++) {
                 for (int k = 0; k < h; k++) {

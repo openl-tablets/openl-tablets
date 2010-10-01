@@ -10,7 +10,7 @@ import org.openl.rules.table.properties.ITableProperties;
  * @author DLiauchuk
  * 
  */
-public class Table implements ITable {
+public class OpenLTable implements IOpenLTable {
         
     private IGridTable gridTable;
     private ITableProperties properties;

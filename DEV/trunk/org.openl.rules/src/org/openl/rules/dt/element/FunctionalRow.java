@@ -71,9 +71,10 @@ public abstract class FunctionalRow implements IDecisionRow {
         this.row = row;
         this.decisionTable = decisionTable;
 
-        this.paramsTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PARAM_COLUMN_INDEX, row, 1, 1);
-        this.codeTable = decisionTable.getLogicalRegion(IDecisionTableConstants.CODE_COLUMN_INDEX, row, 1, 1);
-        this.presentationTable = decisionTable.getLogicalRegion(IDecisionTableConstants.PRESENTATION_COLUMN_INDEX, row, 1, 1);
+        this.paramsTable = decisionTable.getSubtable(IDecisionTableConstants.PARAM_COLUMN_INDEX, row, 1, 1);
+        this.codeTable = decisionTable.getSubtable(IDecisionTableConstants.CODE_COLUMN_INDEX, row, 1, 1);
+        this.presentationTable = decisionTable.getSubtable(
+                IDecisionTableConstants.PRESENTATION_COLUMN_INDEX, row, 1, 1);
     }
 
     public String getName() {
@@ -164,16 +165,16 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     public String[] getParamPresentation() {
 
-        int length = paramsTable.getLogicalHeight();
+        int length = paramsTable.getHeight();
 
         String[] result = new String[length];
         int fromHeight = 0;
 
         for (int i = 0; i < result.length; i++) {
 
-            int gridHeight = paramsTable.getLogicalRow(i).getGridTable().getGridHeight();
+            int gridHeight = paramsTable.getRow(i).getSource().getHeight();
 
-            IGridTable singleParamGridTable = (IGridTable) presentationTable.getGridTable().rows(fromHeight,
+            IGridTable singleParamGridTable = presentationTable.getSource().getRows(fromHeight,
                 fromHeight + gridHeight - 1);
             result[i] = singleParamGridTable.getCell(0, 0).getStringValue();
 
@@ -218,14 +219,13 @@ public abstract class FunctionalRow implements IDecisionRow {
         if (params == null) {
 
             Set<String> paramNames = new HashSet<String>();
-            int length = paramsTable.getLogicalHeight();
+            int length = paramsTable.getHeight();
 
             params = new IParameterDeclaration[length];
 
             for (int i = 0; i < length; i++) {
-
-                ILogicalTable paramTable = paramsTable.getLogicalRow(i);
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getGridTable(), bindingContext);
+                ILogicalTable paramTable = paramsTable.getRow(i);
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getSource(), bindingContext);
 
                 IParameterDeclaration parameterDeclaration = getParameterDeclaration(source,
                     methodSource,
@@ -250,7 +250,8 @@ public abstract class FunctionalRow implements IDecisionRow {
         return params;
     }
 
-    private Object[][] prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
+    private Object[][] prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow)
+        throws Exception {
 
         int len = nValues();
 
@@ -283,7 +284,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private Object[] loadParamsFromColumn(OpenlToolAdaptor ota, RuleRow ruleRow, IParameterDeclaration[] paramDecl,
             boolean[] paramIndexed, ArrayList<SyntaxNodeException> errors, int columnNumber) {        
-        IGridTable paramGridColumn = getValueCell(columnNumber).getGridTable();        
+        IGridTable paramGridColumn = getValueCell(columnNumber).getSource();        
 
         int fromHeight = 0;        
         String ruleName = ruleRow == null ? "R" + (columnNumber + 1) : ruleRow.getRuleName(columnNumber);
@@ -295,8 +296,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                 continue;
             }
 
-            int gridHeight = paramsTable.getLogicalRow(j).getGridTable().getGridHeight();
-            IGridTable singleParamGridTable = (IGridTable) paramGridColumn.rows(fromHeight,
+            int gridHeight = paramsTable.getRow(j).getSource().getHeight();
+            IGridTable singleParamGridTable = paramGridColumn.getRows(fromHeight,
                 fromHeight + gridHeight - 1);
 
             Object loadedValue = null;
@@ -345,11 +346,11 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
         
     private ILogicalTable getValueCell(int column) {
-        return decisionTable.getLogicalRegion(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
+        return decisionTable.getSubtable(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
     private int nValues() {
-        return decisionTable.getLogicalWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        return decisionTable.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
     private String makeParamName() {
@@ -379,7 +380,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
 	protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext) {
-		return new GridCellSourceCodeModule(codeTable.getGridTable(), bindingContext);
+		return new GridCellSourceCodeModule(codeTable.getSource(), bindingContext);
 	}
 
     /**

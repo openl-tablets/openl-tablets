@@ -74,7 +74,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
-        int tableHeight = dataTable.getLogicalHeight();
+        int tableHeight = dataTable.getHeight();
         
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
@@ -82,7 +82,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         Map<String, FieldType> fields = new LinkedHashMap<String,  FieldType>();
 
         for (int i = 0; i < tableHeight; i++) {
-            ILogicalTable row = dataTable.getLogicalRow(i);
+            ILogicalTable row = dataTable.getRow(i);
             boolean firstField = false;
             if (i == 0) {
                 firstField = true;
@@ -144,12 +144,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
         throws SyntaxNodeException, OpenLCompilationException {
-        
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getGridTable(), cxt);
-        
+
+        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
+
         if (canProcessRow(rowSrc)) {
-            GridCellSourceCodeModule firstLogicalRowSrc = 
-                        new GridCellSourceCodeModule(row.getLogicalColumn(1).getGridTable(), cxt);
+            GridCellSourceCodeModule firstLogicalRowSrc = new GridCellSourceCodeModule(
+                    row.getColumn(1).getSource(), cxt);
 
             IdentifierNode[] idn = getIdentifierNode(firstLogicalRowSrc);
             
@@ -216,7 +216,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                   tableSrc);
         }
 
-        if (row.getLogicalWidth() < 2) {
+        if (row.getWidth() < 2) {
             String errorMessage = "Bad table structure: must be {header} / {type | name}";
             throw SyntaxNodeExceptionUtils.createError(errorMessage,
                 null,

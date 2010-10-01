@@ -7,7 +7,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.GridSplitter;
-import org.openl.rules.table.GridTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IMethodSignature;
@@ -27,14 +27,12 @@ public class DecisionTableCreator {
     public DecisionTableCreator() {
     }
     
-    public GridTable createGridTable(Sheet sheetWithTable) {
+    public IGridTable createGridTable(Sheet sheetWithTable) {
         createSheetGridModel(sheetWithTable);
         GridSplitter gridSplitter = new GridSplitter(sheetGridModel);
-        GridTable[] gridTables = gridSplitter.split();
-        
-        GridTable gridTable = gridTables[0];
-        
-        return gridTable;
+        IGridTable[] gridTables = gridSplitter.split();
+
+        return gridTables[0];
     }
 
     public XlsSheetGridModel createSheetGridModel(Sheet sheetWithTable) {

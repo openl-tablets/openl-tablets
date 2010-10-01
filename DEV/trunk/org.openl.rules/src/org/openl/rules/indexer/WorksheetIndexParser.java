@@ -60,7 +60,7 @@ public class WorksheetIndexParser implements IIndexParser {
         for (int i = 0; i < nodes.length; i++) {
 
             IGridTable table = tables[i];
-            GridCellSourceCodeModule src = new GridCellSourceCodeModule(table, null);
+            GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
             IdentifierNode parsedHeader;
 

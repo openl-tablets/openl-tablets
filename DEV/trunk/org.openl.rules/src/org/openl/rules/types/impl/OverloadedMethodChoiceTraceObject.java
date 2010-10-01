@@ -49,9 +49,9 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
             ILogicalTable ruleTable = getDispatcherTable().getRuleByIndex(methodIndex);
 
             ICell cell = null;
-            for (int row = 0; row < ruleTable.getGridTable().getGridHeight(); row += cell.getHeight()) {
-                for (int column = 0; column < ruleTable.getGridTable().getGridWidth(); column += cell.getWidth()) {
-                    cell = ruleTable.getGridTable().getCell(column, row);
+            for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell.getHeight()) {
+                for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell.getWidth()) {
+                    cell = ruleTable.getSource().getCell(column, row);
                     regions.add(cell.getAbsoluteRegion());
                 }
             }

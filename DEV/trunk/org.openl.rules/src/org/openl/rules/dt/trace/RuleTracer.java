@@ -24,7 +24,7 @@ public class RuleTracer extends ATableTracerLeaf {
     }
 
     public IGridRegion getGridRegion() {
-        return getRuleTable().getGridTable().getRegion();
+        return getRuleTable().getSource().getRegion();
     }
 
     public DecisionTableTraceObject getParentTraceObject() {
@@ -50,7 +50,7 @@ public class RuleTracer extends ATableTracerLeaf {
 
     @Override
     public String getUri() {
-        return getRuleTable().getGridTable().getUri();
+        return getRuleTable().getSource().getUri();
     }
 
     public List<IGridRegion> getGridRegions() {
@@ -59,9 +59,9 @@ public class RuleTracer extends ATableTracerLeaf {
         ILogicalTable ruleTable = getRuleTable();
       
         ICell cell = null;
-        for (int row = 0; row < ruleTable.getGridTable().getGridHeight(); row += cell.getHeight()) {
-            for (int column = 0; column < ruleTable.getGridTable().getGridWidth(); column += cell.getWidth()) {
-                cell = ruleTable.getGridTable().getCell(column, row);
+        for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell.getHeight()) {
+            for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell.getWidth()) {
+                cell = ruleTable.getSource().getCell(column, row);
                 regions.add(cell.getAbsoluteRegion());
             }
         }

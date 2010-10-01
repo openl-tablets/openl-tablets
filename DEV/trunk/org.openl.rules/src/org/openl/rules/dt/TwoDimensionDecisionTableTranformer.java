@@ -48,10 +48,10 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      * @param lookupValuesTable The "values subtable"
      */
     public TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable, int retTableWidth) {
-        this.lookupValuesTableHeight = lookupValuesTable.getGridHeight();
-        this.lookupValuesTableWidth = lookupValuesTable.getGridWidth();
-        this.conditionsWidth = entireTable.getGridWidth() - lookupValuesTableWidth;
-        this.hConditionsCount = entireTable.getGridHeight() - lookupValuesTableHeight - HCONDITION_HEADERS_HEIGHT;
+        this.lookupValuesTableHeight = lookupValuesTable.getHeight();
+        this.lookupValuesTableWidth = lookupValuesTable.getWidth();
+        this.conditionsWidth = entireTable.getWidth() - lookupValuesTableWidth;
+        this.hConditionsCount = entireTable.getHeight() - lookupValuesTableHeight - HCONDITION_HEADERS_HEIGHT;
         this.retTableWidth = retTableWidth;
         this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + (hConditionsCount - 1);
     }

@@ -31,7 +31,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         ColumnMatchBuilder builder = new ColumnMatchBuilder(cxt, getColumnMatch(), getTableSyntaxNode());
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);
-        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.rows(1));
+        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
         if (cxt.isExecutionMode()) {
             getColumnMatch().setBoundNode(null);
         }

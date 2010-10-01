@@ -41,8 +41,8 @@ public class TableIndexParser implements IIndexParser {
 
         IGridTable table = tableSrc.getGridTable();
 
-        int w = table.getLogicalWidth();
-        int h = table.getLogicalHeight();
+        int w = table.getWidth();
+        int h = table.getHeight();
 
         List<GridCellSourceCodeModule> gridCells = new ArrayList<GridCellSourceCodeModule>();
                 

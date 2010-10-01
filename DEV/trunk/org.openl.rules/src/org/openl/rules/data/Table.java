@@ -97,7 +97,7 @@ public class Table implements ITable {
     }
 
     public IGridTable getHeaderTable() {
-        return logicalTable.getLogicalRow(0).getGridTable();
+        return logicalTable.getRow(0).getSource();
     }
 
     public String getName() {
@@ -109,7 +109,7 @@ public class Table implements ITable {
     }
 
     public int getNumberOfRows() {
-        return logicalTable.getLogicalHeight() - 1;
+        return logicalTable.getHeight() - 1;
     }
 
     public String getPrimaryIndexKey(int row) {
@@ -121,7 +121,7 @@ public class Table implements ITable {
     }
 
     public IGridTable getRowTable(int row) {
-        return logicalTable.getLogicalRow(row + 1).getGridTable();
+        return logicalTable.getRow(row + 1).getSource();
     }
 
     public int getSize() {
@@ -151,23 +151,23 @@ public class Table implements ITable {
 
         Map<String, Integer> index = new HashMap<String, Integer>();
 
-        int rows = logicalTable.getLogicalHeight();
+        int rows = logicalTable.getHeight();
 
         for (int i = 1; i < rows; i++) {
 
-            IGridTable gridTable = logicalTable.getLogicalRegion(colIdx, i, 1, 1).getGridTable();
+            IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
                 throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
-                    new GridCellSourceCodeModule(gridTable, null));
+                    new GridCellSourceCodeModule(gridTable));
             }
 
             key = key.trim();
 
             if (index.containsKey(key)) {
                 throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key,
-                    new GridCellSourceCodeModule(gridTable, null));
+                    new GridCellSourceCodeModule(gridTable));
             }
 
             index.put(key, i - 1);
@@ -178,8 +178,8 @@ public class Table implements ITable {
 
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
 
-        int rows = logicalTable.getLogicalHeight();
-        int columns = logicalTable.getLogicalWidth();
+        int rows = logicalTable.getHeight();
+        int columns = logicalTable.getWidth();
 
         int startRow = 1;
 
@@ -198,12 +198,12 @@ public class Table implements ITable {
 
                         if (descriptor.isConstructor()) {
                             target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
-                                logicalTable.getLogicalRegion(j, i, 1, 1),
+                                logicalTable.getSubtable(j, i, 1, 1),
                                 dataBase,
                                 bindingContext);
                         } else {
                             fkDescriptor.populateLiteralByForeignKey(target,
-                                logicalTable.getLogicalRegion(j, i, 1, 1),
+                                logicalTable.getSubtable(j, i, 1, 1),
                                 dataBase,
                                 bindingContext);
                         }
@@ -215,7 +215,7 @@ public class Table implements ITable {
 
     public void preLoad(OpenlToolAdaptor openlAdapter) throws Exception {
 
-        int rows = logicalTable.getLogicalHeight();
+        int rows = logicalTable.getHeight();
         int startRow = getStartRowForData();
 
         dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);        
@@ -242,7 +242,7 @@ public class Table implements ITable {
             addToRowIndex(rowIndex, literal);
         }
 
-        int columns = logicalTable.getLogicalWidth();
+        int columns = logicalTable.getWidth();
 
         for (int columnNum = 0; columnNum < columns; columnNum++) {
             literal = processColumn(openlAdapter, constructor, rowNum, literal, columnNum);
@@ -263,7 +263,7 @@ public class Table implements ITable {
         
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
-                literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getLogicalRegion(columnNum,
+                literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getSubtable(columnNum,
                     rowNum,
                     1,
                     1), openlAdapter);
@@ -271,7 +271,7 @@ public class Table implements ITable {
             	
                 try {
 					columnDescriptor.populateLiteral(literal,
-					    logicalTable.getLogicalRegion(columnNum, rowNum, 1, 1),
+					    logicalTable.getSubtable(columnNum, rowNum, 1, 1),
 					    openlAdapter);
 		        } catch (SyntaxNodeException ex) {
 		        	tableSyntaxNode.addError(ex);

@@ -41,21 +41,20 @@ public class LookupTest extends TestCase {
     }
 
     private void testSheet1(IGridTable[] tables) {
-       
         Assert.assertEquals(2, tables.length);
 
         ILogicalTable lookupTable = LogicalTableHelper.logicalTable(tables[0]);
-        ILogicalTable t1 = lookupTable.rows(1);
-        ILogicalTable lookupRow1 = t1.getLogicalRow(0);
-        ILogicalTable t2 = t1.rows(1);
-        ILogicalTable lookupColumn1 = t2.getLogicalColumn(0);
+        ILogicalTable t1 = lookupTable.getRows(1);
+        ILogicalTable lookupRow1 = t1.getRow(0);
+        ILogicalTable t2 = t1.getRows(1);
+        ILogicalTable lookupColumn1 = t2.getColumn(0);
         ILogicalTable body = LogicalTableHelper.mergeBounds(lookupColumn1, lookupRow1);
 
-        Assert.assertEquals(5, body.getLogicalHeight());
-        Assert.assertEquals(3, body.getLogicalWidth());
+        Assert.assertEquals(5, body.getHeight());
+        Assert.assertEquals(3, body.getWidth());
 
-        Assert.assertEquals("1", body.getLogicalRegion(0, 0, 1, 1).getGridTable().getCell(0, 0).getStringValue());
-        Assert.assertEquals("7", body.getLogicalRegion(0, 2, 1, 1).getGridTable().getCell(0, 0).getStringValue());
-        Assert.assertEquals("15", body.getLogicalRegion(2, 4, 1, 1).getGridTable().getCell(0, 0).getStringValue());
+        Assert.assertEquals("1", body.getSubtable(0, 0, 1, 1).getSource().getCell(0, 0).getStringValue());
+        Assert.assertEquals("7", body.getSubtable(0, 2, 1, 1).getSource().getCell(0, 0).getStringValue());
+        Assert.assertEquals("15", body.getSubtable(2, 4, 1, 1).getSource().getCell(0, 0).getStringValue());
     }
 }

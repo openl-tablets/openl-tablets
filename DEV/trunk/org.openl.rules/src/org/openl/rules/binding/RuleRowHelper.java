@@ -44,12 +44,12 @@ public class RuleRowHelper {
 
     public static int calculateHeight(ILogicalTable table) {
 
-        int height = table.getLogicalHeight();
+        int height = table.getHeight();
 
         int last = -1;
 
         for (int i = 0; i < height; i++) {
-            String source = table.getLogicalRow(i).getGridTable().getCell(0, 0).getStringValue();
+            String source = table.getRow(i).getSource().getCell(0, 0).getStringValue();
 
             if (source != null && source.trim().length() != 0) {
                 last = i;
@@ -62,7 +62,7 @@ public class RuleRowHelper {
     public static String[] extractElementsFromCommaSeparatedArray(ILogicalTable cell) {
 
         String[] tokens = null;
-        String src = cell.getGridTable().getCell(0, 0).getStringValue();
+        String src = cell.getSource().getCell(0, 0).getStringValue();
 
         if (src != null) {
             tokens = StringTool.splitAndEscape(src, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
@@ -163,7 +163,7 @@ public class RuleRowHelper {
     public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable table,
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
-        ICell theCell = table.getGridTable().getCell(0, 0);
+        ICell theCell = table.getSource().getCell(0, 0);
 
         if (theCell.hasNativeType()) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
@@ -174,7 +174,7 @@ public class RuleRowHelper {
                         validateValue(res, paramType);
                     } catch (Throwable t) {
                         throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(table
-                                .getGridTable(), openlAdapter.getBindingContext()));
+                                .getSource(), openlAdapter.getBindingContext()));
                     }
                     setCellMetaInfo(table, paramName, paramType, false);
                     return res;
@@ -232,15 +232,18 @@ public class RuleRowHelper {
                 openlAdapter.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
-                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getGridTable(), openlAdapter.getBindingContext());
+                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getSource(),
+                            openlAdapter.getBindingContext());
 
                     return openlAdapter.makeMethod(srcCode);
                 }
 
                 if (source.startsWith("=")
-                        && (source.length() > 2 || source.length() == 2 && Character.isLetterOrDigit(source.charAt(1)))) {
+                        && (source.length() > 2 || source.length() == 2
+                                && Character.isLetterOrDigit(source.charAt(1)))) {
 
-                    GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getGridTable(), openlAdapter.getBindingContext());
+                    GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getSource(),
+                            openlAdapter.getBindingContext());
                     IOpenSourceCodeModule code = new SubTextSourceCodeModule(gridSource, 1);
 
                     return openlAdapter.makeMethod(code);
@@ -267,7 +270,8 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getGridTable(), openlAdapter.getBindingContext()));
+                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getSource(),
+                        openlAdapter.getBindingContext()));
             }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
@@ -285,7 +289,7 @@ public class RuleRowHelper {
 
     public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {
 
-        String stringValue = valuesTable.getGridTable().getCell(0, 0).getStringValue();
+        String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
 
         if (stringValue != null) {
             return stringValue.contains(ARRAY_ELEMENTS_SEPARATOR);
@@ -294,10 +298,10 @@ public class RuleRowHelper {
         return false;
     }
 
-    public static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean isMultiValue) {
-
+    public static void setCellMetaInfo(ILogicalTable cell, String paramName,
+            IOpenClass paramType, boolean isMultiValue) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
-        IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
+        IWritableGrid.Tool.putCellMetaInfo(cell.getSource(), 0, 0, meta);
     }
     
     private static void setMetaInfo(IMetaHolder holder, ILogicalTable cell, String paramName, String ruleName,
@@ -306,7 +310,7 @@ public class RuleRowHelper {
             ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
             valueMetaInfo.setShortName(paramName);
             valueMetaInfo.setFullName(ruleName == null ? paramName : ruleName + "." + paramName);
-            valueMetaInfo.setSource(new GridCellSourceCodeModule(cell.getGridTable(), bindingContext));
+            valueMetaInfo.setSource(new GridCellSourceCodeModule(cell.getSource(), bindingContext));
 
             holder.setMetaInfo(valueMetaInfo);
         }
@@ -387,8 +391,9 @@ public class RuleRowHelper {
             OpenlToolAdaptor openlAdaptor,
             IOpenClass paramType) throws SyntaxNodeException {
 
-        ILogicalTable paramSource = dataTable.getLogicalRow(0);
-        Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
+        ILogicalTable paramSource = dataTable.getRow(0);
+        Object params = RuleRowHelper.loadCommaSeparatedParam(
+                paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
             return processAsObjectParams(paramType, (Object[]) params);
@@ -445,7 +450,7 @@ public class RuleRowHelper {
 
         for (int i = 0; i < height; i++) { // load array values represented as
             // number of cells
-            ILogicalTable cell = dataTable.getLogicalRow(i);
+            ILogicalTable cell = dataTable.getRow(i);
             Object parameter = RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
 
             if (parameter instanceof CompositeMethod) {

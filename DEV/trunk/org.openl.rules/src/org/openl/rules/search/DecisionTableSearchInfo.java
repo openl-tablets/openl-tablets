@@ -71,7 +71,7 @@ public class DecisionTableSearchInfo implements ITableSearchInfo {
     }
 
     public IGridTable getHeaderDisplayTable() {
-        return dt.getDisplayTable().getGridTable();
+        return dt.getDisplayTable().getSource();
     }
 
     public int getNumberOfColumns() {
@@ -83,8 +83,8 @@ public class DecisionTableSearchInfo implements ITableSearchInfo {
     }
 
     public IGridTable getRowTable(int row) {
-//        return dt.getRuleTable(row).getGridTable();
-        return dt.getRuleByIndex(row).getGridTable();
+//        return dt.getRuleTable(row).getSourceTable();
+        return dt.getRuleByIndex(row).getSource();
     }
 
     public Object getTableValue(int col, int row) {

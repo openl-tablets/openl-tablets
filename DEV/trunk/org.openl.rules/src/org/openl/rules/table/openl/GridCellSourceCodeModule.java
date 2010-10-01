@@ -35,6 +35,10 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     
     private Map<String, Object> params;
 
+    public GridCellSourceCodeModule(IGridTable table) {
+        this(table, 0, 0, null);
+    }
+
     public GridCellSourceCodeModule(IGridTable table, IBindingContext bindingContext) {
         this(table, 0, 0, bindingContext);
     }

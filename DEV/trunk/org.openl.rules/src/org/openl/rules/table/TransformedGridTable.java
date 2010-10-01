@@ -7,7 +7,7 @@ package org.openl.rules.table;
  * 
  * @author PUdalau
  */
-public class TransformedGridTable extends AGridTableDelegator {
+public class TransformedGridTable extends AGridTableDecorator {
     
     private CoordinatesTransformer transformer;
 
@@ -23,13 +23,15 @@ public class TransformedGridTable extends AGridTableDelegator {
         return transformer;
     }
 
+    @Override
     public ICell getCell(int column, int row) {
         Point point = getCoordinates(column, row);
-        return gridTable.getCell(point.getColumn(), point.getRow());
+        return table.getCell(point.getColumn(), point.getRow());
     }
-    
+
+    @Override
     public String getUri() {
-        return gridTable.getGrid().getUri();
+        return table.getGrid().getUri();
     }
 
     private Point getCoordinates(int col, int row) {
@@ -37,25 +39,26 @@ public class TransformedGridTable extends AGridTableDelegator {
         return point;
     }
 
-    public int getGridColumn(int column, int row) {        
-        Point point = getCoordinates(column, row);
-        return gridTable.getGridColumn(point.getColumn(), point.getRow());
+    public int getWidth() {
+        return transformer.getWidth();
     }
 
-    public int getGridHeight() {        
+    public int getHeight() {        
         return transformer.getHeight();
     }
 
     public int getGridRow(int column, int row) {
         Point point = getCoordinates(column, row);
-        return gridTable.getGridRow(point.getColumn(), point.getRow());
+        return table.getGridRow(point.getColumn(), point.getRow());
     }
 
-    public int getGridWidth() {
-        return transformer.getWidth();
+    public int getGridColumn(int column, int row) {        
+        Point point = getCoordinates(column, row);
+        return table.getGridColumn(point.getColumn(), point.getRow());
     }
 
     public boolean isNormalOrientation() {        
-        return gridTable.isNormalOrientation();
+        return table.isNormalOrientation();
     }
+
 }

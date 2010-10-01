@@ -10,18 +10,18 @@ public class PropertiesHelper {
     
     public static ILogicalTable getPropertiesTableSection(ILogicalTable table) {
 
-        if (table.getLogicalHeight() < 2) {
+        if (table.getHeight() < 2) {
             return null;
         }
 
-        ILogicalTable propTable = table.rows(1, 1);
-        String header = propTable.getGridTable().getCell(0, 0).getStringValue();
+        ILogicalTable propTable = table.getRows(1, 1);
+        String header = propTable.getSource().getCell(0, 0).getStringValue();
         
         if (!PROPERTIES_HEADER.equals(header)) {
             return null;
         }
 
-        return propTable.columns(1);
+        return propTable.getColumns(1);
     }
 
 }
