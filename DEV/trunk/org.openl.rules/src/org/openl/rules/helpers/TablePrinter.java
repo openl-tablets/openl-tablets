@@ -31,15 +31,15 @@ public class TablePrinter {
         }
 
         public int height() {
-            return table.getGridHeight();
+            return table.getHeight();
         }
 
         public int maxWidth() {
-            return table.getGridWidth();
+            return table.getWidth();
         }
 
         public int width(int row) {
-            return table.getGridWidth();
+            return table.getWidth();
         }
         
     }

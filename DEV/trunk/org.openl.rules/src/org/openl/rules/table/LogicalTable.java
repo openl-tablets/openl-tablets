@@ -1,44 +1,36 @@
-/*
- * Created on Oct 28, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.table;
 
 /**
  * @author snshor
- *
- * TODO: rename to something like this: OffSetGridTable, as it perfoms 
- * offSet operations over gridTable.
- * 
  */
-public class LogicalTable extends AGridTableDelegator {
-    
+public class LogicalTable extends ALogicalTable {
+
     private int[] rowOffset;
 
     private int[] columnOffset;
 
-    public LogicalTable(IGridTable gridTable, int width, int height) {
-        super(gridTable);
+    public LogicalTable(IGridTable table, int width, int height) {
+        super(table);
         calculateRowOffsets(height);
         calculateColumnOffsets(width);
     }
 
-    public LogicalTable(IGridTable gridTable, int[] columnOffset, int[] rowOffset) {
-        super(gridTable);
-        
+    public LogicalTable(IGridTable table, int[] columnOffset, int[] rowOffset) {
+        super(table);
+
         if (columnOffset == null) {
-            int width = LogicalTableHelper.calcLogicalColumns(getOriginalGridTable());
+            int width = LogicalTableHelper.calcLogicalColumns(table);
             calculateColumnOffsets(width);
-        }    
-        else this.columnOffset = columnOffset;
-        
+        }
+        else
+            this.columnOffset = columnOffset;
+
         if (rowOffset == null) {
-            int height = LogicalTableHelper.calcLogicalRows(getOriginalGridTable());
+            int height = LogicalTableHelper.calcLogicalRows(table);
             calculateRowOffsets(height);
-        }    
-        else this.rowOffset = rowOffset;
+        }
+        else
+            this.rowOffset = rowOffset;
     }
 
     private void calculateRowOffsets(int height) {
@@ -47,12 +39,11 @@ public class LogicalTable extends AGridTableDelegator {
         int i = 0;
         for (; i < rowOffset.length - 1; offset += cellHeight, ++i) {
             rowOffset[i] = offset;
-            cellHeight = getOriginalGridTable().getCell(0, offset).getHeight();
+            cellHeight = table.getCell(0, offset).getHeight();
         }
         rowOffset[i] = offset;
-
     }
-    
+
     private void calculateColumnOffsets(int width) {
         columnOffset = new int[width+1];
         int cellWidth = 0;
@@ -60,14 +51,17 @@ public class LogicalTable extends AGridTableDelegator {
         int i = 0;
         for (; i < columnOffset.length - 1; offset += cellWidth, ++i) {
             columnOffset[i] = offset;
-            cellWidth = getOriginalGridTable().getCell(offset, 0).getWidth();
+            cellWidth = table.getCell(offset, 0).getWidth();
         }
         columnOffset[i] = offset;
     }
 
-    @Override
-    protected ILogicalTable columnsInternal(int from, int to) {
-        return LogicalTableHelper.logicalTable(getOriginalGridTable().columns(columnOffset[from], columnOffset[to + 1] - 1));
+    public int getWidth() {
+        return columnOffset.length - 1;
+    }
+
+    public int getHeight() {
+        return rowOffset.length - 1;
     }
 
     public int findColumnStart(int gridOffset) throws TableException {
@@ -94,120 +88,30 @@ public class LogicalTable extends AGridTableDelegator {
         throw new TableException("gridOffset is higher than table's height");
     }
 
-    public IGridTable getGridTable() {
-        return getOriginalGridTable();
-    }
-
-    public ILogicalTable getLogicalColumn(int column) {
-        return getLogicalRegion(column, 0, 1, getLogicalHeight());
-    }
-
-    public int getLogicalColumnGridWidth(int column) {
-
+    public int getColumnWidth(int column) {
         return columnOffset[column + 1] - columnOffset[column];
     }
 
-    public int getLogicalHeight() {
-        return rowOffset.length - 1;
+    public int getRowHeight(int row) {
+        return rowOffset[row + 1] - rowOffset[row];
     }
 
-   @Override
-    public ILogicalTable getLogicalRegionInternal(int column, int row, int width, int height) {
-
+    public ILogicalTable getSubtable(int column, int row, int width, int height) {
         int startRow = rowOffset[row];
         int endRow = rowOffset[row + height];
         int startColumn = columnOffset[column];
         int endColumn = columnOffset[column + width];
 
-        return LogicalTableHelper.logicalTable(getOriginalGridTable().getLogicalRegion(startColumn, startRow, endColumn - startColumn,
-                endRow - startRow));
-    }
-
-    public ILogicalTable getLogicalRow(int row) {
-        return getLogicalRegion(0, row, getLogicalWidth(), 1);
-    }
-
-    public int getLogicalRowGridHeight(int row) {
-        return rowOffset[row + 1] - rowOffset[row];
-    }
-
-    public int getLogicalWidth() {
-        return columnOffset.length - 1;
-    }
-
-     @Override
-    protected ILogicalTable rowsInternal(int from, int to) {
-        return LogicalTableHelper.logicalTable(getOriginalGridTable().rows(rowOffset[from], rowOffset[to + 1] - 1));
-    }
-
-    public ILogicalTable transpose() {
-        return LogicalTableHelper.logicalTable(new TransposedGridTable(getOriginalGridTable()));
+        return LogicalTableHelper.logicalTable(
+                table.getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
     }
 
     public int[] getRowOffset() {
         return rowOffset;
     }
-    
+
     public int[] getColumnOffset() {
         return columnOffset;
-    }
-    
-    public ILogicalTable getLogicalCell(int column, int row) {
-        return getLogicalColumn(column).getLogicalRow(row);
-    }
-    
-    @Override
-    public String toString() {
-        StringBuffer tableVisualization = new StringBuffer();     
-        tableVisualization.append(super.toString()).append("\n");
-        
-        for (int i = 0; i < getLogicalHeight(); i++) {
-            int length = 0;
-            for (int j = 0; j < getLogicalWidth(); j++) {
-                String stringValue = getGridTable().getCell(j, i).getStringValue();
-                if (stringValue == null) {
-                    stringValue = "EMPTY";
-                }
-                length += stringValue.length();
-                tableVisualization.append(stringValue);                
-                tableVisualization.append("|");
-            }
-            tableVisualization.append("\n");
-            for(int k = 0; k <= length; k++) {
-                tableVisualization.append("-");
-            }   
-            tableVisualization.append("\n");
-        }
-        
-        return  tableVisualization.toString();
-    }
-
-    public int getGridColumn(int column, int row) {
-        // TODO Auto-generated method stub
-        // implement using offSet operations
-        return 0;
-    }
-
-    public int getGridHeight() {
-        // TODO Auto-generated method stub
-        // implement using offSet operations
-        return 0;
-    }
-
-    public int getGridRow(int column, int row) {
-        // TODO Auto-generated method stub
-        // implement using offSet operations
-        return 0;
-    }
-
-    public int getGridWidth() {
-        // TODO Auto-generated method stub
-        // implement using offSet operations
-        return 0;
-    }
-
-    public boolean isNormalOrientation() {        
-        return getOriginalGridTable().isNormalOrientation();
     }
 
 }

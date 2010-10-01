@@ -73,7 +73,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
 
     public String getDisplayName() {
-        return table.getGridTable().getCell(0, 0).getStringValue();
+        return table.getSource().getCell(0, 0).getStringValue();
     }
 
     public SyntaxNodeException[] getErrors() {
@@ -98,8 +98,8 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     }
 
     public StringValue getHeaderLineValue() {
-        String value = table.getGridTable().getCell(0, 0).getStringValue();
-        return new StringValue(value, value, value, new GridCellSourceCodeModule(table.getGridTable(), 0, 0, null));
+        String value = table.getSource().getCell(0, 0).getStringValue();
+        return new StringValue(value, value, value, new GridCellSourceCodeModule(table.getSource(), 0, 0, null));
     }
 
     public String getIndexedText() {
@@ -125,21 +125,20 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     }
 
     public IGridTable getGridTable() {
-        return table.getGridTable();
+        return table.getSource();
     }
 
     public ILogicalTable getTableBody() {        
         int startRow = !hasPropertiesDefinedInTable() ? 1 : 2;
 
-        if (table.getLogicalHeight() <= startRow) {
+        if (table.getHeight() <= startRow) {
             return null;
         }
-        ILogicalTable tableBody = table.rows(startRow);
-        return tableBody;
+        return table.getRows(startRow);
     }
 
     public String getUri() {
-        return table.getGridTable().getUri();
+        return getGridTable().getUri();
     }
 
     public Object getValidationResult() {

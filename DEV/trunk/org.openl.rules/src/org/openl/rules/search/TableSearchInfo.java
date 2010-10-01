@@ -11,7 +11,7 @@ public class TableSearchInfo implements ITableSearchInfo {
 
     public TableSearchInfo(TableSyntaxNode tsn) {
         this.tsn = tsn;
-        table = tsn.getTableBody().getGridTable();
+        table = tsn.getTableBody().getSource();
     }
 
     public String getColumnDisplay(int col) {
@@ -35,15 +35,15 @@ public class TableSearchInfo implements ITableSearchInfo {
     }
 
     public int getNumberOfColumns() {
-        return table.getGridWidth();
+        return table.getWidth();
     }
 
     public int getNumberOfRows() {
-        return table.getGridHeight();
+        return table.getHeight();
     }
 
     public IGridTable getRowTable(int row) {
-        return table.getLogicalRow(row).getGridTable();
+        return table.getRow(row);
     }
 
     public Object getTableValue(int col, int row) {

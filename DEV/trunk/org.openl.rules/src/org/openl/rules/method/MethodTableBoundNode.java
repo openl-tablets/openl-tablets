@@ -46,14 +46,14 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
         ILogicalTable logicalTable = tsn.getTable();
         boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
-        ILogicalTable bodyTable = logicalTable.rows(tableHasProperties ? 2 : 1);
+        ILogicalTable bodyTable = logicalTable.getRows(tableHasProperties ? 2 : 1);
 
-        int height = bodyTable.getLogicalHeight();
+        int height = bodyTable.getHeight();
 
         IOpenSourceCodeModule[] cellSources = new IOpenSourceCodeModule[height];
 
         for (int i = 0; i < height; i++) {
-            cellSources[i] = new GridCellSourceCodeModule(bodyTable.getLogicalRow(i).getGridTable(), bindingContext);
+            cellSources[i] = new GridCellSourceCodeModule(bodyTable.getRow(i).getSource(), bindingContext);
         }
 
         IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");

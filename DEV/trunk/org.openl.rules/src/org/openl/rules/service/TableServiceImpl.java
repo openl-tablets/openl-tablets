@@ -21,8 +21,8 @@ public class TableServiceImpl implements TableService {
             int left = tableRegion.getLeft();
             int top = tableRegion.getTop();
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) table.getGrid();
-            for (int i = 0; i < table.getGridWidth(); i++) {
-                for (int j = 0; j < table.getGridHeight(); j++) {
+            for (int i = 0; i < table.getWidth(); i++) {
+                for (int j = 0; j < table.getHeight(); j++) {
                     ICell cell = table.getCell(i, j);
                     if (cell.getWidth() != 1 || cell.getHeight() != 1) {
                         sheetModel.removeMergedRegion(left + i, top + j);
@@ -53,7 +53,7 @@ public class TableServiceImpl implements TableService {
                 destSheetModel = (XlsSheetGridModel) table.getGrid();
             }
             TableBuilder tableBuilder = new TableBuilder(destSheetModel);
-            tableBuilder.beginTable(table.getGridWidth(), table.getGridHeight());
+            tableBuilder.beginTable(table.getWidth(), table.getHeight());
             newRegion = tableBuilder.getTableRegion();
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
@@ -68,7 +68,7 @@ public class TableServiceImpl implements TableService {
 
     public synchronized void copyTableTo(IGridTable table, XlsSheetGridModel destSheetModel, IGridRegion destRegion)
             throws TableServiceException {
-        if (Tool.height(destRegion) != table.getGridHeight() || Tool.width(destRegion) != table.getGridWidth()) {
+        if (Tool.height(destRegion) != table.getHeight() || Tool.width(destRegion) != table.getWidth()) {
             throw new TableServiceException("Bad destination region size.");
         }
         try {

@@ -14,11 +14,11 @@ public class RuleRow {
     }
 
     public String getRuleName(int col) {
-        return getValueCell(col).getGridTable().getCell(0, 0).getStringValue();
+        return getValueCell(col).getSource().getCell(0, 0).getStringValue();
     }
 
     private ILogicalTable getValueCell(int col) {
-        return table.getLogicalRegion(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
+        return table.getSubtable(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
 }

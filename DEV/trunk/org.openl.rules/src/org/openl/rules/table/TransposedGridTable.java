@@ -1,44 +1,37 @@
-/*
- * Created on Oct 28, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.table;
 
 /**
  * @author snshor
- *
  */
-public class TransposedGridTable extends AGridTableDelegator {
+public class TransposedGridTable extends AGridTableDecorator {
 
     public TransposedGridTable(IGridTable gridTable) {
         super(gridTable);
     }
 
     public int getGridColumn(int column, int row) {
-        return gridTable.getGridColumn(row, column);
+        return table.getGridColumn(row, column);
     }
 
-    public int getGridHeight() {
-        return gridTable.getGridWidth();
+    public int getHeight() {
+        return table.getWidth();
     }
 
     public int getGridRow(int column, int row) {
-        return gridTable.getGridRow(row, column);
+        return table.getGridRow(row, column);
     }
 
-    public int getGridWidth() {
-        return gridTable.getGridHeight();
+    public int getWidth() {
+        return table.getHeight();
     }
 
     public boolean isNormalOrientation() {
-        return !gridTable.isNormalOrientation();
+        return !table.isNormalOrientation();
     }
 
     @Override
-    public ILogicalTable transpose() {
-        return gridTable;
+    public IGridTable transpose() {
+        return table;
     }
 
 }

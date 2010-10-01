@@ -6,11 +6,11 @@ public class DecisionTableHelper {
 
     public static boolean looksLikeTransposed(ILogicalTable table) {
 
-        if (table.getLogicalWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
         }
 
-        if (table.getLogicalHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return false;
         }
 
@@ -21,7 +21,7 @@ public class DecisionTableHelper {
             return cnt1 > cnt2;
         }
 
-        return table.getLogicalWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
     
     public static boolean isValidConditionHeader(String s) {
@@ -35,7 +35,8 @@ public class DecisionTableHelper {
     }
 
     public static boolean isValidRetHeader(String s) {
-        return s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+        return s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.RETURN.getHeaderKey())
+            && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
 
     public static boolean isValidRuleHeader(String s) {
@@ -56,12 +57,12 @@ public class DecisionTableHelper {
 
     public static int countConditionsAndActions(ILogicalTable table) {
 
-        int width = table.getLogicalWidth();
+        int width = table.getWidth();
         int count = 0;
 
         for (int i = 0; i < width; i++) {
 
-            String value = table.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (value != null) {
                 value = value.toUpperCase();
@@ -80,11 +81,11 @@ public class DecisionTableHelper {
      */
     public static boolean hasHConditions(ILogicalTable table) {
 
-        int width = table.getLogicalWidth();
+        int width = table.getWidth();
 
         for (int i = 0; i < width; i++) {
 
-            String value = table.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (value != null) {
                 value = value.toUpperCase();

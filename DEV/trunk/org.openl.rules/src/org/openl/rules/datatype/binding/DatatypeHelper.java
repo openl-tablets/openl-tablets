@@ -32,7 +32,8 @@ import org.openl.util.ArrayTool;
 
 public class DatatypeHelper {
 
-    public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
+    public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
+        throws SyntaxNodeException {
         Object values = loadAliasDatatypeValues(table, type, openl, cxt);
 
         if (values != null) {
@@ -42,7 +43,8 @@ public class DatatypeHelper {
         return new EnumDomain<Object>(new Object[] {});
     }
 
-    public static Object loadAliasDatatypeValues(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
+    public static Object loadAliasDatatypeValues(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
+        throws SyntaxNodeException {
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
 
@@ -53,10 +55,10 @@ public class DatatypeHelper {
 
         ILogicalTable dataPart = getNormalizedDataPartTable(table, openl, cxt);
 
-        int height = dataPart.getLogicalHeight();
+        int height = dataPart.getHeight();
         int typesCount1 = countTypes(dataPart, openl, cxt);
         int typesCount2 = countTypes(dataPart.transpose(), openl, cxt);
-        int width = dataPart.getLogicalWidth();
+        int width = dataPart.getWidth();
 
         if (typesCount1 == 0 && typesCount2 == 0 && (height == 0 // values are
                 // not provided
@@ -71,15 +73,15 @@ public class DatatypeHelper {
         
         ILogicalTable dataPart = null;
         if (PropertiesHelper.getPropertiesTableSection(table) != null) {
-             dataPart = table.rows(2);
+             dataPart = table.getRows(2);
         } else {
-            dataPart = table.rows(1);
+            dataPart = table.getRows(1);
         }
         
         //if datatype table has only one row
-        if (dataPart.getLogicalHeight() == 1) {
+        if (dataPart.getHeight() == 1) {
             return dataPart;
-        } else if (dataPart.getLogicalWidth() == 1) {
+        } else if (dataPart.getWidth() == 1) {
             return dataPart.transpose();
         }
 
@@ -95,12 +97,12 @@ public class DatatypeHelper {
 
     private static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
-        int height = table.getLogicalHeight();
+        int height = table.getHeight();
         int count = 0;
 
         for (int i = 0; i < height; ++i) {
             try {
-                IOpenClass type = makeType(table.getLogicalRow(i), openl, cxt);
+                IOpenClass type = makeType(table.getRow(i), openl, cxt);
                 if (type != null) {
                     count += 1;
                 }
@@ -114,7 +116,8 @@ public class DatatypeHelper {
 
     private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
-        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getGridTable(), cxt);
+        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), cxt);
+
         return OpenLManager.makeType(openl, source, (IBindingContextDelegator) cxt);
     }
 
@@ -122,6 +125,7 @@ public class DatatypeHelper {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
+
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
             return parsedHeader[DatatypeNodeBinder.TYPE_INDEX].getIdentifier();
@@ -134,6 +138,7 @@ public class DatatypeHelper {
 
         if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
+
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
             if (parsedHeader.length == 4) {
@@ -188,7 +193,8 @@ public class DatatypeHelper {
         return map;
     }
 
-    public static TableSyntaxNode[] orderDatatypes(Map<String, TableSyntaxNode> typesMap, IBindingContext bindingContext) {
+    public static TableSyntaxNode[] orderDatatypes(Map<String, TableSyntaxNode> typesMap,
+            IBindingContext bindingContext) {
         
         Map<TableSyntaxNode, Integer> levelsMap = new HashMap<TableSyntaxNode, Integer>();
         
@@ -212,11 +218,14 @@ public class DatatypeHelper {
         return nodesToOrder;
     }
     
-    public static int getInheritanceLevel(Map<String, TableSyntaxNode> types, TableSyntaxNode tsn) throws OpenLCompilationException {
+    public static int getInheritanceLevel(Map<String, TableSyntaxNode> types, TableSyntaxNode tsn)
+        throws OpenLCompilationException {
         return getInheritanceLevel(types, tsn, new LinkedHashMap<String, TableSyntaxNode>());
     }
     
-    private static int getInheritanceLevel(Map<String, TableSyntaxNode> types, TableSyntaxNode tsn, Map<String, TableSyntaxNode> children) throws OpenLCompilationException {
+    private static int getInheritanceLevel(
+            Map<String, TableSyntaxNode> types, TableSyntaxNode tsn, Map<String, TableSyntaxNode> children)
+        throws OpenLCompilationException {
         
         String parent = getParentDatatypeName(tsn);
         

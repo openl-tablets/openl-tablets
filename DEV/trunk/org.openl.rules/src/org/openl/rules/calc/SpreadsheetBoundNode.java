@@ -37,8 +37,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 getTableSyntaxNode());
         }
 
-        int height = tableBody.getLogicalHeight();
-        int width = tableBody.getLogicalWidth();
+        int height = tableBody.getHeight();
+        int width = tableBody.getWidth();
 
         if (height < 2 || width < 2) {
             String message = String.format("Spreadsheet must have at least 2x2 cells! Actual size %dx%d.",

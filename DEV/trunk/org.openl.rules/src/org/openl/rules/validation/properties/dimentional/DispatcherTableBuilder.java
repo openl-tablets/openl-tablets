@@ -23,7 +23,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openl.rules.table.GridTable;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
@@ -155,9 +155,9 @@ public class DispatcherTableBuilder {
         Sheet sheetWithTable = createTable(groupMember, newTableName, propertiesValues);
         
         DecisionTableCreator decisionTableCreator = new DecisionTableCreator();
-        
-        GridTable gridTable = decisionTableCreator.createGridTable(sheetWithTable);
-        
+
+        IGridTable gridTable = decisionTableCreator.createGridTable(sheetWithTable);
+
         XlsSheetGridModel sheetGridModel = decisionTableCreator.createSheetGridModel(sheetWithTable);
         
         TableSyntaxNode tsn = createTableSyntaxNode(sheetGridModel, gridTable);
@@ -314,7 +314,7 @@ public class DispatcherTableBuilder {
                         + ". Please, edit original tables to make any change to the overloading logic.");
     }    
     
-    private TableSyntaxNode createTableSyntaxNode(XlsSheetGridModel sheetGridModel, GridTable gridTable) {        
+    private TableSyntaxNode createTableSyntaxNode(XlsSheetGridModel sheetGridModel, IGridTable gridTable) {        
         String type = ITableNodeTypes.XLS_DT;
         
         GridLocation pos = new GridLocation(gridTable);

@@ -135,7 +135,7 @@ public class TableBuilder {
         try {
             gridModel.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
-            throw new CreateTableException("Ñould not save table. " + e.getMessage());
+            throw new CreateTableException("ï¿½ould not save table. " + e.getMessage());
         }
     }
 
@@ -355,8 +355,8 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
-        for (int i = 0; i < table.getGridWidth(); i++) {
-            for (int j = 0; j < table.getGridHeight(); j++) {
+        for (int i = 0; i < table.getWidth(); i++) {
+            for (int j = 0; j < table.getHeight(); j++) {
             	ICell cell = table.getCell(i, j);
                 int cellWidth = cell.getWidth();
                 int cellHeight = cell.getHeight();
@@ -365,7 +365,7 @@ public class TableBuilder {
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
             }
         }
-        currentRow += table.getGridHeight();
+        currentRow += table.getHeight();
     }
 
     /**

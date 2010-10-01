@@ -41,54 +41,55 @@ public class TablesTest extends TestCase {
 
             ILogicalTable lt = LogicalTableHelper.logicalTable(tables[5]);
 
-            subtestRegion(lt.rows(1));
+            subtestRegion(lt.getRows(1));
 
-            Assert.assertEquals(6, lt.getLogicalHeight());
-            Assert.assertEquals(1, lt.getLogicalWidth());
+            Assert.assertEquals(6, lt.getHeight());
+            Assert.assertEquals(1, lt.getWidth());
 
-            ILogicalTable row1 = lt.getLogicalRow(0);
+            ILogicalTable row1 = lt.getRow(0);
 
-            Assert.assertEquals(1, row1.getLogicalHeight());
-            Assert.assertEquals(1, row1.getLogicalWidth());
+            Assert.assertEquals(1, row1.getHeight());
+            Assert.assertEquals(1, row1.getWidth());
 
-            Assert.assertEquals(2, row1.getGridTable().getLogicalHeight());
-            Assert.assertEquals(4, row1.getGridTable().getLogicalWidth());
+            Assert.assertEquals(2, row1.getSource().getHeight());
+            Assert.assertEquals(4, row1.getSource().getWidth());
 
-            ILogicalTable row2 = lt.getLogicalRow(1);
+            ILogicalTable row2 = lt.getRow(1);
 
-            Assert.assertEquals(1, row2.getLogicalHeight());
-            Assert.assertEquals(2, row2.getLogicalWidth());
+            Assert.assertEquals(1, row2.getHeight());
+            Assert.assertEquals(2, row2.getWidth());
 
-            Assert.assertEquals(2, row2.getGridTable().getLogicalHeight());
-            Assert.assertEquals(4, row2.getGridTable().getLogicalWidth());
+            Assert.assertEquals(2, row2.getSource().getHeight());
+            Assert.assertEquals(4, row2.getSource().getWidth());
 
-            ILogicalTable col22 = row2.columns(1, 1);
+            ILogicalTable col22 = row2.getColumns(1, 1);
 
-            Assert.assertEquals(2, col22.getLogicalHeight());
-            Assert.assertEquals(1, col22.getLogicalWidth());
+            Assert.assertEquals(2, col22.getHeight());
+            Assert.assertEquals(1, col22.getWidth());
 
-            Assert.assertEquals(2, col22.getGridTable().getLogicalHeight());
-            Assert.assertEquals(3, col22.getGridTable().getLogicalWidth());
+            Assert.assertEquals(2, col22.getSource().getHeight());
+            Assert.assertEquals(3, col22.getSource().getWidth());
 
-            ILogicalTable row222 = col22.rows(1, 1);
+            ILogicalTable row222 = col22.getRows(1, 1);
 
-            Assert.assertEquals(1, row222.getLogicalHeight());
-            Assert.assertEquals(3, row222.getLogicalWidth());
+            Assert.assertEquals(1, row222.getHeight());
+            Assert.assertEquals(3, row222.getWidth());
 
-            ILogicalTable invRow2 = LogicalTableHelper.logicalTable(new TransposedGridTable(row2.getGridTable()));
+            ILogicalTable invRow2 = LogicalTableHelper.logicalTable(
+                    new TransposedGridTable(row2.getSource()));
 
-            Assert.assertEquals(2, invRow2.getLogicalHeight());
-            Assert.assertEquals(1, invRow2.getLogicalWidth());
+            Assert.assertEquals(2, invRow2.getHeight());
+            Assert.assertEquals(1, invRow2.getWidth());
 
-            ILogicalTable invCol22 = invRow2.getLogicalRow(1);
+            ILogicalTable invCol22 = invRow2.getRow(1);
 
-            Assert.assertEquals(1, invCol22.getLogicalHeight());
-            Assert.assertEquals(2, invCol22.getLogicalWidth());
+            Assert.assertEquals(1, invCol22.getHeight());
+            Assert.assertEquals(2, invCol22.getWidth());
 
-            ILogicalTable invRow222 = invCol22.columns(1, 1);
+            ILogicalTable invRow222 = invCol22.getColumns(1, 1);
 
-            Assert.assertEquals(3, invRow222.getLogicalHeight());
-            Assert.assertEquals(1, invRow222.getLogicalWidth());
+            Assert.assertEquals(3, invRow222.getHeight());
+            Assert.assertEquals(1, invRow222.getWidth());
 
             assertEquals(2, tables[0].getRegion().getRight());
             assertEquals(4, tables[0].getRegion().getBottom());
@@ -106,10 +107,10 @@ public class TablesTest extends TestCase {
 
     private void subtestRegion(ILogicalTable testHeader1) throws Exception {
         
-        ILogicalTable bb = testHeader1.getLogicalRegion(1, 0, 1, 1);
+        ILogicalTable bb = testHeader1.getSubtable(1, 0, 1, 1);
 
-        Assert.assertEquals(2, bb.getLogicalHeight());
-        Assert.assertEquals(5, testHeader1.getLogicalRegion(1, 3, 1, 2).getLogicalHeight());
-        Assert.assertEquals(5, testHeader1.transpose().getLogicalRegion(3, 1, 2, 1).getLogicalWidth());
+        Assert.assertEquals(2, bb.getHeight());
+        Assert.assertEquals(5, testHeader1.getSubtable(1, 3, 1, 2).getHeight());
+        Assert.assertEquals(5, testHeader1.transpose().getSubtable(3, 1, 2, 1).getWidth());
     }
 }

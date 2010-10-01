@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class GridSplitter {
 
-    private List<GridTable> tables = new ArrayList<GridTable>();
+    private List<IGridTable> tables = new ArrayList<IGridTable>();
     private RegionsPool pool = new RegionsPool(null);
 
     private IGrid grid;
@@ -71,7 +71,7 @@ public class GridSplitter {
 
         }
 
-        GridTable table = new GridTable(row, stX, y - 1, x - 1, grid);
+        IGridTable table = new GridTable(row, stX, y - 1, x - 1, grid);
         tables.add(table);
         pool.add(table.getRegion());
     }
@@ -96,7 +96,7 @@ public class GridSplitter {
         return x;
     }
 
-    public GridTable[] split() {
+    public IGridTable[] split() {
 
         int nrows = grid.getMaxRowIndex() + 1;
 

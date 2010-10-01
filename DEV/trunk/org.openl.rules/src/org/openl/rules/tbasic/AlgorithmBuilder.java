@@ -74,7 +74,7 @@ public class AlgorithmBuilder {
     }
 
     public void build(ILogicalTable tableBody) throws Exception {
-        if (tableBody.getLogicalHeight() <= 2) {
+        if (tableBody.getHeight() <= 2) {
             throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2!", null, tsn);
         }
 
@@ -95,23 +95,23 @@ public class AlgorithmBuilder {
     private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
         List<AlgorithmRow> result = new ArrayList<AlgorithmRow>();
 
-        IGridTable grid = tableBody.rows(2).getGridTable();
-        for (int r = 0; r < grid.getLogicalHeight(); r++) {
+        IGridTable grid = tableBody.getRows(2).getSource();
+        for (int r = 0; r < grid.getHeight(); r++) {
 
             AlgorithmRow aRow = new AlgorithmRow();
 
             // set sequential number of the row in table
             aRow.setRowNumber(r + 1);
 
-            ILogicalTable rowTable = grid.getLogicalRow(r);
-            aRow.setGridRegion(rowTable.getGridTable().getRegion());
+            IGridTable rowTable = grid.getRow(r);
+            aRow.setGridRegion(rowTable.getRegion());
 
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 int c = column.columnIndex;
 
-                ILogicalTable valueTable = rowTable.getLogicalColumn(c);
-                aRow.setValueGridRegion(column.id, valueTable.getGridTable().getRegion());
+                IGridTable valueTable = rowTable.getColumn(c);
+                aRow.setValueGridRegion(column.id, valueTable.getRegion());
 
                 String value = grid.getCell(c, r).getStringValue();
 
@@ -140,11 +140,11 @@ public class AlgorithmBuilder {
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new HashMap<String, AlgorithmColumn>();
 
-        ILogicalTable ids = tableBody.getLogicalRow(0);
+        ILogicalTable ids = tableBody.getRow(0);
 
         // parse ids, row=0
-        for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = safeId(ids.getLogicalColumn(c).getGridTable().getCell(0, 0).getStringValue());
+        for (int c = 0; c < ids.getWidth(); c++) {
+            String id = safeId(ids.getColumn(c).getSource().getCell(0, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

@@ -36,7 +36,6 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -212,28 +211,27 @@ public class XlsLoader {
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
 
-        IGridTable table = tableSyntaxNode.getTable().getGridTable();
-        ILogicalTable logicalTable = LogicalTableHelper.logicalTable(table);
+        ILogicalTable logicalTable = tableSyntaxNode.getTable();
 
-        int height = logicalTable.getLogicalHeight();
+        int height = logicalTable.getHeight();
 
         for (int i = 1; i < height; i++) {
-            ILogicalTable row = logicalTable.getLogicalRow(i);
+            ILogicalTable row = logicalTable.getRow(i);
 
-            String name = row.getLogicalColumn(0).getGridTable().getCell(0, 0).getStringValue();
+            String name = row.getColumn(0).getSource().getCell(0, 0).getStringValue();
 
             if (IXlsTableNames.LANG_PROPERTY.equals(name)) {
-                preprocessOpenlTable(row.getGridTable(), source);
+                preprocessOpenlTable(row.getSource(), source);
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
-                preprocessIncludeTable(tableSyntaxNode, row.getGridTable(), source);
+                preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
-                preprocessImportTable(row.getGridTable(), source);
+                preprocessImportTable(row.getSource(), source);
 
 // NOTE: A temporary implementation of multi-module feature.
 //            } else if (IXlsTableNames.IMPORT_MODULE.equals(name)) {
 //                preprocessModuleImportTable(row.getGridTable(), source);
             } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
-                preprocessVocabularyTable(row.getGridTable(), source);
+                preprocessVocabularyTable(row.getSource(), source);
             } else if (StringUtils.isBlank(name) || DecisionTableHelper.isValidCommentHeader(name)) { // TODO:
                 // DecisionTableHelper
                 // rename
@@ -247,7 +245,7 @@ public class XlsLoader {
                 IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
 
                 if (loader != null) {
-                    loader.process(this, tableSyntaxNode, table, source);
+                    loader.process(this, tableSyntaxNode, tableSyntaxNode.getGridTable(), source);
                 } else {
                     LOG.warn(String.format("Doesn't find extension loader for '%s'", name));
                 }
@@ -311,7 +309,7 @@ public class XlsLoader {
     }
 */
     private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
-        int height = table.getLogicalHeight();
+        int height = table.getHeight();
         // List<String> importsList = new ArrayList<String>();
 
         for (int i = 0; i < height; i++) {
@@ -341,7 +339,7 @@ public class XlsLoader {
             IGridTable table,
             XlsSheetSourceCodeModule sheetSource) {
 
-        int height = table.getLogicalHeight();
+        int height = table.getHeight();
 
         for (int i = 0; i < height; i++) {
 
@@ -382,7 +380,7 @@ public class XlsLoader {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
             t,
             null,
-            new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable(), null));
+            new GridCellSourceCodeModule(table.getSubtable(1, i, 1, 1)));
         addError(se);
         tableSyntaxNode.addError(se);
         OpenLMessagesUtils.addError(se.getMessage());
@@ -397,7 +395,7 @@ public class XlsLoader {
 
     private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
 
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table, null);
+        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
         IdentifierNode headerToken = Tokenizer.firstToken(src, " \n\r");
         HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);
@@ -482,7 +480,6 @@ public class XlsLoader {
                 if (is != null) {
                     is.close();
                 }
-
             } catch (Throwable e) {
                 LOG.error("Error trying close input stream:", e);
                 return null;

@@ -7,12 +7,12 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMember;
 
-public class TableSyntaxNodeAdapter implements ITable {
+public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     private TableSyntaxNode tsn;
 
@@ -31,7 +31,7 @@ public class TableSyntaxNodeAdapter implements ITable {
         if (view != null) {
             ILogicalTable gtx = tsn.getSubTables().get(view);
             if (gtx != null) {
-                return gtx.getGridTable();
+                return gtx.getSource();
             }
         }
         return getGridTable();

@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 
 /**
  * Trace object for method table.
@@ -32,9 +32,9 @@ public class MethodTableTraceObject extends ATableTracerNode {
 
     public List<IGridRegion> getGridRegions() {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        IGridTable tableBodyGrid = getMethod().getSyntaxNode().getTableBody().getGridTable();
+        ITable<?> tableBodyGrid = getMethod().getSyntaxNode().getTableBody().getSource();
         ICell cell;
-        for (int row = 0; row < tableBodyGrid.getGridHeight(); row += cell.getHeight()) {
+        for (int row = 0; row < tableBodyGrid.getHeight(); row += cell.getHeight()) {
             cell = tableBodyGrid.getCell(0, row);
             regions.add(cell.getAbsoluteRegion());
         }
