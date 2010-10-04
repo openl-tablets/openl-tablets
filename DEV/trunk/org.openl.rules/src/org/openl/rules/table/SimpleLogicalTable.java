@@ -1,6 +1,8 @@
 package org.openl.rules.table;
 
 /**
+ * Adapts {@link IGridTable}, that doesn`t contain merged cells to {@link ILogicalTable} interface.
+ *  
  * @author Andrei Astrouski
  */
 public class SimpleLogicalTable extends ALogicalTable {
@@ -34,7 +36,7 @@ public class SimpleLogicalTable extends ALogicalTable {
     }
 
     public ILogicalTable getSubtable(int column, int row, int width, int height) {
-        return LogicalTableHelper.logicalTable(table.getSubtable(column, row, width, height));
+        return new SimpleLogicalTable(table.getSubtable(column, row, width, height));
     }
 
 }
