@@ -1,6 +1,8 @@
 package org.openl.rules.table;
 
 /**
+ * Default implementation for grid tables.
+ * 
  * @author snshor
  */
 public abstract class AGridTable implements IGridTable {
