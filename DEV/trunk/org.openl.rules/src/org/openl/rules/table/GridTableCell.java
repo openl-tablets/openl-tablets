@@ -9,18 +9,15 @@ import org.openl.rules.table.ui.ICellStyle;
 class GridTableCell implements ICell {
 
     private int column;
-    private int row;    
+    private int row;
+    private IGridTable table;
     private ICell cell;
-    
-    private int width;
-    private int height;
 
     public GridTableCell(int column, int row, IGridTable table) {
         this.column = column;
-        this.row = row;        
+        this.row = row;
+        this.table = table;
         this.cell = table.getGrid().getCell(table.getGridColumn(column, row), table.getGridRow(column, row));
-        this.width = table.isNormalOrientation() ? cell.getWidth() : cell.getHeight();
-        this.height = table.isNormalOrientation() ? cell.getHeight() : cell.getWidth();
     }
 
     public int getColumn() {
@@ -56,7 +53,7 @@ class GridTableCell implements ICell {
     }
 
     public int getHeight() {
-        return height;
+        return table.isNormalOrientation() ? cell.getHeight() : cell.getWidth();
     }
     
     public Object getObjectValue() {
@@ -68,7 +65,7 @@ class GridTableCell implements ICell {
     }
 
     public int getWidth() {
-        return width;
+        return table.isNormalOrientation() ? cell.getWidth() : cell.getHeight();
     }
 
     public String getFormula() {
