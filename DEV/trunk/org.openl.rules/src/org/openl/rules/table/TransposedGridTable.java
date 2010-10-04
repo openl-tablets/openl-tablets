@@ -4,9 +4,12 @@ package org.openl.rules.table;
  * @author snshor
  */
 public class TransposedGridTable extends AGridTableDecorator {
-
+    
+    private boolean isNormalOrientation;
+    
     public TransposedGridTable(IGridTable gridTable) {
         super(gridTable);
+        this.isNormalOrientation = !table.isNormalOrientation();
     }
 
     public int getGridColumn(int column, int row) {
@@ -26,7 +29,7 @@ public class TransposedGridTable extends AGridTableDecorator {
     }
 
     public boolean isNormalOrientation() {
-        return !table.isNormalOrientation();
+        return isNormalOrientation;
     }
 
     @Override
