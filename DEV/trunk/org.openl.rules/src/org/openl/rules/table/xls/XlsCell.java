@@ -27,7 +27,10 @@ public class XlsCell implements ICell {
     private int row;
     private IGridRegion region;
     private Cell cell;
-    
+
+    private int width = 1;
+    private int height = 1;
+
     private XlsSheetGridModel gridModel;
     
     /**
@@ -39,8 +42,13 @@ public class XlsCell implements ICell {
         this.row = row;
         this.region = region;
         this.cell = cell;
+        
+        if (region != null && region.getLeft() == column && region.getTop() == row) {
+            this.width = region.getRight() - region.getLeft() + 1;
+            this.height = region.getBottom() - region.getTop() + 1;
+        }
     }
-    
+
     public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
         this(column, row, gridModel.getRegionContaining(column, row), gridModel.getPoiXlsCell(column, row));
         this.gridModel = gridModel;
@@ -84,25 +92,15 @@ public class XlsCell implements ICell {
     public IGridRegion getRegion() {
         return region;
     }
-    
-    // TODO: investigate why just for top left cell region height is returned.
-    // for other cells return 1.
+
     public int getHeight() {
-        if (region != null && region.getLeft() == column && region.getTop() == row) {
-            return region.getBottom() - region.getTop() + 1;
-        }
-        return 1;
+        return height;
     }
-    
-    // TODO: investigate why just for top left cell region width is returned. 
-    // for other cells return 1.
+
     public int getWidth() {
-        if (region != null && region.getLeft() == column && region.getTop() == row) {
-            return region.getRight() - region.getLeft() + 1;
-        }
-        return 1;
+        return width;
     }
-    
+
     public Object getObjectValue() {
         if (cell == null && region == null) {
             return null;
@@ -119,7 +117,7 @@ public class XlsCell implements ICell {
         int col = region.getLeft();
         return gridModel.getCell(col, row);
     }
-    
+
     private boolean isCurrentCellATopLeftCellInRegion() {
         ICell topLeftCell = getTopLeftCellFromRegion();
         if (topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row) {
@@ -127,7 +125,7 @@ public class XlsCell implements ICell {
         }
         return false;
     }
-    
+
     private Object extractValueFromRegion() {   
         // If the top left cell is the current cell instance, we just extract it`s value.
         // In other case get string value of top left cell of the region.
