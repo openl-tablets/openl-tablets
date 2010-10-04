@@ -1,9 +1,20 @@
 package org.openl.rules.table;
 
+/**
+ * Helper class, that provides methods for creation logical tables and calculating logical columns and rows.
+ *
+ */
 public class LogicalTableHelper {
     
     private LogicalTableHelper() {}
-
+    
+    /**
+     * Gets the number of logical columns in the first table row.<br>
+     * Each not merged cell is one logical column, several merged horizontal cells are one logical column too. 
+     * 
+     * @param table Original source grid table.
+     * @return number of logical columns in the first table row.
+     */
     public static int calcLogicalColumns(IGridTable table) {
         int columns = 0;
         int cellWidth;
@@ -12,7 +23,14 @@ public class LogicalTableHelper {
         }
         return columns;
     }
-
+    
+    /**
+     * Gets the number of logical rows in the first table column.<br>
+     * Each not merged cell is one logical row, several merged vertical cells are one logical row too.
+     * 
+     * @param table Original source grid table.
+     * @return number of logical rows in the first table column.
+     */
     public static int calcLogicalRows(IGridTable table) {
         int rows = 0;
         int cellHeight;
@@ -41,8 +59,11 @@ public class LogicalTableHelper {
     }
 
     /**
-     * @param table Original table.
-     * @return Another logical table with correctly calculated height and width.
+     * If there is no merged cells in the top row and left column - returns {@link SimpleLogicalTable}
+     * in other case return {@link LogicalTable}
+     * 
+     * @param table Original source grid table.
+     * @return {@link ILogicalTable} table with correctly calculated height and width.
      */
     public static ILogicalTable logicalTable(IGridTable table) {
         int width = calcLogicalColumns(table);
@@ -116,6 +137,7 @@ public class LogicalTableHelper {
         if (gt.getHeight() == nRows && gt.getWidth() == nColumns) {
             // TODO Light delegator
             return new SimpleLogicalTable(gt);
+            //return new LogicalTable(gt, nColumns, nRows);
         }
 
         int[] rowsOffset = new int[nRows + 1];

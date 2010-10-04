@@ -1,6 +1,12 @@
 package org.openl.rules.table;
 
 /**
+ * Fully implementation for {@link ILogicalTable} interface.<br>
+ * Logical Table consists of logical columns and rows (created as a result of
+ * merged cells). Each merged region is taken as one cell.<br> 
+ * Use {@link LogicalTableHelper#logicalTable(IGridTable)} 
+ * {@link LogicalTableHelper#logicalTable(IGridTable, ILogicalTable, ILogicalTable)} to correctly construct this object.
+ * 
  * @author snshor
  */
 public class LogicalTable extends ALogicalTable {
