@@ -32,6 +32,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -318,7 +319,7 @@ public class DispatcherTableBuilder {
         String type = ITableNodeTypes.XLS_DT;
         
         GridLocation pos = new GridLocation(gridTable);
-        HeaderSyntaxNode headerSyntaxNode = new HeaderSyntaxNode(null, null);
+        HeaderSyntaxNode headerSyntaxNode = new HeaderSyntaxNode(null, new IdentifierNode(null, null, "Rules", null));
 
         return new TableSyntaxNode(type, pos, sheetGridModel.getSheetSource(), gridTable, headerSyntaxNode);
     }

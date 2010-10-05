@@ -95,15 +95,19 @@ public class DecisionTableLoader {
         if (tableBody == null) {
             throw new SyntaxNodeException(EMPTY_BODY, null, tableSyntaxNode);
         }
+        // preprocess simple lookup table
+        if (DecisionTableHelper.isSimpleDecisionTable(tableSyntaxNode)) {
+            tableBody = DecisionTableHelper.preprocessSimpleLoolup(decisionTable, tableBody, 0);
+        } else if (DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
+            tableBody = DecisionTableHelper.preprocessSimpleLoolup(decisionTable, tableBody, tableBody.getSource()
+                    .getCell(0, 0).getHeight());
+        }
         ILogicalTable transposed = tableBody.transpose();
         ILogicalTable toParse = tableBody;
 
-        // check if table is a lookup table
-        if (isLookupDecisionTable(tableBody)) {
-
+        if (hasHConditions(tableBody)) {
             try {
                 IGridTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
-//               System.out.println(TablePrinter.printGridTable(convertedTable.getGridTable()));
                 ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
                 tableBody = transposed;
@@ -129,7 +133,7 @@ public class DecisionTableLoader {
         }
     }
 
-    private boolean isLookupDecisionTable(ILogicalTable tableBody) {
+    private boolean hasHConditions(ILogicalTable tableBody) {
         return DecisionTableHelper.hasHConditions(tableBody);
     }
 
