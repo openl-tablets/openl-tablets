@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -18,18 +17,11 @@ import java.util.Comparator;
 import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.element.IAction;
-import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
-import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMember;
-import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.ArrayOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -87,32 +79,29 @@ public class DomainTree {
      * @param projectOpenClass project open class.
      * @return <code>DomainTree</code> instance
      */
-    public static DomainTree buildTree(IOpenClass projectOpenClass) {
+    public static DomainTree buildTree(IOpenClass projectOpenClass, boolean addDatatypes) {
         IMetaInfo projectInfo = projectOpenClass.getMetaInfo();
 
         if (projectInfo instanceof XlsMetaInfo) {
             DomainTree domainTree = new DomainTree();
 
-            // Add all datatypes
-            Map<String, IOpenClass> dataTypes = projectOpenClass.getTypes();
-            if (dataTypes.size() > 0) {
-                for (IOpenClass type : dataTypes.values()) {
-                    domainTree.addType(type);
+            if (addDatatypes) {
+                // Add all datatypes
+                Map<String, IOpenClass> dataTypes = projectOpenClass.getTypes();
+                if (dataTypes.size() > 0) {
+                    for (IOpenClass type : dataTypes.values()) {
+                        domainTree.addType(type);
+                    }
                 }
             }
-
-            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) projectInfo;
-            for (TableSyntaxNode node : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors()) {
-                String nodeType = node.getType();
-                if (nodeType.equals(ITableNodeTypes.XLS_DT)) {
-                    domainTree.scanTable(node);
-                }
-            }
-
             return domainTree;
         } else {
             throw new IllegalArgumentException("Only XlsMetaInfo is currenty supported");
         }
+    }
+
+    public static DomainTree buildTree(IOpenClass projectOpenClass) {
+        return buildTree(projectOpenClass, true);
     }
 
     private static boolean inspectTypeRecursively(IOpenClass type) {
@@ -154,9 +143,8 @@ public class DomainTree {
 
             if (inspectTypeRecursively(type)) {
                 // types of IOpenClass fields
-                Iterator<IOpenField> fieldIterator = type.fields();
-                while (fieldIterator.hasNext()) {
-                    IOpenField field = fieldIterator.next();
+                Map<String, IOpenField> fields = type.getFields();
+                for (IOpenField field : fields.values()) {
                     if (isAppropriateProperty(field)) {
                         addType(field.getType());
                     }
@@ -232,9 +220,8 @@ public class DomainTree {
         }
 
         Collection<String> result = new ArrayList<String>();
-        Iterator<IOpenField> fieldIterator = openClass.fields();
-        while (fieldIterator.hasNext()) {
-            IOpenField field = fieldIterator.next();
+        Map<String, IOpenField> fields = openClass.getFields();
+        for (IOpenField field : fields.values()) {
             if (isAppropriateProperty(field)) {
                 result.add(field.getName());
             }
@@ -267,42 +254,6 @@ public class DomainTree {
             openClass = field.getType();
         }
         return openClass.getName();
-    }
-
-    private void scanTable(TableSyntaxNode node) {
-        String nodeType = node.getType();
-
-        if (nodeType.equals(ITableNodeTypes.XLS_DT)) {
-            IOpenMember table = node.getMember();
-            if (table != null) {
-                scanDecisionTable((DecisionTable) table);
-            }
-
-        }
-    }
-
-    /**
-     * Scans given table, and adds classes that the table references (parameter
-     * types, condition and action variable types) to the tree.
-     *
-     * @param decisionTable decision table to scan.
-     */
-    private void scanDecisionTable(DecisionTable decisionTable) {
-        for (IOpenClass paramType : decisionTable.getHeader().getSignature().getParameterTypes()) {
-            addType(paramType);
-        }
-
-        for (ICondition condition : decisionTable.getConditionRows()) {
-            for (IParameterDeclaration param : condition.getParams()) {
-                addType(param.getType());
-            }
-        }
-
-        for (IAction action : decisionTable.getActionRows()) {
-            for (IParameterDeclaration param : action.getParams()) {
-                addType(param.getType());
-            }
-        }
     }
 
 }
