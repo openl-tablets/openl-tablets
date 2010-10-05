@@ -24,6 +24,7 @@ import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
+import org.openl.util.FileTypeHelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -162,7 +163,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             if (projectArtefact.isFolder()) {
                 excelArtefacts.addAll(getExcelArtefacts(project,
                         projectArtefact.getArtefactPath().getStringValue()));
-            } else if (isXlsFile(artefactPath)) {
+            } else if (FileTypeHelper.isExcelFile(artefactPath)) {
                 excelArtefacts.add(projectArtefact);
             }
         }
@@ -211,11 +212,6 @@ public class RepositoryDiffController extends AbstractDiffController {
         // remove project name
         path = path.substring(path.indexOf(SEPARATOR, 1) + 1);
         return path;
-    }
-
-    private boolean isXlsFile(String path) {
-        path = path.toLowerCase();
-        return path.endsWith(".xls") || path.endsWith(".xlsx");
     }
 
     private static final char SEPARATOR = '/';
