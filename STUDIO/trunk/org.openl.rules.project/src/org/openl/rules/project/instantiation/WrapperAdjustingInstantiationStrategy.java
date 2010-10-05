@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -56,7 +57,9 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
         try {
             Field field = clazz.getField("__src");
             String sourcePath = (String) field.get(null);
-            field.set(null, projectFolder + '/' + sourcePath);
+            if(!new File(sourcePath).isAbsolute()){
+                field.set(null, projectFolder + '/' + sourcePath);
+            }
         } catch (Exception e) {
             throw new RuntimeException("failed to set up __src", e);
         }
