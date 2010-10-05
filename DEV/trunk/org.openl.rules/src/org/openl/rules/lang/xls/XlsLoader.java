@@ -63,6 +63,8 @@ public class XlsLoader {
 
     private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, ITableNodeTypes.XLS_DT },
             { IXlsTableNames.DECISION_TABLE2, ITableNodeTypes.XLS_DT },
+            { IXlsTableNames.SIMPLE_DECISION_TABLE, ITableNodeTypes.XLS_DT },
+            { IXlsTableNames.SIMPLE_DECISION_LOOKUP, ITableNodeTypes.XLS_DT },
             { IXlsTableNames.SPREADSHEET_TABLE, ITableNodeTypes.XLS_SPREADSHEET },
             { IXlsTableNames.SPREADSHEET_TABLE2, ITableNodeTypes.XLS_SPREADSHEET },
             { IXlsTableNames.TBASIC_TABLE, ITableNodeTypes.XLS_TBASIC },
