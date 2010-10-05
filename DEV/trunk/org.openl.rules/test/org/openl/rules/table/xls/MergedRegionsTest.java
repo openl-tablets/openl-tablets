@@ -137,11 +137,11 @@ public class MergedRegionsTest {
         int width = Math.max(IGridRegion.Tool.width(testRegion), IGridRegion.Tool.width(expectedRegion));
         for (int row = 0; row <= height; row++) {
             for (int column = 0; column <= width; column++) {
-                XlsCell resultCell = grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
-                XlsCell expectedCell = grid.getCell(expectedRegion.getLeft() + column, expectedRegion.getTop() + row);
-                Cell resultXLSCell = grid.getOrCreatePoiXlsCell(testRegion.getLeft() + column, testRegion.getTop() + row);
-                Cell expectedXLSCell = grid.getOrCreatePoiXlsCell(expectedRegion.getLeft() + column, expectedRegion
-                        .getTop() + row);
+                XlsCell resultCell = (XlsCell)grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
+                XlsCell expectedCell = (XlsCell)grid.getCell(expectedRegion.getLeft() + column, expectedRegion.getTop() + row);
+                Cell resultXLSCell = PoiHelper.getOrCreatePoiXlsCell(testRegion.getLeft() + column, testRegion.getTop() + row, grid.getSheetSource().getSheet());
+                Cell expectedXLSCell = PoiHelper.getOrCreatePoiXlsCell(expectedRegion.getLeft() + column, expectedRegion
+                        .getTop() + row, grid.getSheetSource().getSheet());
                 if (resultCell != expectedCell && resultCell.getStringValue() != expectedCell.getStringValue()) {
                     if (!isEqualCells(resultCell, expectedCell, grid)
                             || !isEqualCellsInPOI(resultXLSCell, expectedXLSCell)) {

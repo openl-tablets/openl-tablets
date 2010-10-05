@@ -8,6 +8,7 @@ import java.util.Set;
 
 import java.io.IOException;
 
+import org.openl.rules.table.xls.PoiHelper;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -216,7 +217,7 @@ public class TableBuilder {
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
-            Cell cell = gridModel.getOrCreatePoiXlsCell(x, y);
+            Cell cell = PoiHelper.getOrCreatePoiXlsCell(x, y, gridModel.getSheetSource().getSheet());
             gridModel.setCellValue(x, y, value);
             // we need to create new style if value is of type date.
             if (value instanceof Date) {
@@ -230,7 +231,7 @@ public class TableBuilder {
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
             for (int col = x; col <= x2; col++) {
                 for (int row = y; row <= y2; row++) {
-                    Cell newCell = gridModel.getOrCreatePoiXlsCell(col, row);
+                    Cell newCell = PoiHelper.getOrCreatePoiXlsCell(col, row, gridModel.getSheetSource().getSheet());
                     gridModel.setCellValue(x, y, value);
                     setCellStyle(newCell, cellStyle);
                 }

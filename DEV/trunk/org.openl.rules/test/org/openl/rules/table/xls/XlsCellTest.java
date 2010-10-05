@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
@@ -37,7 +38,7 @@ public class XlsCellTest {
     
     @Test
     public void testStringMergedCell() {
-        XlsCell cell = xsGrid.getCell(1, 3);
+        ICell cell = xsGrid.getCell(1, 3);
         assertEquals(1, cell.getAbsoluteColumn());
         assertEquals(1, cell.getColumn());
         assertEquals(3, cell.getAbsoluteRow());
@@ -100,7 +101,7 @@ public class XlsCellTest {
     
     @Test
     public void testDoubleMergedCell() {
-        XlsCell cell = xsGrid.getCell(5, 8);
+        ICell cell = xsGrid.getCell(5, 8);
         assertEquals(5, cell.getAbsoluteColumn());
         assertEquals(5, cell.getColumn());
         assertEquals(8, cell.getAbsoluteRow());

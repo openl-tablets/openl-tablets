@@ -50,7 +50,7 @@ public class XlsCell implements ICell {
     }
 
     public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
-        this(column, row, gridModel.getRegionContaining(column, row), gridModel.getPoiXlsCell(column, row));
+        this(column, row, gridModel.getRegionContaining(column, row), PoiHelper.getPoiXlsCell(column, row, gridModel.getSheetSource().getSheet()));
         this.gridModel = gridModel;
     }
 
@@ -230,6 +230,9 @@ public class XlsCell implements ICell {
     }
 
     public double getNativeNumber() {
+        if (cell == null) {
+            return 0;
+        }
         return cell.getNumericCellValue();
     }
         
@@ -255,6 +258,9 @@ public class XlsCell implements ICell {
      * @throws IllegalStateException is the cell is of type {@link IGrid#CELL_TYPE_STRING}
      */
     public Date getNativeDate() {
+        if (cell == null) {
+            return null;
+        }
         return cell.getDateCellValue();
     }
 
