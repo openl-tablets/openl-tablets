@@ -1106,7 +1106,7 @@ public class ProjectModel {
         XlsUrlParser p1 = new XlsUrlParser();
         p1.parse(url);
 
-        IGridRegion region = XlsSheetGridModel.makeRegion(p1.range);
+        IGridRegion region = IGridRegion.Tool.makeRegion(p1.range);
 
         if (view == null) {
             view = IXlsTableNames.VIEW_BUSINESS;
