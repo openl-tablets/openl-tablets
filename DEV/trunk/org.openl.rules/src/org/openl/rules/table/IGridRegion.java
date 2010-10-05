@@ -6,6 +6,8 @@
 
 package org.openl.rules.table;
 
+import org.openl.util.StringTool;
+
 /**
  * @author snshor
  *
@@ -73,6 +75,47 @@ public interface IGridRegion {
 
         public static int width(IGridRegion i1) {
             return i1.getRight() - i1.getLeft() + 1;
+        }
+        
+        public static int getColumn(String cell) {
+            int col = 0;
+            int mul = 'Z' - 'A' + 1;
+            for (int i = 0; i < cell.length(); i++) {
+                char ch = cell.charAt(i);
+                if (!Character.isLetter(ch)) {
+                    return col - 1;
+                }
+                col = col * mul + ch - 'A' + 1;
+            }
+            throw new RuntimeException("Invalid cell: " + cell);
+        }
+                
+        public static int getRow(String cell) {
+            for (int i = 0; i < cell.length(); i++) {
+                char ch = cell.charAt(i);
+                if (Character.isDigit(ch)) {
+                    return Integer.parseInt(cell.substring(i)) - 1;
+                }
+            }
+            throw new RuntimeException("Invalid cell: " + cell);
+        }
+                
+        public static IGridRegion makeRegion(String range) {
+
+            int idx = range.indexOf(AGridModel.RANGE_SEPARATOR);
+            if (idx < 0) {
+                int col1 = getColumn(range);
+                int row1 = getRow(range);
+                return new GridRegion(row1, col1, row1, col1);
+            }
+            String[] rr = StringTool.tokenize(range, AGridModel.RANGE_SEPARATOR);
+
+            int col1 = getColumn(rr[0]);
+            int row1 = getRow(rr[0]);
+            int col2 = getColumn(rr[1]);
+            int row2 = getRow(rr[1]);
+
+            return new GridRegion(row1, col1, row2, col2);
         }
     }
 

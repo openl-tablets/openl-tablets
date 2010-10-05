@@ -18,7 +18,7 @@ public class XlsUrlUtils {
             return false;
         }
 
-        return IGridRegion.Tool.intersects(XlsSheetGridModel.makeRegion(p1.range), XlsSheetGridModel
+        return IGridRegion.Tool.intersects(IGridRegion.Tool.makeRegion(p1.range), IGridRegion.Tool
                 .makeRegion(p2.range));
     }
 
