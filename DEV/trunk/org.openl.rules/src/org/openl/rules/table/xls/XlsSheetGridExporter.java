@@ -93,7 +93,7 @@ public class XlsSheetGridExporter implements IExporter {
 		CellStyle style = getStyle();
 
         for (int r = 0; r < height; ++r) {
-            PoiHelper.getOrCreatePoiXlsCell(col, row + r, gridModel.getSheetSource().getSheet()).setCellStyle(style);
+            PoiExcelHelper.getOrCreateCell(col, row + r, gridModel.getSheetSource().getSheet()).setCellStyle(style);
         }
     }
 
@@ -105,7 +105,7 @@ public class XlsSheetGridExporter implements IExporter {
             CellStyle style = getStyle();
 
             for (int c = 0; c < width; ++c) {
-                PoiHelper.getOrCreatePoiXlsCell(col + c, row, gridModel.getSheetSource().getSheet()).setCellStyle(style);
+                PoiExcelHelper.getOrCreateCell(col + c, row, gridModel.getSheetSource().getSheet()).setCellStyle(style);
             }
         }
     }
@@ -211,7 +211,7 @@ public class XlsSheetGridExporter implements IExporter {
         CellStyle hstyle = getHeaderStyle();
 
         for (int col = region.getLeft(); col <= region.getRight(); ++col) {
-            PoiHelper.getOrCreatePoiXlsCell(col, region.getTop(), gridModel.getSheetSource().getSheet()).setCellStyle(hstyle);
+            PoiExcelHelper.getOrCreateCell(col, region.getTop(), gridModel.getSheetSource().getSheet()).setCellStyle(hstyle);
         }
     }
 

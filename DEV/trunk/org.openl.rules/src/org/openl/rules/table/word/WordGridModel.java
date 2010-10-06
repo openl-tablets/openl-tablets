@@ -1,7 +1,6 @@
 package org.openl.rules.table.word;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
@@ -10,14 +9,13 @@ import org.apache.poi.hwpf.usermodel.Table;
 import org.apache.poi.hwpf.usermodel.TableCell;
 import org.apache.poi.hwpf.usermodel.TableRow;
 import org.openl.rules.indexer.WordTableElement;
-import org.openl.rules.table.FormattedCell;
+import org.openl.rules.table.AGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ui.ICellStyle;
 
-public class WordGridModel implements IGrid {
+public class WordGridModel extends AGrid {
 
     static class WordGridBuilder {
         WordCell[][] grid;
@@ -180,11 +178,6 @@ public class WordGridModel implements IGrid {
         return grid[column][row];
     }
 
-    public ICellStyle getCellStyle(int column, int row) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -212,29 +205,6 @@ public class WordGridModel implements IGrid {
 
     public int getColumnWidth(int col) {
         return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.rules.table.IGrid#getDateCellValue(int, int)
-     */
-    public Date getDateCellValue(int column, int row) {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.rules.table.IGrid#getDoubleCellValue(int, int)
-     */
-    public double getDoubleCellValue(int column, int row) {
-        return 0;
-    }
-
-    public FormattedCell getFormattedCell(int column, int row) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public String getFormattedCellValue(int column, int row) {

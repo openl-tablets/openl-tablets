@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.openl.rules.table.ui.ICellStyle;
 
-public class PoiHelper {
+public class PoiExcelHelper {
     
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
         cellTo.setCellType(Cell.CELL_TYPE_BLANK);
@@ -43,7 +43,7 @@ public class PoiHelper {
         }
     }
     
-    public static Cell getPoiXlsCell(int colIndex, int rowIndex, Sheet sheet) {
+    public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row != null) {
             return row.getCell(colIndex);
@@ -51,7 +51,7 @@ public class PoiHelper {
         return null;
     }
         
-    public static Cell getOrCreatePoiXlsCell(int colIndex, int rowIndex, Sheet sheet) {
+    public static Cell getOrCreateCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row == null) {
             row = sheet.createRow(rowIndex);
@@ -113,7 +113,7 @@ public class PoiHelper {
     }
     
     public static boolean isEmptyCell(int x, int y, Sheet sheet) {
-        Cell cell = PoiHelper.getPoiXlsCell(x, y, sheet);
+        Cell cell = PoiExcelHelper.getCell(x, y, sheet);
         if (cell == null) {
             return true;
         }
@@ -155,7 +155,7 @@ public class PoiHelper {
     }
     
     public static void setCellStringValue(int col, int row, String value, Sheet sheet) {
-        Cell cell = getOrCreatePoiXlsCell(col, row, sheet);
+        Cell cell = getOrCreateCell(col, row, sheet);
         cell.setCellValue(value);
     }
  

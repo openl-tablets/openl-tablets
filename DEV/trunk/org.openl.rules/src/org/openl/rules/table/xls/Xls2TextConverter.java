@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -80,7 +79,7 @@ public class Xls2TextConverter {
 
                 printSheetName(sheetName, out);
 
-                IGridTable[] tables = new GridSplitter(xlsGrid).split();
+                IGridTable[] tables = xlsGrid.getTables();
 
                 for (int j = 0; j < tables.length; j++) {
                     printTable(tables[j], out);

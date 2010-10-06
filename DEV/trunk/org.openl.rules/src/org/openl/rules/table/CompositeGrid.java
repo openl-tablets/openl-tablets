@@ -11,7 +11,7 @@ import java.util.Iterator;
  * @author snshor
  *
  */
-public class CompositeGrid extends AGridModel {   
+public class CompositeGrid extends AGrid {   
 
     private IGridTable[] gridTables;
 

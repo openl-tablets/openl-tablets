@@ -33,7 +33,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -498,7 +497,7 @@ public class XlsLoader {
     private IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource) {
 
         XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
-        IGridTable[] tables = new GridSplitter(xlsGrid).split();
+        IGridTable[] tables = xlsGrid.getTables();
 
         return tables;
     }

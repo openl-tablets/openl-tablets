@@ -139,8 +139,8 @@ public class MergedRegionsTest {
             for (int column = 0; column <= width; column++) {
                 XlsCell resultCell = (XlsCell)grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
                 XlsCell expectedCell = (XlsCell)grid.getCell(expectedRegion.getLeft() + column, expectedRegion.getTop() + row);
-                Cell resultXLSCell = PoiHelper.getOrCreatePoiXlsCell(testRegion.getLeft() + column, testRegion.getTop() + row, grid.getSheetSource().getSheet());
-                Cell expectedXLSCell = PoiHelper.getOrCreatePoiXlsCell(expectedRegion.getLeft() + column, expectedRegion
+                Cell resultXLSCell = PoiExcelHelper.getOrCreateCell(testRegion.getLeft() + column, testRegion.getTop() + row, grid.getSheetSource().getSheet());
+                Cell expectedXLSCell = PoiExcelHelper.getOrCreateCell(expectedRegion.getLeft() + column, expectedRegion
                         .getTop() + row, grid.getSheetSource().getSheet());
                 if (resultCell != expectedCell && resultCell.getStringValue() != expectedCell.getStringValue()) {
                     if (!isEqualCells(resultCell, expectedCell, grid)

@@ -1,8 +1,12 @@
 package org.openl.rules.table;
 
-public abstract class AGridModel implements IGrid {
+public abstract class AGrid implements IGrid {
 
     public static final String RANGE_SEPARATOR = ":";
+
+    public IGridTable[] getTables() {
+        return new GridSplitter(this).split();
+    }
 
     public IGridRegion getRegionContaining(int col, int row) {
         int nregions = getNumberOfMergedRegions();
