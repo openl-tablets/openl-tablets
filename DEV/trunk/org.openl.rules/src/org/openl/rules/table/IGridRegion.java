@@ -102,13 +102,13 @@ public interface IGridRegion {
                 
         public static IGridRegion makeRegion(String range) {
 
-            int idx = range.indexOf(AGridModel.RANGE_SEPARATOR);
+            int idx = range.indexOf(AGrid.RANGE_SEPARATOR);
             if (idx < 0) {
                 int col1 = getColumn(range);
                 int row1 = getRow(range);
                 return new GridRegion(row1, col1, row1, col1);
             }
-            String[] rr = StringTool.tokenize(range, AGridModel.RANGE_SEPARATOR);
+            String[] rr = StringTool.tokenize(range, AGrid.RANGE_SEPARATOR);
 
             int col1 = getColumn(rr[0]);
             int row1 = getRow(rr[0]);

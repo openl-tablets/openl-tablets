@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -41,7 +40,7 @@ public class TestCopy extends TestCase {
 
             XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
-            IGridTable[] tables = new GridSplitter(xsGrid).split();
+            IGridTable[] tables = xsGrid.getTables();
 
             for (int j = 0; j < tables.length; j++) {
                 IWritableGrid.Tool.insertColumns(1, 1, tables[j].getRegion(), (IWritableGrid) tables[j].getGrid());

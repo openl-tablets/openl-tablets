@@ -34,7 +34,7 @@ public class TablesTest extends TestCase {
 
             XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
-            IGridTable[] tables = new GridSplitter(xsGrid).split();
+            IGridTable[] tables = xsGrid.getTables();
 
             Assert.assertEquals(17, xsGrid.getNumberOfMergedRegions());
             Assert.assertEquals(6, tables.length);

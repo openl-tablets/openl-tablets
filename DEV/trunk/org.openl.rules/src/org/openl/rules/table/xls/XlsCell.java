@@ -50,7 +50,7 @@ public class XlsCell implements ICell {
     }
 
     public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
-        this(column, row, gridModel.getRegionContaining(column, row), PoiHelper.getPoiXlsCell(column, row, gridModel.getSheetSource().getSheet()));
+        this(column, row, gridModel.getRegionContaining(column, row), PoiExcelHelper.getCell(column, row, gridModel.getSheetSource().getSheet()));
         this.gridModel = gridModel;
     }
 

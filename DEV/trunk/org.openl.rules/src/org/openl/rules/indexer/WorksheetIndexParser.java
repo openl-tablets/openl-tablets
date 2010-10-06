@@ -6,7 +6,6 @@ import org.openl.rules.lang.xls.XlsLoader;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
@@ -53,7 +52,7 @@ public class WorksheetIndexParser implements IIndexParser {
 
         XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSrc);
 
-        IGridTable[] tables = new GridSplitter(xlsGrid).split();
+        IGridTable[] tables = xlsGrid.getTables();
 
         TableSyntaxNode[] nodes = new TableSyntaxNode[tables.length];
 

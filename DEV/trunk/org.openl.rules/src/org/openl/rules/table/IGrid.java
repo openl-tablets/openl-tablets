@@ -37,6 +37,8 @@ public interface IGrid {
     // public final static int CELL_SUB_TYPE_URL = 11;
     // public final static int CELL_SUB_TYPE_DATE = 12;
 
+    IGridTable[] getTables();
+
     ICell getCell(int column, int row);
 
     int getColumnWidth(int col);

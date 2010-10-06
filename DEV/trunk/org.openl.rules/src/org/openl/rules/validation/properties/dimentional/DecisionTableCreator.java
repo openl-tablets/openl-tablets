@@ -3,7 +3,6 @@ package org.openl.rules.validation.properties.dimentional;
 import java.util.Map;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -26,10 +25,9 @@ public class DecisionTableCreator {
     
     public IGridTable createGridTable(Sheet sheetWithTable) {
         createSheetGridModel(sheetWithTable);
-        GridSplitter gridSplitter = new GridSplitter(sheetGridModel);
-        IGridTable[] gridTables = gridSplitter.split();
+        IGridTable[] tables = sheetGridModel.getTables();
 
-        return gridTables[0];
+        return tables[0];
     }
 
     public XlsSheetGridModel createSheetGridModel(Sheet sheetWithTable) {

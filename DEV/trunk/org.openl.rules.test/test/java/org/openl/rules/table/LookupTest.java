@@ -32,7 +32,7 @@ public class LookupTest extends TestCase {
             XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbsrc);
             XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
-            IGridTable[] tables = new GridSplitter(xsGrid).split();
+            IGridTable[] tables = xsGrid.getTables();
 
             if (name.equals("Sheet1")) {
                 testSheet1(tables);
