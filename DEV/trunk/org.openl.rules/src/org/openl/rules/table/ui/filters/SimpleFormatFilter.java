@@ -23,6 +23,7 @@ import org.openl.rules.table.xls.formatters.XlsFormulaFormatter;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.rules.table.xls.formatters.XlsStringFormatter;
 import org.openl.types.IOpenClass;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -31,7 +32,7 @@ public class SimpleFormatFilter implements IGridFilter {
 
     public static final String GENERAL_XLS_FORMAT = "General";
 
-    private Map<String, AXlsFormatter> existingFormatters = new HashMap<String, AXlsFormatter>();
+    private Map<String, IFormatter> existingFormatters = new HashMap<String, IFormatter>();
 
     public Object parse(String value) {
         throw new UnsupportedOperationException("This format does not parse");
@@ -42,7 +43,7 @@ public class SimpleFormatFilter implements IGridFilter {
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
-        AXlsFormatter cellFormatter = getCellFormatter(cell);
+        IFormatter cellFormatter = getCellFormatter(cell);
         if (cellFormatter != null) {
             FormatFilter formatFilter = new FormatFilter(cellFormatter);
             Object cellValue = cell.getObjectValue();
@@ -71,7 +72,7 @@ public class SimpleFormatFilter implements IGridFilter {
     }
 
     // TODO Move to factory class
-    private AXlsFormatter getCellFormatter(ICell cell) {
+    private IFormatter getCellFormatter(ICell cell) {
         AXlsFormatter formatter = null;
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
@@ -126,7 +127,7 @@ public class SimpleFormatFilter implements IGridFilter {
             format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
         }
         
-        AXlsFormatter formatter = existingFormatters.get(format);
+        IFormatter formatter = existingFormatters.get(format);
         if (formatter instanceof XlsDateFormatter) {
             return (XlsDateFormatter) formatter;
         }
@@ -143,7 +144,7 @@ public class SimpleFormatFilter implements IGridFilter {
             return XlsNumberFormatter.General;
         }
 
-        AXlsFormatter formatter = existingFormatters.get(format);
+        IFormatter formatter = existingFormatters.get(format);
 
         if (formatter instanceof XlsNumberFormatter) {
             return (XlsNumberFormatter) formatter;
@@ -156,7 +157,7 @@ public class SimpleFormatFilter implements IGridFilter {
         return numberFormatter;
     }
 
-    public AXlsFormatter getFormatter() {
+    public IFormatter getFormatter() {
         return null;
     }    
 

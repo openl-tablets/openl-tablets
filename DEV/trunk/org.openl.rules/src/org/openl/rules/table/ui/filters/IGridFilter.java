@@ -5,7 +5,7 @@ package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.IGridSelector;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.util.formatters.IFormatter;
 
 public interface IGridFilter {
     
@@ -20,5 +20,5 @@ public interface IGridFilter {
 
     Object parse(String value);
     
-    AXlsFormatter getFormatter();
+    IFormatter getFormatter();
 }

@@ -4,7 +4,7 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -13,13 +13,13 @@ import org.openl.rules.table.xls.formatters.AXlsFormatter;
 public class UndoableSetValueAction extends AUndoableCellAction {
 
     private String value;
-    private AXlsFormatter format;
+    private IFormatter format;
 
     /**
      * @param col
      * @param row
      */
-    public UndoableSetValueAction(int col, int row, String value, AXlsFormatter format) {
+    public UndoableSetValueAction(int col, int row, String value, IFormatter format) {
         super(col, row);
         this.value = value;
         this.format = format;

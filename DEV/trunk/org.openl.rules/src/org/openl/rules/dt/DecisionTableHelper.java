@@ -11,7 +11,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsSheetGridHelper;
 
 public class DecisionTableHelper {
 
@@ -126,10 +126,10 @@ public class DecisionTableHelper {
      */
     public static ILogicalTable preprocessSimpleLoolup(DecisionTable decisionTable, ILogicalTable original,
             int numberOfHcondition) {
-        IWritableGrid fakeGrid = createFakeGrid();
-        writeConditionAndReturnHeadersForSimpleLookup(fakeGrid, decisionTable, numberOfHcondition);
+        IWritableGrid virtualGrid = createVirtualGrid();
+        writeConditionAndReturnHeadersForSimpleLookup(virtualGrid, decisionTable, numberOfHcondition);
         IGridTable fakeTable = new GridTable(0, 0, 2, decisionTable.getSignature().getNumberOfParameters() + 1,
-                fakeGrid);
+                virtualGrid);
         IGrid grid = new CompositeGrid(new IGridTable[] { fakeTable, original.getSource() }, true);
         return LogicalTableHelper.logicalTable(new GridTable(0, 0, original.getHeight() + 2, original.getWidth() - 1,
                 grid));
@@ -154,10 +154,10 @@ public class DecisionTableHelper {
      * 
      * @return virtual {@link IWritableGrid}.
      */
-    public static IWritableGrid createFakeGrid() {
+    public static IWritableGrid createVirtualGrid() {
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet();
-        return new XlsSheetGridModel(sheet);
+        return XlsSheetGridHelper.createVirtualGrid(sheet);
     }
 
     public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {

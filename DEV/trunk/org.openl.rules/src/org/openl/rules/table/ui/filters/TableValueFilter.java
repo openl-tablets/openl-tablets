@@ -2,7 +2,7 @@ package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.util.formatters.IFormatter;
 
 public class TableValueFilter extends AGridFilter {
 
@@ -39,7 +39,7 @@ public class TableValueFilter extends AGridFilter {
         return v;
     }
 
-    public AXlsFormatter getFormatter() {
+    public IFormatter getFormatter() {
         // TODO Auto-generated method stub
         return null;
     }
