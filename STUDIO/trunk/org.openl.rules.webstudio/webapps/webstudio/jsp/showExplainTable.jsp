@@ -2,7 +2,7 @@
 <%@ page import = "org.openl.util.*" %>
 <%@ page import = "org.openl.commons.web.util.WebTool" %>
 <%@ page import="org.openl.rules.lang.xls.syntax.TableSyntaxNode" %>
-<%@page import="org.openl.rules.table.ITable"%>
+<%@page import="org.openl.rules.table.IOpenLTable"%>
 
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
@@ -64,7 +64,7 @@ visibility:hidden;
 
 
 <%
-    ITable table = studio.getModel().getTable(uri);
+    IOpenLTable table = studio.getModel().getTable(uri);
  	String view = null;
 
     if (table != null) {
