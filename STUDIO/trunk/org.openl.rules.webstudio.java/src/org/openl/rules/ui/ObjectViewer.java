@@ -19,10 +19,10 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.StringTool;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -231,7 +231,7 @@ public class ObjectViewer {
             return url != null;
         }
 
-        public AXlsFormatter getFormatter() {
+        public IFormatter getFormatter() {
             return null;
         }
 
