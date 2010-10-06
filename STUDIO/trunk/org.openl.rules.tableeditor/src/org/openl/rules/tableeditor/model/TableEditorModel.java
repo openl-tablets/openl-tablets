@@ -11,7 +11,6 @@ import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
@@ -87,7 +86,7 @@ public class TableEditorModel {
         this.showFormulas = showFormulas;
         fullTableRegion = new GridRegion(getOriginalTable(this.gridTable).getRegion());
         displayedTableRegion = new GridRegion(gridTable.getRegion());
-        othertables = new GridSplitter(gridTable.getGrid()).split();
+        othertables = ((XlsSheetGridModel) gridTable.getGrid()).getTables();
 
         if (gridTable.getGrid() instanceof XlsSheetGridModel) {
             XlsSheetGridModel grid = (XlsSheetGridModel) gridTable.getGrid();
