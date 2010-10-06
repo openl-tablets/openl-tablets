@@ -34,6 +34,9 @@ public class TableBuilder {
     public static final String TABLE_PROPERTIES = "properties";
     public static final String TABLE_PROPERTIES_NAME = "name";
 
+    public static final int HEADER_HEIGHT = 1;
+    public static final int PROPERTIES_MIN_WIDTH = 3;
+
     /** The sheet to write tables to. */
     private final XlsSheetGridModel gridModel;
     /** Current table region in excel sheet. */
