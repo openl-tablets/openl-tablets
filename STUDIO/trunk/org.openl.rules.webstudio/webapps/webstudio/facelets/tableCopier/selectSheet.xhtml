@@ -17,14 +17,16 @@
     <h2>Select destination</h2>
 
     <h:form id="destForm">
-      <fieldset><legend>Workbook</legend>
       <a4j:region>
+      <h:panelGrid columns="2">
+        <h:outputText value="Workbook" />
         <h:selectOneMenu value="#{tableCopierWizard.workbook}">
           <a4j:support event="onchange" reRender="sheet" ajaxSingle="true" oncomplete="updateControls()"/>
           <f:selectItems value="#{tableCopierWizard.workbooks}"/>
-        </h:selectOneMenu> </a4j:region>
+        </h:selectOneMenu>
+        </h:panelGrid>
+        </a4j:region>
         <br/>
-      </fieldset>
 
       <fieldset><legend>Worksheet</legend>
       <h:panelGrid columns="2">

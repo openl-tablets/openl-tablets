@@ -2,6 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.model.SelectItem;
 import javax.validation.Valid;
@@ -15,16 +16,17 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.richfaces.component.html.HtmlDataTable;
 
 /**
  * @author Andrei Astrouski
  */
-public class DatatypeAliasTableCreationWizard extends WizardBase {
+public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizard {
 
-    @NotEmpty(message="Table name can not be empty")
+    @NotEmpty(message="Technical name can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid table name")
-    private String tableName;
+    private String technicalName;
 
     private String aliasType;
 
@@ -39,12 +41,12 @@ public class DatatypeAliasTableCreationWizard extends WizardBase {
     public DatatypeAliasTableCreationWizard() {
     }
 
-    public String getTableName() {
-        return tableName;
+    public String getTechnicalName() {
+        return technicalName;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
+    public void setTechnicalName(String technicalName) {
+        this.technicalName = technicalName;
     }
 
     public String getAliasType() {
@@ -103,9 +105,18 @@ public class DatatypeAliasTableCreationWizard extends WizardBase {
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
         DatatypeAliasTableBuilder builder = new DatatypeAliasTableBuilder(gridModel);
 
-        builder.beginTable(values.size() + 1); // values + header
+        Map<String, Object> properties = buildProperties();
 
-        builder.writeHeader(tableName, aliasType);
+        int width = DatatypeAliasTableBuilder.MIN_WIDTH;
+        if (!properties.isEmpty()) {
+            width = TableBuilder.PROPERTIES_MIN_WIDTH;
+        }
+        int height = TableBuilder.HEADER_HEIGHT + properties.size() + values.size();
+
+        builder.beginTable(width, height);
+
+        builder.writeHeader(technicalName, aliasType);
+        builder.writeProperties(properties, null);
 
         for (AliasValue value : values) {
             builder.writeValue(value.getValue());
@@ -121,7 +132,7 @@ public class DatatypeAliasTableCreationWizard extends WizardBase {
     @Override
     protected void onStepFirstVisit(int step) {
         switch (step) {
-            case 3:
+            case 4:
                 initWorkbooks();
                 break;
         }
@@ -138,7 +149,7 @@ public class DatatypeAliasTableCreationWizard extends WizardBase {
 
     @Override
     protected void reset() {
-        tableName = null;
+        technicalName = null;
         values = new ArrayList<AliasValue>();
 
         domainTree = null;

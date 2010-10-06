@@ -302,9 +302,9 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
     protected void onStepFirstVisit(int step) {
         switch (step) {
             case 1:
-                parameters.add(new TypeNamePair());
                 break;
             case 2:
+                parameters.add(new TypeNamePair());
                 break;
             case 3:
                 addCondition();

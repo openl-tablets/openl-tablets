@@ -2,6 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.model.SelectItem;
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.richfaces.component.html.HtmlDataTable;
@@ -22,11 +24,11 @@ import org.richfaces.component.html.HtmlDataTable;
 /**
  * @author Andrei Astrouski
  */
-public class DatatypeTableCreationWizard extends WizardBase {
+public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
 
-    @NotEmpty(message="Table name can not be empty")
+    @NotEmpty(message="Technical name can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid table name")
-    private String tableName;
+    private String technicalName;
 
     @Valid
     private List<TypeNamePair> parameters = new ArrayList<TypeNamePair>();
@@ -41,12 +43,12 @@ public class DatatypeTableCreationWizard extends WizardBase {
     public DatatypeTableCreationWizard() {
     }
 
-    public String getTableName() {
-        return tableName;
+    public String getTechnicalName() {
+        return technicalName;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
+    public void setTechnicalName(String technicalName) {
+        this.technicalName = technicalName;
     }
 
     public List<TypeNamePair> getParameters() {
@@ -119,9 +121,18 @@ public class DatatypeTableCreationWizard extends WizardBase {
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
         DatatypeTableBuilder builder = new DatatypeTableBuilder(gridModel);
 
-        builder.beginTable(parameters.size() + 1); // params + header
+        Map<String, Object> properties = buildProperties();
 
-        builder.writeHeader(tableName, parent);
+        int width = DatatypeTableBuilder.MIN_WIDTH;
+        if (!properties.isEmpty()) {
+            width = TableBuilder.PROPERTIES_MIN_WIDTH;
+        }
+        int height = TableBuilder.HEADER_HEIGHT + properties.size() + parameters.size();
+
+        builder.beginTable(width, height);
+
+        builder.writeHeader(technicalName, parent);
+        builder.writeProperties(properties, null);
 
         for (TypeNamePair parameter : parameters) {
             String paramType = parameter.getType();
@@ -141,7 +152,7 @@ public class DatatypeTableCreationWizard extends WizardBase {
     @Override
     protected void onStepFirstVisit(int step) {
         switch (step) {
-            case 3:
+            case 4:
                 initWorkbooks();
                 break;
         }
@@ -158,7 +169,7 @@ public class DatatypeTableCreationWizard extends WizardBase {
 
     @Override
     protected void reset() {
-        tableName = null;
+        technicalName = null;
         parameters = new ArrayList<TypeNamePair>();
 
         domainTree = null;

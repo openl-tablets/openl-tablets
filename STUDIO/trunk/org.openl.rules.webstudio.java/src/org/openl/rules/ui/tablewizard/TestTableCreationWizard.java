@@ -15,6 +15,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
 import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
@@ -88,10 +89,10 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
         Map<String, Object> properties = buildProperties();
 
         int width = params.size() + 1;
-        if (width < 3 && !properties.isEmpty()) {
-            width = 3;  // Properties require 3 columns
+        if (width < TableBuilder.PROPERTIES_MIN_WIDTH && !properties.isEmpty()) {
+            width = TableBuilder.PROPERTIES_MIN_WIDTH;
         }
-        int height = 3 + properties.size(); // 3 required rows + Properties
+        int height = TableBuilder.HEADER_HEIGHT + 2 + properties.size();
         builder.beginTable(width, height);
 
         builder.writeHeader(header, null);

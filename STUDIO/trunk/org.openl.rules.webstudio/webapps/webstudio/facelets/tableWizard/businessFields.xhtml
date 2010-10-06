@@ -4,6 +4,7 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich"
                 template="/facelets/common/wizardBase.xhtml">
 
     <ui:define name="header">
@@ -17,12 +18,22 @@
         </style>
     </ui:define>
 
-    <ui:define name="title">Select category</ui:define>
+    <ui:define name="title">Input Business Name and Category</ui:define>
 
     <ui:define name="page">
 
-    	<h:form id="categoryForm">
-  	   	  <div id="categoryNameModule">
+    	<h:form id="businessForm">
+            <h:panelGrid columns="3">
+                <h:outputLabel value="Business Name" for="businessName" />
+                <h:inputText id="businessName" value="#{tableWizard.businessName}">
+                    <rich:ajaxValidator event="onblur" />
+                </h:inputText>
+                <rich:message for="businessName" styleClass="error" />
+            </h:panelGrid>
+            <br />
+
+            <fieldset id="categoryNameModule">
+              <legend>Category</legend>
               <h:panelGrid columns="2">
                   <h:selectOneRadio id="categoryNameSelector" value="#{tableWizard.categoryNameSelector}"
                       layout="pageDirection" onchange="updateCategoryNameControls()">
@@ -37,7 +48,7 @@
                       <h:inputText id="newCategoryName" value="#{tableWizard.newCategoryName}" />
                   </h:panelGrid>
               </h:panelGrid>
-  	   	  </div>
+           </fieldset>
 
   	    <hr />
 
@@ -50,9 +61,9 @@
     <script type="text/javascript">
 
       function updateCategoryNameControls() {
-          var selectorCheckedValue = getRadioCheckedValue('categoryForm', 'categoryForm:categoryNameSelector');
-          $('categoryForm:categoryNamesList').disabled = (selectorCheckedValue != 'existing');
-          $('categoryForm:newCategoryName').disabled = (selectorCheckedValue != 'new');
+          var selectorCheckedValue = getRadioCheckedValue('businessForm', 'businessForm:categoryNameSelector');
+          $('businessForm:categoryNamesList').disabled = (selectorCheckedValue != 'existing');
+          $('businessForm:newCategoryName').disabled = (selectorCheckedValue != 'new');
       }
 
       function validate() {
@@ -60,9 +71,9 @@
       }
 
       function validateNewCategoryName() {
-          var selectorCheckedValue = getRadioCheckedValue('categoryForm', 'categoryForm:categoryNameSelector');
+          var selectorCheckedValue = getRadioCheckedValue('businessForm', 'businessForm:categoryNameSelector');
           if (selectorCheckedValue == 'new') {
-              return validateRequired('categoryForm:newCategoryName', true);
+              return validateRequired('businessForm:newCategoryName', true);
           }
           return true;
       }

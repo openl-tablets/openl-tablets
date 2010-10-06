@@ -16,6 +16,7 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 public class PropertyTableCreationWizard extends BusinessTableCreationWizard {
@@ -119,7 +120,7 @@ public class PropertyTableCreationWizard extends BusinessTableCreationWizard {
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
         PropertiesTableBuilder builder = new PropertiesTableBuilder(gridModel);
         Map<String, Object> properties = buildProperties();
-        builder.beginTable(properties.size() + 1);
+        builder.beginTable(TableBuilder.HEADER_HEIGHT + properties.size());
         builder.writeHeader(tableName);
         builder.writeBody(properties);
 
