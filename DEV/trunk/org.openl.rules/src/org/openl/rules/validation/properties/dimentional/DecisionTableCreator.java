@@ -2,14 +2,11 @@ package org.openl.rules.validation.properties.dimentional;
 
 import java.util.Map;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -21,7 +18,7 @@ public class DecisionTableCreator {
     //FIXME: remove this variable
     public static final String CURRENT_DATE_PARAM = "currentDate";
         
-    private static String FAKE_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";    
+    private static String VIRTUAL_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";    
     private XlsSheetGridModel sheetGridModel;
     
     public DecisionTableCreator() {
@@ -37,14 +34,8 @@ public class DecisionTableCreator {
 
     public XlsSheetGridModel createSheetGridModel(Sheet sheetWithTable) {
         if (sheetGridModel == null) {
-            Workbook wb = sheetWithTable.getWorkbook();
-
             //it is just for correct work of webstudio
-            XlsWorkbookSourceCodeModule mockWorkbookSource = 
-                new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(FAKE_EXCEL_FILE, null), wb);
-            XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(sheetWithTable, sheetWithTable.getSheetName(), mockWorkbookSource);
-
-            sheetGridModel = new XlsSheetGridModel(mockSheetSource);            
+            sheetGridModel = XlsSheetGridHelper.createVirtualGrid(sheetWithTable, VIRTUAL_EXCEL_FILE);                        
         } 
         return sheetGridModel;
     }

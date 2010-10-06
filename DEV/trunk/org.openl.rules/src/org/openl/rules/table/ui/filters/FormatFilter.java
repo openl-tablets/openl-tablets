@@ -1,13 +1,13 @@
 package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
+import org.openl.util.formatters.IFormatter;
 
 public class FormatFilter extends AGridFilter {
 
-    private AXlsFormatter formatter;
+    private IFormatter formatter;
 
-    public FormatFilter(AXlsFormatter format) {
+    public FormatFilter(IFormatter format) {
         this.formatter = format;
     }
 
@@ -25,7 +25,7 @@ public class FormatFilter extends AGridFilter {
         return cell;
     }
 
-    public AXlsFormatter getFormatter() {
+    public IFormatter getFormatter() {
         return this.formatter;
     }
 

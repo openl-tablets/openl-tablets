@@ -4,8 +4,8 @@
 package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.util.StringTool;
+import org.openl.util.formatters.IFormatter;
 
 public class SimpleHtmlFilter extends AGridFilter {
 
@@ -18,7 +18,7 @@ public class SimpleHtmlFilter extends AGridFilter {
         return cell;
     }
 
-    public AXlsFormatter getFormatter() {
+    public IFormatter getFormatter() {
         // TODO Auto-generated method stub
         return null;
     }

@@ -36,7 +36,7 @@ public class XlsUndoGrid implements IUndoGrid {
 		}
 		wb.createSheet();
 		sheet = wb.getSheetAt(0);
-		grid = new XlsSheetGridModel(sheet);
+		grid = XlsSheetGridHelper.createVirtualGrid(sheet);
 	}
 
     private int getColumn(int cid) {

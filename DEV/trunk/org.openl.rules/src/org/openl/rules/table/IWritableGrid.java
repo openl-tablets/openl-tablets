@@ -25,15 +25,14 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
+import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 
-import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
 import org.openl.util.export.IExporter;
+import org.openl.util.formatters.IFormatter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+
 
 /**
  * @author snshor
@@ -53,18 +52,17 @@ public interface IWritableGrid extends IGrid {
 
             return null;
         }
-
+        
+        /**
+         * Is deprecated, because of incorrect location. Use 
+         * {@link XlsSheetGridHelper#createExporter(XlsWorkbookSourceCodeModule)}
+         * 
+         * @param workbookModule
+         * @return
+         */
+        @Deprecated
         public static IExporter createExporter(XlsWorkbookSourceCodeModule workbookModule) {
-            Workbook workbook = workbookModule.getWorkbook();
-            Sheet sheet;
-            synchronized (workbook) {
-                sheet = workbook.getSheet(SHEET_NAME);
-                if (sheet == null) {
-                    sheet = workbook.createSheet(SHEET_NAME);
-                }
-            }
-
-            return new XlsSheetGridExporter(workbook, new XlsSheetGridModel(sheet));
+            return XlsSheetGridHelper.createExporter(workbookModule);
         }
 
         public static IWritableGrid getWritableGrid(IGrid grid) {
@@ -251,13 +249,13 @@ public interface IWritableGrid extends IGrid {
                 // property with such name and value already exists.
                 return null;
             }
-            AXlsFormatter format = getFormat(newPropName);
+            IFormatter format = getFormat(newPropName);
             return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, newPropValue, format);
         }
         
         private static IUndoableGridAction insertNewProperty(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
                 IWritableGrid wgrid, String newPropName, String newPropValue){
-            AXlsFormatter format = getFormat(newPropName);
+            IFormatter format = getFormat(newPropName);
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int firstPropertyRow = IGridRegion.Tool.height(wgrid.getCell(leftCell, topCell).getAbsoluteRegion());
@@ -355,9 +353,9 @@ public interface IWritableGrid extends IGrid {
             return containsPropSection;
         }
 
-        private static AXlsFormatter getFormat(String propertyName) {
+        private static IFormatter getFormat(String propertyName) {
 
-            AXlsFormatter result = null;
+            IFormatter result = null;
             TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
                     .getPropertyByName(propertyName);
 
@@ -514,7 +512,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         public static IUndoableGridAction setStringValue(int col, int row, IGridRegion region, String value,
-                AXlsFormatter format) {
+                IFormatter format) {
 
             int gcol = region.getLeft() + col;
             int grow = region.getTop() + row;
@@ -524,7 +522,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         public static IUndoableGridAction setStringValue(int col, int row, IGridTable table, String value,
-                AXlsFormatter format) {
+                IFormatter format) {
             // IWritableGrid wgrid = getWritableGrid(table);
             int gcol = table.getGridColumn(col, row);
             int grow = table.getGridRow(col, row);

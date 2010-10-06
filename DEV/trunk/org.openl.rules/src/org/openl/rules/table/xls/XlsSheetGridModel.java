@@ -81,22 +81,28 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
     public static IGridRegion makeRegion(String range) {
         return IGridRegion.Tool.makeRegion(range);
     }
-
-    public XlsSheetGridModel(Sheet sheet) {
+        
+    /**
+     * For internal usages, when we need to create virtual grid.
+     * 
+     * @deprecated For creating virtual grids use {@link XlsSheetGridHelper#createVirtualGrid(Sheet)}
+     */
+    protected XlsSheetGridModel(Sheet sheet) {
         this.sheet = sheet;
         extractMergedRegions();
         initCellWriters();
-    }
+    }    
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
         sheet = sheetSource.getSheet();
-        extractMergedRegions();
-
+        extractMergedRegions();        
+        
         sheetSource.getWorkbookSource().addListener(this);
+        
         initCellWriters();
     }
-
+    
     private void extractMergedRegions() {
         mergedRegionsPool = new RegionsPool(null);
         int nregions = getNumberOfMergedRegions();
@@ -204,7 +210,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
     
     /**
      * Deprecated due to incorrect name. It was not clear that we get the cell from Poi.<br>
-     * Use {@link #getPoiXlsCell(int, int)}
+     * Use {@link PoiHelper#getPoiXlsCell(int, int)}
      *      
      */
     @Deprecated
@@ -214,7 +220,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
     
     /**
      * Deprecated due to incorrect name. It was not clear that we get the cell from Poi.<br>
-     * Use {@link #getOrCreatePoiXlsCell(int, int)}.
+     * Use {@link PoiHelper#getOrCreatePoiXlsCell(int, int)}.
      */
     @Deprecated
     public Cell getOrCreateXlsCell(int colIndex, int rowIndex) {
@@ -364,7 +370,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
     }
 
     public void setCellValue(int col, int row, Object value) {
-        Cell xlsCell = PoiHelper.getOrCreatePoiXlsCell(col, row, sheet);
+        Cell poiCell = PoiHelper.getOrCreatePoiXlsCell(col, row, sheet);
         if (value != null) {
             boolean writeCellMetaInfo = true;
 
@@ -374,12 +380,12 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
                 writeCellMetaInfo = false;
             }
 
-            AXlsCellWriter cellWriter = getCellWriter(xlsCell, value);
-            cellWriter.setCellToWrite(xlsCell);
+            AXlsCellWriter cellWriter = getCellWriter(poiCell.getCellType(), value);
+            cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue(writeCellMetaInfo);
         } else {
-            xlsCell.setCellType(CELL_TYPE_BLANK);
+            poiCell.setCellType(CELL_TYPE_BLANK);
         }
     }
 
@@ -405,7 +411,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
     }
 
     // TODO: move to factory.
-    private AXlsCellWriter getCellWriter(Cell cell, Object value) {
+    private AXlsCellWriter getCellWriter(int cellType, Object value) {
         String strValue = String.valueOf(value);
         AXlsCellWriter result = null;
         if (value instanceof Number) {
@@ -422,7 +428,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
             result = cellWriters.get(AXlsCellWriter.ARRAY_WRITER);
         } else { // String
             // Formula
-            if (strValue.startsWith("=") && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+            if (strValue.startsWith("=") && cellType == CELL_TYPE_FORMULA) {
                 result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
             } else {
                 result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
