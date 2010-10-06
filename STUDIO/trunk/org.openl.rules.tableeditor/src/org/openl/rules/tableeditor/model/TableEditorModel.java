@@ -33,8 +33,8 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
+import org.openl.util.formatters.IFormatter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -141,8 +141,8 @@ public class TableEditorModel {
         return gridTable.getGrid().getCell(tX(column), tY(row));
     }
 
-    private AXlsFormatter getFormatter(int col, int row) {
-        AXlsFormatter formatter = null;
+    private IFormatter getFormatter(int col, int row) {
+        IFormatter formatter = null;
         FormattedCell fc = filteredGrid.getFormattedCell(
                 fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
 

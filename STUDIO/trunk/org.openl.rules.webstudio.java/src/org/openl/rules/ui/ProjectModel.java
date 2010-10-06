@@ -48,6 +48,7 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
+import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
@@ -1046,7 +1047,7 @@ public class ProjectModel {
     public void saveSearch(OpenLSavedSearch search) throws Exception {
         XlsWorkbookSourceCodeModule module = getWorkbookNodes()[0].getWorkbookSourceCodeModule();
         if (module != null) {
-            IExporter iExporter = IWritableGrid.Tool.createExporter(module);
+            IExporter iExporter = XlsSheetGridHelper.createExporter(module);
             iExporter.persist(search);
             module.save();
             reset(ReloadType.SINGLE);
