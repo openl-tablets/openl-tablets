@@ -17,6 +17,8 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  */
 public class PropertiesTableBuilder extends TableBuilder {
 
+    public static final int MIN_WIDTH = 2; // Property name + Property value
+
     /**
      * Creates new instance.
      *
@@ -27,7 +29,7 @@ public class PropertiesTableBuilder extends TableBuilder {
     }
 
     public void beginTable(int height) throws CreateTableException {
-        super.beginTable(2, height);
+        super.beginTable(MIN_WIDTH, height);
     }
 
     public void writeBody(Map<String, Object> properties, ICellStyle style) {

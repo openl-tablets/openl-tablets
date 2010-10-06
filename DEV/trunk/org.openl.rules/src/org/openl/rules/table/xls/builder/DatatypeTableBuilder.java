@@ -13,6 +13,12 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  */
 public class DatatypeTableBuilder extends TableBuilder {
 
+    public static final int MIN_WIDTH = 2; // Param type + Param name
+
+    public void beginTable(int height) throws CreateTableException {
+        super.beginTable(MIN_WIDTH, height);
+    }
+
     /**
      * Creates new instance.
      *
@@ -20,10 +26,6 @@ public class DatatypeTableBuilder extends TableBuilder {
      */
     public DatatypeTableBuilder(XlsSheetGridModel gridModel) {
         super(gridModel);
-    }
-
-    public void beginTable(int height) throws CreateTableException {
-        super.beginTable(2, height);
     }
 
     @Override

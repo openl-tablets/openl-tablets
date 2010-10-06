@@ -13,6 +13,8 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  */
 public class DatatypeAliasTableBuilder extends TableBuilder {
 
+    public static final int MIN_WIDTH = 1;
+
     /**
      * Creates new instance.
      *
@@ -23,7 +25,7 @@ public class DatatypeAliasTableBuilder extends TableBuilder {
     }
 
     public void beginTable(int height) throws CreateTableException {
-        super.beginTable(1, height);
+        super.beginTable(MIN_WIDTH, height);
     }
 
     public void writeHeader(String tableName, String aliasType, ICellStyle style) {
