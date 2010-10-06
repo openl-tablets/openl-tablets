@@ -90,8 +90,11 @@ public class ProjectDescriptor {
         }
         return classLoader;
     }
+    
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
-    @SuppressWarnings("deprecation")
     public URL[] getClassPathUrls() {
         if(classpath == null){
             return new URL[]{};

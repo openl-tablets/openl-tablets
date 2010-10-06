@@ -11,7 +11,6 @@ import org.openl.rules.project.model.Module;
  */
 public abstract class RulesInstantiationStrategy {
     private Module module;
-
     private Class<?> clazz;
     private boolean executionMode;
 
