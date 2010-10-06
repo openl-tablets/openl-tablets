@@ -53,11 +53,11 @@ public class TableWizardManager extends TableWizard{
                 break;
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();
-                wizard.setStepsCount(3);
+                wizard.setStepsCount(4);
                 break;
             case DATATYPE_ALIAS:
                 wizard = new DatatypeAliasTableCreationWizard();
-                wizard.setStepsCount(3);
+                wizard.setStepsCount(4);
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();

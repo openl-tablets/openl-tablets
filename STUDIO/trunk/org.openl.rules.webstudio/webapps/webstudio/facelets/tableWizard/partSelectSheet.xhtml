@@ -17,16 +17,19 @@
     <h:messages errorClass="error" />
 
     <h:form id="destForm">
-      <fieldset><legend>Workbook</legend>
       <a4j:region>
+      <h:panelGrid columns="2">
+        <h:outputText value="Workbook" />
         <h:selectOneMenu value="#{tableWizard.workbook}">
           <a4j:support event="onchange" reRender="sheet" ajaxSingle="true" oncomplete="updateControls()"/>
           <f:selectItems value="#{tableWizard.workbooks}"/>
-        </h:selectOneMenu> </a4j:region>
+        </h:selectOneMenu>
+        </h:panelGrid>
+        </a4j:region>
         <br/>
-      </fieldset>
 
-      <fieldset><legend>Worksheet</legend>
+      <fieldset>
+      <legend>Worksheet</legend>
       <h:panelGrid columns="2">
         <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{tableWizard.newWorksheet}" layout="pageDirection">
           <f:selectItem itemValue="existing" itemLabel="Existing"/>
