@@ -60,4 +60,5 @@ public class Module {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
+
 }
