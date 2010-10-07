@@ -46,20 +46,20 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
         factory.reset(true);
     }
 
-    @Override
-    protected ClassLoader getClassLoader() {
-        ClassLoader projectClassloader = getProjectClassLoader();
-        if (classLoader == null || projectClassloader != classLoader.getParent()) {
-            // For all of modules resolved as API we will use different class
-            // loaders with common project class loader
-            classLoader = new URLClassLoader(new URL[] {}, projectClassloader);
-        }
-        return classLoader;
-    }
+//    @Override
+//    protected ClassLoader getClassLoader() {
+//        ClassLoader projectClassloader = getProjectClassLoader();
+//        if (classLoader == null || projectClassloader != classLoader.getParent()) {
+//            // For all of modules resolved as API we will use different class
+//            // loaders with common project class loader
+//            classLoader = new URLClassLoader(new URL[] {}, projectClassloader);
+//        }
+//        return classLoader;
+//    }
 
-    private ClassLoader getProjectClassLoader() {
-        return super.getClassLoader();
-    }
+//    private ClassLoader getProjectClassLoader() {
+//        return super.getClassLoader();
+//    }
 
     @Override
     public Class<?> getServiceClass() {
