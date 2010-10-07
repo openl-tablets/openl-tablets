@@ -185,11 +185,27 @@ public class Operators {
     }
 
     // Equals
+    public static boolean eq(byte x, byte y) {
+        return strict_eq(x, y);
+    }
+
+    public static boolean strict_eq(byte x, byte y) {
+        return x == y;
+    }
+
     public static boolean eq(short x, short y) {
+        return strict_eq(x, y);
+    }
+
+    public static boolean strict_eq(short x, short y) {
+        return x == y;
+    }
+    
+    public static boolean eq(char x, char y) {
     	return strict_eq(x, y);
     }
     
-    public static boolean strict_eq(short x, short y) {
+    public static boolean strict_eq(char x, char y) {
         return x == y;
     }
 
@@ -225,11 +241,43 @@ public class Operators {
     	return x == y;
     }
 
+    public static boolean eq(Byte x, Byte y) {
+        return strict_eq(x, y);
+    }
+
+    public static boolean strict_eq(Byte x, Byte y) {
+        if (x == y) {
+            return false;
+        }
+        
+        if (x != null && y != null) {
+            return x.equals(y);
+        }
+        
+        return false;
+    }
+
     public static boolean eq(Short x, Short y) {
         return strict_eq(x, y);
     }
 
     public static boolean strict_eq(Short x, Short y) {
+        if (x == y) {
+            return false;
+        }
+        
+        if (x != null && y != null) {
+            return x.equals(y);
+        }
+        
+        return false;
+    }
+
+    public static boolean eq(Character x, Character y) {
+        return strict_eq(x, y);
+    }
+
+    public static boolean strict_eq(Character x, Character y) {
         if (x == y) {
             return false;
         }
@@ -386,6 +434,22 @@ public class Operators {
     }
 
     // Not Equals
+    public static boolean ne(byte x, byte y) {
+        return strict_ne(x, y);
+    }
+    
+    public static boolean strict_ne(byte x, byte y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean ne(char x, char y) {
+        return strict_ne(x, y);
+    }
+    
+    public static boolean strict_ne(char x, char y) {
+        return !strict_eq(x, y);
+    }
+
     public static boolean ne(short x, short y) {
     	return strict_ne(x, y);
     }
@@ -426,6 +490,22 @@ public class Operators {
         return !strict_eq(x, y);
     }
 
+    public static boolean ne(Byte x, Byte y) {
+        return !eq(x, y);
+    }
+    
+    public static boolean strict_ne(Byte x, Byte y) {
+        return !strict_eq(x, y);
+    }
+    
+    public static boolean ne(Character x, Character y) {
+        return !eq(x, y);
+    }
+    
+    public static boolean strict_ne(Character x, Character y) {
+        return !strict_eq(x, y);
+    }
+
     public static boolean ne(Short x, Short y) {
         return !eq(x, y);
     }
@@ -433,6 +513,7 @@ public class Operators {
     public static boolean strict_ne(Short x, Short y) {
         return !strict_eq(x, y);
     }
+
 
     public static boolean ne(Integer x, Integer y) {
         return !eq(x, y);
@@ -507,6 +588,21 @@ public class Operators {
     }
 
     // Greater Than
+    public static boolean gt(byte x, byte y) {
+        return strict_gt(x, y);
+    }
+
+    public static boolean strict_gt(byte x, byte y) {
+        return x > y;
+    }
+    public static boolean gt(char x, char y) {
+        return strict_gt(x, y);
+    }
+
+    public static boolean strict_gt(char x, char y) {
+        return x > y;
+    }
+
     public static boolean gt(short x, short y) {
         return strict_gt(x, y);
     }
@@ -556,6 +652,21 @@ public class Operators {
     }
 
     // Greater or Equals Than
+    public static boolean ge(byte x, byte y) {
+        return strict_ge(x, y);
+    }
+
+    public static boolean strict_ge(byte x, byte y) {
+        return x >= y;
+    }
+    public static boolean ge(char x, char y) {
+        return strict_ge(x, y);
+    }
+
+    public static boolean strict_ge(char x, char y) {
+        return x >= y;
+    }
+    
     public static boolean ge(short x, short y) {
         return strict_ge(x, y);
     }
@@ -605,6 +716,22 @@ public class Operators {
     }
 
     // Less Than
+    public static boolean lt(byte x, byte y) {
+        return strict_lt(x, y);
+    }
+
+    public static boolean strict_lt(byte x, byte y) {
+        return x < y;
+    }
+
+    public static boolean lt(char x, char y) {
+        return strict_lt(x, y);
+    }
+
+    public static boolean strict_lt(char x, char y) {
+        return x < y;
+    }
+
     public static boolean lt(short x, short y) {
         return strict_lt(x, y);
     }
@@ -662,6 +789,22 @@ public class Operators {
     }
 
     // Less or Equals Than
+
+    public static boolean le(byte x, byte y) {
+        return strict_le(x, y);
+    }
+
+    public static boolean strict_le(byte x, byte y) {
+        return x <= y;
+    }
+
+    public static boolean le(char x, char y) {
+        return strict_le(x, y);
+    }
+
+    public static boolean strict_le(char x, char y) {
+        return x <= y;
+    }
 
     public static boolean le(short x, short y) {
         return strict_le(x, y);
@@ -740,109 +883,9 @@ public class Operators {
     public static boolean and(boolean x, boolean y) {
         return x && y;
     }
-
-    // Autocast
-
-    public static BigDecimal autocast(BigInteger x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static Boolean autocast(boolean b, Boolean B) {
-        return b ? Boolean.TRUE : Boolean.FALSE;
-    }
-
-    public static boolean autocast(Boolean B, boolean b) {
-        return B.booleanValue();
-    }
-
-    public static int autocast(byte x, int y) {
-        return x;
-    }
-
-    public static int autocast(char x, int y) {
-        return x;
-    }
-
-    public static BigDecimal autocast(double x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static BigDecimal autocast(Double x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static Double autocast(double d, Double D) {
-        return new Double(d);
-    }
-
-    public static Number autocast(double d, Number N) {
-        return d;
-    }
-
-    public static double autocast(Double D, double d) {
-        return D.doubleValue();
-    }
-
-    public static BigDecimal autocast(int x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static BigInteger autocast(int x, BigInteger y) {
-        return BigInteger.valueOf(x);
-    }
-
-    public static BigInteger autocast(long x, BigInteger y) {
-        return BigInteger.valueOf(x);
-    }
     
-    public static BigInteger autocast(Integer x, BigInteger y) {
-        return BigInteger.valueOf(x);
-    }
-
-    public static BigInteger autocast(Long x, BigInteger y) {
-        return BigInteger.valueOf(x);
-    }
-
-    public static double autocast(int x, double y) {
-        return x;
-    }
-    
-    public static Integer autocast(int i, Integer I) {
-        return new Integer(i);
-    }
-
-    public static long autocast(int x, long y) {
-        return x;
-    }
-
-    public static Number autocast(int i, Number N) {
-        return i;
-    }
-
-    public static int autocast(Integer I, int i) {
-        return I.intValue();
-    }
-
-    public static BigDecimal autocast(long x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static Long autocast(long l, double d) {
-        return l;
-    }
-
-    public static Long autocast(long l, Long L) {
-        return new Long(l);
-    }
-
-    public static long autocast(Long L, long l) {
-        return L.longValue();
-    }
-
-    public static String autocast(StringValue x, String y) {
-        return x.getValue();
-    }
-    
+    // Bitwise operators
+    //
     public static int bitand(int x, int y) {
         return x & y;
     }
@@ -879,7 +922,306 @@ public class Operators {
         return x ^ y;
     }
 
-    public static char cast(byte x, char y) {
+
+    // Autocast
+    
+    // Widening primitive conversions:
+    //    # byte to short, int, long, float, or double
+    //    # short to int, long, float, or double
+    //    # char to int, long, float, or double
+    //    # int to long, float, or double
+    //    # long to float or double
+    //    # float to double 
+
+    public static short autocast(byte x, short y) {
+        return x;
+    }
+
+    public static int autocast(byte x, int y) {
+        return x;
+    }
+
+    public static long autocast(byte x, long y) {
+        return x;
+    }
+
+    public static float autocast(byte x, float y) {
+        return x;
+    }
+
+    public static double autocast(byte x, double y) {
+        return x;
+    }
+
+    public static int autocast(short x, int y) {
+        return x;
+    }
+
+    public static long autocast(short x, long y) {
+        return x;
+    }
+
+    public static float autocast(short x, float y) {
+        return x;
+    }
+
+    public static double autocast(short x, double y) {
+        return x;
+    }
+    
+    public static int autocast(char x, int y) {
+        return x;
+    }
+
+    public static long autocast(char x, long y) {
+        return x;
+    }
+
+    public static float autocast(char x, float y) {
+        return x;
+    }
+
+    public static double autocast(char x, double y) {
+        return x;
+    }
+    
+    public static long autocast(int x, long y) {
+        return x;
+    }
+
+    public static float autocast(int x, float y) {
+        return x;
+    }
+
+    public static double autocast(int x, double y) {
+        return x;
+    }
+
+    public static float autocast(long x, float y) {
+        return x;
+    }
+
+    public static double autocast(long x, double y) {
+        return x;
+    }
+
+    public static double autocast(float x, double y) {
+        return x;
+    }
+
+    // Boxing conversions:
+    //
+    //    * From type boolean to type Boolean
+    //    * From type byte to type Byte
+    //    * From type char to type Character
+    //    * From type short to type Short
+    //    * From type int to type Integer
+    //    * From type long to type Long
+    //    * From type float to type Float
+    //    * From type double to type Double  
+    
+    public static Boolean autocast(boolean primitive, Boolean wrapper) {
+        return Boolean.valueOf(primitive);
+    }
+    public static Byte autocast(byte primitive, Byte wrapper) {
+        return Byte.valueOf(primitive);
+    }
+    public static Character autocast(char primitive, Character wrapper) {
+        return Character.valueOf(primitive);
+    }
+    public static Short autocast(short primitive, Short wrapper) {
+        return Short.valueOf(primitive);
+    }
+    public static Integer autocast(int primitive, Integer wrapper) {
+        return Integer.valueOf(primitive);
+    }
+    public static Long autocast(long primitive, Long wrapper) {
+        return Long.valueOf(primitive);
+    }
+    public static Float autocast(float primitive, Float wrapper) {
+        return Float.valueOf(primitive);
+    }
+    public static Double autocast(double primitive, Double wrapper) {
+        return Double.valueOf(primitive);
+    }
+
+    // Unboxing conversions:
+    //
+    //    * From type Boolean to type boolean
+    //    * From type Byte to type byte
+    //    * From type Character to type char
+    //    * From type Short to type short
+    //    * From type Integer to type int
+    //    * From type Long to type long
+    //    * From type Float to type float
+    //    * From type Double to type double     
+
+    public static boolean autocast(Boolean wrapper, boolean primitive) {
+        return wrapper.booleanValue();
+    }
+
+    public static byte autocast(Byte wrapper, byte primitive) {
+        return wrapper.byteValue();
+    }
+
+    public static char autocast(Character wrapper, char primitive) {
+        return wrapper.charValue();
+    }
+
+    public static short autocast(Short wrapper, short primitive) {
+        return wrapper.shortValue();
+    }
+
+    public static int autocast(Integer wrapper, int primitive) {
+        return wrapper.intValue();
+    }
+
+    public static long autocast(Long wrapper, long primitive) {
+        return wrapper.longValue();
+    }
+
+    public static float autocast(Float wrapper, float primitive) {
+        return wrapper.floatValue();
+    }
+
+    public static double autocast(Double wrapper, double primitive) {
+        return wrapper.doubleValue();
+    }
+    
+    
+    // Other auto casts
+    //
+    public static BigDecimal autocast(double x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+
+    public static BigDecimal autocast(Double x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+
+    public static Number autocast(double d, Number N) {
+        return d;
+    }
+
+    public static BigDecimal autocast(int x, BigDecimal y) {
+        return BigDecimal.valueOf(x);
+    }
+
+    public static BigInteger autocast(int x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
+
+    public static BigInteger autocast(long x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
+    
+    public static BigInteger autocast(Integer x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
+
+    public static BigInteger autocast(Long x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
+
+    public static Number autocast(int i, Number N) {
+        return i;
+    }
+
+    public static BigDecimal autocast(long x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+
+    public static String autocast(StringValue x, String y) {
+        return x.getValue();
+    }
+    
+    public static BigDecimal autocast(BigInteger x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+
+ 
+    //  Narrowing primitive conversions:
+    //
+    //    * short to byte or char
+    //    * char to byte or short
+    //    * int to byte, short, or char
+    //    * long to byte, short, char, or int
+    //    * float to byte, short, char, int, or long
+    //    * double to byte, short, char, int, long, or float 
+
+    public static char cast(short x, char y) {
+        return (char) x;
+    }
+
+    public static byte cast(short x, byte y) {
+        return (byte) x;
+    }
+    
+    public static byte cast(char x, byte y) {
+        return (byte) x;
+    }
+
+    public static short cast(char x, short y) {
+        return (short) x;
+    }
+
+    public static byte cast(int x, byte y) {
+        return (byte) x;
+    }
+
+    public static short cast(int x, short y) {
+        return (short) x;
+    }
+    
+    public static char cast(int x, char y) {
+        return (char) x;
+    }
+
+    public static byte cast(long x, byte y) {
+        return (byte) x;
+    }
+
+    public static short cast(long x, short y) {
+        return (short) x;
+    }
+    
+    public static char cast(long x, char y) {
+        return (char) x;
+    }
+
+    public static int cast(long x, int y) {
+        return (int) x;
+    }
+    
+    public static byte cast(float x, byte y) {
+        return (byte) x;
+    }
+
+    public static short cast(float x, short y) {
+        return (short) x;
+    }
+    
+    public static char cast(float x, char y) {
+        return (char) x;
+    }
+
+    public static int cast(float x, int y) {
+        return (int) x;
+    }
+
+    public static long cast(float x, long y) {
+        return (long) x;
+    }
+
+    public static byte cast(double x, byte y) {
+        return (byte) x;
+    }
+
+    public static short cast(double x, short y) {
+        return (short) x;
+    }
+    
+    public static char cast(double x, char y) {
         return (char) x;
     }
 
@@ -887,10 +1229,23 @@ public class Operators {
         return (int) x;
     }
 
-    public static int cast(long x, int y) {
-        return (int) x;
+    public static long cast(double x, long y) {
+        return (long) x;
     }
 
+    public static float cast(double x, float y) {
+        return (float) x;
+    }
+
+    // Widening and narrowing primitive convesions:
+    //
+    //  * byte to char
+    public static char cast(byte x, char y) {
+        return (char) x;
+    }
+
+    // Other casts
+    //
     public static int cast(String x, int y) {
         return Integer.parseInt(x);
     }
@@ -907,6 +1262,7 @@ public class Operators {
         return new BigDecimal(x);
     }
 
+    
     public static double dec(double x) {
         return x - 1;
     }
