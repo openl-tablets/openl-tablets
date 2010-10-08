@@ -36,7 +36,7 @@ public class ActivePropertyValidator extends TablesValidator {
             List<TableSyntaxNode> tablesGroup = groupedTables.get(key);
             boolean activeTableWasFound = false;
             for (TableSyntaxNode tsn : tablesGroup) {
-                if (tsn.getTableProperties().getActive()) {
+                if (Boolean.TRUE.equals(tsn.getTableProperties().getActive())) {
                     if (activeTableWasFound) {
                         if (validationResult == null) {
                             validationResult = new ValidationResult(ValidationStatus.FAIL);
