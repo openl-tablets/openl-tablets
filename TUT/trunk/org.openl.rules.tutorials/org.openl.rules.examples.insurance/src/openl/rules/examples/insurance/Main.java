@@ -12,7 +12,8 @@ public class Main {
 	public static void main(String[] args) {
 		String fileName = "rules/Insurance.xls";
 		String methodName = "main";
-		Engine engine = new Engine("org.openl.xls", fileName, methodName);
+		Class<?>[] paramTypes = new Class<?>[] {String[].class};
+        Engine engine = new Engine("org.openl.xls", fileName, methodName, paramTypes);
 		System.out.println(
 			"\n============================================\n"
 				+ fileName
