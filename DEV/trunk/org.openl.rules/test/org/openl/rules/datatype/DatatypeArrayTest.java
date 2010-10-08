@@ -1,14 +1,13 @@
 package org.openl.rules.datatype;
 
 import static org.junit.Assert.*;
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.types.java.OpenClassHelper;
 
 public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
     
@@ -30,15 +29,9 @@ public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
      */
     @Test
     public void testCase1() {
-        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
+        Object result = invokeMethod("testArraysTestTestAll");
         
-        IOpenMethod testMethod = __class.getMatchingMethod("testArraysTestTestAll", new IOpenClass[] {});
-        
-        Object[] __params = new Object[0];
-        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = __class.newInstance(environment);
-        Object __res = testMethod.invoke(__myInstance, __params, environment);
-        TestUnitsResults testUnitsResult = (TestUnitsResults) __res;        
+        TestUnitsResults testUnitsResult = (TestUnitsResults) result;        
         assertEquals(0, testUnitsResult.getNumberOfFailures());
     }
     
@@ -47,35 +40,49 @@ public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
      */
     @Test
     public void testStringUserIndex() {
-        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
-        
-        IOpenMethod testMethod = __class.getMatchingMethod("foo", new IOpenClass[] {});
-        
-        Object[] __params = new Object[0];
-        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = __class.newInstance(environment);
-        Object __res = testMethod.invoke(__myInstance, __params, environment);
+        Object result = invokeMethod("foo");
                 
-        assertEquals("passed", __res.toString());
+        assertEquals("passed", result.toString());
     }
     
     @Test
-    public void testUnsupportedIndexCall() {
+    public void testObjectIndexCall() {
+        Object result = invokeMethod("myMethod");
+        assertEquals("1 passed", result.toString());        
+    }
+    
+    @Test
+    public void testObjectIndex() {
+        Object result = invokeMethod("vehicleIndex");
+        assertTrue("2".equals(result.toString()));        
+    }
+        
+    @Test
+    public void testShortIndex() {
+        Object result = invokeMethod("shortIndex");
+        assertNotNull(result);        
+    }
+    
+    @Test
+    public void testIntIndex() {
+        Object result = invokeMethod("intIndex");
+        assertNotNull(result);        
+    }
+
+    private Object invokeMethod(String methodName) {
         IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
         
-        IOpenMethod testMethod = __class.getMatchingMethod("foo2", new IOpenClass[] {});
+        IOpenMethod testMethod = __class.getMatchingMethod(methodName, new IOpenClass[] {});
+        
+        Assert.assertNotNull(String.format("Method with name %s exists", methodName), testMethod);
         
         Object[] __params = new Object[0];
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
         Object __myInstance = __class.newInstance(environment);
         
-        try {
-            testMethod.invoke(__myInstance, __params, environment);
-            fail();
-        } catch (NullPointerException e) {
-            // fail during invoking, as we don`t support Object index, in datatype arrays.
-            assertTrue(true);
-        }
+        Object result = testMethod.invoke(__myInstance, __params, environment);        
+        
+        return result;
     }
 
 }

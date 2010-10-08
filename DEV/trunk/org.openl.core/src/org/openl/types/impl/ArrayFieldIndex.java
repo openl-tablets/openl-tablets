@@ -37,15 +37,28 @@ public class ArrayFieldIndex implements IOpenIndex {
                 Object obj = Array.get(container, i);
 
                 Object fieldValue = indexField.get(obj, null);
-
+                
+                // handles the case when index field of Datatype is of type int, and we try to get String index
+                // e.g. person["12"], so we need to try cast String index value to Integer, and then compare them.
+                // see DatatypeArrayTest
+                if (index instanceof String && fieldValue instanceof Integer) {
+                    index = castStringToInteger((String)index);
+                }
                 if (index.equals(fieldValue)) {
                     return obj;
                 }
             }
-
         }
-
         return null;
+    }
+
+    private Object castStringToInteger(String index) {
+        try {
+            return Integer.valueOf(index);
+        } catch (NumberFormatException e) {
+            // we can`t cast, means there is no Integer value inside.
+        }
+        return index;
     }
 
     public boolean isWritable() {

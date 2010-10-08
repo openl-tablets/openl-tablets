@@ -78,24 +78,26 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     }
 
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
-        
-//        we support to work with Datatype arrays like this: people["John"]
-//        but now only String indexes are supported. 
-        if (indexType == JavaOpenClass.STRING) {
+        if (indexType == JavaOpenClass.INT) {
+            // if index type is int we return simple java array index.
+            return new ArrayIndex(getComponentType(aggregateType));
+        } else {
+            // we support to work with Datatype arrays like this: people["John"]
+            // also different object types may be used as indexes : vehicleSymbols[vehicle] 
             IOpenClass componentClass = ((ArrayOpenClass) aggregateType).getComponentClass();
             IOpenField indexField = componentClass.getIndexField();
 
             if (indexField != null) {
                 if (indexField.getType() == indexType) {
                     return new ArrayFieldIndex(componentClass, indexField);
+                } else if (indexField.getType() == JavaOpenClass.INT && String.class.equals(indexType.getInstanceClass())) {
+                    // handles the case when index field of Datatype is of type int, and we try to get String index
+                    // e.g. person["12"]
+                    return new ArrayFieldIndex(componentClass, indexField);
                 }
-            }
+            } 
         }
-        // If index type is not String, we try to work with common int indexes.
-        if (indexType != JavaOpenClass.INT) {
-            return null;
-        }
-        return new ArrayIndex(getComponentType(aggregateType));
+        return null;        
     }
 
     @Override
