@@ -5,24 +5,81 @@
 package org.openl.generated.beans;
 
 import java.lang.String;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.ArrayUtils;
 
 public class InsurableDriver{
-  private int dmvPoints;
+  protected java.lang.String name;
 
-  private int age;
+  protected int age;
 
-  private java.lang.String gender;
+  protected java.lang.String gender;
 
-  private java.lang.String maritalStatus;
+  protected java.lang.String maritalStatus;
 
-  private java.lang.String name;
+  protected int dmvPoints;
 
 
-  public int getDmvPoints() {
-   return dmvPoints;
+
+public InsurableDriver() {
+    super();
 }
-  public void setDmvPoints(int dmvPoints) {
-   this.dmvPoints = dmvPoints;
+
+public InsurableDriver(String name, int age, String gender, String maritalStatus, int dmvPoints) {
+    super();
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+    this.maritalStatus = maritalStatus;
+    this.dmvPoints = dmvPoints;
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(name);
+    builder.append(age);
+    builder.append(gender);
+    builder.append(maritalStatus);
+    builder.append(dmvPoints);
+    return builder.toHashCode();
+}
+
+public boolean equals(Object obj) {
+    EqualsBuilder builder = new EqualsBuilder();
+    if (!(obj instanceof InsurableDriver)) {;
+        return false;
+    }
+    InsurableDriver another = (InsurableDriver)obj;
+    builder.append(another.name,name);
+    builder.append(another.age,age);
+    builder.append(another.gender,gender);
+    builder.append(another.maritalStatus,maritalStatus);
+    builder.append(another.dmvPoints,dmvPoints);
+    return builder.isEquals();
+}
+  public java.lang.String getName() {
+   return name;
+}
+
+public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("InsurableDriver {");
+    builder.append(" name=");
+    builder.append(name);
+    builder.append(" age=");
+    builder.append(age);
+    builder.append(" gender=");
+    builder.append(gender);
+    builder.append(" maritalStatus=");
+    builder.append(maritalStatus);
+    builder.append(" dmvPoints=");
+    builder.append(dmvPoints);
+    builder.append(" }");
+    return builder.toString();
+}
+  public void setName(java.lang.String name) {
+   this.name = name;
 }
   public int getAge() {
    return age;
@@ -42,11 +99,11 @@ public class InsurableDriver{
   public void setMaritalStatus(java.lang.String maritalStatus) {
    this.maritalStatus = maritalStatus;
 }
-  public java.lang.String getName() {
-   return name;
+  public int getDmvPoints() {
+   return dmvPoints;
 }
-  public void setName(java.lang.String name) {
-   this.name = name;
+  public void setDmvPoints(int dmvPoints) {
+   this.dmvPoints = dmvPoints;
 }
 
 }
