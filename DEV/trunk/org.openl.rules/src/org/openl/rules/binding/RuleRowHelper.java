@@ -270,7 +270,8 @@ public class RuleRowHelper {
 
                 return result;
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(cell.getSource(),
+                String message = String.format("Cannot load cell value '%s'", source);
+                throw SyntaxNodeExceptionUtils.createError(message, /*t, null,*/ new GridCellSourceCodeModule(cell.getSource(),
                         openlAdapter.getBindingContext()));
             }
         } else {
