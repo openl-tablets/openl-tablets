@@ -86,6 +86,13 @@ public class DataNodeBinder extends AXlsTableBinder {
             String message = String.format("Type not found: '%s'", typeName);
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }
+        
+        // Check that table type loaded properly.
+        //
+        if (tableType.getInstanceClass() == null) {
+            String message = String.format("Type '%s' was defined with errors", typeName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+        }
 
         ITable dataTable = makeTable(module, tableSyntaxNode, tableName, tableType, bindingContext, openl);
         dataNode.setTable(dataTable);
