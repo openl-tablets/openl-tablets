@@ -86,7 +86,7 @@ public class TableEditorModel {
         this.showFormulas = showFormulas;
         fullTableRegion = new GridRegion(getOriginalTable(this.gridTable).getRegion());
         displayedTableRegion = new GridRegion(gridTable.getRegion());
-        othertables = ((XlsSheetGridModel) gridTable.getGrid()).getTables();
+        othertables = gridTable.getGrid().getTables();
 
         if (gridTable.getGrid() instanceof XlsSheetGridModel) {
             XlsSheetGridModel grid = (XlsSheetGridModel) gridTable.getGrid();
