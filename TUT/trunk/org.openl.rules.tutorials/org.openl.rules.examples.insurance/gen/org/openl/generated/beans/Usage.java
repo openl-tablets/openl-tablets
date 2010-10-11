@@ -4,19 +4,63 @@
 
 package org.openl.generated.beans;
 
-import org.openl.generated.beans.InsurableDriver;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.openl.generated.beans.InsurableVehicle;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.openl.generated.beans.InsurableDriver;
+import org.apache.commons.lang.ArrayUtils;
 
 public class Usage{
-  private int usage;
+  protected int usage;
 
-  private org.openl.generated.beans.InsurableVehicle vehicle;
+  protected org.openl.generated.beans.InsurableVehicle vehicle;
 
-  private org.openl.generated.beans.InsurableDriver driver;
+  protected org.openl.generated.beans.InsurableDriver driver;
 
 
-  public void setDriver(org.openl.generated.beans.InsurableDriver driver) {
-   this.driver = driver;
+
+public Usage() {
+    super();
+}
+
+public Usage(InsurableDriver driver, InsurableVehicle vehicle, int usage) {
+    super();
+    this.driver = driver;
+    this.vehicle = vehicle;
+    this.usage = usage;
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(driver);
+    builder.append(vehicle);
+    builder.append(usage);
+    return builder.toHashCode();
+}
+
+public boolean equals(Object obj) {
+    EqualsBuilder builder = new EqualsBuilder();
+    if (!(obj instanceof Usage)) {;
+        return false;
+    }
+    Usage another = (Usage)obj;
+    builder.append(another.driver,driver);
+    builder.append(another.vehicle,vehicle);
+    builder.append(another.usage,usage);
+    return builder.isEquals();
+}
+
+public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Usage {");
+    builder.append(" driver=");
+    builder.append(driver);
+    builder.append(" vehicle=");
+    builder.append(vehicle);
+    builder.append(" usage=");
+    builder.append(usage);
+    builder.append(" }");
+    return builder.toString();
 }
   public int getUsage() {
    return usage;
@@ -32,6 +76,9 @@ public class Usage{
 }
   public org.openl.generated.beans.InsurableDriver getDriver() {
    return driver;
+}
+  public void setDriver(org.openl.generated.beans.InsurableDriver driver) {
+   this.driver = driver;
 }
 
 }

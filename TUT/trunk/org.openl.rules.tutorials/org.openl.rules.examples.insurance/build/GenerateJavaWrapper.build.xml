@@ -7,7 +7,7 @@
 	<echo message="Generating Insurance Wrapper"/>
 
 	<openlgen openlName="org.openl.xls" userHome="." 
-		srcFile="Insurance.xls"
+		srcFile="rules/Insurance.xls"
 	    targetClass="org.openl.rules.examples.insurance.InsuranceGenWrapper"
 		targetSrcDir="gen"
 	>
