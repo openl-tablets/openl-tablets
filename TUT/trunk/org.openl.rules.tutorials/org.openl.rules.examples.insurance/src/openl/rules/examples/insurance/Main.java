@@ -6,21 +6,25 @@
 
 package openl.rules.examples.insurance;
 
-import org.openl.main.Engine;
+import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.runtime.EngineFactory;
+
 
 public class Main {
+    
+    public interface IExample {
+        void main (String[] args);
+    }
+    
 	public static void main(String[] args) {
 		String fileName = "rules/Insurance.xls";
-		String methodName = "main";
-		Class<?>[] paramTypes = new Class<?>[] {String[].class};
-        Engine engine = new Engine("org.openl.xls", fileName, methodName, paramTypes);
+		EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.makeInstance();
 		System.out.println(
 			"\n============================================\n"
 				+ fileName
-				+ "("
-				+ methodName
-				+ ")"
+				+ "(main)"
 				+ "\n============================================\n");
-		engine.run(new String[] { "" });
+		instance.main(new String[] { "" });
 	}
 }

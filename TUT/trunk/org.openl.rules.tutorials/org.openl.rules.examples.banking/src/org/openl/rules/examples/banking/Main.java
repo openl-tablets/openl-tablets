@@ -6,7 +6,8 @@
 
 package org.openl.rules.examples.banking;
 
-import org.openl.main.Engine;
+import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.runtime.EngineFactory;
 
 
 
@@ -16,34 +17,37 @@ import org.openl.main.Engine;
  */
 public class Main
 {
-	public static void main(String[] args)
-	{
-		System.out.println("*** Resolve Banking Problem ***");
-		String fileName = "rules/Banking.xls";
-		String methodName = "resolveProblem";
-		Engine engine1 = new Engine("org.openl.xls" ,fileName,methodName);
-		System.out.println(
-		"\n============================================\n" +
-		   fileName + "(" + methodName + ")" + 
-		"\n============================================\n");
-		Response response1 = new Response();
-		engine1.run(new Object[] { response1 });
-		System.out.println("Response:");
-		System.out.println(response1);
-		
-		System.out.println("*** UpSell Banking Products ***");
-		methodName = "upSell";
-		Engine engine2 = new Engine("org.openl.xls",fileName,methodName);
-		System.out.println(
-		"\n============================================\n" +
-		   fileName + "(" + methodName + ")" + 
-		"\n============================================\n");
-		Response response2 = new Response();
-		engine2.run(new Object[] { response2 });
-		System.out.println("Response:");
-		System.out.println(response2);		
+    public interface IExample {
+        void resolveProblem(Response response);
+        void upSell(Response response);
+    }
+    
+    public static void main(String[] args)
+    {
+        System.out.println("*** Resolve Banking Problem ***");
+        String fileName = "rules/Banking.xls";
+        
+        EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.makeInstance();
 
-	}
+        System.out.println(
+        "\n============================================\n" +
+           fileName + "(resolveProblem)" + 
+        "\n============================================\n");
+        Response response1 = new Response();
+        instance.resolveProblem(response1);
+        System.out.println("Response:");
+        System.out.println(response1);
+        
+        System.out.println("*** UpSell Banking Products ***");
+        System.out.println(
+        "\n============================================\n" +
+           fileName + "(upSell)" + 
+        "\n============================================\n");
+        Response response2 = new Response();
+        instance.upSell(response2);
+        System.out.println("Response:");
+        System.out.println(response2);      
+
+    }
 }
-
-

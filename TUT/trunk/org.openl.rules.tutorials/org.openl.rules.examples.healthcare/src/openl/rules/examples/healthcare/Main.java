@@ -6,19 +6,24 @@
 
 package openl.rules.examples.healthcare;
 
-import org.openl.main.Engine;
+import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.runtime.EngineFactory;
 
 public class Main
 {
+    public interface IExample {
+        void main(String[] args);
+    }
+
 	public static void main(String[] args)
 	{
 		String fileName = "rules/HealthCare.xls";
-		String methodName = "main";
-		Engine engine =	new Engine("org.openl.xls", fileName,methodName);
+        EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.makeInstance();
 		System.out.println(
 		"\n============================================\n" +
-		   fileName + "(" + methodName + ")" + 
+		   fileName + "(main)" + 
 		"\n============================================\n");
-		engine.run(new String[]{""});
+		instance.main(new String[]{""});
 	}
 }

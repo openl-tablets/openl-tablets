@@ -8,6 +8,9 @@ package org.openl.rules.examples.hello;
 
 
 import org.openl.main.Engine;
+import org.openl.rules.examples.hello.RunHelloExcelCustomer.IExample;
+import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.runtime.EngineFactory;
 
 /**
  * A simple Java test for HelloCustomer.xls
@@ -17,14 +20,20 @@ import org.openl.main.Engine;
 
 public class RunHelloCustomer
 {
+    public interface IExample {
+        void helloCustomer(Customer customer, Response response);
+    }
+    
 	public static void main(String[] args)
 	{
 		String fileName = "rules/HelloCustomer.xls";
-		String methodName = "helloCustomer";
-		Engine engine =	new Engine("org.openl.xls",fileName,methodName);
-		System.out.println(
+
+	    EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.makeInstance();
+
+        System.out.println(
 		"\n============================================\n" +
-		   fileName + "(" + methodName + ")" + 
+		   fileName + "(helloCustomer)" + 
 		"\n============================================\n");
 		Customer customer = new Customer();
 		customer.setName("Robinson");
@@ -32,7 +41,7 @@ public class RunHelloCustomer
 		customer.setMaritalStatus("Married");
 		
 		Response response = new Response();
-		engine.run(new Object[] { customer, response });
+		instance.helloCustomer(customer, response);
 		System.out.println("Response: " + 
 		 					response.getMap().get("greeting") + ", " +
 							response.getMap().get("salutation") + 
