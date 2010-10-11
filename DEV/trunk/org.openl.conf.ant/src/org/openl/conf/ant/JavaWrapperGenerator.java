@@ -525,8 +525,10 @@ public class JavaWrapperGenerator {
     }
     
     private boolean isStatic(IOpenMethod method) {
-        return method.getName().equals("main") && method.getSignature().getParameterTypes().length == 1 && method.getSignature()
-            .getParameterTypes()[0].getInstanceClass().equals(String[].class);
+
+        return false;
+//        return method.getName().equals("main") && method.getSignature().getParameterTypes().length == 1 && method.getSignature()
+//            .getParameterTypes()[0].getInstanceClass().equals(String[].class);
     }
     
     private String castAndUnwrap(Class<?> instanceClass, String resVarName) {
