@@ -45,11 +45,24 @@ public interface IGridRegion {
         public static int getAbsoluteRow(IGridRegion region, int row) {
             return row + region.getTop();
         }
-
+        
+        /**
+         * Calculates grid region height.
+         * 
+         * @param i1 grid region
+         * @return grid region height.
+         */
         public static int height(IGridRegion i1) {
             return i1.getBottom() - i1.getTop() + 1;
         }
-
+        
+        /**
+         * Finds common {@link IGridRegion} for incoming regions. 
+         * 
+         * @param i1 first grid region  
+         * @param i2 second grid region
+         * @return intersection of incoming grid regions. <code>null</code> if there is no intersection.
+         */
         public static IGridRegion intersect(IGridRegion i1, IGridRegion i2) {
             int left = Math.max(i1.getLeft(), i2.getLeft());
             int right = Math.min(i1.getRight(), i2.getRight());
