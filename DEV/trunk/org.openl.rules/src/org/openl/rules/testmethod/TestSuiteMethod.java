@@ -195,8 +195,10 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
     
     /**
      * Indicates if test method has any row rules for testing target table.
-     * Finds it by field that contains {@link TestMethodHelper#EXPECTED_RESULT_NAME}
-     * @return
+     * Finds it by field that contains {@link TestMethodHelper#EXPECTED_RESULT_NAME} or 
+     * {@link TestMethodHelper#EXPECTED_ERROR}
+     * 
+     * @return true if method expects some return result or some error.
      * 
      * TODO: rename it. it is difficult to understand what is it doing 
      */
@@ -207,7 +209,8 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
         DynamicObject[] testArrayDynamicObj = (DynamicObject[]) testArray;
 
         for (int i = 0; i < testArrayDynamicObj.length; i++) {
-            if (testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+            if (testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_RESULT_NAME) || 
+                    testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_ERROR)) {
                 return true;
             }
         }
