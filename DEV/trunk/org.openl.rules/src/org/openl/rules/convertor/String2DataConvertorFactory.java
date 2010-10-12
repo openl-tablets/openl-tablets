@@ -11,9 +11,11 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.logging.Log;
@@ -598,5 +600,30 @@ public class String2DataConvertorFactory {
     public static void registerConvertor(Class<?> clazz, IString2DataConvertor conv) {
         convertors.put(clazz, conv);
     }
+    
+    /**
+     * Removes the specified Class from convertors cache.
+     * 
+     * @param clazz Class to unregister.
+     */
+    public static void unregisterConvertorForClass(Class<?> clazz) {
+        convertors.remove(clazz);
+    }
 
+    /**
+     * Unregister all Classes from the specified class loader.
+     * 
+     * @param classLoader ClassLoader to unregister.
+     */
+    public static void unregisterClassLoader(ClassLoader classLoader) {
+        List<Class<?>> toRemove = new ArrayList<Class<?>>();
+        for (Class<?> clazz : convertors.keySet()) {
+            if (clazz.getClassLoader() == classLoader) {
+                toRemove.add(clazz);
+            }
+        }
+        for (Class<?> clazz : toRemove) {
+            unregisterConvertorForClass(clazz);
+        }
+    }
 }

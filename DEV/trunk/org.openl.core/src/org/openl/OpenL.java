@@ -100,7 +100,7 @@ public class OpenL {
     public static synchronized OpenL getInstance(String name, IUserContext userContext)
             throws OpenConfigurationException {
 
-        Object key = CacheUtils.makeKey(name, userContext);
+        Object key = CacheUtils.makeKey(name, userContext.getUserHome());
         OpenL openl = openlCache.get(key);
 
         if (openl == null) {
@@ -128,7 +128,7 @@ public class OpenL {
      */
     public static OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
 
-        Object key = CacheUtils.makeKey(name, userContext);
+        Object key = CacheUtils.makeKey(name, userContext.getUserHome());
         OpenL openl = openlCache.get(key);
 
         if (openl == null) {
@@ -195,7 +195,7 @@ public class OpenL {
      */
     public static synchronized OpenL remove(String name, IUserContext userContext) {
 
-        Object key = CacheUtils.makeKey(name, userContext);
+        Object key = CacheUtils.makeKey(name, userContext.getUserHome());
         OpenL openl = openlCache.get(key);
 
         if (openl == null) {

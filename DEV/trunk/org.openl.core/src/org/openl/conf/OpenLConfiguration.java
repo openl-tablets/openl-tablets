@@ -55,7 +55,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return opc;
         }
 
-        Object key = CacheUtils.makeKey(name, ucxt);
+        Object key = CacheUtils.makeKey(name, ucxt.getUserHome());
 
         return configurations.get(key);
 
@@ -68,7 +68,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (shared) {
             key = name;
         } else {
-            key = CacheUtils.makeKey(name, ucxt);
+            key = CacheUtils.makeKey(name, ucxt.getUserHome());
         }
 
         IOpenLConfiguration old = configurations.get(key);
@@ -84,7 +84,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     public static synchronized void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
-        Object key = CacheUtils.makeKey(name, ucxt);
+        Object key = CacheUtils.makeKey(name, ucxt.getUserHome());
 
         // IOpenLConfiguration old =
         // (IOpenLConfiguration)configurations.get(key);
