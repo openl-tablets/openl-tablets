@@ -129,9 +129,11 @@ public class ProjectDescriptor {
      * @param classLoader ClassLoader to unregister.
      */
     private void unregisterClassloader(ClassLoader classLoader){
-        JavaOpenClass.resetClassloader(classLoader);
-        LogFactory.release(classLoader);
-        String2DataConvertorFactory.unregisterClassLoader(classLoader);
+        if (classLoader != null) {
+            JavaOpenClass.resetClassloader(classLoader);
+            LogFactory.release(classLoader);
+            String2DataConvertorFactory.unregisterClassLoader(classLoader);
+        }
     }
     
     @Override
