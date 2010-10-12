@@ -10,6 +10,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -53,6 +54,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			String message = "Duplicate type definition: " + typeName;
 			throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
 		}
+		
+		// Put sub table without header and properties section for business view.
+		//
+		putSubTableForBussinesView(tsn);
 
 		// Check the datatype table that is alias data type.
 		//
@@ -129,5 +134,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			}
 		}
 	}
+	
+	private void putSubTableForBussinesView(TableSyntaxNode tsn) {
+	    tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
+    }
 
 }

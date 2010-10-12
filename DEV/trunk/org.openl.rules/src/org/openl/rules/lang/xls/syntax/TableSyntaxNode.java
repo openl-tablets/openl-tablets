@@ -127,7 +127,12 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public IGridTable getGridTable() {
         return table.getSource();
     }
-
+    
+    /**
+     * Gets the table body without header and properties section.
+     * 
+     * @return table body, without header and properties section (if exists).
+     */
     public ILogicalTable getTableBody() {        
         int startRow = !hasPropertiesDefinedInTable() ? 1 : 2;
 
