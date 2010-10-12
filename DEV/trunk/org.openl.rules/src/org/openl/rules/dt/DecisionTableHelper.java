@@ -5,6 +5,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
@@ -115,6 +116,7 @@ public class DecisionTableHelper {
     }
 
 
+    private static int SIMPLE_DT_HEADERS_HEIGHT = 3;
     /**
      * Creates virtual headers for condition and return columns to load simple
      * lookup as usual Desicion Table
@@ -127,28 +129,43 @@ public class DecisionTableHelper {
     public static ILogicalTable preprocessSimpleLoolup(DecisionTable decisionTable, ILogicalTable original,
             int numberOfHcondition) {
         IWritableGrid virtualGrid = createVirtualGrid();
-        writeConditionAndReturnHeadersForSimpleLookup(virtualGrid, decisionTable, numberOfHcondition);
-        IGridTable fakeTable = new GridTable(0, 0, 2, decisionTable.getSignature().getNumberOfParameters() + 1,
-                virtualGrid);
-        IGrid grid = new CompositeGrid(new IGridTable[] { fakeTable, original.getSource() }, true);
-        return LogicalTableHelper.logicalTable(new GridTable(0, 0, original.getHeight() + 2, original.getWidth() - 1,
-                grid));
+        writeConditionAndReturnHeadersForSimpleLookup(virtualGrid, original, decisionTable, numberOfHcondition);
+        GridTable virtualGridTable = new GridTable(0, 0, SIMPLE_DT_HEADERS_HEIGHT - 1, original.getSource().getWidth() - 1, virtualGrid);
+        IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, original.getSource() }, true);
+        return LogicalTableHelper.logicalTable(new GridTable(0, 0, original.getSource().getHeight()
+                + SIMPLE_DT_HEADERS_HEIGHT - 1, original.getSource().getWidth() - 1, grid));
     }
 
-    private static void writeConditionAndReturnHeadersForSimpleLookup(IWritableGrid grid, DecisionTable decisionTable,
+    private static void writeConditionAndReturnHeadersForSimpleLookup(IWritableGrid grid, ILogicalTable original, DecisionTable decisionTable,
             int numberOfHcondition) {
         int numberOfConditions = decisionTable.getSignature().getNumberOfParameters();
+        int column = 0;
         for (int i = 0; i < numberOfConditions; i++) {
+            //write headers
             if (i < numberOfConditions - numberOfHcondition) {
-                grid.setCellValue(i, 0, "C" + (i + 1));
+                grid.setCellValue(column, 0, "C" + (i + 1));
             } else {
-                grid.setCellValue(i, 0, "HC" + (i + 1));
+                grid.setCellValue(column, 0, "HC" + (i + 1));
             }
-            grid.setCellValue(i, 1, decisionTable.getSignature().getParameterName(i));
+            grid.setCellValue(column, 1, decisionTable.getSignature().getParameterName(i));
+            
+            //merge columns
+            int mergedColumnsCounts = original.getColumnWidth(i);
+            if (mergedColumnsCounts > 1) {
+                for (int row = 0; row < SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                    grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
+                }
+            }
+            column += mergedColumnsCounts;
         }
-        grid.setCellValue(numberOfConditions, 0, "RET1");
+        grid.setCellValue(column, 0, "RET1");
+        int mergedColumnsCounts = original.getColumnWidth(numberOfConditions);
+        if (mergedColumnsCounts > 1) {
+            for (int row = 0; row < SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
+            }
+        }
     }
-
     /**
      * Creates not-existing virtual grid.
      * 
