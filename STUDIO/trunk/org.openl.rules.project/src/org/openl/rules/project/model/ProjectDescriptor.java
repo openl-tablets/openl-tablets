@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.types.java.JavaOpenClass;
 
 public class ProjectDescriptor {
     private static final Log LOG = LogFactory.getLog(ProjectDescriptor.class);
@@ -85,6 +87,7 @@ public class ProjectDescriptor {
      */
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
+            unregisterClassloader(classLoader);
             URL[] urls = getClassPathUrls();
             classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
         }
@@ -118,5 +121,22 @@ public class ProjectDescriptor {
             }
         }
         return urls;
+    }
+    
+    /**
+     * Class loader of current project have to be unregistered if it is not in use to prevent memory leaks.
+     * 
+     * @param classLoader ClassLoader to unregister.
+     */
+    private void unregisterClassloader(ClassLoader classLoader){
+        JavaOpenClass.resetClassloader(classLoader);
+        LogFactory.release(classLoader);
+        String2DataConvertorFactory.unregisterClassLoader(classLoader);
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        unregisterClassloader(classLoader);
+        super.finalize();
     }
 }

@@ -11,6 +11,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
+import org.openl.conf.ClassLoaderFactory;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
@@ -41,7 +44,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.OpenLTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -111,7 +113,7 @@ public class ProjectModel {
     private TreeCache<String, ITreeElement<?>> idTreeCache = new TreeCache<String, ITreeElement<?>>();
 
     private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
-
+    
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
     }
@@ -913,11 +915,16 @@ public class ProjectModel {
     }
     
     public void reset(ReloadType reloadType) throws Exception {
-        if (reloadType == ReloadType.FORCED || reloadType == ReloadType.RELOAD) {
-            modulesCache.reset();
-        }
-        if (moduleInfo != null) {
-            setModuleInfo(moduleInfo, reloadType);
+        switch (reloadType) {
+            case FORCED:
+                OpenL.reset();
+                OpenLConfiguration.reset();
+                ClassLoaderFactory.reset();
+            case RELOAD:
+                modulesCache.reset();
+                break;
+            case SINGLE:
+                setModuleInfo(moduleInfo, reloadType);
         }
         savedSearches = null;
         projectRoot = null;
@@ -1079,7 +1086,7 @@ public class ProjectModel {
         indexer = new ProjectIndexer(projectFolder.getAbsolutePath());
 
         // Clear project messages (errors, warnings)
-        OpenLMessages.getCurrentInstance().clear();
+        clearOpenLMessages();
 
         compiledOpenClass = null;
         projectRoot = null;
@@ -1096,6 +1103,19 @@ public class ProjectModel {
             messages.add(message);
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0], new SyntaxNodeException[0]);
         }
+    }
+    
+    /**
+     * To prevent memory leaks. OpenLMessages instance is ThreadLocal and we
+     * have to clear previous OpenLMessages instance if it was created from
+     * another thread(due to running as web application).
+     */
+    private OpenLMessages previousUsedMessages;
+    private void clearOpenLMessages(){
+        if (previousUsedMessages != null) {
+            previousUsedMessages.clear();
+        }
+        previousUsedMessages = OpenLMessages.getCurrentInstance();
     }
 
     public String showTableWithSelection(String url, String view) {
