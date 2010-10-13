@@ -7,7 +7,7 @@
     xmlns:c="http://java.sun.com/jstl/core"
     template="/facelets/common/wizardBase.xhtml">
 
-    <ui:define name="title">Select decision table</ui:define>
+    <ui:define name="title">Select table</ui:define>
 
     <ui:define name="page">
         <h:form>
@@ -17,7 +17,7 @@
                     <f:selectItems value="#{tableWizard.decisionTables}" />
                 </h:selectOneMenu>
             </h:panelGroup>
-            <h:outputText value="There are no available decision tables"
+            <h:outputText value="There is no any available table for tests"
                 rendered="#{empty tableWizard.decisionTables}" styleClass="error" />
 
             <br />
