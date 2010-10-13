@@ -104,10 +104,6 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
     public int getNumberOfRules() {
 
-        if (conditionRows.length > 0) {
-            return conditionRows[0].getParamValues().length;
-        }
-
         if (actionRows.length > 0) {
             return actionRows[0].getParamValues().length;
         }
