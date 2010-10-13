@@ -13,6 +13,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
@@ -518,7 +519,13 @@ public class SpreadsheetBuilder {
     }
 
     private IString2DataConvertor makeConvertor(IOpenClass type) {
-        return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
+        
+        Class<?> instanceClass = type.getInstanceClass();
+        if (instanceClass == null) {
+            throw new OpenLRuntimeException(String.format("Type '%s' was loaded with errors", type.getName()));
+        }
+        
+        return String2DataConvertorFactory.getConvertor(instanceClass);
     }
 
     private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader header, IOpenClass type) {
