@@ -17,9 +17,13 @@
         </script>
 
         <h3>
-            <h:outputText value="Results of running #{runTestMethodBean.tableName}" />
+            <h:outputText value="Results of running "/>
+            <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <f:param name="uri" value="#{runTestMethodBean.uri}" />
+                    <h:outputText value="#{runTestMethodBean.tableName}" />
+            </h:outputLink>
             <h:outputText value=" (#{runTestMethodBean.testDescription})"
-                rendered="#{not empty runTestMethodBean.testDescription}" />
+                rendered="#{not empty runTestMethodBean.testDescription}" />            
         </h3>
 
         <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
