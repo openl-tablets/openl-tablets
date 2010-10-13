@@ -174,6 +174,11 @@ public class SimpleBeanJavaGenerator {
                 }
             }
         }
+        
+        Class<?> superClass = datatypeClass.getSuperclass();
+        if (superClass != Object.class) {
+            importsSet.add(filterTypeNameForImport(superClass));
+        }
         return importsSet;
     }
 
