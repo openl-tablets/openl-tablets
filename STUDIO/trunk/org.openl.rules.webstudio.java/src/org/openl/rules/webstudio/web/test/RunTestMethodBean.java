@@ -26,6 +26,8 @@ public class RunTestMethodBean {
     private String testId;
     
     private String testDescription;
+    
+    private String tableUri;
 
     private Object[] results;
 
@@ -33,7 +35,7 @@ public class RunTestMethodBean {
 
     public RunTestMethodBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
         if (StringUtils.isNotBlank(tableUri)) {
             studio.setTableUri(tableUri);
@@ -80,6 +82,10 @@ public class RunTestMethodBean {
 
     public Object[] getResults() {
         return results;
+    }
+    
+    public String getUri() {
+        return tableUri;
     }
 
     private void setResults(Object results) {
