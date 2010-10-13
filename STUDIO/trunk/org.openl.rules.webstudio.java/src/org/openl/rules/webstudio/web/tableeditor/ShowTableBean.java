@@ -166,11 +166,12 @@ public class ShowTableBean {
         List<OpenLMessage> messages = compiledOpenClass.getMessages();
         List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         for (OpenLMessage message : warningMessages) {
-            OpenLWarnMessage warning = (OpenLWarnMessage) message;
-            ISyntaxNode syntaxNode = warning.getSource();
-            if (syntaxNode instanceof TableSyntaxNode
-                     && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
-                warnings.add(warning);
+            if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
+                OpenLWarnMessage warning = (OpenLWarnMessage) message;
+                ISyntaxNode syntaxNode = warning.getSource();
+                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
+                    warnings.add(warning);
+                }
             }
         }
     }
