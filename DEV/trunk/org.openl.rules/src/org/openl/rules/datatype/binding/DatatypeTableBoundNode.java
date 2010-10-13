@@ -3,6 +3,7 @@
  */
 
 package org.openl.rules.datatype.binding;
+import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -246,6 +247,22 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             	//
             	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                 throw new OpenLCompilationException(String.format("Parent class '%s' is not defined", parentClassName));
+            }
+            
+            if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())){
+                // Remove invalid type from binding context.
+                //
+                cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
+                throw new OpenLCompilationException(String.format("Cannot inherit from final class \"%s\"", parentClassName));
+                
+            }
+            
+            if (Modifier.isAbstract(parentClass.getInstanceClass().getModifiers())){
+                // Remove invalid type from binding context.
+                //
+                cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
+                throw new OpenLCompilationException(String.format("Cannot inherit from abstract class \"%s\"", parentClassName));
+                
             }
             
             if (parentClass instanceof DomainOpenClass) {
