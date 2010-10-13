@@ -20,6 +20,7 @@ import org.openl.rules.ui.view.BusinessViewMode3;
 import org.openl.rules.ui.view.DeveloperByFileViewMode;
 import org.openl.rules.ui.view.DeveloperByTypeViewMode;
 import org.openl.rules.ui.view.WebStudioViewMode;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -145,6 +146,8 @@ public class WebStudio {
                     return;
                 }
                 project.checkIn();
+                RepositoryTreeState treeState = (RepositoryTreeState)FacesUtils.getSessionParam("repositoryTreeState");
+                treeState.invalidateTree();
             } catch (Exception e) {
                 LOG.error("Can not check in!", e);
             }
@@ -156,6 +159,8 @@ public class WebStudio {
                     return;
                 }
                 project.checkOut();
+                RepositoryTreeState treeState = (RepositoryTreeState)FacesUtils.getSessionParam("repositoryTreeState");
+                treeState.invalidateTree();
                 reset(ReloadType.FORCED);
             } catch (Exception e) {
                 LOG.error("Can not check out!", e);
