@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.richfaces.component.html.HtmlDataTable;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Andrei Astrouski
@@ -91,7 +93,12 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass(), false);
-        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
+        Collection<String> allClasses = domainTree.getAllClasses(true);
+        domainTypes = FacesUtils.createSelectItems(allClasses);
+        
+        if (!CollectionUtils.isEmpty(allClasses) && CollectionUtils.contains(allClasses.iterator(), "String")) {
+            setAliasType("String");
+        }
 
         addValue();
     }
