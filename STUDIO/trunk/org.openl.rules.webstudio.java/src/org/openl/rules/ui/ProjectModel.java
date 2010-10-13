@@ -923,9 +923,8 @@ public class ProjectModel {
             case RELOAD:
                 modulesCache.reset();
                 break;
-            case SINGLE:
-                setModuleInfo(moduleInfo, reloadType);
         }
+        setModuleInfo(moduleInfo, reloadType);
         savedSearches = null;
         projectRoot = null;
     }

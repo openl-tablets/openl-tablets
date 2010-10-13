@@ -3,6 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.apache.commons.logging.Log;
@@ -19,6 +20,8 @@ import org.openl.rules.project.model.Module;
 public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {
     private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
+    private OpenLWrapper wrapper;
+
     public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode) {
         super(module, executionMode);
     }
@@ -31,8 +34,11 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
     }
 
     public Object wrapperNewInstance(Class<?> c) throws Exception {
-        Constructor<?> ctr;
         try {
+            Method m = c.getMethod("reset", new Class[] {});
+            m.invoke(null, new Object[] {}); // we reset to reload wrapper due
+                                             // to its static implementation
+            Constructor<?> ctr;
             if (isExecutionMode()) {
                 ctr = c.getConstructor(new Class[] { boolean.class, boolean.class });
                 return ctr.newInstance(new Object[] { Boolean.FALSE, Boolean.TRUE });
@@ -57,7 +63,7 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
         try {
             Field field = clazz.getField("__src");
             String sourcePath = (String) field.get(null);
-            if(!new File(sourcePath).isAbsolute()){
+            if (!new File(sourcePath).isAbsolute()) {
                 field.set(null, projectFolder + '/' + sourcePath);
             }
         } catch (Exception e) {
@@ -73,9 +79,8 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
         Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
         try {
             preInitWrapper(clazz);
-            OpenLWrapper wrapper = (OpenLWrapper) wrapperNewInstance(clazz);
-            if (!useExisting) {
-                wrapper.reload();
+            if (!useExisting || wrapper == null) {
+                wrapper = (OpenLWrapper) wrapperNewInstance(clazz);
             }
             return wrapper;
         } catch (Exception e) {
