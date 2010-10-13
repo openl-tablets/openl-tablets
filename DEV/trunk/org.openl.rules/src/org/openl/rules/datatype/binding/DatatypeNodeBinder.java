@@ -61,23 +61,17 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
 		// Check the datatype table that is alias data type.
 		//
-		if (DatatypeHelper.isAliasDatatype(table, openl, cxt)) {
+		if (parsedHeader.length == 3 
+		        && parsedHeader[2] != null 
+		        && parsedHeader[2].getIdentifier().startsWith("<")
+		        && parsedHeader[2].getIdentifier().endsWith(">")) {
 
-			// Default type of alias type.
-			// 
-			String type = "String";
+			int beginIndex = 1;
+			int endIndex = parsedHeader[2].getIdentifier().length() - 1;
 
-			// Check header of table. If table header contains third element it
-			// is a alias type definition.
+			// Get type name.
 			//
-			if (parsedHeader.length > 2 && parsedHeader[2] != null) {
-				int beginIndex = 1;
-				int endIndex = parsedHeader[2].getIdentifier().length() - 1;
-
-				// Get type name.
-				//
-				type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
-			}
+			String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
 
 			// Create source code module for type definition. 
 			// Domain values are loaded as elements of array. We are create one
