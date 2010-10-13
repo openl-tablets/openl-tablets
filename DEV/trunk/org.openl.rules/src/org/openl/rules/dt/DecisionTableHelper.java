@@ -114,29 +114,27 @@ public class DecisionTableHelper {
     public static boolean isValidHConditionHeader(String headerStr) {
         return headerStr.startsWith(DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character.isDigit(headerStr.charAt(2));
     }
-
-
-    private static int SIMPLE_DT_HEADERS_HEIGHT = 3;
+    
     /**
      * Creates virtual headers for condition and return columns to load simple
-     * lookup as usual Desicion Table
+     * Decision Table as an usual Decision Table
      * 
-     * @param decisionTable method description fo simple lookup.
-     * @param original The original body of simple lookup.
+     * @param decisionTable method description for simple Decision Table.
+     * @param originalTable The original body of simple Decision Table.
      * @param numberOfHcondition
-     * @return prepared simple lookup table.
+     * @return prepared usual Decision Table.
      */
-    public static ILogicalTable preprocessSimpleLoolup(DecisionTable decisionTable, ILogicalTable original,
+    public static ILogicalTable preprocessSimpleDecisionTable(DecisionTable decisionTable, ILogicalTable originalTable,
             int numberOfHcondition) {
         IWritableGrid virtualGrid = createVirtualGrid();
-        writeConditionAndReturnHeadersForSimpleLookup(virtualGrid, original, decisionTable, numberOfHcondition);
-        GridTable virtualGridTable = new GridTable(0, 0, SIMPLE_DT_HEADERS_HEIGHT - 1, original.getSource().getWidth() - 1, virtualGrid);
-        IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, original.getSource() }, true);
-        return LogicalTableHelper.logicalTable(new GridTable(0, 0, original.getSource().getHeight()
-                + SIMPLE_DT_HEADERS_HEIGHT - 1, original.getSource().getWidth() - 1, grid));
+        writeVirtualHeadersForSimpleDecisionTable(virtualGrid, originalTable, decisionTable, numberOfHcondition);
+        GridTable virtualGridTable = new GridTable(0, 0, IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, virtualGrid);
+        IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
+        return LogicalTableHelper.logicalTable(new GridTable(0, 0, originalTable.getSource().getHeight()
+                + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, grid));
     }
-
-    private static void writeConditionAndReturnHeadersForSimpleLookup(IWritableGrid grid, ILogicalTable original, DecisionTable decisionTable,
+    
+    private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
             int numberOfHcondition) {
         int numberOfConditions = decisionTable.getSignature().getNumberOfParameters();
         int column = 0;
@@ -150,18 +148,18 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 1, decisionTable.getSignature().getParameterName(i));
             
             //merge columns
-            int mergedColumnsCounts = original.getColumnWidth(i);
+            int mergedColumnsCounts = originalTable.getColumnWidth(i);
             if (mergedColumnsCounts > 1) {
-                for (int row = 0; row < SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
                     grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
                 }
             }
             column += mergedColumnsCounts;
         }
         grid.setCellValue(column, 0, "RET1");
-        int mergedColumnsCounts = original.getColumnWidth(numberOfConditions);
+        int mergedColumnsCounts = originalTable.getColumnWidth(numberOfConditions);
         if (mergedColumnsCounts > 1) {
-            for (int row = 0; row < SIMPLE_DT_HEADERS_HEIGHT; row++) {
+            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
                 grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
             }
         }

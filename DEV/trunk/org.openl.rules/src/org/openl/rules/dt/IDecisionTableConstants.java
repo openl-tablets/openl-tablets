@@ -17,6 +17,8 @@ public interface IDecisionTableConstants {
     int PARAM_COLUMN_INDEX = 2;
     int PRESENTATION_COLUMN_INDEX = 3;
     
+    int SIMPLE_DT_HEADERS_HEIGHT = 3;
+    
     /**
      * When condition is represented as a row. So it is readed from left to right.
      * First 4 columns are service ones.<br>
