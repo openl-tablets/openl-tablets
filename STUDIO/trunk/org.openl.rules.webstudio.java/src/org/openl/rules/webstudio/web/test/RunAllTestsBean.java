@@ -5,11 +5,10 @@ import java.util.List;
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.table.xls.formatters.XlsFormattersManager;
+
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tests.results.RanTestsResults;
@@ -17,8 +16,6 @@ import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
-import org.openl.util.formatters.IFormatter;
-import org.openl.util.print.Formatter;
 
 /**
  * Request scope managed bean providing logic for 'Run All Tests' page of OpenL Studio.
