@@ -39,9 +39,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
             StringValue displayValue,
-            OpenL openl) {
+            OpenL openl, boolean constructor) {
 
-        super(field, displayValue, openl);
+        super(field, displayValue, openl, constructor);
 
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
