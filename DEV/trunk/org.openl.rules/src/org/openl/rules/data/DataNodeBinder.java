@@ -127,29 +127,35 @@ public class DataNodeBinder extends AXlsTableBinder {
             boolean hasColumnTitleRow) throws Exception {
 
         ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
-        ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
-        ILogicalTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTableBody);
+        if (horizDataTableBody.getHeight() > 1) {
+            ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
+            ILogicalTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTableBody);
 
-        dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
+            dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
-        ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
-            tableToProcess,
-            tableType,
-            openl,
-            descriptorRows,
-            dataWithTitleRows,
-            DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
-            hasColumnTitleRow);
+            ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
+                tableToProcess,
+                tableType,
+                openl,
+                descriptorRows,
+                dataWithTitleRows,
+                DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
+                hasColumnTitleRow);
 
-        OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
-            tableType,
-            openl,
-            descriptors,
-            hasColumnTitleRow);
+            OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
+                tableType,
+                openl,
+                descriptors,
+                hasColumnTitleRow);
 
-        OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext);
+            OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext);
 
-        xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
+            xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
+        } else {
+            String message = "Invalid table structure: data table body should contain key and value columns.";
+            throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
+        }
+        
     }
 
     /**
