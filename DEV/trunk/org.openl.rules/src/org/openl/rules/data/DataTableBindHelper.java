@@ -25,7 +25,10 @@ public class DataTableBindHelper {
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
     private static final String FPK = "_PK_";
-    private static final String CONSTRUCTOR_FIELD = "this";
+    
+    /** Indicates that field is a constructor.<br> */
+    // Protected to make javadoc reference. 
+    protected static final String CONSTRUCTOR_FIELD = "this";
 
     private static final String CODE_DELIMETERS = ". \n\r";
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
@@ -313,10 +316,7 @@ public class DataTableBindHelper {
                     
                     String message = String.format("Found duplicate of field \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                    if(table.getTableSyntaxNode() != null){
-                        table.getTableSyntaxNode().addError(error);
-                    }
-                    BindHelper.processError(error);
+                    processError(table, error);
                 } else {
                     identifiers.add(fieldAccessorChainTokens);
                 }
@@ -328,30 +328,33 @@ public class DataTableBindHelper {
 
                 // the first field can be found in type itself
                 IOpenClass loadedFieldType = type;
-
+                                
+                boolean constructorField = false;
                 for (int currentFieldNumInChain = 0; currentFieldNumInChain < fieldAccessorChain.length; currentFieldNumInChain++) {
 
                     IdentifierNode currentFieldNameNode = fieldAccessorChainTokens[currentFieldNumInChain];
                     String fieldName = currentFieldNameNode.getIdentifier();
 
-                    if (CONSTRUCTOR_FIELD.equals(fieldName) && fieldAccessorChain.length == 1) {
-                        // targetType = loadedFieldType
+                    if (CONSTRUCTOR_FIELD.equals(fieldName) && fieldAccessorChain.length == 1) {                        
+                        constructorField = true;
                         break;
                     }
 
                     IOpenField field = getWritableField(currentFieldNameNode, table, loadedFieldType);
+                    if (field == null) {                        
+                        break;
+                    }
                     loadedFieldType = field.getType();
                     fieldAccessorChain[currentFieldNumInChain] = field;
                 }
-
+                
                 // the target type is the last field type, e.g. in driver.name
                 // the target type will be for name
                 // IOpenClass targetType = loadedFieldType != null ?
                 // loadedFieldType : type;
 
-                // FIXME: If field is CONSTRUCTOR_FIELD then this variable will
-                // be null and it's intended behavior. It should be rewritten as
-                // it's very error prone.
+                // If field is CONSTRUCTOR_FIELD or there was an error while getting writable field, 
+                // this variable will be null.
                 IOpenField field = fieldAccessorChain.length == 1 ? fieldAccessorChain[0] : new FieldChain(type,
                     fieldAccessorChain);
 
@@ -375,17 +378,25 @@ public class DataTableBindHelper {
                         foreignKeyTable,
                         foreignKey,
                         header,
-                        openl);
+                        openl, constructorField);
                 } else {
-                    currentColumnDescriptor = new ColumnDescriptor(field, header, openl);
+                    currentColumnDescriptor = new ColumnDescriptor(field, header, openl, constructorField);
                 }
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
-            }
+            }            
         }
 
         return columnDescriptors;
     }
+
+    private static void processError(ITable table, SyntaxNodeException error) {
+        if(table.getTableSyntaxNode() != null){
+            table.getTableSyntaxNode().addError(error);
+        }
+        BindHelper.processError(error);
+    }
+    
 
     /**
      * Returns foreign_key_tokens from the current column.
@@ -410,29 +421,32 @@ public class DataTableBindHelper {
 
     /**
      * Gets the field, and if it is not <code>null</code> and isWritable,
-     * returns it. In other cases throws an exception.
+     * returns it. In other case processes errors and return <code>null</code>.
      * 
      * @param currentFieldNameNode
      * @param table
      * @param loadedFieldType
-     * @return
-     * @throws BoundError
+     * @return     
      */
     private static IOpenField getWritableField(IdentifierNode currentFieldNameNode,
             ITable table,
-            IOpenClass loadedFieldType) throws SyntaxNodeException {
-
+            IOpenClass loadedFieldType) {
+        
         String fieldName = currentFieldNameNode.getIdentifier();
         IOpenField field = DataTableBindHelper.findField(fieldName, table, loadedFieldType);
 
         if (field == null) {
             String errorMessage = String.format("Field \"%s\" not found in %s", fieldName, loadedFieldType.getName());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
+            processError(table, error);
+            return null;
         }
 
         if (!field.isWritable()) {
             String message = String.format("Field '%s' is not writable in %s", fieldName, loadedFieldType.getName());
-            throw SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+            processError(table, error);
+            return null;
         }
 
         return field;

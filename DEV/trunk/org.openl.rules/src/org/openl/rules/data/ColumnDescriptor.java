@@ -30,15 +30,21 @@ public class ColumnDescriptor {
     private IOpenField field;
     private StringValue displayValue;
     private OpenL openl;
-    boolean valuesAnArray = false;
-
+    private boolean valuesAnArray = false;
+    
+    /**
+     * Flag indicating that current column descriptor is a constructor.<br>
+     * See {@link DataTableBindHelper#CONSTRUCTOR_FIELD}. 
+     */
+    private boolean constructor = false;    
 
     private Map<String, Integer> uniqueIndex = null;
 
-    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl) {
+    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl, boolean constructor) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
+        this.constructor = constructor;
         if (field != null)
             this.valuesAnArray = isValuesAnArray(field.getType());
     }
@@ -110,8 +116,8 @@ public class ColumnDescriptor {
         return uniqueIndex;
     }
 
-    public boolean isConstructor() {
-        return field == null;
+    public boolean isConstructor() {        
+        return constructor;
     }
 
     /**
@@ -120,25 +126,34 @@ public class ColumnDescriptor {
      * single value, array of values.
      * @throws SyntaxNodeException 
      */
-    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
+    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {        
+        if (field != null) {
+            IOpenClass paramType = field.getType();
+            
+            if (valuesAnArray) {
+                paramType = paramType.getAggregateInfo().getComponentType(paramType);
+            }
 
-        IOpenClass paramType = field.getType();
-        
-        if (valuesAnArray) {
-            paramType = paramType.getAggregateInfo().getComponentType(paramType);
-        }
+            valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
-        valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
+            if (!valuesAnArray) {
+                Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
 
-        if (!valuesAnArray) {
-            Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
-
-            if (res != null) {
-                field.set(literal, res, getRuntimeEnv());
+                if (res != null) {
+                    field.set(literal, res, getRuntimeEnv());
+                }
+            } else {
+                Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+                field.set(literal, arrayValues, getRuntimeEnv());
             }
         } else {
-            Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
-            field.set(literal, arrayValues, getRuntimeEnv());
+            /**
+             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
+             * processed during preparing column descriptor. 
+             * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
+             * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
+             * boolean hasColumnTytleRow)}
+             */
         }
     }
 
