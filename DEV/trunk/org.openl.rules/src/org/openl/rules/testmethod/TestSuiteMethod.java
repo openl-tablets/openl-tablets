@@ -110,6 +110,15 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
         return descriptions;
     }
 
+    public String getColumnDisplayName(String columnTechnicalName) {
+        int columnIndex = boundNode.getTable().getColumnIndex(columnTechnicalName);
+        if (columnIndex >= 0) {
+            return boundNode.getTable().getColumnDisplay(columnIndex);
+        } else {
+            return null;
+        }
+    }
+
     public synchronized IOpenClass getMethodBasedClass() {
 
         if (methodBasedClass == null) {
