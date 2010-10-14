@@ -45,9 +45,9 @@
 
             <table class="testtable">
                 <tr>
-                    <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}" var="testDataColumnHeader">
+                    <a4j:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="testDataColumnDisplayName">
                         <th>
-                            <h:outputText value="#{testDataColumnHeader}" />
+                            <h:outputText value="#{testDataColumnDisplayName}" />
                         </th>
                     </a4j:repeat>
                     <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">

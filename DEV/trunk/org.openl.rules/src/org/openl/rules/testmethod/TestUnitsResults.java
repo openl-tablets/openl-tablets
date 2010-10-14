@@ -82,6 +82,15 @@ public class TestUnitsResults implements INamedThing {
     public Object getUnitDescription(int i) {        
         return testUnits.get(i).getDescription();
     }
+    
+    public String[] getTestDataColumnDisplayNames(){
+        String[] columnTechnicalNames = getTestDataColumnHeaders();
+        String[] columnDisplayNames = new String[columnTechnicalNames.length];
+        for(int i = 0; i < columnDisplayNames.length; i ++){
+            columnDisplayNames[i] = testSuite.getColumnDisplayName(columnTechnicalNames[i]);
+        }
+        return columnDisplayNames;
+    }
         
     public String[] getTestDataColumnHeaders() {
 
