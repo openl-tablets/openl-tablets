@@ -169,6 +169,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         copyCell(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
     }
 
+    public void createCell(int col, int row, Object value, ICellStyle style) {
+        setCellValue(col, row, value);
+        setCellStyle(col, row, style);
+        setCellMetaInfo(col, row, getCellMetaInfo(col, row));
+    }
+
     // TODO To Refactor
     protected void copyCell(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
         Cell cellTo = PoiExcelHelper.getCell(colTo, rowTo, sheet);
@@ -226,10 +232,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     public Cell getOrCreateXlsCell(int colIndex, int rowIndex) {
         return PoiExcelHelper.getOrCreateCell(colIndex, rowIndex, sheet);
     }
-    
-    // TODO: we need to cache cell values.
+
     public ICell getCell(int column, int row) {        
-        return new XlsCell(column, row, this);        
+        return new XlsCell(column, row, this);
     }
 
     // protected to be accessible from XlsCell
@@ -362,11 +367,48 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
     public void setCellStyle(int col, int row, ICellStyle style) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle currentPoiStyle = poiCell.getCellStyle();
         CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
-        newPoiStyle.cloneStyleFrom(currentPoiStyle);
-        PoiExcelHelper.styleToXls(style, newPoiStyle); // apply our style changes
+
+        CellStyle styleToClone = null;
+
+        if (style instanceof XlsCellStyle) {
+            styleToClone = ((XlsCellStyle) style).getXlsStyle();
+        } else if (style instanceof XlsCellStyle2) {
+            styleToClone = ((XlsCellStyle2) style).getXlsStyle();
+        } else {
+            styleToClone = poiCell.getCellStyle();
+        }
+
+        newPoiStyle.cloneStyleFrom(styleToClone);
+
+        styleToXls(style, newPoiStyle); // apply our style changes
+
         poiCell.setCellStyle(newPoiStyle);
+    }
+
+    /**
+     * Copies properties of <code>ICellStyle</code> object to POI xls styling
+     * object. <br/>
+     * 
+     * @param source style source
+     * @param dest xls cell style object to fill
+     */
+    public static void styleToXls(ICellStyle source, CellStyle dest) {
+        if (source != null && dest != null) {
+            dest.setAlignment((short) source.getHorizontalAlignment());
+            dest.setVerticalAlignment((short) source.getVerticalAlignment());
+            dest.setIndention((short) source.getIdent());
+
+            short[] bs = source.getBorderStyle();
+            dest.setBorderTop(bs[0]);
+            dest.setBorderRight(bs[1]);
+            dest.setBorderBottom(bs[2]);
+            dest.setBorderLeft(bs[3]);
+
+            //dest.setFillPattern(source.getFillPattern());
+            //dest.setFillBackgroundColor(source.getFillBackgroundColorIndex());
+            //dest.setFillForegroundColor(source.getFillForegroundColorIndex());
+        }
     }
 
     public void setCellValue(int col, int row, Object value) {
@@ -392,7 +434,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     /**
      * @deprecated
      */
-    private boolean hasPredefinedStringArray(int col, int row) {
+    public boolean hasPredefinedStringArray(int col, int row) {
         boolean result = false;
 
         ICell cell = getCell(col, row);
@@ -411,7 +453,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     }
 
     // TODO: move to factory.
-    private AXlsCellWriter getCellWriter(int cellType, Object value) {
+    public AXlsCellWriter getCellWriter(int cellType, Object value) {
         String strValue = String.valueOf(value);
         AXlsCellWriter result = null;
         if (value instanceof Number) {

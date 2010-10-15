@@ -2,7 +2,6 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
 
 /**
@@ -36,14 +35,14 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridAction {
         }
     }
 
-    public void doAction(IWritableGrid grid, IUndoGrid undo) {
+    public void doAction(IWritableGrid grid) {
         grid.removeMergedRegion(initialRegion);
         if (newRegion != null) {
             grid.addMergedRegion(newRegion);
         }
     }
 
-    public void undoAction(IWritableGrid grid, IUndoGrid undo) {
+    public void undoAction(IWritableGrid grid) {
         if (newRegion != null) {
             grid.removeMergedRegion(newRegion);
         }

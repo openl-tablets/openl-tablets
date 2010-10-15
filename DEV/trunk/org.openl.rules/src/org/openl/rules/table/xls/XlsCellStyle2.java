@@ -142,6 +142,10 @@ public class XlsCellStyle2 implements ICellStyle {
         return (xlsStyle.getFillPattern() == CellStyle.NO_FILL);
     }
 
+    public short getFillPattern() {
+        return xlsStyle.getFillPattern();
+    }
+
     public short[] getFillBackgroundColor() {
         if (hasNoFill())
             return null;
@@ -152,6 +156,14 @@ public class XlsCellStyle2 implements ICellStyle {
         if (hasNoFill())
             return null;
         return colorToArray(xlsStyle.getFillForegroundXSSFColor());
+    }
+
+    public short getFillBackgroundColorIndex() {
+        return xlsStyle.getFillBackgroundColor();
+    }
+
+    public short getFillForegroundColorIndex() {
+        return xlsStyle.getFillForegroundColor();
     }
 
     public int getHorizontalAlignment() {

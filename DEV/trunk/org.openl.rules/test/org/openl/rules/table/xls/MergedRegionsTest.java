@@ -220,8 +220,7 @@ public class MergedRegionsTest {
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(grid,
-                    new XlsUndoGrid(grid));
+            IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(grid);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {
@@ -246,8 +245,7 @@ public class MergedRegionsTest {
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.insertRows(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(grid,
-                    new XlsUndoGrid(grid));
+            IWritableGrid.Tool.insertRows(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(grid);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {
@@ -273,7 +271,7 @@ public class MergedRegionsTest {
         List<TestDesctiption> tests = findAllTests(grid);
         for (TestDesctiption test : tests) {
             IWritableGrid.Tool.removeColumns(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(
-                    grid, new XlsUndoGrid(grid));
+                    grid);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {
@@ -299,7 +297,7 @@ public class MergedRegionsTest {
         List<TestDesctiption> tests = findAllTests(grid);
         for (TestDesctiption test : tests) {
             IWritableGrid.Tool.insertColumns(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(
-                    grid, new XlsUndoGrid(grid));
+                    grid);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {

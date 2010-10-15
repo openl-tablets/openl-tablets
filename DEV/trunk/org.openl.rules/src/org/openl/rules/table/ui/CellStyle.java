@@ -16,6 +16,13 @@ public class CellStyle implements ICellStyle {
     private short[] fillBackgroundColor;
 
     private short[] fillForegroundColor;
+
+    private short fillBackgroundColorIndex;
+
+    private short fillForegroundColorIndex;
+
+    private short fillPattern;
+
     private String textFormat;
 
     private short[] borderStyle;
@@ -38,6 +45,10 @@ public class CellStyle implements ICellStyle {
 
         fillBackgroundColor = cellStyle.getFillBackgroundColor();
         fillForegroundColor = cellStyle.getFillForegroundColor();
+
+        fillBackgroundColorIndex = cellStyle.getFillBackgroundColorIndex();
+        fillForegroundColorIndex = cellStyle.getFillForegroundColorIndex();
+        fillPattern = cellStyle.getFillPattern();
 
         textFormat = cellStyle.getTextFormat();
 
@@ -105,6 +116,30 @@ public class CellStyle implements ICellStyle {
 
     public void setFillForegroundColor(short[] fillForegroundColor) {
         this.fillForegroundColor = fillForegroundColor;
+    }
+
+    public short getFillBackgroundColorIndex() {
+        return fillBackgroundColorIndex;
+    }
+    
+    public short getFillForegroundColorIndex() {
+        return fillForegroundColorIndex;
+    }
+    
+    public void setFillBackgroundColorIndex(short fillBackgroundColorIndex) {
+        this.fillBackgroundColorIndex = fillBackgroundColorIndex;
+    }
+
+    public void setFillForegroundColorIndex(short fillForegroundColorIndex) {
+        this.fillForegroundColorIndex = fillForegroundColorIndex;
+    }
+    
+    public short getFillPattern() {
+        return fillPattern;
+    }
+
+    public void setFillPattern(short fillPattern) {
+        this.fillPattern = fillPattern;
     }
 
     public void setHorizontalAlignment(int horizontalAlignment) {
