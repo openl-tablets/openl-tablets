@@ -1,9 +1,6 @@
 package org.openl.rules.method;
 
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
@@ -11,22 +8,27 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.Invoker;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 /**
  * {@link IOpenMethod} implementation for table method component.
+ * 
+ * TODO: rename to MethodTable.
  */
 @Executable
 public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
-
-    private final Log LOG = LogFactory.getLog(TableMethod.class);
-
+    
     /**
      * Table syntax node that defines method table.
      */
     private MethodTableBoundNode methodTableBoundNode;
     private Map<String, Object> properties;
+    
+    /**
+     * Invoker for current method.
+     */
+    private Invoker invoker;
 
     /**
      * Constructs new instance of class.
@@ -60,32 +62,14 @@ public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (Tracer.isTracerOn()) {
-            return invokeTraced(target, params, env);
+        if (invoker == null) {
+            // create new instance of invoker.
+            invoker = new MethodTableInvoker(this, target, params, env);
+        } else {
+            // reset previously initialized parameters with new ones.
+            invoker.resetParams(target, params, env);
         }
-        return super.invoke(target, params, env);
-    }
-
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        Tracer tracer = Tracer.getTracer();
-
-        MethodTableTraceObject traceObject = new MethodTableTraceObject(this, params);
-        tracer.push(traceObject);
-
-        Object result = null; 
-
-        try {
-            result = super.invoke(target, params, env);
-            traceObject.setResult(result);
-            return result;
-
-        } catch (RuntimeException e) {
-            traceObject.setError(e);
-            LOG.error("Error when tracing Method table", e);
-            throw e;
-        } finally {
-            tracer.pop();
-        }        
+        return invoker.invoke();
     }
 
     public BindingDependencies getDependencies() {
