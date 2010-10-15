@@ -5,7 +5,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.openl.rules.table.ui.ICellStyle;
 
 public class PoiExcelHelper {
     
@@ -132,28 +131,7 @@ public class PoiExcelHelper {
     public static int getLastRowNum(Sheet sheet) {
         return sheet.getLastRowNum();
     }
-    
-    /**
-     * Copies properties of <code>ICellStyle</code> object to POI xls styling
-     * object. <br/>
-     * 
-     * @param source style source
-     * @param dest xls cell style object to fill
-     */
-    public static void styleToXls(ICellStyle source, CellStyle dest) {
-        if (source != null && dest != null) {
-            dest.setAlignment((short) source.getHorizontalAlignment());
-            dest.setVerticalAlignment((short) source.getVerticalAlignment());
-            dest.setIndention((short) source.getIdent());
 
-            short[] bs = source.getBorderStyle();
-            dest.setBorderTop(bs[0]);
-            dest.setBorderRight(bs[1]);
-            dest.setBorderBottom(bs[2]);
-            dest.setBorderLeft(bs[3]);
-        }
-    }
-    
     public static void setCellStringValue(int col, int row, String value, Sheet sheet) {
         Cell cell = getOrCreateCell(col, row, sheet);
         cell.setCellValue(value);

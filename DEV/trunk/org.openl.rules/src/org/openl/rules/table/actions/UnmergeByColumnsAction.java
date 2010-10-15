@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
 
 /**
@@ -21,7 +20,7 @@ public class UnmergeByColumnsAction implements IUndoableGridAction {
         this.region = region;
     }
 
-    public void doAction(IWritableGrid grid, IUndoGrid undo) {
+    public void doAction(IWritableGrid grid) {
         createdRegions = new ArrayList<IGridRegion>();
         removedRegions = new ArrayList<IGridRegion>();
         for (int row = region.getTop(); row <= region.getBottom(); row++) {
@@ -41,7 +40,7 @@ public class UnmergeByColumnsAction implements IUndoableGridAction {
         }
     }
 
-    public void undoAction(IWritableGrid grid, IUndoGrid undo) {
+    public void undoAction(IWritableGrid grid) {
         for (IGridRegion region : createdRegions) {
             grid.removeMergedRegion(region);
         }

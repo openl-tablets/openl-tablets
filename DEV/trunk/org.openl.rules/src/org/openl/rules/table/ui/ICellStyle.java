@@ -246,7 +246,13 @@ public interface ICellStyle {
      * @return fill color
      */
     short[] getFillForegroundColor();
+
+    short getFillBackgroundColorIndex();
+
+    short getFillForegroundColorIndex();
     
+    short getFillPattern();
+
     /**
      * get the type of horizontal alignment for the cell
      * @return align - the type of alignment

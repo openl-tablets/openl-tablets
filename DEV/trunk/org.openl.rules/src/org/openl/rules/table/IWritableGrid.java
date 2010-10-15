@@ -562,6 +562,8 @@ public interface IWritableGrid extends IGrid {
 
     void clearCell(int col, int row);
 
+    void createCell(int col, int row, Object value, ICellStyle style);
+
     void copyCell(int colFrom, int rowFrom, int colTo, int rowTo);
 
     /**

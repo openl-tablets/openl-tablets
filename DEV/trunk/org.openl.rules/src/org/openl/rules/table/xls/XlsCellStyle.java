@@ -67,7 +67,19 @@ public class XlsCellStyle implements ICellStyle {
 		short x = xlsStyle.getFillBackgroundColor();
 		return colorToArray(x, workbook);
     }
-    
+
+    public short getFillBackgroundColorIndex() {
+        return xlsStyle.getFillBackgroundColor();
+    }
+
+    public short getFillForegroundColorIndex() {
+        return xlsStyle.getFillForegroundColor();
+    }
+
+    public short getFillPattern() {
+        return xlsStyle.getFillPattern();
+    }
+
 	public boolean hasNoFill() {
 		return (xlsStyle.getFillPattern() == CellStyle.NO_FILL);
 	}

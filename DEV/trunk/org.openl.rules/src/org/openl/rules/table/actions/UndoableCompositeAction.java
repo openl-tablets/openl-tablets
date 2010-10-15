@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
 
 /**
@@ -27,17 +26,17 @@ public class UndoableCompositeAction implements IUndoableGridAction {
         this.actions = Arrays.asList(gridActions);
     }
 
-    public void doAction(IWritableGrid grid, IUndoGrid undo) {
+    public void doAction(IWritableGrid grid) {
         for (Iterator<IUndoableGridAction> iter = actions.iterator(); iter.hasNext();) {
             IUndoableGridAction action = iter.next();
-            action.doAction(grid, undo);
+            action.doAction(grid);
         }
     }
 
-    public void undoAction(IWritableGrid grid, IUndoGrid undo) {
+    public void undoAction(IWritableGrid grid) {
         for (ListIterator<IUndoableGridAction> iter = actions.listIterator(actions.size()); iter.hasPrevious();) {
             IUndoableGridAction action = iter.previous();
-            action.undoAction(grid, undo);
+            action.undoAction(grid);
         }
     }
 }

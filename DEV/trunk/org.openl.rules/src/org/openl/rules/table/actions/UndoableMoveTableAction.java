@@ -5,7 +5,6 @@ import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
 
 /**
@@ -29,7 +28,7 @@ public class UndoableMoveTableAction implements IUndoableGridAction {
         return newRegion;
     }
 
-    public void doAction(IWritableGrid grid, IUndoGrid undo) {
+    public void doAction(IWritableGrid grid) {
         try {
             if (newRegion == null) {
                 newRegion = new TableServiceImpl(false).moveTable(initilalTable, null);
@@ -41,7 +40,7 @@ public class UndoableMoveTableAction implements IUndoableGridAction {
         }
     }
 
-    public void undoAction(IWritableGrid grid, IUndoGrid undo) {
+    public void undoAction(IWritableGrid grid) {
         if (newRegion != null) {
             try {
                 new TableServiceImpl(false)

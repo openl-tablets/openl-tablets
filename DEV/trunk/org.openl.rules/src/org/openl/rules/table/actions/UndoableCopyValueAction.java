@@ -4,9 +4,12 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.ui.CellFont;
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
@@ -16,6 +19,9 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
 
     private int colFrom, rowFrom;
 
+    private Object prevCellValue;
+    private ICellStyle prevCellStyle;
+
     private GridRegion toRestore, toRemove;
 
     public UndoableCopyValueAction(int colFrom, int rowFrom, int colTo, int rowTo) {
@@ -24,10 +30,28 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
         this.rowFrom = rowFrom;
     }
 
-    @Override
-    public void doDirectChange(IWritableGrid wgrid) {
+    public void doAction(IWritableGrid wgrid) {
+        ICell prevCell = wgrid.getCell(col, row);
+        prevCellValue = prevCell.getObjectValue();
+        prevCellStyle = prevCell.getStyle();
+
         wgrid.copyCell(colFrom, rowFrom, col, row);
         moveRegion(wgrid);
+    }
+
+    public void undoAction(IWritableGrid wgrid) {
+        if (toRemove != null) {
+            wgrid.removeMergedRegion(toRemove);
+        }
+        if (toRestore != null) {
+            wgrid.addMergedRegion(toRestore);
+        }
+
+        if (prevCellValue != null) {
+            wgrid.createCell(col, row, prevCellValue, prevCellStyle);
+        } else {
+            wgrid.clearCell(col, row);
+        }
     }
 
     void moveRegion(IWritableGrid wgrid) {
@@ -46,18 +70,6 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
             toRemove = copyFrom;
         }
 
-    }
-
-    @Override
-    public void restore(IWritableGrid wgrid, IUndoGrid undo) {
-
-        if (toRemove != null) {
-            wgrid.removeMergedRegion(toRemove);
-        }
-        if (toRestore != null) {
-            wgrid.addMergedRegion(toRestore);
-        }
-        super.restore(wgrid, undo);
     }
 
 }
