@@ -40,10 +40,13 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         Throwable originalCause = getOriginalCause();
 
         if (originalCause != null) {
-            
             String message = originalCause.getMessage();
             
             if (StringUtils.isNotBlank(message)) {
+                if (StringUtils.isNotBlank(getMessage()) && !getMessage().equals(message)) {
+                    return String.format("%s: %s", getMessage(), message);
+                }
+                
                 return message;
             }
         }

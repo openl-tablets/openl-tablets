@@ -3,6 +3,7 @@ package org.openl.rules.property;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.BindHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
@@ -54,7 +55,11 @@ public class PropertyTableBinder extends DataNodeBinder {
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propTableBody = getTableBody(tsn);
 
-        processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
+        try {
+            processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
+        } catch (SyntaxNodeException ex) {
+            throw SyntaxNodeExceptionUtils.createError("Table wasn't defined properly", ex, ex.getSyntaxNode());
+        }
 
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
         propertiesInstance.setPropertiesSection(tsn.getTable());
