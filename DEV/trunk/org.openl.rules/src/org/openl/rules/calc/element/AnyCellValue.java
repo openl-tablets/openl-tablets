@@ -4,7 +4,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
-import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.rules.convertor.String2DoubleConvertor;
 
 public class AnyCellValue implements IMetaHolder {
 
@@ -18,7 +18,7 @@ public class AnyCellValue implements IMetaHolder {
     public AnyCellValue(String source) {
 
         try {
-            double value = (Double) new String2DataConvertorFactory.String2DoubleConvertor().parse(source, null, null);
+            double value = (Double) new String2DoubleConvertor().parse(source, null, null);
             this.doubleValue = new DoubleValue(value);
         } catch (Throwable t) {
             this.stringValue = new StringValue(source);

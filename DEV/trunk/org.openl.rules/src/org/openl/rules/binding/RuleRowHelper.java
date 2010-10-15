@@ -298,6 +298,19 @@ public class RuleRowHelper {
 
         return false;
     }
+    
+    public static boolean isFormula(ILogicalTable valuesTable) {
+
+        String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
+
+        if (stringValue != null) {
+            stringValue.trim();
+            return stringValue.startsWith("=");
+        }
+
+        return false;
+    }
+
 
     public static void setCellMetaInfo(ILogicalTable cell, String paramName,
             IOpenClass paramType, boolean isMultiValue) {
@@ -341,7 +354,7 @@ public class RuleRowHelper {
             return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         }
 
-        IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType);
+//        IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType);
         dataTable = LogicalTableHelper.make1ColumnTable(dataTable);
 
         int height = RuleRowHelper.calculateHeight(dataTable);
@@ -350,12 +363,12 @@ public class RuleRowHelper {
             return null;
         }
 
-//        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
-        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable)){
+        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
+//        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable)){
             // attempt to load as a single paramType(will work in case of
             // expressions)
             try {
-                return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
+                return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
             } catch (Exception e) {
 
                 Log.debug(e);
@@ -365,22 +378,23 @@ public class RuleRowHelper {
             }
         }
 
-        return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, indexedParamType);
+        return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, paramType);
     }
 
     private static Object loadArrayParameters(ILogicalTable dataTable,
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass arrayType) throws SyntaxNodeException {
 
         int height = RuleRowHelper.calculateHeight(dataTable);
+        IOpenClass paramType = arrayType.getAggregateInfo().getComponentType(arrayType);
 
-        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) { // load
-            // comma
-            // separated
-            // array
+        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) { 
+            // load comma separated array
             return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+        } else if (height == 1 && isFormula(dataTable)) {
+            return loadSingleParam(arrayType, paramName, ruleName, dataTable, openlAdaptor);
         } else {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
         }
