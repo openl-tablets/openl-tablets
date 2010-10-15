@@ -4,15 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
+import org.openl.types.impl.Invoker;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
@@ -26,6 +25,8 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     private MatchNode checkTree;
 
     private IMatchAlgorithmExecutor algorithmExecutor;
+    
+    private Invoker invoker;
 
     // WEIGHT algorithm
     private MatchNode totalScore;
@@ -97,21 +98,14 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (algorithmExecutor == null) {
-            throw new OpenLRuntimeException(getSyntaxNode().getErrors()[0]);
+        if (invoker == null) {
+            // create new instance of invoker.
+            invoker = new ColumnMatchInvoker(this, target, params, env);
+        } else {
+            // reset previously initialized parameters with new ones.
+            invoker.resetParams(target, params, env);
         }
-        
-        Object result = algorithmExecutor.invoke(target, params, env, this);
-
-        if (result == null) {
-            IOpenClass type = getHeader().getType();
-            if (type.getInstanceClass().isPrimitive()) {
-                throw new IllegalArgumentException("Cannot return <null> for primitive type "
-                        + type.getInstanceClass().getName());
-            }
-        }
-
-        return result;
+        return invoker.invoke();
     }
 
     public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {
@@ -140,6 +134,10 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
 
     public void setTotalScore(MatchNode totalScore) {
         this.totalScore = totalScore;
+    }
+
+    protected IMatchAlgorithmExecutor getAlgorithmExecutor() {
+        return algorithmExecutor;
     }
 
 }

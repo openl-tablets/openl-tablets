@@ -7,27 +7,20 @@ package org.openl.rules.dt;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
-import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.MethodUtil;
+
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.domain.IIntIterator;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
-import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -38,9 +31,9 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.Invoker;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor
@@ -48,8 +41,6 @@ import org.openl.vm.trace.Tracer;
  */
 @Executable
 public class DecisionTable extends AMethod implements IMemberMetaInfo {
-
-    private final Log LOG = LogFactory.getLog(DecisionTable.class);
 
     private ICondition[] conditionRows;
     private IAction[] actionRows;
@@ -63,6 +54,11 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     private TableSyntaxNode tableSyntaxNode;
     private DecisionTableOptimizedAlgorithm algorithm;
     private Map<String, Object> properties;
+    
+    /**
+     * Object to invoke current method.
+     */
+    private Invoker invoker;
 
     public DecisionTable(IOpenMethodHeader header) {
         super(header);
@@ -195,131 +191,20 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        // if there are errors in the table we want to run,
-        // we need to inform user about the exception on invoking.
-        //
-        if (algorithm == null) {
-            throw new OpenLRuntimeException(tableSyntaxNode.getErrors()[0]);
+        if (invoker == null) {
+            invoker = new DecisionTableInvoker(this, target, params, env);
+        } else {
+            invoker.resetParams(target, params, env);
         }
-        
-        if (Tracer.isTracerOn()) {
-            return invokeTracedOptimized(target, params, env);
-        }
-
-        return invokeOptimized(target, params, env);
-    }
-
-    private Object invokeOptimized(Object target, Object[] params, IRuntimeEnv env) {
-
-        IIntIterator rules = algorithm.checkedRules(target, params, env);
-
-        Object returnValue = null;
-        boolean atLeastOneRuleFired = false;
-
-        while (rules.hasNext()) {
-
-            atLeastOneRuleFired = true;
-            int ruleN = rules.nextInt();
-
-            for (int j = 0; j < actionRows.length; j++) {
-
-                Object actionResult = actionRows[j].executeAction(ruleN, target, params, env);
-
-                if (actionRows[j].isReturnAction() && returnValue == null && (actionResult != null || (actionRows[j].getParamValues()!= null && actionRows[j].getParamValues()[ruleN] != null))) {
-                    returnValue = actionResult;
-                }
-            }
-            if (returnValue != null) {
-                return returnValue;
-            }
-        }
-
-        if (!atLeastOneRuleFired && shouldFailOnMiss()) {
-
-            String method = MethodUtil.printMethodWithParameterValues(getMethod(), params, INamedThing.REGULAR);
-            String message = String.format("%s failed to match any rule condition", method);
-
-            throw new FailOnMissException(message, this, params);
-        }
-
-        return returnValue;
+        return invoker.invoke();        
     }
 
     /**
      * Check whether execution of decision table should be failed if no rule
      * fired.
      */
-    private boolean shouldFailOnMiss() {
+    public boolean shouldFailOnMiss() {
         return (Boolean)properties.get("failOnMiss");
-    }
-
-    private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {        
-        Tracer tracer = Tracer.getTracer();
-        
-        if (tracer == null) {
-            return invokeOptimized(target, params, env);
-        }
-
-        Object ret = null;
-
-        DecisionTableTraceObject traceObject = new DecisionTableTraceObject(this, params);
-        tracer.push(traceObject);
-
-        try {
-            IIntIterator rules = algorithm.checkedRules(target, params, env);
-
-            while (rules.hasNext()) {
-
-                int ruleN = rules.nextInt();
-
-                try {
-                    tracer.push(traceObject.traceRule(ruleN));
-
-                    for (int j = 0; j < actionRows.length; j++) {
-                        Object actionResult = actionRows[j].executeAction(ruleN, target, params, env);
-
-                        if (actionRows[j].isReturnAction() && ret == null
-                                && (actionResult != null || (actionRows[j].getParamValues()!= null
-                                        && actionRows[j].getParamValues()[ruleN] != null))) {
-                            ret = actionResult;
-                        }
-                    }
-                    if (ret != null) {
-                        traceObject.setResult(ret);
-                        return ret;
-                    }
-                } finally {
-                    tracer.pop();
-//                    TracePrinter printer = new DefaultTracePrinter();
-//                    Writer writer;
-//                    try {
-//                        writer = new PrintWriter(new File("D:/out.txt"));
-//                        printer.print(tracer, writer);
-//                        writer.close();
-//                    } catch (FileNotFoundException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } catch (IOException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } finally {
-//                        
-//                    }
-                }
-            }
-        } catch (RuntimeException e) {
-            addErrorToTrace(traceObject, e);
-        } finally {
-            tracer.pop();
-        }
-
-        return ret;
-    }
-
-    private void addErrorToTrace(DecisionTableTraceObject traceObject, Throwable e) {
-        traceObject.setError(e);
-        LOG.error("Error when tracing DT rule", e);
-        throw new OpenLRuntimeException(e);
     }
 
     protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
@@ -406,8 +291,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
                 }
             }
         }
-    }
-    
+    }    
     
     IOpenClass ruleExecutionType;
     

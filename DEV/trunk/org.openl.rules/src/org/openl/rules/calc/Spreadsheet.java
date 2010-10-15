@@ -1,36 +1,22 @@
 package org.openl.rules.calc;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.binding.BindingDependencies;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
-import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
+import org.openl.types.impl.Invoker;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.DefaultTracePrinter;
-import org.openl.vm.trace.TracePrinter;
-import org.openl.vm.trace.Tracer;
 
 @Executable
-public class Spreadsheet extends AMethod implements IMemberMetaInfo {
-
-    private final Log LOG = LogFactory.getLog(Spreadsheet.class);
+public class Spreadsheet extends AMethod implements IMemberMetaInfo {    
 
     private SpreadsheetBoundNode node;
 
@@ -42,6 +28,11 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
 
     private SpreadsheetOpenClass spreadsheetType;
     private Map<String, Object> properties;
+    
+    /**
+     * Invoker for current method.
+     */
+    private Invoker invoker;
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header);
@@ -127,57 +118,12 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (resultBuilder == null) {
-            throw new OpenLRuntimeException(getSyntaxNode().getErrors()[0]);
+        if (invoker == null) {
+            invoker = new SpreadsheetInvoker(this, target, params, env);
+        } else {
+            invoker.resetParams(target, params, env);
         }
-        
-        if (Tracer.isTracerOn()) {
-            return invokeTraced(target, params, env);
-        }
-
-        SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(this, (IDynamicObject) target, params, env);
-        return resultBuilder.makeResult(res);
-    }
-    
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        Tracer tracer = Tracer.getTracer();
-
-        Object result = null;
-
-        SpreadsheetTraceObject traceObject = new SpreadsheetTraceObject(this, params);
-        tracer.push(traceObject);
-
-        try {
-            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(this, (IDynamicObject) target, params,
-                    env, traceObject);
-
-            result = resultBuilder.makeResult(res);
-            traceObject.setResult(result);
-        } catch (RuntimeException e) {
-           traceObject.setError(e);
-           LOG.error("Error when tracing Spreadsheet table", e);
-           throw e;
-        } finally {
-            tracer.pop();
-
-            TracePrinter printer = new DefaultTracePrinter();
-            Writer writer;
-            try {
-                writer = new PrintWriter(new File("D:/out.txt"));
-                printer.print(tracer, writer);
-                writer.close();
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } finally {
-                
-            }
-
-        }
-        return result;
+        return invoker.invoke();
     }
     
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {

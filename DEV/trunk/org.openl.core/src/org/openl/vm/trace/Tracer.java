@@ -3,11 +3,7 @@
  */
 package org.openl.vm.trace;
 
-import java.io.PrintStream;
 import java.util.Stack;
-
-import org.openl.base.INamedThing;
-import org.openl.main.SourceCodeURLConstants;
 
 /**
  * @author snshor

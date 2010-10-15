@@ -6,10 +6,8 @@
 
 package org.openl.types.impl;
 
-import org.openl.IOpenRunner;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.impl.ControlSignalReturn;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
@@ -17,6 +15,11 @@ import org.openl.vm.IRuntimeEnv;
 public class CompositeMethod extends AMethod {
     
     private IBoundMethodNode methodBodyBoundNode;
+    
+    /**
+     * Invoker for current method.
+     */
+    private Invoker invoker;
 
     public CompositeMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode) {
         super(header);
@@ -32,17 +35,14 @@ public class CompositeMethod extends AMethod {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        try {
-            env.pushThis(target);
-            IOpenRunner runner = env.getRunner();
-
-            return runner.run(methodBodyBoundNode, params, env);
-        } catch (ControlSignalReturn csret) {
-            return csret.getReturnValue();
-        } finally {
-            env.popThis();
+        if (invoker == null) {
+            // create new instance of invoker.
+            invoker = new CompositeMethodInvoker(methodBodyBoundNode, target, params, env);
+        } else {
+            // reset previously initialized parameters with new ones.
+            invoker.resetParams(target, params, env);
         }
-
+        return invoker.invoke();
     }
 
     public void setMethodBodyBoundNode(IBoundMethodNode node) {
@@ -52,5 +52,5 @@ public class CompositeMethod extends AMethod {
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.visit(getMethodBodyBoundNode());
     }
-
+  
 }
