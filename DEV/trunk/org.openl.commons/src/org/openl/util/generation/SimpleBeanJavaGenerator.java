@@ -152,7 +152,7 @@ public class SimpleBeanJavaGenerator {
         for (Method method : datatypeClass.getDeclaredMethods()) {
             if (method.getName().startsWith("get")) {
                 Class<?> methodReturnType = method.getReturnType();
-                if (!methodReturnType.isPrimitive()) {
+                if (!methodReturnType.isPrimitive() && !(methodReturnType.isArray() && methodReturnType.getComponentType().isPrimitive())) {
                     importsSet.add(filterTypeNameForImport(methodReturnType));
                 }
             } 
@@ -169,7 +169,7 @@ public class SimpleBeanJavaGenerator {
         
         for (Constructor<?> constructor : datatypeClass.getDeclaredConstructors()) {
             for (Class<?> paramType : constructor.getParameterTypes()) {
-                if (!paramType.isPrimitive()) {
+                if (!paramType.isPrimitive() && !(paramType.isArray() && paramType.getComponentType().isPrimitive())) {
                     importsSet.add(filterTypeNameForImport(paramType));
                 }
             }
@@ -194,7 +194,7 @@ public class SimpleBeanJavaGenerator {
     }
 
     private String filterTypeName(Class<?> type) {
-        if (!type.isPrimitive()) {
+        if (!type.isPrimitive() && !(type.isArray() && type.getComponentType().isPrimitive())) {
             return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
         } else {
             return ClassUtils.getShortClassName(type);
