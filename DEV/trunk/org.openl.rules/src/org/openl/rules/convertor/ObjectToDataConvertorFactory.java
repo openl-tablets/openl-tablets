@@ -100,7 +100,7 @@ public class ObjectToDataConvertorFactory {
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data, IBindingContext bindingContext) {
-                    Calendar cal = Calendar.getInstance(String2DataConvertorFactory.getLocale());
+                    Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
                     return cal;
                 }
