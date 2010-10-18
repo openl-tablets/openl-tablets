@@ -11,6 +11,7 @@ public class SubGridTable extends AGridTableDecorator {
     private int fromRow;
     private int width;
     private int height;
+    private IGridRegion region;
 
     public SubGridTable(IGridTable table, int fromColumn, int fromRow, int width, int height) {
         super(table);
@@ -18,6 +19,12 @@ public class SubGridTable extends AGridTableDecorator {
         this.fromRow = fromRow;
         this.width = width;
         this.height = height;
+        this.region = super.getRegion();
+    }
+
+    @Override
+    public IGridRegion getRegion() {
+        return region;
     }
 
     public int getGridColumn(int col, int row) {

@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 
 /**
  * @author PUdalau
  */
-public class MergeCellsAction implements IUndoableGridAction {
+public class MergeCellsAction implements IUndoableGridTableAction {
 
     private IGridRegion region;
     private List<IGridRegion> removedRegions;
@@ -18,7 +19,8 @@ public class MergeCellsAction implements IUndoableGridAction {
         this.region = region;
     }
 
-    public void doAction(IWritableGrid grid) {
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         removedRegions = new ArrayList<IGridRegion>();
         int nregions = grid.getNumberOfMergedRegions();
         for (int i = 0; i < nregions; i++) {
@@ -33,7 +35,8 @@ public class MergeCellsAction implements IUndoableGridAction {
         grid.addMergedRegion(region);
     }
 
-    public void undoAction(IWritableGrid grid) {
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.removeMergedRegion(region);
         for (IGridRegion mergedRegion : removedRegions) {
             grid.addMergedRegion(mergedRegion);

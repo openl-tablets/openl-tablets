@@ -2,9 +2,9 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.IGridTable;
 
-public class GridRegionAction implements IUndoableGridAction {
+public class GridRegionAction implements IUndoableGridTableAction {
 
     public static enum ActionType {
         MOVE,
@@ -26,7 +26,7 @@ public class GridRegionAction implements IUndoableGridAction {
         this.nRowsOrColumns = nRowsOrColumns;
     }
 
-    public void doAction(IWritableGrid wgrid) {
+    public void doAction(IGridTable table) {
         switch (actionType) {
             case EXPAND:
                 resizeRegion(isInsert, isColumns, nRowsOrColumns, region);
@@ -37,7 +37,7 @@ public class GridRegionAction implements IUndoableGridAction {
         }
     }
 
-    public void undoAction(IWritableGrid wgrid) {
+    public void undoAction(IGridTable table) {
         switch (actionType) {
             case EXPAND:
                 resizeRegion(!isInsert, isColumns, nRowsOrColumns, region);

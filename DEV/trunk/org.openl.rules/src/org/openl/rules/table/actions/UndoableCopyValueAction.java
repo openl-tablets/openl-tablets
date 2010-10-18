@@ -6,9 +6,8 @@ package org.openl.rules.table.actions;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.ui.CellFont;
-import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
@@ -30,27 +29,29 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
         this.rowFrom = rowFrom;
     }
 
-    public void doAction(IWritableGrid wgrid) {
-        ICell prevCell = wgrid.getCell(col, row);
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        ICell prevCell = grid.getCell(col, row);
         prevCellValue = prevCell.getObjectValue();
         prevCellStyle = prevCell.getStyle();
 
-        wgrid.copyCell(colFrom, rowFrom, col, row);
-        moveRegion(wgrid);
+        grid.copyCell(colFrom, rowFrom, col, row);
+        moveRegion(grid);
     }
 
-    public void undoAction(IWritableGrid wgrid) {
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         if (toRemove != null) {
-            wgrid.removeMergedRegion(toRemove);
+            grid.removeMergedRegion(toRemove);
         }
         if (toRestore != null) {
-            wgrid.addMergedRegion(toRestore);
+            grid.addMergedRegion(toRestore);
         }
 
         if (prevCellValue != null) {
-            wgrid.createCell(col, row, prevCellValue, prevCellStyle);
+            grid.createCell(col, row, prevCellValue, prevCellStyle);
         } else {
-            wgrid.clearCell(col, row);
+            grid.clearCell(col, row);
         }
     }
 

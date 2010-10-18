@@ -2,6 +2,7 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 
 /**
@@ -9,7 +10,7 @@ import org.openl.rules.table.IWritableGrid;
  * 
  * @author PUdalau
  */
-public class UndoableResizeMergedRegionAction implements IUndoableGridAction {
+public class UndoableResizeMergedRegionAction implements IUndoableGridTableAction {
 
     private IGridRegion initialRegion;
     private IGridRegion newRegion;
@@ -35,17 +36,20 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridAction {
         }
     }
 
-    public void doAction(IWritableGrid grid) {
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.removeMergedRegion(initialRegion);
         if (newRegion != null) {
             grid.addMergedRegion(newRegion);
         }
     }
 
-    public void undoAction(IWritableGrid grid) {
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         if (newRegion != null) {
             grid.removeMergedRegion(newRegion);
         }
         grid.addMergedRegion(initialRegion);
     }
+
 }
