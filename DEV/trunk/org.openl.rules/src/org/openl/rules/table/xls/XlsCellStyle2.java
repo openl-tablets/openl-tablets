@@ -1,7 +1,9 @@
 package org.openl.rules.table.xls;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -25,6 +27,15 @@ public class XlsCellStyle2 implements ICellStyle {
 
     @SuppressWarnings("unchecked")
     private static Hashtable<Integer, HSSFColor> oldIndexedColors = HSSFColor.getIndexHash();
+    /**
+     * Cache with themes of workbooks used to prevent odd parsing of
+     * {@link ThemeDocument} for different cells inside one workbook.
+     */
+    public static Map<XSSFWorkbook, ThemeDocument> themesCache = new HashMap<XSSFWorkbook, ThemeDocument>();
+
+    public static void cleareThemesCache() {
+        themesCache.clear();
+    }
 
     private XSSFCellStyle xlsStyle;
     private XSSFWorkbook workbook;
@@ -47,12 +58,17 @@ public class XlsCellStyle2 implements ICellStyle {
     private void init() {
 
         try {
-            // Read xml part of workbook that contains theme description.
-            //
-            POIXMLDocumentPart themePart = getTheme(workbook);
+            if (themesCache.containsKey(workbook)) {
+                themeDocument = themesCache.get(workbook);
+            } else {
+                // Read xml part of workbook that contains theme description.
+                //
+                POIXMLDocumentPart themePart = getTheme(workbook);
 
-            if (themePart != null) {
-                themeDocument = ThemeDocument.Factory.parse(themePart.getPackagePart().getInputStream());
+                if (themePart != null) {
+                    themeDocument = ThemeDocument.Factory.parse(themePart.getPackagePart().getInputStream());
+                }
+                themesCache.put(workbook, themeDocument);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

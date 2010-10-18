@@ -50,6 +50,7 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
+import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -1090,6 +1091,10 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
         savedSearches = null;
+        if (reloadType != ReloadType.NO) {
+            XlsCellStyle2.cleareThemesCache();// clear cache due to new loaded
+                                              // workbooks
+        }
         
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(moduleInfo);
         
