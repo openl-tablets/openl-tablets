@@ -3,6 +3,8 @@ package org.openl.rules.dt;
 import junit.framework.TestCase;
 
 import org.openl.meta.DoubleValue;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.runtime.EngineFactory;
 
@@ -33,6 +35,19 @@ public class LocalParametersDeclarationTest extends TestCase {
         DoubleValue test11(int age);
         
         void test12(int age);
+    
+        String test13(int age);
+        
+        int test14(int age);
+        
+        IntRange test15(int age);
+
+        String test16(double age);
+        
+        double test17(double age);
+        
+        DoubleRange test18(double age);
+
     }
 
     private static String src = "test/rules/dt/LocalParametersDeclarationTest.xls";
@@ -80,12 +95,30 @@ public class LocalParametersDeclarationTest extends TestCase {
         assertEquals("Eligible", result);
     }
 
-    public void testWithoutParamDeclaration() {
+    public void testWithoutParamDeclaration1() {
 
         String result = test.test4(false);
         assertEquals("Not Eligible", result);
 
         result = test.test4(true);
+        assertEquals("Eligible", result);
+    }
+    
+    public void testWithoutParamDeclaration2() {
+
+        String result = test.test13(10);
+        assertEquals("Not Eligible", result);
+
+        result = test.test13(40);
+        assertEquals("Eligible", result);
+    }
+    
+    public void testWithoutParamDeclaration3() {
+
+        String result = test.test16(10);
+        assertEquals("Not Eligible", result);
+
+        result = test.test16(40);
         assertEquals("Eligible", result);
     }
 
@@ -146,6 +179,34 @@ public class LocalParametersDeclarationTest extends TestCase {
 
         test.test12(10);
         test.test12(40);
+    }
+
+    public void testSimplifiedReturnParamsDeclaration5() {
+        int returnValue = test.test14(10);
+        assertEquals(1, returnValue);
+        returnValue = test.test14(40);
+        assertEquals(2, returnValue);
+    }
+
+    public void testSimplifiedReturnParamsDeclaration6() {
+        IntRange returnValue = test.test15(10);
+        assertEquals(new IntRange(1), returnValue);
+        returnValue = test.test15(40);
+        assertEquals(new IntRange(2), returnValue);
+    }
+
+    public void testSimplifiedReturnParamsDeclaration7() {
+        double returnValue = test.test17(10);
+        assertEquals(1.0, returnValue);
+        returnValue = test.test17(40);
+        assertEquals(2.0, returnValue);
+    }
+
+    public void testSimplifiedReturnParamsDeclaration8() {
+        DoubleRange returnValue = test.test18(10);
+        assertEquals(new DoubleRange(1.0, 1.0), returnValue);
+        returnValue = test.test18(40);
+        assertEquals(new DoubleRange(2.0, 2.0), returnValue);
     }
 
 }
