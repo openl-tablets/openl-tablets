@@ -103,6 +103,9 @@ public class LogicalTable extends ALogicalTable {
     }
 
     public ILogicalTable getSubtable(int column, int row, int width, int height) {
+        if (width == 0 || height == 0) {
+            return null;
+        }
         int startRow = rowOffset[row];
         int endRow = rowOffset[row + height];
         int startColumn = columnOffset[column];

@@ -73,6 +73,9 @@ public abstract class AGridTable implements IGridTable {
     }
 
     public IGridTable getSubtable(int column, int row, int width, int height) {
+        if (width == 0 || height == 0) {
+            return null;
+        }
         if (getWidth() == width && getHeight() == height) {
             return this;
         }

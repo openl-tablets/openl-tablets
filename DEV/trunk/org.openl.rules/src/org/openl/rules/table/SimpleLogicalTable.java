@@ -63,6 +63,9 @@ public class SimpleLogicalTable extends ALogicalTable {
      * @return {@link SimpleLogicalTable} 
      */
     public ILogicalTable getSubtable(int column, int row, int width, int height) {
+        if (width == 0 || height == 0) {
+            return null;
+        }
         // the right implementation for this method must be following:
         // return LogicalTableHelper.logicalTable(table.getSubtable(column, row, width, height));
         // but we loose lots of time on this callings.

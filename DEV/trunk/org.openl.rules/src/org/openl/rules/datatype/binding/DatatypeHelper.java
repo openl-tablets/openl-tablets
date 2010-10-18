@@ -34,10 +34,12 @@ public class DatatypeHelper {
 
     public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
         throws SyntaxNodeException {
-        Object values = loadAliasDatatypeValues(table, type, openl, cxt);
+        if (table != null) {
+            Object values = loadAliasDatatypeValues(table, type, openl, cxt);
 
-        if (values != null) {
-            return new EnumDomain(ArrayTool.toArray(values));
+            if (values != null) {
+                return new EnumDomain(ArrayTool.toArray(values));
+            }
         }
 
         return new EnumDomain<Object>(new Object[] {});
@@ -73,11 +75,15 @@ public class DatatypeHelper {
         
         ILogicalTable dataPart = null;
         if (PropertiesHelper.getPropertiesTableSection(table) != null) {
-             dataPart = table.getRows(2);
+            dataPart = table.getRows(2);
         } else {
             dataPart = table.getRows(1);
         }
-        
+
+        if (dataPart == null) {
+            return null;
+        }
+
         //if datatype table has only one row
         if (dataPart.getHeight() == 1) {
             return dataPart;
