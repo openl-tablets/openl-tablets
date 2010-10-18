@@ -130,7 +130,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     public void initProjectUW() {
         try {
             projectUW = repositoryTreeState.getSelectedProject();
-            excelArtefactsUW = getExcelArtefacts(projectUW, "rules");
+            excelArtefactsUW = getExcelArtefacts(projectUW, "");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -140,7 +140,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         try {
             projectRepo = designTimeRepository.getProject(projectUW.getName(),
                     new CommonVersionImpl(selectedVersionRepo));
-            excelArtefactsRepo = getExcelArtefacts(projectRepo, "rules");
+            excelArtefactsRepo = getExcelArtefacts(projectRepo, "");
         } catch (Exception e) {
             e.printStackTrace();
         }
