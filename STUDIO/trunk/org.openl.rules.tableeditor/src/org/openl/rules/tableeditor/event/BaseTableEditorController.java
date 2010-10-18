@@ -17,7 +17,7 @@ public class BaseTableEditorController {
     protected IGridTable getGridTable(String editorId) {
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            return editorModel.getUpdatedTable();
+            return editorModel.getGridTable();
         }
         return null;
     }
