@@ -303,7 +303,7 @@ public class ShowTableBean {
     }
 
     public boolean isEditableAsNewVersion() {
-        return isEditable() && !isServiceTable() && !ITableNodeTypes.XLS_DATATYPE.equals(table.getType());
+        return isEditable() && table.isVersionable();
     }
 
     public boolean isHasErrors() {
