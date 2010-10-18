@@ -12,81 +12,88 @@
 <%
 	String excelScriptPath = pageContext.getServletContext().getRealPath("scripts/LaunchExcel.vbs");
 	String wordScriptPath = pageContext.getServletContext().getRealPath("scripts/LaunchWord.vbs");
-	
+
     boolean local = WebTool.isLocalRequest(request);
-    boolean wantURI = request.getParameter("uri") != null;
-    if (local) {
 
-        if (wantURI) {
-        
-        	String file = SourceCodeURLTool.parseUrl(request.getParameter("uri")).get(SourceCodeURLConstants.FILE);
-        	
-        	if (FileTypeHelper.isExcelFile(file)) {
-        	
-		        XlsUrlParser parser = new XlsUrlParser();
-		        parser.parse(request.getParameter("uri"));
-		        ExcelLauncher.launch(excelScriptPath,
-		        	parser.wbPath,
-		            parser.wbName, 
-		            parser.wsName, 
-		            parser.range);
-		        return;
-            }
-            
-            if (FileTypeHelper.isWordFile(file)) {
-        	
-		        WordUrlParser parser = new WordUrlParser();
-		        parser.parse(request.getParameter("uri"));
-				WordLauncher.launch(wordScriptPath,
-                    parser.wdPath,
-                    parser.wdName,
-                    parser.wdParStart,
-                    parser.wdParEnd);
-                return;
-            }
-        }
+    String uri = request.getParameter("uri");
 
-        String wbName = request.getParameter("wbName");
-        
-        if (wbName != null)
-            ExcelLauncher.launch(excelScriptPath,
-                    request.getParameter("wbPath"),
-                    wbName,
-                    request.getParameter("wsName"),
-                    request.getParameter("range")
+    String wbPath = null;
+    String wbName = null;
+    String wsName = null;
+    String range = null;
+    
+    String wdPath = null;
+    String wdName = null;
+    String wdParStart = null;
+    String wdParEnd = null;
 
-            );
+    boolean isExcel = false;
+    boolean isWord = false;
 
-        String wdName = request.getParameter("wdName");
-        
-        if (wdName != null)
-            WordLauncher.launch(
-                    wordScriptPath,
-                    request.getParameter("wdPath"),
-                    wdName,
-                    request.getParameter("wdParStart"),
-                    request.getParameter("wdParEnd")
+    if (uri != null) { // by uri
+        String file = SourceCodeURLTool.parseUrl(uri).get(SourceCodeURLConstants.FILE);
 
-            );
-    } else { // Remote
-        String path;
-        String filename;
-        path = request.getParameter("wbPath");
-        
-        if (path != null) {
+        if (FileTypeHelper.isExcelFile(file)) { // Excel
             XlsUrlParser parser = new XlsUrlParser();
-            parser.parse(request.getParameter("uri"));
-            path = parser.wbPath;
-            filename = parser.wbName;
+            parser.parse(uri);
+            wbPath = parser.wbPath;
+            wbName = parser.wbName; 
+            wsName = parser.wsName; 
+            range = parser.range;
+            isExcel = true;
+
+        } else if (FileTypeHelper.isWordFile(file)) { // Word
+            WordUrlParser parser = new WordUrlParser();
+            parser.parse(uri);
+            wdPath = parser.wdPath;
+            wdName = parser.wdName; 
+            wdParStart = parser.wdParStart; 
+            wdParEnd = parser.wdParEnd;
+            isWord = true;
+        }
+
+    } else { // by params
+        wbName = request.getParameter("wbName");
+
+        if (wbName != null) { // Excel
+            wbPath = request.getParameter("wbPath");
+            wsName = request.getParameter("wsName");
+            range = request.getParameter("range");
+            isExcel = true;
         } else {
-            path = request.getParameter("wbPath");
-            filename = request.getParameter("wbName");
-            if (filename == null) {
-                filename = request.getParameter("wdName");
-                path = request.getParameter("wdPath");
+            wdName = request.getParameter("wdName");
+
+            if (wdName != null) {  // Word
+                wdPath = request.getParameter("wdPath");
+                wdParStart = request.getParameter("wdParStart");
+                wdParEnd = request.getParameter("wdParEnd");
+                isWord = true;
             }
         }
+    }
+
+    if (local) { // local mode
+        if (isExcel) {
+		    ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
+		    return;
+        } else if (isWord) {
+        	WordLauncher.launch(wordScriptPath, wdPath, wdName, wdParStart, wdParEnd);
+            return;
+        }
+
+    } else { // remote mode
+        String filename = null;
+        String path = null;
+
+        if (isExcel) {
+            filename = wbName;
+            path = wbPath;
+        } else if (isWord) {
+            filename = wdName;
+            path = wdPath;
+        }
+
         pageContext.setAttribute("filename", new File(path, filename).getAbsolutePath());
-    %>
-    <jsp:forward page="/action/download"><jsp:param name="filename" value="${filename}" /></jsp:forward>
+        %>
+        <jsp:forward page="/action/download"><jsp:param name="filename" value="${filename}" /></jsp:forward>
     <%}%>
