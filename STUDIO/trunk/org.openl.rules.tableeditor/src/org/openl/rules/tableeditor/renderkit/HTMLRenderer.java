@@ -26,7 +26,6 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
@@ -291,7 +290,7 @@ public class HTMLRenderer {
         }
         if (editor.getTable() != null) {
             IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
-            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(editor).getUpdatedTable(),
+            TableModel tableModel = TableModel.initializeTableModel(editor.getTable().getGridTable(editor.getView()),
                     filters);
             if (tableModel != null) {
                 String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;

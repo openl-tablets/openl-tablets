@@ -20,7 +20,6 @@ import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.ui.tree.TreeCache;
@@ -152,7 +151,7 @@ public class TraceHelper {
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
 
         IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
-        IGridTable gt = new TableEditorModel(table, view, false).getUpdatedTable();
+        IGridTable gt = table.getGridTable(view);
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });
         // TODO: Show formulas in trace

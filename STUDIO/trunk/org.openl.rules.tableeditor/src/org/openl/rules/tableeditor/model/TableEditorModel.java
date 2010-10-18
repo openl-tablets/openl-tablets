@@ -21,10 +21,14 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableAction;
-import org.openl.rules.table.actions.IUndoableGridAction;
+import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.UndoableActions;
 import org.openl.rules.table.actions.UndoableCompositeAction;
-import org.openl.rules.table.actions.UndoableMoveTableAction;
+import org.openl.rules.table.actions.UndoableEditTableAction;
+import org.openl.rules.table.actions.UndoableInsertColumnsAction;
+import org.openl.rules.table.actions.UndoableInsertRowsAction;
+import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
+import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
@@ -37,17 +41,11 @@ import org.openl.util.formatters.IFormatter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * @author snshor
  */
 public class TableEditorModel {
-
-    public static final boolean COLUMNS = true;
-    public static final boolean ROWS = false;
-    public static final boolean INSERT = true;
-    public static final boolean REMOVE = false;
 
     /** Number of columns in Properties section */
     public static final int NUMBER_PROPERTIES_COLUMNS = 3;
@@ -62,8 +60,6 @@ public class TableEditorModel {
     private String beforeSaveAction;
     private String afterSaveAction;
     private String saveFailureAction;
-
-    private IGridTable[] othertables;
 
     private UndoableActions actions = new UndoableActions();
 
@@ -83,36 +79,12 @@ public class TableEditorModel {
         this.showFormulas = showFormulas;
         fullTableRegion = new GridRegion(getOriginalTable(this.gridTable).getRegion());
         displayedTableRegion = new GridRegion(gridTable.getRegion());
-        othertables = gridTable.getGrid().getTables();
 
-        removeThisTable(othertables);
         makeFilteredGrid(gridTable);
     }
 
     public boolean isBusinessView() {
         return view != null && view.equalsIgnoreCase(IXlsTableNames.VIEW_BUSINESS);
-    }
-    
-    public boolean canInsertCols(int nCols) {
-        GridRegion testRegion = new GridRegion(fullTableRegion.getTop() - 1, fullTableRegion.getRight() + 1,
-                fullTableRegion.getBottom() + 1, fullTableRegion.getRight() + 1 + nCols);
-        for (int i = 0; i < othertables.length; i++) {
-            if (IGridRegion.Tool.intersects(testRegion, othertables[i].getRegion())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean canInsertRows(int nRows) {
-        GridRegion testRegion = new GridRegion(fullTableRegion.getBottom() + 1, fullTableRegion.getLeft() - 1,
-                fullTableRegion.getBottom() + 1 + nRows, fullTableRegion.getRight() + 1);
-        for (int i = 0; i < othertables.length; i++) {
-            if (IGridRegion.Tool.intersects(testRegion, othertables[i].getRegion())) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public synchronized void cancel() {
@@ -144,14 +116,12 @@ public class TableEditorModel {
         return table;
     }
 
-    public synchronized IGridTable getUpdatedTable() {
-        return new GridTable(displayedTableRegion, gridTable.getGrid());
-
+    public IGridTable getGridTable() {
+        return gridTable;
     }
 
     public synchronized IGridTable getUpdatedFullTable() {
         return new GridTable(fullTableRegion, gridTable.getGrid());
-
     }
 
     public synchronized boolean hasRedo() {
@@ -176,46 +146,15 @@ public class TableEditorModel {
     }
 
     public synchronized void insertColumns(int nCols, int beforeCol, int row) throws Exception {
-        IUndoableGridAction moveTableAction = null;
-        if (!canInsertCols(1)) {
-            moveTableAction = moveTable(getUpdatedFullTable());
-        }
-        int cellWidth = getCell(row, beforeCol).getWidth();
-        if (cellWidth > 1) { // merged cell
-            nCols += cellWidth - 1;
-        }
-        IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols, beforeCol, fullTableRegion, wgrid());
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, COLUMNS, INSERT, ActionType.EXPAND, nCols);
-        GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, COLUMNS, INSERT,
-                ActionType.EXPAND, nCols);
-        UndoableCompositeAction action = new UndoableCompositeAction(ua, allTable, displayedTable);
-        action.doAction(wgrid());
-        if (moveTableAction != null) {
-            action = new UndoableCompositeAction(moveTableAction, action);
-        }
-        actions.addNewAction(action);
+        IUndoableGridTableAction insertColumnsAction = new UndoableInsertColumnsAction(nCols, beforeCol, row);
+        insertColumnsAction.doAction(gridTable);
+        actions.addNewAction(insertColumnsAction);
     }
 
     public synchronized void insertRows(int nRows, int beforeRow, int col) throws Exception {
-        IUndoableGridAction moveTableAction = null;
-        if (!canInsertRows(1)) {
-            moveTableAction = moveTable(getUpdatedFullTable());
-        }
-        int cellHeight = getCell(beforeRow, col).getHeight();
-        if (cellHeight > 1) { // merged cell
-            nRows += cellHeight - 1;
-        }
-        IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, fullTableRegion, wgrid());
-
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, ROWS, INSERT, ActionType.EXPAND, nRows);
-        GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT, ActionType.EXPAND,
-                nRows);
-        UndoableCompositeAction action = new UndoableCompositeAction(ua, allTable, displayedTable);
-        action.doAction(wgrid());
-        if (moveTableAction != null) {
-            action = new UndoableCompositeAction(moveTableAction, action);
-        }
-        actions.addNewAction(action);
+        IUndoableGridTableAction insertRowsAction = new UndoableInsertRowsAction(nRows, beforeRow, col);
+        insertRowsAction.doAction(gridTable);
+        actions.addNewAction(insertRowsAction);
     }
 
     private void makeFilteredGrid(IGridTable gt) {
@@ -230,58 +169,22 @@ public class TableEditorModel {
 
     public synchronized void redo() {
         IUndoableAction ua = actions.getRedoAction();
-        ((IUndoableGridAction) ua).doAction(wgrid());
-    }
 
-    public synchronized void removeColumns(int nCols, int startCol, int row) {
-        if (startCol < 0 || startCol >= IGridRegion.Tool.width(fullTableRegion)) {
-            return;
-        }
-        int cellWidth = getCell(row, startCol).getWidth();
-        if (cellWidth > 1) { // merged cell
-            nCols += cellWidth - 1;
-        }
-        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, startCol, fullTableRegion, wgrid());
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, COLUMNS, REMOVE, ActionType.EXPAND, nCols);
-        GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, COLUMNS, REMOVE,
-                ActionType.EXPAND, nCols);
-        UndoableCompositeAction action = new UndoableCompositeAction(ua, allTable, displayedTable);
-        action.doAction(wgrid());
-        actions.addNewAction(action);
+        ((IUndoableGridTableAction) ua).doAction(gridTable);
     }
 
     public synchronized void removeRows(int nRows, int startRow, int col) {
-        if (startRow < 0 || startRow >= IGridRegion.Tool.height(fullTableRegion)) {
-            return;
-        }
-        int cellHeight = getCell(startRow, col).getHeight();
-        if (cellHeight > 1) { // merged cell
-            nRows += cellHeight - 1;
-        }
-        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, startRow, fullTableRegion, wgrid());
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, ROWS, REMOVE, ActionType.EXPAND, nRows);
-        GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, ROWS, REMOVE, ActionType.EXPAND,
-                nRows);
-        UndoableCompositeAction action = new UndoableCompositeAction(ua, allTable, displayedTable);
-        action.doAction(wgrid());
-        actions.addNewAction(action);
+        IUndoableGridTableAction removeRowsAction = new UndoableRemoveRowsAction(nRows, startRow, col);
+        removeRowsAction.doAction(gridTable);
+        actions.addNewAction(removeRowsAction);
     }
 
-    /**
-     * @param otherTables
-     * 
-     */
-    private synchronized void removeThisTable(IGridTable[] otherTables) {
-        Vector<IGridTable> v = new Vector<IGridTable>();
-        for (int i = 0; i < otherTables.length; i++) {
-            if (!IGridRegion.Tool.intersects(otherTables[i].getRegion(), fullTableRegion)) {
-                v.add(otherTables[i]);
-            }
-        }
-
-        othertables = v.toArray(new IGridTable[v.size()]);
+    public synchronized void removeColumns(int nCols, int startCol, int row) {
+        IUndoableGridTableAction removeColumnsAction = new UndoableRemoveColumnsAction(nCols, startCol, row);
+        removeColumnsAction.doAction(gridTable);
+        actions.addNewAction(removeColumnsAction);
     }
-    
+
     /**     
      * @return New table URI on the sheet where it was saved. It is needed for tables that were moved
      * to new place during adding new rows and columns on editing. We need to know new destination of the table.
@@ -294,7 +197,7 @@ public class TableEditorModel {
         actions = new UndoableActions();
         return newTableUri;
     }
-    
+
     /**
      * @return Sheet source of editable table
      */
@@ -308,18 +211,18 @@ public class TableEditorModel {
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
-        IUndoableGridAction action = IWritableGrid.Tool.setStringValue(
+        IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
                 col, row, fullTableRegion, value, getFormatter(col, row));
-        action.doAction(wgrid());
+        action.doAction(gridTable);
         actions.addNewAction(action);
     }
 
     public synchronized void setProperty(String name, String value) throws Exception {
-        List<IUndoableGridAction> createdActions = new ArrayList<IUndoableGridAction>();
+        List<IUndoableGridTableAction> createdActions = new ArrayList<IUndoableGridTableAction>();
         int nRowsToInsert = 0;
         int nColsToInsert = 0;
 
-        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, wgrid(), name);
+        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable, name);
 
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
@@ -331,27 +234,27 @@ public class TableEditorModel {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }
             nRowsToInsert = 1;
-            if ((nRowsToInsert > 0 && !canInsertRows(nRowsToInsert))
-                    || !canInsertCols(nColsToInsert)) {
-                createdActions.add(moveTable(table));
+            if ((nRowsToInsert > 0 && !UndoableInsertRowsAction.canInsertRows(gridTable, nRowsToInsert))
+                    || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
+                createdActions.add(UndoableEditTableAction.moveTable(table));
             }
-            GridRegionAction allTable = new GridRegionAction(fullTableRegion, ROWS, INSERT, ActionType.EXPAND,
-                    nRowsToInsert);
-            allTable.doAction(wgrid());
+            GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
+                    UndoableEditTableAction.INSERT, ActionType.EXPAND, nRowsToInsert);
+            allTable.doAction(gridTable);
             createdActions.add(allTable);
-            GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, ROWS, INSERT,
-                    isBusinessView() ? ActionType.MOVE : ActionType.EXPAND, nRowsToInsert);
-            displayedTable.doAction(wgrid());
+            GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, UndoableEditTableAction.ROWS,
+                    UndoableEditTableAction.INSERT, isBusinessView() ? ActionType.MOVE : ActionType.EXPAND, nRowsToInsert);
+            displayedTable.doAction(gridTable);
             createdActions.add(displayedTable);
         } else if (propIsBlank && propExists) {
             removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
             return;
         }
 
-        IUndoableGridAction action = IWritableGrid.Tool
-            .insertProp(fullTableRegion, displayedTableRegion, wgrid(), name, value);
+        IUndoableGridTableAction action = IWritableGrid.Tool
+            .insertProp(fullTableRegion, displayedTableRegion, gridTable, name, value);
         if (action != null) {
-            action.doAction(wgrid());
+            action.doAction(gridTable);
             createdActions.add(action);
         }
         if (!createdActions.isEmpty()) {
@@ -359,45 +262,9 @@ public class TableEditorModel {
         }
     }
 
-    /**
-     * After coping or moving the table we need to set new region destination of
-     * it
-     * 
-     * @param newRegion New region of the table
-     */
-    public IUndoableGridAction setRegion(IGridRegion newRegion) {
-        List<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>();
-        int topOffset = newRegion.getTop() - fullTableRegion.getTop();
-        int leftOffset = newRegion.getLeft() - fullTableRegion.getLeft();
-        if (topOffset != 0) {
-            actions.add(new GridRegionAction(fullTableRegion, ROWS, INSERT, ActionType.MOVE, topOffset));
-            actions.add(new GridRegionAction(displayedTableRegion, ROWS, INSERT, ActionType.MOVE, topOffset));
-        }
-        if (leftOffset != 0) {
-            actions.add(new GridRegionAction(fullTableRegion, COLUMNS, INSERT, ActionType.MOVE, leftOffset));
-            actions.add(new GridRegionAction(displayedTableRegion, COLUMNS, INSERT, ActionType.MOVE, leftOffset));
-        }
-        return new UndoableCompositeAction(actions);
-    }
-
-    /**
-     * Creates actions that moves the table and executes these actions.
-     * 
-     * @param table Table to move.
-     * @return Actions that moved the table.
-     * @throws Exception
-     */
-    public synchronized IUndoableGridAction moveTable(IGridTable table) throws Exception {
-        UndoableMoveTableAction moveTableAction = new UndoableMoveTableAction(table);
-        moveTableAction.doAction(wgrid());
-        IUndoableGridAction changeRegions = setRegion(moveTableAction.getNewRegion());
-        changeRegions.doAction(wgrid());
-        return new UndoableCompositeAction(moveTableAction, changeRegions);
-    }
-
     public synchronized void setStyle(int row, int col, ICellStyle style) {
-        IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, fullTableRegion, style);
-        ua.doAction(wgrid());
+        IUndoableGridTableAction ua = IWritableGrid.Tool.setStyle(col, row, fullTableRegion, style);
+        ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
 
@@ -425,11 +292,8 @@ public class TableEditorModel {
 
     public synchronized void undo() {
         IUndoableAction ua = actions.getUndoAction();
-        ((IUndoableGridAction) ua).undoAction(wgrid());
-    }
 
-    private IWritableGrid wgrid() {
-        return (IWritableGrid) gridTable.getGrid();
+        ((IUndoableGridTableAction) ua).undoAction(gridTable);
     }
 
     public boolean isShowFormulas() {
