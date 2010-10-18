@@ -6,6 +6,7 @@ import java.util.List;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -30,26 +31,28 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         this.rowFrom = rowFrom;
     }
 
-    public void doAction(IWritableGrid wgrid) {
-        ICell prevCell = wgrid.getCell(col, row);
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        ICell prevCell = grid.getCell(col, row);
         prevCellValue = prevCell.getObjectValue();
         prevCellStyle = prevCell.getStyle();
 
-        wgrid.copyCell(colFrom, rowFrom, col, row);
-        moveRegion(wgrid);
+        grid.copyCell(colFrom, rowFrom, col, row);
+        moveRegion(grid);
     }
 
-    public void undoAction(IWritableGrid wgrid) {
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         for (IGridRegion region : toRemove) {
-            wgrid.removeMergedRegion(region);
+            grid.removeMergedRegion(region);
         }
         for (IGridRegion region : toRestore) {
-            wgrid.addMergedRegion(region);
+            grid.addMergedRegion(region);
         }
         if (prevCellValue != null) {
-            wgrid.createCell(col, row, prevCellValue, prevCellStyle);
+            grid.createCell(col, row, prevCellValue, prevCellStyle);
         } else {
-            wgrid.clearCell(col, row);
+            grid.clearCell(col, row);
         }
     }
 

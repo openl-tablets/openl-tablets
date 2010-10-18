@@ -4,6 +4,7 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.util.formatters.IFormatter;
 
@@ -23,8 +24,9 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         this.format = format;
     }
 
-    public void doAction(IWritableGrid wgrid) {
-        ICell cell = wgrid.getCell(col, row);
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        ICell cell = grid.getCell(col, row);
         prevValue = cell.getObjectValue();
 
         Object result = newValue;
@@ -32,13 +34,14 @@ public class UndoableSetValueAction extends AUndoableCellAction {
             result = format.parse(newValue);
         }
         //cell.setObjectValue(result);
-        wgrid.setCellValue(col, row, result);
+        grid.setCellValue(col, row, result);
     }
 
-    public void undoAction(IWritableGrid wgrid) {
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         //ICell cell = wgrid.getCell(col, row);
         //cell.setObjectValue(prevValue);
-        wgrid.setCellValue(col, row, prevValue);
+        grid.setCellValue(col, row, prevValue);
     }
 
 }

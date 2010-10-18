@@ -7,7 +7,7 @@ package org.openl.rules.table.actions;
  * @author snshor
  *
  */
-public abstract class AUndoableCellAction implements IUndoableGridAction {
+public abstract class AUndoableCellAction implements IUndoableGridTableAction {
 
     int col, row;
 

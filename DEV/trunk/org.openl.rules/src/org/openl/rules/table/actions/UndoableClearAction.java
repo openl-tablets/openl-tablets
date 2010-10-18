@@ -6,6 +6,7 @@ package org.openl.rules.table.actions;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -24,32 +25,34 @@ public class UndoableClearAction extends AUndoableCellAction {
         super(col, row);
     }
 
-    public void doAction(IWritableGrid wgrid) {
-        ICell prevCell = wgrid.getCell(col, row);
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        ICell prevCell = grid.getCell(col, row);
         prevCellValue = prevCell.getObjectValue();
         prevCellStyle = prevCell.getStyle();
 
-        wgrid.clearCell(col, row);
-        clearRegion(wgrid);
+        grid.clearCell(col, row);
+        clearRegion(grid);
     }
 
-    public void undoAction(IWritableGrid wgrid) {
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
         if (toRestore != null) {
-            wgrid.addMergedRegion(toRestore);
+            grid.addMergedRegion(toRestore);
         }
 
-        wgrid.createCell(col, row, prevCellValue, prevCellStyle);
+        grid.createCell(col, row, prevCellValue, prevCellStyle);
     }
 
-    void clearRegion(IWritableGrid wgrid) {
-        IGridRegion rrTo = wgrid.getRegionStartingAt(col, row);
+    void clearRegion(IWritableGrid grid) {
+        IGridRegion rrTo = grid.getRegionStartingAt(col, row);
 
         if (rrTo == null) {
             return;
         }
 
         toRestore = new GridRegion(rrTo);
-        wgrid.removeMergedRegion(toRestore);
+        grid.removeMergedRegion(toRestore);
     }
 
 }

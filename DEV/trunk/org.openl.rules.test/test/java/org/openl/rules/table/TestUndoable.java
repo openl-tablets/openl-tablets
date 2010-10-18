@@ -15,7 +15,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.actions.IUndoableGridAction;
+import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.FileSourceCodeModule;
@@ -42,21 +42,21 @@ public class TestUndoable extends TestCase {
 
         IGridTable[] tables = xsGrid.getTables();
 
-        IUndoableGridAction[] uaa0 = new IUndoableGridAction[tables.length];
+        IUndoableGridTableAction[] uaa0 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
             uaa0[j] = IWritableGrid.Tool
-                    .insertColumns(1, 2, tables[j].getRegion(), (IWritableGrid) tables[j].getGrid());
-            uaa0[j].doAction(xsGrid);
+                    .insertColumns(1, 2, tables[j].getRegion(), tables[j]);
+            uaa0[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
 
         saveWb(wb, "wb1.xls");
 
-        IUndoableGridAction[] uaa1 = new IUndoableGridAction[tables.length];
+        IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
-            uaa1[j] = IWritableGrid.Tool.removeColumns(1, 3, tables[j].getRegion(), xsGrid);
-            uaa1[j].doAction(xsGrid);
+            uaa1[j] = IWritableGrid.Tool.removeColumns(1, 3, tables[j].getRegion(), tables[j]);
+            uaa1[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
@@ -81,10 +81,10 @@ public class TestUndoable extends TestCase {
 
         IGridTable[] tables = xsGrid.getTables();
 
-        IUndoableGridAction[] uaa1 = new IUndoableGridAction[tables.length];
+        IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
-            uaa1[j] = IWritableGrid.Tool.removeRows(1, 0, tables[j].getRegion(), xsGrid);
-            uaa1[j].doAction(xsGrid);
+            uaa1[j] = IWritableGrid.Tool.removeRows(1, 0, tables[j].getRegion(), tables[j]);
+            uaa1[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
@@ -106,51 +106,51 @@ public class TestUndoable extends TestCase {
         XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
         IGridTable[] tables = xsGrid.getTables();
-        IUndoableGridAction[] uaa1 = new IUndoableGridAction[tables.length];
+        IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
         
         for (int j = 0; j < tables.length; j++) {
 
             uaa1[j] = IWritableGrid.Tool
-                    .insertColumns(1, 1, tables[j].getRegion(), (IWritableGrid) tables[j].getGrid());
-            uaa1[j].doAction(xsGrid);
+                    .insertColumns(1, 1, tables[j].getRegion(), tables[j]);
+            uaa1[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
         
         saveWb(wb, "wb1.xls");
 
-        IUndoableGridAction[] uaa2 = new IUndoableGridAction[tables.length];
+        IUndoableGridTableAction[] uaa2 = new IUndoableGridTableAction[tables.length];
 
         for (int j = 0; j < tables.length; j++) {
-            uaa2[j] = IWritableGrid.Tool.insertRows(3, 1, tables[j].getRegion(), (IWritableGrid) tables[j].getGrid());
-            uaa2[j].doAction(xsGrid);
+            uaa2[j] = IWritableGrid.Tool.insertRows(3, 1, tables[j].getRegion(), tables[j]);
+            uaa2[j].doAction(tables[j]);
         }
 
         saveWb(wb, "wb11.xls");
 
-        IUndoableGridAction[] uaa3 = new IUndoableGridAction[tables.length];
+        IUndoableGridTableAction[] uaa3 = new IUndoableGridTableAction[tables.length];
 
         for (int j = 0; j < tables.length; j++) {
             uaa3[j] = IWritableGrid.Tool.setStringValue(1, 1, tables[j], "12345", null);
-            uaa3[j].doAction(xsGrid);
+            uaa3[j].doAction(tables[j]);
         }
 
         saveWb(wb, "wb12.xls");
 
         for (int j = 0; j < uaa3.length; j++) {
-            uaa3[j].undoAction(xsGrid);
+            uaa3[j].undoAction(tables[j]);
         }
 
         saveWb(wb, "wb21.xls");
 
         for (int j = 0; j < uaa2.length; j++) {
-            uaa2[j].undoAction(xsGrid);
+            uaa2[j].undoAction(tables[j]);
         }
 
         saveWb(wb, "wb22.xls");
 
         for (int j = 0; j < uaa1.length; j++) {
-            uaa1[j].undoAction(xsGrid);
+            uaa1[j].undoAction(tables[j]);
         }
 
         saveWb(wb, "wb23.xls");

@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions;
 
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
@@ -14,13 +15,15 @@ public class UndoableSetStyleAction extends AUndoableCellAction {
         this.newStyle = style;
     }
 
-    public void doAction(IWritableGrid wgrid) {
-        prevStyle = new CellStyle(wgrid.getCell(col, row).getStyle());
-        wgrid.setCellStyle(col, row, newStyle);
+    public void doAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        prevStyle = new CellStyle(grid.getCell(col, row).getStyle());
+        grid.setCellStyle(col, row, newStyle);
     }
 
-    public void undoAction(IWritableGrid wgrid) {
-        wgrid.setCellStyle(col, row, prevStyle);
+    public void undoAction(IGridTable table) {
+        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        grid.setCellStyle(col, row, prevStyle);
     }
 
 }

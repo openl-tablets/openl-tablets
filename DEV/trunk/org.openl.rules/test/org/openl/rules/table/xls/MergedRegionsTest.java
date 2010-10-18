@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsCell;
 import org.openl.source.impl.FileSourceCodeModule;
@@ -219,8 +220,10 @@ public class MergedRegionsTest {
                 "DeleteRows", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(grid);
+            IWritableGrid.Tool.removeRows(
+                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {
@@ -244,8 +247,10 @@ public class MergedRegionsTest {
                 "InsertRows", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.insertRows(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(grid);
+            IWritableGrid.Tool.insertRows(
+                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {
@@ -269,9 +274,10 @@ public class MergedRegionsTest {
                 "DeleteColumns", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.removeColumns(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(
-                    grid);
+            IWritableGrid.Tool.removeColumns(
+                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {
@@ -295,9 +301,10 @@ public class MergedRegionsTest {
                 "InsertColumns", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.insertColumns(test.getCount(), test.getFrom(), test.getTestRegion(), grid).doAction(
-                    grid);
+            IWritableGrid.Tool.insertColumns(
+                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
             try {
                 compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
             } catch (DifferentCellsException e) {

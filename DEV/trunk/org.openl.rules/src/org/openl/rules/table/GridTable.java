@@ -8,14 +8,10 @@ public class GridTable extends AGridTable {
 
     private IGridRegion region;
     private IGrid grid;
-    private int width;
-    private int height;
 
     public GridTable(IGridRegion reg, IGrid grid) {
         this.region = reg;
         this.grid = grid;
-        this.width = region.getRight() - region.getLeft() + 1;
-        this.height = region.getBottom() - region.getTop() + 1;
     }
 
     public GridTable(int top, int left, int bottom, int right, IGrid grid) {
@@ -23,11 +19,11 @@ public class GridTable extends AGridTable {
     }
 
     public int getWidth() {
-        return width;
+        return region.getRight() - region.getLeft() + 1;
     }
 
     public int getHeight() {
-        return height;
+        return region.getBottom() - region.getTop() + 1;
     }
 
     public IGrid getGrid() {

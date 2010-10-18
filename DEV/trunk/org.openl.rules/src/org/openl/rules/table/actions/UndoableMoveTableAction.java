@@ -5,14 +5,13 @@ import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
 
 /**
  * Action for moving table to unoccupied place of grid.
  * 
  * @author PUdalau
  */
-public class UndoableMoveTableAction implements IUndoableGridAction {
+public class UndoableMoveTableAction implements IUndoableGridTableAction {
 
     private IGridTable initilalTable;
     private IGridRegion newRegion = null;
@@ -28,7 +27,7 @@ public class UndoableMoveTableAction implements IUndoableGridAction {
         return newRegion;
     }
 
-    public void doAction(IWritableGrid grid) {
+    public void doAction(IGridTable table) {
         try {
             if (newRegion == null) {
                 newRegion = new TableServiceImpl(false).moveTable(initilalTable, null);
@@ -40,11 +39,11 @@ public class UndoableMoveTableAction implements IUndoableGridAction {
         }
     }
 
-    public void undoAction(IWritableGrid grid) {
+    public void undoAction(IGridTable table) {
         if (newRegion != null) {
             try {
                 new TableServiceImpl(false)
-                        .moveTableTo(new GridTable(newRegion, grid), null, initilalTable.getRegion());
+                        .moveTableTo(new GridTable(newRegion, table.getGrid()), null, initilalTable.getRegion());
             } catch (TableServiceException e) {
                 throw new RuntimeException(e);
             }
