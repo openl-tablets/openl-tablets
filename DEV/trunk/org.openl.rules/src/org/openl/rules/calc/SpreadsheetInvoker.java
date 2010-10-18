@@ -29,8 +29,7 @@ public class SpreadsheetInvoker extends DefaultInvokerWithTrace {
 
     private Spreadsheet spreadsheet;
 
-    public SpreadsheetInvoker(Spreadsheet spreadsheet, Object target, Object[] params, IRuntimeEnv env) {
-        super(target, params, env);
+    public SpreadsheetInvoker(Spreadsheet spreadsheet) {        
         this.spreadsheet = spreadsheet;
     }
 
@@ -38,30 +37,30 @@ public class SpreadsheetInvoker extends DefaultInvokerWithTrace {
         return spreadsheet.getResultBuilder() != null;
     }
 
-    public SpreadsheetTraceObject createTraceObject() {       
-        return new SpreadsheetTraceObject(spreadsheet, getParams());
+    public SpreadsheetTraceObject createTraceObject(Object[] params) {       
+        return new SpreadsheetTraceObject(spreadsheet, params);
     }    
 
     public OpenLRuntimeException getError() {        
         return new OpenLRuntimeException(spreadsheet.getSyntaxNode().getErrors()[0]);
     }
 
-    public Object invokeSimple() {        
-      SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(spreadsheet, (IDynamicObject) getTarget(), getParams(), getEnv());
+    public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {        
+      SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(spreadsheet, (IDynamicObject) target, params, env);
       return spreadsheet.getResultBuilder().makeResult(res);
     }
 
-    public Object invokeTraced() {
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         Tracer tracer = Tracer.getTracer();
 
         Object result = null;
 
-        SpreadsheetTraceObject traceObject = createTraceObject();
+        SpreadsheetTraceObject traceObject = createTraceObject(params);
         tracer.push(traceObject);
 
         try {
-            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(spreadsheet, (IDynamicObject) getTarget(), getParams(),
-                    getEnv(), traceObject);
+            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(spreadsheet, (IDynamicObject) target, params,
+                    env, traceObject);
 
             result = spreadsheet.getResultBuilder().makeResult(res);
             traceObject.setResult(result);

@@ -11,8 +11,7 @@ public class ColumnMatchInvoker extends DefaultInvokerWithTrace {
 
     private ColumnMatch columnMatch;
 
-    public ColumnMatchInvoker(ColumnMatch columnMatch, Object target, Object[] params, IRuntimeEnv env) {
-        super(target, params, env);
+    public ColumnMatchInvoker(ColumnMatch columnMatch) {        
         this.columnMatch = columnMatch;
     }
 
@@ -20,16 +19,16 @@ public class ColumnMatchInvoker extends DefaultInvokerWithTrace {
         return columnMatch.getAlgorithmExecutor() != null;
     }
 
-    public ATableTracerNode createTraceObject() {        
-        return new ColumnMatchTraceObject(columnMatch, getParams());
+    public ATableTracerNode createTraceObject(Object[] params) {        
+        return new ColumnMatchTraceObject(columnMatch, params);
     }
 
     public OpenLRuntimeException getError() {        
         return new OpenLRuntimeException(columnMatch.getSyntaxNode().getErrors()[0]);
     }
 
-    public Object invokeSimple() {
-        Object result = columnMatch.getAlgorithmExecutor().invoke(getTarget(), getParams(), getEnv(), columnMatch);
+    public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
+        Object result = columnMatch.getAlgorithmExecutor().invoke(target, params, env, columnMatch);
 
         if (result == null) {
             IOpenClass type = columnMatch.getHeader().getType();
@@ -45,8 +44,9 @@ public class ColumnMatchInvoker extends DefaultInvokerWithTrace {
     /**
      * Column match is traceable. But trace is handled inside algorithm executor. See implementations 
      * of {@link IMatchAlgorithmExecutor#invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch)}
+     * 
      */
-    public Object invokeTraced() {
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         // trace operations implemented in 
         // IMatchAlgorithmExecutor#invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch)}
         //
@@ -58,13 +58,13 @@ public class ColumnMatchInvoker extends DefaultInvokerWithTrace {
      * See {@link #invokeTraced()}
      */
     @Override
-    public Object invoke() {
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (canInvoke()) {
-            return invokeSimple();
+            return invokeSimple(target, params, env);
         } else {
             OpenLRuntimeException error = getError();
             if (isTracerOn()) {
-                setErrorToTrace(error);
+                setErrorToTrace(error, params);
             }
             throw error;
         }

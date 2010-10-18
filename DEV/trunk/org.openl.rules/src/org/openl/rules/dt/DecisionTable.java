@@ -29,9 +29,9 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.Invokable;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.impl.Invoker;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -58,7 +58,7 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
     /**
      * Object to invoke current method.
      */
-    private Invoker invoker;
+    private Invokable invoker;
 
     public DecisionTable(IOpenMethodHeader header) {
         super(header);
@@ -192,11 +192,9 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
-            invoker = new DecisionTableInvoker(this, target, params, env);
-        } else {
-            invoker.resetParams(target, params, env);
-        }
-        return invoker.invoke();        
+            invoker = new DecisionTableInvoker(this);
+        } 
+        return invoker.invoke(target, params, env);        
     }
 
     /**

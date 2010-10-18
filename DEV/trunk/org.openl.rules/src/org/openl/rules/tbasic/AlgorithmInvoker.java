@@ -24,8 +24,7 @@ public class AlgorithmInvoker extends DefaultInvokerWithTrace {
 
     private Algorithm algorithm;
 
-    public AlgorithmInvoker(Algorithm algorithm, Object target, Object[] params, IRuntimeEnv env) {
-        super(target, params, env);
+    public AlgorithmInvoker(Algorithm algorithm) {        
         this.algorithm = algorithm;
     }
 
@@ -33,32 +32,32 @@ public class AlgorithmInvoker extends DefaultInvokerWithTrace {
         return algorithm.getAlgorithmSteps() != null;
     }
 
-    public TBasicAlgorithmTraceObject createTraceObject() {        
-        return new TBasicAlgorithmTraceObject(algorithm, getParams());
+    public TBasicAlgorithmTraceObject createTraceObject(Object[] params) {        
+        return new TBasicAlgorithmTraceObject(algorithm, params);
     }
 
     public OpenLRuntimeException getError() {        
         return new OpenLRuntimeException(algorithm.getSyntaxNode().getErrors()[0]);
     }
 
-    public Object invokeSimple() {
-        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(algorithm.getThisClass(), (IDynamicObject) getTarget());
+    public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
+        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(algorithm.getThisClass(), (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithm.getAlgorithmSteps(), algorithm.getLabels());
 
-        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(getEnv(), thisInstance, getParams(), algorithmVM);
+        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
         return algorithmVM.run(runtimeEnvironment, false);        
     }
 
-    public Object invokeTraced() {
-        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(algorithm.getThisClass(), (IDynamicObject) getTarget());
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(algorithm.getThisClass(), (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithm.getAlgorithmSteps(),algorithm.getLabels());
 
-        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(getEnv(), thisInstance, getParams(), algorithmVM);
+        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
-        TBasicAlgorithmTraceObject algorithmTracer = createTraceObject();
+        TBasicAlgorithmTraceObject algorithmTracer = createTraceObject(params);
         Tracer.getTracer().push(algorithmTracer);
 
         Object resultValue = null;

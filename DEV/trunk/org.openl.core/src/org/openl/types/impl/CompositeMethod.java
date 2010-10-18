@@ -10,6 +10,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
 public class CompositeMethod extends AMethod {
@@ -19,7 +20,7 @@ public class CompositeMethod extends AMethod {
     /**
      * Invoker for current method.
      */
-    private Invoker invoker;
+    private Invokable invoker;
 
     public CompositeMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode) {
         super(header);
@@ -37,12 +38,9 @@ public class CompositeMethod extends AMethod {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
-            invoker = new CompositeMethodInvoker(methodBodyBoundNode, target, params, env);
-        } else {
-            // reset previously initialized parameters with new ones.
-            invoker.resetParams(target, params, env);
-        }
-        return invoker.invoke();
+            invoker = new CompositeMethodInvoker(methodBodyBoundNode);
+        } 
+        return invoker.invoke(target, params, env);
     }
 
     public void setMethodBodyBoundNode(IBoundMethodNode node) {
