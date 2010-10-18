@@ -2,6 +2,7 @@ package org.openl.rules.table;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.Invokable;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * Invoker, supporting invokes for tracing.
@@ -20,25 +21,27 @@ public interface InvokerWithTrace extends Invokable {
      * Sets the given error to the tracer.
      * 
      * @param error for setting to tracer. 
+     * @param params
      */
-    void setErrorToTrace(OpenLRuntimeException error);
+    void setErrorToTrace(OpenLRuntimeException error, Object[] params);
     
     /**
      * Creates traceable node for current invokable object.
      * 
+     * @param params
      * @return {@link ATableTracerNode} for current invokable object.
      */
-    ATableTracerNode createTraceObject();
+    ATableTracerNode createTraceObject(Object[] params);
     
     /**
      * Invoke for trace operation.
      */
-    Object invokeTraced();
+    Object invokeTraced(Object target, Object[] params, IRuntimeEnv env);
     
     /**
      * Invoke for simple run operation. 
      */
-    Object invokeSimple();
+    Object invokeSimple(Object target, Object[] params, IRuntimeEnv env);
     
     /**
      * Gets the error.

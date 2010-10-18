@@ -1,11 +1,13 @@
 package org.openl.types;
 
+import org.openl.vm.IRuntimeEnv;
+
 /**
- * Interface for invokeable objects.
+ * Interface for invokable objects.
  * 
  * @author DLiauchuk 
  */
 public interface Invokable {
         
-    Object invoke();
+    Object invoke(Object target, Object[] params, IRuntimeEnv env);
 }

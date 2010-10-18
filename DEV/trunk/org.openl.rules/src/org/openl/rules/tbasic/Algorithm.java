@@ -10,7 +10,7 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.Invoker;
+import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -37,7 +37,7 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     /**
      * Invoker for current method.
      */
-    private Invoker invoker;
+    private Invokable invoker;
     
     public static Algorithm createAlgorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         return new Algorithm(header, node);
@@ -82,12 +82,9 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
-            invoker = new AlgorithmInvoker(this, target, params, env);
-        } else {
-            // reset previously initialized parameters with new ones.
-            invoker.resetParams(target, params, env);
-        }
-        return invoker.invoke();
+            invoker = new AlgorithmInvoker(this);
+        } 
+        return invoker.invoke(target, params, env);
     }
 
     @Override

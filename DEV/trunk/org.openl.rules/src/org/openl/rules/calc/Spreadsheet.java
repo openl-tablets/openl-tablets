@@ -11,8 +11,8 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.Invokable;
 import org.openl.types.impl.AMethod;
-import org.openl.types.impl.Invoker;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
@@ -32,7 +32,7 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     /**
      * Invoker for current method.
      */
-    private Invoker invoker;
+    private Invokable invoker;
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header);
@@ -119,11 +119,9 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
-            invoker = new SpreadsheetInvoker(this, target, params, env);
-        } else {
-            invoker.resetParams(target, params, env);
-        }
-        return invoker.invoke();
+            invoker = new SpreadsheetInvoker(this);
+        } 
+        return invoker.invoke(target, params, env);
     }
     
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {

@@ -24,8 +24,7 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
     
     private DecisionTable decisionTable;
     
-    public DecisionTableInvoker(DecisionTable decisionTable, Object target, Object[] params, IRuntimeEnv env) {
-        super(target, params, env);
+    public DecisionTableInvoker(DecisionTable decisionTable) {        
         this.decisionTable = decisionTable;
     }
     
@@ -33,7 +32,7 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
         return decisionTable.getAlgorithm() != null;
     }
     
-    public Object invokeOptimized(Object target, Object[] params, IRuntimeEnv env) {
+    private Object invokeOptimized(Object target, Object[] params, IRuntimeEnv env) {
 
         IIntIterator rules = decisionTable.getAlgorithm().checkedRules(target, params, env);
 
@@ -69,7 +68,7 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
         return returnValue;
     }
     
-    public Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {        
+    private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {        
         Tracer tracer = Tracer.getTracer();
         
         if (tracer == null) {
@@ -123,20 +122,20 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
         throw new OpenLRuntimeException(e);
     }
     
-    public DecisionTableTraceObject createTraceObject() {
-        return new DecisionTableTraceObject(decisionTable, getParams());
+    public DecisionTableTraceObject createTraceObject(Object[] params) {
+        return new DecisionTableTraceObject(decisionTable, params);
     }
     
-    public Object invokeTraced() {
-        return invokeTracedOptimized(getTarget(), getParams(), getEnv());
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        return invokeTracedOptimized(target, params, env);
     }
     
     public OpenLRuntimeException getError() {
         return new OpenLRuntimeException(decisionTable.getSyntaxNode().getErrors()[0]);
     }
     
-    public Object invokeSimple() {
-        return invokeOptimized(getTarget(), getParams(), getEnv());
+    public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
+        return invokeOptimized(target, params, env);
     }
 
 }

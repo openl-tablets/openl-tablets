@@ -6,14 +6,12 @@
 
 package org.openl.types;
 
-import org.openl.vm.IRuntimeEnv;
-
 /**
  * @author snshor
  *
  */
-public interface IMethodCaller {
+public interface IMethodCaller extends Invokable {
+   
     IOpenMethod getMethod();
-
-    Object invoke(Object target, Object[] params, IRuntimeEnv env);
+    
 }
