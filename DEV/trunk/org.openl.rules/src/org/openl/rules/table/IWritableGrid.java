@@ -287,17 +287,18 @@ public interface IWritableGrid extends IGrid {
             int rowsToMove = IGridRegion.Tool.height(tableRegion) - firstPropertyRow;
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(IGridRegion.Tool
                     .width(tableRegion)* rowsToMove);
-            actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, table));
 
             String propsHeader = grid.getCell(leftCell, topCell + 1).getStringValue();
             int propNameCellOffset;
             int propValueCellOffset;
 
             if (!tableContainsPropertySection(propsHeader)) {
+                actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, table));
                 actions.add(createPropertiesSection(tableRegion, diplayedTableRegion, table));
                 propNameCellOffset = 1;
                 propValueCellOffset = 2;
             } else {
+                actions.add(insertRows(1, firstPropertyRow, tableRegion, table));
                 actions.add(resizePropertiesHeader(tableRegion, table));
                 propNameCellOffset = grid.getCell(leftCell, topCell + 1).getWidth();
                 propValueCellOffset = propNameCellOffset
