@@ -19,6 +19,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.ArrayTool;
 
 public class DataTableBindHelper {
 
@@ -341,9 +342,11 @@ public class DataTableBindHelper {
                     }
 
                     IOpenField field = getWritableField(currentFieldNameNode, table, loadedFieldType);
-                    if (field == null) {                        
+                    if (field == null) {
+                        // in this case current field and all the followings in fieldAccessorChain will be nulls.
+                        //
                         break;
-                    }
+                    } 
                     loadedFieldType = field.getType();
                     fieldAccessorChain[currentFieldNumInChain] = field;
                 }
@@ -355,8 +358,13 @@ public class DataTableBindHelper {
 
                 // If field is CONSTRUCTOR_FIELD or there was an error while getting writable field, 
                 // this variable will be null.
-                IOpenField field = fieldAccessorChain.length == 1 ? fieldAccessorChain[0] : new FieldChain(type,
-                    fieldAccessorChain);
+                IOpenField field = null;
+                if (fieldAccessorChain.length == 1) {
+                    field = fieldAccessorChain[0];
+                } else if (!ArrayTool.contains((fieldAccessorChain), null)) { // check successful loading of all  
+                                                                              // fields in fieldAccessorChain.
+                    field = new FieldChain(type, fieldAccessorChain);
+                }
 
                 IdentifierNode foreignKeyTable = null;
                 IdentifierNode foreignKey = null;
