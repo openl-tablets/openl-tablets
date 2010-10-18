@@ -29,6 +29,12 @@ public interface IOpenLTable {
      * table.   
      */
     boolean isExecutable();
+    
+    /**
+     * 
+     * @return true if table supports operations over versions
+     */
+    boolean isVersionable();
 
     String getUri();
 

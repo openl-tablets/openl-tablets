@@ -1,10 +1,10 @@
 package org.openl.codegen;
 
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
-import org.openl.rules.types.impl.MatchingConstraint;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -65,5 +65,7 @@ public interface ICodeGen {
     StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb);
     
     StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb);
+    
+    StringBuilder genLiteralTableType(XlsNodeTypes value, StringBuilder sb);
     
 }

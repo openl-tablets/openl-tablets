@@ -60,7 +60,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
             
-            if (PropertiesChecker.canSetPropertyForTableType(upLevelPropertyName, currentTableType)) {
+            if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)) {
                 if (!downLevelProperties.containsKey(upLevelPropertyName)) {
                     resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
                 }
@@ -332,7 +332,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     @Override
     public void setFieldValue(String name, Object value) {
         PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);
-        PropertiesChecker.canSetPropertyForTableType(name, currentTableType);
+        PropertiesChecker.isPropertySuitableForTableType(name, currentTableType);
         super.setFieldValue(name, value);
       
     }

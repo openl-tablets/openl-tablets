@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties.def;
 
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
@@ -190,7 +191,7 @@ public class DefaultPropertyDefinitions
 		definitions[11].setPrimaryKey(false);
 		definitions[11].setSecurityFilter("no");
 		definitions[11].setSystem(false);
-		definitions[11].setTableType("xls.dt");
+		definitions[11].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT});
 		definitions[11].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[12] = new TablePropertyDefinition();
 		definitions[12].setBusinessSearch(true);
@@ -302,6 +303,7 @@ public class DefaultPropertyDefinitions
 		definitions[19].setName("version");
 		definitions[19].setPrimaryKey(false);
 		definitions[19].setSystem(false);
+		definitions[19].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD});
 		definitions[19].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[20] = new TablePropertyDefinition();
 		definitions[20].setBusinessSearch(false);
@@ -315,6 +317,7 @@ public class DefaultPropertyDefinitions
 		definitions[20].setName("active");
 		definitions[20].setPrimaryKey(false);
 		definitions[20].setSystem(false);
+		definitions[20].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD});
 		definitions[20].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[21] = new TablePropertyDefinition();
 		definitions[21].setBusinessSearch(false);
@@ -328,7 +331,7 @@ public class DefaultPropertyDefinitions
 		definitions[21].setName("failOnMiss");
 		definitions[21].setPrimaryKey(false);
 		definitions[21].setSystem(false);
-		definitions[21].setTableType("xls.dt");
+		definitions[21].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT});
 		definitions[21].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[22] = new TablePropertyDefinition();
 		definitions[22].setBusinessSearch(true);
@@ -341,7 +344,7 @@ public class DefaultPropertyDefinitions
 		definitions[22].setName("scope");
 		definitions[22].setPrimaryKey(false);
 		definitions[22].setSystem(false);
-		definitions[22].setTableType("xls.properties");
+		definitions[22].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_PROPERTIES});
 		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[23] = new TablePropertyDefinition();
 		definitions[23].setBusinessSearch(false);
@@ -355,7 +358,7 @@ public class DefaultPropertyDefinitions
 		definitions[23].setName("datatypePackage");
 		definitions[23].setPrimaryKey(false);
 		definitions[23].setSystem(false);
-		definitions[23].setTableType("xls.datatype");
+		definitions[23].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DATATYPE});
 		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }

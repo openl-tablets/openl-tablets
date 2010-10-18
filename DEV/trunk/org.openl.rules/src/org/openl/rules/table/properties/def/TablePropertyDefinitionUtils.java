@@ -5,9 +5,18 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 
 
+/**
+ * Helper methods, for working with properties.<br> 
+ * See also {@link PropertiesChecker} for more methods.
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class TablePropertyDefinitionUtils {
     
     /**
@@ -152,14 +161,14 @@ public class TablePropertyDefinitionUtils {
     }
     
     /**
-     * Gets the table type in which this property can be defined.
+     * Gets the table types in which this property can be defined.
      * 
-     * @param name property name.
+     * @param propertyName property name.
      * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for 
      * each type of tables.
      */
-    public static String getTableTypeByPropertyName(String name) {        
-        TablePropertyDefinition propDefinition = getPropertyByName(name);
+    public static XlsNodeTypes[] getSuitableTableTypes(String propertyName) {        
+        TablePropertyDefinition propDefinition = getPropertyByName(propertyName);
         if (propDefinition != null) {
             return propDefinition.getTableType();
         }

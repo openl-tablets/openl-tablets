@@ -17,6 +17,7 @@ public class OpenLTable implements IOpenLTable {
     private String type;
     private List<OpenLMessage> messages;
     private boolean isExecutable;
+    private boolean isVersionable;
     private String uri;
     private String name;
 
@@ -78,6 +79,10 @@ public class OpenLTable implements IOpenLTable {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public boolean isVersionable() {        
+        return isVersionable;
     }
 
 }
