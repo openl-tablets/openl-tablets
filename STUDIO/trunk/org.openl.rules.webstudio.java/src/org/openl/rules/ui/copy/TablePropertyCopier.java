@@ -67,7 +67,7 @@ public class TablePropertyCopier extends TableCopier {
                 
                 // check if the property can be defined in current type of table 
                 // and if property can be defined on TABLE level.
-                if (PropertiesChecker.canSetPropertyForTableType(propertyName, tableType) 
+                if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tableType) 
                         && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName)) {
                     possibleProperties.add(propDefinition.getName());
                 }

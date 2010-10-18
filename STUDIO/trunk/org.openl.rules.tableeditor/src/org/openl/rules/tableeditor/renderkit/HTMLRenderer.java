@@ -466,7 +466,7 @@ public class HTMLRenderer {
                 Constraints constraints = propDefinition.getConstraints();
                 String description = propDefinition.getDescription();
                 boolean system = propDefinition.isSystem();
-                if (PropertiesChecker.canSetPropertyForTableType(name, tableType)) {
+                if (PropertiesChecker.isPropertySuitableForTableType(name, tableType)) {
                     TableProperty prop = new TableProperty.TablePropertyBuilder(name, type).value(value)
                     .displayName(displayName).group(group).format(format).constraints(constraints)
                     .description(description).system(system).inheritanceLevel(inheritanceLevel).build();
