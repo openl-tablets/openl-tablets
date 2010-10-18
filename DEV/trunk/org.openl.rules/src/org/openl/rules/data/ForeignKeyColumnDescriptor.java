@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
@@ -324,34 +326,50 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
             } else {
                 // processing array or list values.
-                ArrayList<Object> values = getArrayValuesByForeignKey(valuesTable,
-                    cxt,
-                    foreignTable,
-                    foreignKeyIndex,
-                    domainClass);
+                List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable, foreignKeyIndex, domainClass);
+                List<Object> values = new ArrayList<Object>();
 
+                // Cell can contain empty reference value. As a result we will
+                // receive collection with one null value element. The following code snippet 
+                // searches null value elements and removes them.
+                //
+                Predicate predicate = new Predicate() {
+                    public boolean evaluate(Object arg) {
+                        return arg != null;
+                    }
+                };
+                
+                CollectionUtils.select(cellValues, predicate, values);
+                
                 int size = values.size();
+                IOpenClass componentType = null;
 
-                IOpenClass componentType = valueAnArray ? fieldType.getAggregateInfo().getComponentType(fieldType)
-                                                       : JavaOpenClass.OBJECT;
-                Object ary = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
+                if (valueAnArray) {
+                    componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
+                } else {
+                    componentType = JavaOpenClass.OBJECT;
+                }
 
+                Object array = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
+
+                // Populate result array with values.
+                //
                 for (int i = 0; i < size; i++) {
-                    Array.set(ary, i, values.get(i));
+                    Array.set(array, i, values.get(i));
                 }
 
                 if (isList) {
-                    int len = Array.getLength(ary);
+                    int len = Array.getLength(array);
 
                     List<Object> list = new ArrayList<Object>(len);
 
                     for (int i = 0; i < len; i++) {
-                        list.add(Array.get(ary, i));
+                        list.add(Array.get(array, i));
                     }
 
                     getField().set(target, list, getRuntimeEnv());
                 } else {
-                    getField().set(target, ary, getRuntimeEnv());
+                    getField().set(target, array, getRuntimeEnv());
                 }
             }
         }
