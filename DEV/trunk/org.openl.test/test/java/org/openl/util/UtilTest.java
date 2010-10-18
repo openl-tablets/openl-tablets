@@ -53,5 +53,10 @@ public class UtilTest extends TestCase {
         Assert.assertEquals(-1, ArrayTool.dimensionOfArray(z, String.class));
 
     }
+    
+    public void testArrayContains() {
+        String[] strMas = new String[]{"my", "yee", null, "hello"};
+        Assert.assertTrue(ArrayTool.contains(strMas, null));
+    }
 
 }
