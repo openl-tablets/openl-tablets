@@ -9,6 +9,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMember;
 
@@ -83,6 +84,10 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     public String getUri() {
         return tsn.getUri();
+    }
+
+    public boolean isVersionable() {
+        return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());        
     }
 
 }

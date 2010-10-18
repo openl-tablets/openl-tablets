@@ -137,7 +137,7 @@ public class PropertiesLoader {
         String tableType = tableSyntaxNode.getType();
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
-            if (!PropertiesChecker.canSetPropertyForTableType(propertyNameToCheck, tableType)) {
+            if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
                 String message = String.format("Property '%s' can`t be defined in table of type '%s'",
                     propertyNameToCheck,
                     tableType);

@@ -2,9 +2,9 @@ package org.openl.rules.table.properties.inherit;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -52,16 +52,20 @@ public class PropertiesChecker {
      * @param tableType     
      * @return TRUE if given property can be set for given type of table. 
      */
-    public static boolean canSetPropertyForTableType(String propertyName, String tableType) {
-        boolean result = false;
-        String definitionTableType = TablePropertyDefinitionUtils.getTableTypeByPropertyName(propertyName);
-        if (StringUtils.isEmpty(definitionTableType) || definitionTableType.equals(tableType)) {
-            result = true;
+    public static boolean isPropertySuitableForTableType(String propertyName, String tableType) {        
+        XlsNodeTypes[] definitionTableTypes = TablePropertyDefinitionUtils.getSuitableTableTypes(propertyName);
+        if (definitionTableTypes != null) {
+            for (XlsNodeTypes nodeType : definitionTableTypes) {
+                if (nodeType.toString().equals(tableType)) {
+                    // If type from property definition and current table type are equals. It means property is suitable 
+                    // for this kind of table.
+                    return true;
+                } 
+            }
         } else {
-            // If definitionTableType is empty, it means that property is suitable for all kinds of tables.
-            // If type from property definition and current table type are equals. It means property is suitable 
-            // for this kind of table.
+            // If definitionTableTypes is empty, it means that property is suitable for all kinds of tables.
+            return true;
         }
-        return result;
+        return false;
     }
 }

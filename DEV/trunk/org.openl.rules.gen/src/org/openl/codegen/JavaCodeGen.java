@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
@@ -479,5 +480,9 @@ public class JavaCodeGen implements ICodeGen {
     public StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb) {
         return sb.append("new ").append(MatchingExpression.class.getName()).append("(\"").append(value.getMatchExpressionStr())
         .append("\")");        
+    }
+
+    public StringBuilder genLiteralTableType(XlsNodeTypes value, StringBuilder sb) {
+        return sb.append(XlsNodeTypes.class.getSimpleName()).append(".").append(value.name());        
     }
 }

@@ -7,31 +7,32 @@
 package org.openl.rules.lang.xls;
 
 /**
+ * @deprecated use {@link XlsNodeTypes} instead.
  * @author snshor
  * 
  */
 public interface ITableNodeTypes {
+    
+    String WORKBOOK = XlsNodeTypes.WORKBOOK.toString();
+    String WORKSHEET = XlsNodeTypes.WORKSHEET.toString();
+    String TABLE = XlsNodeTypes.TABLE.toString();
+    String CELL = XlsNodeTypes.CELL.toString();
 
-    String WORKBOOK = "Workbook";
-    String WORKSHEET = "Worksheet";
-    String TABLE = "Table";
-    String CELL = "Cell";
-
-    String XLS_MODULE = "xls.module";
-    String XLS_WORKBOOK = "xls.workbook";
-    String XLS_WORKSHEET = "xls.worksheet";
-    String XLS_DT = "xls.dt";
-    String XLS_SPREADSHEET = "xls.spreadsheet";
-    String XLS_TBASIC = "xls.tbasic";
-    String XLS_COLUMN_MATCH = "xls.columnmatch";
-    String XLS_METHOD = "xls.method";
-    String XLS_DATA = "xls.data";
-    String XLS_TEST_METHOD = "xls.test.method";
-    String XLS_RUN_METHOD = "xls.run.method";
-    String XLS_DATATYPE = "xls.datatype";
-    String XLS_OPENL = "xls.openl";
-    String XLS_ENVIRONMENT = "xls.environment";
-    String XLS_PERSISTENT = "xls.persistent";
-    String XLS_OTHER = "xls.other";
-    String XLS_PROPERTIES = "xls.properties";
+    String XLS_MODULE = XlsNodeTypes.XLS_MODULE.toString();
+    String XLS_WORKBOOK = XlsNodeTypes.XLS_WORKBOOK.toString();
+    String XLS_WORKSHEET = XlsNodeTypes.XLS_WORKSHEET.toString();
+    String XLS_DT = XlsNodeTypes.XLS_DT.toString();
+    String XLS_SPREADSHEET = XlsNodeTypes.XLS_SPREADSHEET.toString();
+    String XLS_TBASIC = XlsNodeTypes.XLS_TBASIC.toString();
+    String XLS_COLUMN_MATCH = XlsNodeTypes.XLS_COLUMN_MATCH.toString();
+    String XLS_METHOD = XlsNodeTypes.XLS_METHOD.toString();
+    String XLS_DATA = XlsNodeTypes.XLS_DATA.toString();
+    String XLS_TEST_METHOD = XlsNodeTypes.XLS_TEST_METHOD.toString();
+    String XLS_RUN_METHOD = XlsNodeTypes.XLS_RUN_METHOD.toString();
+    String XLS_DATATYPE = XlsNodeTypes.XLS_DATATYPE.toString();
+    String XLS_OPENL = XlsNodeTypes.XLS_OPENL.toString();
+    String XLS_ENVIRONMENT = XlsNodeTypes.XLS_ENVIRONMENT.toString();
+    String XLS_PERSISTENT = XlsNodeTypes.XLS_PERSISTENT.toString();
+    String XLS_OTHER = XlsNodeTypes.XLS_OTHER.toString();
+    String XLS_PROPERTIES = XlsNodeTypes.XLS_PROPERTIES.toString();
 }

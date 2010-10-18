@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties.def;
 
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -18,7 +19,7 @@ public class TablePropertyDefinition {
 	private SystemValuePolicy systemValuePolicy;
 	private boolean dimensional;
 	private String securityFilter;
-	private String tableType;
+	private XlsNodeTypes[] tableType;
 	private String defaultValue;
 	private Constraints constraints;
 	private String format;	
@@ -86,11 +87,11 @@ public class TablePropertyDefinition {
 		this.securityFilter = securityFilter;
 	}
 
-	public String getTableType() {
+	public XlsNodeTypes[] getTableType() {
 		return tableType;
 	}
 
-	public void setTableType(String tableType) {
+	public void setTableType(XlsNodeTypes[] tableType) {
 		this.tableType = tableType;
 	}
 
