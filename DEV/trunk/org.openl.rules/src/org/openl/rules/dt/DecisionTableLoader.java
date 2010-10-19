@@ -100,8 +100,7 @@ public class DecisionTableLoader {
         // add virtual headers to the table body.
         //
         tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody);
-        
-        ILogicalTable transposed = tableBody.transpose();
+
         ILogicalTable toParse = tableBody;
         
         // process lookup decision table.
@@ -111,13 +110,14 @@ public class DecisionTableLoader {
                 IGridTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
                 ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
-                tableBody = transposed;
             } catch (Exception e) {
                 throw new SyntaxNodeException("Cannot convert table", e, tableSyntaxNode);
             }
 
-        } else if (DecisionTableHelper.looksLikeTransposed(tableBody)) {
-            toParse = transposed;
+        } else if (DecisionTableHelper.looksLikeVertical(tableBody)) {
+            // parsing is based on horizontal representation of decision table.
+            //
+            toParse = tableBody.transpose();
         }
 
         if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
@@ -144,17 +144,21 @@ public class DecisionTableLoader {
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         
-        if (DecisionTableHelper.looksLikeTransposed(tableBody)) {
-            tableBody = tableBody.transpose();
-        }
-        
         if (DecisionTableHelper.isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body doesn`t contain conditions and return headers.
             // so put the body as it is.
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         } else {
             // need to get the subtable without conditions and return headers.
-            ILogicalTable businessView = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
+            ILogicalTable businessView = null;
+            if (DecisionTableHelper.looksLikeVertical(tableBody)) {
+                // if table is vertical, remove service rows.
+                businessView = tableBody.getRows(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
+            } else {
+                // table is horizontal, so remove service columns.
+                businessView = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
+            }
+            
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
         }
         

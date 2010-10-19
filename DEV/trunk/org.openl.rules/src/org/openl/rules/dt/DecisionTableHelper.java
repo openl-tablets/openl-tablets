@@ -15,8 +15,54 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridHelper;
 
 public class DecisionTableHelper {
-
-    public static boolean looksLikeTransposed(ILogicalTable table) {
+    
+    /**
+     * Check if table is vertical.<br>
+     * Vertical table is when conditions are represented from left to right, table is reading from top to bottom.</br> 
+     * Example of vertical table:
+     * 
+     * <table cellspacing="2">
+     * <tr>
+     * <td align="center" bgcolor="#ccffff"><b>Rule</b></td>
+     * <td align="center" bgcolor="#ccffff"><b>C1</b></td>
+     * <td align="center" bgcolor="#ccffff"><b>C2</b></td>
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#ccffff"></td>
+     * <td align="center" bgcolor="#ccffff">paramLocal1==paramInc</td>
+     * <td align="center" bgcolor="#ccffff">paramLocal2==paramInc</td>
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#ccffff"></td>
+     * <td align="center" bgcolor="#ccffff">String paramLocal1</td>
+     * <td align="center" bgcolor="#ccffff">String paramLocal2</td>
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#8FCB52">Rule</td>
+     * <td align="center" bgcolor="#ffff99">Local Param 1</td>
+     * <td align="center" bgcolor="#ffff99">Local Param 2</td>
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#8FCB52">Rule1</td>
+     * <td align="center" bgcolor="#ffff99">value11</td>
+     * <td align="center" bgcolor="#ffff99">value21</td>
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#8FCB52">Rule2</td>
+     * <td align="center" bgcolor="#ffff99">value12</td>
+     * <td align="center" bgcolor="#ffff99">value22</td>
+     * </tr>
+     * <tr>
+     * <td align="center" bgcolor="#8FCB52">Rule3</td>
+     * <td align="center" bgcolor="#ffff99">value13</td>
+     * <td align="center" bgcolor="#ffff99">value23</td>
+     * </tr>
+     * </table>
+     * 
+     * @param table     
+     * @return <code>TRUE</code> if table is vertical.
+     */
+    public static boolean looksLikeVertical(ILogicalTable table) {
 
         if (table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
