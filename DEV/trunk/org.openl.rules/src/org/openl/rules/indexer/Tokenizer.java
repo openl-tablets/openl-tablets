@@ -75,6 +75,8 @@ public class Tokenizer {
     public static String[] parse(String textToTokenize) {
         List<String> tokens = new ArrayList<String>();
         
+        tokens.add(textToTokenize);
+        
         if(textIsComposite(textToTokenize)){
             tokens.add(textToTokenize);
         }
