@@ -51,8 +51,6 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         }
         if (prevCellValue != null) {
             grid.createCell(col, row, prevCellValue, prevCellStyle);
-        } else {
-            grid.clearCell(col, row);
         }
     }
 
