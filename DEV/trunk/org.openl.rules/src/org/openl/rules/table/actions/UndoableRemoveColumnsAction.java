@@ -30,7 +30,7 @@ public class UndoableRemoveColumnsAction extends UndoableEditTableAction {
         if (startCol < 0 || startCol >= IGridRegion.Tool.width(fullTableRegion)) {
             return;
         }
-        int cellWidth = table.getCell(row, startCol).getWidth();
+        int cellWidth = table.getCell(startCol, row).getWidth();
         if (cellWidth > 1) { // merged cell
             nCols += cellWidth - 1;
         }

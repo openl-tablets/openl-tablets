@@ -49,7 +49,7 @@ public class UndoableInsertColumnsAction extends UndoableEditTableAction {
                 e.printStackTrace();
             }
         }
-        int cellWidth = table.getCell(row, beforeCol).getWidth();
+        int cellWidth = table.getCell(beforeCol, row).getWidth();
         if (cellWidth > 1) { // merged cell
             nCols += cellWidth - 1;
         }
