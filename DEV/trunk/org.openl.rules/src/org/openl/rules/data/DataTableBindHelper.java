@@ -304,66 +304,40 @@ public class DataTableBindHelper {
 
         for (int columnNum = 0; columnNum < width; columnNum++) {
 
-            IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
-            GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable, bindingContext);
+            GridCellSourceCodeModule cellSourceModule = getCellSourceModule(bindingContext, descriptorRows, columnNum);
 
             String code = cellSourceModule.getCode();
 
             if (code.length() != 0) {
-
+                
+                // fields names nodes 
                 IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
-
-                if (contains(identifiers, fieldAccessorChainTokens)) {
-                    
+                
+                if (contains(identifiers, fieldAccessorChainTokens)) {                    
                     String message = String.format("Found duplicate of field \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(table, error);
                 } else {
                     identifiers.add(fieldAccessorChainTokens);
                 }
-
-                // the chain of fields to access the target field, e.g. for
-                // driver.name it will be array consisting of two fields:
-                // 1st for driver, 2nd for name
-                IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
-
-                // the first field can be found in type itself
-                IOpenClass loadedFieldType = type;
-                                
-                boolean constructorField = false;
-                for (int currentFieldNumInChain = 0; currentFieldNumInChain < fieldAccessorChain.length; currentFieldNumInChain++) {
-
-                    IdentifierNode currentFieldNameNode = fieldAccessorChainTokens[currentFieldNumInChain];
-                    String fieldName = currentFieldNameNode.getIdentifier();
-
-                    if (CONSTRUCTOR_FIELD.equals(fieldName) && fieldAccessorChain.length == 1) {                        
-                        constructorField = true;
-                        break;
-                    }
-
-                    IOpenField field = getWritableField(currentFieldNameNode, table, loadedFieldType);
-                    if (field == null) {
-                        // in this case current field and all the followings in fieldAccessorChain will be nulls.
-                        //
-                        break;
-                    } 
-                    loadedFieldType = field.getType();
-                    fieldAccessorChain[currentFieldNumInChain] = field;
-                }
                 
-                // the target type is the last field type, e.g. in driver.name
-                // the target type will be for name
-                // IOpenClass targetType = loadedFieldType != null ?
-                // loadedFieldType : type;
-
-                // If field is CONSTRUCTOR_FIELD or there was an error while getting writable field, 
-                // this variable will be null.
-                IOpenField field = null;
-                if (fieldAccessorChain.length == 1) {
-                    field = fieldAccessorChain[0];
-                } else if (!ArrayTool.contains((fieldAccessorChain), null)) { // check successful loading of all  
-                                                                              // fields in fieldAccessorChain.
-                    field = new FieldChain(type, fieldAccessorChain);
+                IOpenField descriptorField = null;
+                
+                // indicates if field is a constructor.
+                boolean constructorField = false;
+                
+                if (fieldAccessorChainTokens.length == 1) {
+                    // process single field in chain, e.g. driver;
+                    IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
+                    
+                    if (CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {                        
+                        constructorField = true;                        
+                    } else {
+                        descriptorField = getWritableField(fieldNameNode, table, type);                        
+                    }
+                } else { 
+                    // process the chain of fields, e.g. driver.homeAdress.street;
+                    descriptorField = processFieldsChain(table, type, fieldAccessorChainTokens);
                 }
 
                 IdentifierNode foreignKeyTable = null;
@@ -379,23 +353,79 @@ public class DataTableBindHelper {
                 StringValue header = DataTableBindHelper.makeColumnTitle(bindingContext, dataWithTitleRows, columnNum,
                         hasColumnTytleRow);
 
-                ColumnDescriptor currentColumnDescriptor;
-
-                if (foreignKeyTable != null) {
-                    currentColumnDescriptor = new ForeignKeyColumnDescriptor(field,
-                        foreignKeyTable,
-                        foreignKey,
-                        header,
-                        openl, constructorField);
-                } else {
-                    currentColumnDescriptor = new ColumnDescriptor(field, header, openl, constructorField);
-                }
+                ColumnDescriptor currentColumnDescriptor = getColumnDescriptor(openl,
+                    descriptorField,
+                    constructorField,
+                    foreignKeyTable,
+                    foreignKey,
+                    header);
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
             }            
         }
 
         return columnDescriptors;
+    }
+
+    private static GridCellSourceCodeModule getCellSourceModule(IBindingContext bindingContext,
+            ILogicalTable descriptorRows,
+            int columnNum) {
+        IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
+        GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable, bindingContext);
+        return cellSourceModule;
+    }
+
+    private static ColumnDescriptor getColumnDescriptor(OpenL openl,
+            IOpenField descriptorField,
+            boolean constructorField,
+            IdentifierNode foreignKeyTable,
+            IdentifierNode foreignKey,
+            StringValue header) {
+        ColumnDescriptor currentColumnDescriptor;
+
+        if (foreignKeyTable != null) {
+            currentColumnDescriptor = new ForeignKeyColumnDescriptor(descriptorField,
+                foreignKeyTable,
+                foreignKey,
+                header,
+                openl, constructorField);
+        } else {
+            currentColumnDescriptor = new ColumnDescriptor(descriptorField, header, openl, constructorField);
+        }
+        return currentColumnDescriptor;
+    }
+    
+    /**
+     * Process the chain of fields, e.g. driver.homeAdress.street;
+     *
+     * @return {@link IOpenField} for fields chain.
+     */
+    private static IOpenField processFieldsChain(ITable table, IOpenClass type, 
+            IdentifierNode[] fieldAccessorChainTokens) {
+        IOpenField chainField = null;
+        IOpenClass loadedFieldType = type;
+        
+        // the chain of fields to access the target field, e.g. for
+        // driver.name it will be array consisting of two fields:
+        // 1st for driver, 2nd for name     
+        IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
+        
+        for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
+            IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
+            IOpenField fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
+            if (fieldInChain == null) {
+                // in this case current field and all the followings in fieldAccessorChain will be nulls.
+                //
+                break;
+            } 
+            loadedFieldType = fieldInChain.getType();
+            fieldAccessorChain[fieldIndex] = fieldInChain;
+        }
+        if (!ArrayTool.contains((fieldAccessorChain), null)) { // check successful loading of all  
+                                                                // fields in fieldAccessorChain.
+            chainField = new FieldChain(type, fieldAccessorChain);
+        }
+        return chainField;
     }
 
     private static void processError(ITable table, SyntaxNodeException error) {
