@@ -9,13 +9,12 @@ public class HitBucket implements Comparable<HitBucket> {
     /*
      * number of matches of element during the indexing
      */
-    double weight = 0;
-
-    IIndexElement element;
+    private double weight = 0;
+    private IIndexElement element;
 
     public HitBucket(HitBucket hb) {
-        element = hb.element;
-        weight = hb.weight;
+        this.element = hb.element;
+        this.weight = hb.weight;
     }
 
     public HitBucket(IIndexElement element) {
@@ -24,8 +23,13 @@ public class HitBucket implements Comparable<HitBucket> {
 
     public int compareTo(HitBucket hb) {
 
-        return weight == hb.weight ? element.getUri().compareTo(hb.getElement().getUri()) : (weight > hb.weight ? -1
-                : 1);
+        if (weight == hb.weight) {
+           return element.getUri().compareTo(hb.getElement().getUri()); 
+        } else if (weight > hb.weight) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     public IIndexElement getElement() {
