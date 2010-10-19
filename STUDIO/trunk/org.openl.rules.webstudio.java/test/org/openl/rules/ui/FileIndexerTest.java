@@ -62,7 +62,7 @@ public class FileIndexerTest {
         }
         fileInd.setFiles(fileMas);
         assertFalse(fileInd.makeIndex().getFirstCharMap().isEmpty());
-        assertEquals(30, fileInd.makeIndex().getFirstCharMap().size());
+        assertEquals(34, fileInd.makeIndex().getFirstCharMap().size());
     }
     
     @Test
@@ -97,10 +97,10 @@ public class FileIndexerTest {
         fileInd.setFiles(fileMas);
         TokenBucket[] buckets = fileInd.getBuckets("A");
         
-        for(TokenBucket buck : buckets) {
-            System.out.println("111"+buck.getDisplayValue());
-        }
-        assertTrue(25 == buckets.length);        
+//        for(TokenBucket buck : buckets) {
+//            System.out.println("111"+buck.getDisplayValue());
+//        }
+        assertTrue(37 == buckets.length);        
     }
     
     @Test
@@ -117,7 +117,7 @@ public class FileIndexerTest {
         fileInd.setFiles(fileMas);
         Index index = fileInd.makeIndex();
         assertFalse(index.getFirstCharMap().isEmpty());
-        assertEquals(30, index.getFirstCharMap().size());
+        assertEquals(34, index.getFirstCharMap().size());
         
         IndexQuery indexQuery = IndexQueryParser.parse("Gender");
         TreeSet ts = indexQuery.executeSearch(index);        
