@@ -19,8 +19,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.IDecisionTableConstants;
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -41,7 +39,6 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.vm.IRuntimeEnv;
 
@@ -444,14 +441,6 @@ public abstract class FunctionalRow implements IDecisionRow {
                 }
                 
                 String paramName = makeParamName();
-
-                if (JavaOpenClass.INT == type || JavaOpenClass.getOpenClass(Integer.class) == type) {
-                    return new ParameterDeclaration(JavaOpenClass.getOpenClass(IntRange.class), paramName);
-                }
-                
-                if (JavaOpenClass.DOUBLE == type || JavaOpenClass.getOpenClass(Double.class) == type) {
-                    return new ParameterDeclaration(JavaOpenClass.getOpenClass(DoubleRange.class), paramName);
-                }
 
                 return new ParameterDeclaration(type, paramName);
             } catch (Exception ex) {
