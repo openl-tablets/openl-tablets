@@ -30,11 +30,11 @@ public class UndoableRemoveRowsAction extends UndoableEditTableAction {
         if (startRow < 0 || startRow >= IGridRegion.Tool.height(fullTableRegion)) {
             return;
         }
-        int cellHeight = table.getCell(startRow, col).getHeight();
+        int cellHeight = table.getCell(col, startRow).getHeight();
         if (cellHeight > 1) { // merged cell
             nRows += cellHeight - 1;
         }
-        
+
         List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
         IUndoableGridTableAction ua = IWritableGrid.Tool.removeRows(nRows, startRow, fullTableRegion, table);
         actions.add(ua);
