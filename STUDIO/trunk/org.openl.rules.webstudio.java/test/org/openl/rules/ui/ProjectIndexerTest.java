@@ -33,7 +33,7 @@ public class ProjectIndexerTest {
         assertTrue(1 == result6.length);
         
         String[][] result7 = indexer.getResultsForQuery("openl tabl", 200, null);                
-        assertTrue(13 == result7.length);
+        assertTrue(14 == result7.length);
         
         String[][] result8 = indexer.getResultsForQuery("Driver-data", 200, null);                
         assertTrue(1 == result8.length);
