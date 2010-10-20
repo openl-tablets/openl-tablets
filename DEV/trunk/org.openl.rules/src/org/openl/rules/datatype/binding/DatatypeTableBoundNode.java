@@ -75,7 +75,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
-        int tableHeight = dataTable.getHeight();
+        int tableHeight = 0;
+        
+        if (dataTable != null) {
+            tableHeight = dataTable.getHeight();
+        }
         
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
