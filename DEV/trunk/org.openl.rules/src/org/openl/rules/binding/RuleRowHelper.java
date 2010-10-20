@@ -85,8 +85,11 @@ public class RuleRowHelper {
      * @return Array of parameters.
      * @throws SyntaxNodeException
      */
-    public static Object loadCommaSeparatedParam(IOpenClass paramType, String paramName, String ruleName,
-            ILogicalTable cell, OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
+    public static Object loadCommaSeparatedParam(IOpenClass paramType,
+            String paramName,
+            String ruleName,
+            ILogicalTable cell,
+            OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
 
         Object arrayValues = null;
         String[] tokens = null;
@@ -98,8 +101,14 @@ public class RuleRowHelper {
 
             for (String token : tokens) {
 
-                Object res = RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor, token,
-                        null, true);
+                Object res = RuleRowHelper.loadSingleParam(paramType,
+                    paramName,
+                    ruleName,
+                    cell,
+                    openlAdaptor,
+                    token,
+                    null,
+                    true);
 
                 if (res == null) {
                     res = paramType.nullObject();
@@ -143,7 +152,11 @@ public class RuleRowHelper {
         return type;
     }
 
-    public static void loadParams(Object[] array, int from, Object[] paramValues, Object target, Object[] params,
+    public static void loadParams(Object[] array,
+            int from,
+            Object[] paramValues,
+            Object target,
+            Object[] params,
             IRuntimeEnv env) {
 
         for (int i = 0; i < paramValues.length; i++) {
@@ -160,21 +173,30 @@ public class RuleRowHelper {
         }
     }
 
-    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable table,
+    public static Object loadSingleParam(IOpenClass paramType,
+            String paramName,
+            String ruleName,
+            ILogicalTable table,
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
         ICell theCell = table.getSource().getCell(0, 0);
 
         if (theCell.hasNativeType()) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
-                Object res = loadNativeValue(theCell, paramType, openlAdapter.getBindingContext(),
-                        paramName, ruleName, table);
+                Object res = loadNativeValue(theCell,
+                    paramType,
+                    openlAdapter.getBindingContext(),
+                    paramName,
+                    ruleName,
+                    table);
                 if (res != null) {
                     try {
                         validateValue(res, paramType);
                     } catch (Throwable t) {
-                        throw SyntaxNodeExceptionUtils.createError(null, t, null, new GridCellSourceCodeModule(table
-                                .getSource(), openlAdapter.getBindingContext()));
+                        throw SyntaxNodeExceptionUtils.createError(null,
+                            t,
+                            null,
+                            new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()));
                     }
                     setCellMetaInfo(table, paramName, paramType, false);
                     return res;
@@ -183,12 +205,16 @@ public class RuleRowHelper {
         }
 
         String src = theCell.getStringValue();
-        
+
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
     }
 
-    private static Object loadNativeValue(ICell cell, IOpenClass paramType, IBindingContext bindingContext,
-            String paramName, String ruleName, ILogicalTable table) {
+    private static Object loadNativeValue(ICell cell,
+            IOpenClass paramType,
+            IBindingContext bindingContext,
+            String paramName,
+            String ruleName,
+            ILogicalTable table) {
         Class<?> expectedType = paramType.getInstanceClass();
         double value = cell.getNativeNumber();
         IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
@@ -216,9 +242,14 @@ public class RuleRowHelper {
         return res;
     }
 
-    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
-            OpenlToolAdaptor openlAdapter, String source, Object value, boolean isPartOfArray)
-            throws SyntaxNodeException {
+    public static Object loadSingleParam(IOpenClass paramType,
+            String paramName,
+            String ruleName,
+            ILogicalTable cell,
+            OpenlToolAdaptor openlAdapter,
+            String source,
+            Object value,
+            boolean isPartOfArray) throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
@@ -227,23 +258,23 @@ public class RuleRowHelper {
         if (source != null && (source = source.trim()).length() != 0) {
             if (openlAdapter != null && openlAdapter.getHeader() != null) {
                 IOpenMethodHeader old_header = openlAdapter.getHeader();
-                OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(), paramType, old_header
-                        .getSignature(), old_header.getDeclaringClass());
+                OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(),
+                    paramType,
+                    old_header.getSignature(),
+                    old_header.getDeclaringClass());
                 openlAdapter.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
                     GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getSource(),
-                            openlAdapter.getBindingContext());
+                        openlAdapter.getBindingContext());
 
                     return openlAdapter.makeMethod(srcCode);
                 }
 
-                if (source.startsWith("=")
-                        && (source.length() > 2 || source.length() == 2
-                                && Character.isLetterOrDigit(source.charAt(1)))) {
+                if (source.startsWith("=") && (source.length() > 2 || source.length() == 2 && Character.isLetterOrDigit(source.charAt(1)))) {
 
                     GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getSource(),
-                            openlAdapter.getBindingContext());
+                        openlAdapter.getBindingContext());
                     IOpenSourceCodeModule code = new SubTextSourceCodeModule(gridSource, 1);
 
                     return openlAdapter.makeMethod(code);
@@ -252,28 +283,56 @@ public class RuleRowHelper {
 
             Class<?> expectedType = paramType.getInstanceClass();
 
+            // try {
+            // Set cell meta information at first.
+            //
+            setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
+
+            // Try to get cell object value with appropriate string parser.
+            // A parser instance will be selected using expected type of cell
+            // value.
+            //
+            Object result;
+
             try {
-                // Set cell meta information at first.
-                //
-                setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
+                result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
+            } catch (Exception e) {
+                // Parsing of loaded string value can be sophisticated process.
+                // As a result various exception types can be thrown (e.g.
+                // CompositeSyntaxNodeException) with not user-friendly message.
+                // 
+                String message = String.format("Cannot parse cell value '%s'", source);
+                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                    openlAdapter.getBindingContext());
 
-                // Try to get cell object value with appropriate string parser.
-                // A parser instance will be selected using expected type of cell value.
-                //
-                Object result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
-
-                if (result instanceof IMetaHolder) {
-                    setMetaInfo((IMetaHolder) result, cell, paramName, ruleName, openlAdapter.getBindingContext());
-                }
-
-                validateValue(result, paramType);
-
-                return result;
-            } catch (Throwable t) {
-                String message = String.format("Cannot load cell value '%s'", source);
-                throw SyntaxNodeExceptionUtils.createError(message, /*t, null,*/ new GridCellSourceCodeModule(cell.getSource(),
-                        openlAdapter.getBindingContext()));
+                throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
             }
+
+            if (result instanceof IMetaHolder) {
+                setMetaInfo((IMetaHolder) result, cell, paramName, ruleName, openlAdapter.getBindingContext());
+            }
+
+            try {
+                validateValue(result, paramType);
+            } catch (Exception e) {
+                String message = String.format("Invalid cell value '%s'", source);
+                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                    openlAdapter.getBindingContext());
+
+                throw SyntaxNodeExceptionUtils.createError(message, e, null, cellSourceCodeModule);
+            }
+
+            return result;
+            // } catch (Throwable t) {
+            // String message = String.format("Cannot load cell value '%s'",
+            // source);
+            // IOpenSourceCodeModule cellSourceCodeModule= new
+            // GridCellSourceCodeModule(cell.getSource(),
+            // openlAdapter.getBindingContext());
+            //                
+            // throw SyntaxNodeExceptionUtils.createError(message,
+            // cellSourceCodeModule);
+            // }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
             // according to cell type.
@@ -281,9 +340,9 @@ public class RuleRowHelper {
         }
 
         return null;
-    }    
+    }
 
-   private static Object parseStringValue(String source, Class<?> expectedType, IBindingContext bindingContext) {
+    private static Object parseStringValue(String source, Class<?> expectedType, IBindingContext bindingContext) {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
         return convertor.parse(source, null, bindingContext);
     }
@@ -298,7 +357,7 @@ public class RuleRowHelper {
 
         return false;
     }
-    
+
     public static boolean isFormula(ILogicalTable valuesTable) {
 
         String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
@@ -311,14 +370,15 @@ public class RuleRowHelper {
         return false;
     }
 
-
-    public static void setCellMetaInfo(ILogicalTable cell, String paramName,
-            IOpenClass paramType, boolean isMultiValue) {
+    public static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean isMultiValue) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
         IWritableGrid.Tool.putCellMetaInfo(cell.getSource(), 0, 0, meta);
     }
-    
-    private static void setMetaInfo(IMetaHolder holder, ILogicalTable cell, String paramName, String ruleName,
+
+    private static void setMetaInfo(IMetaHolder holder,
+            ILogicalTable cell,
+            String paramName,
+            String ruleName,
             IBindingContext bindingContext) {
         if (!bindingContext.isExecutionMode()) {
             ValueMetaInfo valueMetaInfo = new ValueMetaInfo();
@@ -329,7 +389,7 @@ public class RuleRowHelper {
             holder.setMetaInfo(valueMetaInfo);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private static void validateValue(Object value, IOpenClass paramType) throws Exception {
 
@@ -342,7 +402,7 @@ public class RuleRowHelper {
         String message = String.format("The value '%s' is outside of domain %s", value, domain.toString());
         throw new Exception(message);
     }
-    
+
     public static Object loadParam(ILogicalTable dataTable,
             IOpenClass paramType,
             String paramName,
@@ -354,7 +414,6 @@ public class RuleRowHelper {
             return RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         }
 
-//        IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType);
         dataTable = LogicalTableHelper.make1ColumnTable(dataTable);
 
         int height = RuleRowHelper.calculateHeight(dataTable);
@@ -363,8 +422,15 @@ public class RuleRowHelper {
             return null;
         }
 
+        // If data table contains one cell and parameter type is not array type
+        // then load parameter value from single cell of table
+        //
+        // TODO: Is 'RuleRowHelper.isCommaSeparatedArray(dataTable)' check
+        // required here? Can we make decision how to load data table using
+        // value
+        // of 'paramType' variable?
+        // 
         if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
-//        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable)){
             // attempt to load as a single paramType(will work in case of
             // expressions)
             try {
@@ -378,6 +444,8 @@ public class RuleRowHelper {
             }
         }
 
+        // Load parameter value as an array of values.
+        //
         return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, paramType);
     }
 
@@ -390,7 +458,7 @@ public class RuleRowHelper {
         int height = RuleRowHelper.calculateHeight(dataTable);
         IOpenClass paramType = arrayType.getAggregateInfo().getComponentType(arrayType);
 
-        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) { 
+        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) {
             // load comma separated array
             return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
         } else if (height == 1 && isFormula(dataTable)) {
@@ -399,7 +467,7 @@ public class RuleRowHelper {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
         }
     }
-    
+
     private static Object loadCommaSeparatedArrayParams(ILogicalTable dataTable,
             String paramName,
             String ruleName,
@@ -407,15 +475,14 @@ public class RuleRowHelper {
             IOpenClass paramType) throws SyntaxNodeException {
 
         ILogicalTable paramSource = dataTable.getRow(0);
-        Object params = RuleRowHelper.loadCommaSeparatedParam(
-                paramType, paramName, ruleName, paramSource, openlAdaptor);
+        Object params = RuleRowHelper.loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
             return processAsObjectParams(paramType, (Object[]) params);
         }
         return params;
     }
-    
+
     /**
      * Checks if the elements of parameters array are the instances of
      * {@link CompositeMethod}, if yes process it through {@link ArrayHolder}.
@@ -442,7 +509,7 @@ public class RuleRowHelper {
         return methodsList == null ? ary : new ArrayHolder(ary,
             methodsList.toArray(new CompositeMethod[methodsList.size()]));
     }
-    
+
     private static List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
         if (methods == null) {
             methods = new ArrayList<CompositeMethod>();
@@ -476,13 +543,13 @@ public class RuleRowHelper {
                 }
             }
         }
-        
+
         Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
-        
+
         for (int i = 0; i < values.size(); i++) {
             Array.set(ary, i, values.get(i));
         }
-        
+
         return methodsList == null ? ary : new ArrayHolder(ary,
             methodsList.toArray(new CompositeMethod[methodsList.size()]));
 

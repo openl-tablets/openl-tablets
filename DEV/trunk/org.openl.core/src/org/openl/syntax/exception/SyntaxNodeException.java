@@ -17,7 +17,7 @@ public class SyntaxNodeException extends OpenLCompilationException {
     }
 
     public SyntaxNodeException(String message, Throwable cause, ISyntaxNode syntaxNode) {
-        this(message, cause, syntaxNode == null ? null : syntaxNode.getSourceLocation(), null);
+        this(message, cause, syntaxNode == null ? null : syntaxNode.getSourceLocation(), syntaxNode == null ? null : syntaxNode.getModule());
 
         this.syntaxNode = syntaxNode;
     }

@@ -176,10 +176,12 @@ public class DataTableBindHelper {
 
         ILogicalTable resultTable = null;
 
-        if (isHorizontalTable(tableBody, tableType)) {
-            resultTable = tableBody;
-        } else {
-            resultTable = tableBody.transpose();
+        if (tableBody != null) {
+            if (isHorizontalTable(tableBody, tableType)) {
+                resultTable = tableBody;
+            } else {
+                resultTable = tableBody.transpose();
+            }
         }
 
         return resultTable;
