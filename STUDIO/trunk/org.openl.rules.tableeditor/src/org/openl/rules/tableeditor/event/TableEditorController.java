@@ -96,7 +96,7 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String getCellType() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
-            ICell cell = editorModel.getCell(getRow(), getCol());
+            ICell cell = editorModel.getOriginalGridTable().getCell(getCol(), getRow());
             ICellEditor editor = new CellEditorSelector().selectEditor(cell);
             EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
             return pojo2json(typeResponse);
@@ -179,7 +179,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
-            ICellStyle style = editorModel.getCell(row, col).getStyle();
+            ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
             int currentIndent = style.getIdent();
             int resultIndent = currentIndent + indent;
             CellStyle newStyle = new CellStyle(style);
@@ -261,7 +261,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             }
 
             if (halign != -1) {
-                ICellStyle style = editorModel.getCell(row, col).getStyle();
+                ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
                 if (style.getHorizontalAlignment() != halign) {
                     CellStyle newStyle = new CellStyle(style);
                     newStyle.setHorizontalAlignment(halign);

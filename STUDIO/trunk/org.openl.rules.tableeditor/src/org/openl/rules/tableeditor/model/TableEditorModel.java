@@ -10,8 +10,6 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -49,9 +47,8 @@ public class TableEditorModel {
     public static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
     private IOpenLTable table;
+
     private IGridTable gridTable;
-    private IGridRegion fullTableRegion;
-    private IGridRegion displayedTableRegion;
     private String view;
     private boolean showFormulas = false;
     private boolean collapseProps = false;
@@ -75,8 +72,6 @@ public class TableEditorModel {
         this.view = view;
         this.gridTable = table.getGridTable(view);
         this.showFormulas = showFormulas;
-        fullTableRegion = new GridRegion(getOriginalTable(this.gridTable).getRegion());
-        displayedTableRegion = new GridRegion(gridTable.getRegion());
 
         makeFilteredGrid(gridTable);
     }
@@ -91,14 +86,11 @@ public class TableEditorModel {
         }
     }
 
-    public ICell getCell(int row, int column) {
-        return gridTable.getGrid().getCell(tX(column), tY(row));
-    }
-
     private IFormatter getFormatter(int col, int row) {
         IFormatter formatter = null;
+        IGridRegion originalRegion = getOriginalTableRegion();
         FormattedCell fc = filteredGrid.getFormattedCell(
-                fullTableRegion.getLeft() + col, fullTableRegion.getTop() + row);
+                originalRegion.getLeft() + col, originalRegion.getTop() + row);
 
         if (fc != null) {
             IGridFilter filter = fc.getFilter();
@@ -127,16 +119,20 @@ public class TableEditorModel {
     }
 
     /**
-     * Extracts original table.
+     * Extracts original grid table.
      * 
      * @param table Table which we have.
      * @return Original table that includes our table.
      */
-    public static IGridTable getOriginalTable(IGridTable table) {
-        while (table instanceof AGridTableDecorator) {
-            table = ((AGridTableDecorator) table).getOriginalGridTable();
+    public IGridTable getOriginalGridTable() {
+        while (gridTable instanceof AGridTableDecorator) {
+            gridTable = ((AGridTableDecorator) gridTable).getOriginalGridTable();
         }
-        return table;
+        return gridTable;
+    }
+
+    public IGridRegion getOriginalTableRegion() {
+        return getOriginalGridTable().getRegion();
     }
 
     public synchronized void insertColumns(int nCols, int beforeCol, int row) throws Exception {
@@ -185,11 +181,10 @@ public class TableEditorModel {
      * @throws IOException
      */
     public synchronized String save() throws IOException {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();        
-        String newTableUri = xlsgrid.getRangeUri(fullTableRegion);        
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
         actions = new UndoableActions();
-        return newTableUri;
+        return gridTable.getUri();
     }
 
     /**
@@ -206,7 +201,7 @@ public class TableEditorModel {
 
     public synchronized void setCellValue(int row, int col, String value) {
         IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
-                col, row, fullTableRegion, value, getFormatter(col, row));
+                col, row, getOriginalTableRegion(), value, getFormatter(col, row));
         action.doAction(gridTable);
         actions.addNewAction(action);
     }
@@ -216,7 +211,7 @@ public class TableEditorModel {
         int nRowsToInsert = 0;
         int nColsToInsert = 0;
 
-        IGridTable fullTable = getOriginalTable(gridTable);
+        IGridTable fullTable = getOriginalGridTable();
         IGridRegion fullTableRegion = fullTable.getRegion();
 
         CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable, name);
@@ -260,31 +255,23 @@ public class TableEditorModel {
     }
 
     public synchronized void setStyle(int row, int col, ICellStyle style) {
-        IUndoableGridTableAction ua = IWritableGrid.Tool.setStyle(col, row, fullTableRegion, style);
+        IUndoableGridTableAction ua = IWritableGrid.Tool.setStyle(col, row, getOriginalTableRegion(), style);
         ua.doAction(gridTable);
         actions.addNewAction(ua);
-    }
-
-    public int tX(int col) {
-        return fullTableRegion.getLeft() + col;
-    }
-
-    public int tY(int row) {
-        return fullTableRegion.getTop() + row;
     }
 
     /**
      * @return Count of rows that is not showed.
      */
     public int getNumberOfNonShownRows() {
-        return IGridRegion.Tool.height(fullTableRegion) - IGridRegion.Tool.height(displayedTableRegion);
+        return getOriginalGridTable().getHeight() - gridTable.getHeight();
     }
 
     /**
      * @return Count of columns that is not showed.
      */
     public int getNumberOfNonShownCols() {
-        return IGridRegion.Tool.width(fullTableRegion) - IGridRegion.Tool.width(displayedTableRegion);
+        return getOriginalGridTable().getWidth() - gridTable.getWidth();
     }
 
     public synchronized void undo() {
