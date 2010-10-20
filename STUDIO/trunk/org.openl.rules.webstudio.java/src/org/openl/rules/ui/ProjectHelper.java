@@ -70,14 +70,25 @@ public class ProjectHelper {
     }
     
     /**
-     * Checks if the tester is instance of {@link TestSuiteMethod} and if it has any parameters for testing(see 
-     * {@link TestSuiteMethod#isRunmethodTestable()}).
+     * Checks if the tester is instance of {@link TestSuiteMethod}, if it has any parameters for testing(see 
+     * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors in it.
      * 
      * @param tester instance of method that is considered to be a test.
-     * @return 
+     * @return true if tester is valid {@link TestSuiteMethod}.
      */
     public static boolean isTester(IOpenMethod tester) {
-        return (tester instanceof TestSuiteMethod) && ((TestSuiteMethod) tester).isRunmethodTestable();
+        return (tester instanceof TestSuiteMethod) && ((TestSuiteMethod) tester).isRunmethodTestable() 
+            && noErrors((TestSuiteMethod)tester);
+    }
+    
+    /**
+     * Checks if test method doesn`t contain any error.
+     * 
+     * @param testMethod test method 
+     * @return true if there is no errors in the test method.
+     */
+    public static boolean noErrors(TestSuiteMethod testMethod) {
+        return testMethod.getSyntaxNode().getErrors() == null || testMethod.getSyntaxNode().getErrors().length == 0;
     }
 
     public static IOpenMethod[] runners(IOpenMethod tested) {
