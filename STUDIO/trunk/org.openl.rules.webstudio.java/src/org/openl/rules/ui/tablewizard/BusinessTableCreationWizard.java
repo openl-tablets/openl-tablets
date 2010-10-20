@@ -121,7 +121,9 @@ public abstract class BusinessTableCreationWizard extends WizardBase {
         Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
         // Put business properties.
-        properties.put("name", businessName);
+        if (StringUtils.isNotBlank(this.businessName)) {
+            properties.put("name", this.businessName);
+        }
         String category = buildCategoryName();
         if (category != null) {
             properties.put("category", category);
