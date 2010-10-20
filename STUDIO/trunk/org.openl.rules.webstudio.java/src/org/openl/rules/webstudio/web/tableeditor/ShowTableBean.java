@@ -154,6 +154,8 @@ public class ShowTableBean {
             for (IOpenLTable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
                     warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY));
+                    // one warning is enough.
+                    break;
                 }
             }
         }
