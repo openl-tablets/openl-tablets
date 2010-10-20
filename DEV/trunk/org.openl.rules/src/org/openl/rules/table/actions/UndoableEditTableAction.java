@@ -58,8 +58,7 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
     }
 
     /**
-     * After coping or moving the table we need to set new region destination of
-     * it
+     * After coping or moving the table we need to set new region destination of it
      * 
      * @param newRegion New region of the table
      */
