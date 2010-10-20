@@ -11,14 +11,12 @@ import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
@@ -120,10 +118,6 @@ public class TableEditorModel {
         return gridTable;
     }
 
-    public synchronized IGridTable getUpdatedFullTable() {
-        return new GridTable(fullTableRegion, gridTable.getGrid());
-    }
-
     public synchronized boolean hasRedo() {
         return actions.hasRedo();
     }
@@ -222,37 +216,40 @@ public class TableEditorModel {
         int nRowsToInsert = 0;
         int nColsToInsert = 0;
 
+        IGridTable fullTable = getOriginalTable(gridTable);
+        IGridRegion fullTableRegion = fullTable.getRegion();
+
         CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable, name);
 
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
 
         if (!propIsBlank && !propExists) {
-            IGridTable table = getUpdatedFullTable();
-            int tableWidth = table.getWidth();
+            int tableWidth = fullTable.getWidth();
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }
             nRowsToInsert = 1;
             if ((nRowsToInsert > 0 && !UndoableInsertRowsAction.canInsertRows(gridTable, nRowsToInsert))
                     || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
-                createdActions.add(UndoableEditTableAction.moveTable(table));
+                createdActions.add(UndoableEditTableAction.moveTable(fullTable));
             }
             GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
                     UndoableEditTableAction.INSERT, ActionType.EXPAND, nRowsToInsert);
             allTable.doAction(gridTable);
             createdActions.add(allTable);
-            GridRegionAction displayedTable = new GridRegionAction(displayedTableRegion, UndoableEditTableAction.ROWS,
-                    UndoableEditTableAction.INSERT, isBusinessView() ? ActionType.MOVE : ActionType.EXPAND, nRowsToInsert);
-            displayedTable.doAction(gridTable);
-            createdActions.add(displayedTable);
+            if (isBusinessView()) {
+                GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
+                        UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, nRowsToInsert);
+                displayedTable.doAction(gridTable);
+                createdActions.add(displayedTable);
+            }
         } else if (propIsBlank && propExists) {
             removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
             return;
         }
 
-        IUndoableGridTableAction action = IWritableGrid.Tool
-            .insertProp(fullTableRegion, displayedTableRegion, gridTable, name, value);
+        IUndoableGridTableAction action = IWritableGrid.Tool.insertProp(fullTableRegion, gridTable, name, value);
         if (action != null) {
             action.doAction(gridTable);
             createdActions.add(action);
@@ -280,14 +277,14 @@ public class TableEditorModel {
      * @return Count of rows that is not showed.
      */
     public int getNumberOfNonShownRows() {
-        return Tool.height(fullTableRegion) - Tool.height(displayedTableRegion);
+        return IGridRegion.Tool.height(fullTableRegion) - IGridRegion.Tool.height(displayedTableRegion);
     }
 
     /**
      * @return Count of columns that is not showed.
      */
     public int getNumberOfNonShownCols() {
-        return Tool.width(fullTableRegion) - Tool.width(displayedTableRegion);
+        return IGridRegion.Tool.width(fullTableRegion) - IGridRegion.Tool.width(displayedTableRegion);
     }
 
     public synchronized void undo() {
