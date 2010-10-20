@@ -222,8 +222,8 @@ public interface IWritableGrid extends IGrid {
         /**
          * @return null if set new property with empty or same value
          */
-        public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
-                IGridTable table, String newPropName, String newPropValue) {
+        public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGridTable table,
+                String newPropName, String newPropValue) {
             if (StringUtils.isBlank(newPropValue)) {
                 return null;
             }
@@ -232,7 +232,7 @@ public interface IWritableGrid extends IGrid {
             if (propertyRowIndex > 0) {
                 return setExistingPropertyValue(tableRegion, table, newPropName, newPropValue, propertyRowIndex);
             } else {
-                return insertNewProperty(tableRegion, diplayedTableRegion, table, newPropName, newPropValue);
+                return insertNewProperty(tableRegion, table, newPropName, newPropValue);
             }
         }
 
@@ -276,8 +276,8 @@ public interface IWritableGrid extends IGrid {
             return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, newPropValue, format);
         }
         
-        private static IUndoableGridTableAction insertNewProperty(IGridRegion tableRegion, IGridRegion diplayedTableRegion,
-                IGridTable table, String newPropName, String newPropValue){
+        private static IUndoableGridTableAction insertNewProperty(IGridRegion tableRegion,
+                IGridTable table, String newPropName, String newPropValue) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
             IFormatter format = getFormat(newPropName);
             int leftCell = tableRegion.getLeft();
@@ -294,7 +294,7 @@ public interface IWritableGrid extends IGrid {
 
             if (!tableContainsPropertySection(propsHeader)) {
                 actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, table));
-                actions.add(createPropertiesSection(tableRegion, diplayedTableRegion, table));
+                actions.add(createPropertiesSection(tableRegion, table));
                 propNameCellOffset = 1;
                 propValueCellOffset = 2;
             } else {
@@ -312,8 +312,7 @@ public interface IWritableGrid extends IGrid {
             return new UndoableCompositeAction(actions);
         }
         
-        private static IUndoableGridTableAction createPropertiesSection(IGridRegion tableRegion,
-                IGridRegion diplayedTableRegion, IGridTable table) {
+        private static IUndoableGridTableAction createPropertiesSection(IGridRegion tableRegion, IGridTable table) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
             int regionWidth = IGridRegion.Tool.width(tableRegion);
             int leftCell = tableRegion.getLeft();
@@ -346,8 +345,6 @@ public interface IWritableGrid extends IGrid {
                 }
 
                 actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, 3 - regionWidth));
-                actions.add(new GridRegionAction(diplayedTableRegion, COLUMNS, INSERT, ActionType.EXPAND,
-                        3 - regionWidth));
             }
             return new UndoableCompositeAction(actions);
         }
