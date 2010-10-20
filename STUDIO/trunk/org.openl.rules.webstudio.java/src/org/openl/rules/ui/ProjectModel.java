@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
@@ -1102,9 +1101,11 @@ public class ProjectModel {
             compiledOpenClass = instantiationStrategy.compile(reloadType);
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-            OpenLMessage message = new OpenLMessage(String.format("Cannot load the module: %s", ExceptionUtils.getRootCauseMessage(t)), StringUtils.EMPTY, Severity.ERROR);
+            
+            String message = StringUtils.join(new String[]{"Cannot load the module" ,":", t.getMessage()});
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-            messages.add(message);
+            messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
+
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0], new SyntaxNodeException[0]);
         }
     }
