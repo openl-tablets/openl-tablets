@@ -6,6 +6,7 @@ package org.openl.rules.helpers;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessages;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
@@ -37,11 +38,30 @@ public class DoubleRange implements INumberRange {
         this.upperBoundType = upperBoundType;
     }
 
-    public DoubleRange(String s) {
+    public DoubleRange(String range) {
         // TODO: Correct tokenizing in grammar.
         OpenL openl = OpenL.getInstance("org.openl.j");
-        RangeWithBounds res = (RangeWithBounds) OpenLManager.run(openl, new StringSourceCodeModule(s, null),
-                SourceType.DOUBLE_RANGE);
+        
+        RangeWithBounds res;
+        
+     // Save current openl messages before range parser invocation to
+        // avoid populating messages list with errors what are not refer to
+        // appropriate table. Reason: input string doesn't contain required
+        // information about source. 
+        //
+        OpenLMessages oldMessages = OpenLMessages.getCurrentInstance();
+        
+        try {
+            OpenLMessages.getCurrentInstance().clear();
+            res = (RangeWithBounds) OpenLManager
+                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.DOUBLE_RANGE);
+        } finally {
+            // Load old openl messages list. 
+            //
+            OpenLMessages.getCurrentInstance().clear();
+            OpenLMessages.getCurrentInstance().addMessages(oldMessages.getMessages());
+        }
+        
         lowerBound = res.getMin().doubleValue();
         lowerBoundType = res.getLeftBoundType();
         upperBound = res.getMax().doubleValue();

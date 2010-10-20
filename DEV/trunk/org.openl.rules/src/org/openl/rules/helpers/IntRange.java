@@ -6,6 +6,7 @@ package org.openl.rules.helpers;
 import org.openl.OpenL;
 import org.openl.domain.IntRangeDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessages;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
@@ -49,8 +50,25 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         // TODO: Correct tokenizing in grammar.
         super(0, 0);
         OpenL openl = OpenL.getInstance("org.openl.j");
-        RangeWithBounds res = (RangeWithBounds) OpenLManager
-                .run(openl, new StringSourceCodeModule(range, ""), SourceType.INT_RANGE);
+        RangeWithBounds res;
+        
+        // Save current openl messages before range parser invocation to
+        // avoid populating messages list with errors what are not refer to
+        // appropriate table. Reason: input string doesn't contain required
+        // information about source. 
+        //
+        OpenLMessages oldMessages = OpenLMessages.getCurrentInstance();
+        
+        try {
+            OpenLMessages.getCurrentInstance().clear();
+            res = (RangeWithBounds) OpenLManager
+                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.INT_RANGE);
+        } finally {
+            // Load old openl messages list. 
+            //
+            OpenLMessages.getCurrentInstance().clear();
+            OpenLMessages.getCurrentInstance().addMessages(oldMessages.getMessages());
+        }
 
         min = res.getMin().intValue();
         if(res.getLeftBoundType() == BoundType.EXCLUDING){
