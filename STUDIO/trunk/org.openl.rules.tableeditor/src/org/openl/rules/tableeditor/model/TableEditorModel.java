@@ -125,10 +125,11 @@ public class TableEditorModel {
      * @return Original table that includes our table.
      */
     public IGridTable getOriginalGridTable() {
-        while (gridTable instanceof AGridTableDecorator) {
-            gridTable = ((AGridTableDecorator) gridTable).getOriginalGridTable();
+        IGridTable resultTable = gridTable;
+        while (resultTable instanceof AGridTableDecorator) {
+            resultTable = ((AGridTableDecorator) resultTable).getOriginalGridTable();
         }
-        return gridTable;
+        return resultTable;
     }
 
     public IGridRegion getOriginalTableRegion() {
