@@ -24,7 +24,7 @@ public class ForNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
         IBoundNode conditionNode = children[1];
 
-        if (conditionNode != null && !conditionNode.getType().equals(JavaOpenClass.BOOLEAN)) {
+        if (conditionNode != null && !conditionNode.getType().equals(JavaOpenClass.BOOLEAN) && conditionNode.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
             
             BindHelper.processError("Condition must have boolean type", conditionNode.getSyntaxNode(), bindingContext);
 
