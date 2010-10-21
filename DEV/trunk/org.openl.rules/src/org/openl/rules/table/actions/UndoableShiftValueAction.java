@@ -49,7 +49,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         for (IGridRegion region : toRestore) {
             grid.addMergedRegion(region);
         }
-        if (prevCellValue != null) {
+        if (prevCellValue != null || prevCellStyle != null) {
             grid.createCell(col, row, prevCellValue, prevCellStyle);
         } else {
             grid.clearCell(col, row);
