@@ -69,7 +69,8 @@ public abstract class ADynamicClass extends AOpenClass {
 
         Map<MethodKey, IOpenMethod> methods = methodMap();
         if (methods.containsKey(key)) {
-            throw new DuplicatedMethodException("", method);
+            throw new DuplicatedMethodException(String.format("Method '%s' have bean already defined for class '%s'",
+                    key.toString(), name), method);
         }
 
         methodMap().put(key, method);
