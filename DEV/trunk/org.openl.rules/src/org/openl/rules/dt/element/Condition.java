@@ -92,7 +92,7 @@ public class Condition extends FunctionalRow implements ICondition {
         IOpenClass methodType = ((CompositeMethod) getMethod()).getBodyType();
 
         if (isDependentOnAnyParams()) {
-            if (methodType != JavaOpenClass.BOOLEAN) {
+            if (methodType != JavaOpenClass.BOOLEAN && methodType != JavaOpenClass.getOpenClass(Boolean.class)) {
                 throw new Exception("Condition must have boolean type if it depends on it's parameters");
             }
 

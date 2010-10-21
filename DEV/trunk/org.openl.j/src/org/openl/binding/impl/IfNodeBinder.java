@@ -20,7 +20,7 @@ public class IfNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
         IBoundNode conditionNode = children[0];
 
-        if (conditionNode.getType() != JavaOpenClass.BOOLEAN) {
+        if (conditionNode != null && conditionNode.getType() != JavaOpenClass.BOOLEAN && conditionNode.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
             BindHelper.processError("Condition must have boolean type", conditionNode.getSyntaxNode(), bindingContext);
 
             return new ErrorBoundNode(node);
