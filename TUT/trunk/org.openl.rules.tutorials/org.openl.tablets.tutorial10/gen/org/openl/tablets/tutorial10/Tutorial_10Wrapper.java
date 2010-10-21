@@ -7,10 +7,12 @@ package org.openl.tablets.tutorial10;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.types.java.OpenClassHelper;
+import java.util.Map;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.source.impl.FileSourceCodeModule;
 
 public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -20,6 +22,8 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
+  private static Map<String, Object> __externalParams;
+  private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
   public static java.lang.String __src = "rules/Tutorial_10.xlsx";
@@ -62,6 +66,20 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
   }
 
   public Tutorial_10Wrapper(boolean ignoreErrors){
+    this(ignoreErrors, false);
+  }
+
+  public Tutorial_10Wrapper(boolean ignoreErrors, boolean executionMode){
+    this(ignoreErrors, executionMode, null);
+  }
+
+  public Tutorial_10Wrapper(Map<String, Object> params){
+    this(false, false, params);
+  }
+
+  public Tutorial_10Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    __externalParams = params;
+    __executionMode = executionMode;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -252,25 +270,6 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
   }
 
 
-  static org.openl.types.IOpenMethod getCarPrice_Method;
-  public org.openl.meta.DoubleValue getCarPrice(org.openl.tablets.tutorial10.domain.Car car, org.openl.tablets.tutorial10.domain.Address billingAddress)  {
-    Object[] __params = new Object[2];
-    __params[0] = car;
-    __params[1] = billingAddress;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = getCarPrice_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.meta.DoubleValue)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod getDiscountPercentageTestTestAll_Method;
   public org.openl.rules.testmethod.TestUnitsResults getDiscountPercentageTestTestAll()  {
     Object[] __params = new Object[0];
@@ -305,6 +304,25 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper,org.openl
   }
 
   }
+
+
+  static org.openl.types.IOpenMethod getCarPrice_Method;
+  public org.openl.meta.DoubleValue getCarPrice(org.openl.tablets.tutorial10.domain.Car car, org.openl.tablets.tutorial10.domain.Address billingAddress)  {
+    Object[] __params = new Object[2];
+    __params[0] = car;
+    __params[1] = billingAddress;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = getCarPrice_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
   static boolean __initialized = false;
 
   static public void reset(){__initialized = false;}
@@ -323,7 +341,9 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       return;
 
     IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);
+    FileSourceCodeModule source = new FileSourceCodeModule(__src, null);
+    source.setParams(__externalParams);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
@@ -345,14 +365,14 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 });
     getCarPrice2010TestTestAll_Method = __class.getMatchingMethod("getCarPrice2010TestTestAll", new IOpenClass[] {
 });
-    getCarPrice_Method = __class.getMatchingMethod("getCarPrice", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Car.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Address.class)});
     getDiscountPercentageTestTestAll_Method = __class.getMatchingMethod("getDiscountPercentageTestTestAll", new IOpenClass[] {
 });
     getDiscountPercentage_Method = __class.getMatchingMethod("getDiscountPercentage", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Car.class),
       OpenClassHelper.getOpenClass(__class, int.class)});
+    getCarPrice_Method = __class.getMatchingMethod("getCarPrice", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Car.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial10.domain.Address.class)});
 
     __initialized=true;
   }
