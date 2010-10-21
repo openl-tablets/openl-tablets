@@ -48,7 +48,7 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
             grid.addMergedRegion(toRestore);
         }
 
-        if (prevCellValue != null) {
+        if (prevCellValue != null || prevCellStyle != null) {
             grid.createCell(col, row, prevCellValue, prevCellStyle);
         } else {
             grid.clearCell(col, row);
