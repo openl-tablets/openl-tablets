@@ -282,7 +282,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         addFields(cxt);
         //adding constructor with all fields after all fields have been added
-        dataType.addMethod(new OpenFieldsConstructor(dataType));
+        if (dataType.getFields().size() > 0) {
+            dataType.addMethod(new OpenFieldsConstructor(dataType));
+        }
 		// Add new type to internal types of module.
 		//
         moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, dataType);
