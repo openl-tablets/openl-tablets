@@ -50,7 +50,7 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
      * @throws Exception
      */
     public static synchronized IUndoableGridTableAction moveTable(IGridTable table) throws Exception {
-        UndoableMoveTableAction moveTableAction = new UndoableMoveTableAction(table);
+        UndoableMoveTableAction moveTableAction = new UndoableMoveTableAction();
         moveTableAction.doAction(table);
         IUndoableGridTableAction changeRegions = setRegion(moveTableAction.getNewRegion(), table);
         changeRegions.doAction(table);
