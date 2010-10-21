@@ -7,10 +7,12 @@ package org.openl.tablets.tutorial3;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.types.java.OpenClassHelper;
+import java.util.Map;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.source.impl.FileSourceCodeModule;
 
 public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -20,6 +22,8 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
+  private static Map<String, Object> __externalParams;
+  private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
   public static java.lang.String __src = "rules/Tutorial_3_Tests.xls";
@@ -62,6 +66,20 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
   }
 
   public Tutorial_3TestWrapper(boolean ignoreErrors){
+    this(ignoreErrors, false);
+  }
+
+  public Tutorial_3TestWrapper(boolean ignoreErrors, boolean executionMode){
+    this(ignoreErrors, executionMode, null);
+  }
+
+  public Tutorial_3TestWrapper(Map<String, Object> params){
+    this(false, false, params);
+  }
+
+  public Tutorial_3TestWrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    __externalParams = params;
+    __executionMode = executionMode;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -290,7 +308,9 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       return;
 
     IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);
+    FileSourceCodeModule source = new FileSourceCodeModule(__src, null);
+    source.setParams(__externalParams);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
