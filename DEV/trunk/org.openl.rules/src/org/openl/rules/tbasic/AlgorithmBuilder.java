@@ -74,6 +74,11 @@ public class AlgorithmBuilder {
     }
 
     public void build(ILogicalTable tableBody) throws Exception {
+        
+        if (tableBody == null) {
+            throw SyntaxNodeExceptionUtils.createError("Invalid table. Provide table body", null, tsn);
+        }
+        
         if (tableBody.getHeight() <= 2) {
             throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2!", null, tsn);
         }
