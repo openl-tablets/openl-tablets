@@ -185,7 +185,7 @@ public class TableEditorModel {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
         actions = new UndoableActions();
-        return gridTable.getUri();
+        return getOriginalGridTable().getUri();
     }
 
     /**
