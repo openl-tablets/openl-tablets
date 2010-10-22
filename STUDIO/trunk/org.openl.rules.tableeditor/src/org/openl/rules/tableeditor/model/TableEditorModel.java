@@ -10,6 +10,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -265,14 +266,14 @@ public class TableEditorModel {
      * @return Count of rows that is not showed.
      */
     public int getNumberOfNonShownRows() {
-        return getOriginalGridTable().getHeight() - gridTable.getHeight();
+        return GridRegion.Tool.height(getOriginalTableRegion()) - GridRegion.Tool.height(gridTable.getRegion());
     }
 
     /**
      * @return Count of columns that is not showed.
      */
     public int getNumberOfNonShownCols() {
-        return getOriginalGridTable().getWidth() - gridTable.getWidth();
+        return GridRegion.Tool.width(getOriginalTableRegion()) - GridRegion.Tool.width(gridTable.getRegion());
     }
 
     public synchronized void undo() {
