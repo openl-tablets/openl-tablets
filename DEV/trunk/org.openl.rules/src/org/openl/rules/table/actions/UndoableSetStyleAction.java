@@ -7,7 +7,6 @@ import org.openl.rules.table.ui.ICellStyle;
 
 public class UndoableSetStyleAction extends AUndoableCellAction {
 
-    private ICellStyle prevStyle;
     private ICellStyle newStyle;
 
     public UndoableSetStyleAction(int col, int row, ICellStyle style) {
@@ -17,13 +16,15 @@ public class UndoableSetStyleAction extends AUndoableCellAction {
 
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        prevStyle = new CellStyle(grid.getCell(col, row).getStyle());
-        grid.setCellStyle(col, row, newStyle);
+
+        setPrevStyle(new CellStyle(grid.getCell(getCol(), getRow()).getStyle()));
+
+        grid.setCellStyle(getCol(), getRow(), newStyle);
     }
 
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        grid.setCellStyle(col, row, prevStyle);
+        grid.setCellStyle(getCol(), getRow(), getPrevStyle());
     }
 
 }

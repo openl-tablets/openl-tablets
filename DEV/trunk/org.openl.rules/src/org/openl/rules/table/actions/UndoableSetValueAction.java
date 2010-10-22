@@ -3,6 +3,7 @@
  */
 package org.openl.rules.table.actions;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -14,7 +15,6 @@ import org.openl.util.formatters.IFormatter;
  */
 public class UndoableSetValueAction extends AUndoableCellAction {
 
-    private Object prevValue;
     private String newValue;
     private IFormatter format;
 
@@ -26,22 +26,26 @@ public class UndoableSetValueAction extends AUndoableCellAction {
 
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        ICell cell = grid.getCell(col, row);
-        prevValue = cell.getObjectValue();
+
+        ICell cell = grid.getCell(getCol(), getRow());
+        setPrevValue(cell.getObjectValue());
+        setPrevFormula(cell.getFormula());
 
         Object result = newValue;
         if (format != null) {
             result = format.parse(newValue);
         }
-        //cell.setObjectValue(result);
-        grid.setCellValue(col, row, result);
+
+        grid.setCellValue(getCol(), getRow(), result);
     }
 
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        //ICell cell = wgrid.getCell(col, row);
-        //cell.setObjectValue(prevValue);
-        grid.setCellValue(col, row, prevValue);
+        if (StringUtils.isNotBlank(getPrevFormula())) {
+            grid.setCellFormula(getCol(), getRow(), getPrevFormula());
+        } else {
+            grid.setCellValue(getCol(), getRow(), getPrevValue());
+        }
     }
 
 }

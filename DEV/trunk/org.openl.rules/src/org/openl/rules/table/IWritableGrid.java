@@ -569,7 +569,7 @@ public interface IWritableGrid extends IGrid {
 
     void clearCell(int col, int row);
 
-    void createCell(int col, int row, Object value, ICellStyle style);
+    void createCell(int col, int row, Object value, String formula, ICellStyle style);
 
     void copyCell(int colFrom, int rowFrom, int colTo, int rowTo);
 
@@ -592,6 +592,8 @@ public interface IWritableGrid extends IGrid {
     void setCellStyle(int col, int row, ICellStyle style);
 
     void setCellValue(int col, int row, Object value);
+
+    void setCellFormula(int col, int row, String formula);
 
     boolean isTopLeftCellInMergedRegion(int column, int row);
 
