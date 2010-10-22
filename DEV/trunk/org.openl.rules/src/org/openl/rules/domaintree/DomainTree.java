@@ -22,6 +22,7 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ArrayOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -80,8 +81,13 @@ public class DomainTree {
      * @return <code>DomainTree</code> instance
      */
     public static DomainTree buildTree(IOpenClass projectOpenClass, boolean addDatatypes) {
+        if (projectOpenClass instanceof NullOpenClass) {
+            // it means module wasn`t loaded.
+            //
+            throw new IllegalArgumentException("Module is corrupted.");
+        }
         IMetaInfo projectInfo = projectOpenClass.getMetaInfo();
-
+        
         if (projectInfo instanceof XlsMetaInfo) {
             DomainTree domainTree = new DomainTree();
 
