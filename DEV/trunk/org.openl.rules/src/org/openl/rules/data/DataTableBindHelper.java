@@ -195,20 +195,51 @@ public class DataTableBindHelper {
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Data_With_Titles rows for current data table body.
      */
-    public static ILogicalTable getDataWithTitleRows(ILogicalTable horizDataTableBody) {
-        int startRow = getStartRowForDataWithTitlesSection(horizDataTableBody);
+    public static ILogicalTable getHorizontalDataWithTitle(ILogicalTable horizDataTableBody) {
+        int startIndex = getStartIndexForDataWithTitlesSection(horizDataTableBody);
 
-        return horizDataTableBody.getRows(startRow);
+        return horizDataTableBody.getRows(startIndex);
+    }
+    
+    /**
+     * Gets the sub table for displaying on business view.<br> 
+     * 
+     * @param tableBody data table body.
+     * @param tableType
+     * @return Data_With_Titles section for current data table body.
+     */
+    public static ILogicalTable getSubTableForBusinessView(ILogicalTable tableBody, IOpenClass tableType) {
+        if (isHorizontalTable(tableBody, tableType)) {
+            return getHorizontalDataWithTitle(tableBody);
+        } else {
+            return getVerticalDataWithTitle(tableBody);
+        }
+    }
+    
+    /**
+     * Gets the Data_With_Titles columns from the data table body. Data_With_Titles
+     * start column consider to be the next column after descriptor section of the
+     * table and till the end of the table.
+     * 
+     * @param verticalTableBody Vertical representation of data table body.
+     * @return Data_With_Titles columns for current data table body.
+     */
+    private static ILogicalTable getVerticalDataWithTitle(ILogicalTable verticalTableBody) {
+        ILogicalTable horizDataTableBody = verticalTableBody.transpose();
+        int startIndex = getStartIndexForDataWithTitlesSection(horizDataTableBody);
+        return verticalTableBody.getColumns(startIndex);
     }
 
     /**
-     * Gets the number of the start row for Data_With_Titles section of the data
-     * table body. It depends on whether table has or no the foreign key row.
+     * Gets the start index of the Data_With_Titles section of the data
+     * table body.<br> 
+     * It depends on whether table has or no the foreign key row.<br><br>
+     * Works with horizontal representation of data table.
      * 
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Number of the start row for the Data_With_Titles section.
      */
-    private static int getStartRowForDataWithTitlesSection(ILogicalTable horizDataTableBody) {
+    private static int getStartIndexForDataWithTitlesSection(ILogicalTable horizDataTableBody) {
 
         boolean hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
 

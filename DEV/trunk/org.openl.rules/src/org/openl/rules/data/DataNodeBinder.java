@@ -133,7 +133,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
             if (horizDataTableBody.getHeight() > 1) {
                 ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
-                ILogicalTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTableBody);
+                ILogicalTable dataWithTitleRows = DataTableBindHelper.getHorizontalDataWithTitle(horizDataTableBody);
 
                 dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
@@ -171,9 +171,8 @@ public class DataNodeBinder extends AXlsTableBinder {
     private void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
 
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
-        ILogicalTable horizDataTable = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
-        ILogicalTable dataWithTitleRows = DataTableBindHelper.getDataWithTitleRows(horizDataTable);
-
+        ILogicalTable dataWithTitleRows = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
+        
         tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, dataWithTitleRows);
     }
 
