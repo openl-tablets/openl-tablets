@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -169,13 +170,16 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         copyCell(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
     }
 
-    public void createCell(int col, int row, Object value, ICellStyle style) {
-        setCellValue(col, row, value);
+    public void createCell(int col, int row, Object value, String formula, ICellStyle style) {
+        if (StringUtils.isNotBlank(formula)) {
+            setCellFormula(col, row, formula);
+        } else {
+            setCellValue(col, row, value);
+        }
         setCellStyle(col, row, style);
         setCellMetaInfo(col, row, getCellMetaInfo(col, row));
     }
 
-    // TODO To Refactor
     protected void copyCell(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
         Cell cellTo = PoiExcelHelper.getCell(colTo, rowTo, sheet);
 
@@ -431,6 +435,17 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         }
     }
 
+    public void setCellFormula(int col, int row, String formula) {
+        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
+
+        if (formula != null) {
+            AXlsCellWriter cellWriter = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
+            cellWriter.setCellToWrite(poiCell);
+            cellWriter.setValueToWrite(formula);
+            cellWriter.writeCellValue(false);
+        }
+    }
+
     /**
      * @deprecated
      */
@@ -454,7 +469,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
     // TODO: move to factory.
     public AXlsCellWriter getCellWriter(int cellType, Object value) {
-        String strValue = String.valueOf(value);
         AXlsCellWriter result = null;
         if (value instanceof Number) {
             result = cellWriters.get(AXlsCellWriter.NUMBER_WRITER);
@@ -469,6 +483,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         } else if (value.getClass().isArray()) {
             result = cellWriters.get(AXlsCellWriter.ARRAY_WRITER);
         } else { // String
+            String strValue = String.valueOf(value);
             // Formula
             if (strValue.startsWith("=") && cellType == CELL_TYPE_FORMULA) {
                 result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
