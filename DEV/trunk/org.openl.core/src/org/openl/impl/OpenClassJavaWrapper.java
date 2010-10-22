@@ -73,6 +73,30 @@ public class OpenClassJavaWrapper {
         return createWrapper(openlName, userContext, filename, false);
     }
 
+    public static IOpenSourceCodeModule getSourceCodeModule(String filename, IUserContext userContext) {
+
+        String fileOrURL = PropertiesLocator.locateFileOrURL(filename, userContext.getUserClassLoader(),
+            new String[] { userContext.getUserHome() });
+
+        if (fileOrURL == null) {
+            throw new RuntimeException("File " + filename + " is not found");
+        }
+
+        IOpenSourceCodeModule source = null;
+
+        try {
+            if (fileOrURL.indexOf(':') < 2) {
+                source = new FileSourceCodeModule(fileOrURL, null);
+            } else {
+                source = new URLSourceCodeModule(new URL(fileOrURL));
+            }
+        } catch (MalformedURLException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+
+        return source;
+    }
+    
     public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, String filename,
             boolean executionMode) {
         String fileOrURL = PropertiesLocator.locateFileOrURL(filename,

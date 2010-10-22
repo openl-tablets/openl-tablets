@@ -80,7 +80,7 @@ public class JavaWrapperGenerator {
         defaultImports.add("org.openl.conf.IUserContext");
         defaultImports.add("org.openl.conf.UserContext");
         defaultImports.add("org.openl.impl.OpenClassJavaWrapper");
-        defaultImports.add("org.openl.source.impl.FileSourceCodeModule");
+        defaultImports.add("org.openl.source.IOpenSourceCodeModule");
         
         methodImports = new ArrayList<String>();
         methodImports.add("org.openl.util.Log");
@@ -388,9 +388,13 @@ public class JavaWrapperGenerator {
         
         + "    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);\n" 
         
-        + "    FileSourceCodeModule source = new FileSourceCodeModule(__src, null);\n"
+        + "    IOpenSourceCodeModule source = OpenClassJavaWrapper.getSourceCodeModule(__src, ucxt);\n"
         
-        + "    source.setParams(__externalParams);\n"
+        + "    if (source != null) {\n"
+        
+        + "         source.setParams(__externalParams);\n"
+        
+        + "    }\n"
         
         + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);\n"
 
