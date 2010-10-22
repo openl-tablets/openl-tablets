@@ -171,9 +171,9 @@ public class DataNodeBinder extends AXlsTableBinder {
     private void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
 
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
-        ILogicalTable dataWithTitleRows = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
+        ILogicalTable dataWithTitle = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
         
-        tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, dataWithTitleRows);
+        tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, dataWithTitle);
     }
 
     /**
