@@ -3,7 +3,11 @@ package org.openl.rules.ui.tablewizard.jsf;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.ui.tablewizard.TableWizard;
 
 /**
  * @author Aliaksandr Antonik.
@@ -81,8 +85,17 @@ public abstract class BaseWizardBean {
 
     public String start() {
         maxVisitedStep = step = 0;
-        onStart();
-        return getName();
+        try {
+            onStart();
+            return getName();
+        } catch (IllegalArgumentException e) {
+            // process the error during starting.
+            //
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can`t create wizard for this kind of table.", e.getMessage()));
+            return TableWizard.ERROR;
+        }
+   
     }
 
     public String finish() throws Exception {
