@@ -2,6 +2,7 @@ package org.openl.rules.table.xls;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -24,6 +25,10 @@ public class PoiExcelHelper {
                 break;
             case Cell.CELL_TYPE_FORMULA:
                 cellTo.setCellFormula(cellFrom.getCellFormula());
+                try {
+                    evaluateFormula(cellTo);
+                } catch (Exception e) {
+                }
                 break;
             case Cell.CELL_TYPE_NUMERIC:
                 cellTo.setCellValue(cellFrom.getNumericCellValue());
@@ -146,6 +151,14 @@ public class PoiExcelHelper {
     public static CellRangeAddress getMergedRegionAt(int index, Sheet sheet) {
         return sheet.getMergedRegion(index);
     }
-    
+
+    /**
+     * Evaluates formula in the cell to get new cell value.
+     */
+    public static void evaluateFormula(Cell cell) throws Exception {
+        FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook()
+            .getCreationHelper().createFormulaEvaluator();
+        formulaEvaluator.evaluateFormulaCell(cell);
+    }
 
 }
