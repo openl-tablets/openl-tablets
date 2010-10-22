@@ -13,7 +13,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
 
 public class OpenClassHelper {
-    
+
     public static synchronized IOpenClass getOpenClass(IOpenClass moduleOpenClass, Class<?> classToFind) {
         IOpenClass result = null;
         if (classToFind != null) {
@@ -26,7 +26,7 @@ public class OpenClassHelper {
             } else {
                 result = findType(classToFind, internalTypes);
             }
-            
+
             if (result == null) {
                 result = JavaOpenClass.getOpenClass(classToFind);
             }
@@ -37,27 +37,26 @@ public class OpenClassHelper {
     private static IOpenClass findType(Class<?> classToFind, Map<String, IOpenClass> internalTypes) {
         IOpenClass result = null;
         for (IOpenClass datatypeClass : internalTypes.values()) {
-            if (!(datatypeClass instanceof DomainOpenClass) 
-            		&& classToFind.equals(datatypeClass.getInstanceClass())) {
-                
-            	result = datatypeClass;
+            if (!(datatypeClass instanceof DomainOpenClass) && classToFind.equals(datatypeClass.getInstanceClass())) {
+
+                result = datatypeClass;
                 break;
             }
         }
         return result;
     }
-    
+
     public static synchronized IOpenClass[] getOpenClasses(IOpenClass moduleOpenClass, Class<?>[] classesToFind) {
         List<IOpenClass> openClassList = new ArrayList<IOpenClass>();
         if (classesToFind.length == 0) {
             return IOpenClass.EMPTY;
         }
-        
+
         for (Class<?> classToFind : classesToFind) {
             openClassList.add(getOpenClass(moduleOpenClass, classToFind));
         }
         return openClassList.toArray(new IOpenClass[openClassList.size()]);
-        
+
     }
 
     /**
@@ -101,5 +100,22 @@ public class OpenClassHelper {
         }
 
         return classes.toArray(new Class<?>[classes.size()]);
+    }
+
+    /**
+     * Checks given type that it is boolean type.
+     * 
+     * @param type {@link IOpenClass} instance
+     * @return <code>true</code> if given type equals
+     *         {@link JavaOpenClass.BOOLEAN} or
+     *         JavaOpenClass.getOpenClass(Boolean.class); otherwise -
+     *         <code>false</code>
+     */
+    public static boolean isBooleanType(IOpenClass type) {
+        if (type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type) {
+            return true;
+        }
+
+        return false;
     }
 }

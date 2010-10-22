@@ -7,7 +7,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 
 /**
  * @author snshor
@@ -24,11 +24,8 @@ public class WhileNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
         IBoundNode conditionNode = children[0];
 
-        if (conditionNode != null && !conditionNode.getType().equals(JavaOpenClass.BOOLEAN) && conditionNode.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
-            BindHelper.processError("'While' condition must have boolean type",
-                conditionNode.getSyntaxNode(),
-                bindingContext);
-
+        if (conditionNode != null && !OpenClassHelper.isBooleanType(conditionNode.getType())) {
+            BindHelper.processError("'While' condition must have boolean type", conditionNode.getSyntaxNode(), bindingContext);
             return new ErrorBoundNode(node);
         }
 

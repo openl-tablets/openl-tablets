@@ -7,7 +7,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 
 /**
  * @author snshor
@@ -24,12 +24,9 @@ public class ForNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
         IBoundNode conditionNode = children[1];
 
-        if (conditionNode != null && !conditionNode.getType().equals(JavaOpenClass.BOOLEAN) && conditionNode.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
-            
+        if (conditionNode != null && !OpenClassHelper.isBooleanType(conditionNode.getType())) {
             BindHelper.processError("Condition must have boolean type", conditionNode.getSyntaxNode(), bindingContext);
-
             return new ErrorBoundNode(node);
-//            throw new BoundError("Condition must have boolean type", conditionNode.getSyntaxNode());
         }
 
         return new ForNode(node, children);

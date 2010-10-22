@@ -111,18 +111,6 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return new DoubleValue(x);
     }
 
-    public static double autocast(DoubleValue x, double y) {
-        return x.doubleValue();
-    }
-
-    public static Double autocast(DoubleValue x, Double y) {
-        if (x == null) {
-            return null;
-        }
-        
-        return x.doubleValue();
-    }
-
     public static byte cast(DoubleValue x, byte y) {
         return x.byteValue();
     }
@@ -147,6 +135,18 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return x.floatValue();
     }
     
+    public static double cast(DoubleValue x, double y) {
+        return x.doubleValue();
+    }
+
+    public static Double cast(DoubleValue x, Double y) {
+        if (x == null) {
+            return null;
+        }
+
+        return x.doubleValue();
+    }
+
     public static DoubleValue copy(DoubleValue value, String name) {
 
         if (value.getName() == null) {
