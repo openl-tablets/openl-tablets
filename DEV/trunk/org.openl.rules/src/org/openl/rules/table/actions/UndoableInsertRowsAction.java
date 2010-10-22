@@ -49,7 +49,7 @@ public class UndoableInsertRowsAction extends UndoableEditTableAction {
                 e.printStackTrace();
             }
         }
-        int cellHeight = table.getCell(col, beforeRow).getHeight();
+        int cellHeight = getOriginalTable(table).getCell(col, beforeRow).getHeight();
         if (cellHeight > 1) { // merged cell
             nRows += cellHeight - 1;
         }
