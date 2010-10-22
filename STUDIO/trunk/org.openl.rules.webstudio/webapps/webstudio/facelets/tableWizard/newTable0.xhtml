@@ -8,6 +8,9 @@
     <ui:define name="page">
         <h2>Select table type</h2>
         <h:form>
+            <h:panelGroup style="text-align:left;">
+                    <h:messages showDetail="true" globalOnly="true" tooltip="true" errorClass="error" />
+            </h:panelGroup>
             <div align="left">
                 <h:selectOneRadio value="#{tableCreatorWizardManager.tableType}" layout="pageDirection">
                     <f:selectItem itemValue="DECISION" itemLabel="Decision Table" />

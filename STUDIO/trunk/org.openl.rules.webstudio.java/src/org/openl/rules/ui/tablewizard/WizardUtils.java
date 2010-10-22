@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 /**
  * @author Aliaksandr Antonik.
@@ -34,7 +35,13 @@ public class WizardUtils {
     }
 
     public static XlsMetaInfo getMetaInfo() {
-        return (XlsMetaInfo) getProjectOpenClass().getMetaInfo();
+        if (getProjectOpenClass() instanceof NullOpenClass) {
+            // module wasn`t loaded successfully.
+            //
+            throw new IllegalArgumentException("Module is corrupted.");
+        } else {
+            return (XlsMetaInfo) getProjectOpenClass().getMetaInfo();
+        }
     }
 
     public static IOpenClass getProjectOpenClass() {

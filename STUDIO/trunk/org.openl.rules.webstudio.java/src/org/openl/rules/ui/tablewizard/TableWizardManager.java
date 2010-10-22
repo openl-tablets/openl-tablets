@@ -1,5 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author Aliaksandr Antonik.
  */
@@ -76,7 +78,12 @@ public class TableWizardManager extends TableWizard{
         }
 
         String ret = wizard.start();
-        wizard.next();
-        return ret;
+        if (ERROR.equals(ret)) {
+            // process the error situation on start.
+            return StringUtils.EMPTY;
+        } else {
+            wizard.next();
+            return ret;
+        }
     }
 }

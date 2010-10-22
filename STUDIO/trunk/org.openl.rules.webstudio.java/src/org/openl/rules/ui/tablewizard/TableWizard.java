@@ -9,6 +9,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public abstract class TableWizard {
     
+    public static final String ERROR = "error";
+    
     private String elementUri;
     
     protected BaseWizardBean wizard;
