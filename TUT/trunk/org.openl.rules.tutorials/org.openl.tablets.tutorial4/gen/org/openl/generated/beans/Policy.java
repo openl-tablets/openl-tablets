@@ -4,11 +4,12 @@
 
 package org.openl.generated.beans;
 
+import java.lang.String;
 import org.openl.generated.beans.Driver;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.generated.beans.Vehicle;
-import java.lang.String;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.ArrayUtils;
 
 public class Policy{
   protected java.lang.String name;
@@ -36,6 +37,16 @@ public Policy(String name, String clientTier, String clientTerm, Driver[] driver
     this.vehicles = vehicles;
 }
 
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(name);
+    builder.append(clientTier);
+    builder.append(clientTerm);
+    builder.append(drivers);
+    builder.append(vehicles);
+    return builder.toHashCode();
+}
+
 public boolean equals(Object obj) {
     EqualsBuilder builder = new EqualsBuilder();
     if (!(obj instanceof Policy)) {;
@@ -49,6 +60,9 @@ public boolean equals(Object obj) {
     builder.append(another.vehicles,vehicles);
     return builder.isEquals();
 }
+  public java.lang.String getName() {
+   return name;
+}
 
 public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -60,24 +74,11 @@ public String toString() {
     builder.append(" clientTerm=");
     builder.append(clientTerm);
     builder.append(" drivers=");
-    builder.append(drivers);
+    builder.append(ArrayUtils.toString(drivers));
     builder.append(" vehicles=");
-    builder.append(vehicles);
+    builder.append(ArrayUtils.toString(vehicles));
     builder.append(" }");
     return builder.toString();
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(name);
-    builder.append(clientTier);
-    builder.append(clientTerm);
-    builder.append(drivers);
-    builder.append(vehicles);
-    return builder.toHashCode();
-}
-  public java.lang.String getName() {
-   return name;
 }
   public void setName(java.lang.String name) {
    this.name = name;

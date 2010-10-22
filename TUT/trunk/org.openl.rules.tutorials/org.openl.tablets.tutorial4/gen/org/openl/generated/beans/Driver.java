@@ -4,9 +4,10 @@
 
 package org.openl.generated.beans;
 
+import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.lang.String;
+import org.apache.commons.lang.ArrayUtils;
 
 public class Driver{
   protected java.lang.String name;
@@ -46,6 +47,20 @@ public Driver(String name, String gender, int age, String maritalStatus, String 
     this.hadTraining = hadTraining;
 }
 
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(name);
+    builder.append(gender);
+    builder.append(age);
+    builder.append(maritalStatus);
+    builder.append(state);
+    builder.append(numAccidents);
+    builder.append(numMovingViolations);
+    builder.append(numDUI);
+    builder.append(hadTraining);
+    return builder.toHashCode();
+}
+
 public boolean equals(Object obj) {
     EqualsBuilder builder = new EqualsBuilder();
     if (!(obj instanceof Driver)) {;
@@ -62,6 +77,9 @@ public boolean equals(Object obj) {
     builder.append(another.numDUI,numDUI);
     builder.append(another.hadTraining,hadTraining);
     return builder.isEquals();
+}
+  public java.lang.String getName() {
+   return name;
 }
 
 public String toString() {
@@ -87,23 +105,6 @@ public String toString() {
     builder.append(hadTraining);
     builder.append(" }");
     return builder.toString();
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(name);
-    builder.append(gender);
-    builder.append(age);
-    builder.append(maritalStatus);
-    builder.append(state);
-    builder.append(numAccidents);
-    builder.append(numMovingViolations);
-    builder.append(numDUI);
-    builder.append(hadTraining);
-    return builder.toHashCode();
-}
-  public java.lang.String getName() {
-   return name;
 }
   public java.lang.String getState() {
    return state;

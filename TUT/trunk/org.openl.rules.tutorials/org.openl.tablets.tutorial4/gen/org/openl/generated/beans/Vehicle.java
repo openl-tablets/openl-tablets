@@ -4,9 +4,10 @@
 
 package org.openl.generated.beans;
 
+import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.lang.String;
+import org.apache.commons.lang.ArrayUtils;
 
 public class Vehicle{
   protected java.lang.String name;
@@ -52,6 +53,22 @@ public Vehicle(String name, String model, int year, boolean hasAlarm, String typ
     this.hasRollBar = hasRollBar;
 }
 
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(name);
+    builder.append(model);
+    builder.append(year);
+    builder.append(hasAlarm);
+    builder.append(type);
+    builder.append(onHighTheftProbabilityList);
+    builder.append(airbags);
+    builder.append(price);
+    builder.append(bodyType);
+    builder.append(coverage);
+    builder.append(hasRollBar);
+    return builder.toHashCode();
+}
+
 public boolean equals(Object obj) {
     EqualsBuilder builder = new EqualsBuilder();
     if (!(obj instanceof Vehicle)) {;
@@ -70,6 +87,9 @@ public boolean equals(Object obj) {
     builder.append(another.coverage,coverage);
     builder.append(another.hasRollBar,hasRollBar);
     return builder.isEquals();
+}
+  public java.lang.String getName() {
+   return name;
 }
 
 public String toString() {
@@ -94,30 +114,11 @@ public String toString() {
     builder.append(" bodyType=");
     builder.append(bodyType);
     builder.append(" coverage=");
-    builder.append(coverage);
+    builder.append(ArrayUtils.toString(coverage));
     builder.append(" hasRollBar=");
     builder.append(hasRollBar);
     builder.append(" }");
     return builder.toString();
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(name);
-    builder.append(model);
-    builder.append(year);
-    builder.append(hasAlarm);
-    builder.append(type);
-    builder.append(onHighTheftProbabilityList);
-    builder.append(airbags);
-    builder.append(price);
-    builder.append(bodyType);
-    builder.append(coverage);
-    builder.append(hasRollBar);
-    return builder.toHashCode();
-}
-  public java.lang.String getName() {
-   return name;
 }
   public void setName(java.lang.String name) {
    this.name = name;

@@ -12,7 +12,7 @@ import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 
 public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -103,18 +103,18 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
 
 
 
-  static org.openl.types.IOpenField ampmTo24Test_Field;
+  static org.openl.types.IOpenField states_Field;
 
-  public org.openl.types.impl.DynamicObject[] getAmpmTo24Test()
+  public org.openl.tablets.tutorial3.USState[] getStates()
   {
-   Object __res = ampmTo24Test_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
+   Object __res = states_Field.get(__instance, __env.get());
+   return (org.openl.tablets.tutorial3.USState[])__res;
   }
 
 
-  public void setAmpmTo24Test(org.openl.types.impl.DynamicObject[] __var)
+  public void setStates(org.openl.tablets.tutorial3.USState[] __var)
   {
-   ampmTo24Test_Field.set(__instance, __var, __env.get());
+   states_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -135,18 +135,18 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
 
 
 
-  static org.openl.types.IOpenField states_Field;
+  static org.openl.types.IOpenField ampmTo24Test_Field;
 
-  public org.openl.tablets.tutorial3.USState[] getStates()
+  public org.openl.types.impl.DynamicObject[] getAmpmTo24Test()
   {
-   Object __res = states_Field.get(__instance, __env.get());
-   return (org.openl.tablets.tutorial3.USState[])__res;
+   Object __res = ampmTo24Test_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
   }
 
 
-  public void setStates(org.openl.tablets.tutorial3.USState[] __var)
+  public void setAmpmTo24Test(org.openl.types.impl.DynamicObject[] __var)
   {
-   states_Field.set(__instance, __var, __env.get());
+   ampmTo24Test_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -185,23 +185,6 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
   }
 
 
-  static org.openl.types.IOpenMethod test21_Method;
-  public java.lang.String test21()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = test21_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod ampmTo24TestTestAll_Method;
   public org.openl.rules.testmethod.TestUnitsResults ampmTo24TestTestAll()  {
     Object[] __params = new Object[0];
@@ -219,6 +202,25 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
   }
 
 
+  static org.openl.types.IOpenMethod ampmTo24_Method;
+  public int ampmTo24(int ampmHr, java.lang.String ampm)  {
+    Object[] __params = new Object[2];
+    __params[0] = new Integer(ampmHr);
+    __params[1] = ampm;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = ampmTo24_Method.invoke(__myInstance, __params, __env.get());
+   return ((Integer)__res).intValue();  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod region_Method;
   public java.lang.String region(java.lang.String state)  {
     Object[] __params = new Object[1];
@@ -227,6 +229,23 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
     {
     Object __myInstance = __instance;
     Object __res = region_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod test21_Method;
+  public java.lang.String test21()  {
+    Object[] __params = new Object[0];
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = test21_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -271,25 +290,6 @@ public class Tutorial_3TestWrapper implements org.openl.main.OpenLWrapper,org.op
   }
 
   }
-
-
-  static org.openl.types.IOpenMethod ampmTo24_Method;
-  public int ampmTo24(int ampmHr, java.lang.String ampm)  {
-    Object[] __params = new Object[2];
-    __params[0] = new Integer(ampmHr);
-    __params[1] = ampm;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = ampmTo24_Method.invoke(__myInstance, __params, __env.get());
-   return ((Integer)__res).intValue();  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
   static boolean __initialized = false;
 
   static public void reset(){__initialized = false;}
@@ -308,32 +308,34 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       return;
 
     IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    FileSourceCodeModule source = new FileSourceCodeModule(__src, null);
-    source.setParams(__externalParams);
+    IOpenSourceCodeModule source = OpenClassJavaWrapper.getSourceCodeModule(__src, ucxt);
+    if (source != null) {
+         source.setParams(__externalParams);
+    }
     OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
     addresses31_Field = __class.getField("addresses31");
-    ampmTo24Test_Field = __class.getField("ampmTo24Test");
-    addresses3_Field = __class.getField("addresses3");
     states_Field = __class.getField("states");
+    addresses3_Field = __class.getField("addresses3");
+    ampmTo24Test_Field = __class.getField("ampmTo24Test");
     this_Field = __class.getField("this");
     hr24ToAmpm_Method = __class.getMatchingMethod("hr24ToAmpm", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, int.class)});
-    test21_Method = __class.getMatchingMethod("test21", new IOpenClass[] {
-});
     ampmTo24TestTestAll_Method = __class.getMatchingMethod("ampmTo24TestTestAll", new IOpenClass[] {
 });
+    ampmTo24_Method = __class.getMatchingMethod("ampmTo24", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, int.class),
+      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     region_Method = __class.getMatchingMethod("region", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
+    test21_Method = __class.getMatchingMethod("test21", new IOpenClass[] {
+});
     region22_Method = __class.getMatchingMethod("region22", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     region21_Method = __class.getMatchingMethod("region21", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
-    ampmTo24_Method = __class.getMatchingMethod("ampmTo24", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, int.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
 
     __initialized=true;
