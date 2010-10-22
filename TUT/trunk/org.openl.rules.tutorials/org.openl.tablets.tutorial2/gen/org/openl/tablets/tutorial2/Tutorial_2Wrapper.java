@@ -9,7 +9,7 @@ import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 
 public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -100,6 +100,22 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenField phrases21_Field;
+
+  public java.lang.String[] getPhrases21()
+  {
+   Object __res = phrases21_Field.get(__instance, __env.get());
+   return (java.lang.String[])__res;
+  }
+
+
+  public void setPhrases21(java.lang.String[] __var)
+  {
+   phrases21_Field.set(__instance, __var, __env.get());
+  }
+
+
+
   static org.openl.types.IOpenField numbers22_Field;
 
   public int[] getNumbers22()
@@ -112,38 +128,6 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   public void setNumbers22(int[] __var)
   {
    numbers22_Field.set(__instance, __var, __env.get());
-  }
-
-
-
-  static org.openl.types.IOpenField customers3_Field;
-
-  public org.openl.tablets.tutorial2.step3.Customer2_3[] getCustomers3()
-  {
-   Object __res = customers3_Field.get(__instance, __env.get());
-   return (org.openl.tablets.tutorial2.step3.Customer2_3[])__res;
-  }
-
-
-  public void setCustomers3(org.openl.tablets.tutorial2.step3.Customer2_3[] __var)
-  {
-   customers3_Field.set(__instance, __var, __env.get());
-  }
-
-
-
-  static org.openl.types.IOpenField ranges23_Field;
-
-  public org.openl.rules.helpers.IntRange[] getRanges23()
-  {
-   Object __res = ranges23_Field.get(__instance, __env.get());
-   return (org.openl.rules.helpers.IntRange[])__res;
-  }
-
-
-  public void setRanges23(org.openl.rules.helpers.IntRange[] __var)
-  {
-   ranges23_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -164,6 +148,22 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenField customers3_Field;
+
+  public org.openl.tablets.tutorial2.step3.Customer2_3[] getCustomers3()
+  {
+   Object __res = customers3_Field.get(__instance, __env.get());
+   return (org.openl.tablets.tutorial2.step3.Customer2_3[])__res;
+  }
+
+
+  public void setCustomers3(org.openl.tablets.tutorial2.step3.Customer2_3[] __var)
+  {
+   customers3_Field.set(__instance, __var, __env.get());
+  }
+
+
+
   static org.openl.types.IOpenField this_Field;
 
   public org.openl.types.impl.DynamicObject getThis()
@@ -180,18 +180,18 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenField phrases21_Field;
+  static org.openl.types.IOpenField ranges23_Field;
 
-  public java.lang.String[] getPhrases21()
+  public org.openl.rules.helpers.IntRange[] getRanges23()
   {
-   Object __res = phrases21_Field.get(__instance, __env.get());
-   return (java.lang.String[])__res;
+   Object __res = ranges23_Field.get(__instance, __env.get());
+   return (org.openl.rules.helpers.IntRange[])__res;
   }
 
 
-  public void setPhrases21(java.lang.String[] __var)
+  public void setRanges23(org.openl.rules.helpers.IntRange[] __var)
   {
-   phrases21_Field.set(__instance, __var, __env.get());
+   ranges23_Field.set(__instance, __var, __env.get());
   }
 
   static boolean __initialized = false;
@@ -212,20 +212,22 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       return;
 
     IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    FileSourceCodeModule source = new FileSourceCodeModule(__src, null);
-    source.setParams(__externalParams);
+    IOpenSourceCodeModule source = OpenClassJavaWrapper.getSourceCodeModule(__src, ucxt);
+    if (source != null) {
+         source.setParams(__externalParams);
+    }
     OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
     pp11_Field = __class.getField("pp11");
-    numbers22_Field = __class.getField("numbers22");
-    customers3_Field = __class.getField("customers3");
-    ranges23_Field = __class.getField("ranges23");
-    pp1_Field = __class.getField("pp1");
-    this_Field = __class.getField("this");
     phrases21_Field = __class.getField("phrases21");
+    numbers22_Field = __class.getField("numbers22");
+    pp1_Field = __class.getField("pp1");
+    customers3_Field = __class.getField("customers3");
+    this_Field = __class.getField("this");
+    ranges23_Field = __class.getField("ranges23");
 
     __initialized=true;
   }
