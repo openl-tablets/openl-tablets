@@ -8,7 +8,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -19,6 +18,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 
 public class XlsCell implements ICell {
@@ -50,7 +50,8 @@ public class XlsCell implements ICell {
     }
 
     public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
-        this(column, row, gridModel.getRegionContaining(column, row), PoiExcelHelper.getCell(column, row, gridModel.getSheetSource().getSheet()));
+        this(column, row, gridModel.getRegionContaining(column, row),
+                PoiExcelHelper.getCell(column, row, gridModel.getSheetSource().getSheet()));
         this.gridModel = gridModel;
     }
 
@@ -110,7 +111,40 @@ public class XlsCell implements ICell {
             return extractCellValue(true);
         }
     }
-    
+
+    public void setObjectValue(Object value) {
+        if (value != null) {
+            boolean writeCellMetaInfo = true;
+
+            // Don't write meta info for predefined String arrays to avoid
+            // removing Enum Domain meta info.
+            if (gridModel.hasPredefinedStringArray(column, row)) {
+                writeCellMetaInfo = false;
+            }
+
+            AXlsCellWriter cellWriter = gridModel.getCellWriter(cell.getCellType(), value);
+            cellWriter.setCellToWrite(cell);
+            cellWriter.setValueToWrite(value);
+            cellWriter.writeCellValue(writeCellMetaInfo);
+        } else {
+            cell.setCellType(IGrid.CELL_TYPE_BLANK);
+        }
+    }
+
+    public String getStringValue() {
+        Object res = null;
+        try {
+            res = getObjectValue();
+        } catch (IncorrectFormulaException ex) {
+            //logged in getObjectValue() method.
+        }
+        return res == null ? null : String.valueOf(res);
+    }
+
+    public void setStringValue(String value) {
+        cell.setCellValue(value);
+    }
+
     private ICell getTopLeftCellFromRegion() {
         // Gets the top left cell in this region
         int row = region.getTop();
@@ -137,7 +171,7 @@ public class XlsCell implements ICell {
         }            
     }
 
-    private Object extractCellValue(boolean useCachedValue){
+    private Object extractCellValue(boolean useCachedValue) {
         if (cell != null) {
             int type = cell.getCellType();
             if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
@@ -157,27 +191,16 @@ public class XlsCell implements ICell {
                     return cell.getStringCellValue();
                 case Cell.CELL_TYPE_FORMULA:
                     try {
-                        FormulaEvaluator formulaEvaluator = gridModel.getSheetSource().getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
-                        formulaEvaluator.evaluateFormulaCell(cell);
-                    } catch (RuntimeException e) {
+                        PoiExcelHelper.evaluateFormula(cell);
+                    } catch (Exception e) {
                     }
-                    //extract new calculated value or previously cached value if calculation failed
+                    // Extract new calculated value or previously cached value if calculation failed.
                     return extractCellValue(true);
                 default:
                     return "unknown type: " + cell.getCellType();
             }
         }
         return null;
-    }
-
-    public String getStringValue() {
-        Object res = null;
-        try {
-            res = getObjectValue();
-        } catch (IncorrectFormulaException ex) {
-            //logged in getObjectValue() method.
-        }
-        return res == null ? null : String.valueOf(res);
     }
 
     public String getFormula() {
