@@ -75,8 +75,16 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return new DoubleValueFormula(dv1, dv2, dv1.getValue() + dv2.getValue(), "+", false);
     }
 
-    public static DoubleValue autocast(double x, DoubleValue y) {
+    public static DoubleValue autocast(byte x, DoubleValue y) {
         return new DoubleValue(x);
+    }
+
+    public static DoubleValue autocast(short x, DoubleValue y) {
+        return new DoubleValue(x);
+    }
+    
+    public static DoubleValue autocast(char x, DoubleValue y) {
+        return new DoubleValue(x);    
     }
 
     public static DoubleValue autocast(int x, DoubleValue y) {
@@ -87,6 +95,58 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return new DoubleValue(x);
     }
 
+    public static DoubleValue autocast(float x, DoubleValue y) {
+        return new DoubleValue(x);
+    }
+
+    public static DoubleValue autocast(double x, DoubleValue y) {
+        return new DoubleValue(x);
+    }
+
+    public static DoubleValue autocast(Double x, DoubleValue y) {
+        if (x == null) {
+            return null;
+        }
+
+        return new DoubleValue(x);
+    }
+
+    public static double autocast(DoubleValue x, double y) {
+        return x.doubleValue();
+    }
+
+    public static Double autocast(DoubleValue x, Double y) {
+        if (x == null) {
+            return null;
+        }
+        
+        return x.doubleValue();
+    }
+
+    public static byte cast(DoubleValue x, byte y) {
+        return x.byteValue();
+    }
+
+    public static short cast(DoubleValue x, short y) {
+        return x.shortValue();
+    }
+    
+    public static char cast(DoubleValue x, char y) {
+        return (char) x.doubleValue();
+    }
+
+    public static int cast(DoubleValue x, int y) {
+        return x.intValue();
+    }
+
+    public static long cast(DoubleValue x, long y) {
+        return x.longValue();
+    }
+
+    public static float cast(DoubleValue x, float y) {
+        return x.floatValue();
+    }
+    
     public static DoubleValue copy(DoubleValue value, String name) {
 
         if (value.getName() == null) {
