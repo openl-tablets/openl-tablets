@@ -70,8 +70,12 @@ public class TableEditorModel {
 
     public TableEditorModel(IOpenLTable table, String view, boolean showFormulas) {
         this.table = table;
-        this.view = view;
         this.gridTable = table.getGridTable(view);
+        if (gridTable == table.getGridTable()) { // table have no business view(e.g. Method Table)
+            this.view = IXlsTableNames.VIEW_DEVELOPER;
+        } else {
+            this.view = view;
+        }
         this.showFormulas = showFormulas;
 
         makeFilteredGrid(gridTable);
