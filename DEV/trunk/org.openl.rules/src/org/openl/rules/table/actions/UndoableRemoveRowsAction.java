@@ -1,8 +1,5 @@
 package org.openl.rules.table.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -11,13 +8,11 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 /**
  * @author Andrei Astrouski
  */
-public class UndoableRemoveRowsAction extends UndoableEditTableAction {
+public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
     private int nRows;
     private int startRow;
     private int col;
-    
-    private IUndoableGridTableAction action;
 
     public UndoableRemoveRowsAction(int nRows, int startRow, int col) {
         this.nRows = nRows;
@@ -25,32 +20,29 @@ public class UndoableRemoveRowsAction extends UndoableEditTableAction {
         this.col = col;
     }
 
-    public void doAction(IGridTable table) {
-        IGridRegion fullTableRegion = getOriginalRegion(table);
-        if (startRow < 0 || startRow >= IGridRegion.Tool.height(fullTableRegion)) {
-            return;
-        }
-        int cellHeight = getOriginalTable(table).getCell(col, startRow).getHeight();
-        if (cellHeight > 1) { // merged cell
-            nRows += cellHeight - 1;
-        }
-
-        List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
-        IUndoableGridTableAction ua = IWritableGrid.Tool.removeRows(nRows, startRow, fullTableRegion, table);
-        actions.add(ua);
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, ROWS, REMOVE, ActionType.EXPAND, nRows);
-        actions.add(allTable);
-        if (isDecoratorTable(table)) {
-            GridRegionAction displayTable = new GridRegionAction(
-                    table.getRegion(), ROWS, REMOVE, ActionType.EXPAND, nRows);
-            actions.add(displayTable);
-        }
-        action = new UndoableCompositeAction(actions);
-        action.doAction(table);
+    @Override
+    protected boolean canPerformAction(IGridRegion gridRegion) {        
+        return !(startRow < 0 || startRow >= IGridRegion.Tool.height(gridRegion));
     }
 
-    public void undoAction(IGridTable table) {
-        action.undoAction(table);
+    @Override
+    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToRemove) {
+        return new GridRegionAction(gridRegion, ROWS, REMOVE, ActionType.EXPAND, numberToRemove);
+    }
+
+    @Override
+    protected int getNumberToRemove(IGridTable table) {
+        int cellHeight = getOriginalTable(table).getCell(col, startRow).getHeight();
+        int numberToRemove = nRows;
+        if (cellHeight > 1) { // merged cell
+            numberToRemove += cellHeight - 1;
+        }
+        return numberToRemove;
+    }
+
+    @Override
+    protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {        
+        return IWritableGrid.Tool.removeRows(numberToRemove, startRow, fullTableRegion, table);
     }
 
 }
