@@ -161,6 +161,7 @@ var TableEditor = Class.create({
         this.columns = 0;
 
         var row = table.down("tr");
+
         if (row) {
             var tdElt = row.down("td");
             while (tdElt) {
@@ -170,8 +171,10 @@ var TableEditor = Class.create({
         }
 
         while (row) {
-            var tdElt = row.down("td")
-            this.rows += tdElt.rowSpan ? tdElt.rowSpan : 1;
+            var tdElt = row.down("td");
+            if (tdElt) {
+                this.rows += tdElt.rowSpan ? tdElt.rowSpan : 1;
+            }
             row = row.next("tr");
         }
     },
