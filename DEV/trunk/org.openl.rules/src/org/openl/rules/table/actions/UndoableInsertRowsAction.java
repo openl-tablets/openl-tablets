@@ -1,8 +1,5 @@
 package org.openl.rules.table.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -12,14 +9,12 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 /**
  * @author Andrei Astrouski
  */
-public class UndoableInsertRowsAction extends UndoableEditTableAction {
+public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     private int nRows;
     private int beforeRow;
     private int col;
-    
-    private IUndoableGridTableAction action;
-
+  
     public UndoableInsertRowsAction(int nRows, int beforeRow, int col) {
         this.nRows = nRows;
         this.beforeRow = beforeRow;
@@ -40,40 +35,28 @@ public class UndoableInsertRowsAction extends UndoableEditTableAction {
         return true;
     }
 
-    public void doAction(IGridTable table) {
-        IUndoableGridTableAction moveTableAction = null;
-        if (!UndoableInsertRowsAction.canInsertRows(table, nRows)) {
-            try {
-                moveTableAction = moveTable(table);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    @Override
+    protected boolean canPerformAction(IGridTable table) {        
+        return UndoableInsertRowsAction.canInsertRows(table, nRows);
+    }
+
+    @Override
+    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert) {        
+        return new GridRegionAction(gridRegion, ROWS, INSERT, ActionType.EXPAND, numberToInsert);
+    }
+
+    @Override
+    protected int getNumberToInsert(IGridTable table) {
         int cellHeight = getOriginalTable(table).getCell(col, beforeRow).getHeight();
+        int rowsToInsert = nRows;
         if (cellHeight > 1) { // merged cell
-            nRows += cellHeight - 1;
+            rowsToInsert += cellHeight - 1;
         }
-        IGridRegion fullTableRegion = getOriginalRegion(table);
-
-        List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
-        IUndoableGridTableAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, fullTableRegion, table);
-        actions.add(ua);
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, ROWS, INSERT, ActionType.EXPAND, nRows);
-        actions.add(allTable);
-        if (isDecoratorTable(table)) {
-            GridRegionAction displayTable = new GridRegionAction(
-                    table.getRegion(), ROWS, INSERT, ActionType.EXPAND, nRows);
-            actions.add(displayTable);
-        }
-        action = new UndoableCompositeAction(actions);
-        action.doAction(table);
-        if (moveTableAction != null) {
-            action = new UndoableCompositeAction(moveTableAction, action);
-        }
+        return rowsToInsert;
     }
 
-    public void undoAction(IGridTable table) {
-        action.undoAction(table);
+    @Override
+    protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {        
+        return IWritableGrid.Tool.insertRows(numberToInsert, beforeRow, fullTableRegion, table);
     }
-
 }

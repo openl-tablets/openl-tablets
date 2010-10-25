@@ -1,8 +1,5 @@
 package org.openl.rules.table.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -12,13 +9,11 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 /**
  * @author Andrei Astrouski
  */
-public class UndoableInsertColumnsAction extends UndoableEditTableAction {
+public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
     private int nCols;
     private int beforeCol;
     private int row;
-
-    private IUndoableGridTableAction action;
 
     public UndoableInsertColumnsAction(int nCols, int beforeCol, int row) {
         this.nCols = nCols;
@@ -39,39 +34,30 @@ public class UndoableInsertColumnsAction extends UndoableEditTableAction {
         }
         return true;
     }
-
-    public void doAction(IGridTable table) {
-        IUndoableGridTableAction moveTableAction = null;
-        if (!UndoableInsertColumnsAction.canInsertColumns(table, nCols)) {
-            try {
-                moveTableAction = moveTable(table);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    
+    @Override
+    protected boolean canPerformAction(IGridTable table) {
+        return UndoableInsertColumnsAction.canInsertColumns(table, nCols);
+    }
+    
+    @Override
+    protected int getNumberToInsert(IGridTable table) {
         int cellWidth = getOriginalTable(table).getCell(beforeCol, row).getWidth();
+        int colToInsert = nCols;
         if (cellWidth > 1) { // merged cell
-            nCols += cellWidth - 1;
+            colToInsert += cellWidth - 1;
         }
-        IGridRegion fullTableRegion = getOriginalRegion(table);
-        List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
-        IUndoableGridTableAction ua = IWritableGrid.Tool.insertColumns(nCols, beforeCol, fullTableRegion, table);
-        actions.add(ua);
-        GridRegionAction allTable = new GridRegionAction(fullTableRegion, COLUMNS, INSERT, ActionType.EXPAND, nCols);
-        actions.add(allTable);
-        if (isDecoratorTable(table)) {
-            GridRegionAction displayTable = new GridRegionAction(table.getRegion(), COLUMNS, INSERT, ActionType.EXPAND, nCols);
-            actions.add(displayTable);
-        }
-        action = new UndoableCompositeAction(actions);
-        action.doAction(table);
-        if (moveTableAction != null) {
-            action = new UndoableCompositeAction(moveTableAction, action);
-        }
+        return colToInsert;
     }
-
-    public void undoAction(IGridTable table) {
-        action.undoAction(table);
+    
+    @Override
+    protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {
+        return IWritableGrid.Tool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table);
     }
-
+    
+    @Override
+    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert) {
+        return new GridRegionAction(gridRegion, COLUMNS, INSERT, ActionType.EXPAND, numberToInsert);
+    }
+    
 }
