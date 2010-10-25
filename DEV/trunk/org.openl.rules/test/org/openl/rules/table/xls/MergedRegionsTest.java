@@ -15,6 +15,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.xls.XlsCell;
 import org.openl.source.impl.FileSourceCodeModule;
 
@@ -36,11 +37,12 @@ public class MergedRegionsTest {
      * rows/columns
      */
     private static class TestDesctiption {
-        private static final String testDescriptionFormat = "test=.+&result=.+&from=\\d+&count=\\d+";
+        private static final String testDescriptionFormat = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
         private static Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
 
         private IGridRegion testRegion;
         private IGridRegion expectedResultRegion;
+        private IGridRegion originalTableRegion;
         private int from;
         private int count;
 
@@ -50,6 +52,10 @@ public class MergedRegionsTest {
 
         public IGridRegion getExpectedResultRegion() {
             return expectedResultRegion;
+        }
+
+        public IGridRegion getOriginalTableRegion() {
+            return originalTableRegion;
         }
 
         public int getFrom() {
@@ -77,6 +83,8 @@ public class MergedRegionsTest {
                     test.testRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("result".equals(key)) {
                     test.expectedResultRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
+                } else if ("original".equals(key)) {
+                    test.originalTableRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("from".equals(key)) {
                     test.from = Integer.valueOf(value);
                 } else if ("count".equals(key)) {
@@ -94,7 +102,7 @@ public class MergedRegionsTest {
      * detected.
      * 
      */
-    private static class DifferentCellsException extends RuntimeException {
+    private static class DifferentCellsException extends Exception {
         private static final long serialVersionUID = 1L;
         private ICell resultCell;
         private ICell expectedCell;
@@ -133,16 +141,21 @@ public class MergedRegionsTest {
         return result;
     }
 
-    private void compareTablesByCell(IGridRegion testRegion, IGridRegion expectedRegion, XlsSheetGridModel grid) {
+    private void compareTablesByCell(IGridRegion testRegion, IGridRegion expectedRegion, XlsSheetGridModel grid)
+            throws DifferentCellsException {
         int height = Math.max(IGridRegion.Tool.height(testRegion), IGridRegion.Tool.height(expectedRegion));
         int width = Math.max(IGridRegion.Tool.width(testRegion), IGridRegion.Tool.width(expectedRegion));
         for (int row = 0; row <= height; row++) {
             for (int column = 0; column <= width; column++) {
-                XlsCell resultCell = (XlsCell)grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
-                XlsCell expectedCell = (XlsCell)grid.getCell(expectedRegion.getLeft() + column, expectedRegion.getTop() + row);
-                Cell resultXLSCell = PoiExcelHelper.getOrCreateCell(testRegion.getLeft() + column, testRegion.getTop() + row, grid.getSheetSource().getSheet());
+                XlsCell resultCell = (XlsCell) grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
+                XlsCell expectedCell = (XlsCell) grid.getCell(expectedRegion.getLeft() + column, expectedRegion
+                        .getTop()
+                        + row);
+                Cell resultXLSCell = PoiExcelHelper.getOrCreateCell(testRegion.getLeft() + column, testRegion.getTop()
+                        + row, grid.getSheetSource().getSheet());
                 Cell expectedXLSCell = PoiExcelHelper.getOrCreateCell(expectedRegion.getLeft() + column, expectedRegion
-                        .getTop() + row, grid.getSheetSource().getSheet());
+                        .getTop()
+                        + row, grid.getSheetSource().getSheet());
                 if (resultCell != expectedCell && resultCell.getStringValue() != expectedCell.getStringValue()) {
                     if (!isEqualCells(resultCell, expectedCell, grid)
                             || !isEqualCellsInPOI(resultXLSCell, expectedXLSCell)) {
@@ -213,6 +226,27 @@ public class MergedRegionsTest {
         }
     }
 
+    private void testActions(XlsWorkbookSourceCodeModule workbook, XlsSheetGridModel grid, IGridTable table,
+            TestDesctiption test, IUndoableGridTableAction removeRowsActions) {
+        try {
+            removeRowsActions.doAction(table);
+            compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
+            removeRowsActions.undoAction(table);
+            compareTablesByCell(test.getTestRegion(), test.getOriginalTableRegion(), grid);
+        } catch (DifferentCellsException e) {
+            if (saveAfterFailure) {
+                try {
+                    workbook.saveAs(String.format("test/rules/MergedRegionsAfter%s.xls", grid.getSheetSource()
+                            .getSheetName()));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri(),
+                    true);
+        }
+    }
+
     @Test
     public void testDeleteRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
@@ -220,23 +254,12 @@ public class MergedRegionsTest {
                 "DeleteRows", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.removeRows(
-                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
-            try {
-                compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
-            } catch (DifferentCellsException e) {
-                if (saveAfterFailure) {
-                    try {
-                        workbook.saveAs("test/rules/MergedRegionsAfterDeleteRows.xls");
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n"
-                        + e.getExpectedCell().getUri(), true);
-            }
+            IUndoableGridTableAction removeRowsAction = IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(),
+                    test.getTestRegion(), table);
+            testActions(workbook, grid, table, test, removeRowsAction);
         }
     }
 
@@ -247,23 +270,12 @@ public class MergedRegionsTest {
                 "InsertRows", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.insertRows(
-                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
-            try {
-                compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
-            } catch (DifferentCellsException e) {
-                if (saveAfterFailure) {
-                    try {
-                        workbook.saveAs("test/rules/MergedRegionsAfterInsertRows.xls");
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n"
-                        + e.getExpectedCell().getUri(), true);
-            }
+            IUndoableGridTableAction insertRowsAction = IWritableGrid.Tool.insertRows(test.getCount(), test.getFrom(),
+                    test.getTestRegion(), table);
+            testActions(workbook, grid, table, test, insertRowsAction);
         }
     }
 
@@ -274,23 +286,12 @@ public class MergedRegionsTest {
                 "DeleteColumns", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        assertEquals(6, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.removeColumns(
-                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
-            try {
-                compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
-            } catch (DifferentCellsException e) {
-                if (saveAfterFailure) {
-                    try {
-                        workbook.saveAs("test/rules/MergedRegionsAfterDeleteColumns.xls");
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n"
-                        + e.getExpectedCell().getUri(), true);
-            }
+            IUndoableGridTableAction removeColumnsAction = IWritableGrid.Tool.removeColumns(test.getCount(), test
+                    .getFrom(), test.getTestRegion(), table);
+            testActions(workbook, grid, table, test, removeColumnsAction);
         }
     }
 
@@ -301,23 +302,12 @@ public class MergedRegionsTest {
                 "InsertColumns", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
+        assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IWritableGrid.Tool.insertColumns(
-                    test.getCount(), test.getFrom(), test.getTestRegion(), table).doAction(table);
-            try {
-                compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
-            } catch (DifferentCellsException e) {
-                if (saveAfterFailure) {
-                    try {
-                        workbook.saveAs("test/rules/MergedRegionsAfterInsertColumn.xls");
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n"
-                        + e.getExpectedCell().getUri(), true);
-            }
+            IUndoableGridTableAction insertColumnsAction = IWritableGrid.Tool.insertColumns(test.getCount(), test
+                    .getFrom(), test.getTestRegion(), table);
+            testActions(workbook, grid, table, test, insertColumnsAction);
         }
     }
 }
