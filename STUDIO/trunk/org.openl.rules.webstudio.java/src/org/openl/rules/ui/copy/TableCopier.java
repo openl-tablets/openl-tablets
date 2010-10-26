@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.Pattern;
+
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -37,7 +40,10 @@ public abstract class TableCopier extends WizardBase {
     private String elementUri = null;
 
     /** Table technical name */
+    @NotEmpty(message="Technical name can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
     private String tableTechnicalName;
+
     /** Table business name */
     private String tableBusinessName;
 

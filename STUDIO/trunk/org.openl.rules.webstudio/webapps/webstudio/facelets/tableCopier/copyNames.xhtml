@@ -7,38 +7,26 @@
     xmlns:rich="http://richfaces.org/rich"    
     template="/facelets/common/copyWizardBase.xhtml">
 
-    <ui:define name="header">
-        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
-        <a4j:loadScript src="resource:///javascript/validator.js" />
-    </ui:define>
-
     <ui:define name="page">
         <h:form id="copyTableForm">
 
             <h2>Enter new table name</h2>
-            <h:panelGrid columns="2">
+            <h:panelGrid columns="3">
                 <h:outputText value="Business Name" />
-                <h:inputText value="#{tableCopierWizard.tableBusinessName}" />
+                <h:inputText id="businessName" value="#{tableCopierWizard.tableBusinessName}" />
+                <rich:spacer />
                 <h:outputText value="Technical Name" />
-                <h:inputText id="technicalName"
-                    value="#{tableCopierWizard.tableTechnicalName}" />
+                <h:inputText id="technicalName" value="#{tableCopierWizard.tableTechnicalName}">
+                    <rich:ajaxValidator event="onblur" />
+                </h:inputText>
+                <rich:message for="technicalName" styleClass="error" />
             </h:panelGrid>
             <br />
 
-      		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}"/>
-      		<h:commandButton value="Next" action="#{tableCopierWizardManager.next}" 
-      			onclick="return validateForm()"/>
-      		<h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}"/>
+      		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" />
+      		<h:commandButton value="Next" action="#{tableCopierWizardManager.next}" />
+      		<h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" />
         </h:form>
-
-        <f:verbatim>
-            <script type="text/javascript">
-              function validateForm() {
-                valid = validateRequired('copyTableForm:technicalName', true);                
-                return valid;
-              }
-            </script>
-        </f:verbatim>
 
     </ui:define>
 </ui:composition>
