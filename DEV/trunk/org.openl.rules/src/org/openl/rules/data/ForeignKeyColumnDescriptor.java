@@ -266,112 +266,130 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
-    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt) throws Exception {
+    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt) 
+        throws Exception {        
+        if (getField() != null) {
 
-        if (foreignKeyTable != null) {
+            if (foreignKeyTable != null) {
 
-            String foreignKeyTableName = foreignKeyTable.getIdentifier();
-            ITable foreignTable = db.getTable(foreignKeyTableName);
+                String foreignKeyTableName = foreignKeyTable.getIdentifier();
+                ITable foreignTable = db.getTable(foreignKeyTableName);
 
-            if (foreignTable == null) {
-                String message = String.format("Table '%s' not found", foreignKeyTableName);
-                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                if (foreignTable == null) {
+                    String message = String.format("Table '%s' not found", foreignKeyTableName);
+                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
 
-            } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-                String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
-                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-            }
+                } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
+                    String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
+                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                }
 
-            int foreignKeyIndex = 0;
-            String columnName = NOT_INITIALIZED;
+                int foreignKeyIndex = 0;
+                String columnName = NOT_INITIALIZED;
 
-            if (foreignKey != null) {
-                columnName = foreignKey.getIdentifier();
-                foreignKeyIndex = foreignTable.getColumnIndex(columnName);
-            }
+                if (foreignKey != null) {
+                    columnName = foreignKey.getIdentifier();
+                    foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+                }
 
-            if (foreignKeyIndex == -1) {
-                String message = "Column " + columnName + " not found";
-                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
-            }
+                if (foreignKeyIndex == -1) {
+                    String message = "Column " + columnName + " not found";
+                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
+                }
 
-            Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
-            String[] domainStrings = index.keySet().toArray(new String[0]);
+                Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
+                String[] domainStrings = index.keySet().toArray(new String[0]);
 
-            EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
-            DomainOpenClass domainClass = new DomainOpenClass(getField().getName(), JavaOpenClass.STRING, domain, null);
+                EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
+                DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
+                    JavaOpenClass.STRING,
+                    domain,
+                    null);
 
-            // table will have 1xN size
-            //
-            valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
+                // table will have 1xN size
+                //
+                valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
-            IOpenClass fieldType = getField().getType();
+                IOpenClass fieldType = getField().getType();
 
-            boolean valueAnArray = isValuesAnArray(fieldType);
-            boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean valueAnArray = isValuesAnArray(fieldType);
+                boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
 
-            if (!valueAnArray && !isList) {
+                if (!valueAnArray && !isList) {
 
-                String s = getCellStringValue(valuesTable);
+                    String s = getCellStringValue(valuesTable);
 
-                if (s == null || s.length() == 0) {
-                    // Set meta info for empty cells
-                    RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
-                } else {
-                    if (s.length() > 0) {
+                    if (s == null || s.length() == 0) {
+                        // Set meta info for empty cells
                         RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
-                        Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
-                        getField().set(target, res, getRuntimeEnv());
+                    } else {
+                        if (s.length() > 0) {
+                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
+                            getField().set(target, res, getRuntimeEnv());
+                        }
                     }
-                }
-            } else {
-                // processing array or list values.
-                List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable, foreignKeyIndex, domainClass);
-                List<Object> values = new ArrayList<Object>();
-
-                // Cell can contain empty reference value. As a result we will
-                // receive collection with one null value element. The following code snippet 
-                // searches null value elements and removes them.
-                //
-                Predicate predicate = new Predicate() {
-                    public boolean evaluate(Object arg) {
-                        return arg != null;
-                    }
-                };
-                
-                CollectionUtils.select(cellValues, predicate, values);
-                
-                int size = values.size();
-                IOpenClass componentType = null;
-
-                if (valueAnArray) {
-                    componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
                 } else {
-                    componentType = JavaOpenClass.OBJECT;
-                }
+                    // processing array or list values.
+                    List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
+                        foreignKeyIndex,
+                        domainClass);
+                    List<Object> values = new ArrayList<Object>();
 
-                Object array = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
+                    // Cell can contain empty reference value. As a result we
+                    // will
+                    // receive collection with one null value element. The
+                    // following code snippet
+                    // searches null value elements and removes them.
+                    //
+                    Predicate predicate = new Predicate() {
+                        public boolean evaluate(Object arg) {
+                            return arg != null;
+                        }
+                    };
 
-                // Populate result array with values.
-                //
-                for (int i = 0; i < size; i++) {
-                    Array.set(array, i, values.get(i));
-                }
+                    CollectionUtils.select(cellValues, predicate, values);
 
-                if (isList) {
-                    int len = Array.getLength(array);
+                    int size = values.size();
+                    IOpenClass componentType = null;
 
-                    List<Object> list = new ArrayList<Object>(len);
-
-                    for (int i = 0; i < len; i++) {
-                        list.add(Array.get(array, i));
+                    if (valueAnArray) {
+                        componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
+                    } else {
+                        componentType = JavaOpenClass.OBJECT;
                     }
 
-                    getField().set(target, list, getRuntimeEnv());
-                } else {
-                    getField().set(target, array, getRuntimeEnv());
+                    Object array = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
+
+                    // Populate result array with values.
+                    //
+                    for (int i = 0; i < size; i++) {
+                        Array.set(array, i, values.get(i));
+                    }
+
+                    if (isList) {
+                        int len = Array.getLength(array);
+
+                        List<Object> list = new ArrayList<Object>(len);
+
+                        for (int i = 0; i < len; i++) {
+                            list.add(Array.get(array, i));
+                        }
+
+                        getField().set(target, list, getRuntimeEnv());
+                    } else {
+                        getField().set(target, array, getRuntimeEnv());
+                    }
                 }
             }
+        } else {
+            /**
+             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
+             * processed during preparing column descriptor. 
+             * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
+             * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
+             * boolean hasColumnTytleRow)}
+             */
         }
     }
 }
