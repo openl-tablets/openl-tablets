@@ -12,6 +12,7 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.MergeCellsAction;
+import org.openl.rules.table.actions.UndoableSaveValueAction;
 import org.openl.rules.table.actions.UndoableClearAction;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableCopyValueAction;
@@ -418,7 +419,7 @@ public interface IWritableGrid extends IGrid {
                     && grid.isTopLeftCellInMergedRegion(colTo, rowTo)) {
                 // Don't copy cell from the same to the top left cell(because it
                 // value will be lost)
-                return null;
+                return new UndoableSaveValueAction(colTo, rowTo);
             }
             return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
         }
