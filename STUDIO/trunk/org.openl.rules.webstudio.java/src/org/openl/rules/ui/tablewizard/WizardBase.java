@@ -38,6 +38,7 @@ public abstract class WizardBase extends BaseWizardBean {
     private Integer worksheetIndex;
     private Map<String, XlsWorkbookSourceCodeModule> workbooks;
     private boolean newWorksheet;
+    private boolean wizardFinised;
     private String newWorksheetName;
     /** New table identifier */
     private String newTableUri;
@@ -128,6 +129,7 @@ public abstract class WizardBase extends BaseWizardBean {
         worksheetIndex = 0;
         workbooks = null;
         newWorksheet = false;
+        wizardFinised = false;
         newWorksheetName = StringUtils.EMPTY;
         getModifiedWorkbooks().clear();
     }
@@ -152,7 +154,11 @@ public abstract class WizardBase extends BaseWizardBean {
     public String finish() {
         boolean success = false;
         try {
-            onFinish();
+            if (!wizardFinised) {
+                onFinish();
+                wizardFinised = true;
+            }
+            doSave();
             success = true;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
