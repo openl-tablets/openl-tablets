@@ -32,27 +32,27 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         this(message, null, null, null);
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.exception.OpenLException#getOriginalMessage()
-     */
-    public String getOriginalMessage() {
-
-        Throwable originalCause = getOriginalCause();
-
-        if (originalCause != null) {
-            String message = originalCause.getMessage();
-            
-            if (StringUtils.isNotBlank(message)) {
-                if (StringUtils.isNotBlank(getMessage()) && !getMessage().equals(message)) {
-                    return String.format("%s: %s", getMessage(), message);
-                }
-                
-                return message;
-            }
-        }
-
-        return getMessage();
-    }
+//    /* (non-Javadoc)
+//     * @see org.openl.exception.OpenLException#getOriginalMessage()
+//     */
+//    public String getOriginalMessage() {
+//
+//        Throwable originalCause = getOriginalCause();
+//
+//        if (originalCause != null) {
+//            String message = originalCause.getMessage();
+//            
+//            if (StringUtils.isNotBlank(message)) {
+//                if (StringUtils.isNotBlank(getMessage()) && !getMessage().equals(message)) {
+//                    return String.format("%s: %s", getMessage(), message);
+//                }
+//                
+//                return message;
+//            }
+//        }
+//
+//        return getMessage();
+//    }
 
     /* (non-Javadoc)
      * @see org.openl.exception.OpenLException#getOriginalCause()

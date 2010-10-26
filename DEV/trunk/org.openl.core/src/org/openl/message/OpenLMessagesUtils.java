@@ -26,8 +26,8 @@ public class OpenLMessagesUtils {
     }
     
     public static void addError(Throwable exception) {
-        String errorMessage = null;
-        errorMessage = exception.getMessage();
+        String errorMessage = exception.getMessage();
+        
         if (StringUtils.isBlank(errorMessage)) {
             Throwable cause = exception.getCause();
             if (cause != null) {
@@ -80,19 +80,20 @@ public class OpenLMessagesUtils {
         if (exception instanceof OpenLException) {
             OpenLException openLException = (OpenLException) exception;
             OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
+            
             messages.add(errorMessage);
-
         } else if (exception instanceof CompositeSyntaxNodeException) {
             CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
             OpenLException[] exceptions = compositeException.getErrors();
+            
             for (OpenLException openLException : exceptions) {
                 OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
                 messages.add(errorMessage);
             }
 
         } else {
-            OpenLMessage message = new OpenLMessage(
-                    ExceptionUtils.getRootCauseMessage(exception), StringUtils.EMPTY, Severity.ERROR);
+            OpenLMessage message = new OpenLMessage(ExceptionUtils.getRootCauseMessage(exception), StringUtils.EMPTY,
+                Severity.ERROR);
             messages.add(message);
         }
 
@@ -105,10 +106,12 @@ public class OpenLMessagesUtils {
         for (OpenLMessage message : messages) {
             Severity severity = message.getSeverity();
             List<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
+     
             if (groupedMessages == null) {
                 groupedMessages = new ArrayList<OpenLMessage>();
                 groupedMessagesMap.put(severity, groupedMessages);
             }
+            
             groupedMessages.add(message);
         }
 
@@ -118,9 +121,11 @@ public class OpenLMessagesUtils {
     public static List<OpenLMessage> filterMessagesBySeverity(List<OpenLMessage> messages, Severity severity) {
         Map<Severity, List<OpenLMessage>> groupedMessagesMap = groupMessagesBySeverity(messages);
         List<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
+        
         if (groupedMessages != null) {
             return groupedMessages;
         }
+        
         return Collections.emptyList();
     }
 
