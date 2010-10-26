@@ -58,7 +58,6 @@ public abstract class BaseWizardBean {
     protected abstract void onStart();
 
     protected void onFinish() throws Exception {
-        doSave();
     }
 
     protected void doSave() throws Exception {
