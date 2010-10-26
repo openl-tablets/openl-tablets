@@ -305,7 +305,7 @@ public class RuleRowHelper {
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                     openlAdapter.getBindingContext());
 
-                throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                throw SyntaxNodeExceptionUtils.createError(message, e, null, cellSourceCodeModule);
             }
 
             if (result instanceof IMetaHolder) {

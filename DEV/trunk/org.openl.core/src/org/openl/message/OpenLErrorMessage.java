@@ -2,6 +2,7 @@ package org.openl.message;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLExceptionUtils;
 
 /**
  * Class defines error OpenL message abstraction. <code>OpenLErrorMessage</code> encapsulates {@link IOpenLError} object
@@ -18,12 +19,11 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     public OpenLErrorMessage(String summary, String details, OpenLException error) {
         super(summary, details, Severity.ERROR);
-
         this.error = error;
     }
 
     public OpenLErrorMessage(OpenLException error) {
-        this(error.getOriginalMessage(), StringUtils.EMPTY, error);
+        this(OpenLExceptionUtils.getOpenLExceptionMessage(error), StringUtils.EMPTY, error);
     }
 
     public OpenLException getError() {

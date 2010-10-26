@@ -305,10 +305,12 @@ public class XlsBinder implements IOpenBinder {
     }
 */
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext){
-        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
-                ITableNodeTypes.XLS_PROPERTIES, new SyntaxNodeConvertor());
-        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes(moduleNode, dataTypeSelector.not(), null);
-
+        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_PROPERTIES, new SyntaxNodeConvertor());
+        ASelector<ISyntaxNode> otherNodesSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_OTHER, new SyntaxNodeConvertor());
+        ISelector<ISyntaxNode> notDataType_and_notOther_NodesSelector = dataTypeSelector.not().and(otherNodesSelector.not());
+ 
+        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes(moduleNode, notDataType_and_notOther_NodesSelector, null);
+        
         PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, module);
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             try {

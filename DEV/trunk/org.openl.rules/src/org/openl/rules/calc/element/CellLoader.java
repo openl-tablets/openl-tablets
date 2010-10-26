@@ -1,5 +1,6 @@
 package org.openl.rules.calc.element;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
@@ -62,6 +63,10 @@ public class CellLoader {
 
     public static boolean isFormula(String src) {
 
+        if (StringUtils.isBlank(src)) {
+            return false;
+        }
+        
         if (src.startsWith("{") && src.endsWith("}")) {
             return true;
         }

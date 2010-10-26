@@ -3,9 +3,12 @@
  */
 package org.openl.rules.helpers;
 
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.domain.IntRangeDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -57,7 +60,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         // appropriate table. Reason: input string doesn't contain required
         // information about source. 
         //
-        OpenLMessages oldMessages = OpenLMessages.getCurrentInstance();
+        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
         
         try {
             OpenLMessages.getCurrentInstance().clear();
@@ -67,7 +70,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
             // Load old openl messages list. 
             //
             OpenLMessages.getCurrentInstance().clear();
-            OpenLMessages.getCurrentInstance().addMessages(oldMessages.getMessages());
+            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
         }
 
         min = res.getMin().intValue();
