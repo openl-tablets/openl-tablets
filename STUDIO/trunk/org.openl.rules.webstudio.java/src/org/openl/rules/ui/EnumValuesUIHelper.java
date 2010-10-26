@@ -87,7 +87,7 @@ public class EnumValuesUIHelper {
                 + "var editor = %2$s;"
                 // editor value setter code
                 + "editor.input.onblur=function(){var newValue = this.getValue();"
-                + "$('%1$s').up().down('input[name!=id]').value=newValue;return false;};"
+                + "$('%1$s').next('input[type=hidden][name!=id]').value=newValue;return false;};"
                 + "</script>", id, editorCode);
     }
 
