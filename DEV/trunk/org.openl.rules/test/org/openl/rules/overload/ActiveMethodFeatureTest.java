@@ -66,7 +66,7 @@ public class ActiveMethodFeatureTest {
         context.setCurrentDate(calendar.getTime());
 
         try {
-            DoubleValue res1 = instance.driverRiskScoreOverloadTest2("High Risk Driver");
+            instance.driverRiskScoreOverloadTest2("High Risk Driver");
         } catch (Exception e) {
             TestUtils.assertEx(e, "No matching methods for the context");
         }

@@ -14,7 +14,7 @@ public class Test0 {
     interface ITestCalc {
         SpreadsheetResult calc();
     }
-
+    
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc0/calc0-1.xls");
@@ -23,8 +23,8 @@ public class Test0 {
 
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc();
-        assertEquals(2, result.height());
-        assertEquals(3, result.width());
+        assertEquals(2, result.getHeight());
+        assertEquals(3, result.getWidth());
 
         for (int y = 0; y < 2; y++) {
             for (int x = 0; x < 3; x++) {
@@ -42,9 +42,8 @@ public class Test0 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-2.xls");
-                TestHelper<ITestCalc> testHelper;
-                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+                File xlsFile = new File("test/rules/calc0/calc0-2.xls");                
+                new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Table has no body!");
     }
@@ -53,9 +52,8 @@ public class Test0 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-3.xls");
-                TestHelper<ITestCalc> testHelper;
-                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+                File xlsFile = new File("test/rules/calc0/calc0-3.xls");                
+                new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Spreadsheet must have at least 2x2 cells!");
     }
@@ -65,8 +63,7 @@ public class Test0 {
         TestUtils.assertEx(new Runnable() {
             public void run() {
                 File xlsFile = new File("test/rules/calc0/calc0-4.xls");
-                TestHelper<ITestCalc> testHelper;
-                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+                new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Table has no body!", "merge header cell");
     }
@@ -75,9 +72,8 @@ public class Test0 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-5.xls");
-                TestHelper<ITestCalc> testHelper;
-                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+                File xlsFile = new File("test/rules/calc0/calc0-5.xls");                
+                new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Col1 has already been defined", "cell=E4");
     }
@@ -86,9 +82,8 @@ public class Test0 {
     public void test6() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-6.xls");
-                TestHelper<ITestCalc> testHelper;
-                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+                File xlsFile = new File("test/rules/calc0/calc0-6.xls");                
+                new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Row1 has already been defined", "cell=B7");
     }

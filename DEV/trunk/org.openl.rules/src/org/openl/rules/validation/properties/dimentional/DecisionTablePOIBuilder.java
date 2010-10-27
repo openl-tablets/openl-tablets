@@ -1,8 +1,5 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +30,7 @@ public class DecisionTablePOIBuilder {
     private Workbook workbook;
     private Sheet sheet;
     
-    private static String __src = "src/rules/Test.xls";   
+       
     
     public DecisionTablePOIBuilder(String tableName, List<IDecisionTableColumn> conditions,            
             IDecisionTableReturnColumn returnColumn, int rulesNumber) {
@@ -255,20 +252,23 @@ public class DecisionTablePOIBuilder {
     }
     
     //******************END RETURN SECTION WRITING***********************
-    
-    private void writeTableToFile() {
-        FileOutputStream fileOut;
-        try {
-            
-            fileOut = new FileOutputStream(__src);
-            workbook.write(fileOut);
-            fileOut.close();
-        } catch (FileNotFoundException e) {            
-            e.printStackTrace();
-        } catch (IOException e) {            
-            e.printStackTrace();
-        }
-    }
+
+// ----method is using for testing----
+//
+//    private void writeTableToFile() {
+//        String __src = "src/rules/Test.xls";
+//        FileOutputStream fileOut;
+//        try {
+//            
+//            fileOut = new FileOutputStream(__src);
+//            workbook.write(fileOut);
+//            fileOut.close();
+//        } catch (FileNotFoundException e) {            
+//            e.printStackTrace();
+//        } catch (IOException e) {            
+//            e.printStackTrace();
+//        }
+//    }
     
     private String buildMethodHeader() {
         String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2, returnColumn.getReturnType().getDisplayName(0), 

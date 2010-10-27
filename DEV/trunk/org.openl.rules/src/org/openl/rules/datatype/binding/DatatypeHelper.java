@@ -32,6 +32,7 @@ import org.openl.util.ArrayTool;
 
 public class DatatypeHelper {
 
+    @SuppressWarnings("unchecked")
     public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
         throws SyntaxNodeException {
         if (table != null) {
@@ -113,8 +114,7 @@ public class DatatypeHelper {
                     count += 1;
                 }
             } catch (Throwable t) {
-                // Ignore exception.
-                int a = 1;
+                // Ignore exception.                
             }
         }
 

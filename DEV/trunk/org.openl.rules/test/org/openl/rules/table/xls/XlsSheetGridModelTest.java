@@ -40,8 +40,8 @@ public class XlsSheetGridModelTest {
     }
 
     private void _testCell(String cell, int col, int row) {
-        Assert.assertEquals(XlsSheetGridModel.getColumn(cell), col);
-        Assert.assertEquals(XlsSheetGridModel.getRow(cell), row);
+        Assert.assertEquals(IGridRegion.Tool.getColumn(cell), col);
+        Assert.assertEquals(IGridRegion.Tool.getRow(cell), row);
         
         Assert.assertEquals(cell, XlsUtil.xlsCellPresentation(col, row));   
     }

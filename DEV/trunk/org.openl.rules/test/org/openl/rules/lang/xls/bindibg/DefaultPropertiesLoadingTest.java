@@ -23,9 +23,8 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testLoadingDefaultValuesForPreviouslyEmptyProp() {  
-        String tableName = "Rules void hello1(int hour)";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
-        TableSyntaxNode resultTsn = findTable(tableName, tsns);       
+        String tableName = "Rules void hello1(int hour)";        
+        TableSyntaxNode resultTsn = findTable(tableName);       
         if (resultTsn != null) {
             
             assertEquals("Check that number of properties defined in table is 0",

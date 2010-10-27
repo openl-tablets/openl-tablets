@@ -83,9 +83,8 @@ public class Test2 {
     public void test4() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-4.xls");
-                TestHelper<ITest5> testHelper;
-                testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
+                File xlsFile = new File("test/rules/cmatch1/match2-4.xls");                
+                new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
         }, "All sub nodes must be leaves!", "cell=B7");
     }
@@ -94,9 +93,8 @@ public class Test2 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-5.xls");
-                TestHelper<ITest5> testHelper;
-                testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
+                File xlsFile = new File("test/rules/cmatch1/match2-5.xls");                
+                new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
         }, "All sub nodes must be leaves!", "cell=B7");
     }
@@ -105,9 +103,8 @@ public class Test2 {
     public void test6() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-6.xls");
-                TestHelper<ITest5> testHelper;
-                testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
+                File xlsFile = new File("test/rules/cmatch1/match2-6.xls");                
+                new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
         }, "Illegal indent!", "cell=B10");
     }

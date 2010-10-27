@@ -112,6 +112,7 @@ public class XlsCell implements ICell {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void setObjectValue(Object value) {
         if (value != null) {
             boolean writeCellMetaInfo = true;

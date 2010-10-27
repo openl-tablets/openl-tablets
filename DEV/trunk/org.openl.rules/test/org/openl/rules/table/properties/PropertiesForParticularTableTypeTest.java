@@ -25,9 +25,8 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
 
     @Test
     public void testErrorParsing() {
-        String tableName = "Rules void hello1(int hour)";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
-        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        String tableName = "Rules void hello1(int hour)";        
+        TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
@@ -41,9 +40,8 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
 
     @Test
     public void testNotProcessingInheritPropertiesForTableType() {
-        String tableName = "Rules void hello2(int hour)";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
-        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        String tableName = "Rules void hello2(int hour)";        
+        TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);

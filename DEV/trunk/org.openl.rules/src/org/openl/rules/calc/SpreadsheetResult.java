@@ -38,6 +38,11 @@ public class SpreadsheetResult implements Serializable {
         this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);        
     }
     
+    /**
+     * @deprecated
+     * use {@link SpreadsheetResult#getHeight()} instead.
+     * 
+     */
     @Deprecated
     public int height() {
         return getHeight();
@@ -59,6 +64,11 @@ public class SpreadsheetResult implements Serializable {
         this.results = results.clone();
     }
     
+    /**
+     * @deprecated
+     * use {@link SpreadsheetResult#getWidth()} instead.
+     * 
+     */
     @Deprecated
     public int width() {
         return getWidth();
