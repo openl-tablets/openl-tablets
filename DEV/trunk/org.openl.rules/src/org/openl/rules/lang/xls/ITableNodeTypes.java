@@ -11,6 +11,7 @@ package org.openl.rules.lang.xls;
  * @author snshor
  * 
  */
+@Deprecated
 public interface ITableNodeTypes {
     
     String WORKBOOK = XlsNodeTypes.WORKBOOK.toString();

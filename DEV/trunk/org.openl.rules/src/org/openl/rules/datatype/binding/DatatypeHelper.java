@@ -17,7 +17,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -130,7 +130,7 @@ public class DatatypeHelper {
 
     private static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
-        if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
+        if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
@@ -143,7 +143,7 @@ public class DatatypeHelper {
 
     private static String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
-        if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
+        if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
             IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
@@ -168,7 +168,7 @@ public class DatatypeHelper {
 
         for (TableSyntaxNode tsn : nodes) {
 
-            if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
+            if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
                 
                 try {
                     String datatypeName = DatatypeHelper.getDatatypeName(tsn);

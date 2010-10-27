@@ -13,6 +13,7 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -243,7 +244,7 @@ public class PropertiesLoader {
         // it will be processed during its binding.
         // author: DLiauchuk
         final String tableType = tsn.getType();
-        if (!ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
+        if (!XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableType)) {
             try {
                 loadPropertiesAsDataTable(tsn);
 

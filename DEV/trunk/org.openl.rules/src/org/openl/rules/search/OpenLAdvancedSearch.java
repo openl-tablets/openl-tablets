@@ -5,7 +5,7 @@ package org.openl.rules.search;
 
 import java.util.ArrayList;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.util.AStringBoolOperator;
@@ -16,7 +16,7 @@ import org.openl.util.ArrayTool;
  *
  *
  */
-public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, IOpenLSearch {
+public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
     
     /*
      * Type of components where we search the results. 
@@ -24,8 +24,11 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
     public static final String[] existingTableTypes = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data", "Method",
             "Datatype", "Test", "Run", "Env", "Other" };
 
-    public static final String[] types = { XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_DATA, XLS_METHOD,
-            XLS_DATATYPE, XLS_TEST_METHOD, XLS_RUN_METHOD, XLS_ENVIRONMENT, XLS_OTHER };
+    public static final String[] types = { XlsNodeTypes.XLS_DT.toString(), XlsNodeTypes.XLS_SPREADSHEET.toString(), 
+        XlsNodeTypes.XLS_TBASIC.toString(), XlsNodeTypes.XLS_COLUMN_MATCH.toString(), XlsNodeTypes.XLS_DATA.toString(), 
+        XlsNodeTypes.XLS_METHOD.toString(), XlsNodeTypes.XLS_DATATYPE.toString(), 
+        XlsNodeTypes.XLS_TEST_METHOD.toString(), XlsNodeTypes.XLS_RUN_METHOD.toString(), 
+        XlsNodeTypes.XLS_ENVIRONMENT.toString(), XlsNodeTypes.XLS_OTHER.toString() };
 
     public static final  String[] nfValues = { "", "NOT" };
 

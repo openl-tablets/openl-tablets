@@ -6,7 +6,7 @@
 
 package org.openl.rules.lang.xls.syntax;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.TerminalNode;
 import org.openl.util.text.ILocation;
@@ -20,7 +20,7 @@ public class OpenlSyntaxNode extends TerminalNode {
     private String openlName;
 
     public OpenlSyntaxNode(String openlName, ILocation location, IOpenSourceCodeModule module) {
-        super(ITableNodeTypes.XLS_OPENL, location, module);
+        super(XlsNodeTypes.XLS_OPENL.toString(), location, module);
 
         this.openlName = openlName;
     }

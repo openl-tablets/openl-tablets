@@ -77,16 +77,16 @@ public class XlsBinder implements IOpenBinder {
     private static final Log LOG = LogFactory.getLog(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
-    private static final String[][] binders = { { ITableNodeTypes.XLS_DATA, DataNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_DATATYPE, DatatypeNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_DT, DecisionTableNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_SPREADSHEET, SpreadsheetNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_METHOD, MethodTableNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_TEST_METHOD, TestMethodNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_TBASIC, AlgorithmNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName() },
-            { ITableNodeTypes.XLS_PROPERTIES, PropertyTableBinder.class.getName() }, };
+    private static final String[][] binders = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_RUN_METHOD.toString(), TestMethodNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_TBASIC.toString(), AlgorithmNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName() },
+            { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() }, };
 
     public static synchronized Map<String, AXlsTableBinder> getBinderFactory() {
 
@@ -222,8 +222,8 @@ public class XlsBinder implements IOpenBinder {
             processVocabulary(vocabulary, bindingContext, moduleContext);
         }
 
-        ASelector<ISyntaxNode> propertiesSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_PROPERTIES,
-            new SyntaxNodeConvertor());
+        ASelector<ISyntaxNode> propertiesSelector = new ASelector.StringValueSelector<ISyntaxNode>(
+                XlsNodeTypes.XLS_PROPERTIES.toString(), new SyntaxNodeConvertor());
 
         // Bind property node at first.
         //
@@ -239,7 +239,8 @@ public class XlsBinder implements IOpenBinder {
         
         // Bind datatype nodes.
         //
-        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_DATATYPE, new SyntaxNodeConvertor());
+        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
+                XlsNodeTypes.XLS_DATATYPE.toString(), new SyntaxNodeConvertor());
         TableSyntaxNode[] datatypeNodes = getTableSyntaxNodes(moduleNode, dataTypeSelector, null);
         TableSyntaxNode[] processedDatatypeNodes = processDatatypes(datatypeNodes, moduleContext);
         
@@ -305,8 +306,10 @@ public class XlsBinder implements IOpenBinder {
     }
 */
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext){
-        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_PROPERTIES, new SyntaxNodeConvertor());
-        ASelector<ISyntaxNode> otherNodesSelector = new ASelector.StringValueSelector<ISyntaxNode>(ITableNodeTypes.XLS_OTHER, new SyntaxNodeConvertor());
+        ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
+                XlsNodeTypes.XLS_PROPERTIES.toString(), new SyntaxNodeConvertor());
+        ASelector<ISyntaxNode> otherNodesSelector = new ASelector.StringValueSelector<ISyntaxNode>(
+                XlsNodeTypes.XLS_OTHER.toString(), new SyntaxNodeConvertor());
         ISelector<ISyntaxNode> notDataType_and_notOther_NodesSelector = dataTypeSelector.not().and(otherNodesSelector.not());
  
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes(moduleNode, notDataType_and_notOther_NodesSelector, null);

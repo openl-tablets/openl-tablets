@@ -50,7 +50,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 /**
@@ -61,24 +60,24 @@ public class XlsLoader {
 
     private static Log LOG = LogFactory.getLog(XlsLoader.class);
 
-    private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, ITableNodeTypes.XLS_DT },
-            { IXlsTableNames.DECISION_TABLE2, ITableNodeTypes.XLS_DT },
-            { IXlsTableNames.SIMPLE_DECISION_TABLE, ITableNodeTypes.XLS_DT },
-            { IXlsTableNames.SIMPLE_DECISION_LOOKUP, ITableNodeTypes.XLS_DT },
-            { IXlsTableNames.SPREADSHEET_TABLE, ITableNodeTypes.XLS_SPREADSHEET },
-            { IXlsTableNames.SPREADSHEET_TABLE2, ITableNodeTypes.XLS_SPREADSHEET },
-            { IXlsTableNames.TBASIC_TABLE, ITableNodeTypes.XLS_TBASIC },
-            { IXlsTableNames.TBASIC_TABLE2, ITableNodeTypes.XLS_TBASIC },
-            { IXlsTableNames.COLUMN_MATCH, ITableNodeTypes.XLS_COLUMN_MATCH },
-            { IXlsTableNames.DATA_TABLE, ITableNodeTypes.XLS_DATA },
-            { IXlsTableNames.DATATYPE_TABLE, ITableNodeTypes.XLS_DATATYPE },
-            { IXlsTableNames.METHOD_TABLE, ITableNodeTypes.XLS_METHOD },
-            { IXlsTableNames.METHOD_TABLE2, ITableNodeTypes.XLS_METHOD },
-            { IXlsTableNames.ENVIRONMENT_TABLE, ITableNodeTypes.XLS_ENVIRONMENT },
-            { IXlsTableNames.TEST_METHOD_TABLE, ITableNodeTypes.XLS_TEST_METHOD },
-            { IXlsTableNames.RUN_METHOD_TABLE, ITableNodeTypes.XLS_RUN_METHOD },
-            { IXlsTableNames.PERSISTENCE_TABLE, ITableNodeTypes.XLS_PERSISTENT },
-            { IXlsTableNames.PROPERTY_TABLE, ITableNodeTypes.XLS_PROPERTIES } };
+    private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString() },
+            { IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString() },
+            { IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString() },
+            { IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString() },
+            { IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString() },
+            { IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString() },
+            { IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString() },
+            { IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString() },
+            { IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString() },
+            { IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString() },
+            { IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString() },
+            { IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString() },
+            { IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString() },
+            { IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString() },
+            { IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString() },
+            { IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString() },
+            { IXlsTableNames.PERSISTENCE_TABLE, XlsNodeTypes.XLS_PERSISTENT.toString() },
+            { IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString() } };
 
     private static Map<String, String> tableHeaders;
 
@@ -381,7 +380,7 @@ public class XlsLoader {
         String xls_type = getTableHeaders().get(header);
 
         if (xls_type == null) {
-            xls_type = ITableNodeTypes.XLS_OTHER;
+            xls_type = XlsNodeTypes.XLS_OTHER.toString();
         }
 
         TableSyntaxNode tsn = new TableSyntaxNode(xls_type, new GridLocation(table), source, table, headerNode);

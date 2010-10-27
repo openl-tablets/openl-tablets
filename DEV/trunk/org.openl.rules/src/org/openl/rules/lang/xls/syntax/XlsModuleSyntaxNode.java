@@ -9,7 +9,7 @@ package org.openl.rules.lang.xls.syntax;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
@@ -32,7 +32,7 @@ public class XlsModuleSyntaxNode extends NaryNode  {
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode, List<String> allImports, List<IdentifierNode> extensionNodes) {
-        super(ITableNodeTypes.XLS_MODULE, null, nodes, module);
+        super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;

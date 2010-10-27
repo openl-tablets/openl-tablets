@@ -3,7 +3,7 @@
  */
 package org.openl.rules.search;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.ASelector;
 
@@ -11,7 +11,7 @@ import org.openl.util.ASelector;
  * @author snshor
  *
  */
-public abstract class ATableRowSelector extends ASelector<ISearchTableRow> implements ITableNodeTypes {
+public abstract class ATableRowSelector extends ASelector<ISearchTableRow> {
     
     /**
      * Finds the table search info, according to its type.
@@ -19,19 +19,19 @@ public abstract class ATableRowSelector extends ASelector<ISearchTableRow> imple
      * @return
      */
     public static ITableSearchInfo getTableSearchInfo(TableSyntaxNode tsn) {
-        if (XLS_DT.equals(tsn.getType())) {
+        if (XlsNodeTypes.XLS_DT.toString().equals(tsn.getType())) {
             return new DecisionTableSearchInfo(tsn);
-        } else if (XLS_DATA.equals(tsn.getType())) {
+        } else if (XlsNodeTypes.XLS_DATA.toString().equals(tsn.getType())) {
             return new DataTableSearchInfo(tsn);
-        } else if (XLS_TEST_METHOD.equals(tsn.getType())) {
+        } else if (XlsNodeTypes.XLS_TEST_METHOD.toString().equals(tsn.getType())) {
             return new DataTableSearchInfo(tsn);
-        } else if (XLS_RUN_METHOD.equals(tsn.getType())) {
+        } else if (XlsNodeTypes.XLS_RUN_METHOD.toString().equals(tsn.getType())) {
             return new DataTableSearchInfo(tsn);
-        } else if (XLS_SPREADSHEET.equals(tsn.getType())) {
+        } else if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(tsn.getType())) {
             return new TableSearchInfo(tsn);
-        } else if (XLS_TBASIC.equals(tsn.getType())) {
+        } else if (XlsNodeTypes.XLS_TBASIC.toString().equals(tsn.getType())) {
             return new TableSearchInfo(tsn);
-        } else if (XLS_COLUMN_MATCH.equals(tsn.getType())) {
+        } else if (XlsNodeTypes.XLS_COLUMN_MATCH.toString().equals(tsn.getType())) {
             return new TableSearchInfo(tsn);
         }
         return null;
