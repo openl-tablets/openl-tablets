@@ -2,7 +2,6 @@ package org.openl.binding.impl.module;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.base.INamedThing;
@@ -126,8 +125,8 @@ public class RootDictionaryContext {
             return;
         }
 
-        for (Iterator<IOpenField> iterator = fieldType.fields(); iterator.hasNext();) {
-            initializeField(field, iterator.next(), level + 1);
+        for (IOpenField openField : fieldType.getFields().values()) {
+            initializeField(field, openField, level + 1);
         }
 
     }

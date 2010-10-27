@@ -7,7 +7,7 @@ import java.util.Iterator;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.Condition;
-import org.openl.rules.dt.element.DecisionTableParameterInfo;
+//import org.openl.rules.dt.element.DecisionTableParameterInfo;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
@@ -16,7 +16,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
-import org.openl.types.impl.CompositeMethod;
+//import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
@@ -31,10 +31,7 @@ public class OpenLProjectInfo {
 
     private void loadDecisionTables(IOpenClass ioc) {
 
-        for (Iterator<IOpenMethod> iter = ioc.methods(); iter.hasNext();) {
-            
-            IOpenMethod m = iter.next();
-
+        for (IOpenMethod m : ioc.getMethods()) {
             if (m instanceof DecisionTable) {
 //                System.out.println(m.getName());
                 loadDT((DecisionTable) m);
@@ -114,7 +111,7 @@ public class OpenLProjectInfo {
 
         //System.out.print("     " + ca.getName());
 
-        CompositeMethod cm = (CompositeMethod) ca.getMethod();
+        //CompositeMethod cm = (CompositeMethod) ca.getMethod();
 
         IParameterDeclaration[] params = ca.getParams();
 
@@ -141,7 +138,7 @@ public class OpenLProjectInfo {
             for (int i = 0; i < params.length; i++) {
 
                 // Object[] paramRow = paramValues[i];
-                DecisionTableParameterInfo pi = ca.getParameterInfo(i);
+                //DecisionTableParameterInfo pi = ca.getParameterInfo(i);
 
 //                System.out.print("   " + pi.getValue(j));
             }

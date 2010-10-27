@@ -29,6 +29,7 @@ public class NullOpenClass implements IOpenClass {
     private NullOpenClass() {
     }
 
+    @Deprecated
     public Iterator<IOpenField> fields() {
         return null;
     }
@@ -37,8 +38,7 @@ public class NullOpenClass implements IOpenClass {
         return null;
     }
 
-    public IOpenClass getArrayType(@SuppressWarnings("unused")
-    int dim) {
+    public IOpenClass getArrayType(int dim) {
         return null;
     }
 
@@ -147,6 +147,7 @@ public class NullOpenClass implements IOpenClass {
         return true;
     }
 
+    @Deprecated
     public Iterator<IOpenMethod> methods() {
         return null;
     }

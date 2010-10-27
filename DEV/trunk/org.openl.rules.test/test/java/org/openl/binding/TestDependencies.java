@@ -4,7 +4,6 @@
 package org.openl.binding;
 
 import java.net.URL;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 
@@ -30,9 +29,7 @@ public class TestDependencies extends TestCase {
 
         XlsModuleOpenClass xmo = _createModule();
 
-        for (Iterator<IOpenMethod> iter = xmo.methods(); iter.hasNext();) {
-
-            IOpenMethod m = iter.next();
+        for (IOpenMethod m : xmo.getMethods()) {
             BindingDependencies bd = new BindingDependencies();
 
             if (m instanceof DecisionTable) {

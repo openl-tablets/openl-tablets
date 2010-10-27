@@ -2,6 +2,7 @@ package org.openl.types.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
@@ -25,15 +26,14 @@ public class MethodsHelper {
         return list.toArray(new IOpenMethod[0]);
     }
 
-    public static IOpenMethod getSingleMethod(String name, Iterator<IOpenMethod> methods) {
-        ArrayList<IOpenMethod> list = new ArrayList<IOpenMethod>();
-        for (; methods.hasNext();) {
-            IOpenMethod m = methods.next();
+    public static IOpenMethod getSingleMethod(String name, List<IOpenMethod> methods) {
+        List<IOpenMethod> list = new ArrayList<IOpenMethod>();
+        for (IOpenMethod m : methods) {
             if (m.getName().equals(name)) {
                 list.add(m);
             }
         }
-    
+
         if (list.size() == 0) {
             throw new MethodNotFoundException(null, name, IOpenClass.EMPTY);
         }
@@ -43,6 +43,6 @@ public class MethodsHelper {
         }
     
         return list.get(0);
-    };
+    }
 
 }

@@ -27,6 +27,7 @@ public class OpenClassDelegator implements IOpenClass {
         this.metaInfo = metaInfo;
     }
 
+    @Deprecated
     public Iterator<IOpenField> fields() {
         return baseClass.fields();
     }
@@ -124,6 +125,7 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.isArray();
     }
 
+    @Deprecated
     public Iterator<IOpenMethod> methods() {
         return baseClass.methods();
     }

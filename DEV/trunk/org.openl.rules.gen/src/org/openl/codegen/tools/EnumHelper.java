@@ -1,7 +1,6 @@
 package org.openl.codegen.tools;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.codegen.tools.type.EnumerationDescriptor;
@@ -19,11 +18,8 @@ public class EnumHelper {
     public static List<IOpenField> findEnumerationFields(IOpenClass openClass) {
 
         List<IOpenField> enumerations = new ArrayList<IOpenField>();
-        Iterator<IOpenField> iterator = openClass.fields();
 
-        while (iterator.hasNext()) {
-            IOpenField field = iterator.next();
-
+        for (IOpenField field : openClass.getFields().values()) {
             if (isEnumeration(field)) {
                 enumerations.add(field);
             }

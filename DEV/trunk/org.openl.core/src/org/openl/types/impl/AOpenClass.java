@@ -272,12 +272,10 @@ public abstract class AOpenClass implements IOpenClass {
     private void makeLowerCaseMaps() {
         uniqueLowerCaseFieldMap = new HashMap<String, IOpenField>();
 
-        for (Iterator<IOpenField> iterator = fields(); iterator.hasNext();) {
-            IOpenField f = iterator.next();
-
-            addFieldToLowerCaseMap(f);
-
+        for (IOpenField field : getFields().values()) {
+            addFieldToLowerCaseMap(field);
         }
+
         if (nonUniqueLowerCaseFieldMap == null) {
             nonUniqueLowerCaseFieldMap = Collections.emptyMap();
         }
@@ -286,6 +284,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected abstract Map<MethodKey, IOpenMethod> methodMap();
 
+    @Deprecated
     public Iterator<IOpenMethod> methods() {
         List<IOpenMethod> methods = getMethods();
         return methods == null ? null : methods.iterator();        

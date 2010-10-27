@@ -50,7 +50,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             String tableName) {
 
         TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) dataNode;
-        IOpenMethod testedMethod = MethodsHelper.getSingleMethod(typeName, module.methods());
+        IOpenMethod testedMethod = MethodsHelper.getSingleMethod(typeName, module.getMethods());
         TestSuiteMethod testSuite = new TestSuiteMethod(tableName, testedMethod, testMethodBoundNode);
         testMethodBoundNode.setTestSuite(testSuite);
 

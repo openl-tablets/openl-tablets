@@ -1,7 +1,7 @@
 package org.openl.types.java;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -70,12 +70,11 @@ public class OpenClassHelper {
         List<IOpenMember> members = new ArrayList<IOpenMember>();
 
         if (openClass != null) {
+            List<IOpenMethod> methods = openClass.getMethods();
+            CollectionUtils.addAll(members, methods.iterator());
 
-            Iterator<IOpenMethod> methodIterator = openClass.methods();
-            CollectionUtils.addAll(members, methodIterator);
-
-            Iterator<IOpenField> fieldIterator = openClass.fields();
-            CollectionUtils.addAll(members, fieldIterator);
+            Collection<IOpenField> fields = openClass.getFields().values();
+            CollectionUtils.addAll(members, fields.iterator());
         }
 
         return members.toArray(new IOpenMember[members.size()]);
