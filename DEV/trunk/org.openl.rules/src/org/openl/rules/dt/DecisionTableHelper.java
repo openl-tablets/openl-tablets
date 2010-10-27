@@ -2,6 +2,7 @@ package org.openl.rules.dt;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
@@ -171,7 +172,7 @@ public class DecisionTableHelper {
      * @return prepared usual Decision Table.
      */
     public static ILogicalTable preprocessSimpleDecisionTable(DecisionTable decisionTable, ILogicalTable originalTable,
-            int numberOfHcondition) {
+            int numberOfHcondition) throws OpenLCompilationException {
         IWritableGrid virtualGrid = createVirtualGrid();
         writeVirtualHeadersForSimpleDecisionTable(virtualGrid, originalTable, decisionTable, numberOfHcondition);
         GridTable virtualGridTable = new GridTable(0, 0, IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, virtualGrid);
@@ -180,11 +181,14 @@ public class DecisionTableHelper {
                 + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, grid));
     }
     
-    private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
-            int numberOfHcondition) {
+    private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable,
+            DecisionTable decisionTable, int numberOfHcondition) throws OpenLCompilationException {
         int numberOfConditions = decisionTable.getSignature().getNumberOfParameters();
         int column = 0;
         for (int i = 0; i < numberOfConditions; i++) {
+            if(column > originalTable.getWidth()){
+                throw new OpenLCompilationException("Wrong table structure: Columns count is less than parameters count");
+            }
             //write headers
             if (i < numberOfConditions - numberOfHcondition) {
                 grid.setCellValue(column, 0, "C" + (i + 1));
@@ -201,6 +205,9 @@ public class DecisionTableHelper {
                 }
             }
             column += mergedColumnsCounts;
+        }
+        if(column > originalTable.getWidth()){
+            throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
         }
         grid.setCellValue(column, 0, "RET1");
         int mergedColumnsCounts = originalTable.getColumnWidth(numberOfConditions);
