@@ -307,7 +307,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             return empty();
         }
 
-        if (it instanceof IOpenIterator) {
+        if (it instanceof IOpenIterator<?>) {
             return (IOpenIterator<T>) it;
         }
 
@@ -393,7 +393,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     }
 
     static public <X> IOpenIterator<X> reverse(Iterator<X> it) {
-        if (it instanceof IOpenIterator) {
+        if (it instanceof IOpenIterator<?>) {
             return ((IOpenIterator<X>) it).reverse();
         }
         throw new UnsupportedOperationException();
@@ -417,7 +417,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     }
 
     public static <T> int size(Iterator<T> it) {
-        if (it instanceof IOpenIterator) {
+        if (it instanceof IOpenIterator<?>) {
             return ((IOpenIterator<T>) it).size();
         }
         return UNKNOWN_SIZE;

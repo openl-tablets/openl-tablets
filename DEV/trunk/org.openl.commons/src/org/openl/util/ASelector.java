@@ -151,7 +151,6 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         protected boolean equalsSelector(ASelector<T> sel) {
             return select(((ObjectSelector<T>) sel).myobj);
         }
@@ -221,21 +220,21 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
     }
 
-    static public <T> ISelector<T> selectAll(@SuppressWarnings("unused")
+    public static <T> ISelector<T> selectAll(@SuppressWarnings("unused")
     T obj) {
         return new AllSelector<T>();
     }
 
-    static public ISelector<Object> selectClass(Class<?> c) {
+    public static ISelector<Object> selectClass(Class<?> c) {
         return new ClassSelector(c);
     }
 
-    static public <T> ISelector<T> selectNone(@SuppressWarnings("unused")
+    public static <T> ISelector<T> selectNone(@SuppressWarnings("unused")
     T obj) {
         return new NoneSelector<T>();
     }
 
-    static public <T> ISelector<T> selectObject(T obj) {
+    public static <T> ISelector<T> selectObject(T obj) {
         return new ObjectSelector<T>(obj);
     }
 

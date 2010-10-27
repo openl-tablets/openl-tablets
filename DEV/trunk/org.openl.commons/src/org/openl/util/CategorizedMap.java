@@ -29,7 +29,7 @@ public class CategorizedMap {
 
         @Override
         public boolean equals(Object obj) {
-            return category.equals(((Category) obj).category);
+            return category.equals(((Category) obj).getCategory());
         }
 
         public String getCategory() {
@@ -65,7 +65,7 @@ public class CategorizedMap {
     Object findByCategory(String str) {
         Category c = getCategory(str);
         while ((c = c.parent) != null) {
-            Object res = all.get(c.category);
+            Object res = all.get(c.getCategory());
             if (res != null) {
                 return res;
             }
@@ -101,7 +101,7 @@ public class CategorizedMap {
             categories.put(cc, c);
 
             if (c.parent != null) {
-                reassignParents(c.parentDistance, c.parent);
+                reassignParents(c.getParentDistance(), c.getParent());
             } else {
                 reassignParents(-1, null);
             }
@@ -126,7 +126,7 @@ public class CategorizedMap {
         for (Iterator<Category> iter = categories.values().iterator(); iter.hasNext();) {
             Category c = iter.next();
 
-            if (c.parent == parent && c.parentDistance > parentDistance) {
+            if (c.getParent() == parent && c.getParentDistance() > parentDistance) {
                 setParent(c);
             }
         }
@@ -139,7 +139,7 @@ public class CategorizedMap {
      */
 
     protected synchronized void setParent(Category cc) {
-        String search = cc.category;
+        String search = cc.getCategory();
 
         for (int i = 1;; ++i) {
             int index = search.lastIndexOf('.');
@@ -154,8 +154,8 @@ public class CategorizedMap {
                 return;
             }
         }
-        cc.parent = null;
-        cc.parentDistance = 0;
+        cc.setParent(null);
+        cc.setParentDistance(0);
     }
 
     public Collection<Object> values() {
