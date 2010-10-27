@@ -431,6 +431,7 @@ public class JavaOpenClass extends AOpenClass {
     }
     
     static private class JavaPrimitiveClass extends JavaOpenClass {
+        @SuppressWarnings("unused")
         private Class<?> wrapperClass;
 
         private Object nullObject;
@@ -465,6 +466,7 @@ public class JavaOpenClass extends AOpenClass {
         private HashMap<Method, BeanOpenField> getters;
         private HashMap<Method, BeanOpenField> setters;
 
+        @SuppressWarnings("unused")
         private Class<?> proxyClass;
 
         private InvocationHandler handler;

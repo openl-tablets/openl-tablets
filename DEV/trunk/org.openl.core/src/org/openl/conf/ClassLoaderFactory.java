@@ -95,7 +95,7 @@ public class ClassLoaderFactory {
                     throw new IOException("File " + f.getPath() + " does not exist");
                 }
 
-                urls.add(makeFile(ucxt.getUserHome(), classpath[i]).toURL());
+                urls.add(makeFile(ucxt.getUserHome(), classpath[i]).toURI().toURL());
             }
 
             // System.out.println(urls[i].toExternalForm());
@@ -169,7 +169,7 @@ public class ClassLoaderFactory {
         for (; iter.hasNext();) {
             File f = iter.next();
             try {
-                urls.add(f.toURL());
+                urls.add(f.toURI().toURL());
             } catch (MalformedURLException e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
