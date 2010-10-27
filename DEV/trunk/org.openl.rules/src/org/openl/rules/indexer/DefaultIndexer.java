@@ -1,5 +1,7 @@
 package org.openl.rules.indexer;
 
+import org.apache.commons.lang.StringUtils;
+
 public class DefaultIndexer implements IIndexer {
 
     public String getCategory() {
@@ -16,7 +18,9 @@ public class DefaultIndexer implements IIndexer {
             String[] tokens = Tokenizer.parse(indexedText);
 
             for (String token : tokens) {
-                index.add(token, element);
+                if (StringUtils.isNotBlank(token)) {
+                    index.add(token, element);
+                }
             }
         }
     }
