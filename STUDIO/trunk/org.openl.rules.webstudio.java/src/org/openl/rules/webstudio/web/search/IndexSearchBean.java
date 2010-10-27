@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.search;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.indexer.Index.TokenBucket;
@@ -12,6 +15,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  */
 public class IndexSearchBean extends SimpleSearchBean {
 
+    private static final int SEARCH_RESULT_COLUMNS_COUNT = 3;
+    
     private UIRepeat searchLetters;
 
     public IndexSearchBean() {
@@ -48,6 +53,35 @@ public class IndexSearchBean extends SimpleSearchBean {
         }
         return new TokenBucket[0];
     }
+    
+    public int getColumnsCount() {
+        return SEARCH_RESULT_COLUMNS_COUNT;
+    }
+    
+    public TokenBucket[][] getOrderedIndexTokens() {
+        
+        TokenBucket[] tokens = getIndexTokens();
+        
+        if (tokens.length == 12) {
+            System.out.println();
+        }
+        
+        int rows = roundUp(Double.valueOf(tokens.length)  / SEARCH_RESULT_COLUMNS_COUNT);
+        TokenBucket[][] result = new TokenBucket[rows][SEARCH_RESULT_COLUMNS_COUNT];
+        
+        for (int i = 0; i < SEARCH_RESULT_COLUMNS_COUNT; i++) {
+            for (int j = 0; j < rows; j++) {
+                int index = i * rows + j;
+                
+                if (index < tokens.length) {
+                    TokenBucket element = tokens[index];
+                    result[j][i] = element;
+                }
+            }
+        }
+
+        return result;
+    }
 
     public String search() {
         String[][] searchResults = {};
@@ -72,4 +106,14 @@ public class IndexSearchBean extends SimpleSearchBean {
         return model.isProjectCompiledSuccessfully(); 
     }
 
+    private int roundUp(double value) {
+        
+        int result = Double.valueOf(value).intValue();
+        
+        if (result < value) {
+            result += 1;
+        }
+        
+        return result;
+    }
 }

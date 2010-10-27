@@ -50,8 +50,10 @@
                 style="font-weight: bold" />
             <a4j:repeat var="letter" value="#{indexSearchBean.indexLetters}"
                 binding="#{indexSearchBean.searchLetters}" rendered="#{not empty indexSearchBean.indexLetters}">
+               
                 <c:set var="indexTokens" value="#{indexSearchBean.indexTokens}" />
                 <c:set var="tokensLength" value="#{fn:length(indexTokens)}" />
+               
                 <div>
                     <a name="#{letter}" style="font-weight: bold; font-size: 160%;">
                         <h:outputText value="#{letter} (#{tokensLength})" />
@@ -60,25 +62,24 @@
                     <br /><br />
 
                     <table>
-                        <c:set var="ncols" value="#{jsffn:toNumber(3)}" />
-                        <c:set var="nrows" value="#{(tokensLength + ncols - 1) / ncols}" />
-                        <c:set var="colWidth" value="#{100 / ncols}" />
 
-                        <c:forEach begin="0" end="#{nrows - 1}" var="row">
-                        <tr>
-                            <c:forEach begin="0" end="#{ncols - 1}" var="col">
-                            <c:set var="indexToken" value="#{indexTokens[col * nrows + row]}" />
-                            <td width="#{colWidth}%">
-                                <h:outputLink rendered="#{col * nrows + row lt tokensLength}"
-                                    value="#{contextPath}/faces/facelets/search/showIndexSearchResults.xhtml">
-                                    <f:param name="searchQuery" value="#{indexToken.displayValue}" />
-                                    <h:outputText
-                                        value="#{indexToken.displayValue} (#{fn:length(indexToken.indexElements)})" />
-                                </h:outputLink>
-                            </td>
-                            </c:forEach>
-                        </tr>
-                        </c:forEach>
+						<c:set var="colWidth" value="#{100 div indexSearchBean.columnsCount}" />
+						
+	   					<ui:repeat value="#{indexSearchBean.orderedIndexTokens}" var="row">
+	   					   	<tr>
+			   					<ui:repeat value="#{row}" var="indexToken">
+		                            <td width="#{colWidth}%">
+		                                <h:outputLink rendered="#{indexToken != null}"
+		                                    value="#{contextPath}/faces/facelets/search/showIndexSearchResults.xhtml">
+		                                    <f:param name="searchQuery" value="#{indexToken.displayValue}" />
+		                                    <h:outputText
+		                                        value="#{indexToken.displayValue} (#{fn:length(indexToken.indexElements)})" />
+		                                </h:outputLink>
+		                            </td>
+			   					</ui:repeat>
+			   				</tr>
+	   					</ui:repeat>
+                        
                     </table>
                     <br />
                 </div>
@@ -86,7 +87,5 @@
 
         </div>
         
-        
-
     </ui:define>
 </ui:composition>
