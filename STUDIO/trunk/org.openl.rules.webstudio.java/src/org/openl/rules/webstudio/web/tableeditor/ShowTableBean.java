@@ -18,8 +18,8 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
-import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.service.TableServiceException;
@@ -277,15 +277,15 @@ public class ShowTableBean {
 
     public boolean isCopyable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && !isServiceTable()  && !ITableNodeTypes.XLS_DATATYPE.equals(table.getType()) 
+        return projectModel.isEditable() && !isServiceTable()  && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType()) 
             && !isDispatcherValidationNode();
     }
 
     public boolean isServiceTable() {
         String tableType = table.getType();
-        if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType)
-                || ITableNodeTypes.XLS_OTHER.equals(tableType)
-                || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
+        if (XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType)
+                || XlsNodeTypes.XLS_OTHER.toString().equals(tableType)
+                || XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableType)) {
             return true;
         }
         return false;

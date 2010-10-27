@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
@@ -311,9 +312,9 @@ public class HTMLRenderer {
 
     protected String renderPropsEditor(String editorId, IOpenLTable table, String mode, boolean collapseProps) {
         final String tableType = table.getType();
-        if (tableType != null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
-                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)
-                && !tableType.equals(ITableNodeTypes.XLS_PROPERTIES)) {
+        if (tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
+                && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
+                && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString())) {
             ITableProperties props = table.getProperties();
             return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode, collapseProps,
                     tableType).renderProperties();

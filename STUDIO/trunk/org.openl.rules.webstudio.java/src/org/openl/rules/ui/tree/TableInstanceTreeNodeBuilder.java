@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
@@ -79,8 +80,9 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      */
     @Override
     public boolean isUnique(TableSyntaxNode tsn) {
-        if (ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType()) || ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())
-                || ITableNodeTypes.XLS_ENVIRONMENT.equals(tsn.getType())) {
+        if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType()) 
+                || XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())
+                || XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tsn.getType())) {
             return true;
         }
         return false;
