@@ -2,7 +2,6 @@ package org.openl.rules.cmatch.algorithm;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,9 +60,7 @@ class ArgumentsHelper {
                 // ignore, already added
             } else {
                 // non simple
-                Iterator<IOpenField> fi = type.fields();
-                while (fi.hasNext()) {
-                    IOpenField field = fi.next();
+                for (IOpenField field : type.getFields().values()) {
                     argNames.add(field.getName());
                 }
             }

@@ -1,7 +1,6 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.main.OpenLWrapper;
@@ -152,8 +151,7 @@ public class TestAll {
     private TestStatistics runAllTests(IOpenClass ioc, TestStatistics stat) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         stat.setStart(System.currentTimeMillis());
-        for (Iterator<IOpenMethod> it = ioc.methods(); it.hasNext();) {
-            IOpenMethod m = it.next();
+        for (IOpenMethod m : ioc.getMethods()) {
             if (m.getType().getInstanceClass() == TestUnitsResults.class) {
                 runTestMethod(m, ioc.newInstance(env), env, stat);
             }

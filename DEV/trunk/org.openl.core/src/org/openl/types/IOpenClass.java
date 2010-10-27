@@ -35,7 +35,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      */
     @Deprecated
     Iterator<IOpenField> fields();
-    
+
     Map<String, IOpenField> getFields();
 
     /**

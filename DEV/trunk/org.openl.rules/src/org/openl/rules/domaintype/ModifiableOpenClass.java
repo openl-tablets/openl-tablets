@@ -20,8 +20,8 @@ public class ModifiableOpenClass extends OpenClassDelegator {
     }
 
     @Override
+    @Deprecated
     public Iterator<IOpenField> fields() {
-        // TODO Auto-generated method stub
         // TODO this does not take strictMatch correctly
         return super.fields();
     }
