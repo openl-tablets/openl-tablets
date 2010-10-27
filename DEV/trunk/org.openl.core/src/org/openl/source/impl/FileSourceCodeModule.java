@@ -81,7 +81,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
     @Override
     protected String makeUri() {
         try {
-            return externalUri != null ? externalUri : file.getCanonicalFile().toURL().toExternalForm();
+            return externalUri != null ? externalUri : file.getCanonicalFile().toURI().toURL().toExternalForm();
         } catch (Exception e) {
             throw RuntimeExceptionWrapper.wrap("", e);
         }

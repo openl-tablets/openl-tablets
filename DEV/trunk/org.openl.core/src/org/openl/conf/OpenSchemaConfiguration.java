@@ -58,7 +58,7 @@ public class OpenSchemaConfiguration extends AConfigurationElement implements IT
     }
 
     public void setFile(File f) throws Exception {
-        url = f.toURL();
+        url = f.toURI().toURL();
     }
 
     public void setURL(String x) throws Exception {

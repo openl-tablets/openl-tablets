@@ -35,7 +35,7 @@ public class JavaOpenFactory extends AOpenFactory {
     IOpenSchema loadSchemaUsingClasspath(String[] classpath) throws Exception {
         URL[] urls = new URL[classpath.length];
         for (int i = 0; i < urls.length; i++) {
-            urls[i] = new File(classpath[i]).getCanonicalFile().toURL();
+            urls[i] = new File(classpath[i]).getCanonicalFile().toURI().toURL();
         }
 
         return new JavaOpenSchema(this, classpath, new URLClassLoader(urls));

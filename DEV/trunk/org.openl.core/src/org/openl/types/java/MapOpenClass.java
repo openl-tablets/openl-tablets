@@ -6,7 +6,6 @@
 
 package org.openl.types.java;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.types.IOpenClass;
@@ -59,12 +58,6 @@ public class MapOpenClass extends JavaOpenClass {
     public MapOpenClass(IOpenSchema schema, String name) {
         super(Map.class, schema);
         this.name = name;
-    }
-
-    @Override
-    public Iterator<IOpenField> fields() {
-        // TODO Auto-generated method stub
-        return super.fields();
     }
 
     @Override
