@@ -13,6 +13,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.IAction;
@@ -99,7 +100,11 @@ public class DecisionTableLoader {
         // preprocess simple decision tables (without conditions and return headers)
         // add virtual headers to the table body.
         //
-        tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody);
+        try {
+            tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody);
+        } catch (OpenLCompilationException e) {
+            throw new SyntaxNodeException("Cannot create header for simle Decision Tbale", e, tableSyntaxNode);
+        }
 
         ILogicalTable toParse = tableBody;
         
@@ -174,7 +179,7 @@ public class DecisionTableLoader {
      * @return table body with added conditions and return headers.
      */
     private ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable,
-            ILogicalTable tableBody) {
+            ILogicalTable tableBody) throws OpenLCompilationException {
         
         if (DecisionTableHelper.isSimpleDecisionTable(tableSyntaxNode)) {
             tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, 0);
