@@ -380,7 +380,7 @@ public class ArrayTool {
 			buf.append("null");
 		} else if (obj instanceof String) {
 			buf.append('"').append(obj).append('"');
-		} else if (obj instanceof Class) {
+		} else if (obj instanceof Class<?>) {
 			buf.append(((Class<?>) obj).getName());
 		} else if (obj.getClass().isArray()) {
 			printArray(obj, buf, maxLength);
