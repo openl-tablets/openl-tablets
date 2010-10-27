@@ -69,11 +69,14 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected abstract Map<String, IOpenField> fieldMap();
 
+    /**
+     * @deprecated use {@link #getFields()} instead.
+     */
     public Iterator<IOpenField> fields() {
         Map<String, IOpenField> fieldMap = getFields();
         return fieldMap == null ? null : fieldMap.values().iterator();
     }
-    
+
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
         Iterator<IOpenClass> superClasses = superClasses();
@@ -284,7 +287,9 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected abstract Map<MethodKey, IOpenMethod> methodMap();
 
-    @Deprecated
+    /**
+     * @deprecated use {@link #getMethods()} instead.
+     */
     public Iterator<IOpenMethod> methods() {
         List<IOpenMethod> methods = getMethods();
         return methods == null ? null : methods.iterator();        

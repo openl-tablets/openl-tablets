@@ -29,7 +29,9 @@ public class NullOpenClass implements IOpenClass {
     private NullOpenClass() {
     }
 
-    @Deprecated
+    /**
+     * @deprecated use {@link #getFields()} instead.
+     */
     public Iterator<IOpenField> fields() {
         return null;
     }
@@ -147,7 +149,9 @@ public class NullOpenClass implements IOpenClass {
         return true;
     }
 
-    @Deprecated
+    /**
+     * @deprecated use {@link #getMethods()} instead.
+     */
     public Iterator<IOpenMethod> methods() {
         return null;
     }

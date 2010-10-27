@@ -31,9 +31,12 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
     IOpenClass[] EMPTY = {};
 
     /**
-     * @return an iterator of all the fieldValues
+     * Returns an iterator of all the field values.
+     * 
+     * @deprecated use {@link #getFields()} instead.
+     * 
+     * @return an iterator of all the field values.
      */
-    @Deprecated
     Iterator<IOpenField> fields();
 
     Map<String, IOpenField> getFields();
@@ -136,9 +139,11 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      */
     boolean isArray();
     
-    @Deprecated
+    /**
+     * @deprecated use {@link #getMethods()} instead.
+     */
     Iterator<IOpenMethod> methods();
-    
+
     List<IOpenMethod> getMethods();
 
     /**

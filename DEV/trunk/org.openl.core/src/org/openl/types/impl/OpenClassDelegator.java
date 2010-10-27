@@ -27,7 +27,9 @@ public class OpenClassDelegator implements IOpenClass {
         this.metaInfo = metaInfo;
     }
 
-    @Deprecated
+    /**
+     * @deprecated use {@link #getFields()} instead.
+     */
     public Iterator<IOpenField> fields() {
         return baseClass.fields();
     }
@@ -125,7 +127,9 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.isArray();
     }
 
-    @Deprecated
+    /**
+     * @deprecated use {@link #getMethods()} instead.
+     */
     public Iterator<IOpenMethod> methods() {
         return baseClass.methods();
     }
