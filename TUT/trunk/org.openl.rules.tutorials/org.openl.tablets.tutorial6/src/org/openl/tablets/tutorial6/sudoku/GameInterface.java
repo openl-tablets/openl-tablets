@@ -28,7 +28,7 @@ public class GameInterface
 	static public IGridTable findTable(String methodName, Object thizz) {
 
 		IOpenMethod m = MethodsHelper.getSingleMethod(methodName,
-				((DynamicObject) thizz).getType().methods());
+				((DynamicObject) thizz).getType().getMethods());
 		DecisionTable dt = (DecisionTable) m;
 		TableSyntaxNode tsn = dt.getSyntaxNode();
 
