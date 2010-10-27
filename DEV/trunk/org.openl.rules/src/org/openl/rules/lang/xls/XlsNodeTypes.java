@@ -1,5 +1,8 @@
 package org.openl.rules.lang.xls;
 
+// TODO: implement common for all node types interface, e.g. INodeTypes. Place
+// it to the core and rewrite ISyntaxNode#getType to returning INodeTypes.
+//
 public enum XlsNodeTypes {
     
     WORKBOOK("Workbook"),

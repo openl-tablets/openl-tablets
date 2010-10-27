@@ -15,7 +15,7 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableLoader;
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -316,7 +316,7 @@ public class DispatcherTableBuilder {
     }    
     
     private TableSyntaxNode createTableSyntaxNode(XlsSheetGridModel sheetGridModel, IGridTable gridTable) {        
-        String type = ITableNodeTypes.XLS_DT;
+        String type = XlsNodeTypes.XLS_DT.toString();
         
         GridLocation pos = new GridLocation(gridTable);
         HeaderSyntaxNode headerSyntaxNode = new HeaderSyntaxNode(null, new IdentifierNode(null, null, "Rules", null));

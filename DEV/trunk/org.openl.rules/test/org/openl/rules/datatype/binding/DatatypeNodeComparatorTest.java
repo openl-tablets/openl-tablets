@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -28,7 +28,7 @@ public class DatatypeNodeComparatorTest extends BaseOpenlBuilderHelper {
 
     private TableSyntaxNode findTableSyntaxNodeByDatatypeName(String datatypeName) {
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
-            if (ITableNodeTypes.XLS_DATATYPE.equals(tsn.getType())) {
+            if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
                 ILogicalTable table = tsn.getTable();
                 IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getSource());
 

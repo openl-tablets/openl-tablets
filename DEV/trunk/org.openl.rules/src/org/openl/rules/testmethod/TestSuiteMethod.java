@@ -3,7 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
@@ -199,7 +199,7 @@ public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchm
 
     public boolean isRunmethod() {
         TableSyntaxNode tsn = (TableSyntaxNode) getSyntaxNode();
-        return ITableNodeTypes.XLS_RUN_METHOD.equals(tsn.getType());
+        return XlsNodeTypes.XLS_RUN_METHOD.toString().equals(tsn.getType());
     }
     
     /**

@@ -3,14 +3,14 @@ package org.openl.rules.lang.xls.syntax;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.syntax.impl.NaryNode;
 
 public class WorkbookSyntaxNode extends NaryNode {
 
     public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes, XlsWorkbookSourceCodeModule module) {
-        super(ITableNodeTypes.XLS_WORKBOOK, null, nodes, module);
+        super(XlsNodeTypes.XLS_WORKBOOK.toString(), null, nodes, module);
     }
     
     public TableSyntaxNode[] getTableSyntaxNodes() {

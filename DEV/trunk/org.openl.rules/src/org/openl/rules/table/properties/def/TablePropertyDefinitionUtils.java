@@ -116,7 +116,7 @@ public class TablePropertyDefinitionUtils {
     /**
      * Gets list of properties that must me set for particular table type by default. 
      * 
-     * @param tableType type of the table. see {@link ITableNodeTypes}. 
+     * @param tableType type of the table. see {@link XlsNodeTypes}. 
      * @return list of properties that must me set for particular table type by default. If <b>tableType</b> is <code>null</code>,
      * returns {@link #getPropertiesToBeSetByDefault()}
      */
