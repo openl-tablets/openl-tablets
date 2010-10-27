@@ -3,19 +3,54 @@ package org.openl.rules.webstudio.web.diff;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.lang.xls.XlsHelper;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import javax.faces.event.ActionEvent;
 
 import org.openl.rules.diff.test.AbstractProjection;
 import org.openl.rules.diff.test.DiffTreeBuilderImpl;
 import org.openl.rules.diff.test.ProjectionDifferImpl;
 import org.openl.rules.diff.xls.XlsProjectionBuilder;
+import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.richfaces.model.UploadItem;
 
 public class ExcelDiffController extends AbstractDiffController {
 
+    /**
+     * Max files count to upload.
+     */
+    private static final int MAX_UPLOAD_FILES_COUNT = 2;
+    
+    /**
+     * Then name of file which should be removed from list of files to compare.
+     * NOTE: it is not used directly by controller but required for action listener invocation using ajax request.
+     */
+    private String fileName;
     private List<UploadItem> filesToCompare = new ArrayList<UploadItem>();
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public List<UploadItem> getFilesToCompare() {
+        return filesToCompare;
+    }
+
+    public void setFilesToCompare(List<UploadItem> filesToCompare) {
+        this.filesToCompare = filesToCompare;
+    }
+
+    public int getUploadsAvailable() {
+        return MAX_UPLOAD_FILES_COUNT - filesToCompare.size();
+    }
+    
+    public void clearUploadData(ActionEvent event) {
+        filesToCompare.clear();
+    }
+    
     public String compare() {
         UploadItem file1 = filesToCompare.get(0);
         UploadItem file2 = filesToCompare.get(1);
@@ -34,14 +69,6 @@ public class ExcelDiffController extends AbstractDiffController {
         filesToCompare.clear();
 
         return null;
-    }
-
-    public List<UploadItem> getFilesToCompare() {
-        return filesToCompare;
-    }
-
-    public void setFilesToCompare(List<UploadItem> filesToCompare) {
-        this.filesToCompare = filesToCompare;
     }
 
 }

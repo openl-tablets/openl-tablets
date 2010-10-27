@@ -24,14 +24,32 @@
     <h:form id="diffForm">
       <h:panelGrid columns="2">
         <h:outputText value="Select 2 Excel Files" />
-        <rich:fileUpload uploadData="#{excelDiffController.filesToCompare}"
-            maxFilesQuantity="2" immediateUpload="true" acceptedTypes="xls, xlsx, xlsm"
-            allowFlash="true" listHeight="85px" fileEntryClass="fileEntry" />
+        
+        <rich:fileUpload id="fileUpload"
+        	clearControlLabel=""
+        	uploadData="#{excelDiffController.filesToCompare}"
+            maxFilesQuantity="#{excelDiffController.uploadsAvailable}" 
+            immediateUpload="true" 
+            acceptedTypes="xls, xlsx, xlsm"
+            allowFlash="true" 
+            listHeight="85px" 
+            fileEntryClass="fileEntry">
+
+			<a4j:support event="onuploadcomplete" ajaxSingle="true" reRender="compareButton">
+     		</a4j:support>
+            
+			<a4j:support event="onclear" ajaxSingle="true" reRender="fileUpload,compareButton">
+          		<a4j:actionparam name="fname" noEscape="true" value = "(event.memo.entry)?event.memo.entry.fileName:'' "
+                           assignTo="#{excelDiffController.fileName}"
+                           actionListener="#{excelDiffController.clearUploadData}" />
+     		</a4j:support>
+     		
+		</rich:fileUpload>			            
 
         <h:outputText value="Show equal elements" />
         <h:selectBooleanCheckbox value="#{excelDiffController.showEqualElements}" />
 
-        <h:commandButton value="Compare" action="#{excelDiffController.compare}" />
+        <h:commandButton id="compareButton" value="Compare" action="#{excelDiffController.compare}" disabled="#{excelDiffController.uploadsAvailable != 0}" />
       </h:panelGrid>
     </h:form>
 
