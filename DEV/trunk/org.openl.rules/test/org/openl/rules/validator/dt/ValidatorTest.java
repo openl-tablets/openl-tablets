@@ -80,10 +80,10 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         assertEquals("Param value missing", "hour = 24", dtValidResult.getUncovered()[0].getValues().toString());
     }
         
+    @SuppressWarnings("deprecation")
     private DesionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
-        DesionTableValidationResult result = null;
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
-        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        DesionTableValidationResult result = null;        
+        TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             ITableProperties tableProperties  = resultTsn.getTableProperties();
             assertNotNull(tableProperties);

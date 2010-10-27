@@ -6,14 +6,11 @@ package org.openl.rules.tbasic;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.rules.tbasic.runtime.debug.TBasicMethodTraceObject;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;

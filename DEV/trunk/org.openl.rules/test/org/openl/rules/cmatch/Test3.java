@@ -33,9 +33,8 @@ public class Test3 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match3-2.xls");
-                TestHelper<ITest4> testHelper;
-                testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
+                File xlsFile = new File("test/rules/cmatch1/match3-2.xls");                
+                new TestHelper<ITest4>(xlsFile, ITest4.class);
             }
         }, "Sub node are prohibited here!", "cell=B10");
     }
@@ -44,9 +43,8 @@ public class Test3 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match3-3.xls");
-                TestHelper<ITest4> testHelper;
-                testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
+                File xlsFile = new File("test/rules/cmatch1/match3-3.xls");                
+                new TestHelper<ITest4>(xlsFile, ITest4.class);
             }
         }, "Column operation of special row Total Score must be defined!", "cell=C7");
     }

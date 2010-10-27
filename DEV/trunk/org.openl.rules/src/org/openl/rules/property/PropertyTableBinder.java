@@ -3,7 +3,6 @@ package org.openl.rules.property;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.BindHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;

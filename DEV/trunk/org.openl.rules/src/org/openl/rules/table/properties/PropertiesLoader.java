@@ -12,7 +12,6 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
-import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;

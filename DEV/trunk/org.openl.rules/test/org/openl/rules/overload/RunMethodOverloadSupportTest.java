@@ -4,8 +4,6 @@ import java.io.File;
 
 import org.junit.Test;
 import org.openl.rules.TestHelper;
-import org.openl.runtime.IEngineWrapper;
-import org.openl.vm.IRuntimeEnv;
 
 public class RunMethodOverloadSupportTest {
     
@@ -21,8 +19,6 @@ public class RunMethodOverloadSupportTest {
         testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
-        IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
-
         instance.driverRiskTestTestAll();
     }
 }

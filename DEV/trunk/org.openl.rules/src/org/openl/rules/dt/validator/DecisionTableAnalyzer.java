@@ -171,6 +171,7 @@ public class DecisionTableAnalyzer {
      * @param decisionTableToValidate decision table that is being validated.
      * @return new type for paramDeclarationFromSignature appropriate for validation.
      */
+    @SuppressWarnings("deprecation")
     public IOpenClass transformSignatureType(IParameterDeclaration paramDeclarationFromSignature,
             IDecisionTableValidatedObject decisionTableToValidate) {
 

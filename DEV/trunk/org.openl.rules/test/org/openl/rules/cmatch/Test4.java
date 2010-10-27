@@ -37,9 +37,8 @@ public class Test4 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match4-2.xls");
-                TestHelper<ITest4> testHelper;
-                testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
+                File xlsFile = new File("test/rules/cmatch1/match4-2.xls");                
+                new TestHelper<ITest4>(xlsFile, ITest4.class);
             }
         }, "Sub node are prohibited here!", "cell=B8");
     }
@@ -48,9 +47,8 @@ public class Test4 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match4-3.xls");
-                TestHelper<ITest4> testHelper;
-                testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
+                File xlsFile = new File("test/rules/cmatch1/match4-3.xls");                
+                new TestHelper<ITest4>(xlsFile, ITest4.class);
             }
         }, "OpenLRuntimeException", "cell=F6");
     }

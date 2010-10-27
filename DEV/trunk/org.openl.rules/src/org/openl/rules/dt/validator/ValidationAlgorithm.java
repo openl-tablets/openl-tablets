@@ -48,6 +48,7 @@ public class ValidationAlgorithm {
         this.openl = openl;
     }
 
+    @SuppressWarnings("deprecation")
     public DesionTableValidationResult validate() {
         DecisionTable decisionTable = decisionTableToValidate.getDecisionTable();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(decisionTable);
@@ -199,7 +200,9 @@ public class ValidationAlgorithm {
 
         return new MethodSignature(parameters.toArray(new IParameterDeclaration[parameters.size()]));
     }
-
+    
+    
+    @SuppressWarnings("deprecation")
     private List<IParameterDeclaration> getTransformedLocalParams(IParameterDeclaration[] paramDeclarations) {
         
         List<IParameterDeclaration> transformeedParameters = new ArrayList<IParameterDeclaration>();
@@ -241,6 +244,7 @@ public class ValidationAlgorithm {
         return parameters;
     }
 
+    @SuppressWarnings("deprecation")
     private IntExpArray makeVars(DecisionTableAnalyzer analyzer) {
 
         List<IntExp> vars = new ArrayList<IntExp>();
@@ -265,6 +269,7 @@ public class ValidationAlgorithm {
         return new IntExpArray(constrainer, vars);
     }
 
+    @SuppressWarnings("deprecation")
     private Object transformValue(String name, ICondition condition, Object value, DecisionTableAnalyzer analyzer) {
         return decisionTableToValidate.getTransformer().transformLocalParameterValue(name, condition, value, analyzer);
     }

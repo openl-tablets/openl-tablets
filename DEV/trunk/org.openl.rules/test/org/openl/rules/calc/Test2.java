@@ -20,8 +20,8 @@ public class Test2 {
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc2();
 
-        assertEquals(3, result.height());
-        assertEquals(3, result.width());
+        assertEquals(3, result.getHeight());
+        assertEquals(3, result.getWidth());
 
         assertEquals("Col1", result.getColumnName(0));
         assertEquals(null, result.getColumnName(1));

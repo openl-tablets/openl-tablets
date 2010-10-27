@@ -52,7 +52,8 @@ public class WordUrlParser implements XlsURLConstants {
         }
 
         try {
-            return new File(url).getCanonicalFile().toURL();
+            File f = new File(url);            
+            return  (f.getCanonicalFile().toURI()).toURL();
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }

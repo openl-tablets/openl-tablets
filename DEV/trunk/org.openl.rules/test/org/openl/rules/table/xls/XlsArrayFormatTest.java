@@ -1,7 +1,6 @@
 package org.openl.rules.table.xls;
 
 import static org.junit.Assert.*;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
 import org.openl.rules.table.xls.formatters.XlsEnumFormatter;

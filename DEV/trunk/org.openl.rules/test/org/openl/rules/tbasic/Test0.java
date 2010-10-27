@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.junit.Ignore;
 import org.openl.rules.TestHelper;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 @Ignore("Manual test")
 public class Test0 {
@@ -23,7 +22,7 @@ public class Test0 {
             TestHelper<ITestAlgorithm1> testHelper;
             testHelper = new TestHelper<ITestAlgorithm1>(xlsFile, ITestAlgorithm1.class);
 
-            TableSyntaxNode tsn = testHelper.getTableSyntaxNode();
+            testHelper.getTableSyntaxNode();
         } catch (Exception e) {
             result = e;
         }
@@ -34,8 +33,6 @@ public class Test0 {
     public void okRows(File xlsFile, int expectedNumberOfRows) {
         TestHelper<ITestAlgorithm1> testHelper;
         testHelper = new TestHelper<ITestAlgorithm1>(xlsFile, ITestAlgorithm1.class);
-
-        TableSyntaxNode tsn = testHelper.getTableSyntaxNode();
         ITestAlgorithm1 a = testHelper.getInstance();
 
         // assertEquals(expectedNumberOfRows, a.modification());

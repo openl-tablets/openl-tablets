@@ -13,7 +13,8 @@ public class XlsWorkbookSourceCodeModuleTest{
     @Test
     public void testUrlWithWhiteSpaces() {
         try {
-            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(new File("test/rules/test xls/Test with spaces.xls").toURL()));
+            File f = new File("test/rules/test xls/Test with spaces.xls");
+            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(f.toURI().toURL()));
             assertNotNull(module.sourceFile);
         } catch (MalformedURLException e) {
             assertFalse(true);

@@ -20,7 +20,7 @@ public class DataLoadingTest {
         Calendar[] getCalendarSet();
     }
 
-    @SuppressWarnings({ "unchecked", "deprecation" })
+    @SuppressWarnings({ "deprecation" })
     @Test
     public void testMethodOverload1() {
         File xlsFile = new File("test/rules/DataLoading.xls");

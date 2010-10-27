@@ -120,7 +120,8 @@ public class RulesVocabulary implements IVocabulary {
     // return list.toArray(new DomainOpenClass[0]);
     // }
 
-    public void makeDomains(@SuppressWarnings("unused")
+    public void makeDomains(
+    @SuppressWarnings("unused")
     List<IOpenClass> list) {
 
     }

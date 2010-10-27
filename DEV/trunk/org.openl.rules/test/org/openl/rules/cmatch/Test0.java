@@ -20,9 +20,8 @@ public class Test0 {
     public void test1() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-1.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-1.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Unsufficient rows. At least 4 are expected!");
     }
@@ -31,9 +30,8 @@ public class Test0 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-2.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-2.xls");             
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Name cannot be empty!", "cell=B7");
     }
@@ -42,9 +40,8 @@ public class Test0 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-3.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-3.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Name cannot be empty!", "cell=B8");
     }
@@ -53,9 +50,8 @@ public class Test0 {
     public void testDublicateColumn() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/Test_Dublicate_Column.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/Test_Dublicate_Column.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Duplicate column 'values'!");
     }
@@ -64,9 +60,8 @@ public class Test0 {
     public void test4() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-4.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-4.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "org.openl.exception.OpenLRuntimeException", "cell=E6");
     }
@@ -75,9 +70,8 @@ public class Test0 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-5.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-5.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Cannot find algorithm for name 'ERROR'!", "range=B3:L7");
     }
@@ -89,9 +83,8 @@ public class Test0 {
 
         Exception ex = null;
         try {
-            File xlsFile = new File("test/rules/cmatch0/match0-6.xls");
-            TestHelper<ITestI> testHelper;
-            testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+            File xlsFile = new File("test/rules/cmatch0/match0-6.xls");            
+            new TestHelper<ITestI>(xlsFile, ITestI.class);
         } catch (Exception e) {
             ex = e;
         } finally {
@@ -105,9 +98,8 @@ public class Test0 {
     public void test7() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-7.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-7.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Illegal header format!", "range=B3:L7");
     }
@@ -116,9 +108,8 @@ public class Test0 {
     public void test8() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-8.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+                File xlsFile = new File("test/rules/cmatch0/match0-8.xls");                
+                new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Unsufficient rows.", "range=B3:L4");
     }

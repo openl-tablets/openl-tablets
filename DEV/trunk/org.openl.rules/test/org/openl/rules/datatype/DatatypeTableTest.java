@@ -28,7 +28,7 @@ public class DatatypeTableTest extends BaseOpenlBuilderHelper {
     
     @Test
     public void testDatatypeMember() {
-        TableSyntaxNode node = findTable("Datatype Driver", getTableSyntaxNodes());
+        TableSyntaxNode node = findTable("Datatype Driver");
         if (node != null) {
             assertEquals("Driver", node.getMember().getName());
         } else {

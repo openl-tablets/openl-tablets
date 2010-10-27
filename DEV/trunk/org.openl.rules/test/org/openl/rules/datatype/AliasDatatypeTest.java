@@ -88,7 +88,7 @@ public class AliasDatatypeTest {
 				ITest.class);
 
 		ITest instance = testHelper.getInstance();
-		int res = instance.test3(new IntRange(1, 3));
+		instance.test3(new IntRange(1, 3));
 	}
 	
 	@Test

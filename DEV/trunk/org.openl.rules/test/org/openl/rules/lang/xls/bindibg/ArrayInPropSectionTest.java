@@ -16,9 +16,8 @@ public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper{
     
     @Test
     public void testLoadingArrayInPropertyTableSection() {      
-        String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
-        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";        
+        TableSyntaxNode resultTsn = findTable(tableName);
         
         if (resultTsn != null) {
             assertEquals("Check that number of properties defined in table is 4",

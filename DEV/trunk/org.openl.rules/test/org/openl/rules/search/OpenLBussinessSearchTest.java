@@ -81,8 +81,7 @@ public class OpenLBussinessSearchTest extends BaseOpenlBuilderHelper{
     }
     
     private TableSyntaxNode[] getTableConsists(XlsModuleSyntaxNode xls, String nameProp) {
-        TableSyntaxNode[] listTables = new TableSyntaxNode[1];
-        TableSyntaxNode result = null;
+        TableSyntaxNode[] listTables = new TableSyntaxNode[1];       
         
         for(TableSyntaxNode table : xls.getXlsTableSyntaxNodes()) {
             ITableProperties tableProp = table.getTableProperties();
