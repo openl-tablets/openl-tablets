@@ -3,7 +3,7 @@ package org.openl.rules.ui.tree;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
 
@@ -35,29 +35,29 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         nodeKeysMap = new HashMap<String, NodeKey>();
 
-        nodeKeysMap.put(ITableNodeTypes.XLS_DT, new NodeKey(0, new String[] { "Decision", "Decision Tables", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_SPREADSHEET, new NodeKey(1, new String[] { "Spreadsheet",
+        nodeKeysMap.put(XlsNodeTypes.XLS_DT.toString(), new NodeKey(0, new String[] { "Decision", "Decision Tables", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_SPREADSHEET.toString(), new NodeKey(1, new String[] { "Spreadsheet",
                 "Spreadsheet Tables", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_SPREADSHEET, new NodeKey(1, new String[] { "Spreadsheet",
+        nodeKeysMap.put(XlsNodeTypes.XLS_SPREADSHEET.toString(), new NodeKey(1, new String[] { "Spreadsheet",
                 "Spreadsheet Tables", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_TBASIC, new NodeKey(2, new String[] { "TBasic",
+        nodeKeysMap.put(XlsNodeTypes.XLS_TBASIC.toString(), new NodeKey(2, new String[] { "TBasic",
                 "Structured Algorithm Tables", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_COLUMN_MATCH, new NodeKey(3, new String[] { "Column Match",
+        nodeKeysMap.put(XlsNodeTypes.XLS_COLUMN_MATCH.toString(), new NodeKey(3, new String[] { "Column Match",
                 "Column Match Tables", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_DATA, new NodeKey(4, new String[] { "Data", "Data Tables", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_TEST_METHOD, new NodeKey(5, new String[] { "Test",
+        nodeKeysMap.put(XlsNodeTypes.XLS_DATA.toString(), new NodeKey(4, new String[] { "Data", "Data Tables", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_TEST_METHOD.toString(), new NodeKey(5, new String[] { "Test",
                 "Tables with data for method unit tests", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_RUN_METHOD, new NodeKey(5, new String[] { "Run",
+        nodeKeysMap.put(XlsNodeTypes.XLS_RUN_METHOD.toString(), new NodeKey(5, new String[] { "Run",
                 "Tables with run data for methods", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_DATATYPE,
+        nodeKeysMap.put(XlsNodeTypes.XLS_DATATYPE.toString(),
                 new NodeKey(6, new String[] { "Datatype", "OpenL Datatypes", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_METHOD, new NodeKey(7, new String[] { "Method", "OpenL Methods", "" }));
-        nodeKeysMap.put(ITableNodeTypes.XLS_ENVIRONMENT, new NodeKey(8, new String[] { "Configuration",
+        nodeKeysMap.put(XlsNodeTypes.XLS_METHOD.toString(), new NodeKey(7, new String[] { "Method", "OpenL Methods", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), new NodeKey(8, new String[] { "Configuration",
                 "Environment table, used to configure OpenL project", "" }));
 
         nodeKeysMap.put(OTHER_NODE_KEY, new NodeKey(10, new String[] { "Other",
                 "The Tables that do not belong to any known OpenL type", "" }));        
-        nodeKeysMap.put(ITableNodeTypes.XLS_PROPERTIES, new NodeKey(11, new String[] { "Properties", 
+        nodeKeysMap.put(XlsNodeTypes.XLS_PROPERTIES.toString(), new NodeKey(11, new String[] { "Properties", 
                 "Properties Tables", "" }));
         
     }

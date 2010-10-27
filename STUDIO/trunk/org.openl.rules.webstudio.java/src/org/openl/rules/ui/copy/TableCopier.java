@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -84,8 +85,8 @@ public abstract class TableCopier extends WizardBase {
 
         int logicBaseTableStartRow = 0;
 
-        boolean envTable = ITableNodeTypes.XLS_ENVIRONMENT.equals(baseTableType);
-        boolean otherTable = ITableNodeTypes.XLS_OTHER.equals(baseTableType);
+        boolean envTable = XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(baseTableType);
+        boolean otherTable = XlsNodeTypes.XLS_OTHER.toString().equals(baseTableType);
 
         String newHeader = null;
         ICellStyle headerStyle = null;
@@ -214,7 +215,7 @@ public abstract class TableCopier extends WizardBase {
         String result = null;
         String headerIntern = header;
         String[] headerTokens = null;
-        if (!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) && !ITableNodeTypes.XLS_OTHER.equals(tableType)) {
+        if (!XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType) && !XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
             headerIntern = header.replaceFirst("\\(.*\\)", "");
             headerTokens = StringUtils.split(headerIntern);
             result = headerTokens[headerTokens.length - 1]; 

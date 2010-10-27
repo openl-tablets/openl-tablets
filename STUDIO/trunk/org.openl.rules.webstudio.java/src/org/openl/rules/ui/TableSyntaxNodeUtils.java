@@ -2,7 +2,7 @@ package org.openl.rules.ui;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -85,14 +85,14 @@ public class TableSyntaxNodeUtils {
     public static String str2name(String src, String type) {
         if (src == null) {
             src = "NO NAME";
-        } else if (type.equals(ITableNodeTypes.XLS_DATATYPE)) {
+        } else if (type.equals(XlsNodeTypes.XLS_DATATYPE.toString())) {
             String[] tokens = StringUtils.split(src.replaceAll("\\(.*\\)", ""));
             src = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
-        } else if (type.equals(ITableNodeTypes.XLS_DT) || type.equals(ITableNodeTypes.XLS_SPREADSHEET)
-                || type.equals(ITableNodeTypes.XLS_TBASIC) || type.equals(ITableNodeTypes.XLS_COLUMN_MATCH)
-                || type.equals(ITableNodeTypes.XLS_DATA) || type.equals(ITableNodeTypes.XLS_DATATYPE)
-                || type.equals(ITableNodeTypes.XLS_METHOD) || type.equals(ITableNodeTypes.XLS_TEST_METHOD)
-                || type.equals(ITableNodeTypes.XLS_RUN_METHOD)) {
+        } else if (type.equals(XlsNodeTypes.XLS_DT.toString()) || type.equals(XlsNodeTypes.XLS_SPREADSHEET.toString())
+                || type.equals(XlsNodeTypes.XLS_TBASIC.toString()) || type.equals(XlsNodeTypes.XLS_COLUMN_MATCH.toString())
+                || type.equals(XlsNodeTypes.XLS_DATA.toString()) || type.equals(XlsNodeTypes.XLS_DATATYPE.toString())
+                || type.equals(XlsNodeTypes.XLS_METHOD.toString()) || type.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
+                || type.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
 
             String[] tokens = StringUtils.split(src.replaceAll("\\(.*\\)", ""));
             src = tokens[tokens.length - 1].trim();

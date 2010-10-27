@@ -16,8 +16,8 @@ import org.openl.conf.OpenLConfiguration;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
-import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -289,7 +289,7 @@ public class ProjectModel {
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i].getType().equals(ITableNodeTypes.XLS_DT)
+            if (nodes[i].getType().equals(XlsNodeTypes.XLS_DT.toString())
                     && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getGridTable().getUri())) {
                 return nodes[i];
             }
@@ -343,7 +343,7 @@ public class ProjectModel {
         for (int i = 0; i < nodes.length; i++) {
             TableSyntaxNode tsn = nodes[i];
 
-            if (tsn.getType() == ITableNodeTypes.XLS_DT) {
+            if (tsn.getType() == XlsNodeTypes.XLS_DT.toString()) {
                 if (tsn.getErrors() == null) {
                     if (tsn.getTableProperties() != null) {
                         if ("on".equals(tsn.getTableProperties().getValidateDT())) {
@@ -543,7 +543,7 @@ public class ProjectModel {
             List<OpenLSavedSearch> savedSearches = new ArrayList<OpenLSavedSearch>();
 
             for (TableSyntaxNode node : nodes) {
-                if (node.getType().equals(ITableNodeTypes.XLS_PERSISTENT)) {
+                if (node.getType().equals(XlsNodeTypes.XLS_PERSISTENT.toString())) {
                     String code = node.getHeader().getModule().getCode();
                     if ((IXlsTableNames.PERSISTENCE_TABLE + " " + OpenLSavedSearch.class.getName()).equals(code)) {
                         OpenLSavedSearch savedSearch = new OpenLSavedSearch().restore(new XlsSheetGridImporter(
@@ -823,7 +823,7 @@ public class ProjectModel {
 
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
                 treeEnlarged = true;
-            } else if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNodes[i].getType())) {
+            } else if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNodes[i].getType())) {
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
             } else if (tableSyntaxNodes[i].getErrors() != null
                     && !DispatcherTableBuilder.isDispatcherTable(tableSyntaxNodes[i])) {
@@ -835,8 +835,8 @@ public class ProjectModel {
         if (!treeEnlarged) {
             // No selection have been made (usually in a business mode)
             for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
-                if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
-                        && !ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNodes[i].getType())
+                if (!XlsNodeTypes.XLS_OTHER.toString().equals(tableSyntaxNodes[i].getType())
+                        && !XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNodes[i].getType())
                         && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
                     treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
                 }

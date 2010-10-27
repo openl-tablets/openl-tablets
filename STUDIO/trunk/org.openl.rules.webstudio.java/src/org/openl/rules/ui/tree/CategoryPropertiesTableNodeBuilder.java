@@ -1,7 +1,7 @@
 package org.openl.rules.ui.tree;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -59,7 +59,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
-        if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode)) {
+        if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode)) {
             return true;
         }
         return false;
