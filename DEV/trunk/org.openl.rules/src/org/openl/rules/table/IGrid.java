@@ -65,6 +65,10 @@ public interface IGrid {
 
     boolean isPartOfTheMergedRegion(int col, int row);
 
+    boolean isTopLeftCellInMergedRegion(int column, int row);
+
+    boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow);
+
     /**
      * @return Merged region containing cell specified by coordinates or <code>null</code>
      */

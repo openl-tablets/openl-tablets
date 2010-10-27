@@ -12,7 +12,6 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.MergeCellsAction;
-import org.openl.rules.table.actions.UndoableSaveValueAction;
 import org.openl.rules.table.actions.UndoableClearAction;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableCopyValueAction;
@@ -152,7 +151,7 @@ public interface IWritableGrid extends IGrid {
 
             int firstToMove = region.getLeft() + beforeColumns;
             // shift cells by column, copy cells of inserted column and resize merged regions after
-            actions.addAll(shiftColumns(firstToMove, nColumns, INSERT, region, table));
+            actions.addAll(shiftColumns(firstToMove + nColumns, nColumns, INSERT, region, table));
 
             for (int colFromCopy = firstToMove + nColumns - 1; colFromCopy >= firstToMove; colFromCopy--) {
                 for (int row = region.getBottom(); row >= region.getTop(); row--) {
@@ -403,25 +402,26 @@ public interface IWritableGrid extends IGrid {
             wgrid.setCellMetaInfo(gcol, grow, meta);
         }
 
-        private static List<IUndoableGridTableAction> clearCells(int startColumn, int nCols, int startRow, int nRows) {
+        private static List<IUndoableGridTableAction> clearCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
             ArrayList<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
             for (int i = startColumn; i < startColumn + nCols; i++) {
                 for (int j = startRow; j < startRow + nRows; j++) {
+                    if (!grid.isPartOfTheMergedRegion(i, j)
+                            || (grid.isTopLeftCellInMergedRegion(i, j))){
                     clearActions.add(new UndoableClearAction(i, j));
+                }
                 }
             }
             return clearActions;
         }
 
         private static AUndoableCellAction shiftCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
-            if (grid.isInOneMergedRegion(colTo, rowTo, colFrom, rowFrom)
-                    && grid.isTopLeftCellInMergedRegion(colTo, rowTo)) {
-                // Don't copy cell from the same to the top left cell(because it
-                // value will be lost)
-                return new UndoableSaveValueAction(colTo, rowTo);
+            IGrid grid = table.getGrid();
+            if (!grid.isPartOfTheMergedRegion(colFrom, rowFrom) || grid.isTopLeftCellInMergedRegion(colFrom, rowFrom)) {
+                // non top left cell of merged region have to be skipped
+                return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
             }
-            return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
+            return null;
         }
 
         private static AUndoableCellAction copyCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
@@ -443,18 +443,36 @@ public interface IWritableGrid extends IGrid {
                 direction = 1;
                 colFromCopy = startColumn;
             }
+            IGrid grid = table.getGrid();
+
+            // The first step: clear cells that will be lost after shifting
+            // columns(just because we need to restore this cells after UNDO)
+            if (isInsert) {
+                shiftActions.addAll(clearCells(region.getRight() + 1, nCols, region.getTop(),
+                        org.openl.rules.table.IGridRegion.Tool.height(region), grid));
+            } else {
+                for (int column = startColumn - nCols; column < startColumn; column++) {
+                    for (int row = region.getTop(); row <= region.getBottom(); row++) {
+                        if (!grid.isPartOfTheMergedRegion(column, row)
+                                || (grid.isTopLeftCellInMergedRegion(column, row) && org.openl.rules.table.IGridRegion.Tool
+                                        .width(grid.getRegionStartingAt(column, row)) <= nCols)) {
+                            // Sense of the second check: if it was a merged
+                            // cell then it can be removed or resized depending
+                            // on count of columns deleted
+                            shiftActions.add(new UndoableClearAction(column, row));
+                        }
+                    }
+                }
+            }
+
+            //The second step: shift cells
             int numColumnsToBeShifted = region.getRight() - startColumn;
             for (int i = 0; i <= numColumnsToBeShifted; i++) {
                 colToCopy = colFromCopy - direction * nCols;
                 // from bottom to top, it is made for copying non_top_left cells
                 // of merged before the topleft cell of merged region
                 for (int row = region.getBottom(); row >= region.getTop(); row--) {
-                    AUndoableCellAction action = null;
-                    if (isInsert && numColumnsToBeShifted - i < nCols) {
-                        action = copyCell(colFromCopy, row, colToCopy, row, table);
-                    } else {
-                        action = shiftCell(colFromCopy, row, colToCopy, row, table);
-                    }
+                    AUndoableCellAction action =  shiftCell(colFromCopy, row, colToCopy, row, table);
                     if (action != null) {
                         shiftActions.add(action);
                     }
@@ -485,6 +503,29 @@ public interface IWritableGrid extends IGrid {
                 rowFromCopy = startRow; // we gets the startRow and are
                                         // going to shift it up.
             }
+            IGrid grid = table.getGrid();
+
+            // The first step: clear cells that will be lost after shifting
+            // rows(just because we need to restore this cells after UNDO)
+            if (isInsert) {
+                shiftActions.addAll(clearCells(region.getLeft(), org.openl.rules.table.IGridRegion.Tool.width(region),
+                        region.getBottom() + 1, nRows, grid));
+            } else {
+                for (int row = startRow - nRows; row < startRow; row++) {
+                    for (int column = region.getLeft(); column <= region.getRight(); column++) {
+                        if (!grid.isPartOfTheMergedRegion(column, row)
+                                || (grid.isTopLeftCellInMergedRegion(column, row) && org.openl.rules.table.IGridRegion.Tool
+                                        .height(grid.getRegionStartingAt(column, row)) <= nRows)) {
+                            // Sense of the second check: if it was a merged
+                            // cell then it can be removed or resized depending
+                            // on count of rows deleted
+                            shiftActions.add(new UndoableClearAction(column, row));
+                        }
+                    }
+                }
+            }
+            
+            //The second step: shift cells
             int numRowsToBeShifted = region.getBottom() - startRow;
             for (int i = 0; i <= numRowsToBeShifted; i++) {
                 rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
@@ -512,7 +553,7 @@ public interface IWritableGrid extends IGrid {
             // resize merged regions -> shift cells by column -> clear cells 
             actions.addAll(resizeMergedRegions(table, startColumn, nCols, REMOVE, COLUMNS, region));
             actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region, table));
-            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h));
+            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
         }
@@ -522,13 +563,13 @@ public interface IWritableGrid extends IGrid {
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
             int firstToMove = region.getTop() + startRow + nRows;
-
+            
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(w * (h - startRow));
 
             // resize merged regions -> shift cells by row -> clear cells 
             actions.addAll(resizeMergedRegions(table, startRow, nRows, REMOVE, ROWS, region));
             actions.addAll(shiftRows(firstToMove, nRows, REMOVE, region, table));
-            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows));
+            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
         }
@@ -595,8 +636,4 @@ public interface IWritableGrid extends IGrid {
     void setCellValue(int col, int row, Object value);
 
     void setCellFormula(int col, int row, String formula);
-
-    boolean isTopLeftCellInMergedRegion(int column, int row);
-
-    boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow);
 }

@@ -31,4 +31,16 @@ public abstract class AGrid implements IGrid {
         return getRegionContaining(x, y) != null;
     }
 
+
+    public boolean isTopLeftCellInMergedRegion(int column, int row) {
+        return getRegionStartingAt(column, row) != null;
+    }
+
+    public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
+        IGridRegion region = getRegionContaining(firstCellColumn, firstCellRow);
+        if (region != null && org.openl.rules.table.IGridRegion.Tool.contains(region, secondCellColumn, secondCellRow)) {
+            return true;
+        }
+        return false;
+    }
 }

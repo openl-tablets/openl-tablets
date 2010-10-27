@@ -260,7 +260,7 @@ public class MergedRegionsTest {
                 "DeleteRows", workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
-        assertEquals(7, tests.size());
+        assertEquals(8, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeRowsAction = IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(),

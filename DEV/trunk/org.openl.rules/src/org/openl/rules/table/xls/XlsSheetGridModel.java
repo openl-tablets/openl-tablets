@@ -199,18 +199,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         setCellMetaInfo(colTo, rowTo, meta);
     }
 
-    public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
-        IGridRegion region = mergedRegionsPool.getRegionContaining(firstCellColumn, firstCellRow);
-        if (region != null && org.openl.rules.table.IGridRegion.Tool.contains(region, secondCellColumn, secondCellRow)) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isTopLeftCellInMergedRegion(int column, int row) {
-        return super.getRegionStartingAt(column, row) != null;
-    }
-
     public IGridRegion findEmptyRect(int width, int height) {        
         int lastRow = PoiExcelHelper.getLastRowNum(sheet);
         int top = lastRow + 2, left = 1;
