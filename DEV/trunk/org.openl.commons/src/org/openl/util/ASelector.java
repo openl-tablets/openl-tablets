@@ -220,8 +220,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
     }
 
-    public static <T> ISelector<T> selectAll(@SuppressWarnings("unused")
-    T obj) {
+    public static <T> ISelector<T> selectAll(T obj) {
         return new AllSelector<T>();
     }
 
@@ -229,8 +228,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         return new ClassSelector(c);
     }
 
-    public static <T> ISelector<T> selectNone(@SuppressWarnings("unused")
-    T obj) {
+    public static <T> ISelector<T> selectNone(T obj) {
         return new NoneSelector<T>();
     }
 

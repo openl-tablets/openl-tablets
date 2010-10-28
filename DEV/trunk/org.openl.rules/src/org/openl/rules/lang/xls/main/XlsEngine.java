@@ -7,6 +7,8 @@ package org.openl.rules.lang.xls.main;
 import org.openl.main.Engine;
 
 /**
+ * @deprecated
+ * 
  * @author Stanislav Shor
  *
  */
