@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:simple="http://cxf.apache.org/simple"
+	xmlns:soap="http://cxf.apache.org/bindings/soap"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd
+http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
+
+	<!--
+		Data binding type in WebServices(set it to the "serverPrototype" bean)
+	-->
+	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding" />
+
+	<!-- Main description for the one WebService.-->
+	<!--
+		All configurations for server (like a data binding type and
+		interceptors) are represented there. ServerFactoryBean configuration
+		is similar to a CXF simple frontend configuration(see
+		http://cxf.apache.org/docs/simple-frontend-configuration.html) but
+		without namespace "simple".
+	-->
+	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
+		scope="prototype">
+		<property name="dataBinding" ref="binding" />
+	</bean>
+	<!--
+		Prototypes factory. It will create new server prototype for each new
+		WebService.
+	-->
+	<bean id="serverPrototypeFactory"
+		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+		<property name="targetBeanName">
+			<idref local="serverPrototype" />
+		</property>
+	</bean>
+
+	<!--
+		Any implementation of interface
+		"org.openl.rules.ruleservice.publish.DeploymentAdmin"
+	-->
+	<bean id="deploymentAdmin"
+		class="org.openl.rules.ruleservice.publish.WebServicesDeployAdmin">
+		<!--
+			Base address for a jetty server. Result address of WebServices will
+			be: "<baseAddress><deploymentName>/<ruleWrapperName>"
+		-->
+		<!--property name="baseAddress" value="http://localhost:9000/" /-->
+
+		<!--
+			Base address for a tomcat war. Result address of WebServices will be:
+			"http://localhost:<port>/<war_name><baseAddress><deploymentName>/<ruleWrapperName>"
+		-->
+		<property name="baseAddress" value="/" />
+		<property name="serverFactory" ref="serverPrototypeFactory" />
+	</bean>
+</beans>

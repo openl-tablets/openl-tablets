@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+    <version>5.7.3</version>
+    <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.ruleservice</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - RuleService - RuleService</name>
+  <description>Common OpenL Rules service</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <testSourceDirectory>test</testSourceDirectory>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    <dependency>
+       <groupId>cglib</groupId>
+       <artifactId>cglib-nodep</artifactId>
+    </dependency>
+
+    <!-- DEV -->
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules</artifactId>
+    </dependency>
+    
+    
+    <!-- STUDIO -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.workspace</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.project</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
