@@ -1,0 +1,141 @@
+<project basedir="." default="help">
+
+  <property name="work.dir" value="/openl" />
+  <property name="rep.both" value="repositories/common-repository.zip" />
+  <property name="tomcat.dest.dir" value="tomcat-6.0" />
+  <property name="tomcat.dest.path" value="${work.dir}/tomcat-6.0" />
+  <property name="webapp.studio.name" value="webstudio" />
+  <property name="webapp.client.name" value="demo" />
+
+  <property name="plugin.base.path" location="${eclipse.pdebuild.home}../" />
+  <property name="openl.plugin.version" value="_5.7.3" />
+
+  <property name="tomcat.path" value="${plugin.base.path}/org.openl.rules.tomcat.lib${openl.plugin.version}/apache-tomcat-6.0.20" />
+
+  <property name="project.lib" value="${plugin.base.path}/org.openl.rules.webstudio.lib${openl.plugin.version}" />
+  <property name="project.jars" value="project.jars" />
+
+
+  <property name="webapps.dir" value="${tomcat.dest.path}/webapps" />
+  <property name="webapps.studio.dir" value="${webapps.dir}/${webapp.studio.name}" />
+  <property name="webapps.client.dir" value="${webapps.dir}/${webapp.client.name}" />
+  <property name="ruleservice.dir" value="${work.dir}/ruleservice" />
+
+  <target name="help">
+    <echo message="deployment project" />
+    <echo message="use ant -p to list available targets" />
+  </target>
+
+  <target name="init">
+    <mkdir dir="${work.dir}" />
+  </target>
+
+  <target name="clear_repositories">
+    <delete dir="${rep.both}" />
+  </target>
+
+  <target name="prepare_repositories" depends="init, clear_repositories" description="unpacks pre-packed designtime and production repositories to working directory">
+    <unzip src="${rep.both}" dest="${work.dir}" />
+  </target>
+
+  <target name="copy_tomcat">
+    <copy todir="${tomcat.dest.path}">
+      <fileset dir="${tomcat.path}">
+        <exclude name="**/.svn" />
+        <exclude name="**/.cvsignore" />
+      </fileset>
+    </copy>
+    <mkdir dir="${tomcat.dest.path}/temp" />
+  </target>
+
+  <target name="prepare_webapps" depends="copy_tomcat">
+    <mkdir dir="${webapps.dir}" />
+
+    <copy todir="${webapps.studio.dir}" preservelastmodified="true" overwrite="true">
+      <fileset dir="../org.openl.rules.webstudio/webapps/webstudio" />
+    </copy>
+    <!-- rewrite configuration settings -->
+    <copy todir="${webapps.studio.dir}" preservelastmodified="true" overwrite="true">
+      <fileset dir="webapps/webstudio" />
+    </copy>
+    <copy todir="${webapps.client.dir}" preservelastmodified="true" overwrite="true">
+      <fileset dir="webapps/demo" />
+    </copy>
+
+
+    <copy file="wars/jcr.war" todir="${webapps.dir}" />
+  </target>
+
+  <target name="prepare_jackrabbit_conf" depends="copy_tomcat">
+    <property name="jackrabbit.conf.dir" value="${tomcat.dest.path}/bin/jackrabbit" />
+    <mkdir dir="${jackrabbit.conf.dir}" />
+    <copy todir="${jackrabbit.conf.dir}">
+      <fileset dir="jackrabbit">
+        <include name="*.*" />
+      </fileset>
+      <filterset>
+        <filter token="DEMODIR" value="${work.dir}" />
+      </filterset>
+    </copy>
+  </target>
+
+  <target name="copy_webapps_libs" depends="prepare_webapps">
+    <copy todir="${webapps.studio.dir}/WEB-INF/lib" flatten="true" preservelastmodified="true" verbose="true">
+      <fileset dir="${project.lib}" includes="**/*.jar" />
+      <fileset dir="${plugin.base.path}">
+        <include name="**/org.openl.*${openl.plugin.version}.jar" />
+      </fileset>
+    	
+      <fileset dir="${plugin.base.path}/org.openl.poi.lib${openl.plugin.version}/lib">    	
+    	<include name="**/poi*.jar" />
+		<include name="**/ooxml-schemas*.jar" />
+      </fileset>    	
+    </copy>
+
+    <copy todir="${webapps.client.dir}/WEB-INF/lib" flatten="true" verbose="true">
+      <fileset dir="${project.lib}" includes="**/*.jar" />
+      <fileset dir="${plugin.base.path}">
+        <include name="**/org.openl.commons*${openl.plugin.version}.jar" />
+        <include name="org.openl.rules.ruleservice.lib${openl.plugin.version}/lib/*.jar" />
+        <include name="org.openl.rules.ruleservice.ws.lib${openl.plugin.version}/lib/*.jar" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="copy_ruleservice">
+    <mkdir dir="${ruleservice.dir}" />
+    <copy todir="${ruleservice.dir}">
+      <fileset dir="ruleservice" includes="**/*" />
+    </copy>
+
+    <mkdir dir="${ruleservice.dir}/lib" />
+    <copy todir="${ruleservice.dir}/lib" flatten="true">
+      <fileset dir="${plugin.base.path}">
+      	<include name="org.openl.poi.lib${openl.plugin.version}/lib/*.jar" />
+        <include name="**/org.openl.commons${openl.plugin.version}.jar" />
+        <include name="**/org.openl.core${openl.plugin.version}.jar" />
+        <include name="**/org.openl.rules*${openl.plugin.version}.jar" />
+        <include name="**/org.openl.grammars*${openl.plugin.version}.jar" />
+        <include name="**/org.openl.j${openl.plugin.version}.jar" />
+        <include name="org.openl.rules.ruleservice.lib${openl.plugin.version}/lib/*.jar" />
+        <include name="org.openl.rules.ruleservice.ws.lib${openl.plugin.version}/lib/*.jar" />
+        <include name="org.openl.rules.webstudio.lib${openl.plugin.version}/lib/*.jar" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="copy_webapps" depends="prepare_webapps, copy_webapps_libs" />
+
+  <target name="deploy" depends="prepare_repositories, copy_webapps, prepare_jackrabbit_conf, copy_ruleservice" description="deploys all the applications" />
+
+  <target name="start_tomcat" description="starts tomcat server with webstudio and demo web applications">
+    <exec spawn="true" executable="${tomcat.dest.path}/bin/startup.bat" dir="${tomcat.dest.path}/bin" />
+  </target>
+
+  <target name="deploy_and_start_tomcat" depends="deploy,start_tomcat" description="starts tomcat server with webstudio and demo web applications">
+  </target>
+
+  <target name="start_ruleservice" depends="copy_ruleservice" description="starts ruleservice">
+    <exec spawn="true" executable="${ruleservice.dir}/run.bat" dir="${ruleservice.dir}" />
+  </target>
+</project>
