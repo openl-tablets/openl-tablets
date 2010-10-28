@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;

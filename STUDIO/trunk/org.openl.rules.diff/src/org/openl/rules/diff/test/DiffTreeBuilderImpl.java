@@ -93,6 +93,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         return p.getChildren();
     }
 
+    @SuppressWarnings("unchecked")
     protected DiffTreeNodeImpl[] combineChildren(Projection[][] children) {
         int len = children.length;
         Set<ProjectionKey> uniqKeys = new TreeSet<ProjectionKey>();

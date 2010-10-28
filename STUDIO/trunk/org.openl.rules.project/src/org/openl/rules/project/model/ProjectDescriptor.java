@@ -111,9 +111,9 @@ public class ProjectDescriptor {
 
             try {
                 if (f.isAbsolute()) {
-                    urls[i] = f.toURL();
+                    urls[i] = f.toURI().toURL();
                 } else {
-                    urls[i] = new File(projectFolder, entry.getPath()).toURL();
+                    urls[i] = new File(projectFolder, entry.getPath()).toURI().toURL();
                 }
                 i++;
             } catch (MalformedURLException e) {
