@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Apache Commons Library
 Bundle-SymbolicName: org.openl.lib
-Bundle-Version: 5.7.3
+Bundle-Version: 5.7.4
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Export-Package: net.sf.cglib.asm,
