@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Exigen WebStudio Structured Diff
+Bundle-SymbolicName: org.openl.rules.diff;singleton:=true
+Bundle-Version: 5.7.3
+Require-Bundle: org.openl.rules,
+ org.openl.core
+Export-Package: org.openl.rules.diff.differs,
+ org.openl.rules.diff.hierarchy,
+ org.openl.rules.diff.print,
+ org.openl.rules.diff.test,
+ org.openl.rules.diff.tree,
+ org.openl.rules.diff.util,
+ org.openl.rules.diff.xls
+Bundle-Vendor: OpenL

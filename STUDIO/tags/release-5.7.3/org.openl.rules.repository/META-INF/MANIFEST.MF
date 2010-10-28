@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Repository Abstraction Layer
+Bundle-SymbolicName: org.openl.rules.repository;singleton:=true
+Bundle-Version: 5.7.3
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Export-Package: org.openl.rules.repository;uses:="org.openl.rules.common.config",
+ org.openl.rules.repository.exceptions
+Require-Bundle: org.openl.rules.webstudio.lib,
+ org.openl.commons;visibility:=reexport

@@ -1,0 +1,257 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jstl/core"
+  xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
+  template="/facelets/common/studioBase.xhtml">
+
+  <ui:define name="header">
+    <a4j:loadStyle src="resource:///css/openl/advSearch.css" />
+     <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+    <a4j:loadScript src="resource:///javascript/search/advSearch.js" />
+  </ui:define>
+
+  <ui:define name="page">
+
+  <br />
+
+  <div class="menuPanel">
+      <h:outputLink value="#{contextPath}/faces/facelets/search/simpleSearch.xhtml"
+          target="_self">Simple Search</h:outputLink>
+      <h:outputLink value="#{contextPath}/faces/facelets/search/indexSearch.xhtml"
+          target="_self">Index Search</h:outputLink>
+      <h:outputLink value="#{contextPath}/faces/facelets/search/busSearch.xhtml"
+          target="_self">Business Search</h:outputLink>
+  </div>
+
+<table><tr><td>
+<h:form id="advSearchForm">
+  <h:panelGrid columns="3" cellspacing="5" >
+    <h:selectManyCheckbox value="#{advancedSearch.selectedTableTypes}" layout="lineDirection" id="tableType" style="display:inline">
+      <f:selectItems value="#{advancedSearch.tableTypes}"/>
+    </h:selectManyCheckbox>
+
+    <h:outputLink value="javascript: void(0)" onclick="jsSetTableTypes(true)">Select All</h:outputLink>
+    <h:outputLink value="javascript: void(0)" onclick="jsSetTableTypes(false)">Deselect All</h:outputLink>
+  </h:panelGrid>
+
+<fieldset><legend>Table Selector</legend>
+  <table class="search-table">
+  <tr>
+    <th/>
+    <th class="search" colspan='3'>Table Attribute</th>
+    <th class="search">Condition</th>
+    <th class="search">Value</th>
+    </tr>
+
+    <c:forEach items="#{advancedSearch.tableElements}" var="searchTableElem" varStatus="status">
+      <c:if test="#{status.index > 0}">
+        <tr>
+          <td colspan="7" align="#{searchTableElem.operator.group ? 'center' : 'value'}" class="#{searchTableElem.operator.group ? 'search-group' : 'search-element'}">
+             <h:selectOneMenu value="#{searchTableElem.groupOperatorName}" onchange="alignGop(this)" styleClass="#{searchTableElem.operator.group ? 'search-group' : 'search-element'}">
+               <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
+             </h:selectOneMenu>
+          </td>
+        </tr>
+      </c:if>
+      <tr>
+        <td> </td>
+        <td>
+          <h:selectOneMenu value="#{searchTableElem.notFlag}">
+            <f:selectItems value="#{advancedSearch.notFlagValues}"/>
+          </h:selectOneMenu>
+        </td>
+
+        <td>
+          <!-- {#searchTableElem.type} means 'header' or 'property' on UI-->
+          <h:selectOneMenu value="#{searchTableElem.type}" id="type1_#{status.index}" onchange="makeValue1Visible(this, #{status.index})">
+            <f:selectItems value="#{advancedSearch.typeValues}"/>
+          </h:selectOneMenu>
+        </td>
+
+        <td>
+          <h:inputText value="#{searchTableElem.elementValueName}" id="typeValue_#{status.index}" styleClass="search-input" />
+        </td>
+
+        <td>
+          <h:selectOneMenu value="#{searchTableElem.opType2}">
+            <f:selectItems value="#{advancedSearch.opTypeValues}"/>
+          </h:selectOneMenu>
+        </td>
+
+        <td>
+          <h:inputText value="#{searchTableElem.elementValue}" styleClass="search-input" />
+        </td>
+
+        <td>
+          <h:commandLink title="Add Condition" action="#{advancedSearch.addCondition}">
+            <f:param name="index" value="#{status.index}" />
+            <h:graphicImage url="/webresource/images/add_obj.gif" />
+          </h:commandLink>
+
+          <c:if test="#{status.index > 0}">
+            <rich:spacer />
+            <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteCondition}">
+              <f:param name="index" value="#{status.index}" />
+              <h:graphicImage url="/webresource/images/delete.gif"/>
+            </h:commandLink>
+          </c:if>
+        </td>
+
+      </tr>
+    </c:forEach>
+
+  </table>
+
+</fieldset>
+
+<fieldset><legend>Column Selector</legend>
+<table class="search-table">
+<tr>
+<th/>
+<th class="search" colspan ='3'>Column Attribute</th>
+<th class="search" colspan="2">Condition</th>
+<th class="search">Value</th>
+</tr>
+
+<c:forEach items="#{advancedSearch.columnElements}" var="searchColumnElem" varStatus="status">
+  <c:if test="#{status.index > 0}">
+    <tr>
+      <td colspan="7" align="#{searchColumnElem.operator.group ? 'center' : 'value'}" class="#{searchColumnElem.operator.group ? 'search-group' : 'search-element'}">
+         <h:selectOneMenu value="#{searchColumnElem.groupOperatorName}" onchange="alignGop(this)" styleClass="#{searchColumnElem.operator.group ? 'search-group' : 'search-element'}">
+           <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
+         </h:selectOneMenu>
+      </td>
+    </tr>
+  </c:if>
+
+  <tr>
+    <td> </td>
+    <td>
+      <h:selectOneMenu value="#{searchColumnElem.notFlag}">
+        <f:selectItems value="#{advancedSearch.notFlagValues}"/>
+      </h:selectOneMenu>
+    </td>
+
+     <td>
+       <!-- #{searchColumnElem.type} means 'Column Name' or 'Column Type' on UI-->
+       <h:selectOneMenu value="#{searchColumnElem.type}">
+         <f:selectItems value="#{advancedSearch.columnTypeValues}"/>
+       </h:selectOneMenu>
+     </td>
+
+    <td>
+      <h:selectOneMenu value="#{searchColumnElem.opType1}">
+        <f:selectItems value="#{advancedSearch.opTypeValues}"/>
+      </h:selectOneMenu>
+    </td>
+
+    <td>
+      <h:inputText value="#{searchColumnElem.elementValueName}" styleClass="search-input" />
+    </td>
+
+    <td>
+      <h:selectOneMenu value="#{searchColumnElem.opType2}">
+        <f:selectItems value="#{advancedSearch.opTypeValues}"/>
+      </h:selectOneMenu>
+    </td>
+
+    <td>
+      <h:inputText value="#{searchColumnElem.elementValue}" styleClass="search-input" />
+    </td>
+
+     <td>
+        <h:commandLink title="Add Condition" action="#{advancedSearch.addColCondition}">
+          <f:param name="index" value="#{status.index}" />
+          <h:graphicImage url="/webresource/images/add_obj.gif" />
+        </h:commandLink>
+
+        <c:if test="#{status.index > 0}">
+            <rich:spacer />
+            <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteColCondition}">
+              <f:param name="index" value="#{status.index}" />
+              <h:graphicImage url="/webresource/images/delete.gif"/>
+            </h:commandLink>
+        </c:if>
+      </td>
+  </tr>
+
+</c:forEach>
+</table>
+
+
+</fieldset>
+
+
+<h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
+</h:form></td>
+<c:if test="#{advancedSearch.showSearches}"><td class="search"><h:form>
+    <h2><u>Saved Searches</u></h2>
+    <ul class="search">
+      <c:forEach items="#{advancedSearch.savedSearches}" var="ss" varStatus="status">
+        <li>
+          <h:commandLink value="#{ss.name}" action="#{advancedSearch.applySearch}">
+            <f:param name="index" value="#{status.index}"/>
+          </h:commandLink>
+        </li>
+      </c:forEach>
+    </ul>
+</h:form></td></c:if>
+</tr></table>
+
+<h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
+
+<c:if test="#{not advancedSearch.ready}">
+  <p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
+</c:if>
+
+<c:if test="#{advancedSearchRequest.searching}">
+    <h:form id="saveAdvSearchForm">
+        <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
+        <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
+     </h:form>
+
+    <c:forEach items="#{advancedSearchRequest.searchResults}" var="table">
+        <br />
+        <h:panelGroup>
+            <img src="#{contextPath}/webresource/images/viewTable.gif" />
+            <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                <f:param name="uri" value="#{table.uri}" />
+                <h:outputText value="View Table" />
+            </h:outputLink>
+        </h:panelGroup>
+        <br />
+
+        <h:panelGroup rendered="#{advancedSearch.projectEditable}">
+            <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
+            <h:outputLink value="#{contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
+                <f:param name="uri" value="#{table.uri}" />
+                <h:outputText value="View Table in Excel" />
+            </h:outputLink>
+        </h:panelGroup>
+
+        <br /><br />
+
+        <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
+            collapseProps="true" />
+
+        <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
+     </c:forEach>
+</c:if>
+
+<script>
+  function fixValue1Enabled() {
+    var ind = 0;
+    var el = document.getElementById("searchForm:type1_" + ind);
+    for (;el; el=document.getElementById("searchForm:type1_" + (++ind)))
+          makeValue1Visible(el, ind)
+  }
+
+  fixValue1Enabled();
+</script>
+
+  </ui:define>
+</ui:composition>
