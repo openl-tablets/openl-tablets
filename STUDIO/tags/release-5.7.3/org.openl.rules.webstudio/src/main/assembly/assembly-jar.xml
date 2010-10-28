@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id></id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>conf</directory>
+    </fileSet>
+    <fileSet>
+      <directory>webapps</directory>
+    </fileSet>
+    <fileSet>
+      <directory>META-INF</directory>
+    </fileSet>
+  </fileSets>
+
+</assembly>
