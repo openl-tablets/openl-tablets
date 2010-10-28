@@ -1,0 +1,20 @@
+----------------------------------------------------------------
+2010-09-15 06:32:15.900 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance c013800d-012b-1417-f460-000000d93188
+on database directory D:\projects\OpenL\STUDIO\trunk\org.openl.rules.repository.jcr\target\test_work\version\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2010-09-15 06:32:21.744 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance 94bc40a2-012b-1417-f460-000000d93188
+on database directory D:\projects\OpenL\STUDIO\trunk\org.openl.rules.repository.jcr\target\test_work\workspaces\default\db  
+
+Database Class Loader started - derby.database.classpath=''
+
+2010-09-15 06:32:29.885 GMT:
+Shutting down instance 94bc40a2-012b-1417-f460-000000d93188
+----------------------------------------------------------------
+
+2010-09-15 06:32:30.775 GMT:
+Shutting down instance c013800d-012b-1417-f460-000000d93188
+----------------------------------------------------------------
