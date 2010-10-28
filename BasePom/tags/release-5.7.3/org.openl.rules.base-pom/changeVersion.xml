@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ChangeVersion" basedir="." default="help">
+
+	<!--property name="projects_root" value="d:/projects/OpenL/Eclipse/trunk"></property>
+	<property name="previous_version" value="5.3.0"></property>
+	<property name="version_for_poms" value="5.3.1-snaps"></property>
+	<property name="version" value="5.3.1"></property-->
+    <fileset
+            id="openl_version_file"
+            dir="${projects_root}"
+            includes="org.openl.core/**/openl.version.properties"
+            />
+
+    <fileset
+            id="all_manifest"
+            dir="${projects_root}"
+            includes="*/META-INF/MANIFEST.MF"
+            />
+
+    <fileset
+            id="all_feature"
+            dir="${projects_root}"
+            includes="*.feature/feature.xml"
+            />
+
+    <fileset
+            id="project_pom"
+            dir="${projects_root}"
+            includes="*-pom/pom.xml">
+    </fileset>
+
+    <fileset
+            id="other_files"
+            dir="${projects_root}">
+    	<include name="**/site.xml"/>
+    	<include name="**/WebStudio Starter.launch"/>
+    	<include name="**/build.xml"/>
+    	<include name="**/run.bat"/>
+    	<include name="openl-simple-project/pom.xml"/>
+    </fileset>
+
+    <target name="change" description="Change Version">
+        <replaceregexp byline="true">
+            <regexp pattern="Bundle-Version: (.*)"/>
+            <substitution expression="Bundle-Version: ${version}"/>
+            <fileset refid="all_manifest"/>
+        </replaceregexp>
+
+        <!--
+        Eclipse's 'plugin.xml' file has line with 'version=' sequence
+        <?eclipse version="3.0"?>
+        that merely specifies version of Eclipse IDE.
+
+        It is possible that other Eclipse specific files can have the same sequence.
+        Luckily, our _versions_ has few leading spaces.
+        -->
+        <replaceregexp byline="false" flags="-g" description="Updates OpenL Eclipse version">
+            <regexp pattern='${previous_version}'/>
+            <substitution expression='${version}'/>
+            <fileset refid="all_feature"/>
+            <fileset refid="other_files"/>
+        </replaceregexp>
+        <replaceregexp byline="true" description="Updates OpenL version">
+            <regexp pattern="openl.version=(.*)"/>
+            <substitution expression="openl.version=${version}"/>
+            <fileset refid="openl_version_file"/>
+        </replaceregexp>
+        <replaceregexp byline="true" description="Updates build number">
+            <regexp pattern="openl.build=(.*)"/>
+            <substitution expression="openl.build=${build}"/>
+            <fileset refid="openl_version_file"/>
+        </replaceregexp>
+        <replaceregexp byline="false" description="Updates base-pom version">
+        	<regexp pattern="(?&lt;=&lt;version&gt;).*(?=&lt;/version&gt;[.\s]*&lt;/parent&gt;)"/>
+            <substitution expression="${version_for_poms}"/>
+            <fileset refid="project_pom"/>
+        </replaceregexp>
+    	
+    	<!-- Change versions in base pom -->
+        <replaceregexp byline="false" description="Updates base-pom version">
+        	<regexp pattern="(?&lt;=&lt;openl.version.maven&gt;).*(?=&lt;/openl.version.maven&gt;[.\s]*&lt;)"/>
+            <substitution expression="${version_for_poms}"/>
+            <fileset refid="project_pom"/>
+        </replaceregexp>
+        <replaceregexp byline="false" description="Updates base-pom version">
+        	<regexp pattern="(?&lt;=&lt;openl.version.eclipse&gt;).*(?=&lt;/openl.version.eclipse&gt;[.\s]*&lt;)"/>
+            <substitution expression="${version}"/>
+            <fileset refid="project_pom"/>
+        </replaceregexp>
+    </target>
+
+    <target name="help">
+        <echo>
+            1. Specify 'version' and 'build' properties in version.properties file.
+            2. Start this build script with target 'change'
+
+            Note: it does not change version in pom.xml files
+            Please, rely on maven tool(s) to do that.
+
+            P.S.
+            It fails on purpose after displaying this text.
+            Thus, it guarantees that build process uses this script properly.
+        </echo>
+        <fail message="Script must fail if target is ommitted."/>
+    </target>
+
+</project>
