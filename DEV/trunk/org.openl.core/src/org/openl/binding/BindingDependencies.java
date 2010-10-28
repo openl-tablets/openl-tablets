@@ -23,8 +23,7 @@ public class BindingDependencies {
     HashMap<IBoundNode, IOpenField> fields = new HashMap<IBoundNode, IOpenField>();
     HashMap<IOpenField, IBoundNode> assigned = new HashMap<IOpenField, IBoundNode>();
 
-    public void addAssign(IBoundNode target, @SuppressWarnings("unused")
-    IBoundNode node) {
+    public void addAssign(IBoundNode target, IBoundNode node) {
         target.updateAssignFieldDependency(this);
     }
 
