@@ -9,7 +9,7 @@ USETEXTLINKS = 1;  //replace 0 with 1 for hyperlinks
 STARTALLOPEN = 0; //replace 0 with 1 to show the whole tree
 
 ICONPATH = 'icons/'; //change if the gif's folder is a subfolder, for example: 'images/'
-  foldersTree = gFld("OpenL WebStudio Application", "");
+  foldersTree = gFld("OpenL WebStudio", "");
 aux1 = insFld(foldersTree, gFld("Preface", "Preface.html#preface1"));
 insDoc(aux1, gLnk("R", "Audience", "Audience.html#audience2"));
 insDoc(aux1, gLnk("R", "Related Information", "RelatedInformation.html#related_information3"));
@@ -38,7 +38,7 @@ aux2 = insFld(aux1, gFld("Performing a Search", "PerformingASearch.html#performi
 insDoc(aux2, gLnk("R", "Simple Search", "SimpleSearch.html#simple_search28"));
 insDoc(aux2, gLnk("R", "Business Search", "BusinessSearch.html#business_search29"));
 insDoc(aux2, gLnk("R", "Advanced Search", "AdvancedSearch.html#advanced_search30"));
-insDoc(aux2, gLnk("R", "Index", "Index.html#index31"));
+insDoc(aux2, gLnk("R", "Index Search", "IndexSearch.html#index_search31"));
 aux2 = insFld(aux1, gFld("Creating New Table", "CreatingNewTable.html#creating_new_table32"));
 insDoc(aux2, gLnk("R", "Datatype table wizard", "DatatypeTableWizard.html#datatype_table_wizard33"));
 aux1 = insFld(foldersTree, gFld("Chapter 4: Using Repository Editor", "UsingRepositoryEditor.html#chapter_4_using_repository_editor34"));
@@ -73,4 +73,4 @@ insDoc(aux2, gLnk("R", "Creating New Test", "CreatingNewTest.html#creating_new_t
 insDoc(aux1, gLnk("R", "Validation", "Validation.html#validation66"));
 insDoc(aux1, gLnk("R", "Tracing", "Tracing.html#tracing67"));
 insDoc(aux1, gLnk("R", "Benchmarking", "Benchmarking.html#benchmarking68"));
-aux1 = insFld(foldersTree, gFld("Index", "Inde1.html#index69"));
+aux1 = insFld(foldersTree, gFld("Index", "Index.html#index69"));
