@@ -59,8 +59,8 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
     }
 
     protected boolean isEquals(ProjectionProperty p1, ProjectionProperty p2) {
-        Class type1 = p1.getType();
-        Class type2 = p2.getType();
+        Class<?> type1 = p1.getType();
+        Class<?> type2 = p2.getType();
 
         if (type1 != type2) {
             return false;

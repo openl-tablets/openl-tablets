@@ -13,7 +13,7 @@ public interface ProjectionProperty {
      * 
      * @return type of property.
      */
-    Class getType();
+    Class<?> getType();
 
     /**
      * Raw value of the property.

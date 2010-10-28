@@ -1,8 +1,8 @@
 package org.openl.rules.project.instantiation;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
+//import java.net.URL;
+//import java.net.URLClassLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,7 +21,7 @@ import org.openl.source.impl.FileSourceCodeModule;
 public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
     private static final Log LOG = LogFactory.getLog(ApiBasedEngineFactoryInstantiationStrategy.class);
     private ApiBasedRulesEngineFactory factory;
-    private ClassLoader classLoader;
+    //private ClassLoader classLoader;
 
     public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean executionMode) {
         super(module, executionMode);

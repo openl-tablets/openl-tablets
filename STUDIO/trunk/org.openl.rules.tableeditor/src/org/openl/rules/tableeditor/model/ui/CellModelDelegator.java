@@ -85,6 +85,7 @@ public class CellModelDelegator implements ICellModel {
         model.setRowspan(rowspan);
     }
 
+    @Deprecated
     public void toHtmlString(StringBuilder buf, TableModel table) {
         model.toHtmlString(buf, table);
     }

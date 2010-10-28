@@ -42,7 +42,7 @@ public class JSFFunctions {
      * @return <tt>true</tt> if this map contains a mapping for the specified
      *         key.
      */
-    public static boolean contains(Map map, Object key) {
+    public static boolean contains(Map<?,?> map, Object key) {
         return (map != null) && map.containsKey(key);
     }
 
@@ -80,7 +80,7 @@ public class JSFFunctions {
      *
      * @return entry set
      */
-    public static Set mapEntrySet(Map map) {
+    public static Set<?> mapEntrySet(Map<?,?> map) {
         return (map != null) ? map.entrySet() : Collections.EMPTY_SET;
     }
 

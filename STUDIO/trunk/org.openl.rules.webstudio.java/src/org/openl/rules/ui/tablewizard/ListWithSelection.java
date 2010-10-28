@@ -6,6 +6,9 @@ import java.util.ArrayList;
  * @author Aliaksandr Antonik.
  */
 public class ListWithSelection<T> extends ArrayList<T> {
+
+    private static final long serialVersionUID = 1L;
+
     private int selectedIndex;
 
     public T getSelectedElement() {

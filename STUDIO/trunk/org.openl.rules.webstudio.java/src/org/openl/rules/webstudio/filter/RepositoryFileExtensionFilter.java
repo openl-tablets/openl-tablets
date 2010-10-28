@@ -51,7 +51,7 @@ public class RepositoryFileExtensionFilter extends BaseOpenLFilter {
         return false;
     }
 
-    public boolean supports(Class aClass) {
+    public boolean supports(Class<?> aClass) {
         return ProjectResource.class.isAssignableFrom(aClass);
     }
 }

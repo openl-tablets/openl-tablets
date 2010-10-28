@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web.search;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.indexer.Index.TokenBucket;
