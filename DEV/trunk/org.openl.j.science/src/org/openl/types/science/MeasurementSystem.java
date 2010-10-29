@@ -14,7 +14,7 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
     static class MetricSystem extends MeasurementSystem {
         
         public MetricSystem() {
-            super("metric", kg, M, S, new MassUnit[] { t, kg, g, mg }, new DistanceUnit[] { KM, M, CM, MM },
+            super("metric", KG, M, S, new MassUnit[] { T, KG, G, MG }, new DistanceUnit[] { KM, M, CM, MM },
                     new TimeUnit[] { WEEK, DAY, H, MIN, S, MS, MKS });
         }
 

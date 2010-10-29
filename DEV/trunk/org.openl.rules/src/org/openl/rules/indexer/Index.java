@@ -101,10 +101,10 @@ public class Index {
 
     }
 
-    final static String[] suffixes = { "ies", "es", "s", "ied", "ed", "id", "y" };
+    public static final String[] SUFFIXES = { "ies", "es", "s", "ied", "ed", "id", "y" };
 
-    static String[][] exceptions_array = { { "s", "was", "whereas", "us" }, { "d", "word" }, { "es", "yes" },
-            { "id", "_id" } };
+    public static final String[][] EXCEPTIONS_ARRAY = { { "s", "was", "whereas", "us" }, { "d", "word" },
+        { "es", "yes" }, { "id", "_id" } };
     
     /*
      * key: the upper letter of alphabet
@@ -126,9 +126,9 @@ public class Index {
         String lc = token.toLowerCase();
         String result = lc;
         int len = token.length();
-        for (int i = 0; i < suffixes.length; i++) {
-            if (len > suffixes[i].length() && lc.endsWith(suffixes[i])) {                
-                result = lc.substring(0, len - suffixes[i].length());                
+        for (int i = 0; i < SUFFIXES.length; i++) {
+            if (len > SUFFIXES[i].length() && lc.endsWith(SUFFIXES[i])) {                
+                result = lc.substring(0, len - SUFFIXES[i].length());                
             }
         }
         return result;
@@ -136,10 +136,10 @@ public class Index {
 
     static boolean isException(String suffix, String lc) {
         boolean result = false;
-        for (int i = 0; i < exceptions_array.length; i++) {
-            if (exceptions_array[i][0].equals(suffix)) {
-                for (int j = 1; j < exceptions_array[i].length; j++) {
-                    if (lc.endsWith(exceptions_array[i][j])) {
+        for (int i = 0; i < EXCEPTIONS_ARRAY.length; i++) {
+            if (EXCEPTIONS_ARRAY[i][0].equals(suffix)) {
+                for (int j = 1; j < EXCEPTIONS_ARRAY[i].length; j++) {
+                    if (lc.endsWith(EXCEPTIONS_ARRAY[i][j])) {
                         result = true;
                     }
                 }

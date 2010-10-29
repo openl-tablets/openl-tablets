@@ -11,7 +11,8 @@ import java.io.IOException;
  * @author Aleh Bykhavets
  */
 public class ConfigManager {
-    private static final Log log = LogFactory.getLog(ConfigManager.class);
+
+    private static final Log LOG = LogFactory.getLog(ConfigManager.class);
 
     /** PriorityQueue arranges locators according their priority */
     private PriorityQueue<ConfigLocator> locators;
@@ -49,12 +50,12 @@ public class ConfigManager {
             result = new ConfigSet();
             result.addProperties(props);
         } catch (IOException e) {
-            log.error("Failed to load properties!", e);
+            LOG.error("Failed to load properties!", e);
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                log.error("Failed to close InputStream!", e);
+                LOG.error("Failed to close InputStream!", e);
             }
         }
 
@@ -79,7 +80,7 @@ public class ConfigManager {
             }
         }
 
-        log.warn("Failed to locate config '" + configName + "'");
+        LOG.warn("Failed to locate config '" + configName + "'");
         return null;
     }
 

@@ -21,20 +21,20 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
     /*
      * Type of components where we search the results. 
      */
-    public static final String[] existingTableTypes = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data", "Method",
-            "Datatype", "Test", "Run", "Env", "Other" };
+    public static final String[] EXISTING_TABLE_TYPES = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data",
+        "Method", "Datatype", "Test", "Run", "Env", "Other" };
 
-    public static final String[] types = { XlsNodeTypes.XLS_DT.toString(), XlsNodeTypes.XLS_SPREADSHEET.toString(), 
+    public static final String[] TYPES = { XlsNodeTypes.XLS_DT.toString(), XlsNodeTypes.XLS_SPREADSHEET.toString(), 
         XlsNodeTypes.XLS_TBASIC.toString(), XlsNodeTypes.XLS_COLUMN_MATCH.toString(), XlsNodeTypes.XLS_DATA.toString(), 
         XlsNodeTypes.XLS_METHOD.toString(), XlsNodeTypes.XLS_DATATYPE.toString(), 
         XlsNodeTypes.XLS_TEST_METHOD.toString(), XlsNodeTypes.XLS_RUN_METHOD.toString(), 
         XlsNodeTypes.XLS_ENVIRONMENT.toString(), XlsNodeTypes.XLS_OTHER.toString() };
 
-    public static final  String[] nfValues = { "", "NOT" };
+    public static final  String[] NF_VALUES = { "", "NOT" };
 
-    public static final boolean[] typeNeedValue1 = { false, true };
+    public static final boolean[] TYPE_NEED_VALUE1 = { false, true };
 
-    private boolean[] selectedTableTypes = new boolean[existingTableTypes.length];
+    private boolean[] selectedTableTypes = new boolean[EXISTING_TABLE_TYPES.length];
 
     private SearchConditionElement[] tableElements = { new SearchConditionElement(HEADER)};
     private SearchConditionElement[] columnElements = { new SearchConditionElement(COLUMN_PARAMETER)};
@@ -61,7 +61,8 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         tableElements = (SearchConditionElement[]) ArrayTool.removeValue(i, tableElements);
     }
     
-    private boolean isRowSelected(ISearchTableRow searchTableRow, ATableRowSelector[] rowSelectors, ITableSearchInfo tableSearchInfo) {
+    private boolean isRowSelected(ISearchTableRow searchTableRow, ATableRowSelector[] rowSelectors,
+            ITableSearchInfo tableSearchInfo) {
         for (int j = 0; j < rowSelectors.length; j++) {
             if (!rowSelectors[j].isRowInTableSelected(searchTableRow, tableSearchInfo)) {
                 return false;
@@ -98,7 +99,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < selectedTableTypes.length; i++) {
             if (selectedTableTypes[i]) {
-                list.add(types[i]);
+                list.add(TYPES[i]);
             }
         }
 
@@ -191,7 +192,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         SearchConditionElement se = new SearchConditionElement(typeID);
 
         se.setGroupOperator(GroupOperator.find(gopID));
-        se.setNotFlag(nfValues[1].equals(nfID));
+        se.setNotFlag(NF_VALUES[1].equals(nfID));
 
         se.setOpType1(opType1ID);
         if (value1ID != null) {
@@ -218,7 +219,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         SearchConditionElement se = new SearchConditionElement(typeID);
 
         se.setGroupOperator(GroupOperator.find(gopID));
-        se.setNotFlag(nfValues[1].equals(nfID));
+        se.setNotFlag(NF_VALUES[1].equals(nfID));
         if (value1ID != null) {
             se.setElementValueName(value1ID);
         }
@@ -242,7 +243,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
     }
 
     public String[] getExistingTableTypes() {
-        return existingTableTypes;
+        return EXISTING_TABLE_TYPES;
     }
 
     
@@ -315,9 +316,9 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
     }
 
     public boolean showElementValueName(String typeValue) {
-        for (int i = 0; i < typeValues.length; i++) {
-            if (typeValues[i].equals(typeValue)) {
-                return typeNeedValue1[i];
+        for (int i = 0; i < TYPE_VALUES.length; i++) {
+            if (TYPE_VALUES[i].equals(typeValue)) {
+                return TYPE_NEED_VALUE1[i];
             }
         }
         throw new RuntimeException("Unknown type value: " + typeValue);

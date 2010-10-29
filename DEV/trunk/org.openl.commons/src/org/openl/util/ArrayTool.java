@@ -66,9 +66,9 @@ public class ArrayTool {
 
 	public static final String[] ZERO_STRING = {};
 
-	public static final int[] ZERO_int = {};
+	public static final int[] ZERO_INT = {};
 
-	public static final char[] ZERO_char = {};
+	public static final char[] ZERO_CHAR = {};
 
 	public static Object add(Object array, Object value) {
 		return insertValue(Array.getLength(array), array, value);

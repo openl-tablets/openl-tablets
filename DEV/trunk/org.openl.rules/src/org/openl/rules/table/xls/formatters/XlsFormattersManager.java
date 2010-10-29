@@ -17,10 +17,10 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
     static {        
         formatters = new HashMap<Class<?>, AXlsFormatter>();
 
-        formatters.put(Short.class, XlsNumberFormatter.General);
-        formatters.put(Integer.class, XlsNumberFormatter.General);
-        formatters.put(Float.class, XlsNumberFormatter.General);
-        formatters.put(Double.class, XlsNumberFormatter.General);
+        formatters.put(Short.class, XlsNumberFormatter.GENERAL);
+        formatters.put(Integer.class, XlsNumberFormatter.GENERAL);
+        formatters.put(Float.class, XlsNumberFormatter.GENERAL);
+        formatters.put(Double.class, XlsNumberFormatter.GENERAL);
         formatters.put(Boolean.class, new XlsBooleanFormatter());
         formatters.put(Date.class, new XlsDateFormatter(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
         formatters.put(String.class, new XlsStringFormatter());

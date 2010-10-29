@@ -77,7 +77,7 @@ public class XlsBinder implements IOpenBinder {
     private static final Log LOG = LogFactory.getLog(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
-    private static final String[][] binders = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
+    private static final String[][] BINDERS = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName() },
@@ -93,10 +93,10 @@ public class XlsBinder implements IOpenBinder {
         if (binderFactory == null) {
             binderFactory = new HashMap<String, AXlsTableBinder>();
 
-            for (int i = 0; i < binders.length; i++) {
+            for (int i = 0; i < BINDERS.length; i++) {
 
                 try {
-                    binderFactory.put(binders[i][0], (AXlsTableBinder) Class.forName(binders[i][1]).newInstance());
+                    binderFactory.put(BINDERS[i][0], (AXlsTableBinder) Class.forName(BINDERS[i][1]).newInstance());
                 } catch (Exception ex) {
                     throw RuntimeExceptionWrapper.wrap(ex);
                 }
