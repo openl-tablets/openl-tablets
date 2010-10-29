@@ -50,16 +50,16 @@ public class OpenLAdvancedSearchBean {
     private final OpenLAdvancedSearch search = new OpenLAdvancedSearch();
 
     static {
-        tableTypes = createSelectItems(OpenLAdvancedSearch.existingTableTypes);
-        columnTypeValues = createSelectItems(ISearchConstants.colTypeValues);
+        tableTypes = createSelectItems(OpenLAdvancedSearch.EXISTING_TABLE_TYPES);
+        columnTypeValues = createSelectItems(ISearchConstants.COL_TYPE_Values);
         groupOperationValues = createSelectItems(GroupOperator.names);
-        notFlagValues = createSelectItems(OpenLAdvancedSearch.nfValues);
-        typeValues = createSelectItems(ISearchConstants.typeValues);
+        notFlagValues = createSelectItems(OpenLAdvancedSearch.NF_VALUES);
+        typeValues = createSelectItems(ISearchConstants.TYPE_VALUES);
         opTypeValues = createSelectItems(AStringBoolOperator.getAllOperatorNames());
 
         tableType2Index = new HashMap<String, Integer>();
-        for (int i = 0; i < OpenLAdvancedSearch.existingTableTypes.length; i++) {
-            tableType2Index.put(OpenLAdvancedSearch.existingTableTypes[i], i);
+        for (int i = 0; i < OpenLAdvancedSearch.EXISTING_TABLE_TYPES.length; i++) {
+            tableType2Index.put(OpenLAdvancedSearch.EXISTING_TABLE_TYPES[i], i);
         }
     }
 
@@ -260,7 +260,7 @@ public class OpenLAdvancedSearchBean {
         }
 
         public String getNotFlag() {
-            return OpenLAdvancedSearch.nfValues[getSearchConditionElement().isNotFlag() ? 1 : 0];
+            return OpenLAdvancedSearch.NF_VALUES[getSearchConditionElement().isNotFlag() ? 1 : 0];
         }
 
         public GroupOperator getOperator() {
@@ -300,7 +300,7 @@ public class OpenLAdvancedSearchBean {
         }
 
         public void setNotFlag(String flag) {
-            getSearchConditionElement().setNotFlag(OpenLAdvancedSearch.nfValues[1].equals(flag));
+            getSearchConditionElement().setNotFlag(OpenLAdvancedSearch.NF_VALUES[1].equals(flag));
         }
 
         public void setOpType1(String type) {
