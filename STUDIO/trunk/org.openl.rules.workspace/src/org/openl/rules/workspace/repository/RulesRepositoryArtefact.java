@@ -6,19 +6,21 @@ import java.util.Map;
 import org.openl.rules.workspace.abstracts.ProjectException;
 
 public interface RulesRepositoryArtefact {
-    public Date getEffectiveDate();
 
-    public Date getExpirationDate();
+    Date getEffectiveDate();
 
-    public String getLineOfBusiness();
+    Date getExpirationDate();
 
-    public Map<String, Object> getProps();
+    String getLineOfBusiness();
 
-    public void setEffectiveDate(Date date) throws ProjectException;
+    Map<String, Object> getProps();
 
-    public void setExpirationDate(Date date) throws ProjectException;
+    void setEffectiveDate(Date date) throws ProjectException;
 
-    public void setLineOfBusiness(String lineOfBusiness) throws ProjectException;
+    void setExpirationDate(Date date) throws ProjectException;
 
-    public void setProps(Map<String, Object> props) throws ProjectException;
+    void setLineOfBusiness(String lineOfBusiness) throws ProjectException;
+
+    void setProps(Map<String, Object> props) throws ProjectException;
+
 }

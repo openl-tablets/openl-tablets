@@ -1,7 +1,8 @@
 package org.openl.rules.ui.search;
 
 public interface IStringFilter {
-    public static class ArrayFilter implements IStringFilter {
+
+    class ArrayFilter implements IStringFilter {
 
         String[] matches;
 

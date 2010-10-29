@@ -12,7 +12,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public interface RRepository {
-    public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException;
+
+    RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException;
 
     /**
      * Creates a project in the repository. Name of new project must be unique.
@@ -21,11 +22,11 @@ public interface RRepository {
      * @return newly created project
      * @throws RRepositoryException if failed
      */
-    public RProject createProject(String name) throws RRepositoryException;
+    RProject createProject(String name) throws RRepositoryException;
 
-    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException;
+    RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException;
 
-    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException;
+    List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException;
 
     /**
      * Returns name of the repository. It can be type of repository plus
@@ -33,7 +34,7 @@ public interface RRepository {
      *
      * @return name of repository
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets project by name.
@@ -42,7 +43,7 @@ public interface RRepository {
      * @return project
      * @throws RRepositoryException if failed or no project with specified name
      */
-    public RProject getProject(String name) throws RRepositoryException;
+    RProject getProject(String name) throws RRepositoryException;
 
     /**
      * Gets list of projects from the repository.
@@ -50,16 +51,16 @@ public interface RRepository {
      * @return list of projects
      * @throws RRepositoryException if failed
      */
-    public List<RProject> getProjects() throws RRepositoryException;
+    List<RProject> getProjects() throws RRepositoryException;
 
     /**
      * Gets list of projects from the repository that are marked for deletion.
      *
      * @return list of projects that are marked for deletion
      */
-    public List<RProject> getProjects4Deletion() throws RRepositoryException;
+    List<RProject> getProjects4Deletion() throws RRepositoryException;
 
-    public boolean hasDDProject(String name) throws RRepositoryException;
+    boolean hasDDProject(String name) throws RRepositoryException;
 
     /**
      * Checks whether project with given name exists in the repository.
@@ -68,10 +69,11 @@ public interface RRepository {
      * @return <code>true</code> if project with such name exists
      * @throws RRepositoryException
      */
-    public boolean hasProject(String name) throws RRepositoryException;
+    boolean hasProject(String name) throws RRepositoryException;
 
     /**
      * Releases resources allocated by this Rules Repository instance.
      */
-    public void release();
+    void release();
+
 }

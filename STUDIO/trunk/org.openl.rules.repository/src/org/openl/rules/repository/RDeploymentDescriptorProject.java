@@ -6,9 +6,10 @@ import java.util.List;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RDeploymentDescriptorProject extends RCommonProject {
+
     RProjectDescriptor createProjectDescriptor(String name) throws RRepositoryException;
 
-    public RVersion getActiveVersion();
+    RVersion getActiveVersion();
 
     /**
      * Gets collection of descriptors for projects that are included in this
@@ -20,7 +21,7 @@ public interface RDeploymentDescriptorProject extends RCommonProject {
 
     RDeploymentDescriptorProject getProjectVersion(CommonVersion version) throws RRepositoryException;
 
-    public List<RVersion> getVersionHistory() throws RRepositoryException;
+    List<RVersion> getVersionHistory() throws RRepositoryException;
 
     void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RRepositoryException;
 }

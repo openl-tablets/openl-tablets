@@ -6,6 +6,7 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 public interface LocalProject extends Project, LocalProjectFolder {
+
     /**
      * Local project was checked in successfully. LocalProject must reset all
      * isNew/isChanged flags.
@@ -14,7 +15,7 @@ public interface LocalProject extends Project, LocalProjectFolder {
      */
     void checkedIn(ProjectVersion newVersion);
 
-    public LocalProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException;
+    LocalProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException;
 
     /**
      * Loads previously saved project and its state.
@@ -25,4 +26,5 @@ public interface LocalProject extends Project, LocalProjectFolder {
      * Saves project and its state.
      */
     void save() throws ProjectException;
+
 }

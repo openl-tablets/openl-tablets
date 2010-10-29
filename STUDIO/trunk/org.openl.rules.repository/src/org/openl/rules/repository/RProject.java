@@ -12,16 +12,18 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public interface RProject extends REntity, RCommonProject {
-    public Collection<RDependency> getDependencies() throws RRepositoryException;
 
-    public RProject getProjectVersion(CommonVersion version) throws RRepositoryException;
+    Collection<RDependency> getDependencies() throws RRepositoryException;
+
+    RProject getProjectVersion(CommonVersion version) throws RRepositoryException;
 
     /**
      * Returns root folder of the project.
      *
      * @return root folder
      */
-    public RFolder getRootFolder();
+    RFolder getRootFolder();
 
-    public void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException;
+    void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException;
+
 }
