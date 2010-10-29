@@ -12,6 +12,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public interface RFolder extends REntity {
+
     /**
      * Creates file to the folder.
      *
@@ -19,7 +20,7 @@ public interface RFolder extends REntity {
      * @return newly created file
      * @throws RRepositoryException if failed
      */
-    public RFile createFile(String name) throws RRepositoryException;
+    RFile createFile(String name) throws RRepositoryException;
 
     /**
      * Creates sub folder to the folder.
@@ -28,7 +29,7 @@ public interface RFolder extends REntity {
      * @return newly created folder
      * @throws RRepositoryException if failed
      */
-    public RFolder createFolder(String name) throws RRepositoryException;
+    RFolder createFolder(String name) throws RRepositoryException;
 
     /**
      * Deletes the folder, sub folders and all files.
@@ -38,19 +39,20 @@ public interface RFolder extends REntity {
      *
      * @throws RRepositoryException
      */
-    public void delete() throws RRepositoryException;
+    void delete() throws RRepositoryException;
 
     /**
      * Gets list of files from the folder.
      *
      * @return list of files
      */
-    public List<RFile> getFiles() throws RRepositoryException;
+    List<RFile> getFiles() throws RRepositoryException;
 
     /**
      * Gets list of sub folders. It returns direct descendants only.
      *
      * @return list of sub folders.
      */
-    public List<RFolder> getFolders() throws RRepositoryException;
+    List<RFolder> getFolders() throws RRepositoryException;
+
 }

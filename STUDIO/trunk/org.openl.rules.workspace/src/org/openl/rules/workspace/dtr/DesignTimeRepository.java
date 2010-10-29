@@ -17,6 +17,7 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
  *
  */
 public interface DesignTimeRepository extends ProjectsContainer<RepositoryProject> {
+
     /**
      * Copies deployment project in/into the DTR. <p/> Source project can be
      * local project, a version of project in the DTR, any other class that
@@ -27,7 +28,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param user who is copies project
      * @throws ProjectException if failed
      */
-    public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user)
+    void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user)
             throws ProjectException;
 
     /**
@@ -48,7 +49,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of new deployment project, must be unique
      * @throws RepositoryException if failed
      */
-    public void createDDProject(String name) throws RepositoryException;
+    void createDDProject(String name) throws RepositoryException;
 
     /**
      * Creates new rules project in the Design Time Repository.
@@ -65,7 +66,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return instance of deployment project
      * @throws RepositoryException if failed
      */
-    public RepositoryDDProject getDDProject(String name) throws RepositoryException;
+    RepositoryDDProject getDDProject(String name) throws RepositoryException;
 
     /**
      * Gets specified version of deployment project from the DTR.
@@ -75,7 +76,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return specified version of deployment project
      * @throws RepositoryException if failed
      */
-    public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException;
+    RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException;
 
     /**
      * Returns list of all deployment projects from the DTR.
@@ -83,7 +84,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return list of deployment projects
      * @throws RepositoryException if failed
      */
-    public List<RepositoryDDProject> getDDProjects() throws RepositoryException;
+    List<RepositoryDDProject> getDDProjects() throws RepositoryException;
 
     /**
      * Gets particular version of a rules project.
@@ -119,4 +120,5 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @throws RepositoryException if failed
      */
     void updateProject(Project project, WorkspaceUser user, int major, int minor) throws RepositoryException;
+
 }

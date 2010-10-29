@@ -9,12 +9,13 @@ import java.util.Collection;
  * @author Aleh Bykhavets
  */
 public interface ArtefactPath {
+
     /**
      * Gets the path as a collection of segments.
      *
      * @return collection of segments
      */
-    public Collection<String> getSegments();
+    Collection<String> getSegments();
 
     /**
      * Gets the path as a single string. All segments are concatenated by
@@ -22,7 +23,7 @@ public interface ArtefactPath {
      *
      * @return string with the path
      */
-    public String getStringValue();
+    String getStringValue();
 
     /**
      * Gets the path as a single string, omitting first <code>skip</code>
@@ -32,7 +33,7 @@ public interface ArtefactPath {
      *
      * @return string with the path
      */
-    public String getStringValue(int skip);
+    String getStringValue(int skip);
 
     /**
      * Gets a segment in the path.
@@ -40,14 +41,14 @@ public interface ArtefactPath {
      * @param index position of segment in the path
      * @return value of segment
      */
-    public String segment(int index);
+    String segment(int index);
 
     /**
      * Returns number of segments in the path
      *
      * @return integer number of segments
      */
-    public int segmentCount();
+    int segmentCount();
 
     /**
      * Create new instance of ArtefactPath from base one, excluding first
@@ -56,7 +57,7 @@ public interface ArtefactPath {
      *
      * @return new instance where first segment of base path is excluded.
      */
-    public ArtefactPath withoutFirstSegment();
+    ArtefactPath withoutFirstSegment();
 
     /**
      * Creates new instance of ArtefactPath from base one, adding one more
@@ -65,5 +66,6 @@ public interface ArtefactPath {
      * @param segment adding segment
      * @return new instance where specified segment is appended to path
      */
-    public ArtefactPath withSegment(String segment);
+    ArtefactPath withSegment(String segment);
+
 }

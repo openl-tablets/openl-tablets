@@ -10,13 +10,14 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public interface RRepositoryFactory {
+
     /**
      * Gets new instance of JCR Repository.
      *
      * @return new instance of JCR Repository
      * @throws RRepositoryException if failed
      */
-    public RRepository getRepositoryInstance() throws RRepositoryException;
+    RRepository getRepositoryInstance() throws RRepositoryException;
 
     /**
      * Initialize factory.
@@ -24,7 +25,8 @@ public interface RRepositoryFactory {
      * @param confSet configuration data
      * @throws RRepositoryException if failed
      */
-    public void initialize(ConfigSet confSet) throws RRepositoryException;
+    void initialize(ConfigSet confSet) throws RRepositoryException;
 
     void release() throws RRepositoryException;
+
 }

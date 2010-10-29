@@ -3,12 +3,13 @@ package org.openl.rules.repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RCommonProject {
+
     /**
      * Commits changes in background versioned storage.
      *
      * @throws RRepositoryException if failed
      */
-    public void commit(CommonUser user) throws RRepositoryException;
+    void commit(CommonUser user) throws RRepositoryException;
 
     /**
      * Marks the project for deletion. Project is too important to be deleted so
@@ -16,7 +17,7 @@ public interface RCommonProject {
      *
      * @throws RDeleteException if failed
      */
-    public void delete(CommonUser user) throws RRepositoryException;
+    void delete(CommonUser user) throws RRepositoryException;
 
     /**
      * Erases the project from the repository completely. Before erasing the
@@ -25,18 +26,18 @@ public interface RCommonProject {
      *
      * @throws RDeleteException if failed
      */
-    public void erase(CommonUser user) throws RRepositoryException;
+    void erase(CommonUser user) throws RRepositoryException;
 
-    public RLock getLock() throws RRepositoryException;
+    RLock getLock() throws RRepositoryException;
 
     /**
      * Gets name of the project.
      *
      * @return project's name
      */
-    public String getName();
+    String getName();
 
-    public boolean isLocked() throws RRepositoryException;
+    boolean isLocked() throws RRepositoryException;
 
     /**
      * Returns whether the project is marked for deletion. If a project is
@@ -45,18 +46,19 @@ public interface RCommonProject {
      * @return <code>true</code> if project is marked for deletion;
      *         <code>false</code> otherwise
      */
-    public boolean isMarked4Deletion() throws RRepositoryException;
+    boolean isMarked4Deletion() throws RRepositoryException;
 
-    public void lock(CommonUser user) throws RRepositoryException;
+    void lock(CommonUser user) throws RRepositoryException;
 
-    public void riseVersion(int major, int minor) throws RRepositoryException;
+    void riseVersion(int major, int minor) throws RRepositoryException;
 
     /**
      * Unmarks the project from deletion.
      *
      * @throws RModifyException if failed
      */
-    public void undelete(CommonUser user) throws RRepositoryException;
+    void undelete(CommonUser user) throws RRepositoryException;
 
-    public void unlock(CommonUser user) throws RRepositoryException;
+    void unlock(CommonUser user) throws RRepositoryException;
+
 }

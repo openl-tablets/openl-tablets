@@ -15,13 +15,13 @@ public interface RVersion extends CommonVersion {
      *
      * @return date of creation
      */
-    public Date getCreated();
+    Date getCreated();
 
     /**
      * Gets user who created the version.
      *
      * @return user who created it
      */
-    public CommonUser getCreatedBy();
+    CommonUser getCreatedBy();
 
 }

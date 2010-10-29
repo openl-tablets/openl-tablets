@@ -11,6 +11,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public interface RFile extends REntity {
+
     /**
      * Gets content of the file. It is highly apreciated to close stream right
      * after it is no longer needed.
@@ -18,7 +19,7 @@ public interface RFile extends REntity {
      * @return content stream with content of file
      * @throws RRepositoryException if failed
      */
-    public InputStream getContent() throws RRepositoryException;
+    InputStream getContent() throws RRepositoryException;
 
     /**
      * Returns content of specified version of the file.
@@ -27,21 +28,21 @@ public interface RFile extends REntity {
      * @return content of specified version
      * @throws RRepositoryException if failed
      */
-    public InputStream getContent4Version(CommonVersion version) throws RRepositoryException;
+    InputStream getContent4Version(CommonVersion version) throws RRepositoryException;
 
     /**
      * Gets mime type of the file.
      *
      * @return mime type
      */
-    public String getMimeType();
+    String getMimeType();
 
     /**
      * Returns size of the file's content in bytes.
      *
      * @return size of content or <code>-1</code> if cannot determine it.
      */
-    public long getSize();
+    long getSize();
 
     /**
      * Reverts the file to specified version.
@@ -49,7 +50,7 @@ public interface RFile extends REntity {
      * @param versionName name of version
      * @throws RRepositoryException if failed
      */
-    public void revertToVersion(String versionName) throws RRepositoryException;
+    void revertToVersion(String versionName) throws RRepositoryException;
 
     /**
      * Sets/Updates content of the file. At the end input stream will be closed.
@@ -57,5 +58,6 @@ public interface RFile extends REntity {
      * @param inputStream stream with new content of the file
      * @throws RModifyException if failed
      */
-    public void setContent(InputStream inputStream) throws RRepositoryException;
+    void setContent(InputStream inputStream) throws RRepositoryException;
+
 }
