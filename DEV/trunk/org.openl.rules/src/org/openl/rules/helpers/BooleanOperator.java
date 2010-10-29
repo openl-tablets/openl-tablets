@@ -10,8 +10,39 @@ package org.openl.rules.helpers;
 
 @SuppressWarnings("unchecked")
 public class BooleanOperator {
-    static interface ComparableOperator {
-        public boolean compare(Comparable c1, Comparable c2);
+
+    public BooleanOperator(String s) {
+        if (s.equals("<")) {
+            operator = LT;
+        } else if (s.equals("<=")) {
+            operator = LE;
+        } else if (s.equals("==")) {
+            operator = EQ;
+        } else if (s.equals("!=")) {
+            operator = NE;
+        } else if (s.equals(">")) {
+            operator = GT;
+        } else if (s.equals(">=")) {
+            operator = GE;
+        } else {
+            throw (new RuntimeException("Operator " + s + " is not defined"));
+        }
+    }
+
+    public boolean compare(Comparable c1, Comparable c2) {
+        return operator.compare(c1, c2);
+    }
+
+    public boolean compare(double i1, double i2) {
+        return operator.compare(new Double(i1), new Double(i2));
+    }
+
+    public boolean compare(int i1, int i2) {
+        return operator.compare(new Integer(i1), new Integer(i2));
+    }
+
+    interface ComparableOperator {
+        boolean compare(Comparable c1, Comparable c2);
     }
 
     static ComparableOperator LT = new ComparableOperator() {
@@ -51,35 +82,4 @@ public class BooleanOperator {
     };
 
     ComparableOperator operator;
-
-    public BooleanOperator(String s) {
-        if (s.equals("<")) {
-            operator = LT;
-        } else if (s.equals("<=")) {
-            operator = LE;
-        } else if (s.equals("==")) {
-            operator = EQ;
-        } else if (s.equals("!=")) {
-            operator = NE;
-        } else if (s.equals(">")) {
-            operator = GT;
-        } else if (s.equals(">=")) {
-            operator = GE;
-        } else {
-            throw (new RuntimeException("Operator " + s + " is not defined"));
-        }
-    }
-
-    public boolean compare(Comparable c1, Comparable c2) {
-        return operator.compare(c1, c2);
-    }
-
-    public boolean compare(double i1, double i2) {
-        return operator.compare(new Double(i1), new Double(i2));
-    }
-
-    public boolean compare(int i1, int i2) {
-        return operator.compare(new Integer(i1), new Integer(i2));
-    }
-
 }

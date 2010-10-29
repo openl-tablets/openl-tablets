@@ -14,7 +14,7 @@ import org.openl.base.INamedThing;
  */
 public interface IOpenMethodSignature extends INamedThing {
 
-    public IOpenParameter[] getParameters();
+    IOpenParameter[] getParameters();
 
     IOpenClass getReturnType();
 

@@ -3,20 +3,21 @@ package org.openl.rules.cmatch.matcher;
 import org.openl.types.IOpenClass;
 
 public interface IMatcherBuilder {
+
     /**
      * Both are equal or actual value is in range.
      */
-    public static final String OP_MATCH = "match";
+    String OP_MATCH = "match";
 
     /**
      * variable is bigger or equal to check value
      */
-    public static final String OP_MIN = "min";
+    String OP_MIN = "min";
 
     /**
      * variable is less or equal to check value
      */
-    public static final String OP_MAX = "max";
+    String OP_MAX = "max";
 
     /**
      * Get instance of matcher for a given type.

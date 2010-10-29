@@ -17,12 +17,12 @@ import org.openl.types.IOpenMethod;
  */
 
 public interface IMethodFactory {
-    // public IMethodCaller getMethodCaller(String name, IOpenClass[] params,
+    // IMethodCaller getMethodCaller(String name, IOpenClass[] params,
     // ICastFactory casts)
     // throws AmbiguousMethodException;
 
-    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
+    IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
 
-    public Iterator<IOpenMethod> methods();
+    Iterator<IOpenMethod> methods();
 
 }

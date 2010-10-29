@@ -14,8 +14,8 @@ import org.openl.types.IOpenClass;
  */
 public interface IFormalParameter {
 
-    public String getName();
+    String getName();
 
-    public IOpenClass getType();
+    IOpenClass getType();
 
 }

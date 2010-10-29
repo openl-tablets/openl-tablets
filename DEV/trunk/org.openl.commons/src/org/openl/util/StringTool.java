@@ -26,15 +26,15 @@ public class StringTool {
         public abstract String convertOrNull(char ch);
     }
 
-    static public interface Convertor {
-        public void convert(char c, int idx, StringBuffer out);
+    public interface Convertor {
+        void convert(char c, int idx, StringBuffer out);
     }
 
-    static public interface MacroKeyHandler {
-        public void handleKey(String key, MacroSubst ms, StringBuffer out);
+    public interface MacroKeyHandler {
+        void handleKey(String key, MacroSubst ms, StringBuffer out);
     }
 
-    static public class MacroSubst extends TextTransformer {
+    public static class MacroSubst extends TextTransformer {
 
         public char _macroDelim;
         public Map<String, String> _macros;
@@ -90,8 +90,8 @@ public class StringTool {
         // }
     }
 
-    static public interface Selector {
-        public boolean select(char c, int idx);
+    public interface Selector {
+        boolean select(char c, int idx);
     }
 
     static public class TextTransformer {

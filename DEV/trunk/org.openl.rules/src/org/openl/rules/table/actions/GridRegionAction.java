@@ -11,11 +11,11 @@ public class GridRegionAction implements IUndoableGridTableAction {
         EXPAND;
     }
 
-    IGridRegion region;
-    ActionType actionType;
-    boolean isInsert;
-    boolean isColumns;
-    int nRowsOrColumns;
+    private IGridRegion region;
+    private ActionType actionType;
+    private boolean isInsert;
+    private boolean isColumns;
+    private int nRowsOrColumns;
 
     public GridRegionAction(IGridRegion region, boolean isColumns, boolean isInsert, ActionType actionType,
             int nRowsOrColumns) {

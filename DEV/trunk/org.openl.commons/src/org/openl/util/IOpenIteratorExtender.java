@@ -15,10 +15,7 @@ import java.util.Iterator;
  */
 public interface IOpenIteratorExtender<E, T> {
 
-    static final class CollectionExtender<E> implements IOpenIteratorExtender<E, Collection<E>> {
-        /**
-         *
-         */
+    final class CollectionExtender<E> implements IOpenIteratorExtender<E, Collection<E>> {
 
         public Iterator<E> extend(Collection<E> col) {
             return col.iterator();
@@ -26,11 +23,8 @@ public interface IOpenIteratorExtender<E, T> {
 
     }
 
-    public static final CollectionExtender<Object> COLLECTION_EXTENDER = new CollectionExtender<Object>();
+    CollectionExtender<Object> COLLECTION_EXTENDER = new CollectionExtender<Object>();
 
-    /**
-     *
-     */
-    public Iterator<E> extend(T obj);
+    Iterator<E> extend(T obj);
 
 }

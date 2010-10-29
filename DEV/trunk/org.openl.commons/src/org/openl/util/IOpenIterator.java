@@ -16,15 +16,16 @@ import java.util.Set;
  *
  */
 public interface IOpenIterator<T> extends Iterator<T> {
-    public static final int UNKNOWN_SIZE = -1;
 
-    public IOpenIterator<T> append(IOpenIterator<T> it);
+    int UNKNOWN_SIZE = -1;
 
-    public Iterator<T> append(Iterator<T> it);
+    IOpenIterator<T> append(IOpenIterator<T> it);
 
-    public List<T> asList();
+    Iterator<T> append(Iterator<T> it);
 
-    public Set<T> asSet();
+    List<T> asList();
+
+    Set<T> asSet();
 
     /**
      * Legacy (Smalltalk) name, same as convert
@@ -32,7 +33,7 @@ public interface IOpenIterator<T> extends Iterator<T> {
      * @param col
      * @return
      */
-    public <C> IOpenIterator<C> collect(IConvertor<T, C> col);
+    <C> IOpenIterator<C> collect(IConvertor<T, C> col);
 
     /**
      * Same as collect
@@ -40,32 +41,30 @@ public interface IOpenIterator<T> extends Iterator<T> {
      * @param col
      * @return
      */
-    public <C> IOpenIterator<C> convert(IConvertor<T, C> col);
+    <C> IOpenIterator<C> convert(IConvertor<T, C> col);
 
     /**
      * @return the number of elements in iterator, it is not a "const" method,
      *         performs it by actual enumeration
      */
+    int count();
 
-    public int count();
+    void evaluate(IBlock block);
 
-    public void evaluate(IBlock block);
+    <E> IOpenIterator<E> extend(IOpenIteratorExtender<E, T> mod);
 
-    public <E> IOpenIterator<E> extend(IOpenIteratorExtender<E, T> mod);
+    IOpenIterator<T> reverse() throws UnsupportedOperationException;
 
-    public IOpenIterator<T> reverse() throws UnsupportedOperationException;
-
-    public IOpenIterator<T> select(ISelector<T> sel);
+    IOpenIterator<T> select(ISelector<T> sel);
 
     /**
      * @return the number of elements left to iterate, or UNKNOWN_SIZE if it is
      *         not known, this method is "const"
      */
+    int size();
 
-    public int size();
+    int skip(int n);
 
-    public int skip(int n);
-
-    public IOpenIterator<T> sort(Comparator<T> cmp);
+    IOpenIterator<T> sort(Comparator<T> cmp);
 
 }

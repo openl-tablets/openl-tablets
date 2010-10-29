@@ -9,10 +9,10 @@ package org.openl.rules.helpers;
  */
 public class RoundingOperator {
 
-    static interface IRoundingOperator {
-        public String[] getNames();
+    interface IRoundingOperator {
+        String[] getNames();
 
-        public abstract double value(double value, double precision);
+        double value(double value, double precision);
     }
 
     static class OpDown implements IRoundingOperator {

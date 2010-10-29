@@ -12,6 +12,6 @@ package org.openl.conf;
  */
 public interface IOpenFactoryConfiguration extends IConfigurationElement {
 
-    public String getName();
+    String getName();
 
 }

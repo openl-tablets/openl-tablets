@@ -23,7 +23,7 @@ import java.util.List;
 
 public final class FileTool {
 
-    static public class CacheMap {
+    public static class CacheMap {
 
         static class LTMValue {
             long lastModified;
@@ -48,7 +48,7 @@ public final class FileTool {
         }
     }
 
-    static public class DirectoryIterator {
+    public static class DirectoryIterator {
 
         static class DefaultComparator implements Comparator<File> {
             public int compare(File f1, File f2) {
@@ -70,9 +70,11 @@ public final class FileTool {
                 return f1.getName().compareTo(f2.getName());
             }
         }
-        static public interface DirectoryHandler {
+
+        public interface DirectoryHandler {
             void processDirectory(File f, String local_path) throws Exception;
         }
+
         static class ExtensionFilter implements FilenameFilter {
             String[] _exts;
 
@@ -95,7 +97,7 @@ public final class FileTool {
             }
         }
 
-        static public interface FileHandler {
+        public interface FileHandler {
             void processFile(File f, String local_path) throws Exception;
         }
 
@@ -290,7 +292,7 @@ public final class FileTool {
         return result;
     }
 
-    static public void copyDir(String srcDir, final String dstDir, FilenameFilter filter) throws Exception {
+    public static void copyDir(String srcDir, final String dstDir, FilenameFilter filter) throws Exception {
 
         DirectoryIterator di = new DirectoryIterator(srcDir, filter);
 

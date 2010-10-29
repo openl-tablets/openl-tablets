@@ -12,7 +12,7 @@ import java.util.Comparator;
  */
 public interface IOrderMetaInfo {
 
-    static class ComparableComparator implements Comparator<Object> {
+    class ComparableComparator implements Comparator<Object> {
 
         @SuppressWarnings("unchecked")
         public int compare(Object o1, Object o2) {
@@ -21,16 +21,12 @@ public interface IOrderMetaInfo {
 
     }
 
-    public static class OrderedComparator implements Comparator<Object> {
-        IOrderMetaInfo orderMetaInfo;
+    class OrderedComparator implements Comparator<Object> {
+        private IOrderMetaInfo orderMetaInfo;
 
         public OrderedComparator(IOrderMetaInfo orderMetaInfo) {
             this.orderMetaInfo = orderMetaInfo;
         }
-
-        /**
-         *
-         */
 
         public int compare(Object o1, Object o2) {
             Comparable<Object> c1 = orderMetaInfo.getOrderObject(o1);
@@ -40,7 +36,7 @@ public interface IOrderMetaInfo {
 
     }
 
-    public static final Comparator<Object> DEFAULT_COMPARATOR = new ComparableComparator();
+    Comparator<Object> DEFAULT_COMPARATOR = new ComparableComparator();
 
     /**
      * Produces object that is used for comparison with other objects in

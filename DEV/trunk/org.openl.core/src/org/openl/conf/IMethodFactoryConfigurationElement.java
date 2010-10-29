@@ -13,5 +13,7 @@ import org.openl.binding.IOpenLibrary;
  *
  */
 public interface IMethodFactoryConfigurationElement extends IConfigurationElement {
-    public IOpenLibrary getLibrary(IConfigurableResourceContext cxt);
+
+    IOpenLibrary getLibrary(IConfigurableResourceContext cxt);
+
 }

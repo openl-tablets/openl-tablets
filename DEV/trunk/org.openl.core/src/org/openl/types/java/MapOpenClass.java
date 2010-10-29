@@ -20,11 +20,11 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MapOpenClass extends JavaOpenClass {
 
-    static public interface DynamicFieldPolicy {
-        public IOpenField getOpenField(String name);
+    public interface DynamicFieldPolicy {
+        IOpenField getOpenField(String name);
     }
 
-    static public class MapOpenField extends AOpenField {
+    public static class MapOpenField extends AOpenField {
 
         /**
          * @param name

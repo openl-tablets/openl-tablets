@@ -22,20 +22,20 @@ import org.openl.syntax.code.IParsedCode;
  * @author snshor
  */
 public interface IOpenBinder {
-  
-    public IBoundCode bind(IParsedCode parsedCode);
 
-    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator);
+    IBoundCode bind(IParsedCode parsedCode);
 
-    public ICastFactory getCastFactory();
+    IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator);
 
-    public INameSpacedMethodFactory getMethodFactory();
+    ICastFactory getCastFactory();
 
-    public INodeBinderFactory getNodeBinderFactory();
+    INameSpacedMethodFactory getMethodFactory();
 
-    public INameSpacedTypeFactory getTypeFactory();
+    INodeBinderFactory getNodeBinderFactory();
 
-    public INameSpacedVarFactory getVarFactory();
+    INameSpacedTypeFactory getTypeFactory();
 
-    public IBindingContext makeBindingContext();
+    INameSpacedVarFactory getVarFactory();
+
+    IBindingContext makeBindingContext();
 }

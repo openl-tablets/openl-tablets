@@ -13,7 +13,8 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.ClassUtils;
 
 public class ArrayTool {
-	static class ArrayEnumeration implements Enumeration<Object> {
+
+    static class ArrayEnumeration implements Enumeration<Object> {
 		int _index = 0;
 		int _size;
 		Object _array;
@@ -57,27 +58,27 @@ public class ArrayTool {
 	}
 
 	public interface ArrayModel {
-		public Object getObject(int i);
+		Object getObject(int i);
 	}
 
-	static public final Object[] ZERO_OBJECT = {};
-	static public final Class<?>[] ZERO_CLASS = {};
+	public static final Object[] ZERO_OBJECT = {};
+	public static final Class<?>[] ZERO_CLASS = {};
 
-	static public final String[] ZERO_STRING = {};
+	public static final String[] ZERO_STRING = {};
 
-	static public final int[] ZERO_int = {};
+	public static final int[] ZERO_int = {};
 
-	static public final char[] ZERO_char = {};
+	public static final char[] ZERO_char = {};
 
 	public static Object add(Object array, Object value) {
 		return insertValue(Array.getLength(array), array, value);
 	}
 
-	static public String asString(Object ary) {
+	public static String asString(Object ary) {
 		return asString(ary, 128);
 	}
 
-	static public String asString(Object ary, int maxLength) {
+	public static String asString(Object ary, int maxLength) {
 		StringBuffer buf = new StringBuffer(100);
 
 		print(ary, buf, maxLength);
@@ -542,7 +543,7 @@ public class ArrayTool {
 		swap(array, i1, i2);
 	}
 
-	static public <T> Object[] toArray(List<T> v, Class<?> c) {
+	public static <T> Object[] toArray(List<T> v, Class<?> c) {
 		Object[] ary = (Object[]) Array.newInstance(c, v.size());
 		return v.toArray(ary);
 	}
@@ -559,7 +560,7 @@ public class ArrayTool {
 
 	}
 
-	static public Set<Object> toSet(Object[] ary) {
+	public static Set<Object> toSet(Object[] ary) {
 		Set<Object> set = new HashSet<Object>();
 		for (int i = 0; i < ary.length; i++) {
 			set.add(ary[i]);

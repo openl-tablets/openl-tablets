@@ -12,10 +12,10 @@ import java.util.ArrayList;
  */
 public class UndoableActions {
 
-    ArrayList<IUndoableAction> undoableActions = new ArrayList<IUndoableAction>();
+    private ArrayList<IUndoableAction> undoableActions = new ArrayList<IUndoableAction>();
 
-    int currentUndoIndex = 0;
-    int undoSize = 0;
+    private int currentUndoIndex = 0;
+    private int undoSize = 0;
 
     public void addNewAction(IUndoableAction iu) {
         undoableActions.ensureCapacity(currentUndoIndex + 1);

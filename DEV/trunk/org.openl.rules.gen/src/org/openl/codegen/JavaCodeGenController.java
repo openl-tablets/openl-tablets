@@ -135,8 +135,8 @@ public class JavaCodeGenController implements ICodeGenController {
 		
 		return p.processValue(value, gen, sb);
 	}
-	
-	public static interface Processor {
-		public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb);
+
+	public interface Processor {
+	    StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb);
 	}
 }

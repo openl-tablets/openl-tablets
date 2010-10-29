@@ -13,5 +13,7 @@ import org.openl.syntax.ISyntaxNode;
  */
 
 public interface INodeBinderFactory {
-    public INodeBinder getNodeBinder(ISyntaxNode node);
+
+    INodeBinder getNodeBinder(ISyntaxNode node);
+
 }

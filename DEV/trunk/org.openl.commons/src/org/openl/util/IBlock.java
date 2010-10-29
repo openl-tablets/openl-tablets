@@ -11,5 +11,7 @@ package org.openl.util;
  *
  */
 public interface IBlock {
-    public void evaluate(Object obj);
+
+    void evaluate(Object obj);
+
 }

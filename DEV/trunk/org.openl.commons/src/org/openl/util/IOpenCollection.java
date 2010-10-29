@@ -11,6 +11,7 @@ import java.util.Collection;
  * @author snshor
  */
 public interface IOpenCollection<T> extends Collection<T> {
-    public IOpenIterator<T> openIterator();
+
+    IOpenIterator<T> openIterator();
 
 }

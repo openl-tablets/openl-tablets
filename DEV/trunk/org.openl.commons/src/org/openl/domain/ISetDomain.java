@@ -14,47 +14,27 @@ import org.openl.util.AOpenIterator;
  */
 public interface ISetDomain<T> {
 
-    static class EmptyDomain<T> implements ISetDomain<T> {
+    class EmptyDomain<T> implements ISetDomain<T> {
 
         public ISetDomain<T> and(ISetDomain<T> sd) {
             return this;
         }
 
-        /**
-         *
-         */
-
         public boolean contains(T obj) {
             return false;
         }
-
-        /**
-         *
-         */
 
         public Iterator<T> iterator() {
             return AOpenIterator.empty();
         }
 
-        /**
-         *
-         */
-
         public ISetDomain<T> or(ISetDomain<T> sd) {
             return sd;
         }
 
-        /**
-         *
-         */
-
         public int size() {
             return 0;
         }
-
-        /**
-         *
-         */
 
         public ISetDomain<T> sub(ISetDomain<T> sd) {
             return this;
@@ -62,7 +42,7 @@ public interface ISetDomain<T> {
 
     }
 
-    static final public ISetDomain<Object> EMPTY_DOMAIN = new EmptyDomain<Object>();
+    ISetDomain<Object> EMPTY_DOMAIN = new EmptyDomain<Object>();
 
     ISetDomain<T> and(ISetDomain<T> sd);
 
