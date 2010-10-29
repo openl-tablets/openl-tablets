@@ -38,7 +38,8 @@ public class TypeBinder extends ANodeBinder {
         IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (varType == null) {
-            String message = String.format("Cannot bind node: '%s'", node.getModule().getCode());
+            String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", 
+                node.getModule().getCode(), typeName);
             BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
