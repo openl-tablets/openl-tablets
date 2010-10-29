@@ -16,7 +16,7 @@ import org.openl.binding.exception.AmbiguousTypeException;
  */
 public interface ITypeLibrary {
 
-    public IOpenClass getType(String typename) throws AmbiguousTypeException;
+    IOpenClass getType(String typename) throws AmbiguousTypeException;
 
     /**
      * This method returns an Iterator over all the OpenClasses available in the
@@ -30,6 +30,6 @@ public interface ITypeLibrary {
      * @return Iterator of Strings, not IOpenClasses.
      */
 
-    public Iterator<String> typeNames();
+    Iterator<String> typeNames();
 
 }

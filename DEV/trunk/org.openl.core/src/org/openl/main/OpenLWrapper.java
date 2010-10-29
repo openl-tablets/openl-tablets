@@ -10,13 +10,12 @@ public interface OpenLWrapper {
      * @return CompiledOpenClass - it is a safe operation, it does not throw
      *         exceptions in case when there were compilation errors
      */
+    CompiledOpenClass getCompiledOpenClass();
 
-    public CompiledOpenClass getCompiledOpenClass();
+    Object getInstance();
 
-    public Object getInstance();
+    IOpenClass getOpenClass();
 
-    public IOpenClass getOpenClass();
-
-    public void reload();
+    void reload();
 
 }

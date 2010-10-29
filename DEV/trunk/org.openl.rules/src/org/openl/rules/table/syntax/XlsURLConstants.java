@@ -14,7 +14,7 @@ import org.openl.main.SourceCodeURLConstants;
  */
 public interface XlsURLConstants extends SourceCodeURLConstants {
 
-    static public final String SHEET = "sheet", CELL = "cell", RANGE = "range", PARAGRAPH_NUM = "wdParNum",
+    String SHEET = "sheet", CELL = "cell", RANGE = "range", PARAGRAPH_NUM = "wdParNum",
             PARAGRAPH_START = "wdParStart", PARAGRAPH_END = "wdParEnd", WD_PAR_START = "wdParStart",
             WD_PAR_END = "wdParEnd";
 

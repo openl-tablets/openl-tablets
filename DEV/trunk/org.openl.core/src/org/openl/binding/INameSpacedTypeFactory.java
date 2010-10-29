@@ -14,5 +14,6 @@ import org.openl.types.IOpenClass;
  */
 public interface INameSpacedTypeFactory {
 
-    public IOpenClass getType(String namespace, String typename);
+    IOpenClass getType(String namespace, String typename);
+
 }

@@ -9,13 +9,14 @@ import org.openl.meta.StringValue;
  */
 
 public class DomainType {
-    StringValue domainName;
-    StringValue baseType;
-    StringValue varName;
-    StringValue useVarPattern;
-    StringValue description;
-    StringValue displayName;
-    StringValue domainExpression;
+
+    private StringValue domainName;
+    private StringValue baseType;
+    private StringValue varName;
+    private StringValue useVarPattern;
+    private StringValue description;
+    private StringValue displayName;
+    private StringValue domainExpression;
 
     public StringValue getBaseType() {
         return baseType;

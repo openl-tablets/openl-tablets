@@ -2,7 +2,7 @@ package org.openl.rules.indexer;
 
 public interface IDocumentType {
 
-    static public class Instance implements IDocumentType {
+    class Instance implements IDocumentType {
         String type, category;
 
         Instance(String type, String category) {
@@ -19,7 +19,7 @@ public interface IDocumentType {
         }
     }
 
-    static final String DOCUMENT = "Document", // workbook, .doc etc
+    String DOCUMENT = "Document", // workbook, .doc etc
             WORKBOOK_TYPE = "Workbook", WORDDOC_TYPE = "Word.doc",
             WORKSHEET_TABLE_TYPE = "Worksheet Table",
             WORKSHEET_CATEGORY = "Worksheet", WORKSHEET_TYPE = "Worksheet",
@@ -28,7 +28,7 @@ public interface IDocumentType {
             PARAGRAPH = "Paragraph",
             WORD_TABLE_TYPE = "Word Table", WORD_PARAGRAPH_TYPE = "Word.Paragraph";
 
-    static final public IDocumentType WORKBOOK = new Instance(WORKBOOK_TYPE, DOCUMENT), WORKSHEET = new Instance(
+    IDocumentType WORKBOOK = new Instance(WORKBOOK_TYPE, DOCUMENT), WORKSHEET = new Instance(
             WORKSHEET_TYPE, WORKSHEET_CATEGORY), WORKSHEET_TABLE = new Instance(WORKSHEET_TABLE_TYPE, TABLE_CATEGORY),
             WORKSHEET_CELL = new Instance(WORKSHEET_CELL_TYPE, CELL_CATEGORY),
 

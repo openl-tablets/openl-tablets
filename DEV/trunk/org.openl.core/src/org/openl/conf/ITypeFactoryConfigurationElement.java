@@ -13,5 +13,7 @@ import org.openl.types.ITypeLibrary;
  */
 
 public interface ITypeFactoryConfigurationElement extends IConfigurationElement {
-    public ITypeLibrary getLibrary(IConfigurableResourceContext cxt);
+
+    ITypeLibrary getLibrary(IConfigurableResourceContext cxt);
+
 }

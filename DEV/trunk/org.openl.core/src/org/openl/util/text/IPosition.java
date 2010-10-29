@@ -18,7 +18,7 @@ public interface IPosition {
      * @return the absolute position (number of characters from the very
      *         beginning of text) starting from 0
      */
-    public int getAbsolutePosition(TextInfo info);
+    int getAbsolutePosition(TextInfo info);
 
     /**
      *
@@ -27,12 +27,12 @@ public interface IPosition {
      * @return the column with '\t' expanded according to the tabsize starting
      *         from 0
      */
-    public int getColumn(TextInfo info, int tabSize);
+    int getColumn(TextInfo info, int tabSize);
 
     /**
      * @param info text helper class
      * @return the line in text starting from 0
      */
-    public int getLine(TextInfo info);
+    int getLine(TextInfo info);
 
 }

@@ -15,8 +15,9 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public interface IOpenRunner {
-    public Object run(IBoundMethodNode node, Object[] params) throws OpenLRuntimeException;
 
-    public Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) throws OpenLRuntimeException;
+    Object run(IBoundMethodNode node, Object[] params) throws OpenLRuntimeException;
+
+    Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) throws OpenLRuntimeException;
 
 }

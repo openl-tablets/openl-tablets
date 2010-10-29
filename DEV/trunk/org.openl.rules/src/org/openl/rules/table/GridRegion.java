@@ -1,7 +1,11 @@
 package org.openl.rules.table;
 
 public class GridRegion implements IGridRegion {
-    int top, left, bottom, right;
+
+    private int top;
+    private int left;
+    private int bottom;
+    private int right;
 
     public GridRegion(IGridRegion g) {
         top = g.getTop();

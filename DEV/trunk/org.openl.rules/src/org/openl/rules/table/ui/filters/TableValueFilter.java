@@ -6,8 +6,8 @@ import org.openl.util.formatters.IFormatter;
 
 public class TableValueFilter extends AGridFilter {
 
-    static public interface Model {
-        public Object getValue(int col, int row);
+    public interface Model {
+        Object getValue(int col, int row);
     }
 
     private Model model;

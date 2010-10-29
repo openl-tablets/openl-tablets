@@ -9,7 +9,7 @@ package org.openl.domain;
  */
 public interface IIntSelector {
 
-    static public final class IntSelectIterator extends AIntIterator {
+    final class IntSelectIterator extends AIntIterator {
         IIntSelector selector;
         IIntIterator it;
         int next;

@@ -4,6 +4,6 @@ import org.openl.syntax.ISyntaxNode;
 
 public interface ISymbolicBinder {
 
-    public void bindSymbolic(ISyntaxNode node, ISymbolicBindingContext cxt);
+    void bindSymbolic(ISyntaxNode node, ISymbolicBindingContext cxt);
 
 }

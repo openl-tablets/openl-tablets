@@ -45,7 +45,7 @@ public class LogicalTable extends ALogicalTable {
         int i = 0;
         for (; i < rowOffset.length - 1; offset += cellHeight, ++i) {
             rowOffset[i] = offset;
-            cellHeight = table.getCell(0, offset).getHeight();
+            cellHeight = getSource().getCell(0, offset).getHeight();
         }
         rowOffset[i] = offset;
     }
@@ -57,7 +57,7 @@ public class LogicalTable extends ALogicalTable {
         int i = 0;
         for (; i < columnOffset.length - 1; offset += cellWidth, ++i) {
             columnOffset[i] = offset;
-            cellWidth = table.getCell(offset, 0).getWidth();
+            cellWidth = getSource().getCell(offset, 0).getWidth();
         }
         columnOffset[i] = offset;
     }
@@ -112,7 +112,7 @@ public class LogicalTable extends ALogicalTable {
         int endColumn = columnOffset[column + width];
 
         return LogicalTableHelper.logicalTable(
-                table.getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
+                getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
     }
 
     public int[] getRowOffset() {

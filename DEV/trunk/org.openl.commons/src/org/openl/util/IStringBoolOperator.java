@@ -8,8 +8,9 @@ package org.openl.util;
  *
  */
 public interface IStringBoolOperator extends IOperator {
-    public String getSample();
 
-    public boolean isMatching(String test);
+    String getSample();
+
+    boolean isMatching(String test);
 
 }

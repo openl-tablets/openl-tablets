@@ -11,7 +11,8 @@ import org.apache.commons.lang.StringUtils;
  * @author snshor
  */
 public class Version implements Comparable<Version> {
-    public static interface IVersionStartPatternFinder {
+
+    public interface IVersionStartPatternFinder {
         /**
          *
          * @param s
@@ -19,7 +20,6 @@ public class Version implements Comparable<Version> {
          *            first
          * @return index of possible start for version or -1
          */
-
         int findVersionStart(String s, int previousStart);
     }
 

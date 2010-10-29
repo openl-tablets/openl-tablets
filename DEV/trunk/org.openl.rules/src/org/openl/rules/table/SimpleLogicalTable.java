@@ -23,11 +23,11 @@ public class SimpleLogicalTable extends ALogicalTable {
     }
 
     public int getWidth() {
-        return table.getWidth();
+        return getSource().getWidth();
     }
 
     public int getHeight() {
-        return table.getHeight();
+        return getSource().getHeight();
     }
 
     public int findColumnStart(int gridOffset) {
@@ -69,7 +69,7 @@ public class SimpleLogicalTable extends ALogicalTable {
         // the right implementation for this method must be following:
         // return LogicalTableHelper.logicalTable(table.getSubtable(column, row, width, height));
         // but we loose lots of time on this callings.
-        return new SimpleLogicalTable(table.getSubtable(column, row, width, height));
+        return new SimpleLogicalTable(getSource().getSubtable(column, row, width, height));
     }
 
 }

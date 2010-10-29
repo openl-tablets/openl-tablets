@@ -9,81 +9,14 @@ import org.openl.rules.table.IGridTable;
  * @author snshor
  */
 public class TablePrinter {
-    
-    
-    static public String printGridTable(IGridTable gridTable)
-    {
-        return new TablePrinter(new GridTableAdaptor(gridTable), null, " ! ").print();
-    }
-    
-    
-    static class GridTableAdaptor implements ITableAdaptor
-    {
-        
-        IGridTable table;
 
-        public GridTableAdaptor(IGridTable gridTable) {
-            this.table = gridTable;
-        }
+    public static String LEFT = "LEFT", RIGHT = "RIGHT";
 
-        public Object get(int col, int row) {
-            return table.getCell(col, row).getStringValue();
-        }
+    private String[] alignment;
 
-        public int height() {
-            return table.getHeight();
-        }
+    private String separator;
 
-        public int maxWidth() {
-            return table.getWidth();
-        }
-
-        public int width(int row) {
-            return table.getWidth();
-        }
-        
-    }
-    
-    
-    static class StringArrayTableAdator implements ITableAdaptor {
-        String[][] array;
-
-        StringArrayTableAdator(String[][] array) {
-            this.array = array;
-        }
-
-        public Object get(int col, int row) {
-            String[] r = array[row];
-            return r == null || r.length <= col ? null : r[col];
-        }
-
-        public int height() {
-            return array.length;
-        }
-
-        public int maxWidth() {
-            int w = 0;
-            for (int i = 0; i < array.length; i++) {
-                if (array[i] != null) {
-                    w = Math.max(w, array[i].length);
-                }
-            }
-            return w;
-        }
-
-        public int width(int i) {
-            return array[i].length;
-        }
-
-    }
-
-    static public String LEFT = "LEFT", RIGHT = "RIGHT";
-
-    String[] alignment;
-
-    String separator;
-
-    ITableAdaptor tableAdaptor;
+    private ITableAdaptor tableAdaptor;
 
     public TablePrinter(String[][] data, String[] alignment, String separator) {
         tableAdaptor = new StringArrayTableAdator(data);
@@ -97,11 +30,7 @@ public class TablePrinter {
         this.separator = separator;
     }
 
-    /**
-     * @param data
-     * @return
-     */
-    int[] calcWidth(ITableAdaptor ta) {
+    private int[] calcWidth(ITableAdaptor ta) {
         int[] width = new int[ta.maxWidth()];
 
         for (int i = 0; i < ta.height(); i++) {
@@ -162,6 +91,67 @@ public class TablePrinter {
         }
 
         return sb.toString();
+    }
+    
+    public static String printGridTable(IGridTable gridTable) {
+        return new TablePrinter(new GridTableAdaptor(gridTable), null, " ! ").print();
+    }
+
+    private static class GridTableAdaptor implements ITableAdaptor {
+
+        private IGridTable table;
+
+        public GridTableAdaptor(IGridTable gridTable) {
+            this.table = gridTable;
+        }
+
+        public Object get(int col, int row) {
+            return table.getCell(col, row).getStringValue();
+        }
+
+        public int height() {
+            return table.getHeight();
+        }
+
+        public int maxWidth() {
+            return table.getWidth();
+        }
+
+        public int width(int row) {
+            return table.getWidth();
+        }
+
+    }
+
+    private static class StringArrayTableAdator implements ITableAdaptor {
+        String[][] array;
+
+        StringArrayTableAdator(String[][] array) {
+            this.array = array;
+        }
+
+        public Object get(int col, int row) {
+            String[] r = array[row];
+            return r == null || r.length <= col ? null : r[col];
+        }
+
+        public int height() {
+            return array.length;
+        }
+
+        public int maxWidth() {
+            int w = 0;
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] != null) {
+                    w = Math.max(w, array[i].length);
+                }
+            }
+            return w;
+        }
+
+        public int width(int i) {
+            return array[i].length;
+        }
 
     }
 

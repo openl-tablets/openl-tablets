@@ -7,7 +7,7 @@ package org.openl.rules.table;
  */
 public abstract class ALogicalTable implements ILogicalTable {
 
-    protected IGridTable table;
+    private IGridTable table;
 
     public ALogicalTable(IGridTable table) {
         this.table = table;
