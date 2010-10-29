@@ -141,7 +141,7 @@ public class SimpleFormatFilter implements IGridFilter {
     @Deprecated
     private XlsNumberFormatter findXlsNumberFormatter(String format) {
         if (isGeneralFormat(format)) {
-            return XlsNumberFormatter.General;
+            return XlsNumberFormatter.GENERAL;
         }
 
         IFormatter formatter = existingFormatters.get(format);

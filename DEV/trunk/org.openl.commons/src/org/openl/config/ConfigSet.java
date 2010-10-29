@@ -9,7 +9,8 @@ import java.util.*;
  * @author Aleh Bykhavets
  */
 public class ConfigSet {
-    private static final Log log = LogFactory.getLog(ConfigSet.class);
+
+    private static final Log LOG = LogFactory.getLog(ConfigSet.class);
 
     private Map<String, String> properties;
 
@@ -57,7 +58,7 @@ public class ConfigSet {
         try {
             prop.setTextValue(textValue);
         } catch (Exception e) {
-            log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + textValue + "'!", e);
+            LOG.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + textValue + "'!", e);
         }
     }
 }

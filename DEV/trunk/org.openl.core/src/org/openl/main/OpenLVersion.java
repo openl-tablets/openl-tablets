@@ -12,20 +12,21 @@ import org.openl.util.Log;
  *
  */
 public class OpenLVersion {
-    static final public String prop_file_name = "openl.version.properties";
-    static final public String prop_version_name = "openl.version";
-    static final public String prop_build_name = "openl.build";
-    static final public String prop_url_name = "openl.url";
-    static final public String prop_year_name = "openl.copyrightyear";
+
+    public static final String PROP_FILE_NAME = "openl.version.properties";
+    public static final String PROP_VERSION_NAME = "openl.version";
+    public static final String PROP_BUILD_NAME = "openl.build";
+    public static final String PROP_URL_NAME = "openl.url";
+    public static final String PROP_YEAR_NAME = "openl.copyrightyear";
 
     static Properties props = null;
 
     public static String getBuild() {
-        return getProperties().getProperty(prop_build_name, "??");
+        return getProperties().getProperty(PROP_BUILD_NAME, "??");
     }
 
     public static String getCopyrightYear() {
-        return getProperties().getProperty(prop_year_name, "??");
+        return getProperties().getProperty(PROP_YEAR_NAME, "??");
     }
 
     static synchronized Properties getProperties() {
@@ -33,9 +34,9 @@ public class OpenLVersion {
             props = new Properties();
 
             try {
-                props.load(OpenLVersion.class.getResourceAsStream(prop_file_name));
+                props.load(OpenLVersion.class.getResourceAsStream(PROP_FILE_NAME));
             } catch (Throwable t) {
-                Log.warn(prop_file_name + " not found", t);
+                Log.warn(PROP_FILE_NAME + " not found", t);
             }
         }
 
@@ -43,11 +44,11 @@ public class OpenLVersion {
     }
 
     public static String getURL() {
-        return getProperties().getProperty(prop_url_name, "??");
+        return getProperties().getProperty(PROP_URL_NAME, "??");
     }
 
     public static String getVersion() {
-        return getProperties().getProperty(prop_version_name, "???");
+        return getProperties().getProperty(PROP_VERSION_NAME, "???");
     }
 
 }

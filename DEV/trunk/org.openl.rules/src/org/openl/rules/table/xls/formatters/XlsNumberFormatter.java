@@ -23,8 +23,8 @@ import org.openl.util.formatters.NumberTextFormatter;
  *
  * @author snshor
  *
- *  TO DO: refactor this class. Remove from method parse() next parameters: SegmentFormatter positiveFormat, SegmentFormatter negativeFormat,
- *  SegmentFormatter zeroFormat;
+ *  TODO: refactor this class. Remove from method parse() next parameters: SegmentFormatter positiveFormat,
+ *  SegmentFormatter negativeFormat, SegmentFormatter zeroFormat;
  *
  */
 public class XlsNumberFormatter extends AXlsFormatter {
@@ -35,13 +35,13 @@ public class XlsNumberFormatter extends AXlsFormatter {
 
     public static final DecimalFormat GENERAL_FORMAT = new DecimalFormat(GENERAL_FORMAT_STR);
 
-    public static final XlsNumberFormatter General = new XlsNumberFormatter(new SegmentFormatter(
+    public static final XlsNumberFormatter GENERAL = new XlsNumberFormatter(new SegmentFormatter(
             new NumberTextFormatter(GENERAL_FORMAT), null), null, null);
 
-    private static final String[] colorsStr = { "[Black]", "[Blue]", "[Cyan]", "[Green]", "[Magenta]", "[Red]", "[White]",
-            "[Yellow]" };
+    private static final String[] COLORS_STR = { "[Black]", "[Blue]", "[Cyan]", "[Green]", "[Magenta]", "[Red]",
+        "[White]", "[Yellow]" };
 
-    private static final short[][] colors = { { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0xff }, { 0x00, 0xff, 0xff },
+    private static final short[][] COLORS = { { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0xff }, { 0x00, 0xff, 0xff },
             { 0x00, 0xff, 0x00 }, { 0xff, 0x00, 0xff }, { 0xff, 0x00, 0x00 }, { 0xff, 0xff, 0xff },
             { 0xff, 0xff, 0x00 }, };
 
@@ -52,10 +52,10 @@ public class XlsNumberFormatter extends AXlsFormatter {
     private SegmentFormatter zeroFormat;
    
     private static String detectColor(SegmentFormatter segmentFormatter, String format) {
-        for (int i = 0; i < colorsStr.length; i++) {
-            if (format.contains(colorsStr[i]) || format.contains(colorsStr[i].toUpperCase())) {
-                segmentFormatter.setColor(colors[i]);
-                return format.substring(colorsStr[i].length());
+        for (int i = 0; i < COLORS_STR.length; i++) {
+            if (format.contains(COLORS_STR[i]) || format.contains(COLORS_STR[i].toUpperCase())) {
+                segmentFormatter.setColor(COLORS[i]);
+                return format.substring(COLORS_STR[i].length());
             }
         }
 

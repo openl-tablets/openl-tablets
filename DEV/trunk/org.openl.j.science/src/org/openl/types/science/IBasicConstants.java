@@ -34,12 +34,12 @@ public interface IBasicConstants {
     TimeUnit DAY = new TimeUnit("day", 3600 * 24);
     TimeUnit WEEK = new TimeUnit("week", 3600 * 24 * 7);
 
-    MassUnit mg = new MassUnit("mg", 0.000001);
-    MassUnit g = new MassUnit("g", 0.001);
-    MassUnit kg = new MassUnit("kg", 1);
-    MassUnit t = new MassUnit("t", 1000);
+    MassUnit MG = new MassUnit("mg", 0.000001);
+    MassUnit G = new MassUnit("g", 0.001);
+    MassUnit KG = new MassUnit("kg", 1);
+    MassUnit T = new MassUnit("t", 1000);
 
-    MassUnit oz = new MassUnit("oz", 0.028);
-    MassUnit lb = new MassUnit("lb", 0.453592);
+    MassUnit OZ = new MassUnit("oz", 0.028);
+    MassUnit LB = new MassUnit("lb", 0.453592);
 
 }

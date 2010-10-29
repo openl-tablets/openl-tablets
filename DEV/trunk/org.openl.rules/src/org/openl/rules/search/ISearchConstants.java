@@ -13,9 +13,9 @@ public interface ISearchConstants {
     
     String COLUMN_PARAMETER = "Column Parameter", COLUMN_TYPE = "Column Type";
 
-    String[] typeValues = { HEADER, PROPERTY };
+    String[] TYPE_VALUES = { HEADER, PROPERTY };
     
-    String[] colTypeValues = { COLUMN_PARAMETER, COLUMN_TYPE };
+    String[] COL_TYPE_Values = { COLUMN_PARAMETER, COLUMN_TYPE };
 
     String ADD_ACTION = "add";
     
