@@ -39,10 +39,10 @@ var TableEditor = Class.create({
         this.actions = actions;
 
         // Suppress text selection BEGIN
-        this.tableContainer.onselectstart = function() {
+        this.tableContainer.onselectstart = function() { // IE
             return false;
         }
-        this.tableContainer.onmousedown = function() {
+        this.tableContainer.onmousedown = function() { // Mozilla
             return false;
         }
         // Suppress text selection END
