@@ -220,7 +220,7 @@ public class ClassFactory extends AConfigurationElement {
         Class<?> c = validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 
         if (getExtendsClassName() != null) {
-            Class<?> c2 = validateClassExistsAndPublic(getExtendsClassName(), cxt.getClassLoader(), uri);
+            Class<?> c2 = validateClassExistsAndPublic(getExtendsClassName(), cxt.getClassLoader(), getUri());
 
             validateSuper(c, c2, getUri());
         }

@@ -18,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class TypeBoundNode extends ABoundNode {
-    protected IOpenClass type;
+    private IOpenClass type;
 
     /**
      * @param syntaxNode

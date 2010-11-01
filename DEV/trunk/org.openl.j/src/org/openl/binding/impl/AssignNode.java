@@ -20,7 +20,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class AssignNode extends MethodBoundNode {
-    IOpenCast cast;
+    private IOpenCast cast;
 
     /**
      * @param syntaxNode

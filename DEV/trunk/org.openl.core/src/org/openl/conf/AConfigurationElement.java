@@ -11,7 +11,7 @@ package org.openl.conf;
  *
  */
 public abstract class AConfigurationElement implements IConfigurationElement {
-    protected String uri;
+    private String uri;
 
     public String getUri() {
         return uri;
