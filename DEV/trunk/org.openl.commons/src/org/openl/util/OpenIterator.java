@@ -15,8 +15,8 @@ import java.util.Iterator;
  */
 public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
 
-    static class EnumerationIterator<T> extends AOpenIterator<T> {
-        Enumeration<T> enumeration;
+    private static class EnumerationIterator<T> extends AOpenIterator<T> {
+        private Enumeration<T> enumeration;
 
         EnumerationIterator(Enumeration<T> enumeration) {
             this.enumeration = enumeration;

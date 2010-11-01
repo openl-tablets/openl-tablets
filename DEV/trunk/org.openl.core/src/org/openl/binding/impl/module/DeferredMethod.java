@@ -23,7 +23,7 @@ import org.openl.vm.IRuntimeEnv;
 public class DeferredMethod extends AMethod {
     private ISyntaxNode methodBodyNode;
 
-    IBoundMethodNode methodBodyBoundNode = null;
+    private IBoundMethodNode methodBodyBoundNode = null;
 
     /**
      * @param name

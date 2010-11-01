@@ -62,7 +62,7 @@ public class LabelManager {
         }
     }
 
-    public static String LABEL_INSTRUCTION_PREFIX = "gen_label_";
+    private static String LABEL_INSTRUCTION_PREFIX = "gen_label_";
 
     private Map<LabelType, String> currentLabels;
     private boolean isLoopOperationSet;

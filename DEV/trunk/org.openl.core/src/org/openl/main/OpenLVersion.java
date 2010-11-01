@@ -19,7 +19,7 @@ public class OpenLVersion {
     public static final String PROP_URL_NAME = "openl.url";
     public static final String PROP_YEAR_NAME = "openl.copyrightyear";
 
-    static Properties props = null;
+    private static Properties props = null;
 
     public static String getBuild() {
         return getProperties().getProperty(PROP_BUILD_NAME, "??");

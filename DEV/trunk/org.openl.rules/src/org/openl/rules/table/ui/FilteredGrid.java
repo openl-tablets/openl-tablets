@@ -18,7 +18,7 @@ public class FilteredGrid extends AGrid {
 
     private IGridFilter[] formatFilters;
     
-    protected IGrid delegate;
+    private IGrid delegate;
 
     public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {     
         this.delegate = delegate;

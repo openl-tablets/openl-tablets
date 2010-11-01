@@ -33,7 +33,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                 Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(),
                         getUri());
 
-                factory = (ACastFactory) ClassFactory.newInstance(implClass, uri);
+                factory = (ACastFactory) ClassFactory.newInstance(implClass, getUri());
                 factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
             }
             return factory;

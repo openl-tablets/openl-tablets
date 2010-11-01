@@ -135,7 +135,7 @@ public class DatatypeOpenClass extends ADynamicClass {
      */
     public static class OpenFieldsConstructor implements IOpenMethod {
 
-        IOpenClass openClass;
+        private IOpenClass openClass;
 
         public OpenFieldsConstructor(IOpenClass openClass) {
             this.openClass = openClass;

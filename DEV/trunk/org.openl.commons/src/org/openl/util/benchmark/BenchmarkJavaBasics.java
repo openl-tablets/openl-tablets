@@ -15,19 +15,19 @@ import org.openl.util.IdObject;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class BenchmarkJavaBasics {
 
-    static class BSearch extends BenchmarkUnit {
+    private static class BSearch extends BenchmarkUnit {
 
-        static int N = 100;
+        private static int N = 100;
 
-        int[] buf;
+        private int[] buf;
 
-        int key = 51;;
+        private int key = 51;;
 
-        BSearch() throws Exception {
+        private BSearch() throws Exception {
             buf = new int[N];
             for (int i = 0; i < N; ++i) {
                 buf[i] = i * 4;
@@ -41,10 +41,10 @@ public class BenchmarkJavaBasics {
 
     }
 
-    static class Call extends BenchmarkUnit {
-        BenchmarkJavaBasics bjb = new BenchmarkJavaBasics();
+    private static class Call extends BenchmarkUnit {
+        private BenchmarkJavaBasics bjb = new BenchmarkJavaBasics();
 
-        Call() throws Exception {
+        private Call() throws Exception {
         }
 
         @Override
@@ -53,18 +53,18 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static class Empty extends BenchmarkUnit {
+    private static class Empty extends BenchmarkUnit {
         @Override
         protected void run() throws Exception {
         }
     }
 
-    static class IDMapGet extends BenchmarkUnit {
-        IdMap map;
+    private static class IDMapGet extends BenchmarkUnit {
+        private IdMap map;
 
-        int key = ("Xyz" + 37).hashCode();
+        private int key = ("Xyz" + 37).hashCode();
 
-        IDMapGet() throws Exception {
+        private IDMapGet() throws Exception {
             map = new IdMap(107);
             for (int i = 0; i < 100; ++i) {
                 map.add(new IdObject(("Xyz" + i).hashCode()));
@@ -77,12 +77,13 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static class Invoke extends BenchmarkUnit {
-        Method m = BenchmarkJavaBasics.class.getMethod("add", new Class[] { int.class, int.class });
+    private static class Invoke extends BenchmarkUnit {
+        private Method m = BenchmarkJavaBasics.class.getMethod("add", new Class[] { int.class, int.class });
 
-        Object[] params = { new Integer(10), new Integer(15) };
-        Object bjb = new BenchmarkJavaBasics();
-        Invoke() throws Exception {
+        private Object[] params = { new Integer(10), new Integer(15) };
+        private Object bjb = new BenchmarkJavaBasics();
+
+        private Invoke() throws Exception {
         }
 
         @Override
@@ -91,12 +92,12 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static class MapGet extends BenchmarkUnit {
-        HashMap<String, String> map;
+    private static class MapGet extends BenchmarkUnit {
+        private HashMap<String, String> map;
 
-        String key = "Xyz" + 37;
+        private String key = "Xyz" + 37;
 
-        MapGet() throws Exception {
+        private MapGet() throws Exception {
             map = new HashMap<String, String>();
             for (int i = 0; i < 100; ++i) {
                 map.put("Xyz" + i, "Xyz" + i);
@@ -109,12 +110,12 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static class MapInternGet extends BenchmarkUnit {
-        HashMap<String, String> map;
+    private static class MapInternGet extends BenchmarkUnit {
+        private HashMap<String, String> map;
 
-        String key = ("Xyz" + 37).intern();
+        private String key = ("Xyz" + 37).intern();
 
-        MapInternGet() throws Exception {
+        private MapInternGet() throws Exception {
             map = new HashMap<String, String>();
             for (int i = 0; i < 100; ++i) {
                 map.put(("Xyz" + i).intern(), "Xyz" + i);
@@ -127,19 +128,19 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static class ThreadG extends BenchmarkUnit {
+    private static class ThreadG extends BenchmarkUnit {
         @Override
         protected void run() throws Exception {
             BenchmarkJavaBasics.isTracerOn();
         }
     }
 
-    static class TreeMapGet extends BenchmarkUnit {
-        TreeMap<Integer, String> map;
+    private static class TreeMapGet extends BenchmarkUnit {
+        private TreeMap<Integer, String> map;
 
-        Integer key = new Integer(50);
+        private Integer key = new Integer(50);
 
-        TreeMapGet() throws Exception {
+        private TreeMapGet() throws Exception {
             map = new TreeMap<Integer, String>();
             for (int i = 0; i < 100; ++i) {
                 map.put(new Integer(i * 2), "Xyz" + i);
@@ -152,12 +153,12 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static class TreeMapGetFirstKey extends BenchmarkUnit {
-        TreeMap<Integer, String> map;
+    private static class TreeMapGetFirstKey extends BenchmarkUnit {
+        private TreeMap<Integer, String> map;
 
-        Integer key = new Integer(51);
+        private Integer key = new Integer(51);
 
-        TreeMapGetFirstKey() throws Exception {
+        private TreeMapGetFirstKey() throws Exception {
             map = new TreeMap<Integer, String>();
             for (int i = 0; i < 100; ++i) {
                 map.put(new Integer(i * 2), "Xyz" + i);
@@ -173,20 +174,27 @@ public class BenchmarkJavaBasics {
         }
     }
 
-    static ThreadLocal<Object> tracer = new ThreadLocal<Object>();
+    private static ThreadLocal<Object> tracer = new ThreadLocal<Object>();
 
-    static public boolean isTracerOn() {
+    public static boolean isTracerOn() {
         return tracer.get() != null;
     }
 
     public static void main(String[] args) throws Exception {
-        BenchmarkUnit[] bu = { new Empty(), new Call(), new Invoke(), new MapGet(), new MapInternGet(), new IDMapGet(),
-                new ThreadG(), new TreeMapGet(), new TreeMapGetFirstKey(), new BSearch() };
+        BenchmarkUnit[] bu = { new Empty(),
+                new Call(),
+                new Invoke(),
+                new MapGet(),
+                new MapInternGet(),
+                new IDMapGet(),
+                new ThreadG(),
+                new TreeMapGet(),
+                new TreeMapGetFirstKey(),
+                new BSearch() };
 
         List<BenchmarkInfo> res = new Benchmark(bu).measureAllInList(1000);
 
-        for (BenchmarkInfo bi: res) {
-            
+        for (BenchmarkInfo bi : res) {
 
             System.out.println(bi);
 

@@ -18,7 +18,7 @@ import org.openl.types.IOpenSchema;
  *
  */
 public class OpenSchemaDelegator implements IOpenSchema {
-    IOpenSchema delegate;
+    private IOpenSchema delegate;
 
     public OpenSchemaDelegator(IOpenSchema delegate) {
         this.delegate = delegate;
