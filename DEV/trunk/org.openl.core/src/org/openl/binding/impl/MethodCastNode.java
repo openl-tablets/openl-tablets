@@ -2,7 +2,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
-import org.openl.types.IOpenCast;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 
 public class MethodCastNode extends CastNode implements IBoundMethodNode {
