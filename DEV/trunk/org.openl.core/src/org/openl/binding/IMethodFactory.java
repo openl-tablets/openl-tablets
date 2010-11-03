@@ -15,14 +15,8 @@ import org.openl.types.IOpenMethod;
 /**
  * @author snshor
  */
-
 public interface IMethodFactory {
-    // IMethodCaller getMethodCaller(String name, IOpenClass[] params,
-    // ICastFactory casts)
-    // throws AmbiguousMethodException;
 
     IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
-
     Iterator<IOpenMethod> methods();
-
 }

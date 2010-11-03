@@ -1,7 +1,6 @@
 package org.openl.binding.impl.cast;
 
 import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 
 public class MethodBasedCast implements IOpenCast {

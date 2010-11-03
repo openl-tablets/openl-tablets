@@ -6,7 +6,7 @@
 
 package org.openl.types.impl;
 
-import org.openl.types.IOpenCast;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 

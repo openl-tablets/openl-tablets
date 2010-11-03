@@ -1,6 +1,7 @@
-package org.openl.types;
+package org.openl.binding.impl.cast;
 
 import org.openl.domain.IDomain;
+import org.openl.types.IOpenClass;
 
 
 public class AliasToTypeCast implements IOpenCast {
@@ -39,7 +40,7 @@ public class AliasToTypeCast implements IOpenCast {
 	}
 
 	public int getDistance(IOpenClass from, IOpenClass to) {
-		return 0;
+	    return 3;
 	}
 
 	public boolean isImplicit() {

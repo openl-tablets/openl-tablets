@@ -9,9 +9,9 @@ package org.openl.binding.impl;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
