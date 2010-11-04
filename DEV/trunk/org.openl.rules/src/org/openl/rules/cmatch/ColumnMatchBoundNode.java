@@ -1,6 +1,7 @@
 package org.openl.rules.cmatch;
 
 import org.openl.OpenL;
+import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -43,5 +44,10 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
 
     public ColumnMatch getColumnMatch() {
         return (ColumnMatch) getMethod();
+    }
+    
+    @Override
+    public void updateDependency(BindingDependencies dependencies) {
+        //seems column match can`t call other methods in its body.
     }
 }

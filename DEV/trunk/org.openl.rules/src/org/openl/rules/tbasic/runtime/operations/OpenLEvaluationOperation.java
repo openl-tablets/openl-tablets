@@ -44,4 +44,8 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
         return resultValue;
     }
 
+    public IMethodCaller getOpenLStatement() {
+        return openLStatement;
+    }
+
 }

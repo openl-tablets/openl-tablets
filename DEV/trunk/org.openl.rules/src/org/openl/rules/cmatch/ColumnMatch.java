@@ -68,8 +68,9 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     }
 
     public BindingDependencies getDependencies() {
-        // TODO Auto-generated method stub
-        return null;
+        BindingDependencies dependencies = new BindingDependencies();
+        boundNode.updateDependency(dependencies);
+        return dependencies;
     }
 
     @Override

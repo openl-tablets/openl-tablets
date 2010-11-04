@@ -52,11 +52,6 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     public Map<String, Object> getProperties() {
         return properties;
     }
-
-    public BindingDependencies getDependencies() {
-        // TODO Auto-generated method stub
-        return null;
-    }
     
     public AlgorithmBoundNode getNode() {
         return node;
@@ -113,4 +108,10 @@ public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
         return thisClass;
     }
     
+    public BindingDependencies getDependencies() {
+        BindingDependencies bindingDependencies = new BindingDependencies();
+        node.updateDependency(bindingDependencies);
+
+        return bindingDependencies;        
+    }
 }
