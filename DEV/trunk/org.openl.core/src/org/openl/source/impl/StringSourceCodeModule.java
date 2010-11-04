@@ -57,7 +57,7 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     public String getUri(int textpos) {
-        return uri == null ? "http://www.openl.org/uri#internal_string" : uri;
+        return uri;
     }
 
     public Map<String, Object> getParams() {
