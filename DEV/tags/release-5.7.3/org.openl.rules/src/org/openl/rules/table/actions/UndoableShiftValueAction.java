@@ -28,7 +28,9 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         IGridRegion rrFrom = grid.getRegionStartingAt(colFrom, rowFrom);
-        Object value = grid.getCell(colFrom, rowFrom).getObjectValue();
+        setPrevValue(grid.getCell(colFrom, rowFrom).getObjectValue());
+        setPrevFormula(grid.getCell(colFrom, rowFrom).getFormula());
+        setPrevStyle(grid.getCell(colFrom, rowFrom).getStyle());
         if (rrFrom != null) {
             toRestore = rrFrom;
             grid.removeMergedRegion(rrFrom);
@@ -37,18 +39,24 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
             grid.addMergedRegion(copyFrom);
             toRemove = copyFrom;
         }
-        grid.setCellValue(getCol(), getRow(), value);
+        grid.setCellFormula(getCol(), getRow(), getPrevFormula());
+        grid.setCellValue(getCol(), getRow(), getPrevValue());
+        grid.setCellStyle(getCol(), getRow(), getPrevStyle());
     }
 
     // Save value from destination cell -> move region back -> set value to
     // initial cell
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        Object value = grid.getCell(getCol(), getRow()).getObjectValue();
+        setPrevValue(grid.getCell(getCol(), getRow()).getObjectValue());
+        setPrevFormula(grid.getCell(getCol(), getRow()).getFormula());
+        setPrevStyle(grid.getCell(getCol(), getRow()).getStyle());
         if (toRemove != null) {
             grid.removeMergedRegion(toRemove);
             grid.addMergedRegion(toRestore);
         }
-        grid.setCellValue(colFrom, rowFrom, value);
+        grid.setCellFormula(colFrom, rowFrom, getPrevFormula());
+        grid.setCellValue(colFrom, rowFrom, getPrevValue());
+        grid.setCellStyle(colFrom, rowFrom, getPrevStyle());
     }
 }
