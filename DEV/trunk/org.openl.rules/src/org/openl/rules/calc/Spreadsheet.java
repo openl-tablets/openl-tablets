@@ -57,9 +57,12 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo {
     }
 
     public BindingDependencies getDependencies() {
-        return null;
-    }
+        BindingDependencies bindingDependencies = new BindingDependencies();
+        node.updateDependency(bindingDependencies);
 
+        return bindingDependencies;        
+    }
+    
     @Override
     public IMemberMetaInfo getInfo() {
         return this;

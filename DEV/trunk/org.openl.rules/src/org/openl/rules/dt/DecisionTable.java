@@ -262,33 +262,36 @@ public class DecisionTable extends AMethod implements IMemberMetaInfo {
 
     public void updateDependency(BindingDependencies dependencies) {
 
-        for (int i = 0; i < conditionRows.length; i++) {
-            ((CompositeMethod) conditionRows[i].getMethod()).updateDependency(dependencies);
-            updateValueDependency((FunctionalRow) conditionRows[i], dependencies);
+        for (ICondition condition : conditionRows) {
+            ((CompositeMethod) condition.getMethod()).updateDependency(dependencies);
+            updateValueDependency((FunctionalRow) condition, dependencies);
         }
 
-        for (int i = 0; i < actionRows.length; i++) {
-            ((CompositeMethod) actionRows[i].getMethod()).updateDependency(dependencies);
-            updateValueDependency((FunctionalRow) actionRows[i], dependencies);
+        for (IAction action : actionRows) {
+            ((CompositeMethod) action.getMethod()).updateDependency(dependencies);
+            updateValueDependency((FunctionalRow) action, dependencies);
         }
+        
     }
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {
 
         Object[][] values = frow.getParamValues();
+        if (values != null) {
+            for (int i = 0; i < values.length; i++) {
 
-        for (int i = 0; i < values.length; i++) {
+                if (values[i] == null) {
+                    continue;
+                }
 
-            if (values[i] == null) {
-                continue;
-            }
-
-            for (int j = 0; j < values[i].length; j++) {
-                if (values[i][j] instanceof CompositeMethod) {
-                    ((CompositeMethod) values[i][j]).updateDependency(dependencies);
+                for (int j = 0; j < values[i].length; j++) {
+                    if (values[i][j] instanceof CompositeMethod) {
+                        ((CompositeMethod) values[i][j]).updateDependency(dependencies);
+                    }
                 }
             }
         }
+        
     }    
     
     IOpenClass ruleExecutionType;

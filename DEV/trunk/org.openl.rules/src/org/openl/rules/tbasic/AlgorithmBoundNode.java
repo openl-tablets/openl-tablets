@@ -1,6 +1,7 @@
 package org.openl.rules.tbasic;
 
 import org.openl.OpenL;
+import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -8,8 +9,12 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.tbasic.runtime.operations.OpenLEvaluationOperation;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
+import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.CompositeMethod;
 
 public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
@@ -36,5 +41,17 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
 
     public Algorithm getAlgorithm() {
         return (Algorithm) getMethod();
+    }
+    
+    @Override
+    public void updateDependency(BindingDependencies dependencies) {
+        for (RuntimeOperation step : getAlgorithm().getAlgorithmSteps()) {
+            if (step instanceof OpenLEvaluationOperation) {
+                IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
+                if (methodCaller instanceof CompositeMethod) {
+                    ((CompositeMethod) methodCaller).updateDependency(dependencies);
+                }
+            }
+        }
     }
 }

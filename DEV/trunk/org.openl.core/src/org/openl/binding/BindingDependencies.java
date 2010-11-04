@@ -10,6 +10,7 @@ import java.util.Set;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.AMethod;
 
 /**
  * @author snshor
@@ -18,10 +19,21 @@ import org.openl.types.IOpenMethod;
 
 public class BindingDependencies {
 
-    HashMap<IOpenClass, IBoundNode> types = new HashMap<IOpenClass, IBoundNode>();
-    HashMap<IOpenMethod, IBoundNode> methods = new HashMap<IOpenMethod, IBoundNode>();
-    HashMap<IBoundNode, IOpenField> fields = new HashMap<IBoundNode, IOpenField>();
-    HashMap<IOpenField, IBoundNode> assigned = new HashMap<IOpenField, IBoundNode>();
+    private HashMap<IOpenClass, IBoundNode> types = new HashMap<IOpenClass, IBoundNode>();
+    
+    /**
+     * All methods.
+     */
+    private HashMap<IOpenMethod, IBoundNode> methods = new HashMap<IOpenMethod, IBoundNode>();
+    
+    /**
+     * Dependencies to executable Openl rules.
+     */
+    private HashMap<AMethod, IBoundNode> rulesMethods = new HashMap<AMethod, IBoundNode>();
+    
+    private HashMap<IBoundNode, IOpenField> fields = new HashMap<IBoundNode, IOpenField>();
+    private HashMap<IOpenField, IBoundNode> assigned = new HashMap<IOpenField, IBoundNode>();
+    
 
     public void addAssign(IBoundNode target, IBoundNode node) {
         target.updateAssignFieldDependency(this);
@@ -37,6 +49,10 @@ public class BindingDependencies {
 
     public void addMethodDependency(IOpenMethod method, IBoundNode node) {
         methods.put(method, node);
+        // check if method is instance of Openl executable rules method.
+        if (method instanceof AMethod) {
+            rulesMethods.put((AMethod)method, node);
+        }
     }
 
     public synchronized void addTypeDependency(IOpenClass type, IBoundNode node) {
@@ -61,6 +77,14 @@ public class BindingDependencies {
 
     public Set<IOpenMethod> getMethods() {
         return methods.keySet();
+    }
+    
+    /**
+     * Gets dependencies to executable Openl rules.
+     * @return dependencies to executable Openl rules.
+     */
+    public Set<AMethod> getRulesMethods() {
+        return rulesMethods.keySet();
     }
 
     public Map<IOpenMethod, IBoundNode> getMethodsMap() {
