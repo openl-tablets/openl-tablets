@@ -65,6 +65,6 @@ Bundle-ClassPath: lib/commons-beanutils-1.7.0.jar,
  lib/commons-lang-2.5.jar,
  lib/commons-logging-1.1.1.jar,
  lib/asm-1.5.3.jar,
- lib/cglib-nodep-2.1_3.jarlib/jgrapht-jdk1.5-0.7.3.jar,
+ lib/cglib-nodep-2.1_3.jar,
  lib/jgrapht-jdk1.5-0.7.3.jar
 Require-Bundle: org.openl.poi.lib;visibility:=reexport
