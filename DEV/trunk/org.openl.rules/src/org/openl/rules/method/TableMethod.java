@@ -17,7 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  * TODO: rename to MethodTable.
  */
 @Executable
-public class TableMethod extends CompositeMethod implements IMemberMetaInfo {
+public class TableMethod extends CompositeMethod {
     
     /**
      * Table syntax node that defines method table.

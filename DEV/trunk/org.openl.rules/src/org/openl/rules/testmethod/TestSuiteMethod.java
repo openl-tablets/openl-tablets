@@ -12,14 +12,14 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DynamicObject;
+import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
 
-public class TestSuiteMethod extends AMethod implements IMemberMetaInfo, IBenchmarkableMethod {
+public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
 
     private String tableName;
     private IOpenMethod testedMethod;

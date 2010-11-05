@@ -23,6 +23,12 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
+    	/**
+         * why traceObject is instnceof IMemberMetaInfo? don`t need it!
+         * TODO: refactor change traceObject instance. Seems it should be ExecutableRulesMethod instance.
+         * @author DLiauchuk
+         */
+
         super(traceObject);
         this.params = params;
     }

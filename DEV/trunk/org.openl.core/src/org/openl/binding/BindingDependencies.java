@@ -10,7 +10,7 @@ import java.util.Set;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 
 /**
  * @author snshor
@@ -29,7 +29,7 @@ public class BindingDependencies {
     /**
      * Dependencies to executable Openl rules.
      */
-    private HashMap<AMethod, IBoundNode> rulesMethods = new HashMap<AMethod, IBoundNode>();
+    private HashMap<ExecutableRulesMethod, IBoundNode> rulesMethods = new HashMap<ExecutableRulesMethod, IBoundNode>();
     
     private HashMap<IBoundNode, IOpenField> fields = new HashMap<IBoundNode, IOpenField>();
     private HashMap<IOpenField, IBoundNode> assigned = new HashMap<IOpenField, IBoundNode>();
@@ -50,8 +50,8 @@ public class BindingDependencies {
     public void addMethodDependency(IOpenMethod method, IBoundNode node) {
         methods.put(method, node);
         // check if method is instance of Openl executable rules method.
-        if (method instanceof AMethod) {
-            rulesMethods.put((AMethod)method, node);
+        if (method instanceof ExecutableRulesMethod) {
+            rulesMethods.put((ExecutableRulesMethod)method, node);
         }
     }
 
@@ -83,7 +83,7 @@ public class BindingDependencies {
      * Gets dependencies to executable Openl rules.
      * @return dependencies to executable Openl rules.
      */
-    public Set<AMethod> getRulesMethods() {
+    public Set<ExecutableRulesMethod> getRulesMethods() {
         return rulesMethods.keySet();
     }
 

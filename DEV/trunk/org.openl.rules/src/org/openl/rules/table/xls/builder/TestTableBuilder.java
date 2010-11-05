@@ -14,7 +14,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMember;
-import org.openl.types.impl.AMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 
 /**
  * The class is responsible for creating test method tables in excel sheets.
@@ -48,7 +48,7 @@ public class TestTableBuilder extends TableBuilder {
      * @param executableTsn Executable node
      * @return executable method from node
      */
-    private static AMethod getExecutableMethod(TableSyntaxNode executableTsn) {
+    private static ExecutableRulesMethod getExecutableMethod(TableSyntaxNode executableTsn) {
         if (executableTsn == null) {
             throw new IllegalArgumentException("Syntax node is null");
         }
@@ -58,8 +58,8 @@ public class TestTableBuilder extends TableBuilder {
         }
         IOpenMember member = executableTsn.getMember();
         if (member != null) {            
-            // as node is executable it will be instance of AMethod
-            return (AMethod) member;                        
+            // as node is executable it will be instance of ExecutableRulesMethod
+            return (ExecutableRulesMethod) member;                        
         }
         return null;
     }
@@ -74,7 +74,7 @@ public class TestTableBuilder extends TableBuilder {
      */
     public static String getHeader(TableSyntaxNode executableNode, String technicalName) {
         String result = null;
-        AMethod executableMethod = getExecutableMethod(executableNode);
+        ExecutableRulesMethod executableMethod = getExecutableMethod(executableNode);
         if (executableMethod != null) {
             String tableName = executableMethod.getName();
             if (technicalName != null && !StringUtils.EMPTY.equals(technicalName)) {
@@ -91,9 +91,9 @@ public class TestTableBuilder extends TableBuilder {
      * 
      * @param executableMethod
      * @return Default technical name for new test table. It is build 
-     * from <code>AMethod</code> name and postfix 'Test'.
+     * from <code>ExecutableRulesMethod</code> name and postfix 'Test'.
      */    
-    private static String getDefaultTechnicalName(AMethod executableMethod) {
+    private static String getDefaultTechnicalName(ExecutableRulesMethod executableMethod) {
         String tableName = executableMethod.getName();
         return tableName + TESTMETHOD_NAME_POSTFIX;
     }
@@ -101,16 +101,16 @@ public class TestTableBuilder extends TableBuilder {
     /**
      * Gets the default technical name for new test table.
      * At first we get the executable method from <code>TableSyntaxNode</code> and if it is not <code>null</code>
-     * calls {@link #getDefaultTechnicalName(AMethod)}.
+     * calls {@link #getDefaultTechnicalName(ExecutableRulesMethod)}.
      * 
      * @param executableNode <code>TableSyntaxNode</code> that is executable (see {@link Executable})from which we 
-     * tries to get the <code>AMethod</code>.
+     * tries to get the <code>ExecutableRulesMethod</code>.
      * @return Default technical name for new test table. It is build 
      * from table name and postfix 'Test'.
      */
     public static String getDefaultTechnicalName(TableSyntaxNode executableNode) {
         String result = null;
-        AMethod executableMethod = getExecutableMethod(executableNode);
+        ExecutableRulesMethod executableMethod = getExecutableMethod(executableNode);
         if (executableMethod != null) {
             result = getDefaultTechnicalName(executableMethod);
         }
@@ -124,7 +124,7 @@ public class TestTableBuilder extends TableBuilder {
      * @return table parameters
      */
     public static Map<String, String> getParams(TableSyntaxNode executableNode) {
-        AMethod executableMethod = getExecutableMethod(executableNode);
+    	ExecutableRulesMethod executableMethod = getExecutableMethod(executableNode);
         if (executableMethod != null) {
             Map<String, String> params = new LinkedHashMap<String, String>();
             IMethodSignature tableHeaderSignature = executableMethod.getHeader().getSignature();

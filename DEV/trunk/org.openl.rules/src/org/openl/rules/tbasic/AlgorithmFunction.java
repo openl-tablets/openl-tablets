@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.AMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 
-public abstract class AlgorithmFunction extends AMethod {
+public abstract class AlgorithmFunction extends ExecutableRulesMethod {
     public AlgorithmFunction(IOpenMethodHeader header) {
         super(header);
     }
