@@ -100,6 +100,11 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.poi.lib</artifactId>
     </dependency>
+    
+    <dependency>
+        <groupId>org.jgrapht</groupId>
+		<artifactId>jgrapht-jdk1.5</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
