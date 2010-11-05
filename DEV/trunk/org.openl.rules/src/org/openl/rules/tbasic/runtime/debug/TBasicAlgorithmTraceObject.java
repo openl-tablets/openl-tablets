@@ -8,6 +8,7 @@ import java.util.List;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.Algorithm;
+import org.openl.types.IMemberMetaInfo;
 
 /**
  * @author User
@@ -18,7 +19,7 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
      * @param traceObject
      */
     public TBasicAlgorithmTraceObject(Algorithm traceObject, Object[] inputParams) {
-        super(traceObject, inputParams);
+        super((IMemberMetaInfo)traceObject, inputParams);
     }
 
     /*

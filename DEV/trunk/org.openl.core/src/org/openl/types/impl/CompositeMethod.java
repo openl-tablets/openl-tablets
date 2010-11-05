@@ -6,14 +6,17 @@
 
 package org.openl.types.impl;
 
+import java.util.Map;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
-public class CompositeMethod extends AMethod {
+public class CompositeMethod extends ExecutableRulesMethod {
     
     private IBoundMethodNode methodBodyBoundNode;
     
@@ -46,9 +49,34 @@ public class CompositeMethod extends AMethod {
     public void setMethodBodyBoundNode(IBoundMethodNode node) {
         methodBodyBoundNode = node;
     }
-
+        
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.visit(getMethodBodyBoundNode());
     }
+
+	@Override
+	public BindingDependencies getDependencies() {
+		BindingDependencies dependencies = new BindingDependencies();
+		updateDependency(dependencies);
+		return dependencies;
+	}
+
+	@Override
+	public Map<String, Object> getProperties() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ISyntaxNode getSyntaxNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSourceUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
   
 }

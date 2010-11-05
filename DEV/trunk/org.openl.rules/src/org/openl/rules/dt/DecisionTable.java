@@ -30,8 +30,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
-import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -40,7 +40,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  */
 @Executable
-public class DecisionTable extends AMethod implements IMemberMetaInfo {
+public class DecisionTable extends ExecutableRulesMethod {
 
     private ICondition[] conditionRows;
     private IAction[] actionRows;

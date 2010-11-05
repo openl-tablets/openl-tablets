@@ -37,7 +37,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 
@@ -211,7 +211,7 @@ public class DispatcherTableBuilder {
      * @return name of the tables in group.
      */
     private String getOriginalTableName(TableSyntaxNode groupMember) {
-        return ((AMethod)groupMember.getMember()).getHeader().getName();
+        return ((ExecutableRulesMethod)groupMember.getMember()).getHeader().getName();
     }
     
     /**
@@ -221,7 +221,7 @@ public class DispatcherTableBuilder {
      * @return type of the tables in group.
      */
     private IOpenClass getOriginalTableReturnType(TableSyntaxNode groupMember) {        
-        return ((AMethod)groupMember.getMember()).getHeader().getType();        
+        return ((ExecutableRulesMethod)groupMember.getMember()).getHeader().getType();        
     }    
     
     /**
@@ -231,7 +231,7 @@ public class DispatcherTableBuilder {
      * @return method signature of the tables in group.
      */
     private IMethodSignature getOriginalTableSignature(TableSyntaxNode tsn) {        
-        return ((AMethod)tsn.getMember()).getHeader().getSignature();
+        return ((ExecutableRulesMethod)tsn.getMember()).getHeader().getSignature();
     }
     
     /**

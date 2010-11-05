@@ -21,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 @Executable
-public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {    
+public class Algorithm extends AlgorithmFunction {    
 
     private AlgorithmBoundNode node;
 

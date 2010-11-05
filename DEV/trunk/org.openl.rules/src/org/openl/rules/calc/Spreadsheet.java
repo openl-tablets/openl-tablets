@@ -12,11 +12,11 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
-import org.openl.types.impl.AMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
-public class Spreadsheet extends AMethod implements IMemberMetaInfo {    
+public class Spreadsheet extends ExecutableRulesMethod {    
 
     private SpreadsheetBoundNode node;
 

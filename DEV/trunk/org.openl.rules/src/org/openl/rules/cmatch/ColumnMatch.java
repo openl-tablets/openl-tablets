@@ -11,11 +11,11 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
-import org.openl.types.impl.AMethod;
+import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
-public class ColumnMatch extends AMethod implements IMemberMetaInfo {
+public class ColumnMatch extends ExecutableRulesMethod {
     private ColumnMatchBoundNode boundNode;
 
     private List<TableColumn> columns;
