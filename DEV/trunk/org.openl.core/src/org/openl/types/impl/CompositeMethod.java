@@ -54,26 +54,22 @@ public class CompositeMethod extends ExecutableRulesMethod {
         dependencies.visit(getMethodBodyBoundNode());
     }
 
-	@Override
 	public BindingDependencies getDependencies() {
 		BindingDependencies dependencies = new BindingDependencies();
 		updateDependency(dependencies);
 		return dependencies;
 	}
-
-	@Override
+	
 	public Map<String, Object> getProperties() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public ISyntaxNode getSyntaxNode() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public String getSourceUrl() {
 		// TODO Auto-generated method stub
 		return null;
