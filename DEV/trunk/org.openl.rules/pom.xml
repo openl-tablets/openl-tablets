@@ -152,6 +152,11 @@
 		<groupId>cglib</groupId>
 		<artifactId>cglib-nodep</artifactId>
 	</dependency>
+	
+	<dependency>
+		<groupId>org.jgrapht</groupId>
+		<artifactId>jgrapht-jdk1.5</artifactId>
+	</dependency>
     
   </dependencies>
 
