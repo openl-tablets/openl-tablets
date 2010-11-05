@@ -104,27 +104,23 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     @Override
     public void setAlgorithmSteps(List<RuntimeOperation> operations) {
         algorithmSteps = operations;
-
     }
 
     @Override
     public void setLabels(Map<String, RuntimeOperation> localLabelsRegister) {
         labels = localLabelsRegister;
     }
-
-	@Override
+	
 	public BindingDependencies getDependencies() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public Map<String, Object> getProperties() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public ISyntaxNode getSyntaxNode() {
 		// TODO Auto-generated method stub
 		return null;
