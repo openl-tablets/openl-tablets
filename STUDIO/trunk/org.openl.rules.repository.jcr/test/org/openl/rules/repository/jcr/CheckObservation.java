@@ -2,7 +2,6 @@ package org.openl.rules.repository.jcr;
 
 import static java.lang.System.out;
 
-import java.io.IOException;
 import java.net.URL;
 
 import javax.jcr.Node;
@@ -173,16 +172,11 @@ public class CheckObservation {
 
     protected void startJackrabbit() throws RepositoryException {
         out.println(">> Starting Jackrabbit JCR");
-        try {
-            // obtain real path to repository configuration file
-            URL url = this.getClass().getResource("/jackrabbit-repository.xml");
-            String fullPath = url.getFile();
+        // obtain real path to repository configuration file
+        URL url = this.getClass().getResource("/jackrabbit-repository.xml");
+        String fullPath = url.getFile();
 
-            repository = new TransientRepository(fullPath, "/tmp/local-repository");
-        } catch (IOException e) {
-            // TODO: log
-            throw new RepositoryException("Failed to init: " + e.getMessage(), e);
-        }
+        repository = new TransientRepository(fullPath, "/tmp/local-repository");
     }
 
     protected void stopJackrabbit() {
