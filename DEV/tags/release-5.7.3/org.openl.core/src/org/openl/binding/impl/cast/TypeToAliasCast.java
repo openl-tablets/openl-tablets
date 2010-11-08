@@ -1,6 +1,7 @@
-package org.openl.types;
+package org.openl.binding.impl.cast;
 
 import org.openl.domain.IDomain;
+import org.openl.types.IOpenClass;
 
 /**
  * Class provides feature to convert alias data type to underlying type.
@@ -60,7 +61,7 @@ public class TypeToAliasCast implements IOpenCast {
 	}
 
 	public int getDistance(IOpenClass from, IOpenClass to) {
-		return 0;
+	    return 4;
 	}
 
 	public boolean isImplicit() {

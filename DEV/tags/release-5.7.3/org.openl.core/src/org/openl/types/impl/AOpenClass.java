@@ -16,13 +16,13 @@ import java.util.Map;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.impl.cast.ACastFactory;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -186,7 +186,7 @@ public abstract class AOpenClass implements IOpenClass {
         	IOpenClass[] methodParams = method.getSignature().getParameterTypes();
         	IOpenCast[] typeCasts = new IOpenCast[methodParams.length]; 
         	
-        	ICastFactory castFactory = new ACastFactory();
+        	ICastFactory castFactory = new CastFactory();
         	
         	for (int i=0 ; i < methodParams.length; i++) {
         		IOpenClass methodParam = methodParams[i];
