@@ -65,7 +65,7 @@ public class RepositoryTreeState {
         }
         return false;
     }
-
+    
     private void buildTree() {
         if (root != null) {
             return;
@@ -80,10 +80,6 @@ public class RepositoryTreeState {
         rulesRepository = new TreeRepository(rpName, rpName, UiConst.TYPE_REPOSITORY);
         rulesRepository.setDataBean(null);
 
-        if (selectedNode == null) {
-            selectedNode = rulesRepository;
-        }
-
         String dpName = "Deployment Projects";
         deploymentRepository = new TreeRepository(dpName, dpName, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setDataBean(null);
@@ -94,15 +90,9 @@ public class RepositoryTreeState {
         Collection<UserWorkspaceProject> rulesProjects = userWorkspace.getProjects();
 
         OpenLFilter filter = this.filter;
-        for (Project project : rulesProjects) {
+        for (UserWorkspaceProject project : rulesProjects) {
             if (!(filter.supports(Project.class) && !filter.select(project))) {
-                TreeProject prj = new TreeProject(project.getName(), project.getName());
-                if (isProjectCurrentlySelected(project)) {
-                    selectedNode = prj;
-                }
-                prj.setDataBean(project);
-                rulesRepository.add(prj);
-                traverseFolder(prj, project.getArtefacts(), filter);
+                addRulesProjectToTree(project);
             }
         }
 
@@ -115,23 +105,19 @@ public class RepositoryTreeState {
         }
 
         for (UserWorkspaceDeploymentProject project : deploymentsProjects) {
-            TreeDProject prj = new TreeDProject(dpName + "/" + project.getName(), project.getName());
-            prj.setDataBean(project);
-            deploymentRepository.add(prj);
+            addDeploymentProjectToTree(project);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("Finishing buildTree()");
         }
-    }
-    
-    private boolean isProjectCurrentlySelected(Project project) {
-        if (selectedNode != null && selectedNode.getDataBean() == project) {
-            return true;
+
+        if (selectedNode == null) {
+            selectedNode = rulesRepository;
         } else {
-            return false;
+            updateSelectedNode();
         }
     }
-
+    
     public TreeRepository getDeploymentRepository() {
         buildTree();
         return deploymentRepository;
@@ -165,7 +151,66 @@ public class RepositoryTreeState {
     }
 
     public void invalidateSelection() {
-        selectedNode = null;
+        selectedNode = rulesRepository;
+    }
+    
+    /**
+     * Refreshes repositoryTreeState.selectedNode after rebuilding tree.
+     */
+    public void updateSelectedNode() {
+        Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath().getSegments().iterator();
+        AbstractTreeNode currentNode = getRulesRepository();
+        while ((currentNode != null) && it.hasNext()) {
+            currentNode = currentNode.getChild(it.next());
+        }
+
+        if (currentNode != null) {
+            selectedNode = (AbstractTreeNode) currentNode;
+        }
+    }
+
+    public void refreshNode(AbstractTreeNode node){
+        node.removeChildren();
+        if (!node.isLeaf()) {
+            TreeFolder folder = (TreeFolder) node;
+            traverseFolder(folder, ((ProjectFolder) folder.getDataBean()).getArtefacts(), filter);
+        }
+    }
+    
+    public void deleteNode(AbstractTreeNode node){
+        node.getParent().removeChild(node.getId());
+    }
+    
+    public void deleteSelectedNodeFromTree(){
+        deleteNode(selectedNode);
+        invalidateSelection();
+    }
+    
+    public void addDeploymentProjectToTree(UserWorkspaceDeploymentProject project) {
+        TreeDProject prj = new TreeDProject(project.getName(), project.getName());
+        prj.setDataBean(project);
+        deploymentRepository.add(prj);
+    }
+
+    public void addRulesProjectToTree(UserWorkspaceProject project) {
+        TreeProject prj = new TreeProject(project.getName(), project.getName());
+        prj.setDataBean(project);
+        rulesRepository.add(prj);
+        traverseFolder(prj, project.getArtefacts(), filter);
+    }
+
+    public void addNodeToTree(AbstractTreeNode parent, ProjectArtefact childArtefact) {
+        String id = childArtefact.getName();
+        if (childArtefact.isFolder()) {
+            TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName());
+            treeFolder.setDataBean(childArtefact);
+            parent.add(treeFolder);
+            traverseFolder(treeFolder, ((ProjectFolder) childArtefact).getArtefacts(), filter);
+        } else {
+            TreeFile treeFile = new TreeFile(id, childArtefact.getName());
+            treeFile.setDataBean(childArtefact);
+            parent.add(treeFile);
+        }
     }
 
     /**
@@ -174,21 +219,15 @@ public class RepositoryTreeState {
     public void invalidateTree() {
         root = null;
     }
-
+    
     /**
      * Moves selection to the parent of the current selected node.
      */
     public void moveSelectionToParentNode() {
-        Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath().getSegments().iterator();
-        TreeNode node = getRulesRepository();
-        TreeNode prevNode = null;
-        while ((node != null) && it.hasNext()) {
-            prevNode = node;
-            node = node.getChild(it.next());
-        }
-
-        if (prevNode != null) {
-            selectedNode = (AbstractTreeNode) prevNode;
+        if (selectedNode.getParent() instanceof AbstractTreeNode) {
+            selectedNode = (AbstractTreeNode) selectedNode.getParent();
+        } else {
+            invalidateSelection();
         }
     }
 
@@ -207,15 +246,7 @@ public class RepositoryTreeState {
      * Refreshes repositoryTreeState.selectedNode.
      */
     public void refreshSelectedNode() {
-        Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath().getSegments().iterator();
-        TreeNode currentNode = getRulesRepository();
-        while ((currentNode != null) && it.hasNext()) {
-            currentNode = currentNode.getChild(it.next());
-        }
-
-        if (currentNode != null) {
-            selectedNode = (AbstractTreeNode) currentNode;
-        }
+        refreshNode(selectedNode);
     }
 
     public void setFilter(OpenLFilter filter) {
@@ -235,7 +266,7 @@ public class RepositoryTreeState {
         this.userWorkspace = userWorkspace;
     }
 
-    private void traverseFolder(TreeFolder folder, Collection<? extends ProjectArtefact> artefacts, OpenLFilter filter) {
+    public void traverseFolder(TreeFolder folder, Collection<? extends ProjectArtefact> artefacts, OpenLFilter filter) {
 
         Collection<ProjectArtefact> filteredArtefacts = new ArrayList<ProjectArtefact>();
         for (ProjectArtefact artefact : artefacts) {
@@ -250,17 +281,7 @@ public class RepositoryTreeState {
         Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
 
         for (ProjectArtefact artefact : sortedArtefacts) {
-            String id = artefact.getName();
-            if (artefact.isFolder()) {
-                TreeFolder treeFolder = new TreeFolder(id, artefact.getName());
-                treeFolder.setDataBean(artefact);
-                folder.add(treeFolder);
-                traverseFolder(treeFolder, ((ProjectFolder) artefact).getArtefacts(), filter);
-            } else {
-                TreeFile treeFile = new TreeFile(id, artefact.getName());
-                treeFile.setDataBean(artefact);
-                folder.add(treeFile);
-            }
+            addNodeToTree(folder, artefact);
         }
     }
 

@@ -187,7 +187,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * @see TreeNode#getChild(Object)
      */
-    public TreeNode getChild(Object id) {
+    public AbstractTreeNode getChild(Object id) {
         checkLeafOnly();
 
         return elements.get(id);
@@ -338,6 +338,11 @@ public abstract class AbstractTreeNode implements TreeNode {
         checkLeafOnly();
 
         elements.remove(id);
+    }
+
+    public void removeChildren() {
+        checkLeafOnly();
+        elements.clear();
     }
 
     /**
