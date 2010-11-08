@@ -8,8 +8,8 @@ package org.openl.conf;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.StaticClassLibrary;
-import org.openl.binding.impl.cast.ACastFactory;
-import org.openl.types.IOpenCast;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionsUtil;
@@ -24,7 +24,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         String libraryClassName;
         String className;
 
-        ACastFactory factory = null;
+        CastFactory factory = null;
 
         public synchronized ICastFactory getCastFactory(IConfigurableResourceContext cxt) {
             if (factory == null) {
@@ -33,7 +33,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                 Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(),
                         getUri());
 
-                factory = (ACastFactory) ClassFactory.newInstance(implClass, uri);
+                factory = (CastFactory) ClassFactory.newInstance(implClass, getUri());
                 factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
             }
             return factory;
@@ -62,7 +62,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
             ClassFactory.validateClassExistsAndPublic(libraryClassName, cxt.getClassLoader(), getUri());
             Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 
-            ClassFactory.validateSuper(implClass, ACastFactory.class, getUri());
+            ClassFactory.validateSuper(implClass, CastFactory.class, getUri());
 
             ClassFactory.validateHaveNewInstance(implClass, getUri());
         }

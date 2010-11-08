@@ -1,6 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 
 public class JavaUpCast implements IOpenCast {
@@ -16,7 +15,11 @@ public class JavaUpCast implements IOpenCast {
      * org.openl.types.IOpenClass)
      */
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 1;
+        if (from.getInstanceClass() == null) {
+            return 0;
+        }
+        
+        return 7;
     }
 
     /*
@@ -25,7 +28,7 @@ public class JavaUpCast implements IOpenCast {
      * @see org.openl.types.IOpenCast#isImplicit()
      */
     public boolean isImplicit() {
-        return false;
+        return true;
     }
 
 }

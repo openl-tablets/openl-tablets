@@ -7,10 +7,10 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
