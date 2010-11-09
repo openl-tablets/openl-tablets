@@ -612,7 +612,7 @@ public interface IWritableGrid extends IGrid {
 
     void clearCell(int col, int row);
 
-    void createCell(int col, int row, Object value, String formula, ICellStyle style);
+    void createCell(int col, int row, Object value, String formula, ICellStyle style, ICellComment comment);
 
     void copyCell(int colFrom, int rowFrom, int colTo, int rowTo);
 
@@ -633,6 +633,8 @@ public interface IWritableGrid extends IGrid {
     void setCellMetaInfo(int col, int row, CellMetaInfo meta);
 
     void setCellStyle(int col, int row, ICellStyle style);
+
+    void setCellComment(int col, int row, ICellComment comment);
 
     void setCellValue(int col, int row, Object value);
 

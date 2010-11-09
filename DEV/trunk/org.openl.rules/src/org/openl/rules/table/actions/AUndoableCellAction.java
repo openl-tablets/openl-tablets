@@ -4,6 +4,7 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -19,6 +20,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     private Object prevValue;
     private String prevFormula;
     private ICellStyle prevStyle;
+    private ICellComment prevComment;
 
     public AUndoableCellAction(int col, int row) {
         this.col = col;
@@ -31,11 +33,12 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
+        setPrevComment(cell.getComment());
     }
 
     protected void restorePrevCell(IWritableGrid grid) {
         if (prevValue != null || prevStyle != null) {
-            grid.createCell(col, row, prevValue, prevFormula, prevStyle);
+            grid.createCell(col, row, prevValue, prevFormula, prevStyle, prevComment);
         } else {
             grid.clearCell(col, row);
         }
@@ -79,6 +82,14 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
 
     public void setPrevStyle(ICellStyle prevStyle) {
         this.prevStyle = prevStyle;
+    }
+
+    public ICellComment getPrevComment() {
+        return prevComment;
+    }
+
+    public void setPrevComment(ICellComment prevComment) {
+        this.prevComment = prevComment;
     }
 
 }

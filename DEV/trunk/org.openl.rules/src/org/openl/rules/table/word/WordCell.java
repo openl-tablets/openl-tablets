@@ -6,6 +6,7 @@ import org.apache.poi.hwpf.usermodel.RangeHack;
 import org.apache.poi.hwpf.usermodel.TableCell;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.syntax.XlsURLConstants;
@@ -133,6 +134,10 @@ public class WordCell implements ICell{
     }
 
     public CellMetaInfo getMetaInfo() {
+        return null;
+    }
+
+    public ICellComment getComment() {
         return null;
     }
 

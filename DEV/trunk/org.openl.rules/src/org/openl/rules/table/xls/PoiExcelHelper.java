@@ -52,7 +52,23 @@ public class PoiExcelHelper {
             cellTo.setCellStyle(styleTo);
         }
     }
-    
+
+    /*public static void copyCellComment(Cell cellFrom, Cell cellTo) {
+        Comment from = cellFrom.getCellComment();
+        Comment to = null;
+
+        if (from != null) {
+            Drawing drawing = cellTo.getSheet().createDrawingPatriarch();
+            to = drawing.createCellComment(new HSSFClientAnchor(0, 0, 0, 0, (short) 4, 2, (short) 6, 5));
+            CreationHelper creationHelper = cellTo.getSheet().getWorkbook().getCreationHelper();
+            RichTextString commentStr = creationHelper.createRichTextString(from.getString().getString());
+            to.setString(commentStr);
+            to.setRow(cellTo.getRowIndex());
+            to.setColumn(cellTo.getColumnIndex());
+            cellTo.setCellComment(to);
+        }
+    }*/
+
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row != null) {
