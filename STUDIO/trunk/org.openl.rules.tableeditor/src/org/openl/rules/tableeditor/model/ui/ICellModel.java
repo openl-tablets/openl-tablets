@@ -53,4 +53,8 @@ public interface ICellModel {
      */
     String getFormula();
 
+    String getComment();
+
+    void setComment(String comment);
+
 }

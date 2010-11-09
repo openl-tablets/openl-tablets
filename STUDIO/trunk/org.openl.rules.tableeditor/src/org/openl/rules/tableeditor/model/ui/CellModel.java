@@ -24,6 +24,8 @@ public class CellModel implements ICellModel {
 
     private String content = "&nbsp;";
 
+    private String comment;
+
     private ICellFont font;
     private int width;
 
@@ -316,4 +318,13 @@ public class CellModel implements ICellModel {
     public String getFormula() {
         return formula;
     }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
 }

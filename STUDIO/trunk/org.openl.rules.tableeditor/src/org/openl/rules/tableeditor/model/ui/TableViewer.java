@@ -1,7 +1,9 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -91,12 +93,15 @@ public class TableViewer {
         }
 
         String formattedValue = ((FormattedCell) cell).getFormattedValue();
-        if (formattedValue != null && formattedValue.trim().length() != 0) {
+        if (StringUtils.isNotBlank(formattedValue)) {
             cm.setContent(formattedValue);
             if (cell.getFormula() != null) {
                 cm.setFormula(cell.getFormula());
             }
         }
+
+        ICellComment cellComment = cell.getComment();
+        cm.setComment(cellComment != null ? cellComment.getText() : null);
 
         setStyle(cell, cm);
         return cm;

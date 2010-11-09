@@ -146,7 +146,8 @@ var TableEditor = Class.create({
     renderTable : function(data) {
         this.decorator = new Decorator();
 
-        this.tableContainer.innerHTML = data;
+        this.tableContainer.innerHTML = data.stripScripts();
+        new ScriptLoader().evalScripts(data);
         this.table = $(this.tableContainer.childNodes[0]);
 
         this.computeTableInfo(this.table);

@@ -69,6 +69,7 @@ public class HTMLRenderer {
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
         }
+        result.append(renderJS("js/tooltip.js"));
         result.append(renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
                 renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
                 renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(
@@ -179,7 +180,6 @@ public class HTMLRenderer {
 
         result.append(renderJSBody("var " + editorJsVar + ";"))
                 .append(renderEditorToolbar(editor.getId(), editorJsVar))
-                .append(renderJS("js/tooltip.js"))
                 .append(renderJS("js/validation.js"))
                 .append(renderJS("js/datepicker.packed.js"))
                 .append(renderJS("js/TextEditor.js"))
@@ -349,7 +349,7 @@ public class HTMLRenderer {
             IGridTable table = tableModel.getGridTable();
 
             StringBuilder s = new StringBuilder();
-            s.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
+            s.append("<table class=\"te_table\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
 
             for (int i = 0; i < tableModel.getCells().length; i++) {
                 s.append("<tr>\n");
@@ -381,24 +381,43 @@ public class HTMLRenderer {
                     StringBuilder id = new StringBuilder();
                     id.append(prefix).append(String.valueOf(i + 1)).append(":").append(j + 1);
 
-                    s.append(" id=\"").append(id).append("\">");
+                    s.append(" id=\"").append(id).append("\"");
+                    if (cell.getComment() != null) {
+                        s.append(" class=\"te_comment\"");
+                    }
+                    s.append(">");
                     if (embedCellURI) {
-                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(cellUri).append("\"></input>");
+                        s.append(createHiddenField("uri", cellUri));
                     }
                     if (cell.hasFormula()) {
-                        s.append("<input name=\"formula\" type=\"hidden\" value=\"").append(cell.getFormula()).append(
-                                "\"></input>");
+                        s.append(createHiddenField("formula", cell.getFormula()));
                     }
                     String cellContent = cell.getContent(showFormulas);
                     if (cellContent != null) {
                         cellContent.replaceAll("", "");
                     }
                     s.append(cellContent).append("</td>\n");
+                    if (cell.getComment() != null) {
+                        //s.append(createHiddenField("comment", cell.getComment()));
+                        s.append("<script type=\"text/javascript\">")
+                            .append("new Tooltip('" + id + "','"
+                                    + StringEscapeUtils.escapeJavaScript(
+                                            cell.getComment().replaceAll("\\n", "<br/>"))
+                                            + "', {hideOn:['mouseout','dblclick']});")
+                            .append("</script>");
+                    }
                 }
                 s.append("</tr>\n");
             }
             s.append("</table>");
             return s.toString();
+        }
+
+        private String createHiddenField(String name, String value) {
+            StringBuilder field = new StringBuilder();
+            field.append("<input type=\"hidden\" name=\"").append(name)
+                 .append("\" value=\"").append(value).append("\"></input>");
+            return field.toString();
         }
 
         public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
@@ -668,7 +687,8 @@ public class HTMLRenderer {
         }
 
         private void insertTooltip(String propId, String description) {
-            result.append(renderJSBody("new Tooltip('_" + propId + "','" + description + "',{skin:'green'})"));
+            result.append(renderJSBody(
+                    "new Tooltip('_" + propId + "','" + description + "',{skin:'blue', maxWidth:'160px'})"));
         }
 
         private void insertCalendar(TableProperty prop, String id) {
