@@ -39,6 +39,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -217,9 +218,12 @@ public class XlsLoader {
             ILogicalTable row = logicalTable.getRow(i);
 
             String name = row.getColumn(0).getSource().getCell(0, 0).getStringValue();
-
+            
             if (IXlsTableNames.LANG_PROPERTY.equals(name)) {
                 preprocessOpenlTable(row.getSource(), source);
+            } else if (IXlsTableNames.DEPENDENCY.equals(name)) {
+                // process module dependency
+                preprocessDependency(tableSyntaxNode, row.getSource(), source.getWorkbookSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
@@ -228,7 +232,7 @@ public class XlsLoader {
                 // NOTE: A temporary implementation of multi-module feature.
                 // } else if (IXlsTableNames.IMPORT_MODULE.equals(name)) {
                 // preprocessModuleImportTable(row.getGridTable(), source);
-            } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
+            } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {            
                 preprocessVocabularyTable(row.getSource(), source);
             } else if (StringUtils.isBlank(name) || DecisionTableHelper.isValidCommentHeader(name)) { // TODO:
                 // DecisionTableHelper
@@ -250,6 +254,41 @@ public class XlsLoader {
             }
         }
 
+    }
+
+    private void preprocessDependency(TableSyntaxNode tableSyntaxNode,
+            IGridTable gridTable,
+            XlsWorkbookSourceCodeModule workbookSource) {        
+        IDependencyManager depManager = workbookSource.getSource().getDepManager();
+        if (depManager != null) {
+            int height = gridTable.getHeight();
+
+            for (int i = 0; i < height; i++) {
+
+                String dependency = gridTable.getCell(1, i).getStringValue();
+                if (StringUtils.isNotBlank(dependency)) {
+                    dependency = dependency.trim();
+                    
+                    IOpenSourceCodeModule dependencySource = depManager.find(dependency);
+                    
+                    if (dependencySource != null) {
+                        try {                    
+                            depManager.process(dependencySource);
+                        } catch (Throwable t) {
+                            registerError(tableSyntaxNode, gridTable, i, dependency, t);
+                            continue;
+                        }
+                        
+                    } else {
+                        // throw smth, can`t find dependency
+                    }                    
+                } else {
+                    // skip empty dependency line.
+                }
+            }
+        } else {
+            // can`t find dependency manager, throw smth.
+        }
     }
 
     // NOTE: A temporary implementation of multi-module feature.

@@ -28,6 +28,9 @@ public interface IXlsTableNames {
     String INCLUDE_TABLE = "include";
     String IMPORT_MODULE = "module";
     String IMPORT_PROPERTY = "import";
+    
+    // for module dependencies
+    String DEPENDENCY = "dependency";
     String VOCABULARY_PROPERTY = "vocabulary";
     String ENVIRONMENT_TABLE = "Environment";
     String TEST_METHOD_TABLE = "Testmethod";
@@ -36,4 +39,6 @@ public interface IXlsTableNames {
 
     String VIEW_BUSINESS = "view.business";
     String VIEW_DEVELOPER = "view.developer";
+    
+    
 }

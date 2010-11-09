@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
+import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
@@ -25,6 +26,8 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
 
     private int tabSize = 2;
     private Map<String, Object> params;
+    
+    private IDependencyManager depManager;
 
     public StringSourceCodeModule(String code, String uri) {
         this.code = code;
@@ -67,5 +70,15 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
+
+    public IDependencyManager getDepManager() {
+        return depManager;
+    }
+
+    public void setDepManager(IDependencyManager depManager) {
+        this.depManager = depManager;
+    }
+    
+    
     
 }

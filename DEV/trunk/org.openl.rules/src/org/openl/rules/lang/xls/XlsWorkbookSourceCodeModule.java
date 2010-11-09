@@ -152,5 +152,9 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         fileOut.close();
         //workbook = loadWorkbook(src, false);
     }
+    
+    public IOpenSourceCodeModule getSource() {
+        return src;
+    }
 
 }
