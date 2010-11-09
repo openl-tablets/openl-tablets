@@ -15,21 +15,33 @@ var Tooltip = Class.create({
     firedIE6Popups: $H(),
 
     initialize: function(id, content, params) {
+        var self = this;
+
         this.element = $(id);
         this.content = content;
         this.params = params;
 
-        this.showOn = params && params.showOn ? (params.showOn == false ? '' : params.showOn) : "mouseover";
-        this.hideOn = params && params.hideOn ? (params.hideOn == false ? '' : params.hideOn) : "mouseout";
+        if (params && params.showOn) {
+            this.showOn = params.showOn instanceof Array ? params.showOn : [params.showOn];
+        } else {
+            this.showOn = ["mouseover"]; // by default
+        }
 
-        if (this.showOn) {
-            this.showHandler = this.show.bindAsEventListener(this);
-            Event.observe(this.element, this.showOn, this.showHandler);
+        if (params && params.hideOn) {
+            this.hideOn = params.hideOn instanceof Array ? params.hideOn : [params.hideOn];
+        } else {
+            this.hideOn = ["mouseout"]; // by default
         }
-        if (this.hideOn) {
-            this.hideHandler = this.hide.bindAsEventListener(this);
-            Event.observe(this.element, this.hideOn, this.hideHandler);
-        }
+
+        this.showOn.each(function(e) {
+            self.showHandler = self.show.bindAsEventListener(self);
+            Event.observe(self.element, e, self.showHandler);
+        });
+
+        this.hideOn.each(function(e) {
+            self.hideHandler = self.hide.bindAsEventListener(self);
+            Event.observe(self.element, e, self.hideHandler);
+        });
     },
 
     show: function() {
@@ -40,6 +52,10 @@ var Tooltip = Class.create({
             this.firedTooltips.set(this.element.id, tooltip);
 
             this.applyStylesToPointer(tooltip);
+
+            var pos = this.getInitPosition(tooltip);
+            tooltip.style.left = pos[0] + "px";
+            tooltip.style.top = pos[1] + "px";
 
             // The iframe hack to cover selectlists in Internet Explorer 6.
             // Selectlists are always on top in IE 6, so they should be covered by iframe.
@@ -53,6 +69,13 @@ var Tooltip = Class.create({
             }
             this.firedIE6Popups.set(this.element.id, ie6Popup);
         }
+    },
+
+    getInitPosition: function(tooltip) {
+        var pos = Element.cumulativeOffset(this.element);
+        pos[0] += this.element.getWidth() - 25;
+        pos[1] -= (this.element.getHeight() + tooltip.getHeight() - 4);
+        return pos;
     },
 
     applyStylesToPointer: function(tooltip) {
@@ -99,17 +122,21 @@ var Tooltip = Class.create({
             tooltipDiv.appendChild(tooltipPointerDiv);
         }
 
+        if (this.params) {
+            if (this.params.width) {
+                tooltipDiv.style.width = this.params.width;
+            } else if (this.params.maxWidth) {
+                tooltipDiv.style.maxWidth = this.params.maxWidth;
+            } else {
+                tooltipDiv.style.maxWidth = "140px"; // by default
+            }
+        }
+
         tooltipDiv.addClassName("tooltip");
         tooltipDiv.addClassName(skinClass);
         tooltipDiv.addClassName(pointerClass);
         tooltipDiv.addClassName("corner_all");
         tooltipDiv.addClassName("shadow_all");
-
-        var pos = Element.cumulativeOffset(this.element);
-        pos[0] += this.element.getWidth() - 25;
-        pos[1] -= (this.element.getHeight() + 10 + (this.content.length / 2));
-        tooltipDiv.style.left = pos[0] + "px";
-        tooltipDiv.style.top = pos[1] + "px";
 
         return tooltipDiv;
     },
