@@ -1,7 +1,8 @@
 /* Tooltip skins */
 .tooltip_skin-default {
-    background: white;
-    border: 1px solid rgb(170, 170, 170);
+    background: rgb(253, 253, 253);
+    border: 1px solid rgb(120, 120, 120);
+    color: rgb(60, 60, 60);
 }
 
 .tooltip_skin-green {
@@ -13,7 +14,7 @@
 .tooltip_skin-blue {
     background: rgb(230, 240, 255);
     border: 1px solid rgb(160, 200, 230);
-    color: rgb(40, 50, 60);
+    color: rgb(60, 60, 60);
 }
 
 .tooltip_skin-red {
@@ -27,8 +28,8 @@
 .tooltip {
     position: absolute;
     z-index: 9101;
-    padding: 3px;
-    width: 150px;
+    left: -1000px;
+    padding: 3px 7px;
     font-family: Times New Roman, Verdana, Arial, Tahoma;
     font-size: 12px;
 }
@@ -47,9 +48,9 @@
 
 .tooltip_left .tooltip_pointer_down {
     border-left: 0px;
-    border-right: 12px solid transparent;
-    border-top-width: 12px;
-    bottom: -12px;
+    border-right: 10px solid transparent;
+    border-top-width: 10px;
+    bottom: -10px;
     left: 10%;
 }
 
@@ -57,8 +58,8 @@
     border-left: 0px;
     border-right: 8px solid transparent;
     border-top: 8px solid transparent;
-    top: -12px;
-    left: 2px;
+    top: -10px;
+    left: 1px;
 }
 
 *html .tooltip_left .tooltip_pointer_down,
@@ -113,9 +114,9 @@
 }
 
 .corner_all {
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
 }
 
 .shadow_all {
