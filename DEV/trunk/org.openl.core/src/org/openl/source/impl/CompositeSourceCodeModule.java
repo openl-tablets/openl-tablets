@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
+import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
@@ -24,6 +25,8 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     
     private int[] modulesCount;
     private Map<String, Object> params;
+    
+    private IDependencyManager depManager;
 
     public CompositeSourceCodeModule(IOpenSourceCodeModule[] modules, String separator) {
         this.modules = modules;
@@ -94,5 +97,11 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         this.params = params;
     }
 
-    
+    public IDependencyManager getDepManager() {
+        return depManager;
+    }
+
+    public void setDepManager(IDependencyManager depManager) {
+        this.depManager = depManager;
+    }    
 }

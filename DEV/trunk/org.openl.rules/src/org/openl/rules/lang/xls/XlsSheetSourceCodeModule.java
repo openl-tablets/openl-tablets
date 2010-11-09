@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.syntax.XlsURLConstants;
+import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
@@ -18,6 +19,8 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 	private Sheet sheet;
 	
 	private Map<String, Object> params;
+	
+	private IDependencyManager depManager;
 
     public XlsSheetSourceCodeModule(Sheet sheet, String sheetName, XlsWorkbookSourceCodeModule workbookSource) {
         this.sheet = sheet;
@@ -95,5 +98,12 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         this.params = params;
     }
 
+    public IDependencyManager getDepManager() {
+        return depManager;
+    }
+
+    public void setDepManager(IDependencyManager depManager) {
+        this.depManager = depManager;
+    }
     
 }
