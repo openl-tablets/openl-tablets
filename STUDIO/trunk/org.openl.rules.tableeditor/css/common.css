@@ -6,3 +6,7 @@
 .te_ input {
     font-size: 100%;
 }
+
+.te_comment {
+    background: url("../img/comment_arrow.gif") no-repeat right top;
+}

@@ -101,4 +101,13 @@ public class CellModelDelegator implements ICellModel {
     public void setFormula(String formula) {
         model.setFormula(formula);
     }
+
+    public String getComment() {
+        return model.getComment();
+    }
+
+    public void setComment(String comment) {
+        model.setComment(comment);
+    }
+
 }
