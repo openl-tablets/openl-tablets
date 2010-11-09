@@ -5,15 +5,13 @@
 package org.openl.generated.beans;
 
 import java.lang.String;
-import org.openl.generated.beans.Driver;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.openl.generated.beans.Vehicle;
+import org.openl.generated.beans.Driver;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.openl.generated.beans.Vehicle;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Policy{
-  protected java.lang.String name;
-
   protected java.lang.String clientTier;
 
   protected java.lang.String clientTerm;
@@ -21,6 +19,8 @@ public class Policy{
   protected org.openl.generated.beans.Driver[] drivers;
 
   protected org.openl.generated.beans.Vehicle[] vehicles;
+
+  protected java.lang.String name;
 
 
 
@@ -35,6 +35,30 @@ public Policy(String name, String clientTier, String clientTerm, Driver[] driver
     this.clientTerm = clientTerm;
     this.drivers = drivers;
     this.vehicles = vehicles;
+}
+  public java.lang.String getClientTier() {
+   return clientTier;
+}
+  public void setClientTier(java.lang.String clientTier) {
+   this.clientTier = clientTier;
+}
+  public java.lang.String getClientTerm() {
+   return clientTerm;
+}
+  public void setClientTerm(java.lang.String clientTerm) {
+   this.clientTerm = clientTerm;
+}
+  public org.openl.generated.beans.Driver[] getDrivers() {
+   return drivers;
+}
+  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
+   this.drivers = drivers;
+}
+  public org.openl.generated.beans.Vehicle[] getVehicles() {
+   return vehicles;
+}
+  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
+   this.vehicles = vehicles;
 }
 
 public int hashCode() {
@@ -82,30 +106,6 @@ public String toString() {
 }
   public void setName(java.lang.String name) {
    this.name = name;
-}
-  public java.lang.String getClientTier() {
-   return clientTier;
-}
-  public void setClientTier(java.lang.String clientTier) {
-   this.clientTier = clientTier;
-}
-  public java.lang.String getClientTerm() {
-   return clientTerm;
-}
-  public void setClientTerm(java.lang.String clientTerm) {
-   this.clientTerm = clientTerm;
-}
-  public org.openl.generated.beans.Driver[] getDrivers() {
-   return drivers;
-}
-  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
-   this.drivers = drivers;
-}
-  public org.openl.generated.beans.Vehicle[] getVehicles() {
-   return vehicles;
-}
-  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
-   this.vehicles = vehicles;
 }
 
 }
