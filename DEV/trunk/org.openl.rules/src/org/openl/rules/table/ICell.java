@@ -83,4 +83,6 @@ public interface ICell {
 
     CellMetaInfo getMetaInfo();
 
+    ICellComment getComment();
+
 }

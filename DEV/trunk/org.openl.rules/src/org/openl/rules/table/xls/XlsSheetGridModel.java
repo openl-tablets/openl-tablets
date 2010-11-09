@@ -25,6 +25,7 @@ import org.openl.rules.table.AGrid;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.RegionsPool;
@@ -170,7 +171,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         copyCell(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
     }
 
-    public void createCell(int col, int row, Object value, String formula, ICellStyle style) {
+    public void createCell(int col, int row, Object value, String formula, ICellStyle style, ICellComment comment) {
         if (StringUtils.isNotBlank(formula)) {
             setCellFormula(col, row, formula);
         } else {
@@ -178,6 +179,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         }
         setCellStyle(col, row, style);
         setCellMetaInfo(col, row, getCellMetaInfo(col, row));
+        setCellComment(col, row, comment);
     }
 
     protected void copyCell(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
@@ -195,6 +197,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
         PoiExcelHelper.copyCellValue(cellFrom, cellTo);
         PoiExcelHelper.copyCellStyle(cellFrom, cellTo, sheet);
+        //PoiExcelHelper.copyCellComment(cellFrom, cellTo);
 
         setCellMetaInfo(colTo, rowTo, meta);
     }
@@ -353,31 +356,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         }
     }
 
-    public void setCellStringValue(int col, int row, String value) {
-        PoiExcelHelper.setCellStringValue(col, row, value, sheet);
-    }
-
-    public void setCellStyle(int col, int row, ICellStyle style) {
-        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
-
-        CellStyle styleToClone = null;
-
-        if (style instanceof XlsCellStyle) {
-            styleToClone = ((XlsCellStyle) style).getXlsStyle();
-        } else if (style instanceof XlsCellStyle2) {
-            styleToClone = ((XlsCellStyle2) style).getXlsStyle();
-        } else {
-            styleToClone = poiCell.getCellStyle();
-        }
-
-        newPoiStyle.cloneStyleFrom(styleToClone);
-
-        styleToXls(style, newPoiStyle); // apply our style changes
-
-        poiCell.setCellStyle(newPoiStyle);
-    }
-
     /**
      * Copies properties of <code>ICellStyle</code> object to POI xls styling
      * object. <br/>
@@ -423,6 +401,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         }
     }
 
+    public void setCellStringValue(int col, int row, String value) {
+        PoiExcelHelper.setCellStringValue(col, row, value, sheet);
+    }
+
     public void setCellFormula(int col, int row, String formula) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
 
@@ -431,6 +413,36 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(formula);
             cellWriter.writeCellValue(false);
+        }
+    }
+
+    public void setCellStyle(int col, int row, ICellStyle style) {
+        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
+        CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
+
+        CellStyle styleToClone = null;
+
+        if (style instanceof XlsCellStyle) {
+            styleToClone = ((XlsCellStyle) style).getXlsStyle();
+        } else if (style instanceof XlsCellStyle2) {
+            styleToClone = ((XlsCellStyle2) style).getXlsStyle();
+        } else {
+            styleToClone = poiCell.getCellStyle();
+        }
+
+        newPoiStyle.cloneStyleFrom(styleToClone);
+
+        styleToXls(style, newPoiStyle); // apply our style changes
+
+        poiCell.setCellStyle(newPoiStyle);
+    }
+
+    public void setCellComment(int col, int row, ICellComment comment) {
+        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
+        if (comment != null) {
+            poiCell.setCellComment(((XlsCellComment) comment).getXlxComment());
+        } else {
+            poiCell.removeCellComment();
         }
     }
 

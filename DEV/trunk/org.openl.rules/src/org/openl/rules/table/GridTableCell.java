@@ -104,4 +104,8 @@ class GridTableCell implements ICell {
         return cell.getMetaInfo();
     }
 
+    public ICellComment getComment() {
+        return cell.getComment();
+    }
+
 }

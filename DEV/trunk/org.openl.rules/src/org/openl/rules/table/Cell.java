@@ -31,6 +31,8 @@ public class Cell implements ICell {
 
     private CellMetaInfo metaInfo;
 
+    private ICellComment comment;
+
     public Cell() {
     }
 
@@ -171,6 +173,14 @@ public class Cell implements ICell {
 
     public void setMetaInfo(CellMetaInfo metaInfo) {
         this.metaInfo = metaInfo;
+    }
+
+    public ICellComment getComment() {
+        return comment;
+    }
+
+    public void setComment(ICellComment comment) {
+        this.comment = comment;
     }
 
 }
