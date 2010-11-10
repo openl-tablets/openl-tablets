@@ -6,7 +6,6 @@ import java.net.URL;
 import org.openl.CompiledOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
-import org.openl.source.DefaultDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -30,8 +29,7 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     }
 
     private void initSource(IOpenSourceCodeModule sourceCode) {
-        this.sourceCode = sourceCode;
-        sourceCode.setDepManager(new DefaultDependencyManager(getOpenL(), sourceCode.getUri(0)));
+        this.sourceCode = sourceCode;        
     }
 
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome) {
