@@ -21,7 +21,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.openl.CompiledOpenClass;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.UserContext;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.main.OpenLWrapper;
@@ -267,7 +267,7 @@ public class JavaWrapperAntTask extends Task {
                 Severity.ERROR);
         if (errorMessages != null && !errorMessages.isEmpty()) {
             String message = getErrorMessage(errorMessages);
-            throw new OpenLRuntimeException(message);
+            throw new OpenLCompilationException(message);
         } else {
             return jwrapper.getOpenClass();
         }
