@@ -10,14 +10,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Vehicle{
-  protected java.lang.String name;
-
-  protected java.lang.String type;
-
-  protected int year;
-
-  protected java.lang.String model;
-
   protected boolean hasAlarm;
 
   protected boolean onHighTheftProbabilityList;
@@ -31,6 +23,14 @@ public class Vehicle{
   protected java.lang.String[] coverage;
 
   protected boolean hasRollBar;
+
+  protected java.lang.String name;
+
+  protected java.lang.String type;
+
+  protected int year;
+
+  protected java.lang.String model;
 
 
 
@@ -51,6 +51,48 @@ public Vehicle(String name, String model, int year, boolean hasAlarm, String typ
     this.bodyType = bodyType;
     this.coverage = coverage;
     this.hasRollBar = hasRollBar;
+}
+  public boolean getHasAlarm() {
+   return hasAlarm;
+}
+  public void setHasAlarm(boolean hasAlarm) {
+   this.hasAlarm = hasAlarm;
+}
+  public boolean getOnHighTheftProbabilityList() {
+   return onHighTheftProbabilityList;
+}
+  public void setOnHighTheftProbabilityList(boolean onHighTheftProbabilityList) {
+   this.onHighTheftProbabilityList = onHighTheftProbabilityList;
+}
+  public java.lang.String getAirbags() {
+   return airbags;
+}
+  public void setAirbags(java.lang.String airbags) {
+   this.airbags = airbags;
+}
+  public double getPrice() {
+   return price;
+}
+  public void setPrice(double price) {
+   this.price = price;
+}
+  public java.lang.String getBodyType() {
+   return bodyType;
+}
+  public void setBodyType(java.lang.String bodyType) {
+   this.bodyType = bodyType;
+}
+  public java.lang.String[] getCoverage() {
+   return coverage;
+}
+  public void setCoverage(java.lang.String[] coverage) {
+   this.coverage = coverage;
+}
+  public boolean getHasRollBar() {
+   return hasRollBar;
+}
+  public void setHasRollBar(boolean hasRollBar) {
+   this.hasRollBar = hasRollBar;
 }
 
 public int hashCode() {
@@ -129,8 +171,8 @@ public String toString() {
   public int getYear() {
    return year;
 }
-  public void setType(java.lang.String type) {
-   this.type = type;
+  public java.lang.String getModel() {
+   return model;
 }
   public void setModel(java.lang.String model) {
    this.model = model;
@@ -138,50 +180,8 @@ public String toString() {
   public void setYear(int year) {
    this.year = year;
 }
-  public java.lang.String getModel() {
-   return model;
-}
-  public boolean getHasAlarm() {
-   return hasAlarm;
-}
-  public void setHasAlarm(boolean hasAlarm) {
-   this.hasAlarm = hasAlarm;
-}
-  public boolean getOnHighTheftProbabilityList() {
-   return onHighTheftProbabilityList;
-}
-  public void setOnHighTheftProbabilityList(boolean onHighTheftProbabilityList) {
-   this.onHighTheftProbabilityList = onHighTheftProbabilityList;
-}
-  public java.lang.String getAirbags() {
-   return airbags;
-}
-  public void setAirbags(java.lang.String airbags) {
-   this.airbags = airbags;
-}
-  public double getPrice() {
-   return price;
-}
-  public void setPrice(double price) {
-   this.price = price;
-}
-  public java.lang.String getBodyType() {
-   return bodyType;
-}
-  public void setBodyType(java.lang.String bodyType) {
-   this.bodyType = bodyType;
-}
-  public java.lang.String[] getCoverage() {
-   return coverage;
-}
-  public void setCoverage(java.lang.String[] coverage) {
-   this.coverage = coverage;
-}
-  public boolean getHasRollBar() {
-   return hasRollBar;
-}
-  public void setHasRollBar(boolean hasRollBar) {
-   this.hasRollBar = hasRollBar;
+  public void setType(java.lang.String type) {
+   this.type = type;
 }
 
 }
