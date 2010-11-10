@@ -193,7 +193,9 @@ public class XlsLoader {
     public IParsedCode parse(IOpenSourceCodeModule source) {
 
         preprocessWorkbook(source);
-
+        
+        addInnerImports();
+        
         return new ParsedCode(new XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]), source, openl,
             vocabulary, imports, extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
 
@@ -336,17 +338,14 @@ public class XlsLoader {
             if (StringUtils.isNotEmpty(singleImport)) {
                 addImport(singleImport);
             }
-        }
-
-        addInnerImports();
+        }   
     }
 
     private void addImport(String singleImport) {
         if (!imports.contains(singleImport))
             imports.add(singleImport);
-
     }
-
+        
     private void addInnerImports() {
         addImport("org.openl.rules.enumeration");
     }
