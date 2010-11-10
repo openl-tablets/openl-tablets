@@ -18,11 +18,17 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.openl.CompiledOpenClass;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.UserContext;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.main.OpenLWrapper;
+import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
@@ -256,10 +262,34 @@ public class JavaWrapperAntTask extends Task {
             long end = System.currentTimeMillis();
             System.out.println("Loaded " + srcFile + " in " + (end - start) + " ms");
         }
-        return jwrapper.getOpenClass();
-
+        List<OpenLMessage> errorMessages = 
+            OpenLMessagesUtils.filterMessagesBySeverity(((CompiledOpenClass)jwrapper.getCompiledClass()).getMessages(), 
+                Severity.ERROR);
+        if (errorMessages != null && !errorMessages.isEmpty()) {
+            String message = getErrorMessage(errorMessages);
+            throw new OpenLCompilationException(message);
+        } else {
+            return jwrapper.getOpenClass();
+        }
     }
 
+    private String getErrorMessage(List<OpenLMessage> errorMessages) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("There are critical errors in wrapper:\n");
+        for(int i = 0; i < errorMessages.size(); i++) {
+            if (errorMessages.get(i) instanceof OpenLErrorMessage) {
+                OpenLErrorMessage openlError = (OpenLErrorMessage)errorMessages.get(i);
+                buf.append(openlError.getError().toString());     
+                buf.append("\n\n");
+            } else {
+                // shouldn`t happen
+                buf.append(String.format("[%s] %s", i+1, errorMessages.get(i).getSummary()));     
+                buf.append("\n");
+            }
+        }
+        return buf.toString();
+    }
+    
     private void makeWebInfPath() {
         String targetFolder = web_inf_path;
 
