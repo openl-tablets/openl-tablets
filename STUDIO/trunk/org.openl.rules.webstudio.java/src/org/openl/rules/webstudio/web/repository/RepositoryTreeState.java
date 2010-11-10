@@ -170,8 +170,8 @@ public class RepositoryTreeState {
     }
 
     public void refreshNode(AbstractTreeNode node){
-        node.removeChildren();
         if (!node.isLeaf()) {
+            node.removeChildren();
             TreeFolder folder = (TreeFolder) node;
             traverseFolder(folder, ((ProjectFolder) folder.getDataBean()).getArtefacts(), filter);
         }
