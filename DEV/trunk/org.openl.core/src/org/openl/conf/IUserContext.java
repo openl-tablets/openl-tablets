@@ -8,6 +8,8 @@ package org.openl.conf;
 
 import java.util.Properties;
 
+import org.openl.source.IDependencyManager;
+
 /**
  * The <code>IUserContext</code> defines an user environment
  * configuration abstraction.
@@ -24,5 +26,9 @@ public interface IUserContext {
     String getUserHome();
 
     Properties getUserProperties();
+    
+    IDependencyManager getDependencyManager();
+    
+    void setDependencyManager(IDependencyManager dependencyManager);
 
 }

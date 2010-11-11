@@ -1,7 +1,10 @@
 package org.openl.engine;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
@@ -69,12 +72,18 @@ public class OpenLSourceManager extends OpenLHolder {
         if (!ignoreErrors && parsingErrors.length > 0) {
             throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
+        
+        // compile source dependencies
+        if (SourceType.MODULE.equals(sourceType) && containsDependencies(parsedCode.getDependentSources())) {
+            Set<CompiledOpenClass> compiledDependencies = compileDependencies(parsedCode.getDependentSources());
+            parsedCode.setCompiledDependencies(compiledDependencies);
+        }
 
         Map<String, Object> externalParams = source.getParams();
 
         if (externalParams != null) {
             parsedCode.setExternalParams(externalParams);
-        }
+        }        
         
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
 
@@ -89,6 +98,23 @@ public class OpenLSourceManager extends OpenLHolder {
         processedCode.setBoundCode(boundCode);
         
         return processedCode;
+    }
+
+    private boolean containsDependencies(Set<IOpenSourceCodeModule> dependentSources) {        
+        return dependentSources != null && !dependentSources.isEmpty();
+    }
+
+    private Set<CompiledOpenClass> compileDependencies(Set<IOpenSourceCodeModule> dependentSources) {
+        Set<CompiledOpenClass> compiledDependencies = new HashSet<CompiledOpenClass>();
+        for (IOpenSourceCodeModule dependentSource : dependentSources) {
+            CompiledOpenClass compiledDependency = OpenLManager.compileModuleWithErrors(getOpenL(), dependentSource);
+            if (compiledDependency != null) {
+                compiledDependencies.add(compiledDependency);
+            } else {
+                // error during compilation, throw smth
+            }
+        }
+        return compiledDependencies;
     }
 
 }

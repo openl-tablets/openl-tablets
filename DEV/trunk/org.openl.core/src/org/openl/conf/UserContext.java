@@ -11,6 +11,9 @@ import java.net.URLClassLoader;
 import java.util.Properties;
 import java.util.Stack;
 
+import org.openl.source.DefaultDependencyManager;
+import org.openl.source.IDependencyManager;
+
 /**
  * @author snshor
  *
@@ -24,6 +27,8 @@ public class UserContext extends AUserContext {
     protected String userHome;
 
     protected Properties userProperties;
+    
+    protected IDependencyManager dependencyManager;
 
     public static IUserContext currentContext() {
         Stack<IUserContext> stack = contextStack.get();
@@ -55,13 +60,23 @@ public class UserContext extends AUserContext {
     }
 
     public UserContext(ClassLoader userClassLoader, String userHome) {
-        this(userClassLoader, userHome, null);
+        this(userClassLoader, userHome, null, getDefaultDependencyManager());
+    }
+
+    private static IDependencyManager getDefaultDependencyManager() {        
+        return new DefaultDependencyManager();
     }
 
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
+        this(userClassLoader, userHome, userProperties, getDefaultDependencyManager());
+    }
+    
+    public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties, 
+            IDependencyManager dependencyManager) {
         this.userClassLoader = userClassLoader;
         this.userHome = userHome;
         this.userProperties = userProperties;
+        this.dependencyManager = dependencyManager;
     }
 
     public Object execute(IExecutable exe) {
@@ -73,29 +88,14 @@ public class UserContext extends AUserContext {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IUserContext#getUserClassLoader()
-     */
     public ClassLoader getUserClassLoader() {
         return userClassLoader;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IUserContext#getUserHome()
-     */
     public String getUserHome() {
         return userHome;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IUserContext#getUserProperties()
-     */
     public Properties getUserProperties() {
         return userProperties;
     }
@@ -117,13 +117,17 @@ public class UserContext extends AUserContext {
         return ucl.toString();
     }
 
-    /**
-     *
-     */
-
     @Override
     public String toString() {
         return "home=" + userHome + " cl=" + printClassloader(userClassLoader);
+    }
+
+    public IDependencyManager getDependencyManager() {        
+        return dependencyManager;
+    }
+
+    public void setDependencyManager(IDependencyManager dependencyManager) {        
+        this.dependencyManager = dependencyManager;
     }
 
 }

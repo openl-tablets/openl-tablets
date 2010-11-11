@@ -7,8 +7,11 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -32,6 +35,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	 * <code>Datatype</code> tables, e.g. domain model.
 	 */
 	private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
+	
+	/**
+	 * Set of dependencies for current module.
+	 */
+	private Set<CompiledOpenClass> moduleDependencies = new HashSet<CompiledOpenClass>();
 	
 	private IDataBase dataBase = new DataBase();
 	
@@ -176,4 +184,21 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	    super.clearOddDataForExecutionMode();
 	    dataBase = null;
     }
+	
+	/**
+	 * Set compiled module dependencies for current module.
+	 * 
+	 * @param moduleDependencies
+	 */
+	public void setDependencies(Set<CompiledOpenClass> moduleDependencies){
+	    this.moduleDependencies = moduleDependencies;
+	}
+	
+	/**
+	 * Gets compiled module dependencies for current module.
+	 * @return compiled module dependencies for current module.
+	 */
+	public Set<CompiledOpenClass> getDependencies() {
+	    return moduleDependencies;
+	}
 }

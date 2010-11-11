@@ -14,24 +14,12 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
 
     private IOpenSourceCodeModule sourceCode;
     private boolean executionMode;
-
-    public boolean isExecutionMode() {
-        return executionMode;
-    }
-
-    public void setExecutionMode(boolean executionMode) {
-        this.executionMode = executionMode;
-    }
-
+    
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext) {
         super(openlName, userContext);
         initSource(sourceCode);
     }
-
-    private void initSource(IOpenSourceCodeModule sourceCode) {
-        this.sourceCode = sourceCode;        
-    }
-
+    
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome) {
         super(openlName, userHome);
         initSource(sourceCode);
@@ -53,6 +41,18 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     public ASourceCodeEngineFactory(String openlName, URL source) {
         this(openlName, new URLSourceCodeModule(source));
     }
+
+    private void initSource(IOpenSourceCodeModule sourceCode) {
+        this.sourceCode = sourceCode;        
+    }
+    
+    public boolean isExecutionMode() {
+        return executionMode;
+    }
+
+    public void setExecutionMode(boolean executionMode) {
+        this.executionMode = executionMode;
+    }    
 
     public synchronized IOpenSourceCodeModule getSourceCode() {
         return sourceCode;

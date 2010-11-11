@@ -10,9 +10,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.CompiledOpenClass;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -178,13 +180,34 @@ public class XlsBinder implements IOpenBinder {
         if (CollectionUtils.isNotEmpty(modulesToImport)) {
             loadModules(modulesToImport, bindingContext);
         }
-*/        
-        IBoundNode topNode = bind(moduleNode, openl, bindingContext);
+*/      IBoundNode topNode = null;
+        if (hasModuleDependencies(parsedCode)) {
+            topNode = bindWithDependencies(moduleNode, openl, bindingContext, parsedCode.getCompiledDependencies());
+        } else {
+            topNode = bind(moduleNode, openl, bindingContext);
+        }
 
         return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
     }
+    
+    /**
+     * Checks if there are compiled dependencies.
+     * 
+     * @param parsedCode parsed code
+     * @return return if there are compiled dependencies in parsed code.
+     */
+    private boolean hasModuleDependencies(IParsedCode parsedCode) {
+        return parsedCode.getCompiledDependencies() != null && !parsedCode.getCompiledDependencies().isEmpty();
+    }
 
-//    NOTE: A temporary implementation of multi-module feature.
+    private IBoundNode bindWithDependencies(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext,
+            Set<CompiledOpenClass> moduleDependencies) {
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl);
+        moduleOpenClass.setDependencies(moduleDependencies);
+        return processBinding(moduleNode, openl, bindingContext, moduleOpenClass);
+    }
+
+    //    NOTE: A temporary implementation of multi-module feature.
 /*    
     private void loadModules(List<String> modules, IBindingContext bindingContext) {
         
@@ -207,14 +230,18 @@ public class XlsBinder implements IOpenBinder {
      */
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
 
-        XlsModuleOpenClass module = new XlsModuleOpenClass(null,
-            XlsHelper.getModuleName(moduleNode),
-            new XlsMetaInfo(moduleNode),
-            openl);
+        XlsModuleOpenClass module = createModuleOpenClass(moduleNode, openl);
 
-        processExtensions(module, moduleNode, moduleNode.getExtensionNodes());
+        return processBinding(moduleNode, openl, bindingContext, module);
+    }
 
-        RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(bindingContext, module);
+    private IBoundNode processBinding(XlsModuleSyntaxNode moduleNode,
+            OpenL openl,
+            IBindingContext bindingContext,
+            XlsModuleOpenClass moduleOpenClass) {
+        processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes());
+
+        RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(bindingContext, moduleOpenClass);
 
         IVocabulary vocabulary = makeVocabulary(moduleNode);
 
@@ -228,9 +255,9 @@ public class XlsBinder implements IOpenBinder {
         // Bind property node at first.
         //
         TableSyntaxNode[] propertyNodes = getTableSyntaxNodes(moduleNode, propertiesSelector, null);
-        bindInternal(moduleNode, module, propertyNodes, openl, moduleContext);
+        bindInternal(moduleNode, moduleOpenClass, propertyNodes, openl, moduleContext);
 
-        bindPropertiesForAllTables(moduleNode, module, openl, moduleContext);
+        bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, moduleContext);
         
         // Import types, fields, methods from imported module class.
         //
@@ -244,7 +271,7 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] datatypeNodes = getTableSyntaxNodes(moduleNode, dataTypeSelector, null);
         TableSyntaxNode[] processedDatatypeNodes = processDatatypes(datatypeNodes, moduleContext);
         
-        bindInternal(moduleNode, module, processedDatatypeNodes, openl, moduleContext);
+        bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
         // Bind other tables.
         //
@@ -254,12 +281,20 @@ public class XlsBinder implements IOpenBinder {
 
         TableSyntaxNodeComparator tableComparator = new TableSyntaxNodeComparator();
         TableSyntaxNode[] otherNodes = getTableSyntaxNodes(moduleNode, notProp_And_NotDatatypeSelectors, tableComparator);
-        IBoundNode topNode = bindInternal(moduleNode, module, otherNodes, openl, moduleContext);
+        IBoundNode topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
 
         DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass) topNode.getType(), moduleContext);
         dispTableBuilder.buildDispatcherTables();
 
         return topNode;
+    }
+
+    private XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl) {
+        XlsModuleOpenClass module = new XlsModuleOpenClass(null,
+            XlsHelper.getModuleName(moduleNode),
+            new XlsMetaInfo(moduleNode),
+            openl);
+        return module;
     }
 
 // NOTE: A temporary implementation of multi-module feature.    
@@ -340,8 +375,8 @@ public class XlsBinder implements IOpenBinder {
      * @return array of datatypes in order of binding
      */
     private TableSyntaxNode[] processDatatypes(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
-
         Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes, bindingContext);
+        
         TableSyntaxNode[] orderedTypes = DatatypeHelper.orderDatatypes(typesMap, bindingContext);
         
         return orderedTypes;

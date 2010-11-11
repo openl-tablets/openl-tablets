@@ -29,8 +29,4 @@ public interface IOpenSourceCodeModule {
     
     Map<String, Object> getParams();
     void setParams(Map<String, Object> params);
-    
-    IDependencyManager getDepManager();
-    
-    void setDepManager(IDependencyManager depManager);
 }

@@ -1,8 +1,7 @@
 package org.openl.source;
 
-import java.util.List;
+import java.util.Set;
 
-import org.openl.CompiledOpenClass;
 
 /**
  * Draft.
@@ -10,13 +9,11 @@ import org.openl.CompiledOpenClass;
  *
  */
 public interface IDependencyManager {
+    
+    IOpenSourceCodeModule find(String dependency, String searchPath);
 
-    List<CompiledOpenClass> getDependencies();
-
-    void addDependency(CompiledOpenClass dependency);
-
-    void process(IOpenSourceCodeModule dependencySource);
-
-    IOpenSourceCodeModule find(String dependency);
+    void addSource(IOpenSourceCodeModule moduleSource, Set<IOpenSourceCodeModule> dependentSources);
+        
+    Set<IOpenSourceCodeModule> getDependentSources(IOpenSourceCodeModule moduleSource);
 
 }
