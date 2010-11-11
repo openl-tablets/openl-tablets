@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
@@ -365,5 +367,18 @@ public abstract class AOpenClass implements IOpenClass {
         // To do nothing. Not everyone has internal types.
 	    
 	    return null;        
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(getName()).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof IOpenClass)) {
+            return false;
+        }
+        return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
 }

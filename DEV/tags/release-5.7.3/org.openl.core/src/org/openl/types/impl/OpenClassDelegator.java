@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -196,5 +198,18 @@ public class OpenClassDelegator implements IOpenClass {
     
     public List<IOpenMethod> getDeclaredMethods() {
         return baseClass.getMethods();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(getName()).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof IOpenClass)) {
+            return false;
+        }
+        return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
 }
