@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -43,6 +45,34 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     @Override
     protected String makeUri() {
         return url.toExternalForm();
+    }
+    
+    @Override    
+    public boolean equals(Object obj) {
+        
+        if (!(obj instanceof URLSourceCodeModule)) {
+            return false;
+        }
+        
+        URLSourceCodeModule urlSource = (URLSourceCodeModule) obj;
+
+        return new EqualsBuilder()
+            .append(url, urlSource.url)            
+            .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = new HashCodeBuilder()
+            .append(url)            
+            .toHashCode();
+        
+        return hashCode;
+    }
+    
+    @Override
+    public String toString() {
+        return url.toString();
     }
 
 }

@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -85,6 +87,36 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         } catch (Exception e) {
             throw RuntimeExceptionWrapper.wrap("", e);
         }
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        
+        if (!(obj instanceof FileSourceCodeModule)) {
+            return false;
+        }
+        
+        FileSourceCodeModule fileSource = (FileSourceCodeModule) obj;
+
+        return new EqualsBuilder()
+            .append(file, fileSource.file)
+            .append(uri, fileSource.uri)
+            .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = new HashCodeBuilder()
+            .append(file)
+            .append(uri)
+            .toHashCode();
+        
+        return hashCode;
+    }
+    
+    @Override
+    public String toString() {    
+        return file.toString();
     }
 
 }

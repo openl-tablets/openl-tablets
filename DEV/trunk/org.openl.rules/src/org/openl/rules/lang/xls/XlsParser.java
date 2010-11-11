@@ -25,18 +25,16 @@ public class XlsParser implements IOpenParser {
 
     private static final String SEARCH_PROPERTY_NAME = "org.openl.rules.include";
     private static final String SEARCH_FILE_NAME = "org/openl/rules/org.openl.rules.include.properties";
-
-    private IConfigurableResourceContext resourceContext;
+    
+    private IUserContext userContext;
 
     private String searchPath;
 
     public XlsParser(IUserContext userContext) {
-
-        this.resourceContext = new ConfigurableResourceContext(userContext.getUserClassLoader(),
-            new String[] { userContext.getUserHome() });
+        this.userContext = userContext;
     }
 
-    protected String getSearchPath() {
+    protected String getSearchPath(IConfigurableResourceContext resourceContext) {
 
         if (searchPath == null) {
             searchPath = PropertiesLocator.findPropertyValue(SEARCH_PROPERTY_NAME, SEARCH_FILE_NAME, resourceContext);
@@ -60,10 +58,21 @@ public class XlsParser implements IOpenParser {
     }
 
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
-
-        XlsLoader xlsLoader = new XlsLoader(resourceContext, getSearchPath());
+        
+        IncludeSearcher includeSeeker = getIncludeSeeker();
+        
+        XlsLoader xlsLoader = new XlsLoader(includeSeeker, userContext);
 
         return xlsLoader.parse(source);
+    }
+
+    private IncludeSearcher getIncludeSeeker() {
+        IConfigurableResourceContext resourceContext = new ConfigurableResourceContext(userContext.getUserClassLoader(),
+            new String[] { userContext.getUserHome() });
+        String searchPath = getSearchPath(resourceContext);
+        
+        IncludeSearcher includeSeeker = new IncludeSearcher(resourceContext, searchPath);
+        return includeSeeker;
     }
 
     public IParsedCode parseAsType(IOpenSourceCodeModule source) {
@@ -95,5 +104,9 @@ public class XlsParser implements IOpenParser {
         SyntaxNodeException[] errors = new SyntaxNodeException[] { error };
 
         return new ParsedCode(null, source, errors);
+    }
+
+    public IUserContext getUserContect() {        
+        return userContext;
     }
 }

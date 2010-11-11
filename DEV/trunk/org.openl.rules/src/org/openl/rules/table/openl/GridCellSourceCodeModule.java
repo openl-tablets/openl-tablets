@@ -15,7 +15,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.IGridTable;
-import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
@@ -26,8 +25,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     private IGridTable table;
     private String code;
-    
-    private IDependencyManager depManager;
 
     // TableSyntaxNode parent;
 
@@ -122,14 +119,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public void setParams(Map<String, Object> params) {
         this.params = params;
-    }
-
-    public IDependencyManager getDepManager() {
-        return depManager;
-    }
-
-    public void setDepManager(IDependencyManager depManager) {
-        this.depManager = depManager;
     }
     
 }

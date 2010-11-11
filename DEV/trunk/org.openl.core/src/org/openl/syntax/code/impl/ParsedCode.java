@@ -4,8 +4,11 @@
 
 package org.openl.syntax.code.impl;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.openl.CompiledOpenClass;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
@@ -22,7 +25,11 @@ public class ParsedCode implements IParsedCode {
     private IOpenSourceCodeModule source;
     
     private Map<String, Object> params;
-
+    
+    private Set<CompiledOpenClass> compiledDependencies = new HashSet<CompiledOpenClass>();
+    
+    private Set<IOpenSourceCodeModule> dependentSources = new HashSet<IOpenSourceCodeModule>();
+   
     public ParsedCode(ISyntaxNode topnode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors) {
         this.topNode = topnode;
         this.syntaxErrors = syntaxErrors;
@@ -47,6 +54,23 @@ public class ParsedCode implements IParsedCode {
 
     public void setExternalParams(Map<String, Object> params) {
         this.params = params;
+    }
+    
+    //----module dependencies
+    public Set<IOpenSourceCodeModule> getDependentSources() {        
+        return dependentSources;
+    }
+
+    public void setDependentSources(Set<IOpenSourceCodeModule> dependentSources) {
+        this.dependentSources = dependentSources;
+    }
+
+    public Set<CompiledOpenClass> getCompiledDependencies() {        
+        return compiledDependencies;
+    }
+
+    public void setCompiledDependencies(Set<CompiledOpenClass> compiledDependencies) {
+        this.compiledDependencies = compiledDependencies;
     }
     
 }

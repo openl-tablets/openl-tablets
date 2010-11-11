@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 
-import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -23,8 +22,6 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     protected int tabSize = 2;
     
     private Map<String, Object> params;
-    
-    private IDependencyManager depManager;
 
     public synchronized String getCode() {
 
@@ -80,15 +77,5 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-
-    public IDependencyManager getDepManager() {
-        return depManager;
-    }
-
-    public void setDepManager(IDependencyManager depManager) {
-        this.depManager = depManager;
-    }
-    
-    
     
 }

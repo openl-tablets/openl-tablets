@@ -4,15 +4,12 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
-import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
     
     protected IOpenSourceCodeModule src;
     private Map<String, Object> params;
-    
-    private IDependencyManager depManager;
 
     public SourceCodeModuleDelegator(IOpenSourceCodeModule src) {
         this.src = src;
@@ -49,13 +46,4 @@ public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-
-    public IDependencyManager getDepManager() {
-        return depManager;
-    }
-
-    public void setDepManager(IDependencyManager depManager) {
-        this.depManager = depManager;
-    }
-    
 }

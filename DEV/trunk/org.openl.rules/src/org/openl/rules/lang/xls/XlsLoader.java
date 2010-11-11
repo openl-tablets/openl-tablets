@@ -4,8 +4,6 @@
 
 package org.openl.rules.lang.xls;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.conf.IConfigurableResourceContext;
+import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
@@ -41,7 +40,6 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
@@ -97,9 +95,10 @@ public class XlsLoader {
     // NOTE: A temporary implementation of multi-module feature.
     // private List<String> modules = new ArrayList<String>();
 
-    private String searchPath;
-
-    private IConfigurableResourceContext ucxt;
+    
+    private IncludeSearcher includeSeeker;
+    
+    private IUserContext userContext;
 
     private OpenlSyntaxNode openl;
 
@@ -115,11 +114,21 @@ public class XlsLoader {
 
     private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
 
+    /**
+     * @deprecated use {@link XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {}
+     * @param ucxt
+     * @param searchPath
+     */
+    @Deprecated
     public XlsLoader(IConfigurableResourceContext ucxt, String searchPath) {
-        this.ucxt = ucxt;
-        this.searchPath = searchPath;
+        this.includeSeeker = new IncludeSearcher(ucxt, searchPath);        
     }
-
+    
+    public XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {
+        this.includeSeeker = includeSeeker;
+        this.userContext = userContext;
+    }
+    
     public static Map<String, String> getTableHeaders() {
         return tableHeaders;
     }
@@ -138,57 +147,7 @@ public class XlsLoader {
 
     public Set<String> getPreprocessedWorkBooks() {
         return preprocessedWorkBooks;
-    }
-
-    private IOpenSourceCodeModule findInclude(String include) {
-
-        if (searchPath == null) {
-            searchPath = "include/";
-        }
-
-        String[] path = StringTool.tokenize(searchPath, ";");
-
-        for (int i = 0; i < path.length; i++) {
-
-            try {
-                String p = PathTool.mergePath(path[i], include);
-                URL url = ucxt.findClassPathResource(p);
-
-                if (url != null) {
-                    return new URLSourceCodeModule(url);
-                }
-
-                File f = ucxt.findFileSystemResource(p);
-
-                if (f != null) {
-                    return new FileSourceCodeModule(f, null);
-                }
-
-                // let's try simple concat and use url
-                String u2 = path[i] + include;
-                URL xurl = new URL(u2);
-
-                // URLConnection uc;
-                InputStream is = null;
-
-                try {
-                    is = xurl.openStream();
-                } catch (IOException iox) {
-                    return null;
-                } finally {
-                    if (is != null) {
-                        is.close();
-                    }
-                }
-
-                return new URLSourceCodeModule(xurl);
-            } catch (Throwable t) {
-                OpenLMessagesUtils.addWarn(String.format("Cannot find '%s' ()", include, t.getMessage()));
-            }
-        }
-
-        return null;
-    }
+    }    
 
     public IParsedCode parse(IOpenSourceCodeModule source) {
 
@@ -196,8 +155,13 @@ public class XlsLoader {
         
         addInnerImports();
         
-        return new ParsedCode(new XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]), source, openl,
+        IParsedCode parsedCode = new ParsedCode(new XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]), source, openl,
             vocabulary, imports, extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
+        
+        // put found dependencies for current module to parsed code.
+        parsedCode.setDependentSources(userContext.getDependencyManager().getDependentSources(source));
+        
+        return parsedCode;
 
         // NOTE: A temporary implementation of multi-module feature.
         // return new ParsedCode(new
@@ -225,7 +189,7 @@ public class XlsLoader {
                 preprocessOpenlTable(row.getSource(), source);
             } else if (IXlsTableNames.DEPENDENCY.equals(name)) {
                 // process module dependency
-                preprocessDependency(tableSyntaxNode, row.getSource(), source.getWorkbookSource());
+                preprocessDependency(tableSyntaxNode, row.getSource(), source.getWorkbookSource().getSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
@@ -255,31 +219,37 @@ public class XlsLoader {
                 }
             }
         }
-
     }
 
     private void preprocessDependency(TableSyntaxNode tableSyntaxNode,
             IGridTable gridTable,
-            XlsWorkbookSourceCodeModule workbookSource) {        
-        IDependencyManager depManager = workbookSource.getSource().getDepManager();
+            IOpenSourceCodeModule moduleSource) {      
+                
+        IDependencyManager depManager = userContext.getDependencyManager();
         if (depManager != null) {
             int height = gridTable.getHeight();
-
+            
+            Set<IOpenSourceCodeModule> dependentSources = new HashSet<IOpenSourceCodeModule>();
             for (int i = 0; i < height; i++) {
 
                 String dependency = gridTable.getCell(1, i).getStringValue();
                 if (StringUtils.isNotBlank(dependency)) {
                     dependency = dependency.trim();
                     
-                    IOpenSourceCodeModule dependencySource = depManager.find(dependency);
+                    // uri to root module path.
+                    String searchPath = moduleSource.getUri(0);
+                    
+                    IOpenSourceCodeModule dependencySource = depManager.find(dependency, searchPath);
                     
                     if (dependencySource != null) {
-                        try {                    
-                            depManager.process(dependencySource);
-                        } catch (Throwable t) {
-                            registerError(tableSyntaxNode, gridTable, i, dependency, t);
-                            continue;
-                        }
+                        dependentSources.add(dependencySource);
+                        
+//                        try {                    
+//                            depManager.process(dependencySource);
+//                        } catch (Throwable t) {
+//                            registerError(tableSyntaxNode, gridTable, i, dependency, t);
+//                            continue;
+//                        }
                         
                     } else {
                         // throw smth, can`t find dependency
@@ -288,6 +258,7 @@ public class XlsLoader {
                     // skip empty dependency line.
                 }
             }
+            depManager.addSource(moduleSource, dependentSources);
         } else {
             // can`t find dependency manager, throw smth.
         }
@@ -364,7 +335,7 @@ public class XlsLoader {
                 IOpenSourceCodeModule src = null;
 
                 if (include.startsWith("<")) {
-                    src = findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
+                    src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
 
                     if (src == null) {
                         registerError(tableSyntaxNode, table, i, include, null);
