@@ -1,7 +1,7 @@
 package org.openl.rules.dt.data;
 
 import org.openl.OpenL;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IOpenSchema;
@@ -26,7 +26,7 @@ import org.openl.types.IOpenSchema;
  *  
  */
 
-public class DecisionTableDataType extends ModuleOpenClass{
+public class DecisionTableDataType extends ComponentOpenClass {
 
     private DecisionTable dtable;
     

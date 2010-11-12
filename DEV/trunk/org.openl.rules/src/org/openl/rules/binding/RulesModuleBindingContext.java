@@ -12,6 +12,8 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
+ * Binding context for xls rules.
+ * 
  * @author DLiauchuk
  *
  */

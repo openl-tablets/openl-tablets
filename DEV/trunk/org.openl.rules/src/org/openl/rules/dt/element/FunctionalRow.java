@@ -13,7 +13,7 @@ import java.util.Set;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
@@ -187,15 +187,15 @@ public abstract class FunctionalRow implements IDecisionRow {
     public void prepare(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentOpenClass,
             IBindingContextDelegator bindingContextDelegator,
             RuleRow ruleRow) throws Exception {
 
-        method = generateMethod(signature, openl, bindingContextDelegator, module, methodType);
+        method = generateMethod(signature, openl, bindingContextDelegator, componentOpenClass, methodType);
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContextDelegator);
 
-        IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, module);
+        IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, componentOpenClass);
         openlAdaptor.setHeader(header);
 
         paramValues = prepareParamValues(method, openlAdaptor, ruleRow);

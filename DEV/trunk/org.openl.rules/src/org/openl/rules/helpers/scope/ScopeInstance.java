@@ -2,6 +2,12 @@ package org.openl.rules.helpers.scope;
 
 import org.openl.types.impl.DynamicObject;
 
+/**
+ * @deprecated 12.11.2010 what is it for?
+ * @author DLiauchuk
+ *
+ */
+@Deprecated
 public class ScopeInstance extends DynamicObject {
 
     private DynamicObject parent;

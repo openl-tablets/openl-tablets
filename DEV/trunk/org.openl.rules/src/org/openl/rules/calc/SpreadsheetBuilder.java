@@ -10,8 +10,8 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.module.ModuleBindingContext;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
@@ -159,7 +159,7 @@ public class SpreadsheetBuilder {
         int columnsCount = columnNamesTable.getWidth();
 
         SpreadsheetOpenClass spreadsheetOpenClass = spreadsheet.getSpreadsheetType();
-        ModuleBindingContext bindingContext = new ModuleBindingContext(this.bindingContext, spreadsheetOpenClass);
+        IBindingContext bindingContext = new ComponentBindingContext(this.bindingContext, spreadsheetOpenClass);
 
         SpreadsheetCell[][] cells = new SpreadsheetCell[rowsCount][columnsCount];
         spreadsheet.setCells(cells);
@@ -480,10 +480,10 @@ public class SpreadsheetBuilder {
 
     private IBindingContextDelegator makeColumnContext(int columnIndex, IBindingContext scxt) {
 
-        ModuleOpenClass returnType = new ModuleOpenClass(null, spreadsheet.getName() + "ColType" + columnIndex,
+        ComponentOpenClass returnType = new ComponentOpenClass(null, spreadsheet.getName() + "ColType" + columnIndex,
                 bindingContext.getOpenL());
 
-        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(scxt, returnType);
+        IBindingContextDelegator moduleBindingContext = new ComponentBindingContext(scxt, returnType);
 
         int height = spreadsheet.getHeight();
 
@@ -535,10 +535,10 @@ public class SpreadsheetBuilder {
 
     private IBindingContextDelegator makeRowContext(int rowIndex, IBindingContext scxt) {
 
-        ModuleOpenClass returnType = new ModuleOpenClass(null, spreadsheet.getName() + "RowType" + rowIndex,
+        ComponentOpenClass returnType = new ComponentOpenClass(null, spreadsheet.getName() + "RowType" + rowIndex,
                 bindingContext.getOpenL());
 
-        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(scxt, returnType);
+        IBindingContextDelegator componentBindingContext = new ComponentBindingContext(scxt, returnType);
 
         int width = spreadsheet.getWidth();
 
@@ -572,7 +572,7 @@ public class SpreadsheetBuilder {
             }
         }
 
-        return moduleBindingContext;
+        return componentBindingContext;
     }
 
     private void parseHeader(SpreadsheetHeaderDefinition header, StringValue value) {

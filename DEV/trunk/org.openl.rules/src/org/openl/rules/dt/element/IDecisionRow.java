@@ -8,7 +8,7 @@ package org.openl.rules.dt.element;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
@@ -49,7 +49,7 @@ public interface IDecisionRow {
     void prepare(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentModule,
             IBindingContextDelegator bindingContextDelegator,
             RuleRow ruleRow) throws Exception;
 

@@ -3,6 +3,12 @@ package org.openl.rules.helpers.scope;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 
+/**
+ * @deprecated 12.11.2010 what is it for?
+ * @author DLiauchuk
+ *
+ */
+@Deprecated
 public class Scope extends ModuleOpenClass {
 
     ModuleOpenClass parentScope;

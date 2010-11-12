@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.module.ModuleBindingContext;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.Algorithm;
@@ -54,7 +54,7 @@ public class AlgorithmCompiler {
     /***************************************************************************
      * Compiler output
      **************************************************************************/
-    private ModuleOpenClass thisTargetClass;
+    private ComponentOpenClass thisTargetClass;
 
     private IBindingContext thisContext;
 
@@ -106,7 +106,7 @@ public class AlgorithmCompiler {
 
     private IBindingContext createBindingContext() {
         if (thisContext == null) {
-            thisContext = new ModuleBindingContext(context, thisTargetClass);
+            thisContext = new ComponentBindingContext(context, thisTargetClass);
         }
         return thisContext;
     }
@@ -213,7 +213,7 @@ public class AlgorithmCompiler {
 
     private void initialization(Algorithm algorithm) throws SyntaxNodeException {
         labelManager = new LabelManager();
-        thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL());
+        thisTargetClass = new ComponentOpenClass(null, generateOpenClassName(), context.getOpenL());
 
         initNewInternalVariable("ERROR", getTypeOfField(new StringValue("new RuntimeException()")));
         initNewInternalVariable("Error Message", getTypeOfField(new StringValue("\"Error!\"")));
