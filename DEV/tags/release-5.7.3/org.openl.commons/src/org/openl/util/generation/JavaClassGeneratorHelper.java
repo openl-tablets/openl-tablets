@@ -1,5 +1,6 @@
 package org.openl.util.generation;
 
+import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -121,7 +122,8 @@ public class JavaClassGeneratorHelper {
         buf.append("    }\n");
         buf.append(String.format("    %s another = (%s)obj;\n", simpleClassName, simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
-            buf.append(String.format("    builder.append(another.%s,%s);\n", field.getKey(), field.getKey()));
+            String getter = StringTool.getGetterName(field.getKey()) + "()";
+            buf.append(String.format("    builder.append(another.%s,%s);\n", getter, getter));
         }
         buf.append("    return builder.isEquals();\n");
         buf.append("}\n");
@@ -133,7 +135,8 @@ public class JavaClassGeneratorHelper {
         buf.append("\npublic int hashCode() {\n");
         buf.append("    HashCodeBuilder builder = new HashCodeBuilder();\n");
         for (Entry<String, Class<?>> field : fields.entrySet()) {
-            buf.append(String.format("    builder.append(%s);\n", field.getKey()));
+            String getter = StringTool.getGetterName(field.getKey()) + "()";
+            buf.append(String.format("    builder.append(%s);\n", getter));
         }
         buf.append("    return builder.toHashCode();\n");
         buf.append("}\n");
@@ -147,10 +150,11 @@ public class JavaClassGeneratorHelper {
         buf.append(String.format("    builder.append(\"%s {\");\n", simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
             buf.append(String.format("    builder.append(\" %s=\");\n", field.getKey()));
+            String getter = StringTool.getGetterName(field.getKey()) + "()";
             if (field.getValue().isArray()) {
-                buf.append(String.format("    builder.append(ArrayUtils.toString(%s));\n", field.getKey()));
+                buf.append(String.format("    builder.append(ArrayUtils.toString(%s));\n", getter));
             } else {
-                buf.append(String.format("    builder.append(%s);\n", field.getKey()));
+                buf.append(String.format("    builder.append(%s);\n", getter));
             }
         }
         buf.append("    builder.append(\" }\");\n");
@@ -222,5 +226,14 @@ public class JavaClassGeneratorHelper {
     
     public static String replaceCommas(String typeWithNamespace) {
         return typeWithNamespace.replace('.', '/');
+    }
+    
+    public static Constructor<?> getBeanConstructorWithAllFields(Class<?> beanClass, int beanFieldsCount) {
+        for (Constructor<?> constructor : beanClass.getConstructors()) {
+            if (constructor.getParameterTypes().length == beanFieldsCount) {
+                return constructor;
+            }
+        }
+        return null;
     }
 }
