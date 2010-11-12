@@ -17,12 +17,14 @@ public class SimpleBeanJavaGenerator {
     
     private String datatypeName;
     private Class<?> datatypeClass;
-    private Map<String, Class<?>> datatypeFields;
+    private Map<String, Class<?>> datatypeDeclaredFields;
+    private Map<String, Class<?>> datatypeAllFields;
     
-    public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> fields) {
+    public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> declaredFields, Map<String, Class<?>> allFields) {
         this.datatypeName = datatypeClass.getName();
         this.datatypeClass = datatypeClass;
-        this.datatypeFields = prepareFieldNames(fields);
+        this.datatypeDeclaredFields = prepareFieldNames(declaredFields);
+        this.datatypeAllFields = prepareFieldNames(allFields);
     }
     
     public LinkedHashMap<String, Class<?>> prepareFieldNames(Map<String, Class<?>> fields){
@@ -65,11 +67,11 @@ public class SimpleBeanJavaGenerator {
             } else if (method.getName().startsWith("set")) {
                 addSetter(buf, method);
             } else if (method.getName().equals("equals")) {
-                buf.append(JavaClassGeneratorHelper.getEqualsMethod(datatypeClass.getSimpleName(), datatypeFields));
+                buf.append(JavaClassGeneratorHelper.getEqualsMethod(datatypeClass.getSimpleName(), datatypeAllFields));
             } else if (method.getName().startsWith("hashCode")) {
-                buf.append(JavaClassGeneratorHelper.getHashCodeMethod(datatypeFields));
+                buf.append(JavaClassGeneratorHelper.getHashCodeMethod(datatypeAllFields));
             } else if (method.getName().equals("toString")) {
-                buf.append(JavaClassGeneratorHelper.getToStringMethod(datatypeClass.getSimpleName(), datatypeFields));
+                buf.append(JavaClassGeneratorHelper.getToStringMethod(datatypeClass.getSimpleName(), datatypeAllFields));
             }
         }
     }
@@ -79,29 +81,32 @@ public class SimpleBeanJavaGenerator {
         Map<String, Class<?>> fieldsForConstructor = new LinkedHashMap<String, Class<?>>();
         int numberOfParamsForSuperConstructor = 0;
         if (!datatypeClass.getSuperclass().equals(Object.class)) {
-            Constructor<?> superConstructorWithFields = getSuperConstructorWithFields();
-            int i = 0;
-            for (Class<?> paramClass : superConstructorWithFields.getParameterTypes()) {
-                fieldsForConstructor.put("arg" + i, paramClass);
-                i++;
+            numberOfParamsForSuperConstructor = datatypeAllFields.size() - datatypeDeclaredFields.size();
+            Constructor<?> superConstructorWithFields = JavaClassGeneratorHelper.getBeanConstructorWithAllFields(
+                    datatypeClass.getSuperclass(), numberOfParamsForSuperConstructor);
+            if (superConstructorWithFields != null) {
+                int i = 0;
+                for (Entry<String, Class<?>> field : datatypeAllFields.entrySet()) {
+                    if (field.getValue() == superConstructorWithFields.getParameterTypes()[i]) {
+                        fieldsForConstructor.put(field.getKey(), field.getValue());
+                    } else {
+                        // can not associate fields with parent constructor
+                        fieldsForConstructor.clear();
+                        numberOfParamsForSuperConstructor = 0;
+                        break;
+                    }
+                    i++;
+                    if (i == numberOfParamsForSuperConstructor) {
+                        break;
+                    }
+                }
+            }else{
+                numberOfParamsForSuperConstructor = 0;
             }
-            numberOfParamsForSuperConstructor = superConstructorWithFields.getParameterTypes().length;
         }
-        fieldsForConstructor.putAll(datatypeFields);
+        fieldsForConstructor.putAll(datatypeDeclaredFields);
         buf.append(JavaClassGeneratorHelper.getConstructorWithFields(datatypeClass.getSimpleName(),
                 fieldsForConstructor, numberOfParamsForSuperConstructor));
-    }
-    
-    private Constructor<?> getSuperConstructorWithFields() {
-        Class<?> superClass = datatypeClass.getSuperclass();
-        if (superClass != null && !superClass.equals(Object.class)) {
-            for (Constructor<?> constructor : superClass.getConstructors()) {
-                if (constructor.getParameterTypes().length > 0) {
-                    return constructor;
-                }
-            }
-        }
-        return null;
     }
     
     private void addSetter(StringBuffer buf, Method method) {
