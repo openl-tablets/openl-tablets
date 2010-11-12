@@ -3,6 +3,7 @@ package org.openl.rules.datatype.binding;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -250,32 +251,33 @@ public class SimpleBeanByteCodeGenerator {
             codeVisitor.visitMaxs(2, 2);
         }
     }
-
+    
     private void writeConstructorWithFields(ClassWriter classWriter) {
         CodeVisitor codeVisitor;
-        StringBuilder signatureBuilder = new StringBuilder("(");
-        for (Map.Entry<String, FieldType> field : allFields.entrySet()) {
-            String javaType = getJavaType(field.getValue());
-            signatureBuilder.append(javaType);
+        
+        Constructor<?> parentConstructorWithFields = null;
+        if(parentClass != null){
+            parentConstructorWithFields = JavaClassGeneratorHelper.getBeanConstructorWithAllFields(parentClass
+                    .getInstanceClass(), parentClass.getFields().size());
         }
-        signatureBuilder.append(")V");
-        codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", signatureBuilder.toString(), null, null);
-        codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-
         int i = 1;
         int stackSizeForParentConstructorCall = 0;
-        if (parentClass == null) {
-            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, JAVA_LANG_OBJECT, "<init>", "()V");
-        } else {
-            // invoke parent constructor with fields
-            //gather signature
-            StringBuilder parentSignatureBuilder = new StringBuilder("(");
-            Map<String, FieldType> parentFields = convertFields(parentClass.getFields());
-            for (Map.Entry<String, FieldType> field : parentFields.entrySet()) {
-                String javaType = getJavaType(field.getValue());
-                parentSignatureBuilder.append(javaType);
+        if(parentConstructorWithFields == null){
+            codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(
+                    beanFields, null), null, null);
+            codeVisitor.visitVarInsn(Constants.ALOAD, 0);
+            if (parentClass == null) {
+                codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, JAVA_LANG_OBJECT, "<init>", "()V");
+            }else{
+                codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, Type.getInternalName(parentClass
+                        .getInstanceClass()), "<init>", "()V");
             }
-            parentSignatureBuilder.append(")V");
+        }else{
+            codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(
+                    allFields, null), null, null);
+            codeVisitor.visitVarInsn(Constants.ALOAD, 0);
+
+            Map<String, FieldType> parentFields = convertFields(parentClass.getFields());
 
             // push to stack all parameters for parent constructor
             for (Map.Entry<String, FieldType> field : parentFields.entrySet()) {
@@ -288,9 +290,10 @@ public class SimpleBeanByteCodeGenerator {
                 }
             }
 
+            // invoke parent constructor with fields
             stackSizeForParentConstructorCall = i;
             codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, Type.getInternalName(parentClass.getInstanceClass()),
-                    "<init>", parentSignatureBuilder.toString());
+                    "<init>", getMethodSignatureForByteCode(parentFields, null));
         }
 
         // set all fields that is not presented in parent
@@ -577,16 +580,31 @@ public class SimpleBeanByteCodeGenerator {
     }
 
     private void invokeVirtual(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
-        StringBuilder signatureBuilder = getSignature(methodOwner, methodName, paramTypes);        
-        codeVisitor.visitMethodInsn(Constants.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder.toString());
+        String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);        
+        codeVisitor.visitMethodInsn(Constants.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder);
     }
     
     private void invokeStatic(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {        
-        StringBuilder signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
-        codeVisitor.visitMethodInsn(Constants.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder.toString());
+        String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
+        codeVisitor.visitMethodInsn(Constants.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder);
     }
 
-    private StringBuilder getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
+    private String getMethodSignatureForByteCode(Map<String, FieldType> params, Class<?> returnType){
+        StringBuilder signatureBuilder = new StringBuilder("(");
+        for (Map.Entry<String, FieldType> field : params.entrySet()) {
+            String javaType = getJavaType(field.getValue());
+            signatureBuilder.append(javaType);
+        }
+        signatureBuilder.append(")");
+        if(returnType == null){
+            signatureBuilder.append("V");
+        }else{
+            signatureBuilder.append(getJavaType(returnType));
+        }
+        return signatureBuilder.toString();
+    }
+
+    private String getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
         Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes, false);
         StringBuilder signatureBuilder = new StringBuilder();
         signatureBuilder.append('(');
@@ -595,7 +613,7 @@ public class SimpleBeanByteCodeGenerator {
         }
         signatureBuilder.append(')');
         signatureBuilder.append(getJavaType(matchingMethod.getReturnType()));
-        return signatureBuilder;
+        return signatureBuilder.toString();
     }
 
     private void pushFieldToStack(CodeVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
