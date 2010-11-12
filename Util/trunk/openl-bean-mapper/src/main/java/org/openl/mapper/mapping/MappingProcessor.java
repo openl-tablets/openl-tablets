@@ -84,11 +84,15 @@ public class MappingProcessor {
                 beanMapping = new Bean2BeanMappingDescriptor();
                 beanMapping.setClassA(classA);
                 beanMapping.setClassB(classB);
+                beanMapping.setClassAXmlBean(mapping.isClassAXmlBean());
+                beanMapping.setClassBXmlBean(mapping.isClassBXmlBean());
                 beanMappings.put(new ClassPair(classA, classB), beanMapping);
 
                 reverseBeanMapping = new Bean2BeanMappingDescriptor();
                 reverseBeanMapping.setClassA(classB);
                 reverseBeanMapping.setClassB(classA);
+                reverseBeanMapping.setClassAXmlBean(mapping.isClassAXmlBean());
+                reverseBeanMapping.setClassBXmlBean(mapping.isClassBXmlBean());
 
                 beanMappings.put(new ClassPair(classB, classA), reverseBeanMapping);
             }
@@ -179,6 +183,8 @@ public class MappingProcessor {
         reverseMapping.setClassB(mapping.getClassA());
         reverseMapping.setFieldA(mapping.getFieldB());
         reverseMapping.setFieldB(mapping.getFieldA());
+        reverseMapping.setClassAXmlBean(mapping.isClassBXmlBean());
+        reverseMapping.setClassBXmlBean(mapping.isClassAXmlBean());
         reverseMapping.setConvertMethod(mapping.getConvertMethod());
         reverseMapping.setOneWay(mapping.isOneWay());
 

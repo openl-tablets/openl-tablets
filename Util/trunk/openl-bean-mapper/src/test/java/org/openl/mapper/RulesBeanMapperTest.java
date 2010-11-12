@@ -5,16 +5,12 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.junit.Test;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.mapper.model.A;
 import org.openl.mapper.model.C;
 import org.openl.mapper.model.E;
 import org.openl.mapper.model.F;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
 
 public class RulesBeanMapperTest {
 
@@ -22,20 +18,18 @@ public class RulesBeanMapperTest {
     public void testMapper() {
 
         File source = new File("src/test/resources/org/openl/mapper/RulesBeanMapperTest.xlsx");
-        ProjectDescriptor project = new ProjectDescriptor();
-        project.setProjectFolder(source.getParentFile());
-        project.setName("RulesBeanMapperTest");
-        project.setId("RulesBeanMapperTest");
+        ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(source);
+        Class<?> instanceClass;
+        Object instance;
+        
+        try {
+            instanceClass = factory.getInterfaceClass();
+            instance = factory.makeInstance();
+        } catch (Exception e) {
+            throw new OpenLRuntimeException("Cannot load rules project", e);
+        }
 
-        Module module = new Module();
-        module.setProject(project);
-        module.setName("RulesBeanMapperTest");
-        module.setRulesRootPath(new PathEntry(source.getAbsolutePath()));
-        module.setType(ModuleType.API);
-
-        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module);
-
-        RulesBeanMapper mapper = new RulesBeanMapper(instantiationStrategy);
+        RulesBeanMapper mapper = new RulesBeanMapper(instanceClass, instance);
 
         A a = new A();
         a.setA("string");

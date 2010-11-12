@@ -4,6 +4,8 @@ public class Mapping {
 
     private Class<?> classA;
     private Class<?> classB;
+    private boolean classAXmlBean;
+    private boolean classBXmlBean;
     private String fieldA;
     private String fieldB;
     private String convertMethod;
@@ -55,6 +57,22 @@ public class Mapping {
 
     public void setOneWay(boolean oneWay) {
         this.oneWay = oneWay;
+    }
+
+    public boolean isClassAXmlBean() {
+        return classAXmlBean;
+    }
+
+    public void setClassAXmlBean(boolean classAXmlBean) {
+        this.classAXmlBean = classAXmlBean;
+    }
+
+    public boolean isClassBXmlBean() {
+        return classBXmlBean;
+    }
+
+    public void setClassBXmlBean(boolean classBXmlBean) {
+        this.classBXmlBean = classBXmlBean;
     }
 
 }
