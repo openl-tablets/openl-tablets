@@ -395,10 +395,12 @@ public class JavaWrapperAntTask extends Task {
             	// Skip java code generation for types what is defined 
             	// thru DomainOpenClass (skip java code generation for alias types).
             	// 
-            	if (!(datatype.getValue() instanceof DomainOpenClass)) {
-	                Class<?> datatypeClass = datatype.getValue().getInstanceClass();
-	                SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass,
-	                        getFieldsDescription(datatype.getValue()));
+            	IOpenClass datatypeOpenClass = datatype.getValue();
+                if (!(datatypeOpenClass instanceof DomainOpenClass)) {
+	                Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
+                    SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass,
+                            getFieldsDescription(datatypeOpenClass.getDeclaredFields()),
+                            getFieldsDescription(datatypeOpenClass.getFields()));
 	                String javaClass = beanJavaGenerator.generateJavaClass();
 	                String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
 	                writeContentToFile(javaClass, fileName);
@@ -407,10 +409,12 @@ public class JavaWrapperAntTask extends Task {
         }
     }
     
-    private Map<String, Class<?>> getFieldsDescription(IOpenClass openClass) {
+    private Map<String, Class<?>> getFieldsDescription(Map<String, IOpenField> fields) {
         Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
-        for (Entry<String, IOpenField> field : openClass.getDeclaredFields().entrySet()) {
-            fieldsDescriprtion.put(field.getKey(), field.getValue().getType().getInstanceClass());
+        for (Entry<String, IOpenField> field : fields.entrySet()) {
+            if (!field.getValue().isStatic()) {
+                fieldsDescriprtion.put(field.getKey(), field.getValue().getType().getInstanceClass());
+            }
         }
         return fieldsDescriprtion;
     }
