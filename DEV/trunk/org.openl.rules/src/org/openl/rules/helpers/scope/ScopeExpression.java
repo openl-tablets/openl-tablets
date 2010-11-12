@@ -21,6 +21,12 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
+/**
+ * @deprecated 12.11.2010 what is it for? never used.
+ * @author DLiauchuk
+ *
+ */
+@Deprecated
 public class ScopeExpression extends NamedThing {
 
     class ScopeField implements IOpenField {

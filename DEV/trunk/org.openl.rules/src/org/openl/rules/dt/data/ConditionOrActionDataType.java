@@ -1,12 +1,12 @@
 package org.openl.rules.dt.data;
 
 import org.openl.OpenL;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IOpenSchema;
 import org.openl.types.IParameterDeclaration;
 
-public class ConditionOrActionDataType extends ModuleOpenClass {
+public class ConditionOrActionDataType extends ComponentOpenClass {
 
     private IDecisionRow conditionOrAction;
 

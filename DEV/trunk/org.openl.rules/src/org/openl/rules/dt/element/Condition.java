@@ -7,7 +7,7 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -77,11 +77,11 @@ public class Condition extends FunctionalRow implements ICondition {
      */
     public IConditionEvaluator prepareCondition(IMethodSignature signature,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentOpenClass,
             IBindingContextDelegator bindingContextDelegator,
             RuleRow ruleRow) throws Exception {
 
-        super.prepare(NullOpenClass.the, signature, openl, module, bindingContextDelegator, ruleRow);
+        super.prepare(NullOpenClass.the, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
         
         IOpenSourceCodeModule source = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule();
 

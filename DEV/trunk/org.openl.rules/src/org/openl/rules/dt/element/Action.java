@@ -5,7 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.table.ILogicalTable;
@@ -98,11 +98,11 @@ public class Action extends FunctionalRow implements IAction {
     public void prepareAction(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentOpenClass,
             IBindingContextDelegator bindingContextDelegator,
             RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception {
 
-        prepare(methodType, signature, openl, module, bindingContextDelegator, ruleRow);
+        prepare(methodType, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
         this.ruleExecutionType = ruleExecutionType;
         
         IParameterDeclaration[] params = getParams();

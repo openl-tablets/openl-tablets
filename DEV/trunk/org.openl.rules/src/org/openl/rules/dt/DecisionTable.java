@@ -11,8 +11,8 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 
-import org.openl.binding.impl.module.ModuleBindingContext;
-import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -167,7 +167,7 @@ public class DecisionTable extends ExecutableRulesMethod {
             IAction[] actionRows,
             RuleRow ruleRow,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentOpenClass,
             IBindingContextDelegator cxtd,
             int columns) throws Exception {
 
@@ -179,7 +179,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         }
         this.columns = columns;
 
-        prepare(getHeader(), openl, module, cxtd);
+        prepare(getHeader(), openl, componentOpenClass, cxtd);
     }
 
     public BindingDependencies getDependencies() {
@@ -213,7 +213,7 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     private void prepare(IOpenMethodHeader header,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass module,
             IBindingContextDelegator bindingContextDelegator) throws Exception {
 
         IMethodSignature signature = header.getSignature();
@@ -227,20 +227,21 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     private void prepareActions(IOpenMethodHeader header,
             OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentOpenClass,
             IBindingContextDelegator bindingContextDelegator,
             IMethodSignature signature) throws Exception {
         
-        IBindingContextDelegator actionBindingContextDelegator = new ModuleBindingContext(bindingContextDelegator, (ModuleOpenClass)getRuleExecutionType(openl));
+        IBindingContextDelegator actionBindingContextDelegator = new 
+            ComponentBindingContext(bindingContextDelegator, (ComponentOpenClass)getRuleExecutionType(openl));
 
         for (int i = 0; i < actionRows.length; i++) {
             IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            actionRows[i].prepareAction(methodType, signature, openl, module, actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
+            actionRows[i].prepareAction(methodType, signature, openl, componentOpenClass, actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
         }
     }
 
     private IConditionEvaluator[] prepareConditions(OpenL openl,
-            ModuleOpenClass module,
+            ComponentOpenClass componentOpenClass,
             IBindingContextDelegator bindingContextDelegator,
             IMethodSignature signature) throws Exception {
         IConditionEvaluator[] evaluators = new IConditionEvaluator[conditionRows.length];
@@ -248,7 +249,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         for (int i = 0; i < conditionRows.length; i++) {
             evaluators[i] = conditionRows[i].prepareCondition(signature,
                 openl,
-                module,
+                componentOpenClass,
                 bindingContextDelegator,
                 ruleRow);
         }
