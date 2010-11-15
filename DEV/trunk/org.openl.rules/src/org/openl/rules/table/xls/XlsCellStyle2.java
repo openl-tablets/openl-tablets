@@ -138,8 +138,9 @@ public class XlsCellStyle2 implements ICellStyle {
         }
 
         short[] result = new short[3];
-        for (int i = 1; i < 4; i++) {
-            result[i - 1] = (short)(rgb[i] & 0xFF);
+        for (int i = 0; i < 3; i++) {
+            int j = rgb.length == 3 ? i : i + 1;
+            result[i] = (short)(rgb[j] & 0xFF);
         }
 
         return result;
