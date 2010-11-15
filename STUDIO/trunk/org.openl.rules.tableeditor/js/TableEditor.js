@@ -28,6 +28,8 @@ var TableEditor = Class.create({
     inheritedPropStyleClass: null,
     editorWrapper: null,
 
+    fillColorPicker: null,
+
     // Constructor
     initialize : function(editorId, url, editCell, actions) {
         this.editorId = editorId;
@@ -144,7 +146,7 @@ var TableEditor = Class.create({
      * Renders table.
      */
     renderTable : function(data) {
-        this.decorator = new Decorator();
+        this.decorator = new Decorator('te_selected');
 
         this.tableContainer.innerHTML = data.stripScripts();
         new ScriptLoader().evalScripts(data);
@@ -672,6 +674,66 @@ var TableEditor = Class.create({
         });
     },
 
+    selectFillColor: function(actionElemId) {
+        var self = this;
+
+        this.currentFillColor = this.currentElement.style.backgroundColor;
+
+        if (!this.fillColorPicker) { // Lazy initialization
+
+            this.fillColorPicker = new ColorPicker(
+            	actionElemId,
+                function(color) {
+                    self.setFillColor(color);
+                },
+                { // Optional params
+                	showOn: false,
+                	onMouseOver: function () {
+                	    self.decorator.undecorate(self.currentElement);
+                	},
+                	onColorMouseOver: function(color) {
+                	    self.currentElement.style.backgroundColor = color;
+	                },
+	                onMouseOut: function () {
+	                    self.currentElement.style.backgroundColor = self.currentFillColor;
+	                    self.decorator.decorate(self.currentElement);
+	                }
+	            }
+            );
+        }
+        this.fillColorPicker.show();
+    },
+
+    setFillColor: function(_color) {
+        if (!this.hasSelection()) {
+            alert("Nothing is selected");
+            return;
+        }
+
+        var cell = this.currentElement;
+        var self = this;
+
+        var params = {
+            editorId: this.editorId,    
+            row : this.selectionPos[0],
+            col : this.selectionPos[1],
+            color: _color
+        }
+
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FILL_COLOR), {
+            onSuccess: function(response) {
+                response = eval(response.responseText);
+                if (response.status)
+                    alert(response.status);
+                else {
+                    self.processCallbacks(response, "do");
+                }
+            },
+            parameters : params,
+            onFailure: AjaxHelper.handleError
+        });
+    },
+
     indent: function(_indent) {
         if (!this.hasSelection()) {
             alert("Nothing is selected");
@@ -764,6 +826,7 @@ TableEditor.Operations = {
     SET_CELL_VALUE : "setCellValue",
     SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",
+    SET_FILL_COLOR : "setFillColor",
     SET_INDENT : "setIndent",
     SET_PROPERTY : "setProperty",
     REMOVE_ROW : "removeRow",
@@ -798,24 +861,19 @@ TableEditor.parseXlsCell = function (s) {
  *  Responsible for visual display of 'selected' element.
  */
 var Decorator = Class.create({
-    // Holds changed properties of last decorated  element
-    previosState : {},
 
     // Empty constructor
-    initialize : Prototype.emptyFunction,
+    initialize : function(selectStyleClass) {
+        this.selectStyleClass = selectStyleClass;
+    },
 
     /**
      * Changes elememnt style, so it looks 'selected'.
      */
     decorate: function(/* Element */ elt) {
-        if (!elt) return;
-        this.previosState = {
-            color: elt.style.color,
-            backgroundColor: elt.style.backgroundColor
+        if (elt) {
+            elt.addClassName(this.selectStyleClass);
         }
-
-        elt.style.color = "white"
-        elt.style.backgroundColor = "rgb(180, 200, 255)"
     },
 
     /**
@@ -823,7 +881,7 @@ var Decorator = Class.create({
      */
     undecorate: function(/* Element */ elt) {
         if (elt) {
-            Object.extend(elt.style, this.previosState)
+            elt.removeClassName(this.selectStyleClass);
         }
     }
 });

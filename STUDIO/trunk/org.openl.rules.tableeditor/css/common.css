@@ -7,6 +7,11 @@
     font-size: 100%;
 }
 
+.te_selected {
+    color: white !important;
+    background: rgb(180, 200, 255) !important;
+}
+
 .te_comment {
     background: url("../img/comment_arrow.gif") no-repeat right top;
 }

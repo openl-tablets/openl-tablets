@@ -63,17 +63,25 @@ public class HTMLRenderer {
     public String render(TableEditor editor, boolean inner, String cellToEdit,
             List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
-        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
-                renderCSS("css/toolbar.css")).append(renderCSS("css/datepicker.css")).append(
-                renderCSS("css/multiselect.css")).append(renderCSS("css/tooltip.css"));
+        result.append("<div>")
+            .append(renderCSS("css/common.css"))
+            .append(renderCSS("css/menu.css"))
+            .append(renderCSS("css/toolbar.css"))
+            .append(renderCSS("css/datepicker.css"))
+            .append(renderCSS("css/multiselect.css"))
+            .append(renderCSS("css/tooltip.css"))
+            .append(renderCSS("css/colorPicker.css"));
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
         }
-        result.append(renderJS("js/tooltip.js"));
-        result.append(renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
-                renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
-                renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(
-                renderJS("js/BaseTextEditor.js"));
+        result.append(renderJS("js/tooltip.js"))
+            .append(renderJS("js/ScriptLoader.js"))
+            .append(renderJS("js/AjaxHelper.js"))
+            .append(renderJS("js/IconManager.js"))
+            .append(renderJS("js/TableEditor.js"))
+            .append(renderJS("js/initTableEditor.js"))
+            .append(renderJS("js/BaseEditor.js"))
+            .append(renderJS("js/BaseTextEditor.js"));
         if (!inner) {
             result.append("<div id='").append(editor.getId()).append("' class='te_'>");
         }
@@ -190,7 +198,8 @@ public class HTMLRenderer {
                 .append(renderJS("js/BooleanEditor.js"))
                 .append(renderJS("js/DateEditor.js"))
                 .append(renderJS("js/MultiselectEditor.js"))
-                .append(renderJS("js/ArrayEditor.js"));
+                .append(renderJS("js/ArrayEditor.js"))
+                .append(renderJS("js/colorPicker.js"));
         result.append(
                 renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT, editor.isCollapseProps()));
         result.append("<div id=\"").append(tableId).append("\"></div>");
@@ -210,41 +219,52 @@ public class HTMLRenderer {
         final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
                 + " class=\"item_separator\"></img>";
 
-        result
-                .append("<div class=\"te_toolbar\">")
-                .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save"))
-                .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo"))
-                .append(
-                        renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)",
-                                "Redo"))
-                .append(toolbarItemSeparator)
-                .append(
-                        renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
-                                "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before"))
-                .append(
-                        renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
-                                "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
-                .append(toolbarItemSeparator)
-                .append(
-                        renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar,
-                                "img/insert_column.gif",
-                                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)", "Insert column before"))
-                .append(
-                        renderEditorToolbarItem(editorId + "_remove_column", editorJsVar, "img/delete_column.gif",
-                                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column")).append(
-                        toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
-                                "setAlignment('left')", "Align left")).append(
-                        renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
-                                "setAlignment('center')", "Align center")).append(
-                        renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
-                                "setAlignment('right')", "Align right")).append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_decrease_indent", editorJsVar, "img/indent_left.gif",
-                                "indent('-1')", "Decrease indent")).append(
-                        renderEditorToolbarItem(editorId + "_increase_indent", editorJsVar, "img/indent_right.gif",
-                                "indent('1')", "Increase indent")).append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_help", null, "img/help.gif", "window.open('"
-                                + WebUtil.internalPath("docs/help.html") + "');", "Help")).append("</div>");
+        result.append("<div class=\"te_toolbar\">")
+            .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save"))
+            .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo"))
+            .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
+                    "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before"))
+            .append(renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
+                    "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar, "img/insert_column.gif",
+                    "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)", "Insert column before"))
+            .append(renderEditorToolbarItem(editorId + "_remove_column", editorJsVar, "img/delete_column.gif",
+                    "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
+                    "setAlignment('left')", "Align left"))
+            .append(renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
+                    "setAlignment('center')", "Align center"))
+            .append(renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
+                    "setAlignment('right')", "Align right"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_fill_color", editorJsVar, "img/fillColor.png",
+                    "selectFillColor('" + editorId + "_fill_color" + "')", "Fill color"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_decrease_indent", editorJsVar, "img/indent_left.gif",
+                    "indent('-1')", "Decrease indent"))
+            .append(renderEditorToolbarItem(editorId + "_increase_indent", editorJsVar, "img/indent_right.gif",
+                    "indent('1')", "Increase indent"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_help", null, "img/help.gif", "window.open('"
+                                + WebUtil.internalPath("docs/help.html") + "');", "Help"))
+
+            .append("</div>");
 
         return result.toString();
     }
