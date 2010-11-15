@@ -121,6 +121,7 @@
           <server>openl-tomcat-server</server>
           <path>/webstudio</path>
           <warFile>target/${war.name}.war</warFile>
+          <update>true</update>
         </configuration>
       </plugin>
     </plugins>
