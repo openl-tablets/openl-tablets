@@ -27,6 +27,7 @@ public final class Constants {
     public static final String REQUEST_PARAM_VALUE = "value";
     //public static final String REQUEST_PARAM_MOVE = "move";
     public static final String REQUEST_PARAM_ALIGN = "align";
+    public static final String REQUEST_PARAM_COLOR = "color";
     public static final String REQUEST_PARAM_INDENT = "indent";
     public static final String REQUEST_PARAM_ROW = "row";
     public static final String REQUEST_PARAM_COL = "col";

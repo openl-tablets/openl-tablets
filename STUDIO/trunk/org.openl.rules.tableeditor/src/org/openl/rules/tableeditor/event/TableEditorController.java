@@ -273,6 +273,47 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
+    public String setFillColor() {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            String color = getRequestParam(Constants.REQUEST_PARAM_COLOR);
+
+            if (color != null) {
+                ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
+                short[] newColor = parseColor(color);
+                short[] currentColor = style.getFillForegroundColor();
+
+                if (newColor.length == 3 &&
+                        (currentColor == null ||
+                                (newColor[0] != currentColor[0] || // red
+                                 newColor[1] != currentColor[1] || // green
+                                 newColor[2] != currentColor[2]))) { // blue
+                    CellStyle newStyle = new CellStyle(style);
+                    newStyle.setFillForegroundColor(newColor);
+                    newStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+                    editorModel.setStyle(row, col, newStyle);
+                }
+            }
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
+    private short[] parseColor(String colorStr) {
+        short[] rgb = new short[3];
+        String reg = "^rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)$";
+        if (colorStr.matches(reg)) {
+            String[] rgbStr = colorStr.replaceAll("rgb\\(", "").replaceAll("\\)", "").split(",");
+            for (int i = 0; i < rgbStr.length; i++) {
+                rgb[i] = Short.parseShort(rgbStr[i].trim());
+            }
+        }
+        return rgb;
+    }
+
     public String undo() {
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
