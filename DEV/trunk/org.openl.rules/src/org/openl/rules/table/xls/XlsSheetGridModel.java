@@ -363,7 +363,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
      * @param source style source
      * @param dest xls cell style object to fill
      */
-    public static void styleToXls(ICellStyle source, CellStyle dest) {
+    public void styleToXls(ICellStyle source, CellStyle dest) {
         if (source != null && dest != null) {
             dest.setAlignment((short) source.getHorizontalAlignment());
             dest.setVerticalAlignment((short) source.getVerticalAlignment());
@@ -375,9 +375,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
             dest.setBorderBottom(bs[2]);
             dest.setBorderLeft(bs[3]);
 
-            //dest.setFillPattern(source.getFillPattern());
-            //dest.setFillBackgroundColor(source.getFillBackgroundColorIndex());
-            //dest.setFillForegroundColor(source.getFillForegroundColorIndex());
+            // Set fill color
+            dest.setFillPattern(source.getFillPattern());
+            short[] rgb = source.getFillForegroundColor();
+            PoiExcelHelper.setCellFillForegroundColor(dest, sheet, rgb);
         }
     }
 
@@ -432,7 +433,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
         newPoiStyle.cloneStyleFrom(styleToClone);
 
-        styleToXls(style, newPoiStyle); // apply our style changes
+        if (style instanceof org.openl.rules.table.ui.CellStyle) {
+            styleToXls(style, newPoiStyle); // Apply our style changes
+        }
 
         poiCell.setCellStyle(newPoiStyle);
     }

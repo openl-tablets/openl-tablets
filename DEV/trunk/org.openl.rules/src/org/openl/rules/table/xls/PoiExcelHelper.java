@@ -1,11 +1,18 @@
 package org.openl.rules.table.xls;
 
+import java.awt.Color;
+
+import org.apache.poi.hssf.usermodel.HSSFPalette;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 
 public class PoiExcelHelper {
     
@@ -175,6 +182,27 @@ public class PoiExcelHelper {
         FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook()
             .getCreationHelper().createFormulaEvaluator();
         formulaEvaluator.evaluateFormulaCell(cell);
+    }
+
+    public static CellStyle setCellFillForegroundColor(CellStyle cellStyle, Sheet sheet, short[] rgb) {
+        if (cellStyle instanceof XSSFCellStyle) {
+            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
+            ((XSSFCellStyle) cellStyle).setFillForegroundColor(color);
+
+        } else {
+            HSSFPalette palette = ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
+            HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+
+            if (color == null) {
+                color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+            }
+
+            if (color != null) {
+                cellStyle.setFillForegroundColor(color.getIndex());
+            }
+        }
+
+        return cellStyle;
     }
 
 }
