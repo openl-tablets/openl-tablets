@@ -11,11 +11,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
-public class MapperDemo {
+public class Chartis2AcordModelMappingExample {
 
     public static void main(String[] args) throws URISyntaxException {
 
-        URL url = MapperDemo.class.getClassLoader().getResource("Chartis2AcordModelMappingExample.xlsx");
+        URL url = Chartis2AcordModelMappingExample.class.getClassLoader().getResource("Chartis2AcordModelMappingExample.xlsx");
         File source = new File(url.toURI());
         ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(source);
         Class<?> instanceClass;
