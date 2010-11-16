@@ -11,7 +11,11 @@ import java.net.URL;
 import java.util.EventListener;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.rules.indexer.IDocumentType;
@@ -31,6 +35,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
 	private Workbook workbook;
 
+	private Set<Short> wbColors = new TreeSet<Short>();
+
     private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
 
     /*raised for test*/ File sourceFile;
@@ -44,6 +50,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         super(src);
         this.workbook = workbook;
         initSourceFile();
+        initWorkbookColors();
     }
 
     private static Workbook loadWorkbook(IOpenSourceCodeModule src) {
@@ -71,6 +78,26 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             lastModified = sourceFile.lastModified();
         } catch (Exception e) {
             Log.error("Error when trying to get source file", e);
+        }
+    }
+
+    private void initWorkbookColors() {
+        short numStyles = workbook.getNumCellStyles();
+        for (short i = 0; i < numStyles; i++) {
+            CellStyle cellStyle = workbook.getCellStyleAt(i);
+
+            wbColors.add(cellStyle.getFillForegroundColor());
+            wbColors.add(cellStyle.getFillBackgroundColor());
+            wbColors.add(cellStyle.getTopBorderColor());
+            wbColors.add(cellStyle.getBottomBorderColor());
+            wbColors.add(cellStyle.getLeftBorderColor());
+            wbColors.add(cellStyle.getRightBorderColor());
+        }
+
+        short numFonts = workbook.getNumberOfFonts();
+        for (short i = 0; i < numFonts; i++) {
+            Font font = workbook.getFontAt(i);
+            wbColors.add(font.getColor());
         }
     }
 
@@ -155,6 +182,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     
     public IOpenSourceCodeModule getSource() {
         return src;
+    }
+
+    public Set<Short> getWorkbookColors() {
+        return wbColors;
     }
 
 }

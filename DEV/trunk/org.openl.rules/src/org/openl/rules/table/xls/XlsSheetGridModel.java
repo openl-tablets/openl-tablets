@@ -6,15 +6,23 @@
 
 package org.openl.rules.table.xls;
 
+import java.awt.Color;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.record.PaletteRecord;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -378,7 +386,42 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
             // Set fill color
             dest.setFillPattern(source.getFillPattern());
             short[] rgb = source.getFillForegroundColor();
-            PoiExcelHelper.setCellFillForegroundColor(dest, sheet, rgb);
+            setCellFillColor(dest, rgb);
+        }
+    }
+
+    private void setCellFillColor(CellStyle dest, short[] rgb) {
+        // Xlsx
+        if (dest instanceof XSSFCellStyle) {
+            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
+            ((XSSFCellStyle) dest).setFillForegroundColor(color);
+
+        // Xls
+        } else { 
+            HSSFPalette palette = ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
+            HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+
+            if (color == null) {
+                Set<Short> usedColors = sheetSource.getWorkbookSource().getWorkbookColors();
+
+                short fromIndex = PaletteRecord.FIRST_COLOR_INDEX;
+                short toIndex = (short) (PaletteRecord.STANDARD_PALETTE_SIZE + fromIndex);
+                for (short colorIndex = fromIndex; colorIndex < toIndex; colorIndex++) {
+                    if (!usedColors.contains(colorIndex)) {
+                        palette.setColorAtIndex(colorIndex, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                        color = palette.getColor(colorIndex);
+                        usedColors.add(colorIndex);
+                        break;
+                    }
+                }
+                if (color == null) {
+                    color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                }
+            }
+
+            if (color != null) {
+                dest.setFillForegroundColor(color.getIndex());
+            }
         }
     }
 
