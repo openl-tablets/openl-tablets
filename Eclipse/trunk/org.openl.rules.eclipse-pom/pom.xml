@@ -27,6 +27,7 @@
     <module>../org.openl.lib</module>
     <module>../org.openl.poi.lib</module>    
     <module>../org.openl.rules.webstudio.lib</module>    
+    <module>../org.openl.rules.repository.jcr.jackrabbit.lib</module>    
     <module>../org.openl.rules.ruleservice.lib</module>
     <module>../org.openl.rules.ruleservice.ws.lib</module>    
 
@@ -233,6 +234,12 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
+      <version>${version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr.jackrabbit.lib</artifactId>
       <version>${version}</version>
     </dependency>
 

@@ -42,6 +42,12 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.repository.jcr.jackrabbit.lib"
+         download-size="0"
+         install-size="0"
+         version="5.7.4"/>
+
+   <plugin
          id="org.openl.commons.web"
          download-size="0"
          install-size="0"
