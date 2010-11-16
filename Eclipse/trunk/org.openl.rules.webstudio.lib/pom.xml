@@ -1,9 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <!--
-    TODO: extract jackrabbit libraries into single lib-project
-  -->
-
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -76,13 +72,8 @@
   
     <dependency>
       <groupId>org.openl</groupId>
-  	  <artifactId>org.openl.lib</artifactId>
-	  <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.tableeditor</artifactId>
+      <artifactId>org.openl.lib</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -240,16 +231,6 @@
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-jcr-rmi</artifactId>
     </dependency>
 
     <dependency>

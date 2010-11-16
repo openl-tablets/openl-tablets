@@ -6,6 +6,6 @@ Bundle-Version: 5.7.4
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.repository;visibility:=reexport,
- org.openl.rules.webstudio.lib
+ org.openl.rules.repository.jcr.jackrabbit.lib;bundle-version="5.7.3"
 Export-Package: org.openl.rules.repository.factories,
  org.openl.rules.repository.jcr
