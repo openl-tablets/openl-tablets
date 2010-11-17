@@ -12,7 +12,6 @@ import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -182,9 +181,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
             int currentIndent = style.getIdent();
             int resultIndent = currentIndent + indent;
-            CellStyle newStyle = new CellStyle(style);
-            newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
-            editorModel.setStyle(row, col, newStyle);
+            editorModel.setIndent(row, col, resultIndent >= 0 ? resultIndent : 0);
             return pojo2json(new TableModificationResponse(null, editorModel));
         }
         return null;
@@ -263,9 +260,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             if (halign != -1) {
                 ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
                 if (style.getHorizontalAlignment() != halign) {
-                    CellStyle newStyle = new CellStyle(style);
-                    newStyle.setHorizontalAlignment(halign);
-                    editorModel.setStyle(row, col, newStyle);
+                    editorModel.setAlignment(row, col, halign);
                 }
             }
             return pojo2json(new TableModificationResponse(null, editorModel));
@@ -279,22 +274,19 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            String color = getRequestParam(Constants.REQUEST_PARAM_COLOR);
+            String colorStr = getRequestParam(Constants.REQUEST_PARAM_COLOR);
 
-            if (color != null) {
+            if (colorStr != null) {
                 ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
-                short[] newColor = parseColor(color);
+                short[] color = parseColor(colorStr);
                 short[] currentColor = style.getFillForegroundColor();
 
-                if (newColor.length == 3 &&
+                if (color.length == 3 &&
                         (currentColor == null ||
-                                (newColor[0] != currentColor[0] || // red
-                                 newColor[1] != currentColor[1] || // green
-                                 newColor[2] != currentColor[2]))) { // blue
-                    CellStyle newStyle = new CellStyle(style);
-                    newStyle.setFillForegroundColor(newColor);
-                    newStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-                    editorModel.setStyle(row, col, newStyle);
+                                (color[0] != currentColor[0] || // red
+                                 color[1] != currentColor[1] || // green
+                                 color[2] != currentColor[2]))) { // blue
+                    editorModel.setFillColor(row, col, color);
                 }
             }
             return pojo2json(new TableModificationResponse(null, editorModel));
