@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -364,67 +365,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         }
     }
 
-    /**
-     * Copies properties of <code>ICellStyle</code> object to POI xls styling
-     * object. <br/>
-     * 
-     * @param source style source
-     * @param dest xls cell style object to fill
-     */
-    public void styleToXls(ICellStyle source, CellStyle dest) {
-        if (source != null && dest != null) {
-            dest.setAlignment((short) source.getHorizontalAlignment());
-            dest.setVerticalAlignment((short) source.getVerticalAlignment());
-            dest.setIndention((short) source.getIdent());
-
-            short[] bs = source.getBorderStyle();
-            dest.setBorderTop(bs[0]);
-            dest.setBorderRight(bs[1]);
-            dest.setBorderBottom(bs[2]);
-            dest.setBorderLeft(bs[3]);
-
-            // Set fill color
-            dest.setFillPattern(source.getFillPattern());
-            short[] rgb = source.getFillForegroundColor();
-            setCellFillColor(dest, rgb);
-        }
-    }
-
-    private void setCellFillColor(CellStyle dest, short[] rgb) {
-        // Xlsx
-        if (dest instanceof XSSFCellStyle) {
-            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
-            ((XSSFCellStyle) dest).setFillForegroundColor(color);
-
-        // Xls
-        } else { 
-            HSSFPalette palette = ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
-            HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-
-            if (color == null) {
-                Set<Short> usedColors = sheetSource.getWorkbookSource().getWorkbookColors();
-
-                short fromIndex = PaletteRecord.FIRST_COLOR_INDEX;
-                short toIndex = (short) (PaletteRecord.STANDARD_PALETTE_SIZE + fromIndex);
-                for (short colorIndex = fromIndex; colorIndex < toIndex; colorIndex++) {
-                    if (!usedColors.contains(colorIndex)) {
-                        palette.setColorAtIndex(colorIndex, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-                        color = palette.getColor(colorIndex);
-                        usedColors.add(colorIndex);
-                        break;
-                    }
-                }
-                if (color == null) {
-                    color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-                }
-            }
-
-            if (color != null) {
-                dest.setFillForegroundColor(color.getIndex());
-            }
-        }
-    }
-
     public void setCellValue(int col, int row, Object value) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         if (value != null) {
@@ -481,20 +421,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
     public void setCellAlignment(int col, int row, int alignment) {
         Cell cell = PoiExcelHelper.getCell(col, row, sheet);
-
-        CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
-        newStyle.setAlignment((short) alignment);
-
-        cell.setCellStyle(newStyle);
+        CellUtil.setCellStyleProperty(cell, sheet.getWorkbook(), CellUtil.ALIGNMENT, (short) alignment);
     }
 
     public void setCellIndent(int col, int row, int indent) {
         Cell cell = PoiExcelHelper.getCell(col, row, sheet);
-
-        CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
-        newStyle.setIndention((short) indent);
-
-        cell.setCellStyle(newStyle);
+        CellUtil.setCellStyleProperty(cell, sheet.getWorkbook(), CellUtil.INDENTION, (short) indent);
     }
 
     public void setCellFillColor(int col, int row, short[] color) {
@@ -504,6 +436,41 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         setCellFillColor(newStyle, color);
 
         cell.setCellStyle(newStyle);
+    }
+
+    private void setCellFillColor(CellStyle dest, short[] rgb) {
+        // Xlsx
+        if (dest instanceof XSSFCellStyle) {
+            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
+            ((XSSFCellStyle) dest).setFillForegroundColor(color);
+
+        // Xls
+        } else { 
+            HSSFPalette palette = ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
+            HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+
+            if (color == null) {
+                Set<Short> usedColors = sheetSource.getWorkbookSource().getWorkbookColors();
+
+                short fromIndex = PaletteRecord.FIRST_COLOR_INDEX;
+                short toIndex = (short) (PaletteRecord.STANDARD_PALETTE_SIZE + fromIndex);
+                for (short colorIndex = fromIndex; colorIndex < toIndex; colorIndex++) {
+                    if (!usedColors.contains(colorIndex)) {
+                        palette.setColorAtIndex(colorIndex, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                        color = palette.getColor(colorIndex);
+                        usedColors.add(colorIndex);
+                        break;
+                    }
+                }
+                if (color == null) {
+                    color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                }
+            }
+
+            if (color != null) {
+                dest.setFillForegroundColor(color.getIndex());
+            }
+        }
     }
 
     public void setCellComment(int col, int row, ICellComment comment) {
