@@ -1,13 +1,10 @@
 package org.openl.rules.datatype;
 
 import static org.junit.Assert.*;
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 
 public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
     
@@ -68,21 +65,4 @@ public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
         Object result = invokeMethod("intIndex");
         assertNotNull(result);        
     }
-
-    private Object invokeMethod(String methodName) {
-        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
-        
-        IOpenMethod testMethod = __class.getMatchingMethod(methodName, new IOpenClass[] {});
-        
-        Assert.assertNotNull(String.format("Method with name %s exists", methodName), testMethod);
-        
-        Object[] __params = new Object[0];
-        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = __class.newInstance(environment);
-        
-        Object result = testMethod.invoke(__myInstance, __params, environment);        
-        
-        return result;
-    }
-
 }
