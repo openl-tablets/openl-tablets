@@ -13,6 +13,7 @@ import org.dozer.loader.api.TypeMappingBuilder;
 import org.dozer.loader.api.TypeMappingOption;
 import org.openl.mapper.mapping.Bean2BeanMappingDescriptor;
 import org.openl.mapper.mapping.Field2FieldMappingDescriptor;
+import org.apache.xmlbeans.XmlObject;
 
 public class MappingUtils {
 
@@ -22,11 +23,11 @@ public class MappingUtils {
             protected void configure() {
 
                 TypeDefinition typeADef = type(mapping.getClassA());
-                if (mapping.isClassAXmlBean()) {
+                if (isXmlBean(mapping.getClassA())) {
                     typeADef.beanFactory(XMLBeanFactory.class);
                 }
                 TypeDefinition typeBDef = type(mapping.getClassB());
-                if (mapping.isClassBXmlBean()) {
+                if (isXmlBean(mapping.getClassB())) {
                     typeBDef.beanFactory(XMLBeanFactory.class);
                 }
 
@@ -63,6 +64,10 @@ public class MappingUtils {
         }
 
         return map;
+    }
+
+    private static boolean isXmlBean(Class<?> clazz) {
+        return clazz.isAssignableFrom(XmlObject.class);
     }
 
 }
