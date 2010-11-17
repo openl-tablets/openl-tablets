@@ -7,7 +7,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.eclipse-pom</artifactId>
     <version>5.7.4-SNAPSHOT</version>
-    <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
+    <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
   <groupId>org.openl.rules</groupId>
