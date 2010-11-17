@@ -111,7 +111,7 @@ public class RepositoryTreeState {
             LOG.debug("Finishing buildTree()");
         }
 
-        if (selectedNode == null) {
+        if (selectedNode == null || UiConst.TYPE_REPOSITORY.equals(selectedNode.getType())) {
             selectedNode = rulesRepository;
         } else {
             updateSelectedNode();

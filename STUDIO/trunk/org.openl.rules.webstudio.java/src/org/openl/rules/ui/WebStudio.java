@@ -147,7 +147,9 @@ public class WebStudio {
                 }
                 project.checkIn();
                 RepositoryTreeState treeState = (RepositoryTreeState)FacesUtils.getSessionParam("repositoryTreeState");
-                treeState.invalidateTree();
+                if (treeState != null) {// repository tree have been initialized
+                    treeState.invalidateTree();
+                }
             } catch (Exception e) {
                 LOG.error("Can not check in!", e);
             }
@@ -160,7 +162,9 @@ public class WebStudio {
                 }
                 project.checkOut();
                 RepositoryTreeState treeState = (RepositoryTreeState)FacesUtils.getSessionParam("repositoryTreeState");
-                treeState.invalidateTree();
+                if (treeState != null) {// repository tree have been initialized
+                    treeState.invalidateTree();
+                }
                 reset(ReloadType.FORCED);
             } catch (Exception e) {
                 LOG.error("Can not check out!", e);
