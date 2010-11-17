@@ -177,4 +177,15 @@ public class PoiExcelHelper {
         formulaEvaluator.evaluateFormulaCell(cell);
     }
 
+    public static CellStyle cloneStyleFrom(Cell cell) {
+        CellStyle newStyle = null;
+        if (cell != null) {
+            Sheet sheet = cell.getSheet();
+            newStyle = sheet.getWorkbook().createCellStyle();
+            CellStyle fromStyle = cell.getCellStyle();
+            newStyle.cloneStyleFrom(fromStyle);
+        }
+        return newStyle;
+    }
+
 }

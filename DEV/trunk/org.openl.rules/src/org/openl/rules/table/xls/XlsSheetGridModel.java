@@ -476,11 +476,34 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
         newPoiStyle.cloneStyleFrom(styleToClone);
 
-        if (style instanceof org.openl.rules.table.ui.CellStyle) {
-            styleToXls(style, newPoiStyle); // Apply our style changes
-        }
-
         poiCell.setCellStyle(newPoiStyle);
+    }
+
+    public void setCellAlignment(int col, int row, int alignment) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+
+        CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
+        newStyle.setAlignment((short) alignment);
+
+        cell.setCellStyle(newStyle);
+    }
+
+    public void setCellIndent(int col, int row, int indent) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+
+        CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
+        newStyle.setIndention((short) indent);
+
+        cell.setCellStyle(newStyle);
+    }
+
+    public void setCellFillColor(int col, int row, short[] color) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+
+        CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
+        setCellFillColor(newStyle, color);
+
+        cell.setCellStyle(newStyle);
     }
 
     public void setCellComment(int col, int row, ICellComment comment) {

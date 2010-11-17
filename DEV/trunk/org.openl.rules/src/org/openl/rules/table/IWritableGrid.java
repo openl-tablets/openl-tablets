@@ -16,7 +16,6 @@ import org.openl.rules.table.actions.UndoableClearAction;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableCopyValueAction;
 import org.openl.rules.table.actions.UndoableResizeMergedRegionAction;
-import org.openl.rules.table.actions.UndoableSetStyleAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.actions.UndoableShiftValueAction;
 import org.openl.rules.table.actions.UnmergeByColumnsAction;
@@ -595,17 +594,6 @@ public interface IWritableGrid extends IGrid {
 
         }
 
-        public static IUndoableGridTableAction setStyle(int col, int row, IGridRegion region, ICellStyle style) {
-            int gcol = region.getLeft() + col;
-            int grow = region.getTop() + row;
-            return new UndoableSetStyleAction(gcol, grow, style);
-        }
-
-        public static IUndoableGridTableAction setStyle(int col, int row, IGridTable table, ICellStyle style) {
-            int gcol = table.getGridColumn(col, row);
-            int grow = table.getGridRow(col, row);
-            return new UndoableSetStyleAction(gcol, grow, style);
-        }
     }
 
     int addMergedRegion(IGridRegion reg);
@@ -633,6 +621,12 @@ public interface IWritableGrid extends IGrid {
     void setCellMetaInfo(int col, int row, CellMetaInfo meta);
 
     void setCellStyle(int col, int row, ICellStyle style);
+
+    void setCellAlignment(int col, int row, int alignment);
+
+    void setCellIndent(int col, int row, int indent);
+
+    void setCellFillColor(int col, int row, short[] color);
 
     void setCellComment(int col, int row, ICellComment comment);
 
