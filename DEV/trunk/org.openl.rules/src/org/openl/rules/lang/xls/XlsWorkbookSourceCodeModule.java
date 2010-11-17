@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -50,7 +51,9 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         super(src);
         this.workbook = workbook;
         initSourceFile();
-        initWorkbookColors();
+        if (workbook instanceof HSSFWorkbook) {
+            initWorkbookColors();
+        }
     }
 
     private static Workbook loadWorkbook(IOpenSourceCodeModule src) {

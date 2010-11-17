@@ -16,7 +16,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTColorScheme;
 import org.openxmlformats.schemas.drawingml.x2006.main.ThemeDocument;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
 /**
  * 
@@ -97,44 +96,39 @@ public class XlsCellStyle2 implements ICellStyle {
 
         byte[] rgb = color.getRgb();
 
-        if (rgb == null) {
+        if (rgb != null) {
 
-            Integer key = new Integer(color.getIndexed());
-            HSSFColor c = oldIndexedColors.get(key);
+            // The value to apply to RGB to make it lighter or darker
+            double tint = color.getTint();
+            if (tint != 0) {
+                rgb = color.getRgbWithTint(); // theme color (rgb with applied tint)
 
-            if (c != null) {
-                return c.getTriplet();
-            } else {
+                // TODO Remove this when POI will fix getting
+                // tints of black, white, brown and blue colors
 
-                // If color not identified yet try to check that given color is
-                // theme color.
-                // NOTE: the following code used as temporal workaround for
-                // getting theme color for cell. Apache POI library not
-                // supported themes (3.5 version) at high
-                // level of framework API.
-                //
-                // author: Alexey Gamanovich
-                //
-                if (themeDocument != null && color.getCTColor() != null && color.getCTColor().isSetTheme()) {
+                int themeIndex = color.getTheme();
 
-                    CTColor ctColor = color.getCTColor();
-
-                    int themeIndex = (int) ctColor.getTheme();
-
-                    // the value to apply
-                    // to RGB to make it
-                    // lighter or darker
-                    double tint = ctColor.getTint();
+                if (themeDocument != null
+                        && themeIndex > 0 && themeIndex < 4) { // tints of black, white, brown and blue colors
 
                     try {
                         return getThemeColorRgb(themeIndex, tint);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                } else {
-                    return null;
                 }
             }
+
+        } else {
+            // Try to find color among the indexed colors
+            Integer key = new Integer(color.getIndexed());
+            HSSFColor c = oldIndexedColors.get(key);
+
+            if (c != null) {
+                return c.getTriplet();
+            }
+
+            return null;
         }
 
         short[] result = new short[3];
