@@ -8,14 +8,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 public class PoiExcelHelper {
-    
+
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
-        if (cellTo.getCellType() == Cell.CELL_TYPE_FORMULA) {
-            // it is made for clearing calculation chain for xlsx files
-            // TODO: remove after this issue will be resolved:
-            // https://issues.apache.org/bugzilla/show_bug.cgi?id=50113
-            cellTo.setCellFormula(null);
-        }
         cellTo.setCellType(Cell.CELL_TYPE_BLANK);
         switch (cellFrom.getCellType()) {
             case Cell.CELL_TYPE_BLANK:
@@ -40,7 +34,7 @@ public class PoiExcelHelper {
                 throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
         }
     }
-    
+
     public static void copyCellStyle(Cell cellFrom, Cell cellTo, Sheet sheet) {
         CellStyle styleFrom = cellFrom.getCellStyle();
         try {
