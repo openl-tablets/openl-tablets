@@ -27,8 +27,10 @@ import org.openl.rules.table.actions.UndoableInsertRowsAction;
 import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
 import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
+import org.openl.rules.table.actions.style.SetAlignmentAction;
+import org.openl.rules.table.actions.style.SetFillColorAction;
+import org.openl.rules.table.actions.style.SetIndentAction;
 import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -260,8 +262,26 @@ public class TableEditorModel {
         }
     }
 
-    public synchronized void setStyle(int row, int col, ICellStyle style) {
-        IUndoableGridTableAction ua = IWritableGrid.Tool.setStyle(col, row, getOriginalTableRegion(), style);
+    public synchronized void setAlignment(int row, int col, int alignment) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetAlignmentAction(
+                region.getLeft() + col, region.getTop() + row, alignment);
+        ua.doAction(gridTable);
+        actions.addNewAction(ua);
+    }
+
+    public synchronized void setIndent(int row, int col, int indent) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetIndentAction(
+                region.getLeft() + col, region.getTop() + row, indent);
+        ua.doAction(gridTable);
+        actions.addNewAction(ua);
+    }
+
+    public synchronized void setFillColor(int row, int col, short[] color) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetFillColorAction(
+                region.getLeft() + col, region.getTop() + row, color);
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
