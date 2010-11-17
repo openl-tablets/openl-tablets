@@ -1,20 +1,16 @@
 package org.openl.mapper.mapping;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.reflect.MethodUtils;
 import org.dozer.CustomConverter;
 import org.openl.mapper.Mapping;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
 
 public class MappingProcessor {
 
@@ -84,15 +80,11 @@ public class MappingProcessor {
                 beanMapping = new Bean2BeanMappingDescriptor();
                 beanMapping.setClassA(classA);
                 beanMapping.setClassB(classB);
-                beanMapping.setClassAXmlBean(mapping.isClassAXmlBean());
-                beanMapping.setClassBXmlBean(mapping.isClassBXmlBean());
                 beanMappings.put(new ClassPair(classA, classB), beanMapping);
 
                 reverseBeanMapping = new Bean2BeanMappingDescriptor();
                 reverseBeanMapping.setClassA(classB);
                 reverseBeanMapping.setClassB(classA);
-                reverseBeanMapping.setClassAXmlBean(mapping.isClassAXmlBean());
-                reverseBeanMapping.setClassBXmlBean(mapping.isClassBXmlBean());
 
                 beanMappings.put(new ClassPair(classB, classA), reverseBeanMapping);
             }
@@ -129,8 +121,8 @@ public class MappingProcessor {
 
     private String createConverterId(Mapping mapping) {
         if (!StringUtils.isBlank(mapping.getConvertMethod())) {
-            return StringUtils.join(new String[] { mapping.getClassA().getName(), mapping.getFieldA(), "_",
-                    mapping.getClassB().getName(), mapping.getFieldB() }, ".");
+            return StringUtils.join(new String[]{mapping.getClassA().getName(), mapping.getFieldA(), "_",
+                    mapping.getClassB().getName(), mapping.getFieldB()}, ".");
         }
 
         return null;
@@ -139,7 +131,7 @@ public class MappingProcessor {
     private CustomConverter createConverterProxy(final String convertMethodName) {
 
         if (!StringUtils.isEmpty(convertMethodName)) {
-            Class<?>[] interfaces = new Class[] { CustomConverter.class };
+            Class<?>[] interfaces = new Class[]{CustomConverter.class};
             ClassLoader classLoader = MappingProcessor.class.getClassLoader();
 
             return (CustomConverter) Proxy.newProxyInstance(classLoader, interfaces, new InvocationHandler() {
@@ -154,17 +146,15 @@ public class MappingProcessor {
                     //
                     Class<?> destClass = (Class<?>) args[2];
                     Class<?> srcClass = (Class<?>) args[3];
-                    Class<?>[] parameterTypes = new Class<?>[] { srcClass, destClass };
+                    Class<?>[] parameterTypes = new Class<?>[]{srcClass, destClass};
 
-                    Method convertMethod = instanceClass.getMethod(convertMethodName, parameterTypes);
+                    Method convertMethod = MethodUtils.getMatchingAccessibleMethod(instanceClass, convertMethodName, parameterTypes);
 
                     Object destValue = args[0];
                     Object srcValue = args[1];
-                    Object[] parameterValues = new Object[] { srcValue, destValue };
+                    Object[] parameterValues = new Object[]{srcValue, destValue};
 
-                    Object result = convertMethod.invoke(instance, parameterValues);
-
-                    return result;
+                    return convertMethod.invoke(instance, parameterValues);
                 }
             });
         }
@@ -183,8 +173,6 @@ public class MappingProcessor {
         reverseMapping.setClassB(mapping.getClassA());
         reverseMapping.setFieldA(mapping.getFieldB());
         reverseMapping.setFieldB(mapping.getFieldA());
-        reverseMapping.setClassAXmlBean(mapping.isClassBXmlBean());
-        reverseMapping.setClassBXmlBean(mapping.isClassAXmlBean());
         reverseMapping.setConvertMethod(mapping.getConvertMethod());
         reverseMapping.setOneWay(mapping.isOneWay());
 
@@ -192,7 +180,7 @@ public class MappingProcessor {
     }
 
     private Bean2BeanMappingDescriptor findBeanMapping(Map<ClassPair, Bean2BeanMappingDescriptor> beanMappings,
-        Class<?> classA, Class<?> classB) {
+                                                       Class<?> classA, Class<?> classB) {
 
         ClassPair pair = new ClassPair(classA, classB);
 
