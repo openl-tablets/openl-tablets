@@ -7,5 +7,5 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.repository.jcr;visibility:=reexport,
  org.openl.rules.webstudio.lib,
- org.openl.rules.repository.jcr.jackrabbit.lib
+ org.openl.rules.repository.jcr.jackrabbit.lib;visibility:=reexport
 Export-Package: org.openl.rules.repository.factories
