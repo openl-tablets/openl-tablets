@@ -2,14 +2,19 @@ package org.openl.mapper.demo;
 
 import com.exigen.chartis.chome.policy.domain.ChPolicyEntity;
 import com.exigen.chartis.integration.acord.pcsurety.generated.HomePolicyQuoteInqRqType;
+import com.exigen.chartis.integration.acord.pcsurety.generated.C25;
 import com.exigen.ipb.base.datatypes.Term;
+import com.exigen.ipb.policy.domain.PolicyDetail;
 import org.openl.mapper.RulesBeanMapper;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
+import org.dozer.CustomConverter;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Chartis2AcordModelMappingExample {
 
@@ -36,8 +41,6 @@ public class Chartis2AcordModelMappingExample {
         policy.setContractTerm(term);
 
         RulesBeanMapper mapper = new RulesBeanMapper(instanceClass, instance);
-
-//        HomePolicyQuoteInqRqType acord = mapper.map(policy, HomePolicyQuoteInqRqType.class);
 
         HomePolicyQuoteInqRqType acord = HomePolicyQuoteInqRqType.Factory.newInstance();
         mapper.map(policy, acord);
