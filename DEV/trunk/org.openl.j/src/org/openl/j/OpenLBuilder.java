@@ -89,7 +89,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         LibraryFactoryConfiguration lfc = op.createLibraries();
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
-        nslc.setNamespace("org.openl.operators");
+        nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
         JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
         javalib.setClassName(org.openl.binding.impl.Operators.class.getName());
         nslc.addJavalib(javalib);
