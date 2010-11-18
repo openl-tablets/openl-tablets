@@ -15,6 +15,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.StringTool;
 
 /**
  * Binding context for different Openl components.<br>
@@ -45,21 +46,32 @@ public class ComponentBindingContext extends BindingContextDelegator {
     public synchronized void addType(String namespace, IOpenClass type)
             throws Exception {
 
-        String key = typeKey(namespace, type.getName());
+        String nameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
+        add(nameWithNamespace, type);
+    }
+
+    private synchronized void add(String nameWithNamespace, IOpenClass type) throws Exception {
         Map<String, IOpenClass> map = initInternalTypes();
         
-        if (map.containsKey(key)) {
-            throw new Exception("Type " + key + " has been defined already");
+        if (map.containsKey(nameWithNamespace)) {
+            throw new Exception("Type " + nameWithNamespace + " has been defined already");
         }
 
-        map.put(key, type);
+        map.put(nameWithNamespace, type);
+    }
+    
+    @Override
+    public synchronized void addTypes(Map<String, IOpenClass> types) throws Exception {
+        for (String nameWithNamespace : types.keySet()) {
+            add(nameWithNamespace, types.get(nameWithNamespace));
+        }
     }
 
     @Override
     public synchronized void removeType(String namespace, IOpenClass type)
             throws Exception {
 
-        String key = typeKey(namespace, type.getName());
+        String key = StringTool.buildTypeName(namespace, type.getName());
         Map<String, IOpenClass> map = initInternalTypes();
         map.remove(key);
     }
@@ -77,9 +89,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
         return internalTypes;
     }
     
-    final String typeKey(String namespace, String typeName) {
-        return namespace + "::" + typeName;
-    }
+    
     
     @Override
     public IMethodCaller findMethodCaller(String namespace, String methodName,
@@ -99,7 +109,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
     public IOpenClass findType(String namespace, String typeName) {
 
         if (internalTypes != null) {
-            String key = typeKey(namespace, typeName);
+            String key = StringTool.buildTypeName(namespace, typeName);
             IOpenClass ioc = internalTypes.get(key);
             if (ioc != null) {
                 return ioc;

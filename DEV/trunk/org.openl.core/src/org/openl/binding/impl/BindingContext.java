@@ -76,6 +76,10 @@ public class BindingContext implements IBindingContext {
     public void addType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
+    
+    public void addTypes(Map<String, IOpenClass> types) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 
     public void removeType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
