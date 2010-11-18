@@ -256,7 +256,6 @@ Export-Package: javax.xml,
  schemasMicrosoftComVml.impl
 Bundle-ClassPath: lib/ooxml-schemas-1.0.jar,
  lib/xmlbeans-2.3.0.jar,
- lib/poi-ooxml-3.5-beta5.jar,
  lib/commons-logging-api-1.1.jar,
  lib/dom4j-1.6.1.jar,
  lib/stax-api-1.0.1.jar,
