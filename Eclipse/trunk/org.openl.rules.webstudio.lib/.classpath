@@ -46,7 +46,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/myfaces-impl-1.2.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/oro-2.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/persistence-api-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/poi-2.5.1-final-20040804.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/richfaces-api-3.3.2.SR1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/richfaces-impl-3.3.2.SR1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/richfaces-ui-3.3.2.SR1.jar"/>
