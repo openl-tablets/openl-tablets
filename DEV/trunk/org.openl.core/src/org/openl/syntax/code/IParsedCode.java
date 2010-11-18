@@ -50,10 +50,20 @@ public interface IParsedCode {
     
     void setCompiledDependencies(Set<CompiledOpenClass> compliedDependencies);
     
+    /**
+     * Returns set of compiled dependency modules.
+     * 
+     * @return empty set or a set of compiled dependency modules. 
+     */
     Set<CompiledOpenClass> getCompiledDependencies();
     
     void setDependentSources(Set<IOpenSourceCodeModule> dependentSources);
     
+    /**
+     * Returns set of sources for dependency modules.
+     * 
+     * @return empty set or a set of sources for dependency modules.
+     */
     Set<IOpenSourceCodeModule> getDependentSources();
        
 }

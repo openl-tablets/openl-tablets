@@ -49,7 +49,10 @@ public abstract class ADynamicClass extends AOpenClass {
         this.fieldMap = fieldMap();
 
         // adding defailt constructor
-
+        /**
+         * TODO: fixme. Calling method in constructor that is overloaded in childs.
+         * At this time childs are not built yet.
+         */
         addMethod(new OpenConstructor(this));
     }
 

@@ -159,7 +159,8 @@ public class XlsLoader {
             vocabulary, imports, extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
         
         // put found dependencies for current module to parsed code.
-        parsedCode.setDependentSources(userContext.getDependencyManager().getDependentSources(source));
+        //
+        parsedCode.setDependentSources(userContext.getDependencyManager().getDependenciesSources(source));
         
         return parsedCode;
 
@@ -189,6 +190,7 @@ public class XlsLoader {
                 preprocessOpenlTable(row.getSource(), source);
             } else if (IXlsTableNames.DEPENDENCY.equals(name)) {
                 // process module dependency
+                //
                 preprocessDependency(tableSyntaxNode, row.getSource(), source.getWorkbookSource().getSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
@@ -229,7 +231,10 @@ public class XlsLoader {
         if (depManager != null) {
             int height = gridTable.getHeight();
             
+            // dependent sources for current module
+            //
             Set<IOpenSourceCodeModule> dependentSources = new HashSet<IOpenSourceCodeModule>();
+            
             for (int i = 0; i < height; i++) {
 
                 String dependency = gridTable.getCell(1, i).getStringValue();
@@ -237,30 +242,32 @@ public class XlsLoader {
                     dependency = dependency.trim();
                     
                     // uri to root module path.
+                    //
                     String searchPath = moduleSource.getUri(0);
                     
+                    // find dependency source                    
                     IOpenSourceCodeModule dependencySource = depManager.find(dependency, searchPath);
                     
                     if (dependencySource != null) {
-                        dependentSources.add(dependencySource);
-                        
-//                        try {                    
-//                            depManager.process(dependencySource);
-//                        } catch (Throwable t) {
-//                            registerError(tableSyntaxNode, gridTable, i, dependency, t);
-//                            continue;
-//                        }
-                        
+                        // add source as dependency
+                        dependentSources.add(dependencySource);                        
                     } else {
                         // throw smth, can`t find dependency
+                        // temporary just logging
+                        String message = String.format("Can`t find dependeny source for %s module", moduleSource.getUri(0));
+                        LOG.error(this, new OpenLCompilationException(message));
                     }                    
                 } else {
                     // skip empty dependency line.
                 }
             }
-            depManager.addSource(moduleSource, dependentSources);
+            // add set of dependent sources for current module to dependency manager
+            depManager.addDependenciesSources(moduleSource, dependentSources);
         } else {
             // can`t find dependency manager, throw smth.
+            // temporary just logging
+            String message = String.format("Can`t find dependeny manager for %s module", moduleSource.getUri(0));
+            LOG.error(this, new OpenLCompilationException(message));
         }
     }
 

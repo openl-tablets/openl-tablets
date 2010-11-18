@@ -2,6 +2,7 @@ package org.openl.source;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,8 +21,7 @@ public class DefaultDependencyManager implements IDependencyManager {
     
     public DefaultDependencyManager() {    
     }
-    
-    
+
     /**
      * Searches dependencies in root module path.
      */
@@ -37,14 +37,21 @@ public class DefaultDependencyManager implements IDependencyManager {
         return dependencySource;
     }
 
-    public void addSource(IOpenSourceCodeModule moduleSource, Set<IOpenSourceCodeModule> dependentSources) {
-        if (!dependencyMap.containsKey(moduleSource)) {
-            dependencyMap.put(moduleSource, dependentSources);
-        }
-        
+    public boolean addDependenciesSources(IOpenSourceCodeModule moduleSource, Set<IOpenSourceCodeModule> dependentSources) {
+        boolean result = false;
+        if (!dependencyMap.containsKey(moduleSource) && dependentSources != null) {
+            dependencyMap.put(moduleSource, new HashSet<IOpenSourceCodeModule>(dependentSources));
+            result = true;
+        } 
+        return result;
     }
 
-    public Set<IOpenSourceCodeModule> getDependentSources(IOpenSourceCodeModule moduleSource) {        
-        return dependencyMap.get(moduleSource);
+    public Set<IOpenSourceCodeModule> getDependenciesSources(IOpenSourceCodeModule moduleSource) {    
+        Set<IOpenSourceCodeModule> sources = dependencyMap.get(moduleSource);
+        if (sources != null) {
+            return new HashSet<IOpenSourceCodeModule>(sources);
+        } else {
+            return new HashSet<IOpenSourceCodeModule>();
+        }
     }
 }

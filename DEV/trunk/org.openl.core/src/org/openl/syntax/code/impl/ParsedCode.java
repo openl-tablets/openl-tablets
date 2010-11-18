@@ -58,19 +58,18 @@ public class ParsedCode implements IParsedCode {
     
     //----module dependencies
     public Set<IOpenSourceCodeModule> getDependentSources() {        
-        return dependentSources;
+        return new HashSet<IOpenSourceCodeModule>(dependentSources);
     }
 
     public void setDependentSources(Set<IOpenSourceCodeModule> dependentSources) {
-        this.dependentSources = dependentSources;
+        this.dependentSources = new HashSet<IOpenSourceCodeModule>(dependentSources);
     }
 
     public Set<CompiledOpenClass> getCompiledDependencies() {        
-        return compiledDependencies;
+        return new HashSet<CompiledOpenClass>(compiledDependencies);
     }
 
     public void setCompiledDependencies(Set<CompiledOpenClass> compiledDependencies) {
-        this.compiledDependencies = compiledDependencies;
+        this.compiledDependencies = new HashSet<CompiledOpenClass>(compiledDependencies);
     }
-    
 }
