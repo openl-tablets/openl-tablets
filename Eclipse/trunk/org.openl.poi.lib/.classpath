@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="lib/poi-3.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-3.7.jar" sourcepath="D:/java/Genuitec/workspace/_exigen/site/org.openl.poi.lib/lib/poi-ooxml-3.7-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-3.7.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/poi-scratchpad-3.7.jar"/>
-	<classpathentry kind="lib" path="D:/java/Genuitec/workspace/_exigen/site/org.openl.poi.lib/lib/poi-3.7.jar"/>
-	<classpathentry kind="lib" path="D:/java/Genuitec/workspace/_exigen/site/org.openl.poi.lib/lib/poi-ooxml-3.7.jar" sourcepath="lib/poi-ooxml-3.7-sources.jar"/>
-	<classpathentry kind="lib" path="D:/java/Genuitec/workspace/_exigen/site/org.openl.poi.lib/lib/poi-scratchpad-3.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ooxml-schemas-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlbeans-2.3.0.jar"/>
