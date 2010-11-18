@@ -51,6 +51,10 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void addType(String namespace, IOpenClass type) throws Exception {
         throw new UnsupportedOperationException();
     }
+    
+    public void addTypes(Map<String, IOpenClass> types) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 
     public void removeType(String namespace, IOpenClass type) throws Exception {
         throw new UnsupportedOperationException();
@@ -168,6 +172,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void setExternalParams(Map<String, Object> params) {
         delegate.setExternalParams(params);
     }
+
+    
     
 //  NOTE: A temporary implementation of multi-module feature.
 //    public void addImport(IOpenClass type) {
