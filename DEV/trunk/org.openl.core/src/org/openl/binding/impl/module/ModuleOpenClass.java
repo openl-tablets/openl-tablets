@@ -14,9 +14,18 @@ import java.util.Set;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.exception.OpenLCompilationException;
+
+import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.util.StringTool;
 
 /**
  * {@link IOpenClass} implementation for full module.<br>
@@ -36,23 +45,117 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Set of dependencies for current module.
      */
-    private Set<CompiledOpenClass> moduleDependencies = new HashSet<CompiledOpenClass>();
-
+    private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
+    
     public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
         super(schema, name, openl);
     } 
+    
+    /**
+     * Constructor for module with dependent modules
+     *
+     */
+    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl, Set<CompiledOpenClass> usingModules) {
+        super(schema, name, openl);
+        if (usingModules != null) {
+            this.usingModules = new HashSet<CompiledOpenClass>(usingModules);
+            try {
+                initDependencies();
+            } catch (OpenLCompilationException e) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype", e,
+                    (ISyntaxNode) this);
+                BindHelper.processError(error);
 
-    public IBindingContext makeBindingContext(IBindingContext parentContext) {
-        return new ModuleBindingContext(parentContext, this);
+            }
+        }
     }
     
+    /**
+     * Populate current module fields with data from dependent modules. 
+     */
+    private void initDependencies() throws OpenLCompilationException {    
+        for (CompiledOpenClass dependency : usingModules) {
+            addTypes(dependency);
+            addMethods(dependency);
+        }
+    }
+    
+    /**
+     * Add datatypes from dependent modules to this one. 
+     * Only one domain model is supported by a set of rules.
+     * 
+     * @param dependency compiled dependency module
+     * @throws OpenLCompilationException if such datatype already presents.
+     */
+    private void addTypes(CompiledOpenClass dependency) throws OpenLCompilationException {
+        Map<String, IOpenClass> dependentModuleTypes = dependency.getOpenClass().getTypes(); 
+        for (String typeNamespace : dependentModuleTypes.keySet()) {
+            add(typeNamespace, dependentModuleTypes.get(typeNamespace));
+        }
+    }
+    
+    /**
+     * Add methods form dependent modules to current one.
+     * 
+     * @param dependency compiled dependency module
+     */
+    private void addMethods(CompiledOpenClass dependency) {
+        for (IOpenMethod depMethod : dependency.getOpenClass().getMethods()) {
+            // filter constructor and getOpenClass methods of dependency modules
+            //
+            if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
+                addMethod(depMethod);
+            }
+        }
+    }
+    
+    @Override
+    public IOpenField getField(String fname, boolean strictMatch) {
+        // try to get field from own field map
+        //
+        IOpenField field = super.getField(fname, strictMatch);
+        if (field != null) {
+            return field;
+        } else {
+            // if can`t find, search in dependencies.
+            //
+            for (CompiledOpenClass dependency : usingModules) {
+                field = dependency.getOpenClass().getField(fname, strictMatch);
+                if (field != null) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
+//    
+    @Override
+    public Map<String, IOpenField> getFields() {
+        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+
+        // get fields from dependencies
+        //
+        for (CompiledOpenClass dependency : usingModules) {
+            fields.putAll(dependency.getOpenClass().getFields());
+        }
+
+        // get own fields. if current module has duplicated fields they will
+        // override the same from dependencies.
+        //
+        fields.putAll(super.getFields());
+
+        return fields;
+    }
+     
     /**
      * Set compiled module dependencies for current module.
      * 
      * @param moduleDependencies
      */
     public void setDependencies(Set<CompiledOpenClass> moduleDependencies){
-        this.moduleDependencies = moduleDependencies;
+        if (moduleDependencies != null) {
+            this.usingModules = new HashSet<CompiledOpenClass>(moduleDependencies);
+        }
     }
     
     /**
@@ -60,7 +163,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @return compiled module dependencies for current module.
      */
     public Set<CompiledOpenClass> getDependencies() {
-        return moduleDependencies;
+        return new HashSet<CompiledOpenClass>(usingModules);
     }
     
     /**
@@ -70,7 +173,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @return map of internal types 
      */
     @Override
-    public Map<String, IOpenClass> getTypes() {
+    public Map<String, IOpenClass> getTypes() {        
         return new HashMap<String, IOpenClass>(internalTypes);
     }
     
@@ -85,23 +188,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
     @Override
     public IOpenClass findType(String namespace, String typeName) {
         
-        String name = buildFullTypeName(namespace, typeName);
-        
+        String name = StringTool.buildTypeName(namespace, typeName);
+        // it will contain all types from current module and dependent ones.
+        //
         return internalTypes.get(name);
-    }
-    
-    /**
-     * Builds full type name using namespace and type names.
-     * 
-     * @param namespace
-     *            type namespace
-     * @param type
-     *            type name
-     * @return full name string
-     */
-    private String buildFullTypeName(String namespace, String type) {
-        
-        return String.format("%s.%s", namespace, type);
     }
     
     /**
@@ -114,14 +204,29 @@ public class ModuleOpenClass extends ComponentOpenClass {
      *             if an error had occurred.
      */
     @Override
-    public void addType(String namespace, IOpenClass type) throws Exception {
+    public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {        
+        String typeNameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
         
-        String typeName = buildFullTypeName(namespace, type.getName());
-        
-        if (internalTypes.containsKey(typeName)) {
-            throw new Exception("The type " + typeName + " has been defined already");
+        add(typeNameWithNamespace, type);
+    }
+    
+    /**
+     * Adds type to map of internal types.
+     * 
+     * @param typeNameWithNamespace type name with namespace, e.g. org.openl.this.Driver
+     * @param type {@link IOpenClass} for this type
+     * @throws OpenLCompilationException if such type already exists.
+     */
+    private void add(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+        if (internalTypes.containsKey(typeNameWithNamespace)) {
+            throw new OpenLCompilationException("The type " + typeNameWithNamespace + " has been already defined.");
         }
         
-        internalTypes.put(typeName, type);
+        internalTypes.put(typeNameWithNamespace, type);
     }
+
+    public IBindingContext makeBindingContext(IBindingContext topLevelContext) {        
+        return new ModuleBindingContext(topLevelContext, this);
+    }
+
 }

@@ -36,6 +36,11 @@ public class ComponentOpenClass extends ADynamicClass {
         super(schema, name, DynamicObject.class);
         this.openl = openl;
         this.init = new DefaultInitializer();
+        
+        /**
+         * TODO: fixme. Calling method in constructor that is overloaded in childs.
+         * At this time childs are not built yet.
+         */
         addField(new ThisField());
         addMethod(new GetOpenClass());
     }    

@@ -12,8 +12,8 @@ public interface IDependencyManager {
     
     IOpenSourceCodeModule find(String dependency, String searchPath);
 
-    void addSource(IOpenSourceCodeModule moduleSource, Set<IOpenSourceCodeModule> dependentSources);
+    boolean addDependenciesSources(IOpenSourceCodeModule moduleSource, Set<IOpenSourceCodeModule> dependentSources);
         
-    Set<IOpenSourceCodeModule> getDependentSources(IOpenSourceCodeModule moduleSource);
+    Set<IOpenSourceCodeModule> getDependenciesSources(IOpenSourceCodeModule moduleSource);
 
 }

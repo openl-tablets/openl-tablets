@@ -73,12 +73,15 @@ public class OpenLSourceManager extends OpenLHolder {
             throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
         
-        // compile source dependencies
-        if (SourceType.MODULE.equals(sourceType) && containsDependencies(parsedCode.getDependentSources())) {
-            Set<CompiledOpenClass> compiledDependencies = compileDependencies(parsedCode.getDependentSources());
-            parsedCode.setCompiledDependencies(compiledDependencies);
+        // compile source dependencies        
+        if (SourceType.MODULE.equals(sourceType) ) {
+            Set<IOpenSourceCodeModule> dependentSources = parsedCode.getDependentSources();
+            if (!dependentSources.isEmpty()) {
+                Set<CompiledOpenClass> compiledDependencies = compileDependencies(dependentSources);
+                parsedCode.setCompiledDependencies(compiledDependencies);
+            }           
         }
-
+        
         Map<String, Object> externalParams = source.getParams();
 
         if (externalParams != null) {
@@ -98,10 +101,6 @@ public class OpenLSourceManager extends OpenLHolder {
         processedCode.setBoundCode(boundCode);
         
         return processedCode;
-    }
-
-    private boolean containsDependencies(Set<IOpenSourceCodeModule> dependentSources) {        
-        return dependentSources != null && !dependentSources.isEmpty();
     }
 
     private Set<CompiledOpenClass> compileDependencies(Set<IOpenSourceCodeModule> dependentSources) {

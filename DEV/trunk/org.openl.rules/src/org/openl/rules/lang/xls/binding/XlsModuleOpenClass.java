@@ -7,7 +7,9 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.Map;
+import java.util.Set;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -31,6 +33,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 		super(schema, name, openl);
 		this.metaInfo = metaInfo;
 	}
+	
+	/**
+	 * Constructor for module with dependent modules
+	 *
+	 */
+	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, 
+          Set<CompiledOpenClass> usingModules) {
+	    super(schema, name, openl, usingModules);
+	    this.metaInfo = metaInfo;
+	}
+	
 	
 	// TODO: should be placed to ModuleOpenClass
 	public IDataBase getDataBase() {
@@ -101,7 +114,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			methodMap().put(key, method);
 		}
 	}
-
+	
 	@Override
 	public void clearOddDataForExecutionMode() {
 	    super.clearOddDataForExecutionMode();
