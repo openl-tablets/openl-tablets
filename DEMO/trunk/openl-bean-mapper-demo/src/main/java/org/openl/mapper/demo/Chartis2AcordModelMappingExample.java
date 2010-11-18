@@ -36,6 +36,7 @@ public class Chartis2AcordModelMappingExample {
         ChPolicyEntity policy = new ChPolicyEntity();
         policy.setPolicyNumber("policy#1");
         policy.setVersion(1);
+        policy.setProducerCd("producer#1");
 
         Term term = new Term(new Date(), new Date());
         policy.setContractTerm(term);
@@ -44,6 +45,8 @@ public class Chartis2AcordModelMappingExample {
 
         HomePolicyQuoteInqRqType acord = HomePolicyQuoteInqRqType.Factory.newInstance();
         mapper.map(policy, acord);
+        ChPolicyEntity policy1 = mapper.map(acord, ChPolicyEntity.class);
+
 
         System.out.println(acord);
     }
