@@ -7,6 +7,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 
@@ -25,7 +26,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
                                                               IOpenClass[] types,
                                                               IBindingContext bindingContext) {
 
-        IMethodCaller methodCaller = bindingContext.findMethodCaller("org.openl.operators", methodName, types);
+        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, types);
 
         if (methodCaller != null) {
             return methodCaller;

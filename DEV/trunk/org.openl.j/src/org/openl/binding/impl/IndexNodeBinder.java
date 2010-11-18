@@ -7,6 +7,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -103,7 +104,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
         IOpenClass returnType = reader.getMethod().getType();
 
-        IMethodCaller writer = bindingContext.findMethodCaller("org.openl.operators",
+        IMethodCaller writer = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE,
             INDEX_METHOD_NAME,
             new IOpenClass[] { types[0], types[1], returnType });
 
