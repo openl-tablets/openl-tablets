@@ -12,6 +12,7 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
+import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -21,9 +22,9 @@ import org.openl.vm.SimpleVM;
  */
 public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     private static String __src = "test/rules/DatatypeInheritanceTest.xls";
-    private static final String PARENT_TYPE_NAME = ISyntaxConstants.THIS_NAMESPACE + ".ParentType";
-    private static final String CHILD_TYPE_NAME = ISyntaxConstants.THIS_NAMESPACE + ".ChildType";
-    private static final String SECOND_CHILD_TYPE_NAME = ISyntaxConstants.THIS_NAMESPACE + ".SecondLevelChildType";
+    private static final String PARENT_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "ParentType");
+    private static final String CHILD_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
+    private static final String SECOND_CHILD_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
 
     public DatatypeInheritanceTest() {
         super(__src);
