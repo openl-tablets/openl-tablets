@@ -816,8 +816,15 @@ public class StringTool {
         return String.format("get%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
     }
     
+    /**
+     * Builds the type name with namespace.
+     * 
+     * @param namespace for typeName
+     * @param typeName 
+     * @return namespace::typeName
+     */
     public static final String buildTypeName(String namespace, String typeName) {
-        return String.format("%s.%s", namespace, typeName);
+        return String.format("%s::%s", namespace, typeName);
     }
     
 }

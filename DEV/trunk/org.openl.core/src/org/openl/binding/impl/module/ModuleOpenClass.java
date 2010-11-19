@@ -38,7 +38,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
     
     /**
      * Map of internal types. XLS document can have internal types defined using
-     * <code>Datatype</code> tables, e.g. domain model.
+     * <code>Datatype</code> tables, e.g. domain model.<br>
+     * 
+     * Key: type name with namespace see {@link StringTool#buildTypeName(String, String)}.<br>
+     * Value: {@link IOpenClass} for datatype.
      */
     private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
     
@@ -109,6 +112,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
     }
     
+    /**
+     * Overriden to add the possibility for overriding fields from dependent modules.<br>
+     * At first tries to get the field from current module, if can`t search in dependencies.
+     */
     @Override
     public IOpenField getField(String fname, boolean strictMatch) {
         // try to get field from own field map
@@ -128,7 +135,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
         return null;
     }
-//    
+        
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
@@ -213,7 +220,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Adds type to map of internal types.
      * 
-     * @param typeNameWithNamespace type name with namespace, e.g. org.openl.this.Driver
+     * @param typeNameWithNamespace type name with namespace, e.g. see {@link StringTool#buildTypeName(String, String)}.
      * @param type {@link IOpenClass} for this type
      * @throws OpenLCompilationException if such type already exists.
      */
