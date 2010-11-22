@@ -81,7 +81,11 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public TableSyntaxNode getSyntaxNode() {
-        return node.getTableSyntaxNode();
+        if (node != null) {
+            return node.getTableSyntaxNode();
+        } 
+        
+        return null;
     }
 
     public int getHeight() {
