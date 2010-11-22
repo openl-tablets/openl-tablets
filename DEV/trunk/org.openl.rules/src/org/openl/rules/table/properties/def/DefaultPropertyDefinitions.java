@@ -16,7 +16,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[24];
+		definitions = new TablePropertyDefinition[27];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
@@ -95,7 +95,7 @@ public class DefaultPropertyDefinitions
 		 + "ferent effective/expiration date");
 		definitions[5].setDimensional(true);
 		definitions[5].setDisplayName("Expiration Date");
-		definitions[5].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("gt(currentDate)"));
+		definitions[5].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(currentDate)"));
 		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
 		definitions[5].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
@@ -213,14 +213,14 @@ public class DefaultPropertyDefinitions
 		definitions[13].setDescription("US Region");
 		definitions[13].setDimensional(true);
 		definitions[13].setDisplayName("US Region");
-		definitions[13].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(usRegion)"));
+		definitions[13].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(usRegion)"));
 		definitions[13].setGroup("Business Dimension");
 		definitions[13].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[13].setName("usregion");
 		definitions[13].setPrimaryKey(false);
 		definitions[13].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[13].setSystem(false);
-		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsRegionsEnum.class));
+		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsRegionsEnum[].class));
 		definitions[14] = new TablePropertyDefinition();
 		definitions[14].setBusinessSearch(false);
 		definitions[14].setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
@@ -242,13 +242,13 @@ public class DefaultPropertyDefinitions
 		definitions[15].setDescription("Currency");
 		definitions[15].setDimensional(false);
 		definitions[15].setDisplayName("Currency");
-		definitions[15].setGroup("Business Dimension");
+		definitions[15].setGroup("Info");
 		definitions[15].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[15].setName("currency");
 		definitions[15].setPrimaryKey(false);
 		definitions[15].setSecurityFilter("no");
 		definitions[15].setSystem(false);
-		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum.class));
+		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum[].class));
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setBusinessSearch(false);
 		definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("data: languages"));
@@ -256,13 +256,13 @@ public class DefaultPropertyDefinitions
 		definitions[16].setDescription("Language");
 		definitions[16].setDimensional(false);
 		definitions[16].setDisplayName("Language");
-		definitions[16].setGroup("Business Dimension");
+		definitions[16].setGroup("Info");
 		definitions[16].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[16].setName("lang");
 		definitions[16].setPrimaryKey(false);
 		definitions[16].setSecurityFilter("no");
 		definitions[16].setSystem(false);
-		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.LanguagesEnum.class));
+		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.LanguagesEnum[].class));
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setBusinessSearch(true);
 		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usStates"));
@@ -281,15 +281,16 @@ public class DefaultPropertyDefinitions
 		definitions[18].setBusinessSearch(true);
 		definitions[18].setConstraints(new org.openl.rules.table.constraints.Constraints("data: regions"));
 		definitions[18].setDescription("Economic Region");
-		definitions[18].setDimensional(false);
+		definitions[18].setDimensional(true);
 		definitions[18].setDisplayName("Region");
+		definitions[18].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(region)"));
 		definitions[18].setGroup("Business Dimension");
 		definitions[18].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY});
 		definitions[18].setName("region");
 		definitions[18].setPrimaryKey(false);
 		definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[18].setSystem(false);
-		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RegionsEnum.class));
+		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RegionsEnum[].class));
 		definitions[19] = new TablePropertyDefinition();
 		definitions[19].setBusinessSearch(false);
 		definitions[19].setConstraints(new org.openl.rules.table.constraints.Constraints("NN.NN[.NN]"));
@@ -360,6 +361,39 @@ public class DefaultPropertyDefinitions
 		definitions[23].setSystem(false);
 		definitions[23].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DATATYPE});
 		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[24] = new TablePropertyDefinition();
+		definitions[24].setBusinessSearch(false);
+		definitions[24].setConstraints(new org.openl.rules.table.constraints.Constraints("no"));
+		definitions[24].setDimensional(false);
+		definitions[24].setDisplayName("Transaction Type");
+		definitions[24].setGroup("Dev");
+		definitions[24].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
+		definitions[24].setName("transaction");
+		definitions[24].setPrimaryKey(false);
+		definitions[24].setSystem(false);
+		definitions[24].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
+		definitions[25] = new TablePropertyDefinition();
+		definitions[25].setBusinessSearch(false);
+		definitions[25].setConstraints(new org.openl.rules.table.constraints.Constraints("no"));
+		definitions[25].setDimensional(false);
+		definitions[25].setDisplayName("Custom1");
+		definitions[25].setGroup("Dev");
+		definitions[25].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
+		definitions[25].setName("custom1");
+		definitions[25].setPrimaryKey(false);
+		definitions[25].setSystem(false);
+		definitions[25].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
+		definitions[26] = new TablePropertyDefinition();
+		definitions[26].setBusinessSearch(false);
+		definitions[26].setConstraints(new org.openl.rules.table.constraints.Constraints("no"));
+		definitions[26].setDimensional(false);
+		definitions[26].setDisplayName("Custom2");
+		definitions[26].setGroup("Dev");
+		definitions[26].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
+		definitions[26].setName("custom2");
+		definitions[26].setPrimaryKey(false);
+		definitions[26].setSystem(false);
+		definitions[26].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }
 

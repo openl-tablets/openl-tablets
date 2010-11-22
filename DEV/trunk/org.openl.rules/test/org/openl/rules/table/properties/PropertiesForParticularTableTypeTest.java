@@ -52,8 +52,8 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));
             assertEquals("My Category", (String) categoryProperties.get("category"));
             assertEquals("newLob", (String) categoryProperties.get("lob"));
-            assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum) categoryProperties.get("usregion")).name());
-            assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum) categoryProperties.get("region")).name());
+            assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
+            assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());
 
             Map<String, Object> allProperties = tableProperties.getAllProperties();
             assertEquals("AllProperties size is 10, ignore property 'scope' and including default properties",

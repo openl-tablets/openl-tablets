@@ -42,12 +42,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setLob(java.lang.String lob) {
 		internalMap.put("lob", lob);
 	}	
-	public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
-		return (org.openl.rules.enumeration.UsRegionsEnum) internalMap.get("usRegion"); 
-	}
-	public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
-		internalMap.put("usRegion", usRegion);
-	}	
 	public org.openl.rules.enumeration.UsStatesEnum getUsState() {
 		return (org.openl.rules.enumeration.UsStatesEnum) internalMap.get("usState"); 
 	}
@@ -59,6 +53,18 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	}
 	public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
 		internalMap.put("country", country);
+	}	
+	public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum) internalMap.get("usRegion"); 
+	}
+	public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
+		internalMap.put("usRegion", usRegion);
+	}	
+	public org.openl.rules.enumeration.RegionsEnum getRegion() {
+		return (org.openl.rules.enumeration.RegionsEnum) internalMap.get("region"); 
+	}
+	public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
+		internalMap.put("region", region);
 	}	
 	// <<< END INSERT >>>
 }

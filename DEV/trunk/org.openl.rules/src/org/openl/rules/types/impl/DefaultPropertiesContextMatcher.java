@@ -84,7 +84,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("usregion", new MatchingConstraint<org.openl.rules.enumeration.UsRegionsEnum, org.openl.rules.enumeration.UsRegionsEnum>() { 
+		constraints.put("usregion", new MatchingConstraint<org.openl.rules.enumeration.UsRegionsEnum[], org.openl.rules.enumeration.UsRegionsEnum>() { 
 
 			@Override
 			protected org.openl.rules.enumeration.UsRegionsEnum getContextValue(IRulesRuntimeContext context) {
@@ -92,13 +92,13 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
 			@Override
-			protected org.openl.rules.enumeration.UsRegionsEnum getPropertyValue(ITableProperties properties) {
+			protected org.openl.rules.enumeration.UsRegionsEnum[] getPropertyValue(ITableProperties properties) {
 			    return properties.getUsregion();
 			}
 			
 			@Override
-			protected boolean matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum propertyValue, org.openl.rules.enumeration.UsRegionsEnum contextValue) {
-			    return EQ(propertyValue, contextValue);
+			protected boolean matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum[] propertyValue, org.openl.rules.enumeration.UsRegionsEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
 			}
 			
         });
@@ -134,6 +134,24 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			
 			@Override
 			protected boolean matchNotNulls(org.openl.rules.enumeration.UsStatesEnum[] propertyValue, org.openl.rules.enumeration.UsStatesEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("region", new MatchingConstraint<org.openl.rules.enumeration.RegionsEnum[], org.openl.rules.enumeration.RegionsEnum>() { 
+
+			@Override
+			protected org.openl.rules.enumeration.RegionsEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getRegion();
+			}
+			
+			@Override
+			protected org.openl.rules.enumeration.RegionsEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getRegion();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(org.openl.rules.enumeration.RegionsEnum[] propertyValue, org.openl.rules.enumeration.RegionsEnum contextValue) {
 			    return CONTAINS(propertyValue, contextValue);
 			}
 			

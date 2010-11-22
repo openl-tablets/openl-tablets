@@ -123,6 +123,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 		selectCandidatesByProperty("usregion", selected, context);
 		selectCandidatesByProperty("country", selected, context);
 		selectCandidatesByProperty("state", selected, context);
+		selectCandidatesByProperty("region", selected, context);
         // <<< END INSERT MatchingProperties >>>
     }
 
