@@ -19,11 +19,13 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -446,31 +448,78 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
         // Xls
         } else { 
-            HSSFPalette palette = ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
-            HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-
-            if (color == null) {
-                Set<Short> usedColors = sheetSource.getWorkbookSource().getWorkbookColors();
-
-                short fromIndex = PaletteRecord.FIRST_COLOR_INDEX;
-                short toIndex = (short) (PaletteRecord.STANDARD_PALETTE_SIZE + fromIndex);
-                for (short colorIndex = fromIndex; colorIndex < toIndex; colorIndex++) {
-                    if (!usedColors.contains(colorIndex)) {
-                        palette.setColorAtIndex(colorIndex, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-                        color = palette.getColor(colorIndex);
-                        usedColors.add(colorIndex);
-                        break;
-                    }
-                }
-                if (color == null) {
-                    color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-                }
-            }
-
+            HSSFColor color = findIndexedColor(rgb);
             if (color != null) {
                 dest.setFillForegroundColor(color.getIndex());
             }
         }
+    }
+
+    public void setCellFontColor(int col, int row, short[] color) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+
+        CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
+        Font newFont = PoiExcelHelper.cloneFontFrom(cell);
+        setCellFontColor(newFont, color);
+
+        newStyle.setFont(newFont);
+        cell.setCellStyle(newStyle);
+    }
+
+    private void setCellFontColor(Font dest, short[] rgb) {
+        // Xlsx
+        if (dest instanceof XSSFFont) {
+            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
+            ((XSSFFont) dest).setColor(color);
+
+        // Xls
+        } else {
+            HSSFColor color = findIndexedColor(rgb);
+            if (color != null) {
+                dest.setColor(color.getIndex());
+            }
+        }
+    }
+
+    private HSSFColor findIndexedColor(short[] rgb) {
+        HSSFPalette palette = ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
+        HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+
+        if (color == null) {
+            Set<Short> usedColors = sheetSource.getWorkbookSource().getWorkbookColors();
+
+            short fromIndex = PaletteRecord.FIRST_COLOR_INDEX;
+            short toIndex = (short) (PaletteRecord.STANDARD_PALETTE_SIZE + fromIndex);
+            for (short colorIndex = fromIndex; colorIndex < toIndex; colorIndex++) {
+                if (!usedColors.contains(colorIndex)) {
+                    palette.setColorAtIndex(colorIndex, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                    color = palette.getColor(colorIndex);
+                    usedColors.add(colorIndex);
+                    break;
+                }
+            }
+            if (color == null) {
+                color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+            }
+        }
+        return color;
+    }
+
+    public void setCellFontBold(int col, int row, boolean bold) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        short boldweight = bold ? Font.BOLDWEIGHT_BOLD : Font.BOLDWEIGHT_NORMAL;
+        PoiExcelHelper.setCellFontBold(cell, boldweight);
+    }
+
+    public void setCellFontItalic(int col, int row, boolean italic) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        PoiExcelHelper.setCellFontItalic(cell, italic);
+    }
+
+    public void setCellFontUnderline(int col, int row, boolean underlined) {
+        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        byte underline = underlined ? Font.U_SINGLE : Font.U_NONE;
+        PoiExcelHelper.setCellFontUnderline(cell, underline);
     }
 
     public void setCellComment(int col, int row, ICellComment comment) {
