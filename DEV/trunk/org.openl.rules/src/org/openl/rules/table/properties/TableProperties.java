@@ -158,10 +158,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setLob(java.lang.String lob) {
 		setFieldValue("lob", lob);
 	}	
-	public org.openl.rules.enumeration.UsRegionsEnum getUsregion() {
-		return (org.openl.rules.enumeration.UsRegionsEnum) getPropertyValue("usregion"); 
+	public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion"); 
 	}
-	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum usregion) {
+	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
 		setFieldValue("usregion", usregion);
 	}	
 	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
@@ -170,16 +170,16 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
 		setFieldValue("country", country);
 	}	
-	public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
-		return (org.openl.rules.enumeration.CurrenciesEnum) getPropertyValue("currency"); 
+	public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
+		return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency"); 
 	}
-	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
 		setFieldValue("currency", currency);
 	}	
-	public org.openl.rules.enumeration.LanguagesEnum getLang() {
-		return (org.openl.rules.enumeration.LanguagesEnum) getPropertyValue("lang"); 
+	public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
+		return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang"); 
 	}
-	public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
+	public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
 		setFieldValue("lang", lang);
 	}	
 	public org.openl.rules.enumeration.UsStatesEnum[] getState() {
@@ -188,10 +188,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
 		setFieldValue("state", state);
 	}	
-	public org.openl.rules.enumeration.RegionsEnum getRegion() {
-		return (org.openl.rules.enumeration.RegionsEnum) getPropertyValue("region"); 
+	public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
+		return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region"); 
 	}
-	public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
+	public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
 		setFieldValue("region", region);
 	}	
 	public java.lang.String getVersion() {
@@ -223,6 +223,24 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	}
 	public void setDatatypePackage(java.lang.String datatypePackage) {
 		setFieldValue("datatypePackage", datatypePackage);
+	}	
+	public java.lang.String[] getTransaction() {
+		return (java.lang.String[]) getPropertyValue("transaction"); 
+	}
+	public void setTransaction(java.lang.String[] transaction) {
+		setFieldValue("transaction", transaction);
+	}	
+	public java.lang.String[] getCustom1() {
+		return (java.lang.String[]) getPropertyValue("custom1"); 
+	}
+	public void setCustom1(java.lang.String[] custom1) {
+		setFieldValue("custom1", custom1);
+	}	
+	public java.lang.String[] getCustom2() {
+		return (java.lang.String[]) getPropertyValue("custom2"); 
+	}
+	public void setCustom2(java.lang.String[] custom2) {
+		setFieldValue("custom2", custom2);
 	}	
     // <<< END INSERT >>>
 

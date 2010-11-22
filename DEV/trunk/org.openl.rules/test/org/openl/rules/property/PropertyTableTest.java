@@ -38,15 +38,15 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper{
             assertTrue(categoryProperties.size() == 4);
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(),(String) categoryProperties.get("scope"));
             assertEquals("newLob",(String) categoryProperties.get("lob"));
-            assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum)categoryProperties.get("usregion")).name());                
-            assertEquals(RegionsEnum.NCSA.name(),((RegionsEnum) categoryProperties.get("region")).name());
+            assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[])categoryProperties.get("usregion"))[0].name());                
+            assertEquals(RegionsEnum.NCSA.name(),((RegionsEnum[]) categoryProperties.get("region"))[0].name());
                 
              Map<String, Object> defaultProperties = tableProperties.getPropertiesAppliedByDefault();
             // assertTrue(defaultProperties.size() == 5);
             // assertEquals("US",(String) defaultProperties.get("country"));
             assertEquals(org.openl.rules.enumeration.CurrenciesEnum.USD,
-                    (org.openl.rules.enumeration.CurrenciesEnum) defaultProperties.get("currency"));
-            assertEquals(LanguagesEnum.EN.name(),((LanguagesEnum) defaultProperties.get("lang")).name());
+                    ((org.openl.rules.enumeration.CurrenciesEnum[]) defaultProperties.get("currency"))[0]);
+            assertEquals(LanguagesEnum.EN.name(),((LanguagesEnum[]) defaultProperties.get("lang"))[0].name());
             assertTrue((Boolean) defaultProperties.get("active"));
             assertFalse((Boolean) defaultProperties.get("failOnMiss"));
             } else {

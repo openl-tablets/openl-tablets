@@ -139,18 +139,18 @@ public interface ITableProperties {
 	void setValidateDT(java.lang.String validateDT);
 	java.lang.String getLob();
 	void setLob(java.lang.String lob);
-	org.openl.rules.enumeration.UsRegionsEnum getUsregion();
-	void setUsregion(org.openl.rules.enumeration.UsRegionsEnum usregion);
+	org.openl.rules.enumeration.UsRegionsEnum[] getUsregion();
+	void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion);
 	org.openl.rules.enumeration.CountriesEnum[] getCountry();
 	void setCountry(org.openl.rules.enumeration.CountriesEnum[] country);
-	org.openl.rules.enumeration.CurrenciesEnum getCurrency();
-	void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency);
-	org.openl.rules.enumeration.LanguagesEnum getLang();
-	void setLang(org.openl.rules.enumeration.LanguagesEnum lang);
+	org.openl.rules.enumeration.CurrenciesEnum[] getCurrency();
+	void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency);
+	org.openl.rules.enumeration.LanguagesEnum[] getLang();
+	void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang);
 	org.openl.rules.enumeration.UsStatesEnum[] getState();
 	void setState(org.openl.rules.enumeration.UsStatesEnum[] state);
-	org.openl.rules.enumeration.RegionsEnum getRegion();
-	void setRegion(org.openl.rules.enumeration.RegionsEnum region);
+	org.openl.rules.enumeration.RegionsEnum[] getRegion();
+	void setRegion(org.openl.rules.enumeration.RegionsEnum[] region);
 	java.lang.String getVersion();
 	void setVersion(java.lang.String version);
 	java.lang.Boolean getActive();
@@ -161,6 +161,12 @@ public interface ITableProperties {
 	void setScope(java.lang.String scope);
 	java.lang.String getDatatypePackage();
 	void setDatatypePackage(java.lang.String datatypePackage);
+	java.lang.String[] getTransaction();
+	void setTransaction(java.lang.String[] transaction);
+	java.lang.String[] getCustom1();
+	void setCustom1(java.lang.String[] custom1);
+	java.lang.String[] getCustom2();
+	void setCustom2(java.lang.String[] custom2);
 	// <<< END INSERT >>>
 	
 	
