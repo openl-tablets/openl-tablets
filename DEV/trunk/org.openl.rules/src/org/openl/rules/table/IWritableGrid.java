@@ -628,6 +628,14 @@ public interface IWritableGrid extends IGrid {
 
     void setCellFillColor(int col, int row, short[] color);
 
+    void setCellFontBold(int col, int row, boolean bold);
+
+    void setCellFontItalic(int col, int row, boolean italic);
+
+    void setCellFontUnderline(int col, int row, boolean underlined);
+
+    void setCellFontColor(int col, int row, short[] color);
+
     void setCellComment(int col, int row, ICellComment comment);
 
     void setCellValue(int col, int row, Object value);

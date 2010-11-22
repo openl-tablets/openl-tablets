@@ -96,30 +96,9 @@ public class XlsCellStyle2 implements ICellStyle {
 
         byte[] rgb = color.getRgb();
 
-        if (rgb != null) {
-
-            // The value to apply to RGB to make it lighter or darker
-            double tint = color.getTint();
-            if (tint != 0) {
-                rgb = color.getRgbWithTint(); // theme color (rgb with applied tint)
-
-                // TODO Remove this when POI will fix getting
-                // tints of black, white, brown and blue colors
-
-                int themeIndex = color.getTheme();
-
-                if (themeDocument != null
-                        && themeIndex > 0 && themeIndex < 4) { // tints of black, white, brown and blue colors
-
-                    try {
-                        return getThemeColorRgb(themeIndex, tint);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-        } else {
+        // TODO Remove this when POI will fix getting
+        // rgb of indexed colors
+        if (rgb == null) {
             // Try to find color among the indexed colors
             Integer key = new Integer(color.getIndexed());
             HSSFColor c = oldIndexedColors.get(key);
@@ -127,17 +106,38 @@ public class XlsCellStyle2 implements ICellStyle {
             if (c != null) {
                 return c.getTriplet();
             }
-
-            return null;
         }
 
-        short[] result = new short[3];
-        for (int i = 0; i < 3; i++) {
-            int j = rgb.length == 3 ? i : i + 1;
-            result[i] = (short)(rgb[j] & 0xFF);
+        // The value to apply to RGB to make it lighter or darker
+        double tint = color.getTint();
+        int themeIndex = color.getTheme();
+
+        if (rgb != null && tint != 0 && themeIndex > 3) {
+            rgb = color.getRgbWithTint(); // theme color (rgb with applied tint)
+
+        } else if ((rgb == null && themeIndex >= 0 && themeIndex < 2)   // tints of black and white colors
+                || themeIndex >= 2 && themeIndex < 4) {  // tints of brown and blue colors
+            // TODO Remove this when POI will fix getting
+            // tints of black, white, brown and blue colors
+            try {
+                return getThemeColorRgb(themeIndex, tint);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
         }
 
-        return result;
+        if (rgb != null) {
+            short[] result = new short[3];
+            for (int i = 0; i < 3; i++) {
+                int j = rgb.length == 3 ? i : i + 1;
+                result[i] = (short)(rgb[j] & 0xFF);
+            }
+    
+            return result;
+        }
+        
+        return null;
     }
 
     public short[] getBorderStyle() {

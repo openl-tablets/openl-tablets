@@ -37,7 +37,7 @@ public class XlsCellFont implements ICellFont {
     }
 
     public boolean isBold() {
-        return font.getBoldweight() == BOLDWEIGHT_BOLD;
+        return font.getBoldweight() == Font.BOLDWEIGHT_BOLD;
     }
 
     public boolean isItalic() {
@@ -49,7 +49,7 @@ public class XlsCellFont implements ICellFont {
     }
 
     public boolean isUnderlined() {
-        return font.getUnderline() != U_NONE;
+        return font.getUnderline() != Font.U_NONE;
     }
 
 }

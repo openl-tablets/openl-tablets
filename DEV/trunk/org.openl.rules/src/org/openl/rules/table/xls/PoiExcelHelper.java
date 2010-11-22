@@ -2,10 +2,13 @@ package org.openl.rules.table.xls;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 
 public class PoiExcelHelper {
 
@@ -180,6 +183,81 @@ public class PoiExcelHelper {
             newStyle.cloneStyleFrom(fromStyle);
         }
         return newStyle;
+    }
+
+    public static Font cloneFontFrom(Cell cell) {
+        Font newFont = null;
+        if (cell != null) {
+            Workbook workbook = cell.getSheet().getWorkbook();
+            newFont = workbook.createFont();
+            short fontIndex = cell.getCellStyle().getFontIndex();
+            Font fromFont = workbook.getFontAt(fontIndex);
+
+            newFont.setBoldweight(fromFont.getBoldweight());
+            newFont.setColor(fromFont.getColor());
+            newFont.setFontHeight(fromFont.getFontHeight());
+            newFont.setFontName(fromFont.getFontName());
+            newFont.setItalic(fromFont.getItalic());
+            newFont.setStrikeout(fromFont.getStrikeout());
+            newFont.setTypeOffset(fromFont.getTypeOffset());
+            newFont.setUnderline(fromFont.getUnderline());
+            newFont.setCharSet(fromFont.getCharSet());
+        }
+        return newFont;
+    }
+
+    public static Font getCellFont(Cell cell) {
+        Font font = null;
+        if (cell != null) {
+            CellStyle style = cell.getCellStyle();
+            int fontIndex = style.getFontIndex();
+            font = cell.getSheet().getWorkbook().getFontAt((short) fontIndex);
+        }
+        return font;
+    }
+
+    public static void setCellFont(Cell cell,
+            short boldWeight, short color, short fontHeight, String name, boolean italic,
+            boolean strikeout, short typeOffset, byte underline, int charset) {
+        if (cell != null) {
+            Workbook workbook = cell.getSheet().getWorkbook();
+            Font font = workbook.findFont(
+                    boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
+            if (font == null) { // Create new font
+                font = cell.getSheet().getWorkbook().createFont();
+                font.setBoldweight(boldWeight);
+                font.setColor(color);
+                font.setFontHeight(fontHeight);
+                font.setFontName(name);
+                font.setItalic(italic);
+                font.setStrikeout(strikeout);
+                font.setTypeOffset(typeOffset);
+                font.setUnderline(underline);
+                font.setCharSet(charset);
+            }
+            CellUtil.setFont(cell, workbook, font);
+        }
+    }
+
+    public static void setCellFontBold(Cell cell, short boldweight) {
+        Font font = getCellFont(cell);
+        setCellFont(cell,
+                boldweight, font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
+                font.getStrikeout(), font.getTypeOffset(), font.getUnderline(), font.getCharSet());
+    }
+
+    public static void setCellFontItalic(Cell cell, boolean italic) {
+        Font font = getCellFont(cell);
+        setCellFont(cell,
+                font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
+                font.getStrikeout(), font.getTypeOffset(), font.getUnderline(), font.getCharSet());
+    }
+
+    public static void setCellFontUnderline(Cell cell, byte underline) {
+        Font font = getCellFont(cell);
+        setCellFont(cell,
+                font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
+                font.getStrikeout(), font.getTypeOffset(), underline, font.getCharSet());
     }
 
 }
