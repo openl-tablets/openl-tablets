@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,6 +13,7 @@ import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -124,6 +126,11 @@ public class TableEditorController extends BaseTableEditorController implements 
             LOG.error("Error when trying to get param", e);
         }
         return param;
+    }
+
+    private Boolean getRequestBooleanParam(String name) {
+        String requestParam = getRequestParam(name);
+        return BooleanUtils.toBooleanObject(requestParam);
     }
 
     private String getRequestParam(String name) {
@@ -268,6 +275,63 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
+    public String setFontBold() {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            Boolean bold = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_BOLD);
+
+            if (bold != null) {
+                ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
+                if (font.isBold() != bold) {
+                    editorModel.setFontBold(row, col, bold);
+                }
+            }
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
+    public String setFontItalic() {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            Boolean italic = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_ITALIC);
+
+            if (italic != null) {
+                ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
+                if (font.isItalic() != italic) {
+                    editorModel.setFontItalic(row, col, italic);
+                }
+            }
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
+    public String setFontUnderline() {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            Boolean underlined = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_UNDERLINE);
+
+            if (underlined != null) {
+                ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
+                if (font.isUnderlined() != underlined) {
+                    editorModel.setFontUnderline(row, col, underlined);
+                }
+            }
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
     public String setFillColor() {
         int row = getRow();
         int col = getCol();
@@ -287,6 +351,32 @@ public class TableEditorController extends BaseTableEditorController implements 
                                  color[1] != currentColor[1] || // green
                                  color[2] != currentColor[2]))) { // blue
                     editorModel.setFillColor(row, col, color);
+                }
+            }
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
+    public String setFontColor() {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            String colorStr = getRequestParam(Constants.REQUEST_PARAM_COLOR);
+
+            if (colorStr != null) {
+                ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
+                short[] color = parseColor(colorStr);
+                short[] currentColor = font.getFontColor();
+
+                if (color.length == 3 &&
+                        (currentColor == null ||
+                                (color[0] != currentColor[0] || // red
+                                 color[1] != currentColor[1] || // green
+                                 color[2] != currentColor[2]))) { // blue
+                    editorModel.setFontColor(row, col, color);
                 }
             }
             return pojo2json(new TableModificationResponse(null, editorModel));

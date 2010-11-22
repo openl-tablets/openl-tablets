@@ -4,7 +4,8 @@ var redo_item = "_redo";
 var indent_items = ["_decrease_indent", "_increase_indent"];
 var align_items = ["_align_left", "_align_center", "_align_right"];
 var addremove_items = ["_insert_row_before", "_remove_row", "_insert_column_before", "_remove_column"];
-var color_items = ["_fill_color"];
+var font_items = ["_font_bold", "_font_italic", "_font_underline"];
+var color_items = ["_fill_color", "_font_color"];
 var other_items = ["_help"];
 
 function initTableEditor(editorId, url, cellToEdit, actions) {
@@ -29,7 +30,7 @@ function initTableEditor(editorId, url, cellToEdit, actions) {
     };
 
     tableEditor.isSelectedUpdated = function(selected) {
-        [indent_items, align_items, color_items, addremove_items].flatten().each(function(item) {
+        [indent_items, align_items, font_items, color_items, addremove_items].flatten().each(function(item) {
             enableItem(iconManager, getItemId(editorId, item), selected);
         });
     };
@@ -42,7 +43,7 @@ function initTableEditor(editorId, url, cellToEdit, actions) {
 function initIconManager(editorId) {
     var im = new IconManager("item_enabled", "item_over", "item_disabled");
 
-    [save_item, undo_item, redo_item, indent_items, align_items, color_items,
+    [save_item, undo_item, redo_item, indent_items, align_items, font_items, color_items,
         addremove_items, other_items].flatten().each(
             function(item) {
         im.init(getItemId(editorId, item));

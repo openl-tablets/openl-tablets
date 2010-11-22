@@ -249,8 +249,19 @@ public class HTMLRenderer {
 
             .append(toolbarItemSeparator)
 
+            .append(renderEditorToolbarItem(editorId + "_font_bold", editorJsVar, "img/bold.png",
+                    "setFontBold('" + editorId + "_font_bold" + "')", "Bold"))
+            .append(renderEditorToolbarItem(editorId + "_font_italic", editorJsVar, "img/italic.png",
+                    "setFontItalic('" + editorId + "_font_italic" + "')", "Italic"))
+            .append(renderEditorToolbarItem(editorId + "_font_underline", editorJsVar, "img/underline.png",
+                    "setFontUnderline('" + editorId + "_font_underline" + "')", "Underline"))
+
+            .append(toolbarItemSeparator)
+
             .append(renderEditorToolbarItem(editorId + "_fill_color", editorJsVar, "img/fillColor.png",
                     "selectFillColor('" + editorId + "_fill_color" + "')", "Fill color"))
+            .append(renderEditorToolbarItem(editorId + "_font_color", editorJsVar, "img/fontColor.png",
+                    "selectFontColor('" + editorId + "_font_color" + "')", "Font color"))
 
             .append(toolbarItemSeparator)
 

@@ -29,6 +29,7 @@ var TableEditor = Class.create({
     editorWrapper: null,
 
     fillColorPicker: null,
+    fontColorPicker: null,
 
     // Constructor
     initialize : function(editorId, url, editCell, actions) {
@@ -684,7 +685,7 @@ var TableEditor = Class.create({
             this.fillColorPicker = new ColorPicker(
             	actionElemId,
                 function(color) {
-                    self.setFillColor(color);
+                    self.setColor(color, TableEditor.Operations.SET_FILL_COLOR);
                 },
                 { // Optional params
                 	showOn: false,
@@ -704,7 +705,37 @@ var TableEditor = Class.create({
         this.fillColorPicker.show();
     },
 
-    setFillColor: function(_color) {
+    selectFontColor: function(actionElemId) {
+        var self = this;
+
+        this.currentFontColor = this.currentElement.style.color;
+
+        if (!this.fontColorPicker) { // Lazy initialization
+
+            this.fontColorPicker = new ColorPicker(
+                actionElemId,
+                function(color) {
+                    self.setColor(color, TableEditor.Operations.SET_FONT_COLOR);
+                },
+                { // Optional params
+                    showOn: false,
+                    onMouseOver: function () {
+                        self.decorator.undecorate(self.currentElement);
+                    },
+                    onColorMouseOver: function(color) {
+                        self.currentElement.style.color = color;
+                    },
+                    onMouseOut: function () {
+                        self.currentElement.style.color = self.currentFontColor;
+                        self.decorator.decorate(self.currentElement);
+                    }
+                }
+            );
+        }
+        this.fontColorPicker.show();
+    },
+
+    setColor: function(_color, operation) {
         if (!this.hasSelection()) {
             alert("Nothing is selected");
             return;
@@ -720,7 +751,7 @@ var TableEditor = Class.create({
             color: _color
         }
 
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FILL_COLOR), {
+        new Ajax.Request(this.buildUrl(operation), {
             onSuccess: function(response) {
                 response = eval(response.responseText);
                 if (response.status)
@@ -765,6 +796,102 @@ var TableEditor = Class.create({
                     if (resultPadding >= 0) {
                         cell.style.paddingLeft = resultPadding + "em";
                     }
+                }
+            },
+            parameters : params,
+            onFailure: AjaxHelper.handleError
+        });
+    },
+
+    setFontBold: function() {
+        if (!this.hasSelection()) {
+            alert("Nothing is selected");
+            return;
+        }
+
+        var self = this;
+
+        var cell = this.currentElement;
+        var _bold = cell.style.fontWeight == "bold";
+
+        var params = {
+            editorId: this.editorId,    
+            row: this.selectionPos[0],
+            col: this.selectionPos[1],
+            bold: !_bold
+        }
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_BOLD), {
+            onSuccess: function(response) {
+                response = eval(response.responseText);
+                if (response.status)
+                    alert(response.status)
+                else {
+                    self.processCallbacks(response, "do");
+                    cell.style.fontWeight = _bold ? "normal" : "bold";
+                }
+            },
+            parameters : params,
+            onFailure: AjaxHelper.handleError
+        });
+    },
+
+    setFontItalic: function() {
+        if (!this.hasSelection()) {
+            alert("Nothing is selected");
+            return;
+        }
+
+        var self = this;
+
+        var cell = this.currentElement;
+        var _italic = cell.style.fontStyle == "italic";
+
+        var params = {
+            editorId: this.editorId,    
+            row: this.selectionPos[0],
+            col: this.selectionPos[1],
+            italic: !_italic
+        }
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_ITALIC), {
+            onSuccess: function(response) {
+                response = eval(response.responseText);
+                if (response.status)
+                    alert(response.status)
+                else {
+                    self.processCallbacks(response, "do");
+                    cell.style.fontStyle = _italic ? "normal" : "italic";
+                }
+            },
+            parameters : params,
+            onFailure: AjaxHelper.handleError
+        });
+    },
+
+    setFontUnderline: function() {
+        if (!this.hasSelection()) {
+            alert("Nothing is selected");
+            return;
+        }
+
+        var self = this;
+
+        var cell = this.currentElement;
+        var _underline = cell.style.textDecoration == "underline";
+
+        var params = {
+            editorId: this.editorId,    
+            row: this.selectionPos[0],
+            col: this.selectionPos[1],
+            underline: !_underline
+        }
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_UNDERLINE), {
+            onSuccess: function(response) {
+                response = eval(response.responseText);
+                if (response.status)
+                    alert(response.status)
+                else {
+                    self.processCallbacks(response, "do");
+                    cell.style.textDecoration = _underline ? "none" : "underline";
                 }
             },
             parameters : params,
@@ -827,6 +954,10 @@ TableEditor.Operations = {
     SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",
     SET_FILL_COLOR : "setFillColor",
+    SET_FONT_COLOR : "setFontColor",
+    SET_FONT_BOLD : "setFontBold",
+    SET_FONT_ITALIC : "setFontItalic",
+    SET_FONT_UNDERLINE : "setFontUnderline",
     SET_INDENT : "setIndent",
     SET_PROPERTY : "setProperty",
     REMOVE_ROW : "removeRow",

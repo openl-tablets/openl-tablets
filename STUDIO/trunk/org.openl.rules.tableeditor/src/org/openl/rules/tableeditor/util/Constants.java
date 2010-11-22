@@ -29,6 +29,10 @@ public final class Constants {
     public static final String REQUEST_PARAM_ALIGN = "align";
     public static final String REQUEST_PARAM_COLOR = "color";
     public static final String REQUEST_PARAM_INDENT = "indent";
+    public static final String REQUEST_PARAM_FONT_BOLD = "bold";
+    public static final String REQUEST_PARAM_FONT_ITALIC = "italic";
+    public static final String REQUEST_PARAM_FONT_UNDERLINE = "underline";
+
     public static final String REQUEST_PARAM_ROW = "row";
     public static final String REQUEST_PARAM_COL = "col";
     public static final String REQUEST_PARAM_PROP_NAME = "propName";

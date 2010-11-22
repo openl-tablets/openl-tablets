@@ -30,6 +30,10 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.actions.style.SetAlignmentAction;
 import org.openl.rules.table.actions.style.SetFillColorAction;
 import org.openl.rules.table.actions.style.SetIndentAction;
+import org.openl.rules.table.actions.style.font.SetBoldAction;
+import org.openl.rules.table.actions.style.font.SetItalicAction;
+import org.openl.rules.table.actions.style.font.SetUnderlineAction;
+import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
@@ -281,6 +285,38 @@ public class TableEditorModel {
     public synchronized void setFillColor(int row, int col, short[] color) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetFillColorAction(
+                region.getLeft() + col, region.getTop() + row, color);
+        ua.doAction(gridTable);
+        actions.addNewAction(ua);
+    }
+
+    public synchronized void setFontBold(int row, int col, boolean bold) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetBoldAction(
+                region.getLeft() + col, region.getTop() + row, bold);
+        ua.doAction(gridTable);
+        actions.addNewAction(ua);
+    }
+
+    public synchronized void setFontItalic(int row, int col, boolean italic) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetItalicAction(
+                region.getLeft() + col, region.getTop() + row, italic);
+        ua.doAction(gridTable);
+        actions.addNewAction(ua);
+    }
+
+    public synchronized void setFontUnderline(int row, int col, boolean underlined) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetUnderlineAction(
+                region.getLeft() + col, region.getTop() + row, underlined);
+        ua.doAction(gridTable);
+        actions.addNewAction(ua);
+    }
+
+    public synchronized void setFontColor(int row, int col, short[] color) {
+        IGridRegion region = getOriginalTableRegion();
+        IUndoableGridTableAction ua = new SetColorAction(
                 region.getLeft() + col, region.getTop() + row, color);
         ua.doAction(gridTable);
         actions.addNewAction(ua);
