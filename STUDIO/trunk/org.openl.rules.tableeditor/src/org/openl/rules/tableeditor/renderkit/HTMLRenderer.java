@@ -358,6 +358,9 @@ public class HTMLRenderer {
      * @author Andrey Naumenko
      */
     public static class TableRenderer {
+
+        public static final int MAX_NUM_ROWS = 70;
+
         private final TableModel tableModel;
         private String cellIdPrefix;
 
@@ -377,23 +380,25 @@ public class HTMLRenderer {
             }
             final String prefix = cellIdPrefix != null ? cellIdPrefix : Constants.ID_POSTFIX_CELL;
 
+            boolean isBigTable = false;
+
             IGridTable table = tableModel.getGridTable();
 
             StringBuilder s = new StringBuilder();
             s.append("<table class=\"te_table\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
 
-            for (int i = 0; i < tableModel.getCells().length; i++) {
+            for (int row = 0; row < tableModel.getCells().length; row++) {
                 s.append("<tr>\n");
-                for (int j = 0; j < tableModel.getCells()[i].length; j++) {
+                for (int col = 0; col < tableModel.getCells()[row].length; col++) {
 
-                    ICellModel cell = tableModel.getCells()[i][j];
+                    ICellModel cell = tableModel.getCells()[row][col];
                     if ((cell == null) || !cell.isReal()) {
                         continue;
                     }
 
                     String cellUri = null;
                     if (table != null) {
-                        cellUri = table.getUri(j, i);
+                        cellUri = table.getUri(col, row);
                     }
 
                     s.append(tdPrefix);
@@ -410,7 +415,7 @@ public class HTMLRenderer {
                     }
 
                     StringBuilder id = new StringBuilder();
-                    id.append(prefix).append(String.valueOf(i + 1)).append(":").append(j + 1);
+                    id.append(prefix).append(String.valueOf(row + 1)).append(":").append(col + 1);
 
                     s.append(" id=\"").append(id).append("\"");
                     if (cell.getComment() != null) {
@@ -439,8 +444,21 @@ public class HTMLRenderer {
                     }
                 }
                 s.append("</tr>\n");
+                if (row >= MAX_NUM_ROWS) {
+                    isBigTable = true;
+                    break;
+                }
             }
             s.append("</table>");
+
+            if (isBigTable) {
+                s.append("<div class='te_bigtable_mes'>")
+                .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first "
+                        + MAX_NUM_ROWS + " rows).</div>")
+                .append("<div>To view the full table, use 'Edit In Excel'.</div>")
+                .append("</div>");
+            }
+
             return s.toString();
         }
 
