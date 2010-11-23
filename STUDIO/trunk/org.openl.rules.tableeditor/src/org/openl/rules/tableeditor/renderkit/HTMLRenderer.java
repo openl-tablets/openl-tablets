@@ -77,7 +77,6 @@ public class HTMLRenderer {
         result.append(renderJS("js/tooltip.js"))
             .append(renderJS("js/ScriptLoader.js"))
             .append(renderJS("js/AjaxHelper.js"))
-            .append(renderJS("js/IconManager.js"))
             .append(renderJS("js/TableEditor.js"))
             .append(renderJS("js/initTableEditor.js"))
             .append(renderJS("js/BaseEditor.js"))
@@ -283,10 +282,12 @@ public class HTMLRenderer {
     protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
         editor = (editor == null || editor.equals("")) ? "" : editor + ".";
         StringBuilder result = new StringBuilder();
-        result.append("<img id=\"").append(itemId).append("\" src=\"").append(WebUtil.internalPath(imgSrc)).append(
-                "\" title=\"").append(title).append("\" onclick=\"").append(editor).append(action).append(
-                "\" onmouseover=\"this.className='item_over'\"")
-                .append(" onmouseout=\"this.className='item_enabled'\"").append("></img>");
+        result.append("<img id=\"").append(itemId)
+            .append("\" src=\"").append(WebUtil.internalPath(imgSrc))
+            .append("\" title=\"").append(title)
+            .append("\" onclick=\"").append(editor).append(action)
+            .append("\" class='te_toolbar_item te_toolbar_item_disabled'")
+            .append("></img>");
         return result.toString();
     }
 

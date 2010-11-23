@@ -1,3 +1,5 @@
+//TODO Refactor - Move to TableEditor.js
+
 var save_item = "_save_all";
 var undo_item = "_undo";
 var redo_item = "_redo";
@@ -8,13 +10,17 @@ var font_items = ["_font_bold", "_font_italic", "_font_underline"];
 var color_items = ["_fill_color", "_font_color"];
 var other_items = ["_help"];
 
+var itemClass = "te_toolbar_item";
+var disabledClass = "te_toolbar_item_disabled";
+var overClass = "te_toolbar_item_over";
+
 function initTableEditor(editorId, url, cellToEdit, actions) {
     var tableEditor = new TableEditor(editorId, url, cellToEdit, actions);
-    var iconManager = initIconManager(editorId);
+    initToolbar(editorId);
 
     tableEditor.undoStateUpdated = function(hasItems) {
         [save_item, undo_item].each(function(item) {
-            enableItem(iconManager, getItemId(editorId, item), hasItems);
+            processItem(getItemId(editorId, item), hasItems);
         });
         if (hasItems) {
             window.onbeforeunload = function() {
@@ -26,12 +32,13 @@ function initTableEditor(editorId, url, cellToEdit, actions) {
     };
 
     tableEditor.redoStateUpdated = function(hasItems) {
-        enableItem(iconManager, getItemId(editorId, redo_item), hasItems);
+        processItem(getItemId(editorId, redo_item), hasItems);
     };
 
     tableEditor.isSelectedUpdated = function(selected) {
-        [indent_items, align_items, font_items, color_items, addremove_items].flatten().each(function(item) {
-            enableItem(iconManager, getItemId(editorId, item), selected);
+        [indent_items, align_items, font_items, color_items,
+            addremove_items, other_items].flatten().each(function(item) {
+            processItem(getItemId(editorId, item), selected);
         });
     };
 
@@ -40,26 +47,22 @@ function initTableEditor(editorId, url, cellToEdit, actions) {
     return tableEditor;
 }
 
-function initIconManager(editorId) {
-    var im = new IconManager("item_enabled", "item_over", "item_disabled");
-
-    [save_item, undo_item, redo_item, indent_items, align_items, font_items, color_items,
-        addremove_items, other_items].flatten().each(
-            function(item) {
-        im.init(getItemId(editorId, item));
+function initToolbar(editorId) {
+    $$("." + itemClass).each(function(item) {
+        item.onmouseover = function() {
+            this.addClassName(overClass);
+        };
+        item.onmouseout = function() {
+            this.removeClassName(overClass);
+        };
     });
-    [other_items].flatten().each(function(item) {
-        im.enable(getItemId(editorId, item));
-    });
-    
-    return im;
 }
 
-function enableItem(iconManager, item, enable) {
+function processItem(item, enable) {
     if (enable) {
-        iconManager.enable(item);
+        enableToolbarItem(item);
     } else {
-        iconManager.disable(item);
+        disableToolbarItem(item);
     }
 }
 
@@ -67,4 +70,27 @@ function getItemId(editorId, itemId) {
     if (editorId && itemId) {
         return editorId + itemId;
     }
+}
+
+function enableToolbarItem(img) {
+    if (isToolbarItemEnabled(img = $(img))) return;
+    img.removeClassName(disabledClass);
+
+    if (img._mouseover) img.onmouseover = img._mouseover;
+    if (img._mouseout) img.onmouseout = img._mouseout;
+    if (img._onclick) img.onclick = img._onclick;
+}
+
+function disableToolbarItem(img) {
+    if (!isToolbarItemEnabled(img = $(img))) return;
+    img.addClassName(disabledClass);
+
+    img._mouseover = img.onmouseover;
+    img._mouseout = img.onmouseout;
+    img._onclick = img.onclick;
+    img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;
+}
+
+function isToolbarItemEnabled(img) {
+    return !img.hasClassName(disabledClass);
 }
