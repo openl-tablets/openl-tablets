@@ -2,13 +2,45 @@ package org.openl.rules.enumeration;
 
 public enum LanguagesEnum {
 
+	ALB("Albanian"),
+	ARA("Arabic"),
+	BEL("Belarussian"),
+	BUL("Bulgarian"),
+	CAT("Catalan"),
 	CHI("Chinese"),
-	EN("English"),
-	FRA("French"),
+	SCR("Croatian"),
+	CZE("Czech"),
+	DAN("Danish"),
+	DUT("Dutch"),
+	ENG("English"),
+	FIN("Finnish"),
+	FRE("French"),
 	GER("German"),
+	GRE("Greek"),
+	HEB("Hebrew"),
+	HIN("Hindi"),
+	HUN("Hungarian"),
+	IND("Indonesian"),
+	GLE("Irish"),
 	ITA("Italian"),
+	JPN("Japanese"),
+	LAV("Latvian"),
+	LIT("Lithuanian"),
+	MAC("Macedonian"),
+	MAY("Malay"),
+	MLT("Maltese"),
+	NOR("Norwegian"),
+	POL("Polish"),
 	POR("Portuguese"),
-	RUS("Russian");
+	RUM("Romanian"),
+	RUS("Russian"),
+	SCC("Serbian"),
+	SLO("Slovak"),
+	SPA("Spanish"),
+	THA("Thai"),
+	TUR("Turkish"),
+	UKR("Ukrainian"),
+	VIE("Vietnamese");
 
 	private final String displayName;
 

@@ -46,7 +46,7 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper{
             // assertEquals("US",(String) defaultProperties.get("country"));
             assertEquals(org.openl.rules.enumeration.CurrenciesEnum.USD,
                     ((org.openl.rules.enumeration.CurrenciesEnum[]) defaultProperties.get("currency"))[0]);
-            assertEquals(LanguagesEnum.EN.name(),((LanguagesEnum[]) defaultProperties.get("lang"))[0].name());
+            assertEquals(LanguagesEnum.ENG.name(),((LanguagesEnum[]) defaultProperties.get("lang"))[0].name());
             assertTrue((Boolean) defaultProperties.get("active"));
             assertFalse((Boolean) defaultProperties.get("failOnMiss"));
             } else {
