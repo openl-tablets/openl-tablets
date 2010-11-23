@@ -252,7 +252,7 @@ public class DefaultPropertyDefinitions
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setBusinessSearch(false);
 		definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("data: languages"));
-		definitions[16].setDefaultValue("EN");
+		definitions[16].setDefaultValue("ENG");
 		definitions[16].setDescription("Language");
 		definitions[16].setDimensional(false);
 		definitions[16].setDisplayName("Language");
