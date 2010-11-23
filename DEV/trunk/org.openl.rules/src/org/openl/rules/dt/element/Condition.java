@@ -8,6 +8,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -93,7 +94,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
         if (isDependentOnAnyParams()) {
             if (methodType != JavaOpenClass.BOOLEAN && methodType != JavaOpenClass.getOpenClass(Boolean.class)) {
-                throw new Exception("Condition must have boolean type if it depends on it's parameters");
+                throw SyntaxNodeExceptionUtils.createError("Condition must have boolean type if it depends on it's parameters", source);
             }
 
             return conditionEvaluator = new DefaultConditionEvaluator();
@@ -120,7 +121,13 @@ public class Condition extends FunctionalRow implements ICondition {
         Object[] params = mergeParams(target, dtParams, env, (Object[]) value);
         Boolean res = (Boolean) getMethod().invoke(target, params, env);
 
-        if (res == null || res.booleanValue()) {
+        // Check that condition expression has returned the not null value.
+        //
+        if (res == null) {
+            throw new OpenLRuntimeException("Condition expression must be boolean type", ((CompositeMethod)getMethod()).getMethodBodyBoundNode());
+        }
+        
+        if (res.booleanValue()) {
             return DecisionValue.TRUE_VALUE;
         } else {
             return DecisionValue.FALSE_VALUE;
