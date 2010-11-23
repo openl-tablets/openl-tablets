@@ -22,6 +22,8 @@
     color: white;
     background: rgb(255,80,80);
     display: inline-block;
+    zoom: 1; /* inline-block for IE 7 */
+    *display: inline; /* inline-block for IE 7 */
 }
 
 .te_bigtable_mes_header {
