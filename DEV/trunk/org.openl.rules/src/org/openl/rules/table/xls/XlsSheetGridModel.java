@@ -467,7 +467,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
         Font newFont = PoiExcelHelper.cloneFontFrom(cell);
-        setCellFontColor(newFont, color);
+
+        if (color != null) {
+            setCellFontColor(newFont, color);
+        } else {
+            newFont.setColor(HSSFColor.BLACK.index);
+        }
 
         newStyle.setFont(newFont);
         cell.setCellStyle(newStyle);
