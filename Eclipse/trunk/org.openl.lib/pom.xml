@@ -86,6 +86,11 @@
         <artifactId>commons-beanutils</artifactId>
     </dependency>
     
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    
 	<dependency>
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>
@@ -105,6 +110,16 @@
         <groupId>org.jgrapht</groupId>
 		<artifactId>jgrapht-jdk1.5</artifactId>
     </dependency>
+	
+	<dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+	</dependency>
+	
+	<dependency>
+    	<groupId>com.thoughtworks.xstream</groupId>
+    	<artifactId>xstream</artifactId>
+	</dependency>
   </dependencies>
 
 </project>
