@@ -343,7 +343,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             if (colorStr != null) {
                 ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
                 short[] color = parseColor(colorStr);
-                short[] currentColor = style.getFillForegroundColor();
+                short[] currentColor = style != null ? style.getFillForegroundColor() : null;
 
                 if (color.length == 3 &&
                         (currentColor == null ||
