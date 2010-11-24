@@ -32,6 +32,7 @@
     <module>../org.openl.rules.constrainer</module>
     <module>../org.openl.conf.ant</module>    
     <module>../org.openl.rules.gen</module>
+	<module>../org.openl.rules.project</module>
 	
     <!-- Tests -->
     <module>../org.openl.test</module>
