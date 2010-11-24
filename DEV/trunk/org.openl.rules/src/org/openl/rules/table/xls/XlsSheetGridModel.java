@@ -432,10 +432,17 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     }
 
     public void setCellFillColor(int col, int row, short[] color) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
-
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
-        setCellFillColor(newStyle, color);
+
+        if (color != null) {
+            if (newStyle.getFillPattern() == CellStyle.NO_FILL) {
+                newStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            }
+            setCellFillColor(newStyle, color);    
+        } else {
+            newStyle.setFillPattern(CellStyle.NO_FILL);
+        }
 
         cell.setCellStyle(newStyle);
     }
