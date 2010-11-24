@@ -657,11 +657,12 @@ public class HTMLRenderer {
 
         private void insertPropValue(TableProperty prop, String mode) {
             if ("edit".equals(mode)) {
+                boolean showTooltip = StringUtils.isNotBlank(prop.getDescription());
                 final String propId = getPropId(prop);
                 if (prop.isSystem() || !prop.canBeOverridenInTable() || "version".equalsIgnoreCase(prop.getName())) {
-                    insertText(prop, propId, true);
+                    insertText(prop, propId, showTooltip);
                 } else {
-                    insertInput(prop, propId, true);
+                    insertInput(prop, propId, showTooltip);
                 }
             } else {
                 insertText(prop);
