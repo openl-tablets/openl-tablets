@@ -45,6 +45,8 @@ public interface IParsedCode {
      */
     ISyntaxNode getTopNode();
     
+    IDependency[] getDependencies();
+    
     void setExternalParams(Map<String, Object> params);
     Map<String, Object> getExternalParams();
     
