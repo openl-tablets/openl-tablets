@@ -60,7 +60,7 @@ public class UserContext extends AUserContext {
     }
 
     public UserContext(ClassLoader userClassLoader, String userHome) {
-        this(userClassLoader, userHome, null, getDefaultDependencyManager());
+        this(userClassLoader, userHome, null, null);
     }
 
     private static IDependencyManager getDefaultDependencyManager() {        
@@ -68,7 +68,11 @@ public class UserContext extends AUserContext {
     }
 
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
-        this(userClassLoader, userHome, userProperties, getDefaultDependencyManager());
+        this(userClassLoader, userHome, userProperties, null);
+    }
+    
+    public UserContext(ClassLoader userClassLoader, String userHome, IDependencyManager dependencyManager) {
+        this(userClassLoader, userHome, null, dependencyManager);
     }
     
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties, 
@@ -76,6 +80,9 @@ public class UserContext extends AUserContext {
         this.userClassLoader = userClassLoader;
         this.userHome = userHome;
         this.userProperties = userProperties;
+        if (dependencyManager == null) {
+            dependencyManager = getDefaultDependencyManager();
+        }
         this.dependencyManager = dependencyManager;
     }
 
