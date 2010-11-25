@@ -7,6 +7,7 @@ import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.source.IDependencyManager;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -23,7 +24,14 @@ public abstract class BaseOpenlBuilderHelper {
     private XlsModuleSyntaxNode xsn;    
     private OpenClassJavaWrapper wrapper;
     
+    private IDependencyManager dependencyManager;
+    
     public BaseOpenlBuilderHelper(String _src) {
+        build(_src);        
+    }
+    
+    public BaseOpenlBuilderHelper(String _src, IDependencyManager dependencyManager) {
+        this.dependencyManager = dependencyManager;
         build(_src);        
     }
     
@@ -33,10 +41,14 @@ public abstract class BaseOpenlBuilderHelper {
         xsn = xmi.getXlsModuleNode();        
     }
     
-    protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
+    protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {        
+        UserContext ucxt = initUserContext();
         wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper);
         return wrapper;
+    }
+
+    protected UserContext initUserContext() {
+        return new UserContext(Thread.currentThread().getContextClassLoader(), ".", dependencyManager);        
     }
     
     @Deprecated
