@@ -62,11 +62,6 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return 0;
     }
 
-    // public IIndexElement getParent()
-    // {
-    // return workbookSource;
-    // }
-
     public int getTabSize() {
         throw new UnsupportedOperationException();
     }

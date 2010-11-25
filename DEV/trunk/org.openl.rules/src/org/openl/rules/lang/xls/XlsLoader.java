@@ -42,6 +42,9 @@ import org.openl.source.IDependencyManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.code.Dependency;
+import org.openl.syntax.code.DependencyType;
+import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -92,9 +95,6 @@ public class XlsLoader {
     }
 
     private List<String> imports = new ArrayList<String>();
-    // NOTE: A temporary implementation of multi-module feature.
-    // private List<String> modules = new ArrayList<String>();
-
     
     private IncludeSearcher includeSeeker;
     
@@ -113,6 +113,8 @@ public class XlsLoader {
     private HashSet<String> preprocessedWorkBooks = new HashSet<String>();
 
     private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
+    
+    private List<IDependency> dependencies = new ArrayList<IDependency>();
 
     /**
      * @deprecated use {@link XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {}
@@ -155,24 +157,19 @@ public class XlsLoader {
         
         addInnerImports();
         
-        IParsedCode parsedCode = new ParsedCode(new XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]), source, openl,
-            vocabulary, imports, extensionNodes), source, errors.toArray(new SyntaxNodeException[0]));
+        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
+        XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray, source, openl, vocabulary, imports, extensionNodes);
+        
+        SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
+        IDependency[] dependenciesArray = dependencies.toArray(new IDependency[dependencies.size()]);
+
+        IParsedCode parsedCode = new ParsedCode(syntaxNode, source, parsingErrors, dependenciesArray);
         
         // put found dependencies for current module to parsed code.
         //
         parsedCode.setDependentSources(userContext.getDependencyManager().getDependenciesSources(source));
         
         return parsedCode;
-
-        // NOTE: A temporary implementation of multi-module feature.
-        // return new ParsedCode(new
-        // XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]),
-        // source,
-        // openl,
-        // vocabulary,
-        // imports,
-        // extensionNodes,
-        // modules), source, errors.toArray(new SyntaxNodeException[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -257,7 +254,13 @@ public class XlsLoader {
                         String message = String.format("Can`t find dependeny source for %s module", moduleSource.getUri(0));
                         LOG.error(this, new OpenLCompilationException(message));
                     }                    
-                } else {
+                    
+                    Dependency moduleDependency = new Dependency(DependencyType.MODULE, 
+                        new IdentifierNode(IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency,
+                            moduleSource));
+                    dependencies.add(moduleDependency);
+                }
+                    else {
                     // skip empty dependency line.
                 }
             }
@@ -271,39 +274,6 @@ public class XlsLoader {
         }
     }
 
-    // NOTE: A temporary implementation of multi-module feature.
-    /*
-     * private void preprocessModuleImportTable(IGridTable table,
-     * XlsSheetSourceCodeModule sheetSource) { int height =
-     * table.getLogicalHeight();
-     * 
-     * for (int i = 0; i < height; i++) { String singleImport = table.getCell(1,
-     * i).getStringValue(); if (StringUtils.isNotBlank(singleImport)) {
-     * singleImport = singleImport.trim();
-     * 
-     * String path = null;
-     * 
-     * findInclude(singleImport);
-     * 
-     * URL url = ucxt.findClassPathResource(singleImport); if (url != null) {
-     * path = url.getPath(); }
-     * 
-     * if (path == null) { File f = ucxt.findFileSystemResource(singleImport);
-     * 
-     * if (f != null) { path = f.getAbsolutePath(); } }
-     * 
-     * if (path == null) { File file = new File(singleImport); if
-     * (file.exists()) { path = file.getAbsolutePath(); } }
-     * 
-     * if (path == null) { URL fileUrl; try { fileUrl = new
-     * URL(PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0),
-     * singleImport)); File file = new File(fileUrl.getPath()); if
-     * (file.exists()) { path = file.getAbsolutePath(); } } catch
-     * (MalformedURLException e) { // TODO Auto-generated catch block
-     * e.printStackTrace(); } }
-     * 
-     * if (path != null && !modules.contains(path)) { modules.add(path); } } } }
-     */
     private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
         int height = table.getHeight();
         // List<String> importsList = new ArrayList<String>();
