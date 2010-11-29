@@ -133,7 +133,12 @@
                       onclick="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                       href="#" title="Compare Excel files"><img border='0'
                       src="#{contextPath}/webresource/images/compare.gif" alt="Compare Excel files" /></a>
+
                   <f:verbatim>&amp;nbsp;</f:verbatim>
+                  <a href="#{contextPath}/faces/facelets/rulesDependencies.xhtml" title="Rules Dependencies"
+                      target="mainFrame"><img border='0px;' alt="Rules Dependencies"
+                      src="#{contextPath}/webresource/images/graph.png" /></a>
+
                   <c:if test="#{headerBean.repositoryFailed}">
                     <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif"
                         alt="Rules Repository failed"/>
@@ -143,6 +148,7 @@
                         title="Rules Repository"><img border='0'
                         src="#{contextPath}/webresource/images/repository/storage.gif" alt="Rules Repository"/></a>
                   </c:if>
+
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <a href="#{contextPath}/faces/main.xhtml?reload=forced&amp;selectedModule=#{headerBean.selectedModule}"
                       title="Refresh Project with dependencies" target="main"><img border='0'

@@ -22,6 +22,7 @@
   <JSFFlowResource path="/facelets/tableWizard/datatype/newDatatypeTable4.xhtml" location="30,1530" dimension="326,36" />
   <JSFFlowResource path="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable2.xhtml" location="630,430" dimension="370,36" />
   <JSFFlowResource path="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml" location="480,1430" dimension="370,36" />
+  <JSFFlowResource path="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable4.xhtml" location="480,1530" dimension="370,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableTest2.xhtml" location="30,530" dimension="254,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableTest3.xhtml" location="480,530" dimension="254,36" />
   <JSFFlowResource path="/facelets/tableWizard/newTableTest4.xhtml" location="480,1330" dimension="254,36" />
@@ -151,7 +152,7 @@
       <AbsolutePoint location="731,166" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest1.xhtml,/facelets/tableWizard/newTableTest2.xhtml,next,&lt;empty&gt;" routingType="1">
+  <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest1.xhtml,/facelets/tableWizard/newTableTest2.xhtml,next,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="757,266" />
       <AbsolutePoint location="757,293" />
@@ -294,11 +295,23 @@
       <AbsolutePoint location="215,1466" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
+  <JSFFlowNavigationCase id="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml,/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable4.xhtml,next,&lt;empty&gt;" routingType="0">
+    <AutomaticBendpoints>
+      <AbsolutePoint location="665,1466" />
+      <AbsolutePoint location="665,1530" />
+    </AutomaticBendpoints>
+  </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml,/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable2.xhtml,prev,&lt;empty&gt;" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="850,1463" />
       <AbsolutePoint location="942,1463" />
       <AbsolutePoint location="942,466" />
+    </AutomaticBendpoints>
+  </JSFFlowNavigationCase>
+  <JSFFlowNavigationCase id="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable4.xhtml,/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml,prev,&lt;empty&gt;" routingType="0">
+    <AutomaticBendpoints>
+      <AbsolutePoint location="680,1530" />
+      <AbsolutePoint location="680,1466" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
   <JSFFlowNavigationCase id="/facelets/tableWizard/newTableTest2.xhtml,/facelets/tableWizard/newTableTest3.xhtml,next,&lt;empty&gt;" routingType="0">
