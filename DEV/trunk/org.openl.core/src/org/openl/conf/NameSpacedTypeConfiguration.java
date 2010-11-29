@@ -30,7 +30,7 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
         return namespace;
     }
 
-    public IOpenClass getType(String name, IConfigurableResourceContext cxt) throws AmbiguousTypeException {
+    public IOpenClass getType(String name, IConfigurableResourceContext cxt) throws  AmbiguousTypeException {
         List<IOpenClass> foundTypes = new ArrayList<IOpenClass>(2);
 
         for (ITypeFactoryConfigurationElement confElem : factories) {

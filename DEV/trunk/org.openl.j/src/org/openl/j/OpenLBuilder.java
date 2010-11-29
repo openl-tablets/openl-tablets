@@ -4,6 +4,7 @@ import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.ClassFactory;
 import org.openl.conf.JavaImportTypeConfiguration;
 import org.openl.conf.JavaLibraryConfiguration;
+import org.openl.conf.JavaLongNameTypeConfiguration;
 import org.openl.conf.JavaTypeConfiguration;
 import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
@@ -115,12 +116,21 @@ public class OpenLBuilder extends AOpenLBuilder {
         TypeFactoryConfiguration types = op.createTypes();
         NameSpacedTypeConfiguration nstc = new NameSpacedTypeConfiguration();
         nstc.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
+
+        
+        
         JavaTypeConfiguration javatype = new JavaTypeConfiguration();
         javatype.setClassName(org.openl.types.java.JavaPrimitiveTypeLibrary.class.getName());
         nstc.addConfiguration(javatype);
+        
         javatype = new JavaTypeConfiguration();
         javatype.setClassName(org.openl.types.java.JavaLang.class.getName());
         nstc.addConfiguration(javatype);
+        
+        JavaLongNameTypeConfiguration javaLongNameType = new JavaLongNameTypeConfiguration();
+        nstc.addConfiguration(javaLongNameType);
+        
+        
 
         JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
 
