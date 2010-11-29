@@ -1,5 +1,7 @@
 package org.openl.rules.tbasic;
 
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -45,11 +47,17 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        for (RuntimeOperation step : getAlgorithm().getAlgorithmSteps()) {
-            if (step instanceof OpenLEvaluationOperation) {
-                IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
-                if (methodCaller instanceof CompositeMethod) {
-                    ((CompositeMethod) methodCaller).updateDependency(dependencies);
+        Algorithm algorithm = getAlgorithm();
+        if (algorithm != null) {
+            List<RuntimeOperation> operations = algorithm.getAlgorithmSteps();
+            if (operations != null) {
+                for (RuntimeOperation step : operations) {
+                    if (step instanceof OpenLEvaluationOperation) {
+                        IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
+                        if (methodCaller instanceof CompositeMethod) {
+                            ((CompositeMethod) methodCaller).updateDependency(dependencies);
+                        }
+                    }
                 }
             }
         }

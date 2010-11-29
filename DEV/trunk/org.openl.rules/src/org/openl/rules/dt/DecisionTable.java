@@ -262,17 +262,27 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     public void updateDependency(BindingDependencies dependencies) {
-
-        for (ICondition condition : conditionRows) {
-            ((CompositeMethod) condition.getMethod()).updateDependency(dependencies);
-            updateValueDependency((FunctionalRow) condition, dependencies);
+        if (conditionRows != null) {
+            for (ICondition condition : conditionRows) {
+                CompositeMethod method = (CompositeMethod) condition.getMethod();
+                if (method != null) {
+                    method.updateDependency(dependencies);
+                }
+                
+                updateValueDependency((FunctionalRow) condition, dependencies);
+            }
         }
 
-        for (IAction action : actionRows) {
-            ((CompositeMethod) action.getMethod()).updateDependency(dependencies);
-            updateValueDependency((FunctionalRow) action, dependencies);
+        if (actionRows != null) {
+            for (IAction action : actionRows) {
+                CompositeMethod method = (CompositeMethod) action.getMethod();
+                if (method != null) {
+                    method.updateDependency(dependencies);
+                }
+    
+                updateValueDependency((FunctionalRow) action, dependencies);
+            }
         }
-        
     }
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {

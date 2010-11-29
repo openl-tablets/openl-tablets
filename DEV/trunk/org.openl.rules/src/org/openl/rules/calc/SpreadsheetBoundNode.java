@@ -70,7 +70,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 if (cellArray != null) {
                     for (SpreadsheetCell cell : cellArray) {
                         if (cell != null) {
-                            ((CompositeMethod) cell.getMethod()).updateDependency(dependencies);
+                            CompositeMethod method = (CompositeMethod) cell.getMethod();
+                            if (method != null) {
+                                method.updateDependency(dependencies);
+                            }
                         }
                     }
                 }

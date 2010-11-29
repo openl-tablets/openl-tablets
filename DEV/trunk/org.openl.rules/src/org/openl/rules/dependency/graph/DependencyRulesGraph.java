@@ -7,9 +7,7 @@ import java.util.Set;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
-import org.jgrapht.graph.ClassBasedEdgeFactory;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 import org.openl.binding.BindingDependencies;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableRulesMethod;
@@ -22,23 +20,23 @@ import org.openl.types.impl.ExecutableRulesMethod;
  * @author DLiauchuk
  *
  */
-public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod, DefaultEdge> {
-    
-    private DirectedGraph<ExecutableRulesMethod, DefaultEdge> graph;
-    
+public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod, DirectedEdge<ExecutableRulesMethod>> {
+
+    private DirectedGraph<ExecutableRulesMethod, DirectedEdge<ExecutableRulesMethod>> graph;
+
     public DependencyRulesGraph(List<ExecutableRulesMethod> rulesMethods) {
         createGraph();
         fill(rulesMethods);
     }
-    
+
     public DependencyRulesGraph() {
         createGraph();
     }
-    
+
     private void createGraph() {
-        EdgeFactory<ExecutableRulesMethod, DefaultEdge> edgeFactory = 
-            new ClassBasedEdgeFactory<ExecutableRulesMethod, DefaultEdge>(DefaultEdge.class);
-        graph = new DefaultDirectedGraph<ExecutableRulesMethod, DefaultEdge>(edgeFactory);
+        EdgeFactory<ExecutableRulesMethod, DirectedEdge<ExecutableRulesMethod>> edgeFactory = 
+            new DirectedEdgeFactory<ExecutableRulesMethod>(DirectedEdge.class);
+        graph = new DefaultDirectedGraph<ExecutableRulesMethod, DirectedEdge<ExecutableRulesMethod>>(edgeFactory);
     }
 
     private void fill(List<ExecutableRulesMethod> rulesMethods) {
@@ -56,16 +54,16 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod
                     }
                 }
             }
-        } else {
-            throw new IllegalArgumentException("There is no rules for building graph.");
         }
     }
 
-    public DefaultEdge addEdge(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex) {        
+    public DirectedEdge<ExecutableRulesMethod> addEdge(
+            ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex) {        
         return graph.addEdge(sourceVertex, targetVertex);
     }
 
-    public boolean addEdge(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex, DefaultEdge e) {        
+    public boolean addEdge(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex,
+            DirectedEdge<ExecutableRulesMethod> e) {        
         return graph.addEdge(sourceVertex, targetVertex, e);
     }
 
@@ -73,7 +71,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod
         return graph.addVertex(v);
     }
 
-    public boolean containsEdge(DefaultEdge e) {        
+    public boolean containsEdge(DirectedEdge<ExecutableRulesMethod> e) {        
         return graph.containsEdge(e);
     }
 
@@ -85,43 +83,46 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod
         return graph.containsVertex(v);
     }
 
-    public Set<DefaultEdge> edgeSet() {        
+    public Set<DirectedEdge<ExecutableRulesMethod>> edgeSet() {        
         return graph.edgeSet();
     }
 
-    public Set<DefaultEdge> edgesOf(ExecutableRulesMethod vertex) {        
+    public Set<DirectedEdge<ExecutableRulesMethod>> edgesOf(ExecutableRulesMethod vertex) {        
         return graph.edgesOf(vertex);
     }
 
-    public Set<DefaultEdge> getAllEdges(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex) {        
+    public Set<DirectedEdge<ExecutableRulesMethod>> getAllEdges(ExecutableRulesMethod sourceVertex,
+            ExecutableRulesMethod targetVertex) {        
         return graph.getAllEdges(sourceVertex, targetVertex);
     }
 
-    public DefaultEdge getEdge(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex) {
+    public DirectedEdge<ExecutableRulesMethod> getEdge(ExecutableRulesMethod sourceVertex,
+            ExecutableRulesMethod targetVertex) {
         return graph.getEdge(sourceVertex, targetVertex);
     }
 
-    public EdgeFactory<ExecutableRulesMethod, DefaultEdge> getEdgeFactory() {        
+    public EdgeFactory<ExecutableRulesMethod, DirectedEdge<ExecutableRulesMethod>> getEdgeFactory() {        
         return graph.getEdgeFactory();
     }
 
-    public ExecutableRulesMethod getEdgeSource(DefaultEdge e) {        
+    public ExecutableRulesMethod getEdgeSource(DirectedEdge<ExecutableRulesMethod> e) {        
         return graph.getEdgeSource(e);
     }
 
-    public ExecutableRulesMethod getEdgeTarget(DefaultEdge e) {        
+    public ExecutableRulesMethod getEdgeTarget(DirectedEdge<ExecutableRulesMethod> e) {        
         return graph.getEdgeTarget(e);
     }
 
-    public double getEdgeWeight(DefaultEdge e) {        
+    public double getEdgeWeight(DirectedEdge<ExecutableRulesMethod> e) {        
         return graph.getEdgeWeight(e);
     }
 
-    public boolean removeAllEdges(Collection<? extends DefaultEdge> edges) {        
+    public boolean removeAllEdges(Collection<? extends DirectedEdge<ExecutableRulesMethod>> edges) {        
         return graph.removeAllEdges(edges);
     }
 
-    public Set<DefaultEdge> removeAllEdges(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex) {        
+    public Set<DirectedEdge<ExecutableRulesMethod>> removeAllEdges(ExecutableRulesMethod sourceVertex,
+            ExecutableRulesMethod targetVertex) {        
         return graph.removeAllEdges(sourceVertex, targetVertex);
     }
 
@@ -129,11 +130,12 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod
         return graph.removeAllVertices(vertices);
     }
 
-    public boolean removeEdge(DefaultEdge e) {
+    public boolean removeEdge(DirectedEdge<ExecutableRulesMethod> e) {
         return graph.removeEdge(e);
     }
 
-    public DefaultEdge removeEdge(ExecutableRulesMethod sourceVertex, ExecutableRulesMethod targetVertex) {
+    public DirectedEdge<ExecutableRulesMethod> removeEdge(ExecutableRulesMethod sourceVertex,
+            ExecutableRulesMethod targetVertex) {
         return graph.removeEdge(sourceVertex, targetVertex);
     }
 
@@ -148,16 +150,16 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableRulesMethod
     public int inDegreeOf(ExecutableRulesMethod arg0) {        
         return graph.inDegreeOf(arg0);
     }
-    public Set<DefaultEdge> incomingEdgesOf(ExecutableRulesMethod arg0) {        
+    public Set<DirectedEdge<ExecutableRulesMethod>> incomingEdgesOf(ExecutableRulesMethod arg0) {        
         return graph.incomingEdgesOf(arg0);
     }
     public int outDegreeOf(ExecutableRulesMethod arg0) {        
         return graph.outDegreeOf(arg0);
     }
-    public Set<DefaultEdge> outgoingEdgesOf(ExecutableRulesMethod arg0) {        
+    public Set<DirectedEdge<ExecutableRulesMethod>> outgoingEdgesOf(ExecutableRulesMethod arg0) {        
         return graph.outgoingEdgesOf(arg0);
     }
-    
+
     /**
      * Filter incoming methods, finding {@link ExecutableRulesMethod} and create graph.
      * 
