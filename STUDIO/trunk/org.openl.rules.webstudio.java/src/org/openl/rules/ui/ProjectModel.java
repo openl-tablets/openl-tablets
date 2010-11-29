@@ -16,6 +16,7 @@ import org.openl.conf.OpenLConfiguration;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
+import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -113,7 +114,9 @@ public class ProjectModel {
     private TreeCache<String, ITreeElement<?>> idTreeCache = new TreeCache<String, ITreeElement<?>>();
 
     private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
-    
+
+    private DependencyRulesGraph dependencyGraph;
+
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
     }
@@ -847,6 +850,8 @@ public class ProjectModel {
         uriTreeCache.clear();
         idTreeCache.clear();
         cacheTree(projectRoot);
+
+        dependencyGraph = null;
     }
 
     private TableSyntaxNode[] getTableSyntaxNodes() {
@@ -1189,6 +1194,14 @@ public class ProjectModel {
         return compiledOpenClass != null 
             && compiledOpenClass.getOpenClassWithErrors() != null 
             && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass);
+    }
+
+    public DependencyRulesGraph getDependencyGraph() {
+        if (dependencyGraph == null) {
+            List<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
+            dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
+        }
+        return dependencyGraph;
     }
 
 }
