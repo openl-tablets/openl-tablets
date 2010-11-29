@@ -22,6 +22,10 @@ input[type='text'], textarea, select {
     border-bottom-color: rgb(230,230,230) !important;
 }
 
+img {
+    border: 0px;
+}
+
 .error_box {
     padding: 12px 7px 12px 43px;
     background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;

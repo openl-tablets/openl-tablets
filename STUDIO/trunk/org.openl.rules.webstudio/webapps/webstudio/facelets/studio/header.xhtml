@@ -67,21 +67,21 @@
                 <table style="display: inline;" cellspacing="0" cellpadding="2">
                   <tr><td style="border: 1px solid rgb(150,150,150); padding: 4px 3px 1px;">
                   <a href="#{contextPath}/faces/main.xhtml?mode=business" title="Business View" target="main"><img
-                      border='0px;' alt="Business View"
+                      alt="Business View"
                       src="#{contextPath}/webresource/images/business-view.png" /></a>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <a href="#{contextPath}/faces/main.xhtml?mode=developer" title="Developer View" target="main"><img
-                      border='0px;' alt="Developer View"
+                      alt="Developer View"
                       src="#{contextPath}/webresource/images/developer-view.png" /></a>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <c:if test="#{headerBean.showFormulas}">
                     <a href="#{contextPath}/faces/main.xhtml?showFormulas=false" title="Dont't Show Formulas"
-                        target="main"><img border='0px;' alt="Dont't Show Formulas"
+                        target="main"><img alt="Dont't Show Formulas"
                         src="#{contextPath}/webresource/images/formula.png" /></a>
                   </c:if>
                   <c:if test="#{not headerBean.showFormulas}">
                     <a href="#{contextPath}/faces/main.xhtml?showFormulas=true" title="Show Formulas" target="main"><img
-                        border='0px;' alt="Show Formulas"
+                        alt="Show Formulas"
                         src="#{contextPath}/webresource/images/formula.png" /></a>
                   </c:if>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
@@ -89,25 +89,25 @@
                   <!-- Expand/Collapse Table Properties View  --> 
                   <c:if test="#{headerBean.collapseProperties}">
                     <a href="#{contextPath}/faces/main.xhtml?collapseProperties=false" title="Expand Properties"
-                        target="main"><img border='0px;' alt="Expand Properties"
+                        target="main"><img alt="Expand Properties"
                         src="#{contextPath}/webresource/images/collapsed_props.gif" /></a>
                   </c:if>
                   <c:if test="#{not headerBean.collapseProperties}">
                     <a href="#{contextPath}/faces/main.xhtml?collapseProperties=true" title="Collapse Properties"
-                        target="main"><img border='0px;' alt="Collapse Properties"
+                        target="main"><img alt="Collapse Properties"
                         src="#{contextPath}/webresource/images/extended_props.gif" /></a>
                   </c:if>
                   
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <c:if test="#{headerBean.localRequest}">
                     <c:if test="#{headerBean.repositoryFailed}">
-                      <img border='0' src="#{contextPath}/webresource/images/repository/upload-disabled.gif"
+                      <img src="#{contextPath}/webresource/images/repository/upload-disabled.gif"
                           alt="Upload project(s) failed"/>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
                     </c:if>
                     <c:if test="#{not headerBean.repositoryFailed}">
                       <a target="mainFrame" href="#{contextPath}/faces/facelets/studio/uploadProjects.xhtml"
-                          title="Upload project(s) to repository"><img border='0'
+                          title="Upload project(s) to repository"><img
                           src="#{contextPath}/webresource/images/repository/upload.gif"
                           alt="Upload project(s) to repository"/></a>
                       <f:verbatim>&amp;nbsp;</f:verbatim>
@@ -115,50 +115,48 @@
                   </c:if>
                   <a target="mainFrame"
                       href="#{contextPath}/faces/facelets/search/simpleSearch.xhtml?searchQuery=&quot;openl tablets&quot;"
-                      title="Search"><img border='0' src="#{contextPath}/webresource/images/search.png"
-                      alt="Search"/></a>
+                      title="Search"><img src="#{contextPath}/webresource/images/search.png" alt="Search"/></a>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <a href="#{contextPath}/faces/main.xhtml?reload=reload&amp;selectedModule=#{headerBean.selectedModule}"
-                      title="Refresh Project(s)" target="main"><img border='0'
-                      src="#{contextPath}/webresource/images/refresh.gif" alt="Refresh Project(s)"/></a>
+                      title="Refresh Project(s)" target="main"><img src="#{contextPath}/webresource/images/refresh.gif"
+                      alt="Refresh Project(s)"/></a>
                   <h:panelGroup rendered="#{headerBean.projectEditable}">
                       <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                       <h:commandLink target="mainFrame" action="#{tableCreatorWizardManager.start}"
-                          title="Create new table"><img border='0'
-                          src="#{contextPath}/webresource/images/newtable.gif"
+                          title="Create new table"><img src="#{contextPath}/webresource/images/newtable.gif"
                           alt="Create new table"/></h:commandLink>
                   </h:panelGroup>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <a target="mainFrame"
                       onclick="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                      href="#" title="Compare Excel files"><img border='0'
+                      href="#" title="Compare Excel files"><img
                       src="#{contextPath}/webresource/images/compare.gif" alt="Compare Excel files" /></a>
 
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <a href="#{contextPath}/faces/facelets/rulesDependencies.xhtml" title="Rules Dependencies"
-                      target="mainFrame"><img border='0px;' alt="Rules Dependencies"
+                      target="mainFrame"><img alt="Rules Dependencies"
                       src="#{contextPath}/webresource/images/graph.png" /></a>
 
                   <c:if test="#{headerBean.repositoryFailed}">
-                    <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif"
+                    <img src="#{contextPath}/webresource/images/repository/storage-disabled.gif"
                         alt="Rules Repository failed"/>
                   </c:if>
                   <c:if test="#{not headerBean.repositoryFailed}">
                     <a target="_top" href="#{contextPath}/faces/facelets/repository/main.xhtml"
-                        title="Rules Repository"><img border='0'
-                        src="#{contextPath}/webresource/images/repository/storage.gif" alt="Rules Repository"/></a>
+                        title="Rules Repository"><img src="#{contextPath}/webresource/images/repository/storage.gif"
+                        alt="Rules Repository"/></a>
                   </c:if>
 
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <a href="#{contextPath}/faces/main.xhtml?reload=forced&amp;selectedModule=#{headerBean.selectedModule}"
-                      title="Refresh Project with dependencies" target="main"><img border='0'
+                      title="Refresh Project with dependencies" target="main"><img
                       src="#{contextPath}/webresource/images/forced_refresh.png" alt="Refresh Project(s)"/></a>
                   <a href="#" onclick="window.open('#{contextPath}/help/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                     title="Help"><img border='0' src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
+                     title="Help"><img src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
                   <c:if test="#{not headerBean.hideLogout}">
                     <f:verbatim>&amp;nbsp;</f:verbatim>
                     <a target="main" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out"
-                        onclick="return confirm('Are you sure you want to Log out?')"><img border='0'
+                        onclick="return confirm('Are you sure you want to Log out?')"><img
                         src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
                   </c:if>
                 </td></tr>
