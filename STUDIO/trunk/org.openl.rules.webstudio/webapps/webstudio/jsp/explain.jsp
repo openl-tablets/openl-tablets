@@ -39,7 +39,7 @@ if (header != null)
 <tr>
 <td>
 <a href="<%=request.getContextPath()%>/faces/facelets/explain/tree.xhtml?rootID=<%=rootID%>" title="Tree View"><img
-    border=0 src="webresource/images/treeview.gif"></a>
+    src="webresource/images/treeview.gif"></a>
 </td>
 <td align=right>
 <INPUT TYPE='checkbox' name="showNames" <%=checkedShowNames%> onclick="submit()">Names</input>

@@ -138,7 +138,7 @@
                         <c:set var="traceUrl"
                             value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
-                            <img border="0" src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
+                            <img src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
 
                         <a onclick="openTraceIntoFileDlg(this);" href="#">
                             <h:graphicImage url="/webresource/images/traceIntoFile.gif"
@@ -327,7 +327,7 @@
                         <c:set var="traceUrl"
                             value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
-                            <img border="0" src="webresource/images/trace.gif"
+                            <img src="webresource/images/trace.gif"
                                 title="Trace" alt="Trace" /></a>
                         <f:verbatim>&amp;nbsp;</f:verbatim>
                         <h:outputLink
