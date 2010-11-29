@@ -42,9 +42,13 @@ public class DimensionPropertiesDomainsCollector {
     private void applyAllDomains() {
         IDomainAdaptor dateDomainAdaptor = null;
         for (String propNeedDomain : domainCollectors.keySet()) {
-            Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            
+            TablePropertyDefinition propDef = TablePropertyDefinitionUtils.getPropertyByName(propNeedDomain);
+//            Class<?> propertyType = TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propNeedDomain);
+            Class<?> propertyType = propDef.getType().getInstanceClass();
+
             IDomainCollector domainCollector = domainCollectors.get(propNeedDomain);
-            applyDomain(propNeedDomain, domainCollector.getGatheredDomain());
+            applyDomain(propDef, domainCollector.getGatheredDomain());
             if (dateDomainAdaptor == null && Date.class.equals(propertyType)) {
                 dateDomainAdaptor = domainCollector.getGatheredDomain();
             } else if (propertyType.isArray() && propertyType.getComponentType().isEnum()) {
@@ -67,10 +71,11 @@ public class DimensionPropertiesDomainsCollector {
         }
     }
 
-    private void applyDomain(String propNeedDomain, IDomainAdaptor gatheredDomain) {
-        String key = propNeedDomain + ADimensionPropertyColumn.LOCAL_PARAM_SUFFIX;
+    private void applyDomain(TablePropertyDefinition propDef, IDomainAdaptor gatheredDomain) {
+        String propName = propDef.getName();
+        String key = propName + ADimensionPropertyColumn.LOCAL_PARAM_SUFFIX;
         if (gatheredDomain != null && !propertiesDomains.containsKey(key)) {
-            propertiesDomains.put(propNeedDomain, gatheredDomain);
+            propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAtribute(), gatheredDomain);
             propertiesDomains.put(key, gatheredDomain);
         }        
     }
