@@ -57,8 +57,4 @@ public interface DiffElement {
      * @return reference on projection of element or {@literal null}
      */
     Projection getProjection();
-    
-    DiffProperty[] getDiffProperties();
-    
-    void addDiffProperty(DiffProperty property);
 }

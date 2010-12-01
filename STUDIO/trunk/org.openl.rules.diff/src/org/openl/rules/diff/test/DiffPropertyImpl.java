@@ -6,6 +6,7 @@ import org.openl.rules.diff.hierarchy.ProjectionProperty;
 
 import static org.openl.rules.diff.tree.DiffStatus.*;
 
+/**@deprecated DELETE */
 public class DiffPropertyImpl implements DiffProperty {
     private ProjectionProperty projectionProperty;
     private DiffStatus diffStatus;

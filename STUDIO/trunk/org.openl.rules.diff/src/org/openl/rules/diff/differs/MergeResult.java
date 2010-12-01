@@ -1,4 +1,4 @@
-package org.openl.rules.diff.test;
+package org.openl.rules.diff.differs;
 
 import java.util.Set;
 import java.util.TreeSet;

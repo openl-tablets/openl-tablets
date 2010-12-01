@@ -8,7 +8,10 @@ import java.io.OutputStream;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 
+import org.openl.rules.diff.differs.ProjectionDifferImpl;
+import org.openl.rules.diff.hierarchy.AbstractProjection;
 import org.openl.rules.diff.print.SimpleDiffTreePrinter;
+import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionBuilder;
 

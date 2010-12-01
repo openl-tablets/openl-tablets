@@ -10,6 +10,9 @@ import org.openl.rules.diff.tree.DiffTreeNode;
 
 public class DiffHelper {
 
+    /**
+     * @deprecated NOT USED ANYMORE
+     */
     public static Object getPropValue(ProjectionProperty[] props, String propName) {
         for (ProjectionProperty prop : props) {
             if (prop.getName().equalsIgnoreCase((propName))) {
@@ -39,21 +42,4 @@ public class DiffHelper {
         }
         return nodes;
     }
-
-    public static DiffTreeNode getDiffNodeById(DiffTreeNode parent, String id) {
-        if (parent != null) {
-            if (id == null || id.equals(parent.getId())) {
-                return parent;
-            } else {
-                for (DiffTreeNode child : parent.getChildren()) {
-                    DiffTreeNode found = getDiffNodeById(child, id);
-                    if (found != null) {
-                        return found;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
 }

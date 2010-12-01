@@ -1,9 +1,8 @@
-package org.openl.rules.diff.test;
+package org.openl.rules.diff.hierarchy;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.diff.hierarchy.ProjectionProperty;
 
 public class PropertySet {
     private Map<String, ProjectionProperty> properties;

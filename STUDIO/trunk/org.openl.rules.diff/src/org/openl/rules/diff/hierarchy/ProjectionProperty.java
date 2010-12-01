@@ -23,6 +23,4 @@ public interface ProjectionProperty {
      * @return raw value or property.
      */
     Object getRawValue();
-    
-    boolean isComparable();
 }

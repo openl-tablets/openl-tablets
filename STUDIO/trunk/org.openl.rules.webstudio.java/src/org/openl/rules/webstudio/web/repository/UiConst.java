@@ -28,6 +28,12 @@ public class UiConst {
     public static final String ICON_PROJECT_OPENED = "/webresource/images/repository/opened.gif";
     public static final String ICON_PROJECT_OPENED_LOCKED = "/webresource/images/repository/opened-locked.gif";
 
+    // <rich:treeNode icon="..." iconLeaf="..."
+    public static final String ICON_DIFF_ADDED = "/webresource/images/diff/fileadd.gif";
+    public static final String ICON_DIFF_REMOVED = "/webresource/images/diff/filedelete.gif";
+    public static final String ICON_DIFF_EQUALS = "/webresource/images/diff/filemodified.gif";
+    public static final String ICON_DIFF_DIFFERS = "/webresource/images/diff/leaf.gif";
+
     //
     public static final String OUTCOME_SUCCESS = "success";
     public static final String OUTCOME_FAILURE = "failure";

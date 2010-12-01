@@ -1,8 +1,12 @@
 package org.openl.rules.diff.test;
 
+import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffStatus;
+import org.openl.rules.diff.differs.ProjectionDifferImpl;
+import org.openl.rules.diff.hierarchy.AbstractProjection;
+import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.rules.diff.hierarchy.Projection;
 
 import static java.lang.System.out;
@@ -22,6 +26,9 @@ public class Test {
         p1.addChild(new AbstractProjection("F1", "folder"));
         p1.addChild(new AbstractProjection("F2", "folder"));
         p1.addChild(new AbstractProjection("F4", "folder"));
+        AbstractProjection ap1 = new AbstractProjection("F5", "folder");
+        ap1.addProperty(new AbstractProperty("subname", String.class, "f5a"));
+        p1.addChild(ap1);
 
         AbstractProjection p2 = new AbstractProjection("p2", "project");
         p2.addProperty(new AbstractProperty("prop.str", String.class, "some-string"));
@@ -30,6 +37,9 @@ public class Test {
         p2.addChild(new AbstractProjection("F2", "folder"));
         p2.addChild(new AbstractProjection("F3", "folder"));
         p2.addChild(new AbstractProjection("F4", "file"));
+        AbstractProjection ap2 = new AbstractProjection("F5", "folder");
+        ap2.addProperty(new AbstractProperty("subname", String.class, "f5b"));
+        p2.addChild(ap2);
 
         DiffTreeBuilderImpl builder = new DiffTreeBuilderImpl();
         builder.setProjectionDiffer(new ProjectionDifferImpl());
