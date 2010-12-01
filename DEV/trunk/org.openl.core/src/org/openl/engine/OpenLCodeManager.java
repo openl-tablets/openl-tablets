@@ -62,7 +62,7 @@ public class OpenLCodeManager extends OpenLHolder {
             bindingContextDelegator.pushErrors();
 
             ProcessedCode processedCode = sourceManager.processSource(source, SourceType.TYPE, bindingContextDelegator,
-                    false);
+                    false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
@@ -110,7 +110,7 @@ public class OpenLCodeManager extends OpenLHolder {
             bindingContextDelegator.pushErrors();
 
             ProcessedCode processedCode = sourceManager.processSource(source, SourceType.METHOD_HEADER,
-                    bindingContextDelegator, false);
+                    bindingContextDelegator, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
@@ -145,7 +145,7 @@ public class OpenLCodeManager extends OpenLHolder {
             MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
 
             ProcessedCode processedCode = sourceManager.processSource(source, SourceType.METHOD_BODY,
-                    methodBindingContext, false);
+                    methodBindingContext, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 

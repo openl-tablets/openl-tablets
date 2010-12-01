@@ -173,14 +173,7 @@ public class XlsBinder implements IOpenBinder {
             bindingContext.setExternalParams(parsedCode.getExternalParams());
         }
         
-        //NOTE: A temporary implementation of multi-module feature.
-/*
-        List<String> modulesToImport = moduleNode.getImportedModules();
-        
-        if (CollectionUtils.isNotEmpty(modulesToImport)) {
-            loadModules(modulesToImport, bindingContext);
-        }
-*/      IBoundNode topNode = null;
+        IBoundNode topNode = null;
 
         if (!parsedCode.getCompiledDependencies().isEmpty()) {
             topNode = bindWithDependencies(moduleNode, openl, bindingContext, parsedCode.getCompiledDependencies());
@@ -338,62 +331,21 @@ public class XlsBinder implements IOpenBinder {
      * @param dependencies set of dependent modules for creating module.
      * @return
      */
-    private XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl, Set<CompiledOpenClass> moduleDependencies/*List<Dependency> moduleDependencies*/) {
+    private XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl,
+        Set<CompiledOpenClass> moduleDependencies) {
+
         XlsModuleOpenClass module = null;
         if (moduleDependencies == null) {
-            module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode),  new XlsMetaInfo(moduleNode),
+            module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl);
-        } else {            
-            module =  new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode),  new XlsMetaInfo(moduleNode),
-                openl, moduleDependencies);/*new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode),  new XlsMetaInfo(moduleNode),
-                openl, moduleDependencies);*/
+        } else {
+            module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
+                openl, moduleDependencies);
         }
+        
         return module;
     }
 
-// NOTE: A temporary implementation of multi-module feature.    
-/*
-    private void bindImports(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, Collection<IOpenClass> imports) {
-
-        for (IOpenClass moduleToImport : imports) {
-            bindModuleImport(moduleNode, module, moduleToImport);
-        }
-    }
-    
-    private void bindModuleImport(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, IOpenClass moduleToImport) {
-        
-        Map<String, IOpenClass> types =  moduleToImport.getTypes();
-        
-        if (types != null) {
-            for (String name : types.keySet()) {
-                try {
-                    module.addType(name, types.get(name));
-                } catch (Exception e) {
-                    BindHelper.processError(String.format("Cannot import type '%s'", name), null);                
-                }
-            }
-        }
-        
-        Map<String, IOpenField> fields = moduleToImport.getFields();
-        
-//        if (fields != null) {
-//            for (String name : fields.keySet()) {
-//                try {
-//                    module.addField(fields.get(name));
-//                } catch (Exception e) {
-//                    BindHelper.processError(String.format("Cannot import field '%s'", name), null);                
-//                }
-//            }
-//        }
-        
-        List<IOpenMethod> methods = moduleToImport.getMethods();
-        
-        for (IOpenMethod method: methods) {
-            module.addMethod(method);
-        }
-        
-    }
-*/
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext){
         ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
                 XlsNodeTypes.XLS_PROPERTIES.toString(), new SyntaxNodeConvertor());

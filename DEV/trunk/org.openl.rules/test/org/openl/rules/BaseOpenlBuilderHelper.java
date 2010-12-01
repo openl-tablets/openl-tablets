@@ -3,11 +3,11 @@ package org.openl.rules;
 import junit.framework.Assert;
 
 import org.openl.conf.UserContext;
+import org.openl.dependency.IDependencyManager;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.source.IDependencyManager;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -43,7 +43,7 @@ public abstract class BaseOpenlBuilderHelper {
     
     protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {        
         UserContext ucxt = initUserContext();
-        wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper);
+        wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper, false, dependencyManager);
         return wrapper;
     }
 

@@ -10,6 +10,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
@@ -51,14 +52,13 @@ public class OpenLCompileManager extends OpenLHolder {
      *            memory optimized mode for only execution
      * @return {@link IOpenClass} instance
      */
-    public IOpenClass compileModule(IOpenSourceCodeModule source, boolean executionMode) {
+    public IOpenClass compileModule(IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
 
         ProcessedCode processedCode;
         if(executionMode){
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), false);
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), false, dependencyManager);
         }else{
-            processedCode = sourceManager.processSource(source, SourceType.MODULE);
-            
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, dependencyManager);
         }
 
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
@@ -78,13 +78,13 @@ public class OpenLCompileManager extends OpenLHolder {
      *            memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
-    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode) {
+    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
 
         ProcessedCode processedCode;
         if(executionMode){
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), true);
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), true, dependencyManager);
         }else{
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true);
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
         }
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
@@ -124,7 +124,7 @@ public class OpenLCompileManager extends OpenLHolder {
             ProcessedCode processedCode = sourceManager.processSource(source,
                 SourceType.METHOD_BODY,
                 methodBindingContext,
-                false);
+                false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
