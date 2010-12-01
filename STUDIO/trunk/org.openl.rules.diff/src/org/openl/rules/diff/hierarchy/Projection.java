@@ -47,6 +47,25 @@ public interface Projection {
     ProjectionProperty[] getProperties();
 
     /**
+     * Get property of the artifact by name.
+     * 
+     * @param propertyName name of property to be found
+     * @return property or null
+     */
+    ProjectionProperty getProperty(String propertyName);
+
+    /**
+     * Get raw value of property.
+     * If there is no such property returns null.
+     * <p>
+     * Note that null can mean that such property exists but its value is null.
+     * 
+     * @param propertyName name of property
+     * @return raw value of property or null
+     */
+    Object getPropertyValue(String propertyName);
+
+    /**
      * Direct children of the projection.
      * <p>
      * If there is no children empty (zero length) array is returned.

@@ -1,10 +1,8 @@
-package org.openl.rules.diff.test;
+package org.openl.rules.diff.hierarchy;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.diff.hierarchy.ProjectionProperty;
-import org.openl.rules.diff.hierarchy.Projection;
 
 public class AbstractProjection implements Projection {
     private String name;
@@ -38,6 +36,17 @@ public class AbstractProjection implements Projection {
 //    @Override
     public ProjectionProperty[] getProperties() {
         return properties.getAll();
+    }
+
+//  @Override
+    public ProjectionProperty getProperty(String propertyName) {
+        return properties.get(propertyName);
+    }
+
+//  @Override
+    public Object getPropertyValue(String propertyName) {
+        ProjectionProperty p = properties.get(propertyName);
+        return (p == null) ? p : p.getRawValue();
     }
 
     public void addChild(Projection child) {

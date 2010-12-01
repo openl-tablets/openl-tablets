@@ -16,9 +16,6 @@ package org.openl.rules.diff.tree;
  * 
  */
 public interface DiffTreeNode {
-
-    String getId();
-
     /**
      * Direct children or direct sub-nodes of this DiffTreeNode.
      * <p>

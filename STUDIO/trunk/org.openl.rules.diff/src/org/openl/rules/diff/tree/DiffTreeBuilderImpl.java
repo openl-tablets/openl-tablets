@@ -1,26 +1,16 @@
-package org.openl.rules.diff.test;
+package org.openl.rules.diff.tree;
 
-import org.openl.rules.diff.hierarchy.Projection;
-import org.openl.rules.diff.hierarchy.ProjectionProperty;
-import org.openl.rules.diff.tree.DiffTreeBuilder;
-import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.tree.DiffElement;
-import org.openl.rules.diff.xls.XlsProjectionType;
-import org.openl.rules.diff.differs.ProjectionDiffer;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Map;
-import java.util.HashMap;
+
+import org.openl.rules.diff.differs.ProjectionDiffer;
+import org.openl.rules.diff.hierarchy.Projection;
 
 public class DiffTreeBuilderImpl implements DiffTreeBuilder {
     private ProjectionDiffer projectionDiffer;
-    private int idCounter = 0;
 
-    private String getId() {
-        return "_" + idCounter++;
-    }
-    
     public void setProjectionDiffer(ProjectionDiffer projectionDiffer) {
         this.projectionDiffer = projectionDiffer;
     }
@@ -31,7 +21,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
     public DiffTreeNode compare(Projection[] projections) {
         if (projections.length < 2) {
-            throw new IllegalArgumentException("At least 2 elemnts is required!");
+            throw new IllegalArgumentException("At least 2 elements are required!");
         }
 
         if (projectionDiffer == null) {
@@ -39,7 +29,6 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         }
 
         DiffTreeNodeImpl root = new DiffTreeNodeImpl();
-        root.setId(getId());
         buildTree(root, projections);
         diffTree(root);
         return root;
@@ -53,9 +42,6 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         for (int i = 0; i < len; i++) {
             Projection p = projections[i];
             diffElements[i] = new DiffElementImpl(p);
-            for (ProjectionProperty projectionProperty : p.getProperties()) {
-                diffElements[i].addDiffProperty(new DiffPropertyImpl(projectionProperty));
-            }
         }
 
         root.setElements(diffElements);
@@ -72,11 +58,6 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         for (int i = 0; i < len; i++) {
             Projection p = elements[i].getProjection();
             children[i] = getChildren(p);
-            if (p != null) {
-                for (ProjectionProperty projectionProperty : p.getProperties()) {
-                    elements[i].addDiffProperty(new DiffPropertyImpl(projectionProperty));
-                }
-            }
         }
 
         DiffTreeNodeImpl[] diffChildren = combineChildren(children);
@@ -125,7 +106,6 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
             result[i] = new DiffTreeNodeImpl();
             result[i].setElements(diffElements);
-            result[i].setId(getId());
             i++;
         }
 
@@ -152,6 +132,9 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         }
     }
 
+    /**
+     * originalIdx & otherIdx have the same type and name
+     */
     protected void compare(DiffTreeNodeImpl node, int originalIdx, int otherIdx) {
         Projection original = node.getElement(originalIdx).getProjection();
         DiffElementImpl diff = node.getElement(otherIdx);
@@ -169,7 +152,6 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
             } else {
                 // full compare
                 boolean selfEqual = projectionDiffer.compare(original, other);
-                diff.setDiffProperties(projectionDiffer.getDiffProperties());
 
                 boolean hierarhyEqual = true;
                 boolean childrenEqual = true;
@@ -198,17 +180,16 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
     }
 
 
+    /**
+     * ProjectionKey distinct Projections by name and type.
+     */
     static class ProjectionKey implements Comparable<ProjectionKey> {
         String name;
         String type;
 
         ProjectionKey(Projection p) {
-            type = p.getType();
             name = p.getName();
-            /* Temp hardcode */
-            if (type.equalsIgnoreCase(XlsProjectionType.CELL.name())) {
-                name = name.split("-")[0].trim();
-            }
+            type = p.getType();
         }
 
         public int compareTo(ProjectionKey o) {

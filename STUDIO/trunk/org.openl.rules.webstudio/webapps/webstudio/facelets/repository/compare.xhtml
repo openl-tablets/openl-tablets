@@ -10,11 +10,6 @@
   <ui:define name="title">Repository Diff</ui:define>
 
   <ui:define name="page">
-    <a4j:loadStyle src="resource:///css/openl/flexTree.css" />
-    <a4j:loadScript src="resource:///javascript/flexTree/prototype-1.6.0.2.js" />
-    <a4j:loadScript src="resource:///javascript/flexTree/dataLoader.js" />
-    <a4j:loadScript src="resource:///javascript/flexTree/flexTree.js" />
-
     <br/>
     <h:form id="compareForm" style="margin-left: 6px;">
       <h:outputText value="Show equal elements" />
@@ -94,14 +89,23 @@
                 </td>
               </tr>
               <tr>
-                <td valign="top">
-                  <div id="treeboxbox_tree1"
-                    style="width: 450px; height: 480px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
-                </td>
-                <td valign="top">
-                  <div id="treeboxbox_tree2"
-                    style="width: 450px; height: 480px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
-                </td>
+               <td colspan="2">
+  <rich:panel style="width:100%; height:480px; background-color: #f5f5f5; border: 1px solid Silver; overflow:auto; clear:left;">
+    <rich:tree
+      id="newTree"
+      switchType="ajax" 
+      value="#{repositoryDiffController.richDiffTree}"
+      var="item"
+      nodeFace="any"
+      ajaxSubmitSelection="true"
+      nodeSelectListener="#{repositoryDiffController.processSelection}"
+      reRender="tableEditor1,tableEditor2">
+      <rich:treeNode type="any" icon="#{item.icon}" iconLeaf="#{item.icon}">
+        <h:outputText value="#{item.name}" />
+      </rich:treeNode>
+    </rich:tree>
+  </rich:panel>
+               </td>
               </tr>
               <tr>
                 <td>
@@ -109,7 +113,7 @@
                   <div style="width:450px; overflow-x:scroll">
                   	<a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor1" table="#{repositoryDiffController.table1}" mode="view"
-                      collapseProps="true" editable="false" excludeScripts="prototype" />
+                      collapseProps="true" editable="false" />
                       </a4j:outputPanel>
                    </div>
                 </td>
@@ -118,9 +122,8 @@
                   <div style="width:450px; overflow-x:scroll">
                   <a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor2" table="#{repositoryDiffController.table2}" mode="view"
-                      collapseProps="true" filter="#{repositoryDiffController.filter2}" editable="false"
-                      excludeScripts="prototype" />
-					</a4j:outputPanel>                      
+                      collapseProps="true" filter="#{repositoryDiffController.filter2}" editable="false" />
+					</a4j:outputPanel>
                   </div>
                 </td>
               </tr>
@@ -130,61 +133,6 @@
         </td>
       </tr>
     </table>
-
-    <script>
-      function onClickHandler1(key) {
-        tree2.selectItem(key);
-        selectTable(key);
-      }
-
-      function onClickHandler2(key) {
-        tree1.selectItem(key);
-        selectTable(key);
-      }
-
-      function selectTable(key) {
-        var form = $('diffTreeForm');
-        form.id.value = key;
-        form.submit();
-      }
-
-      function onOpenHandler1(key, state) {
-        if (state==-1 || state==0) {
-          tree2.openItem(key);
-        } else {
-          tree2.closeItem(key);
-        }
-        return true;
-      }
-
-      function onOpenHandler2(key, state) {
-        if (state==-1 || state==0) {
-          tree1.openItem(key);
-        } else {
-          tree1.closeItem(key);
-        }
-        return true;
-      }
-
-      var tree1=new flexTree("treeboxbox_tree1","100%","100%",1);
-      var tree2=new flexTree("treeboxbox_tree2","100%","100%",2);
-
-      tree1.setImagePath("#{contextPath}/images/flexTree/");
-      tree1.setOnClickHandler(onClickHandler1);
-      tree1.setOnOpenHandler(onOpenHandler1);
-      tree1.setOnDblClickHandler(onOpenHandler1);
-      tree1.setShowNodeTooltips(true);
-      tree1.treeContainerElement.onscroll = function() { tree2.treeContainerElement.scrollTop=tree1.treeContainerElement.scrollTop; }
-      tree1.setXMLAutoLoading("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=1");
-      tree1.loadXML("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=1");
-
-      tree2.setOnClickHandler(onClickHandler2);
-      tree2.setOnOpenHandler(onOpenHandler2);
-      tree2.setOnDblClickHandler(onOpenHandler2);
-      tree2.setImagePath("#{contextPath}/images/flexTree/");
-      tree2.setXMLAutoLoading("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=2");
-      tree2.loadXML("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=2");
-    </script>
 
   </ui:define>
 </ui:composition>

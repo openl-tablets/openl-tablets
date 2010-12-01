@@ -17,84 +17,98 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
-import org.openl.rules.diff.test.AbstractProjection;
-import org.openl.rules.diff.test.AbstractProperty;
+import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.source.IOpenSourceCodeModule;
 
 import static org.openl.rules.diff.xls.XlsProjectionType.*;
 
 public class XlsProjectionBuilder {
 
-    public static AbstractProjection build(XlsMetaInfo xmi, String xlsName) {
-        AbstractProjection projection = new AbstractProjection(xlsName, BOOK.name());
+    public static XlsProjection build(XlsMetaInfo xmi, String xlsName) {
+        XlsProjection projection = new XlsProjection(xlsName, BOOK);
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-        Map<String, AbstractProjection> sheetProjections = new TreeMap<String, AbstractProjection>();
+
+        // Here we have list of all tables.
+        // But for usability reasons it is good to group tables 
+        // as they are located in XLS WorkBook, i.e. on Sheets
+        // So here we have a tree:
+        // - 1st level is for Sheets and 
+        // - 2nd for tables.
+        Map<String, XlsProjection> sheetProjections = new TreeMap<String, XlsProjection>();
+
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode node : nodes) {
+            // find or create corresponding Sheet
             IOpenSourceCodeModule sheet = node.getModule();
             String sheetName = ((XlsSheetSourceCodeModule) sheet).getSheetName();
-            AbstractProjection sheetProjection = sheetProjections.get(sheetName);
+            XlsProjection sheetProjection = sheetProjections.get(sheetName);
             if (sheetProjection == null) {
-                sheetProjection = new AbstractProjection(sheetName, SHEET.name());
+                sheetProjection = new XlsProjection(sheetName, SHEET);
                 sheetProjections.put(sheetName, sheetProjection);
             }
 
+            // deal with table
             IOpenLTable table = new TableSyntaxNodeAdapter(node);
             String header = table.getGridTable().getCell(0, 0).getStringValue();
-            String tableName = header == null ? "" : header;
+            String tableName = (header == null) ? "" : header;
             GridLocation location = node.getGridLocation();
             tableName += " (" + location.getStart() + ":" + location.getEnd() + ")";
             sheetProjection.addChild(buildTable(table, tableName));
         }
-        for (AbstractProjection sheetProjection : sheetProjections.values()) {
+
+        for (XlsProjection sheetProjection : sheetProjections.values()) {
             projection.addChild(sheetProjection);
         }
         return projection;
     }
 
-    public static AbstractProjection buildTable(IOpenLTable table, String tableName) {
-        AbstractProjection projection = new AbstractProjection(tableName, TABLE.name());
-        AbstractProperty grid = new AbstractProperty("grid", IOpenLTable.class, table, false);
-        projection.addProperty(grid);
+    public static XlsProjection buildTable(IOpenLTable table, String tableName) {
+        XlsProjection projection = new XlsProjection(tableName, TABLE);
+        projection.setData(table);
+
+        // GRID
+        XlsProjection grid = new XlsProjection("GRID", XlsProjectionType.GRID);
+        projection.addChild(grid);
+
         IGridTable gridTable = table.getGridTable();
-        /*for (int i = 1; i < gridTable.getLogicalHeight(); i++) {
-            ILogicalTable row = gridTable.getLogicalRow(i);
-            projection.addChild(buildRow(row, "row" + i));
-        }*/
         int height = gridTable.getHeight();
         int width = gridTable.getWidth();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 ICell cell = gridTable.getCell(j, i);
-                Object cellValue = cell.getObjectValue();
-                projection.addChild(buildCell(cell, (i + "x" + j + " - " + (cellValue == null ? "" : cellValue))));
+                grid.addChild(buildCell(cell, i + "x" + j));
             }
         }
+
+        // ROWS
+        /*for (int i = 1; i < gridTable.getLogicalHeight(); i++) {
+        ILogicalTable row = gridTable.getLogicalRow(i);
+        projection.addChild(buildRow(row, "row" + i));
+        }*/
         return projection;
     }
 
-    public static AbstractProjection buildRow(ILogicalTable row, String rowName) {
-        AbstractProjection projection = new AbstractProjection(rowName, ROW.name());
+    public static XlsProjection buildRow(ILogicalTable row, String rowName) {
+        XlsProjection projection = new XlsProjection(rowName, ROW);
         ITable<?> grid = row.getSource();
         int height = grid.getHeight();
         int width = grid.getWidth();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 ICell cell = grid.getCell(j, i);
-                Object cellValue = cell.getObjectValue();
-                projection.addChild(buildCell(cell, (i + "x" + j + " - " + (cellValue == null ? "" : cellValue))));
+                projection.addChild(buildCell(cell, i + "x" + j));
             }
         }
         return projection;
     }
 
-    public static AbstractProjection buildCell(ICell cell, String cellName) {
+    public static XlsProjection buildCell(ICell cell, String cellName) {
         Object cellValue = cell.getObjectValue();
         /*int cellHeight = cell.getCellHeight();
         int cellWidth = cell.getCellWidth();
         ICellStyle cellStyle = cell.getCellStyle();
         ICellFont cellFont = cell.getCellInfo().getFont();*/
-        AbstractProjection projection = new AbstractProjection(cellName, CELL.name());
+        XlsProjection projection = new XlsProjection(cellName, CELL);
         projection.addProperty(new AbstractProperty(CELL_VALUE.name(),
                 cellValue != null ? cellValue.getClass() : null, cellValue));
         /*projection.addProperty(new AbstractProperty(CELL_HEIGHT.name(),
@@ -103,16 +117,17 @@ public class XlsProjectionBuilder {
                 int.class, cellWidth));
         projection.addChild(buildCellStyle(cellStyle));
         projection.addChild(buildCellFont(cellFont));*/
-        AbstractProperty cellProp = new AbstractProperty("cell", ICell.class, cell, false);
-        projection.addProperty(cellProp);
+        projection.setData(cell);
+//        AbstractProperty cellProp = new AbstractProperty("cell", ICell.class, cell);
+//        projection.addProperty(cellProp);
         return projection;
     }
 
-    public static AbstractProjection buildCellStyle(ICellStyle style) {
-        return new AbstractProjection("style", CELL_STYLE.name());
+    public static XlsProjection buildCellStyle(ICellStyle style) {
+        return new XlsProjection("style", CELL_STYLE);
     }
 
-    public static AbstractProjection buildCellFont(ICellFont font) {
-        return new AbstractProjection("font", CELL_FONT.name());
+    public static XlsProjection buildCellFont(ICellFont font) {
+        return new XlsProjection("font", CELL_FONT);
     }
 }

@@ -1,10 +1,7 @@
-package org.openl.rules.diff.test;
+package org.openl.rules.diff.tree;
 
-import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.tree.DiffElement;
 
 public class DiffTreeNodeImpl implements DiffTreeNode {
-    private String id;
     private DiffTreeNode[] children;
     private DiffElement[] elements;
 
@@ -26,13 +23,5 @@ public class DiffTreeNodeImpl implements DiffTreeNode {
 
     public DiffElementImpl getElement(int idx) {
         return (DiffElementImpl) elements[idx];
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
     }
 }
