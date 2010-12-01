@@ -13,6 +13,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.dependency.IDependencyManager;
 
 public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -23,6 +24,7 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   public static org.openl.CompiledOpenClass __compiledClass;
 
   private static Map<String, Object> __externalParams;
+  private static IDependencyManager __dependencyManager;
   private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
@@ -78,8 +80,13 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
   public Tutorial_9Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    this(ignoreErrors, executionMode, params, null);
+  }
+
+  public Tutorial_9Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){
     __externalParams = params;
     __executionMode = executionMode;
+    __dependencyManager = dependencyManager;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -136,15 +143,13 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod incomeForecast_Method;
-  public org.openl.rules.calc.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
-    Object[] __params = new Object[2];
-    __params[0] = new Double(bonusRate);
-    __params[1] = new Double(sharePrice);
+  static org.openl.types.IOpenMethod totalAssets_Method;
+  public org.openl.rules.calc.SpreadsheetResult totalAssets()  {
+    Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
-    Object __res = incomeForecast_Method.invoke(__myInstance, __params, __env.get());
+    Object __res = totalAssets_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.calc.SpreadsheetResult)__res;  }
   catch(Throwable t)
   {
@@ -155,13 +160,15 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod totalAssets_Method;
-  public org.openl.rules.calc.SpreadsheetResult totalAssets()  {
-    Object[] __params = new Object[0];
+  static org.openl.types.IOpenMethod incomeForecast_Method;
+  public org.openl.rules.calc.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
+    Object[] __params = new Object[2];
+    __params[0] = new Double(bonusRate);
+    __params[1] = new Double(sharePrice);
     try
     {
     Object __myInstance = __instance;
-    Object __res = totalAssets_Method.invoke(__myInstance, __params, __env.get());
+    Object __res = incomeForecast_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.calc.SpreadsheetResult)__res;  }
   catch(Throwable t)
   {
@@ -192,7 +199,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     if (source != null) {
          source.setParams(__externalParams);
     }
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
@@ -201,11 +208,11 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     this_Field = __class.getField("this");
     run1TestAll_Method = __class.getMatchingMethod("run1TestAll", new IOpenClass[] {
 });
+    totalAssets_Method = __class.getMatchingMethod("totalAssets", new IOpenClass[] {
+});
     incomeForecast_Method = __class.getMatchingMethod("incomeForecast", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, double.class),
       OpenClassHelper.getOpenClass(__class, double.class)});
-    totalAssets_Method = __class.getMatchingMethod("totalAssets", new IOpenClass[] {
-});
 
     __initialized=true;
   }

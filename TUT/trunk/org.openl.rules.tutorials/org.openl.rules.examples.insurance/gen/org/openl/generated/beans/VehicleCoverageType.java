@@ -35,10 +35,10 @@ public VehicleCoverageType(InsurableVehicle vehicle, LimitsAndFactors limitBI, L
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(vehicle);
-    builder.append(limitBI);
-    builder.append(limitPD);
-    builder.append(limitMP);
+    builder.append(getVehicle());
+    builder.append(getLimitBI());
+    builder.append(getLimitPD());
+    builder.append(getLimitMP());
     return builder.toHashCode();
 }
 
@@ -48,10 +48,10 @@ public boolean equals(Object obj) {
         return false;
     }
     VehicleCoverageType another = (VehicleCoverageType)obj;
-    builder.append(another.vehicle,vehicle);
-    builder.append(another.limitBI,limitBI);
-    builder.append(another.limitPD,limitPD);
-    builder.append(another.limitMP,limitMP);
+    builder.append(another.getVehicle(),getVehicle());
+    builder.append(another.getLimitBI(),getLimitBI());
+    builder.append(another.getLimitPD(),getLimitPD());
+    builder.append(another.getLimitMP(),getLimitMP());
     return builder.isEquals();
 }
 
@@ -59,13 +59,13 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("VehicleCoverageType {");
     builder.append(" vehicle=");
-    builder.append(vehicle);
+    builder.append(getVehicle());
     builder.append(" limitBI=");
-    builder.append(limitBI);
+    builder.append(getLimitBI());
     builder.append(" limitPD=");
-    builder.append(limitPD);
+    builder.append(getLimitPD());
     builder.append(" limitMP=");
-    builder.append(limitMP);
+    builder.append(getLimitMP());
     builder.append(" }");
     return builder.toString();
 }

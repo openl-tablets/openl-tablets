@@ -28,8 +28,8 @@ public LimitsAndFactors(String limit, double increasedFactor) {
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(limit);
-    builder.append(increasedFactor);
+    builder.append(getLimit());
+    builder.append(getIncreasedFactor());
     return builder.toHashCode();
 }
 
@@ -39,8 +39,8 @@ public boolean equals(Object obj) {
         return false;
     }
     LimitsAndFactors another = (LimitsAndFactors)obj;
-    builder.append(another.limit,limit);
-    builder.append(another.increasedFactor,increasedFactor);
+    builder.append(another.getLimit(),getLimit());
+    builder.append(another.getIncreasedFactor(),getIncreasedFactor());
     return builder.isEquals();
 }
 
@@ -48,9 +48,9 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("LimitsAndFactors {");
     builder.append(" limit=");
-    builder.append(limit);
+    builder.append(getLimit());
     builder.append(" increasedFactor=");
-    builder.append(increasedFactor);
+    builder.append(getIncreasedFactor());
     builder.append(" }");
     return builder.toString();
 }

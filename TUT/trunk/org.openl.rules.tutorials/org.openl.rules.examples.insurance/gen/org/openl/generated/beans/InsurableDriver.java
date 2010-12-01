@@ -37,11 +37,11 @@ public InsurableDriver(String name, int age, String gender, String maritalStatus
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(name);
-    builder.append(age);
-    builder.append(gender);
-    builder.append(maritalStatus);
-    builder.append(dmvPoints);
+    builder.append(getName());
+    builder.append(getAge());
+    builder.append(getGender());
+    builder.append(getMaritalStatus());
+    builder.append(getDmvPoints());
     return builder.toHashCode();
 }
 
@@ -51,11 +51,11 @@ public boolean equals(Object obj) {
         return false;
     }
     InsurableDriver another = (InsurableDriver)obj;
-    builder.append(another.name,name);
-    builder.append(another.age,age);
-    builder.append(another.gender,gender);
-    builder.append(another.maritalStatus,maritalStatus);
-    builder.append(another.dmvPoints,dmvPoints);
+    builder.append(another.getName(),getName());
+    builder.append(another.getAge(),getAge());
+    builder.append(another.getGender(),getGender());
+    builder.append(another.getMaritalStatus(),getMaritalStatus());
+    builder.append(another.getDmvPoints(),getDmvPoints());
     return builder.isEquals();
 }
   public java.lang.String getName() {
@@ -66,15 +66,15 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("InsurableDriver {");
     builder.append(" name=");
-    builder.append(name);
+    builder.append(getName());
     builder.append(" age=");
-    builder.append(age);
+    builder.append(getAge());
     builder.append(" gender=");
-    builder.append(gender);
+    builder.append(getGender());
     builder.append(" maritalStatus=");
-    builder.append(maritalStatus);
+    builder.append(getMaritalStatus());
     builder.append(" dmvPoints=");
-    builder.append(dmvPoints);
+    builder.append(getDmvPoints());
     builder.append(" }");
     return builder.toString();
 }

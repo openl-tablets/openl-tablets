@@ -36,10 +36,10 @@ public VehiclePremiumCalculator(InsurableVehicle vehicle, Vector discountsForVeh
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(vehicle);
-    builder.append(discountsForVehicle);
-    builder.append(discountsForDriver);
-    builder.append(designatedDriver);
+    builder.append(getVehicle());
+    builder.append(getDiscountsForVehicle());
+    builder.append(getDiscountsForDriver());
+    builder.append(getDesignatedDriver());
     return builder.toHashCode();
 }
 
@@ -49,10 +49,10 @@ public boolean equals(Object obj) {
         return false;
     }
     VehiclePremiumCalculator another = (VehiclePremiumCalculator)obj;
-    builder.append(another.vehicle,vehicle);
-    builder.append(another.discountsForVehicle,discountsForVehicle);
-    builder.append(another.discountsForDriver,discountsForDriver);
-    builder.append(another.designatedDriver,designatedDriver);
+    builder.append(another.getVehicle(),getVehicle());
+    builder.append(another.getDiscountsForVehicle(),getDiscountsForVehicle());
+    builder.append(another.getDiscountsForDriver(),getDiscountsForDriver());
+    builder.append(another.getDesignatedDriver(),getDesignatedDriver());
     return builder.isEquals();
 }
 
@@ -60,13 +60,13 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("VehiclePremiumCalculator {");
     builder.append(" vehicle=");
-    builder.append(vehicle);
+    builder.append(getVehicle());
     builder.append(" discountsForVehicle=");
-    builder.append(discountsForVehicle);
+    builder.append(getDiscountsForVehicle());
     builder.append(" discountsForDriver=");
-    builder.append(discountsForDriver);
+    builder.append(getDiscountsForDriver());
     builder.append(" designatedDriver=");
-    builder.append(designatedDriver);
+    builder.append(getDesignatedDriver());
     builder.append(" }");
     return builder.toString();
 }

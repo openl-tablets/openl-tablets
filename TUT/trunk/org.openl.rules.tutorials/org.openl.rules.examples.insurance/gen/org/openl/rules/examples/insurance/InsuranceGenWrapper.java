@@ -13,6 +13,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.dependency.IDependencyManager;
 
 public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -23,6 +24,7 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   public static org.openl.CompiledOpenClass __compiledClass;
 
   private static Map<String, Object> __externalParams;
+  private static IDependencyManager __dependencyManager;
   private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
@@ -78,8 +80,13 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   }
 
   public InsuranceGenWrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    this(ignoreErrors, executionMode, params, null);
+  }
+
+  public InsuranceGenWrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){
     __externalParams = params;
     __executionMode = executionMode;
+    __dependencyManager = dependencyManager;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -103,22 +110,6 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
 
 
 
-  static org.openl.types.IOpenField vehicles_Field;
-
-  public org.openl.generated.beans.InsurableVehicle[] getVehicles()
-  {
-   Object __res = vehicles_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.InsurableVehicle[])__res;
-  }
-
-
-  public void setVehicles(org.openl.generated.beans.InsurableVehicle[] __var)
-  {
-   vehicles_Field.set(__instance, __var, __env.get());
-  }
-
-
-
   static org.openl.types.IOpenField coverageTypes_Field;
 
   public org.openl.generated.beans.VehicleCoverageType[] getCoverageTypes()
@@ -135,18 +126,18 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
 
 
 
-  static org.openl.types.IOpenField vehicleSymbols_Field;
+  static org.openl.types.IOpenField vehicles_Field;
 
-  public org.openl.generated.beans.VehicleSymbol[] getVehicleSymbols()
+  public org.openl.generated.beans.InsurableVehicle[] getVehicles()
   {
-   Object __res = vehicleSymbols_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.VehicleSymbol[])__res;
+   Object __res = vehicles_Field.get(__instance, __env.get());
+   return (org.openl.generated.beans.InsurableVehicle[])__res;
   }
 
 
-  public void setVehicleSymbols(org.openl.generated.beans.VehicleSymbol[] __var)
+  public void setVehicles(org.openl.generated.beans.InsurableVehicle[] __var)
   {
-   vehicleSymbols_Field.set(__instance, __var, __env.get());
+   vehicles_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -163,6 +154,22 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   public void setLimitsBI(org.openl.generated.beans.LimitsAndFactors[] __var)
   {
    limitsBI_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField vehicleSymbols_Field;
+
+  public org.openl.generated.beans.VehicleSymbol[] getVehicleSymbols()
+  {
+   Object __res = vehicleSymbols_Field.get(__instance, __env.get());
+   return (org.openl.generated.beans.VehicleSymbol[])__res;
+  }
+
+
+  public void setVehicleSymbols(org.openl.generated.beans.VehicleSymbol[] __var)
+  {
+   vehicleSymbols_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -199,22 +206,6 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
 
 
 
-  static org.openl.types.IOpenField this_Field;
-
-  public org.openl.types.impl.DynamicObject getThis()
-  {
-   Object __res = this_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject)__res;
-  }
-
-
-  public void setThis(org.openl.types.impl.DynamicObject __var)
-  {
-   this_Field.set(__instance, __var, __env.get());
-  }
-
-
-
   static org.openl.types.IOpenField limitsPD_Field;
 
   public org.openl.generated.beans.LimitsAndFactors[] getLimitsPD()
@@ -227,6 +218,22 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   public void setLimitsPD(org.openl.generated.beans.LimitsAndFactors[] __var)
   {
    limitsPD_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField this_Field;
+
+  public org.openl.types.impl.DynamicObject getThis()
+  {
+   Object __res = this_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject)__res;
+  }
+
+
+  public void setThis(org.openl.types.impl.DynamicObject __var)
+  {
+   this_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -263,6 +270,23 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
 
 
 
+  static org.openl.types.IOpenMethod main_Method;
+  public void main(java.lang.String[] args)  {
+    Object[] __params = new Object[1];
+    __params[0] = args;
+    try
+    {
+    Object __myInstance = __instance;
+    main_Method.invoke(__myInstance, __params, __env.get());  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod addDiscount_Method;
   public void addDiscount(java.util.Vector discounts, java.lang.String type, double value, boolean showInPolicy)  {
     Object[] __params = new Object[4];
@@ -283,68 +307,16 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   }
 
 
-  static org.openl.types.IOpenMethod displayDiscount_Method;
-  public void displayDiscount(org.openl.generated.beans.Discount d)  {
-    Object[] __params = new Object[1];
-    __params[0] = d;
-    try
-    {
-    Object __myInstance = __instance;
-    displayDiscount_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod displayRejections_Method;
-  public void displayRejections(org.openl.generated.beans.PolicyPremiumCalculator pc)  {
-    Object[] __params = new Object[1];
-    __params[0] = pc;
-    try
-    {
-    Object __myInstance = __instance;
-    displayRejections_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod designateDriver_Method;
-  public org.openl.generated.beans.InsurableDriver designateDriver(org.openl.generated.beans.InsurableVehicle vehicle)  {
-    Object[] __params = new Object[1];
-    __params[0] = vehicle;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = designateDriver_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.generated.beans.InsurableDriver)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod defineDriverDiscounts_Method;
-  public void defineDriverDiscounts(org.openl.generated.beans.InsurableDriver driver, org.openl.generated.beans.InsurancePolicy policy, org.openl.generated.beans.VehiclePremiumCalculator calc)  {
+  static org.openl.types.IOpenMethod defineVehicleDiscounts_Method;
+  public void defineVehicleDiscounts(org.openl.generated.beans.InsurableVehicle vehicle, org.openl.generated.beans.InsurancePolicy policy, org.openl.generated.beans.VehiclePremiumCalculator calc)  {
     Object[] __params = new Object[3];
-    __params[0] = driver;
+    __params[0] = vehicle;
     __params[1] = policy;
     __params[2] = calc;
     try
     {
     Object __myInstance = __instance;
-    defineDriverDiscounts_Method.invoke(__myInstance, __params, __env.get());  }
+    defineVehicleDiscounts_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -363,6 +335,23 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
     Object __myInstance = __instance;
     Object __res = calculatePremiums_Method.invoke(__myInstance, __params, __env.get());
    return ((Double)__res).doubleValue();  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod displayRejections_Method;
+  public void displayRejections(org.openl.generated.beans.PolicyPremiumCalculator pc)  {
+    Object[] __params = new Object[1];
+    __params[0] = pc;
+    try
+    {
+    Object __myInstance = __instance;
+    displayRejections_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -409,6 +398,23 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   }
 
 
+  static org.openl.types.IOpenMethod displayDiscount_Method;
+  public void displayDiscount(org.openl.generated.beans.Discount d)  {
+    Object[] __params = new Object[1];
+    __params[0] = d;
+    try
+    {
+    Object __myInstance = __instance;
+    displayDiscount_Method.invoke(__myInstance, __params, __env.get());  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod validateVehicle_Method;
   public void validateVehicle(org.openl.generated.beans.InsurableVehicle vehicle, org.openl.generated.beans.InsurancePolicy policy, org.openl.generated.beans.PolicyPremiumCalculator pc)  {
     Object[] __params = new Object[3];
@@ -428,42 +434,6 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
   }
 
 
-  static org.openl.types.IOpenMethod main_Method;
-  public void main(java.lang.String[] args)  {
-    Object[] __params = new Object[1];
-    __params[0] = args;
-    try
-    {
-    Object __myInstance = __instance;
-    main_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod defineVehicleDiscounts_Method;
-  public void defineVehicleDiscounts(org.openl.generated.beans.InsurableVehicle vehicle, org.openl.generated.beans.InsurancePolicy policy, org.openl.generated.beans.VehiclePremiumCalculator calc)  {
-    Object[] __params = new Object[3];
-    __params[0] = vehicle;
-    __params[1] = policy;
-    __params[2] = calc;
-    try
-    {
-    Object __myInstance = __instance;
-    defineVehicleDiscounts_Method.invoke(__myInstance, __params, __env.get());  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod validateDriver_Method;
   public void validateDriver(org.openl.generated.beans.InsurableDriver driver, org.openl.generated.beans.InsurancePolicy policy, org.openl.generated.beans.PolicyPremiumCalculator pc)  {
     Object[] __params = new Object[3];
@@ -474,6 +444,43 @@ public class InsuranceGenWrapper implements org.openl.main.OpenLWrapper,org.open
     {
     Object __myInstance = __instance;
     validateDriver_Method.invoke(__myInstance, __params, __env.get());  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod designateDriver_Method;
+  public org.openl.generated.beans.InsurableDriver designateDriver(org.openl.generated.beans.InsurableVehicle vehicle)  {
+    Object[] __params = new Object[1];
+    __params[0] = vehicle;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = designateDriver_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.generated.beans.InsurableDriver)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod defineDriverDiscounts_Method;
+  public void defineDriverDiscounts(org.openl.generated.beans.InsurableDriver driver, org.openl.generated.beans.InsurancePolicy policy, org.openl.generated.beans.VehiclePremiumCalculator calc)  {
+    Object[] __params = new Object[3];
+    __params[0] = driver;
+    __params[1] = policy;
+    __params[2] = calc;
+    try
+    {
+    Object __myInstance = __instance;
+    defineDriverDiscounts_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -503,30 +510,51 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     if (source != null) {
          source.setParams(__externalParams);
     }
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
     addresses_Field = __class.getField("addresses");
-    vehicles_Field = __class.getField("vehicles");
     coverageTypes_Field = __class.getField("coverageTypes");
-    vehicleSymbols_Field = __class.getField("vehicleSymbols");
+    vehicles_Field = __class.getField("vehicles");
     limitsBI_Field = __class.getField("limitsBI");
+    vehicleSymbols_Field = __class.getField("vehicleSymbols");
     coverageBases_Field = __class.getField("coverageBases");
     usages_Field = __class.getField("usages");
-    this_Field = __class.getField("this");
     limitsPD_Field = __class.getField("limitsPD");
+    this_Field = __class.getField("this");
     drivers_Field = __class.getField("drivers");
     limitsMP_Field = __class.getField("limitsMP");
+    main_Method = __class.getMatchingMethod("main", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, java.lang.String[].class)});
     addDiscount_Method = __class.getMatchingMethod("addDiscount", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.util.Vector.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class),
       OpenClassHelper.getOpenClass(__class, double.class),
       OpenClassHelper.getOpenClass(__class, boolean.class)});
+    defineVehicleDiscounts_Method = __class.getMatchingMethod("defineVehicleDiscounts", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableVehicle.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.VehiclePremiumCalculator.class)});
+    calculatePremiums_Method = __class.getMatchingMethod("calculatePremiums", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class)});
+    displayRejections_Method = __class.getMatchingMethod("displayRejections", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
+    calculateVehiclePremium_Method = __class.getMatchingMethod("calculateVehiclePremium", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.VehiclePremiumCalculator.class)});
+    validateInsurancePolicy_Method = __class.getMatchingMethod("validateInsurancePolicy", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
     displayDiscount_Method = __class.getMatchingMethod("displayDiscount", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Discount.class)});
-    displayRejections_Method = __class.getMatchingMethod("displayRejections", new IOpenClass[] {
+    validateVehicle_Method = __class.getMatchingMethod("validateVehicle", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableVehicle.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
+    validateDriver_Method = __class.getMatchingMethod("validateDriver", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableDriver.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
       OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
     designateDriver_Method = __class.getMatchingMethod("designateDriver", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableVehicle.class)});
@@ -534,27 +562,6 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableDriver.class),
       OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
       OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.VehiclePremiumCalculator.class)});
-    calculatePremiums_Method = __class.getMatchingMethod("calculatePremiums", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class)});
-    calculateVehiclePremium_Method = __class.getMatchingMethod("calculateVehiclePremium", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.VehiclePremiumCalculator.class)});
-    validateInsurancePolicy_Method = __class.getMatchingMethod("validateInsurancePolicy", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
-    validateVehicle_Method = __class.getMatchingMethod("validateVehicle", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableVehicle.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
-    main_Method = __class.getMatchingMethod("main", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, java.lang.String[].class)});
-    defineVehicleDiscounts_Method = __class.getMatchingMethod("defineVehicleDiscounts", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableVehicle.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.VehiclePremiumCalculator.class)});
-    validateDriver_Method = __class.getMatchingMethod("validateDriver", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurableDriver.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.InsurancePolicy.class),
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.PolicyPremiumCalculator.class)});
 
     __initialized=true;
   }

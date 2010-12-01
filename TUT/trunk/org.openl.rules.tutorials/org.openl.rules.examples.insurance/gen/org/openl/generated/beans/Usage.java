@@ -32,9 +32,9 @@ public Usage(InsurableDriver driver, InsurableVehicle vehicle, int usage) {
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(driver);
-    builder.append(vehicle);
-    builder.append(usage);
+    builder.append(getDriver());
+    builder.append(getVehicle());
+    builder.append(getUsage());
     return builder.toHashCode();
 }
 
@@ -44,9 +44,9 @@ public boolean equals(Object obj) {
         return false;
     }
     Usage another = (Usage)obj;
-    builder.append(another.driver,driver);
-    builder.append(another.vehicle,vehicle);
-    builder.append(another.usage,usage);
+    builder.append(another.getDriver(),getDriver());
+    builder.append(another.getVehicle(),getVehicle());
+    builder.append(another.getUsage(),getUsage());
     return builder.isEquals();
 }
 
@@ -54,11 +54,11 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Usage {");
     builder.append(" driver=");
-    builder.append(driver);
+    builder.append(getDriver());
     builder.append(" vehicle=");
-    builder.append(vehicle);
+    builder.append(getVehicle());
     builder.append(" usage=");
-    builder.append(usage);
+    builder.append(getUsage());
     builder.append(" }");
     return builder.toString();
 }

@@ -13,6 +13,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.dependency.IDependencyManager;
 
 public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -23,6 +24,7 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   public static org.openl.CompiledOpenClass __compiledClass;
 
   private static Map<String, Object> __externalParams;
+  private static IDependencyManager __dependencyManager;
   private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
@@ -78,8 +80,13 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
   public Tutorial_7Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    this(ignoreErrors, executionMode, params, null);
+  }
+
+  public Tutorial_7Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){
     __externalParams = params;
     __executionMode = executionMode;
+    __dependencyManager = dependencyManager;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -185,24 +192,6 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod needApprovalOf_Method;
-  public java.lang.String needApprovalOf(org.openl.tablets.tutorial7.Expense expense)  {
-    Object[] __params = new Object[1];
-    __params[0] = expense;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = needApprovalOf_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod test2TestAll_Method;
   public org.openl.rules.testmethod.TestUnitsResults test2TestAll()  {
     Object[] __params = new Object[0];
@@ -211,24 +200,6 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     Object __myInstance = __instance;
     Object __res = test2TestAll_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod scoreIssue_Method;
-  public int scoreIssue(org.openl.tablets.tutorial7.Issue issue)  {
-    Object[] __params = new Object[1];
-    __params[0] = issue;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = scoreIssue_Method.invoke(__myInstance, __params, __env.get());
-   return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -247,6 +218,42 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     Object __myInstance = __instance;
     Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod needApprovalOf_Method;
+  public java.lang.String needApprovalOf(org.openl.tablets.tutorial7.Expense expense)  {
+    Object[] __params = new Object[1];
+    __params[0] = expense;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = needApprovalOf_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod scoreIssue_Method;
+  public int scoreIssue(org.openl.tablets.tutorial7.Issue issue)  {
+    Object[] __params = new Object[1];
+    __params[0] = issue;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = scoreIssue_Method.invoke(__myInstance, __params, __env.get());
+   return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -276,7 +283,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     if (source != null) {
          source.setParams(__externalParams);
     }
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
@@ -289,13 +296,13 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 });
     test3TestAll_Method = __class.getMatchingMethod("test3TestAll", new IOpenClass[] {
 });
-    needApprovalOf_Method = __class.getMatchingMethod("needApprovalOf", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Expense.class)});
     test2TestAll_Method = __class.getMatchingMethod("test2TestAll", new IOpenClass[] {
 });
-    scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
     scoreIssueImportance_Method = __class.getMatchingMethod("scoreIssueImportance", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
+    needApprovalOf_Method = __class.getMatchingMethod("needApprovalOf", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Expense.class)});
+    scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
 
     __initialized=true;
