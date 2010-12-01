@@ -81,6 +81,7 @@ public class JavaWrapperGenerator {
         defaultImports.add("org.openl.conf.UserContext");
         defaultImports.add("org.openl.impl.OpenClassJavaWrapper");
         defaultImports.add("org.openl.source.IOpenSourceCodeModule");
+        defaultImports.add("org.openl.dependency.IDependencyManager");
         
         methodImports = new ArrayList<String>();
         methodImports.add("org.openl.util.Log");
@@ -231,7 +232,7 @@ public class JavaWrapperGenerator {
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldDeclaration(CompiledOpenClass.class.getName(), "__compiledClass"));
 
         buf.append("  private static Map<String, Object> __externalParams;\n");
-
+        buf.append("  private static IDependencyManager __dependencyManager;\n");
         buf.append("  private static boolean __executionMode;\n");
 
         String initializationValue = String.format("\"%s\"", StringEscapeUtils.escapeJava(openlName));
@@ -297,12 +298,19 @@ public class JavaWrapperGenerator {
             .append("(Map<String, Object> params){\n")
             .append("    this(false, false, params);\n")
             .append("  }\n\n");
-        
+
+        buf.append("  public ")
+        .append(s_class)
+        .append("(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){\n")
+        .append("    this(ignoreErrors, executionMode, params, null);\n")
+        .append("  }\n\n");
+
         buf.append("  public ")
             .append(s_class)
-            .append("(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){\n")
+            .append("(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){\n")
             .append("    __externalParams = params;\n")
             .append("    __executionMode = executionMode;\n")
+            .append("    __dependencyManager = dependencyManager;\n")
             .append("    __init();\n")
             .append("    if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();\n")
             .append("    __instance = __class.newInstance(__env.get());\n")
@@ -396,7 +404,7 @@ public class JavaWrapperGenerator {
         
         + "    }\n"
         
-        + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);\n"
+        + "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);\n"
 
         + "    __compiledClass = wrapper.getCompiledClass();\n" + "    __class = wrapper.getOpenClassWithErrors();\n"
 

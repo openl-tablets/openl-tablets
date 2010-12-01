@@ -51,7 +51,7 @@ public class OpenLRunManager extends OpenLHolder {
     public Object runMethod(IOpenSourceCodeModule source, String methodName, IOpenClass[] paramTypes, Object[] params)
             throws OpenLRuntimeException, MethodNotFoundException, SyntaxNodeException {
 
-        IOpenClass openClass = compileManager.compileModule(source, false);
+        IOpenClass openClass = compileManager.compileModule(source, false, null);
         IOpenVM vm = getOpenL().getVm();
 
         Object target = openClass.newInstance(vm.getRuntimeEnv());
@@ -83,7 +83,7 @@ public class OpenLRunManager extends OpenLHolder {
      */
     public Object run(IOpenSourceCodeModule source, SourceType sourceType) throws OpenLRuntimeException {
 
-        ProcessedCode processedCode = sourceManager.processSource(source, sourceType);
+        ProcessedCode processedCode = sourceManager.processSource(source, sourceType, null);
 
         IBoundCode boundCode = processedCode.getBoundCode();
         IBoundNode boundNode = boundCode.getTopNode();

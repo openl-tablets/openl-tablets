@@ -5,6 +5,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
@@ -133,18 +134,6 @@ public class OpenLManager {
 
     /**
      * Compiles module. As a result a module open class will be returned by
-     * engine. All errors that occurred during compilation are suppressed.
-     * 
-     * @param opel OpenL engine context
-     * @param source source
-     * @return {@link CompiledOpenClass} instance
-     */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
-        return compileModuleWithErrors(openl, source, false);
-    }
-
-    /**
-     * Compiles module. As a result a module open class will be returned by
      * engine.
      * 
      * @param opel OpenL engine context
@@ -154,12 +143,26 @@ public class OpenLManager {
      * @return {@link IOpenClass} instance
      */
     public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
-
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-
-        return compileManager.compileModule(source, executionMode);
+        return compileModule(openl, source, executionMode, null);
     }
 
+    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
+        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
+        return compileManager.compileModule(source, executionMode, dependencyManager);
+    }
+
+    /**
+     * Compiles module. As a result a module open class will be returned by
+     * engine. All errors that occurred during compilation are suppressed.
+     * 
+     * @param opel OpenL engine context
+     * @param source source
+     * @return {@link CompiledOpenClass} instance
+     */
+    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
+        return compileModuleWithErrors(openl, source, false);
+    }
+    
     /**
      * Compiles module. As a result a module open class will be returned by
      * engine. All errors that occurred during compilation are suppressed.
@@ -171,11 +174,12 @@ public class OpenLManager {
      * @return {@link CompiledOpenClass} instance
      */
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
+        return compileModuleWithErrors(openl, source, executionMode, null);
+    }
 
+    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-
-        return compileManager.compileModuleWithErrors(source, executionMode);
-
+        return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
     }
 
     /**

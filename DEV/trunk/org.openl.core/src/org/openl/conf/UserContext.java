@@ -11,8 +11,7 @@ import java.net.URLClassLoader;
 import java.util.Properties;
 import java.util.Stack;
 
-import org.openl.source.DefaultDependencyManager;
-import org.openl.source.IDependencyManager;
+import org.openl.dependency.IDependencyManager;
 
 /**
  * @author snshor
@@ -28,8 +27,6 @@ public class UserContext extends AUserContext {
 
     protected Properties userProperties;
     
-    protected IDependencyManager dependencyManager;
-
     public static IUserContext currentContext() {
         Stack<IUserContext> stack = contextStack.get();
         if (stack == null || stack.size() == 0) {
@@ -63,10 +60,6 @@ public class UserContext extends AUserContext {
         this(userClassLoader, userHome, null, null);
     }
 
-    private static IDependencyManager getDefaultDependencyManager() {        
-        return new DefaultDependencyManager();
-    }
-
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
         this(userClassLoader, userHome, userProperties, null);
     }
@@ -80,10 +73,6 @@ public class UserContext extends AUserContext {
         this.userClassLoader = userClassLoader;
         this.userHome = userHome;
         this.userProperties = userProperties;
-        if (dependencyManager == null) {
-            dependencyManager = getDefaultDependencyManager();
-        }
-        this.dependencyManager = dependencyManager;
     }
 
     public Object execute(IExecutable exe) {
@@ -127,14 +116,6 @@ public class UserContext extends AUserContext {
     @Override
     public String toString() {
         return "home=" + userHome + " cl=" + printClassloader(userClassLoader);
-    }
-
-    public IDependencyManager getDependencyManager() {        
-        return dependencyManager;
-    }
-
-    public void setDependencyManager(IDependencyManager dependencyManager) {        
-        this.dependencyManager = dependencyManager;
     }
 
 }

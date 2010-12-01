@@ -5,6 +5,7 @@ import java.net.URL;
 
 import org.openl.CompiledOpenClass;
 import org.openl.conf.IUserContext;
+import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
@@ -14,6 +15,7 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
 
     private IOpenSourceCodeModule sourceCode;
     private boolean executionMode;
+    private IDependencyManager dependencyManager;
     
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext) {
         super(openlName, userContext);
@@ -58,9 +60,16 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         return sourceCode;
     }
     
+    public IDependencyManager getDependencyManager() {
+        return dependencyManager;
+    }
+
+    public void setDependencyManager(IDependencyManager dependencyManager) {
+        this.dependencyManager = dependencyManager;
+    }
+
     protected CompiledOpenClass initializeOpenClass() {
-        CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode);
-        return compiledOpenClass;
+        return OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
     }
     
 }

@@ -30,28 +30,6 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.IBoundNode#evaluate(java.lang.Object,
-     *      java.lang.Object[], org.openl.env.IRuntimeEnv)
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // Object res = null;
-    //
-    // for (int i = 0; i < children.length; i++)
-    // {
-    // res = children[i].evaluate(target, pars, env);
-    // }
-    // return res;
-    // }
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // return pars.length == 0 ? null : pars[pars.length - 1];
-    // }
-    //
-
-    /*
-     * (non-Javadoc)
-     *
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {

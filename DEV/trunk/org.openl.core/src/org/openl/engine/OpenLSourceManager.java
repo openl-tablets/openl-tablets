@@ -1,6 +1,6 @@
 package org.openl.engine;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,8 +8,11 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
+import org.openl.dependency.IDependencyManager;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
+import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -46,8 +49,18 @@ public class OpenLSourceManager extends OpenLHolder {
      * @return processed code descriptor
      */
     public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType) {
+        return processSource(source, sourceType, null, false, null);
+    }
 
-        return processSource(source, sourceType, null, false);
+    /**
+     * Parses and binds source.
+     * 
+     * @param source source
+     * @param sourceType type of source
+     * @return processed code descriptor
+     */
+    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType, IDependencyManager dependencyManager) {
+        return processSource(source, sourceType, null, false, dependencyManager);
     }
 
     /**
@@ -63,23 +76,38 @@ public class OpenLSourceManager extends OpenLHolder {
     public ProcessedCode processSource(IOpenSourceCodeModule source,
                                        SourceType sourceType,
                                        IBindingContextDelegator bindingContextDelegator,
-                                       boolean ignoreErrors) {
+                                       boolean ignoreErrors, 
+                                       IDependencyManager dependencyManager) {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
-
         SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
 
         if (!ignoreErrors && parsingErrors.length > 0) {
             throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
-        
+
         // compile source dependencies        
-        if (SourceType.MODULE.equals(sourceType) ) {
-            Set<IOpenSourceCodeModule> dependentSources = parsedCode.getDependentSources();
-            if (!dependentSources.isEmpty()) {
-                Set<CompiledOpenClass> compiledDependencies = compileDependencies(dependentSources);
-                parsedCode.setCompiledDependencies(compiledDependencies);
-            }           
+        if (SourceType.MODULE.equals(sourceType)) {
+
+            IDependency[] dependencies = parsedCode.getDependencies();
+            Set<CompiledOpenClass> compiledDependencies = new LinkedHashSet<CompiledOpenClass>();
+
+            if (dependencies != null && dependencies.length > 0) {
+                if (dependencyManager != null) {
+                    for (int i = 0; i < dependencies.length; i++) {
+                        try {
+                            CompiledOpenClass loadedDependency = dependencyManager.loadDependency(dependencies[i]).getCompiledOpenClass();
+                            compiledDependencies.add(loadedDependency);
+                        } catch (Exception e) {
+                            throw new OpenLRuntimeException(e);
+                        }
+                    }
+                } else {
+                    throw new OpenLRuntimeException("Dependency manager is not defined");
+                }
+            }
+
+            parsedCode.setCompiledDependencies(compiledDependencies);
         }
         
         Map<String, Object> externalParams = source.getParams();
@@ -101,19 +129,6 @@ public class OpenLSourceManager extends OpenLHolder {
         processedCode.setBoundCode(boundCode);
         
         return processedCode;
-    }
-
-    private Set<CompiledOpenClass> compileDependencies(Set<IOpenSourceCodeModule> dependentSources) {
-        Set<CompiledOpenClass> compiledDependencies = new HashSet<CompiledOpenClass>();
-        for (IOpenSourceCodeModule dependentSource : dependentSources) {
-            CompiledOpenClass compiledDependency = OpenLManager.compileModuleWithErrors(getOpenL(), dependentSource);
-            if (compiledDependency != null) {
-                compiledDependencies.add(compiledDependency);
-            } else {
-                // error during compilation, throw smth
-            }
-        }
-        return compiledDependencies;
     }
 
 }
