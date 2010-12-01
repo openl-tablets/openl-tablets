@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.runtime.EngineFactory;
@@ -18,25 +19,31 @@ import java.io.File;
 public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
     public static final String RULE_OPENL_NAME = "org.openl.xls";
 
-    private EngineFactory<?> engineFactoryInstance;
-    public EngineFactoryInstantiationStrategy(Module module, boolean executionMode) {
-        super(module, executionMode);
+    private EngineFactory<?> engineFactory;
+    public EngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+        super(module, executionMode, dependencyManager);
     }
+    
+    public EngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
+        super(module, executionMode, dependencyManager, classLoader);
+    }
+
 
     @SuppressWarnings("unchecked")
     private EngineFactory<?> getEngineFactory(Class<?> clazz) {
-        if(engineFactoryInstance == null){
+        if(engineFactory == null){
             File sourceFile = new File(getModule().getProject().getProjectFolder(), getModule().getRulesRootPath()
                     .getPath());
             
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
             source.setParams(getModule().getProperties());
 
-            engineFactoryInstance = new RuleEngineFactory(source, clazz);
-            engineFactoryInstance.setExecutionMode(isExecutionMode());
+            engineFactory = new RuleEngineFactory(source, clazz);
+            engineFactory.setExecutionMode(isExecutionMode());
+            engineFactory.setDependencyManager(getDependencyManager());
         }
         
-        return engineFactoryInstance;
+        return engineFactory;
     }
 
     @Override

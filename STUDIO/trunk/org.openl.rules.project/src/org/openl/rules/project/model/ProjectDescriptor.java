@@ -84,6 +84,8 @@ public class ProjectDescriptor {
      * @param reload Boolean flag that indicates whether classloader must be
      *            reloaded or used existing.
      * @return ClassLoader for this project.
+     * @deprecated
+     *      Must be removed to separate class. Project descriptor is just description of project and must be simple java bean.
      */
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
@@ -94,6 +96,11 @@ public class ProjectDescriptor {
         return classLoader;
     }
     
+    /**
+    * @deprecated
+    *      Must be removed to separate class. Project descriptor is just description of project and must be simple java bean.
+    *  
+    */
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
@@ -122,11 +129,16 @@ public class ProjectDescriptor {
         }
         return urls;
     }
-    
+
     /**
-     * Class loader of current project have to be unregistered if it is not in use to prevent memory leaks.
+     * Class loader of current project have to be unregistered if it is not in
+     * use to prevent memory leaks.
      * 
      * @param classLoader ClassLoader to unregister.
+     * 
+     * @deprecated Must be removed to separate class. Project descriptor is just
+     *             description of project and must be simple java bean.
+     * 
      */
     private void unregisterClassloader(ClassLoader classLoader){
         if (classLoader != null) {

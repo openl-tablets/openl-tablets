@@ -28,7 +28,7 @@ public class RulesServiceEnhancerTest {
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
         module.setClassname(ITest.class.getName());
-        EngineFactoryInstantiationStrategy strategy = new EngineFactoryInstantiationStrategy(module, false);
+        EngineFactoryInstantiationStrategy strategy = new EngineFactoryInstantiationStrategy(module, false, null);
 
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
@@ -57,7 +57,7 @@ public class RulesServiceEnhancerTest {
         module.setProject(project);
         module.setClassname(StaticWrapper.class.getName());
 
-        WrapperAdjustingInstantiationStrategy strategy = new WrapperAdjustingInstantiationStrategy(module, false);
+        WrapperAdjustingInstantiationStrategy strategy = new WrapperAdjustingInstantiationStrategy(module, false, null);
 
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
@@ -86,7 +86,7 @@ public class RulesServiceEnhancerTest {
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
         module.setClassname("MyTestClass");
 
-        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module, false);
+        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module, false, null);
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();

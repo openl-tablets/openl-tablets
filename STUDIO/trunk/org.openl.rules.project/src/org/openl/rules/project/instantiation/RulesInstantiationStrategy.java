@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 
 /**
@@ -10,13 +11,22 @@ import org.openl.rules.project.model.Module;
  * @author PUdalau
  */
 public abstract class RulesInstantiationStrategy {
+    
     private Module module;
     private Class<?> clazz;
     private boolean executionMode;
+    private ClassLoader classLoader;
+    private IDependencyManager dependencyManager;
 
-    public RulesInstantiationStrategy(Module module, boolean executionMode) {
+    public RulesInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+        this(module, executionMode, dependencyManager, null);
+    }
+    
+    public RulesInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
         this.module = module;
         this.executionMode = executionMode;
+        this.dependencyManager = dependencyManager;
+        this.classLoader = classLoader;
     }
 
     public Module getModule() {
@@ -26,9 +36,9 @@ public abstract class RulesInstantiationStrategy {
     protected boolean isExecutionMode() {
         return executionMode;
     }
-
-    public void setModule(Module module) {
-        this.module = module;
+    
+    protected IDependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 
     /**
@@ -75,6 +85,8 @@ public abstract class RulesInstantiationStrategy {
      * @throws InstantiationException
      * @throws IllegalAccessException
      * @throws ClassNotFoundException
+     * 
+     * @deprecated ReloadType should be moved to class which uses instantiation strategies and can be able to manage class loaders in right way. 
      */
     public Object instantiate(ReloadType reloadType) throws InstantiationException, IllegalAccessException,
             ClassNotFoundException {
@@ -94,9 +106,14 @@ public abstract class RulesInstantiationStrategy {
      * @return {@link ClassLoader} for the current module.
      */
     protected ClassLoader getClassLoader() {
+        
+        if (classLoader != null) {
+            return classLoader;
+        }
+        
         return module.getProject().getClassLoader(false);
     }
-
+    
     protected abstract Object instantiate(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException;
 

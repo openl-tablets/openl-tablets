@@ -7,6 +7,7 @@ import java.io.File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
@@ -19,12 +20,17 @@ import org.openl.source.impl.FileSourceCodeModule;
  * @author PUdalau
  */
 public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
+
     private static final Log LOG = LogFactory.getLog(ApiBasedEngineFactoryInstantiationStrategy.class);
     private ApiBasedRulesEngineFactory factory;
-    //private ClassLoader classLoader;
 
-    public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean executionMode) {
-        super(module, executionMode);
+    public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+        super(module, executionMode, dependencyManager);
+        getEngineFactory();
+    }
+    
+    public ApiBasedEngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
+        super(module, executionMode, dependencyManager, classLoader);
         getEngineFactory();
     }
 
@@ -36,6 +42,7 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
             
             factory = new ApiBasedRulesEngineFactory(source);
             factory.setExecutionMode(isExecutionMode());
+            factory.setDependencyManager(getDependencyManager());
         }
         return factory;
     }
@@ -45,21 +52,6 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
         super.forcedReset();
         factory.reset(true);
     }
-
-//    @Override
-//    protected ClassLoader getClassLoader() {
-//        ClassLoader projectClassloader = getProjectClassLoader();
-//        if (classLoader == null || projectClassloader != classLoader.getParent()) {
-//            // For all of modules resolved as API we will use different class
-//            // loaders with common project class loader
-//            classLoader = new URLClassLoader(new URL[] {}, projectClassloader);
-//        }
-//        return classLoader;
-//    }
-
-//    private ClassLoader getProjectClassLoader() {
-//        return super.getClassLoader();
-//    }
 
     @Override
     public Class<?> getServiceClass() {
