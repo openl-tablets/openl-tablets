@@ -43,13 +43,13 @@ public InsurableVehicle(String id, String make, String model, int year, boolean 
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(id);
-    builder.append(make);
-    builder.append(model);
-    builder.append(year);
-    builder.append(hasAbs);
-    builder.append(hasAlarm);
-    builder.append(yearlyMileage);
+    builder.append(getId());
+    builder.append(getMake());
+    builder.append(getModel());
+    builder.append(getYear());
+    builder.append(getHasAbs());
+    builder.append(getHasAlarm());
+    builder.append(getYearlyMileage());
     return builder.toHashCode();
 }
 
@@ -59,13 +59,13 @@ public boolean equals(Object obj) {
         return false;
     }
     InsurableVehicle another = (InsurableVehicle)obj;
-    builder.append(another.id,id);
-    builder.append(another.make,make);
-    builder.append(another.model,model);
-    builder.append(another.year,year);
-    builder.append(another.hasAbs,hasAbs);
-    builder.append(another.hasAlarm,hasAlarm);
-    builder.append(another.yearlyMileage,yearlyMileage);
+    builder.append(another.getId(),getId());
+    builder.append(another.getMake(),getMake());
+    builder.append(another.getModel(),getModel());
+    builder.append(another.getYear(),getYear());
+    builder.append(another.getHasAbs(),getHasAbs());
+    builder.append(another.getHasAlarm(),getHasAlarm());
+    builder.append(another.getYearlyMileage(),getYearlyMileage());
     return builder.isEquals();
 }
 
@@ -73,19 +73,19 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("InsurableVehicle {");
     builder.append(" id=");
-    builder.append(id);
+    builder.append(getId());
     builder.append(" make=");
-    builder.append(make);
+    builder.append(getMake());
     builder.append(" model=");
-    builder.append(model);
+    builder.append(getModel());
     builder.append(" year=");
-    builder.append(year);
+    builder.append(getYear());
     builder.append(" hasAbs=");
-    builder.append(hasAbs);
+    builder.append(getHasAbs());
     builder.append(" hasAlarm=");
-    builder.append(hasAlarm);
+    builder.append(getHasAlarm());
     builder.append(" yearlyMileage=");
-    builder.append(yearlyMileage);
+    builder.append(getYearlyMileage());
     builder.append(" }");
     return builder.toString();
 }

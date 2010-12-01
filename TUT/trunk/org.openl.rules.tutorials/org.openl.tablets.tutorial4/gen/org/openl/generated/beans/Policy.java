@@ -5,13 +5,15 @@
 package org.openl.generated.beans;
 
 import java.lang.String;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.openl.generated.beans.Driver;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.openl.generated.beans.Vehicle;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Policy{
+  protected java.lang.String name;
+
   protected java.lang.String clientTier;
 
   protected java.lang.String clientTerm;
@@ -19,8 +21,6 @@ public class Policy{
   protected org.openl.generated.beans.Driver[] drivers;
 
   protected org.openl.generated.beans.Vehicle[] vehicles;
-
-  protected java.lang.String name;
 
 
 
@@ -35,6 +35,53 @@ public Policy(String name, String clientTier, String clientTerm, Driver[] driver
     this.clientTerm = clientTerm;
     this.drivers = drivers;
     this.vehicles = vehicles;
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getClientTier());
+    builder.append(getClientTerm());
+    builder.append(getDrivers());
+    builder.append(getVehicles());
+    return builder.toHashCode();
+}
+
+public boolean equals(Object obj) {
+    EqualsBuilder builder = new EqualsBuilder();
+    if (!(obj instanceof Policy)) {;
+        return false;
+    }
+    Policy another = (Policy)obj;
+    builder.append(another.getName(),getName());
+    builder.append(another.getClientTier(),getClientTier());
+    builder.append(another.getClientTerm(),getClientTerm());
+    builder.append(another.getDrivers(),getDrivers());
+    builder.append(another.getVehicles(),getVehicles());
+    return builder.isEquals();
+}
+  public java.lang.String getName() {
+   return name;
+}
+
+public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Policy {");
+    builder.append(" name=");
+    builder.append(getName());
+    builder.append(" clientTier=");
+    builder.append(getClientTier());
+    builder.append(" clientTerm=");
+    builder.append(getClientTerm());
+    builder.append(" drivers=");
+    builder.append(ArrayUtils.toString(getDrivers()));
+    builder.append(" vehicles=");
+    builder.append(ArrayUtils.toString(getVehicles()));
+    builder.append(" }");
+    return builder.toString();
+}
+  public void setName(java.lang.String name) {
+   this.name = name;
 }
   public java.lang.String getClientTier() {
    return clientTier;
@@ -59,53 +106,6 @@ public Policy(String name, String clientTier, String clientTerm, Driver[] driver
 }
   public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
    this.vehicles = vehicles;
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(name);
-    builder.append(clientTier);
-    builder.append(clientTerm);
-    builder.append(drivers);
-    builder.append(vehicles);
-    return builder.toHashCode();
-}
-
-public boolean equals(Object obj) {
-    EqualsBuilder builder = new EqualsBuilder();
-    if (!(obj instanceof Policy)) {;
-        return false;
-    }
-    Policy another = (Policy)obj;
-    builder.append(another.name,name);
-    builder.append(another.clientTier,clientTier);
-    builder.append(another.clientTerm,clientTerm);
-    builder.append(another.drivers,drivers);
-    builder.append(another.vehicles,vehicles);
-    return builder.isEquals();
-}
-  public java.lang.String getName() {
-   return name;
-}
-
-public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Policy {");
-    builder.append(" name=");
-    builder.append(name);
-    builder.append(" clientTier=");
-    builder.append(clientTier);
-    builder.append(" clientTerm=");
-    builder.append(clientTerm);
-    builder.append(" drivers=");
-    builder.append(ArrayUtils.toString(drivers));
-    builder.append(" vehicles=");
-    builder.append(ArrayUtils.toString(vehicles));
-    builder.append(" }");
-    return builder.toString();
-}
-  public void setName(java.lang.String name) {
-   this.name = name;
 }
 
 }

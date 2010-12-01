@@ -29,8 +29,8 @@ public VehicleSymbol(InsurableVehicle vehicle, String symbol) {
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(vehicle);
-    builder.append(symbol);
+    builder.append(getVehicle());
+    builder.append(getSymbol());
     return builder.toHashCode();
 }
 
@@ -40,8 +40,8 @@ public boolean equals(Object obj) {
         return false;
     }
     VehicleSymbol another = (VehicleSymbol)obj;
-    builder.append(another.vehicle,vehicle);
-    builder.append(another.symbol,symbol);
+    builder.append(another.getVehicle(),getVehicle());
+    builder.append(another.getSymbol(),getSymbol());
     return builder.isEquals();
 }
 
@@ -49,9 +49,9 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("VehicleSymbol {");
     builder.append(" vehicle=");
-    builder.append(vehicle);
+    builder.append(getVehicle());
     builder.append(" symbol=");
-    builder.append(symbol);
+    builder.append(getSymbol());
     builder.append(" }");
     return builder.toString();
 }

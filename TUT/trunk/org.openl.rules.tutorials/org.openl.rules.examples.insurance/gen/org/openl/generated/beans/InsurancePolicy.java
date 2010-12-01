@@ -37,10 +37,10 @@ public InsurancePolicy(InsurableDriver[] drivers, InsurableVehicle[] vehicles, U
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(drivers);
-    builder.append(vehicles);
-    builder.append(usages);
-    builder.append(address);
+    builder.append(getDrivers());
+    builder.append(getVehicles());
+    builder.append(getUsages());
+    builder.append(getAddress());
     return builder.toHashCode();
 }
   public org.openl.generated.beans.Address getAddress() {
@@ -53,10 +53,10 @@ public boolean equals(Object obj) {
         return false;
     }
     InsurancePolicy another = (InsurancePolicy)obj;
-    builder.append(another.drivers,drivers);
-    builder.append(another.vehicles,vehicles);
-    builder.append(another.usages,usages);
-    builder.append(another.address,address);
+    builder.append(another.getDrivers(),getDrivers());
+    builder.append(another.getVehicles(),getVehicles());
+    builder.append(another.getUsages(),getUsages());
+    builder.append(another.getAddress(),getAddress());
     return builder.isEquals();
 }
 
@@ -64,13 +64,13 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("InsurancePolicy {");
     builder.append(" drivers=");
-    builder.append(ArrayUtils.toString(drivers));
+    builder.append(ArrayUtils.toString(getDrivers()));
     builder.append(" vehicles=");
-    builder.append(ArrayUtils.toString(vehicles));
+    builder.append(ArrayUtils.toString(getVehicles()));
     builder.append(" usages=");
-    builder.append(ArrayUtils.toString(usages));
+    builder.append(ArrayUtils.toString(getUsages()));
     builder.append(" address=");
-    builder.append(address);
+    builder.append(getAddress());
     builder.append(" }");
     return builder.toString();
 }

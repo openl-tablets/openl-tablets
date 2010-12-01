@@ -37,11 +37,11 @@ public Address(String street1, String street2, String city, String state, String
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(street1);
-    builder.append(street2);
-    builder.append(city);
-    builder.append(state);
-    builder.append(zip);
+    builder.append(getStreet1());
+    builder.append(getStreet2());
+    builder.append(getCity());
+    builder.append(getState());
+    builder.append(getZip());
     return builder.toHashCode();
 }
 
@@ -51,11 +51,11 @@ public boolean equals(Object obj) {
         return false;
     }
     Address another = (Address)obj;
-    builder.append(another.street1,street1);
-    builder.append(another.street2,street2);
-    builder.append(another.city,city);
-    builder.append(another.state,state);
-    builder.append(another.zip,zip);
+    builder.append(another.getStreet1(),getStreet1());
+    builder.append(another.getStreet2(),getStreet2());
+    builder.append(another.getCity(),getCity());
+    builder.append(another.getState(),getState());
+    builder.append(another.getZip(),getZip());
     return builder.isEquals();
 }
 
@@ -63,15 +63,15 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Address {");
     builder.append(" street1=");
-    builder.append(street1);
+    builder.append(getStreet1());
     builder.append(" street2=");
-    builder.append(street2);
+    builder.append(getStreet2());
     builder.append(" city=");
-    builder.append(city);
+    builder.append(getCity());
     builder.append(" state=");
-    builder.append(state);
+    builder.append(getState());
     builder.append(" zip=");
-    builder.append(zip);
+    builder.append(getZip());
     builder.append(" }");
     return builder.toString();
 }

@@ -10,6 +10,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Vehicle{
+  protected java.lang.String name;
+
+  protected java.lang.String type;
+
+  protected int year;
+
+  protected java.lang.String model;
+
   protected boolean hasAlarm;
 
   protected boolean onHighTheftProbabilityList;
@@ -23,14 +31,6 @@ public class Vehicle{
   protected java.lang.String[] coverage;
 
   protected boolean hasRollBar;
-
-  protected java.lang.String name;
-
-  protected java.lang.String type;
-
-  protected int year;
-
-  protected java.lang.String model;
 
 
 
@@ -51,6 +51,95 @@ public Vehicle(String name, String model, int year, boolean hasAlarm, String typ
     this.bodyType = bodyType;
     this.coverage = coverage;
     this.hasRollBar = hasRollBar;
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getModel());
+    builder.append(getYear());
+    builder.append(getHasAlarm());
+    builder.append(getType());
+    builder.append(getOnHighTheftProbabilityList());
+    builder.append(getAirbags());
+    builder.append(getPrice());
+    builder.append(getBodyType());
+    builder.append(getCoverage());
+    builder.append(getHasRollBar());
+    return builder.toHashCode();
+}
+
+public boolean equals(Object obj) {
+    EqualsBuilder builder = new EqualsBuilder();
+    if (!(obj instanceof Vehicle)) {;
+        return false;
+    }
+    Vehicle another = (Vehicle)obj;
+    builder.append(another.getName(),getName());
+    builder.append(another.getModel(),getModel());
+    builder.append(another.getYear(),getYear());
+    builder.append(another.getHasAlarm(),getHasAlarm());
+    builder.append(another.getType(),getType());
+    builder.append(another.getOnHighTheftProbabilityList(),getOnHighTheftProbabilityList());
+    builder.append(another.getAirbags(),getAirbags());
+    builder.append(another.getPrice(),getPrice());
+    builder.append(another.getBodyType(),getBodyType());
+    builder.append(another.getCoverage(),getCoverage());
+    builder.append(another.getHasRollBar(),getHasRollBar());
+    return builder.isEquals();
+}
+  public java.lang.String getName() {
+   return name;
+}
+
+public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Vehicle {");
+    builder.append(" name=");
+    builder.append(getName());
+    builder.append(" model=");
+    builder.append(getModel());
+    builder.append(" year=");
+    builder.append(getYear());
+    builder.append(" hasAlarm=");
+    builder.append(getHasAlarm());
+    builder.append(" type=");
+    builder.append(getType());
+    builder.append(" onHighTheftProbabilityList=");
+    builder.append(getOnHighTheftProbabilityList());
+    builder.append(" airbags=");
+    builder.append(getAirbags());
+    builder.append(" price=");
+    builder.append(getPrice());
+    builder.append(" bodyType=");
+    builder.append(getBodyType());
+    builder.append(" coverage=");
+    builder.append(ArrayUtils.toString(getCoverage()));
+    builder.append(" hasRollBar=");
+    builder.append(getHasRollBar());
+    builder.append(" }");
+    return builder.toString();
+}
+  public void setName(java.lang.String name) {
+   this.name = name;
+}
+  public java.lang.String getType() {
+   return type;
+}
+  public int getYear() {
+   return year;
+}
+  public void setType(java.lang.String type) {
+   this.type = type;
+}
+  public void setModel(java.lang.String model) {
+   this.model = model;
+}
+  public void setYear(int year) {
+   this.year = year;
+}
+  public java.lang.String getModel() {
+   return model;
 }
   public boolean getHasAlarm() {
    return hasAlarm;
@@ -93,95 +182,6 @@ public Vehicle(String name, String model, int year, boolean hasAlarm, String typ
 }
   public void setHasRollBar(boolean hasRollBar) {
    this.hasRollBar = hasRollBar;
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(name);
-    builder.append(model);
-    builder.append(year);
-    builder.append(hasAlarm);
-    builder.append(type);
-    builder.append(onHighTheftProbabilityList);
-    builder.append(airbags);
-    builder.append(price);
-    builder.append(bodyType);
-    builder.append(coverage);
-    builder.append(hasRollBar);
-    return builder.toHashCode();
-}
-
-public boolean equals(Object obj) {
-    EqualsBuilder builder = new EqualsBuilder();
-    if (!(obj instanceof Vehicle)) {;
-        return false;
-    }
-    Vehicle another = (Vehicle)obj;
-    builder.append(another.name,name);
-    builder.append(another.model,model);
-    builder.append(another.year,year);
-    builder.append(another.hasAlarm,hasAlarm);
-    builder.append(another.type,type);
-    builder.append(another.onHighTheftProbabilityList,onHighTheftProbabilityList);
-    builder.append(another.airbags,airbags);
-    builder.append(another.price,price);
-    builder.append(another.bodyType,bodyType);
-    builder.append(another.coverage,coverage);
-    builder.append(another.hasRollBar,hasRollBar);
-    return builder.isEquals();
-}
-  public java.lang.String getName() {
-   return name;
-}
-
-public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Vehicle {");
-    builder.append(" name=");
-    builder.append(name);
-    builder.append(" model=");
-    builder.append(model);
-    builder.append(" year=");
-    builder.append(year);
-    builder.append(" hasAlarm=");
-    builder.append(hasAlarm);
-    builder.append(" type=");
-    builder.append(type);
-    builder.append(" onHighTheftProbabilityList=");
-    builder.append(onHighTheftProbabilityList);
-    builder.append(" airbags=");
-    builder.append(airbags);
-    builder.append(" price=");
-    builder.append(price);
-    builder.append(" bodyType=");
-    builder.append(bodyType);
-    builder.append(" coverage=");
-    builder.append(ArrayUtils.toString(coverage));
-    builder.append(" hasRollBar=");
-    builder.append(hasRollBar);
-    builder.append(" }");
-    return builder.toString();
-}
-  public void setName(java.lang.String name) {
-   this.name = name;
-}
-  public java.lang.String getType() {
-   return type;
-}
-  public int getYear() {
-   return year;
-}
-  public java.lang.String getModel() {
-   return model;
-}
-  public void setModel(java.lang.String model) {
-   this.model = model;
-}
-  public void setYear(int year) {
-   this.year = year;
-}
-  public void setType(java.lang.String type) {
-   this.type = type;
 }
 
 }

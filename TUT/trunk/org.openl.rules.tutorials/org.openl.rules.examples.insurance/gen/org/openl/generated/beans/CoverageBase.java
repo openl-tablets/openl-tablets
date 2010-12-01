@@ -34,10 +34,10 @@ public CoverageBase(String symbol, double baseBI, double basePD, double baseMP) 
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(symbol);
-    builder.append(baseBI);
-    builder.append(basePD);
-    builder.append(baseMP);
+    builder.append(getSymbol());
+    builder.append(getBaseBI());
+    builder.append(getBasePD());
+    builder.append(getBaseMP());
     return builder.toHashCode();
 }
 
@@ -47,10 +47,10 @@ public boolean equals(Object obj) {
         return false;
     }
     CoverageBase another = (CoverageBase)obj;
-    builder.append(another.symbol,symbol);
-    builder.append(another.baseBI,baseBI);
-    builder.append(another.basePD,basePD);
-    builder.append(another.baseMP,baseMP);
+    builder.append(another.getSymbol(),getSymbol());
+    builder.append(another.getBaseBI(),getBaseBI());
+    builder.append(another.getBasePD(),getBasePD());
+    builder.append(another.getBaseMP(),getBaseMP());
     return builder.isEquals();
 }
 
@@ -58,13 +58,13 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("CoverageBase {");
     builder.append(" symbol=");
-    builder.append(symbol);
+    builder.append(getSymbol());
     builder.append(" baseBI=");
-    builder.append(baseBI);
+    builder.append(getBaseBI());
     builder.append(" basePD=");
-    builder.append(basePD);
+    builder.append(getBasePD());
     builder.append(" baseMP=");
-    builder.append(baseMP);
+    builder.append(getBaseMP());
     builder.append(" }");
     return builder.toString();
 }

@@ -13,6 +13,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.dependency.IDependencyManager;
 
 public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -23,6 +24,7 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   public static org.openl.CompiledOpenClass __compiledClass;
 
   private static Map<String, Object> __externalParams;
+  private static IDependencyManager __dependencyManager;
   private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
@@ -78,8 +80,13 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
   public Tutorial_1Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    this(ignoreErrors, executionMode, params, null);
+  }
+
+  public Tutorial_1Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){
     __externalParams = params;
     __executionMode = executionMode;
+    __dependencyManager = dependencyManager;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -104,13 +111,14 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod hello1_Method;
-  public void hello1(int hour)  {
+  public java.lang.String hello1(int hour)  {
     Object[] __params = new Object[1];
     __params[0] = new Integer(hour);
     try
     {
     Object __myInstance = __instance;
-    hello1_Method.invoke(__myInstance, __params, __env.get());  }
+    Object __res = hello1_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -140,7 +148,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     if (source != null) {
          source.setParams(__externalParams);
     }
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());

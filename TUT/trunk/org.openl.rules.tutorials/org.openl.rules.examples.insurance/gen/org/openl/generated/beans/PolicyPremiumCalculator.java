@@ -28,8 +28,8 @@ public PolicyPremiumCalculator(Vector discounts, Vector rejections) {
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(discounts);
-    builder.append(rejections);
+    builder.append(getDiscounts());
+    builder.append(getRejections());
     return builder.toHashCode();
 }
 
@@ -39,8 +39,8 @@ public boolean equals(Object obj) {
         return false;
     }
     PolicyPremiumCalculator another = (PolicyPremiumCalculator)obj;
-    builder.append(another.discounts,discounts);
-    builder.append(another.rejections,rejections);
+    builder.append(another.getDiscounts(),getDiscounts());
+    builder.append(another.getRejections(),getRejections());
     return builder.isEquals();
 }
 
@@ -48,9 +48,9 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("PolicyPremiumCalculator {");
     builder.append(" discounts=");
-    builder.append(discounts);
+    builder.append(getDiscounts());
     builder.append(" rejections=");
-    builder.append(rejections);
+    builder.append(getRejections());
     builder.append(" }");
     return builder.toString();
 }

@@ -10,6 +10,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.dependency.IDependencyManager;
 
 public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -20,6 +21,7 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   public static org.openl.CompiledOpenClass __compiledClass;
 
   private static Map<String, Object> __externalParams;
+  private static IDependencyManager __dependencyManager;
   private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
 
@@ -75,8 +77,13 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
   public Tutorial_2Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    this(ignoreErrors, executionMode, params, null);
+  }
+
+  public Tutorial_2Wrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){
     __externalParams = params;
     __executionMode = executionMode;
+    __dependencyManager = dependencyManager;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -100,22 +107,6 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenField phrases21_Field;
-
-  public java.lang.String[] getPhrases21()
-  {
-   Object __res = phrases21_Field.get(__instance, __env.get());
-   return (java.lang.String[])__res;
-  }
-
-
-  public void setPhrases21(java.lang.String[] __var)
-  {
-   phrases21_Field.set(__instance, __var, __env.get());
-  }
-
-
-
   static org.openl.types.IOpenField numbers22_Field;
 
   public int[] getNumbers22()
@@ -128,6 +119,22 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   public void setNumbers22(int[] __var)
   {
    numbers22_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField phrases21_Field;
+
+  public java.lang.String[] getPhrases21()
+  {
+   Object __res = phrases21_Field.get(__instance, __env.get());
+   return (java.lang.String[])__res;
+  }
+
+
+  public void setPhrases21(java.lang.String[] __var)
+  {
+   phrases21_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -216,14 +223,14 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     if (source != null) {
          source.setParams(__externalParams);
     }
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode);
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
     pp11_Field = __class.getField("pp11");
-    phrases21_Field = __class.getField("phrases21");
     numbers22_Field = __class.getField("numbers22");
+    phrases21_Field = __class.getField("phrases21");
     pp1_Field = __class.getField("pp1");
     customers3_Field = __class.getField("customers3");
     this_Field = __class.getField("this");

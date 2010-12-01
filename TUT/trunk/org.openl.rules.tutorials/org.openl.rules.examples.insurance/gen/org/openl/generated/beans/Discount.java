@@ -31,9 +31,9 @@ public Discount(String type, double value, boolean showInPolicy) {
 
 public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(type);
-    builder.append(value);
-    builder.append(showInPolicy);
+    builder.append(getType());
+    builder.append(getValue());
+    builder.append(getShowInPolicy());
     return builder.toHashCode();
 }
 
@@ -43,9 +43,9 @@ public boolean equals(Object obj) {
         return false;
     }
     Discount another = (Discount)obj;
-    builder.append(another.type,type);
-    builder.append(another.value,value);
-    builder.append(another.showInPolicy,showInPolicy);
+    builder.append(another.getType(),getType());
+    builder.append(another.getValue(),getValue());
+    builder.append(another.getShowInPolicy(),getShowInPolicy());
     return builder.isEquals();
 }
 
@@ -53,11 +53,11 @@ public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Discount {");
     builder.append(" type=");
-    builder.append(type);
+    builder.append(getType());
     builder.append(" value=");
-    builder.append(value);
+    builder.append(getValue());
     builder.append(" showInPolicy=");
-    builder.append(showInPolicy);
+    builder.append(getShowInPolicy());
     builder.append(" }");
     return builder.toString();
 }
