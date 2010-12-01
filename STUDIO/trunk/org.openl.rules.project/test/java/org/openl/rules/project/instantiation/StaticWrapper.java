@@ -4,25 +4,33 @@
 
 package org.openl.rules.project.instantiation;
 
+import java.util.Map;
+
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
+import org.openl.dependency.IDependencyManager;
 import org.openl.impl.OpenClassJavaWrapper;
 
 public class StaticWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
+
+  public static java.lang.String __src = "test/resources/excel/Rules.xls";
+
   java.lang.Object __instance;
 
   public static org.openl.types.IOpenClass __class;
 
   public static org.openl.CompiledOpenClass __compiledClass;
 
+  private static Map<String, Object> __externalParams;
+  private static IDependencyManager __dependencyManager;
+  private static boolean __executionMode;
   public static java.lang.String __openlName = "org.openl.xls";
-
-  public static java.lang.String __src = "test/resources/excel/Rules.xls";
 
   public static java.lang.String __srcModuleClass = null;
 
@@ -62,6 +70,25 @@ public class StaticWrapper implements org.openl.main.OpenLWrapper,org.openl.rule
   }
 
   public StaticWrapper(boolean ignoreErrors){
+    this(ignoreErrors, false);
+  }
+
+  public StaticWrapper(boolean ignoreErrors, boolean executionMode){
+    this(ignoreErrors, executionMode, null);
+  }
+
+  public StaticWrapper(Map<String, Object> params){
+    this(false, false, params);
+  }
+
+  public StaticWrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params){
+    this(ignoreErrors, executionMode, params, null);
+  }
+
+  public StaticWrapper(boolean ignoreErrors, boolean executionMode, Map<String, Object> params, IDependencyManager dependencyManager){
+    __externalParams = params;
+    __executionMode = executionMode;
+    __dependencyManager = dependencyManager;
     __init();
     if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();
     __instance = __class.newInstance(__env.get());
@@ -119,7 +146,11 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       return;
 
     IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);
+    IOpenSourceCodeModule source = OpenClassJavaWrapper.getSourceCodeModule(__src, ucxt);
+    if (source != null) {
+         source.setParams(__externalParams);
+    }
+    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , source, __executionMode, __dependencyManager);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());

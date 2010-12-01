@@ -1,25 +1,22 @@
 package org.openl.rules.project.dependencies;
 
-import org.openl.conf.IUserContext;
-import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.source.DependencyManager;
-import org.openl.syntax.code.DependencyType;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openl.dependency.DependencyManager;
+import org.openl.dependency.IDependencyLoader;
 
 public class RulesProjectDependencyManager extends DependencyManager {
+
+    private List<IDependencyLoader> loaders = new ArrayList<IDependencyLoader>();
     
-    private RulesProjectResolver projectResolver;
+    @Override
+    public List<IDependencyLoader> getDependencyLoaders() {
+        return loaders;
+    }
+
+    public void setDependencyLoaders(List<IDependencyLoader> loaders) {
+        this.loaders = loaders;
+    }
     
-    public RulesProjectDependencyManager(IUserContext userContext, String openlName) {
-        super(userContext, openlName);
-    }
-
-    public RulesProjectDependencyManager() {
-        super();
-    }
-
-    protected void initLoaders() {        
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        getDependencyLoaders().put(DependencyType.MODULE, new RulesProjectModuleLoader(getUserContext(), getOpenlName(), projectResolver));        
-    }
-
 }

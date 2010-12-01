@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +24,13 @@ import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
+import org.openl.rules.project.dependencies.RulesProjectDependencyLoader;
+import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.RulesFactory;
+import org.openl.rules.runtime.RulesFileDependencyLoader;
 import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.OpenLInvocationHandler;
@@ -50,10 +54,22 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
     private Class<?> interfaceClass;
     private SharedClassLoader classLoader;
     private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
+    private RulesProjectDependencyManager dependencyManager;
 
     public MultiProjectEngineFactory(File rootFolder) {
         super("org.openl.xls");
         this.rootFolder = rootFolder;
+        
+        init();
+    }
+    
+    private void init() {
+        dependencyManager = new RulesProjectDependencyManager();
+        
+        RulesFileDependencyLoader loader1 = new RulesFileDependencyLoader();
+        RulesProjectDependencyLoader loader2 = new RulesProjectDependencyLoader(rootFolder.getAbsolutePath());
+        
+        dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
     }
 
     public RulesProjectResolver getProjectResolver() {
@@ -261,7 +277,7 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
 
     private CompiledOpenClass initializeModule(Module module) {
 
-        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, true);
+        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
         CompiledOpenClass compiledOpenClass = null;
 
         try {

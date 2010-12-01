@@ -2,11 +2,18 @@ package org.openl.rules.project.instantiation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.IDependencyLoader;
+import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.project.dependencies.RulesProjectDependencyLoader;
+import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
+import org.openl.rules.runtime.RulesFileDependencyLoader;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 
@@ -17,7 +24,7 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
     private MultiProjectEngineFactory factory;
 
     public MultiProjectEngineFactoryInstantiationStrategy(File root) {
-        super(null, true);
+        super(null, true, null);        
         
         this.root = root;
         getEngineFactory();

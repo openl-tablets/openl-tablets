@@ -5,10 +5,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.IDependencyManager;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.project.model.Module;
 
@@ -22,9 +24,14 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
 
     private OpenLWrapper wrapper;
 
-    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode) {
-        super(module, executionMode);
+    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+        super(module, executionMode, dependencyManager);
     }
+    
+    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
+        super(module, executionMode, dependencyManager, classLoader);
+    }
+
 
     @Override
     protected CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException,
@@ -38,13 +45,12 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
             Method m = c.getMethod("reset", new Class[] {});
             m.invoke(null, new Object[] {}); // we reset to reload wrapper due
                                              // to its static implementation
-            Constructor<?> ctr;
+            Constructor<?> ctr = c.getConstructor(new Class[] { boolean.class, boolean.class, Map.class, IDependencyManager.class });
+            
             if (isExecutionMode()) {
-                ctr = c.getConstructor(new Class[] { boolean.class, boolean.class });
-                return ctr.newInstance(new Object[] { Boolean.FALSE, Boolean.TRUE });
+                return ctr.newInstance(new Object[] { Boolean.FALSE, Boolean.TRUE, getModule().getProperties(), getDependencyManager() });
             } else {
-                ctr = c.getConstructor(new Class[] { boolean.class });
-                return ctr.newInstance(new Object[] { Boolean.TRUE });
+                return ctr.newInstance(new Object[] { Boolean.TRUE, Boolean.FALSE, getModule().getProperties(), getDependencyManager() });
             }
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Using older version of OpenL Wrapper, please run Generate ... Wrapper");
