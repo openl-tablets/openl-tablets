@@ -1,6 +1,7 @@
 <ui:composition
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jstl/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     template="/facelets/common/studioBase.xhtml">
 
@@ -15,8 +16,11 @@
         <div id="rulesDepsPanel"></div>
 
         <script type="text/javascript">
+            <c:set var="tables" value="#{rulesDependenciesBean.tablesWithDependencies}"></c:set>
+            <h:panelGroup rendered="#{not empty tables}">
+
             var nodes = [];
-            <ui:repeat var="table" value="#{rulesDependenciesBean.tablesWithDependencies}">
+            <ui:repeat var="table" value="#{tables}">
                 var node = {
                     id: '<h:outputText value="#{table.uri}" />',
                     name: '<h:outputText value="#{table.name}" />',
@@ -37,6 +41,8 @@
             </ui:repeat>
 
             init(nodes);
+
+            </h:panelGroup>
         </script>
     </ui:define>
 </ui:composition>
