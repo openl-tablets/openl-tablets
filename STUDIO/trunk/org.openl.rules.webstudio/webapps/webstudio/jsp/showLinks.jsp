@@ -8,6 +8,7 @@
 <%@ page import="org.openl.main.SourceCodeURLConstants"%>
 <%@ page import="java.io.File" %>
 <%@page import="org.openl.commons.web.util.WebTool"%>
+<%@page import="org.openl.util.StringTool"%>
 
 <%
 	String excelScriptPath = pageContext.getServletContext().getRealPath("scripts/LaunchExcel.vbs");
@@ -36,37 +37,37 @@
         if (FileTypeHelper.isExcelFile(file)) { // Excel
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(uri);
-            wbPath = parser.wbPath;
-            wbName = parser.wbName; 
-            wsName = parser.wsName; 
-            range = parser.range;
+            wbPath = StringTool.decodeURL(parser.wbPath);
+            wbName = StringTool.decodeURL(parser.wbName); 
+            wsName = StringTool.decodeURL(parser.wsName); 
+            range = StringTool.decodeURL(parser.range);
             isExcel = true;
 
         } else if (FileTypeHelper.isWordFile(file)) { // Word
             WordUrlParser parser = new WordUrlParser();
             parser.parse(uri);
-            wdPath = parser.wdPath;
-            wdName = parser.wdName; 
-            wdParStart = parser.wdParStart; 
-            wdParEnd = parser.wdParEnd;
+            wdPath = StringTool.decodeURL(parser.wdPath);
+            wdName = StringTool.decodeURL(parser.wdName); 
+            wdParStart = StringTool.decodeURL(parser.wdParStart); 
+            wdParEnd = StringTool.decodeURL(parser.wdParEnd);
             isWord = true;
         }
 
-    } else { // by params
-        wbName = request.getParameter("wbName");
+    } else { // by params @Deprecated
+        wbName = StringTool.decodeURL(request.getParameter("wbName"));
 
         if (wbName != null) { // Excel
-            wbPath = request.getParameter("wbPath");
-            wsName = request.getParameter("wsName");
-            range = request.getParameter("range");
+            wbPath = StringTool.decodeURL(request.getParameter("wbPath"));
+            wsName = StringTool.decodeURL(request.getParameter("wsName"));
+            range = StringTool.decodeURL(request.getParameter("range"));
             isExcel = true;
         } else {
-            wdName = request.getParameter("wdName");
+            wdName = StringTool.decodeURL(request.getParameter("wdName"));
 
             if (wdName != null) {  // Word
-                wdPath = request.getParameter("wdPath");
-                wdParStart = request.getParameter("wdParStart");
-                wdParEnd = request.getParameter("wdParEnd");
+                wdPath = StringTool.decodeURL(request.getParameter("wdPath"));
+                wdParStart = StringTool.decodeURL(request.getParameter("wdParStart"));
+                wdParEnd = StringTool.decodeURL(request.getParameter("wdParEnd"));
                 isWord = true;
             }
         }
