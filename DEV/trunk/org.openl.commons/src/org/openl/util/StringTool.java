@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
+
 public class StringTool {
 
     public static abstract class CharToStringConverter {
@@ -303,6 +305,9 @@ public class StringTool {
 
     public static String encodeURL(String url) {
         String encodedUrl = null;
+        if (StringUtils.isBlank(url)) {
+            return url;
+        }
         try {
             encodedUrl = URLEncoder.encode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -313,6 +318,9 @@ public class StringTool {
     
     public static String decodeURL(String url) {
         String decodedUrl = null;
+        if (StringUtils.isBlank(url)) {
+            return url;
+        }
         try {
             decodedUrl = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
