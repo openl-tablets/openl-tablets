@@ -3,6 +3,10 @@ package org.openl.rules.webstudio.web.repository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
@@ -10,20 +14,15 @@ import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
-import org.openl.rules.workspace.abstracts.ProjectFolder;
+import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.filter.OpenLFilter;
 import org.openl.util.filter.AllOpenLFilter;
 import org.richfaces.component.UITree;
 
 import org.richfaces.event.NodeSelectedEvent;
-
-import org.richfaces.model.TreeNode;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,7 +35,7 @@ import java.util.ArrayList;
  *
  * @author Andrey Naumenko
  */
-public class RepositoryTreeState {
+public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private static final Log LOG = LogFactory.getLog(RepositoryTreeState.class);
 
     /** Root node for RichFaces's tree. It is not displayed. */
@@ -46,12 +45,17 @@ public class RepositoryTreeState {
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
     private OpenLFilter filter = AllOpenLFilter.INSTANCE;
-
+    
     public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
 
-        ProjectArtefact projectArtefact = node.getDataBean();
-        ProjectArtefact selected = selectedNode.getDataBean();
+        AProjectArtefact projectArtefact = node.getDataBean();
+        AProjectArtefact selected = null;
+		if (selectedNode != null) {
+			selectedNode.getDataBean();
+		}else{
+			return false;
+		}
 
         if ((selected == null) || (projectArtefact == null)) {
             return selectedNode.getId().equals(node.getId());
@@ -87,24 +91,24 @@ public class RepositoryTreeState {
         root.add(rulesRepository);
         root.add(deploymentRepository);
 
-        Collection<UserWorkspaceProject> rulesProjects = userWorkspace.getProjects();
+        Collection<AProject> rulesProjects = userWorkspace.getProjects();
 
         OpenLFilter filter = this.filter;
-        for (UserWorkspaceProject project : rulesProjects) {
-            if (!(filter.supports(Project.class) && !filter.select(project))) {
+        for (AProject project : rulesProjects) {
+            if (!(filter.supports(AProject.class) && !filter.select(project))) {
                 addRulesProjectToTree(project);
             }
         }
 
-        List<UserWorkspaceDeploymentProject> deploymentsProjects = null;
+        List<ADeploymentProject> deploymentsProjects = null;
 
         try {
             deploymentsProjects = userWorkspace.getDDProjects();
-        } catch (RepositoryException e) {
+        } catch (ProjectException e) {
             LOG.error("Cannot get deployment projects", e);
         }
 
-        for (UserWorkspaceDeploymentProject project : deploymentsProjects) {
+        for (ADeploymentProject project : deploymentsProjects) {
             addDeploymentProjectToTree(project);
         }
         if (LOG.isDebugEnabled()) {
@@ -142,10 +146,10 @@ public class RepositoryTreeState {
         return selectedNode;
     }
 
-    public UserWorkspaceProject getSelectedProject() {
-        ProjectArtefact artefact = getSelectedNode().getDataBean();
-        if (artefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) artefact;
+    public AProject getSelectedProject() {
+        AProjectArtefact artefact = getSelectedNode().getDataBean();
+        if (artefact instanceof AProject) {
+            return (AProject) artefact;
         }
         return null;
     }
@@ -173,7 +177,7 @@ public class RepositoryTreeState {
         if (!node.isLeaf()) {
             node.removeChildren();
             TreeFolder folder = (TreeFolder) node;
-            traverseFolder(folder, ((ProjectFolder) folder.getDataBean()).getArtefacts(), filter);
+            traverseFolder(folder, ((AProjectFolder) folder.getDataBean()).getArtefacts(), filter);
         }
     }
     
@@ -186,26 +190,26 @@ public class RepositoryTreeState {
         invalidateSelection();
     }
     
-    public void addDeploymentProjectToTree(UserWorkspaceDeploymentProject project) {
+    public void addDeploymentProjectToTree(ADeploymentProject project) {
         TreeDProject prj = new TreeDProject(project.getName(), project.getName());
         prj.setDataBean(project);
         deploymentRepository.add(prj);
     }
 
-    public void addRulesProjectToTree(UserWorkspaceProject project) {
+    public void addRulesProjectToTree(AProject project) {
         TreeProject prj = new TreeProject(project.getName(), project.getName());
         prj.setDataBean(project);
         rulesRepository.add(prj);
         traverseFolder(prj, project.getArtefacts(), filter);
     }
 
-    public void addNodeToTree(AbstractTreeNode parent, ProjectArtefact childArtefact) {
+    public void addNodeToTree(AbstractTreeNode parent, AProjectArtefact childArtefact) {
         String id = childArtefact.getName();
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName());
             treeFolder.setDataBean(childArtefact);
             parent.add(treeFolder);
-            traverseFolder(treeFolder, ((ProjectFolder) childArtefact).getArtefacts(), filter);
+            traverseFolder(treeFolder, ((AProjectFolder) childArtefact).getArtefacts(), filter);
         } else {
             TreeFile treeFile = new TreeFile(id, childArtefact.getName());
             treeFile.setDataBean(childArtefact);
@@ -266,23 +270,26 @@ public class RepositoryTreeState {
         this.userWorkspace = userWorkspace;
     }
 
-    public void traverseFolder(TreeFolder folder, Collection<? extends ProjectArtefact> artefacts, OpenLFilter filter) {
+    public void traverseFolder(TreeFolder folder, Collection<AProjectArtefact> artefacts, OpenLFilter filter) {
 
-        Collection<ProjectArtefact> filteredArtefacts = new ArrayList<ProjectArtefact>();
-        for (ProjectArtefact artefact : artefacts) {
+        Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
+        for (AProjectArtefact artefact : artefacts) {
             if (!(filter.supports(artefact.getClass()) && !filter.select(artefact))) {
                 filteredArtefacts.add(artefact);
             }
         }
 
-        ProjectArtefact[] sortedArtefacts = new ProjectArtefact[filteredArtefacts.size()];
+        AProjectArtefact[] sortedArtefacts = new AProjectArtefact[filteredArtefacts.size()];
         sortedArtefacts = filteredArtefacts.toArray(sortedArtefacts);
 
         Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
 
-        for (ProjectArtefact artefact : sortedArtefacts) {
+        for (AProjectArtefact artefact : sortedArtefacts) {
             addNodeToTree(folder, artefact);
         }
+    }
+
+    public void onArtefactModified(DTRepositoryEvent event) {
     }
 
 }

@@ -1,7 +1,8 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 import java.util.Comparator;
@@ -12,7 +13,6 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 
 /**
  * Repository Utilities
@@ -28,8 +28,8 @@ public class RepositoryUtils {
             return o2.compareTo(o1);
         }
     };
-    public static final Comparator<ProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<ProjectArtefact>() {
-        public int compare(ProjectArtefact o1, ProjectArtefact o2) {
+    public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<AProjectArtefact>() {
+        public int compare(AProjectArtefact o1, AProjectArtefact o2) {
             if (o1.isFolder() == o2.isFolder()) {
                 return o1.getName().compareTo(o2.getName());
             } else {
@@ -38,7 +38,7 @@ public class RepositoryUtils {
         }
     };
 
-    public static DeployID getDeployID(UserWorkspaceDeploymentProject ddProject) {
+    public static DeployID getDeployID(ADeploymentProject ddProject) {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
         if (projectVersion != null) {

@@ -9,9 +9,9 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -68,7 +68,7 @@ public class DependencyChecker {
         projectDependencies = new HashMap<String, Map<String, VersionRange>>();
     }
 
-    public void addProject(Project project) {
+    public void addProject(AProject project) {
         String projectName = project.getName();
         projectVersions.put(projectName, project.getVersion());
 
@@ -81,7 +81,7 @@ public class DependencyChecker {
         }
     }
 
-    public void addProjects(DeploymentDescriptorProject deploymentProject) {
+    public void addProjects(ADeploymentProject deploymentProject) {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         if (workspace == null) {
             return; // must never happen

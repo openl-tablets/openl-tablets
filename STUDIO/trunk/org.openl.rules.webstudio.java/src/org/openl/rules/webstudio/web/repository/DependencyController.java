@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -12,7 +13,6 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -127,7 +127,7 @@ public class DependencyController {
 
         List<String> matching = new ArrayList<String>();
         for (AbstractTreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
-            if (!existing.contains(node.getName()) && !((UserWorkspaceProject) node.getDataBean()).isLocalOnly()) {
+            if (!existing.contains(node.getName()) && !((AProject) node.getDataBean()).isLocalOnly()) {
                 matching.add(node.getName());
             }
         }
@@ -161,7 +161,7 @@ public class DependencyController {
         }
 
         try {
-            UserWorkspaceProject project = workspace.getProject(projectName);
+            AProject project = workspace.getProject(projectName);
             List<SelectItem> selectItems = new ArrayList<SelectItem>();
             for (ProjectVersion version : project.getVersions()) {
                 selectItems.add(new SelectItem(version.getVersionName()));

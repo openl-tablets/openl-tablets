@@ -11,19 +11,18 @@ import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionBuilder;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.impl.LocalAPI;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectFolder;
-import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.lw.LocalProjectArtefact;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.util.FileTypeHelper;
 
 import java.io.File;
@@ -46,10 +45,10 @@ public class RepositoryDiffController extends AbstractDiffController {
     //private static Log log = LogFactory.getLog(StructuredDiffController.class);
     private DesignTimeRepository designTimeRepository;
     private RepositoryTreeState repositoryTreeState;
-    private Project projectUW; // User Workspace project
-    private Project projectRepo; // Repository project
-    private List<ProjectArtefact> excelArtefactsUW;
-    private List<ProjectArtefact> excelArtefactsRepo;
+    private AProject projectUW; // User Workspace project
+    private AProject projectRepo; // Repository project
+    private List<AProjectArtefact> excelArtefactsUW;
+    private List<AProjectArtefact> excelArtefactsRepo;
 
     private String selectedExcelFileUW;
     private String selectedExcelFileRepo;
@@ -80,7 +79,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     public SelectItem[] getVersionsRepo() {
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) projectUW;
+        AProjectArtefact projectArtefact = (AProjectArtefact) projectUW;
         Collection<ProjectVersion> versions = projectArtefact.getVersions();
         SelectItem[] selectItems = new SelectItem[versions.size()];
 
@@ -96,7 +95,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     public List<SelectItem> getExcelFilesUW() {
         init();
         List<SelectItem> excelItems = new ArrayList<SelectItem>();
-        for (ProjectArtefact excelArtefact : excelArtefactsUW) {
+        for (AProjectArtefact excelArtefact : excelArtefactsUW) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
                     excelArtefact.getName()));
         }
@@ -105,7 +104,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public List<SelectItem> getExcelFilesRepo() {
         List<SelectItem> excelItems = new ArrayList<SelectItem>();
-        for (ProjectArtefact excelArtefact : excelArtefactsRepo) {
+        for (AProjectArtefact excelArtefact : excelArtefactsRepo) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
                     excelArtefact.getName()));
         }
@@ -146,9 +145,9 @@ public class RepositoryDiffController extends AbstractDiffController {
         }
     }
 
-    private List<ProjectArtefact> getExcelArtefacts(Project project, String rootPath) throws Exception {
-        List<ProjectArtefact> excelArtefacts = new ArrayList<ProjectArtefact>();
-        Collection<? extends ProjectArtefact> projectArtefacts = null;
+    private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) throws Exception {
+        List<AProjectArtefact> excelArtefacts = new ArrayList<AProjectArtefact>();
+        Collection<? extends AProjectArtefact> projectArtefacts = null;
         if (rootPath != null) {
             try {
                 projectArtefacts = getProjectFolder(project, rootPath).getArtefacts();
@@ -158,7 +157,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         } else {
             projectArtefacts = project.getArtefacts();
         }
-        for (ProjectArtefact projectArtefact : projectArtefacts) {
+        for (AProjectArtefact projectArtefact : projectArtefacts) {
             String artefactPath = projectArtefact.getArtefactPath().getStringValue();
             if (projectArtefact.isFolder()) {
                 excelArtefacts.addAll(getExcelArtefacts(project,
@@ -170,31 +169,31 @@ public class RepositoryDiffController extends AbstractDiffController {
         return excelArtefacts;
     }
 
-    private ProjectFolder getProjectFolder(Project project, String path) throws ProjectException {
+    private AProjectFolder getProjectFolder(AProject project, String path) throws ProjectException {
         path = removeProjectName(path);
 
         if (path.length() == 0) {
             return project;
         }
 
-        ProjectFolder projectFolder = (ProjectFolder) project.getArtefactByPath(new ArtefactPathImpl(path));
+        AProjectFolder projectFolder = (AProjectFolder) project.getArtefactByPath(new ArtefactPathImpl(path));
         return projectFolder;
     }
 
-    private File downloadExelFile(ProjectArtefact excelArtefact) {
+    private File downloadExelFile(AProjectArtefact excelArtefact) {
         if (excelArtefact == null) {
             return null;
         }
         InputStream in = null;
         try {
-            in = ((ProjectResource) excelArtefact).getContent();
+            in = ((AProjectResource) excelArtefact).getContent();
         } catch (ProjectException e) {
             e.printStackTrace();
         }
 
         File tempFile = null;
         OutputStream out = null;
-        String filePrefix = ((excelArtefact instanceof LocalProjectArtefact) ? "uw" : selectedVersionRepo) + "_";
+        String filePrefix = ((excelArtefact.getAPI() instanceof LocalAPI) ? "uw" : selectedVersionRepo) + "_";
         try {
             tempFile = new File(filePrefix + excelArtefact.getName());
             out = new FileOutputStream(tempFile);
@@ -216,8 +215,8 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     private static final char SEPARATOR = '/';
 
-    private ProjectArtefact getExcelArtefactByPath(List<ProjectArtefact> excelArtefacts, String path) {
-        for (ProjectArtefact excelArtefact : excelArtefacts) {
+    private AProjectArtefact getExcelArtefactByPath(List<AProjectArtefact> excelArtefacts, String path) {
+        for (AProjectArtefact excelArtefact : excelArtefacts) {
             if (excelArtefact.getArtefactPath().getStringValue().equals(path)) {
                 return excelArtefact;
             }
@@ -230,13 +229,13 @@ public class RepositoryDiffController extends AbstractDiffController {
             System.err.println("exit");
             return null;
         }
-        ProjectArtefact excelArtefact1 = getExcelArtefactByPath(excelArtefactsUW, selectedExcelFileUW);
+        AProjectArtefact excelArtefact1 = getExcelArtefactByPath(excelArtefactsUW, selectedExcelFileUW);
         File excelFile1 = downloadExelFile(excelArtefact1);
         XlsMetaInfo xmi1 = XlsHelper.getXlsMetaInfo(excelFile1.getName());
         AbstractProjection p1 = XlsProjectionBuilder.build(xmi1, "xls1");
         excelFile1.delete();
 
-        ProjectArtefact excelArtefact2 = getExcelArtefactByPath(excelArtefactsRepo, selectedExcelFileRepo);
+        AProjectArtefact excelArtefact2 = getExcelArtefactByPath(excelArtefactsRepo, selectedExcelFileRepo);
         File excelFile2 = downloadExelFile(excelArtefact2);
         XlsMetaInfo xmi2 = XlsHelper.getXlsMetaInfo(excelFile2.getName());
         AbstractProjection p2 = XlsProjectionBuilder.build(xmi2, "xls2");

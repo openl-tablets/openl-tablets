@@ -2,11 +2,11 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.Date;
 
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.VersionInfo;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 
 public class TreeDProject extends TreeFile {
     private static final long serialVersionUID = -1058464776132912419L;
@@ -43,7 +43,7 @@ public class TreeDProject extends TreeFile {
 
     @Override
     public String getIconLeaf() {
-        UserWorkspaceDeploymentProject project = (UserWorkspaceDeploymentProject) getDataBean();
+        ADeploymentProject project = (ADeploymentProject) getDataBean();
 
         if (project.isLocalOnly()) {
             return UiConst.ICON_PROJECT_LOCAL;
@@ -73,8 +73,8 @@ public class TreeDProject extends TreeFile {
         }
     }
 
-    private Project getProject() {
-        return (Project) getDataBean();
+    private AProject getProject() {
+        return (AProject) getDataBean();
     }
 
     public String getStatus() {

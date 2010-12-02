@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -25,7 +26,6 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
 
@@ -113,7 +113,7 @@ public class WebStudio {
             return false;
         }
 
-        workspacePath = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
+        workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
 
         projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         projectResolver.setWorkspace(workspacePath);
@@ -141,7 +141,7 @@ public class WebStudio {
     public void executeOperation(String operation, HttpSession session) {
         if ("checkIn".equals(operation)) {
             try {
-                UserWorkspaceProject project = getCurrentProject(session);
+                AProject project = getCurrentProject(session);
                 if (project == null) {
                     return;
                 }
@@ -156,7 +156,7 @@ public class WebStudio {
         }
         if ("checkOut".equals(operation)) {
             try {
-                UserWorkspaceProject project = getCurrentProject(session);
+                AProject project = getCurrentProject(session);
                 if (project == null) {
                     return;
                 }
@@ -194,12 +194,12 @@ public class WebStudio {
         return benchmarks.toArray(new BenchmarkInfo[0]);
     }
 
-    public UserWorkspaceProject getCurrentProject(HttpSession session) {
+    public AProject getCurrentProject(HttpSession session) {
         if (currentModule != null) {
             try {
                 String projectFolder = currentModule.getProject().getProjectFolder().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
+                AProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
                 return project;
             } catch (Exception e) {
                 LOG.error("Error when trying to get current project", e);
@@ -208,7 +208,7 @@ public class WebStudio {
         return null;
     }
 
-    public UserWorkspaceProject getCurrentProject() {
+    public AProject getCurrentProject() {
         return getCurrentProject(FacesUtils.getSession());
     }
 
