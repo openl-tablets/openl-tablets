@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 
+import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -45,16 +46,22 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
             Method m = c.getMethod("reset", new Class[] {});
             m.invoke(null, new Object[] {}); // we reset to reload wrapper due
                                              // to its static implementation
-            Constructor<?> ctr = c.getConstructor(new Class[] { boolean.class, boolean.class, Map.class, IDependencyManager.class });
+            Constructor<?> ctr = findConstructor(c, new Class[] { boolean.class, boolean.class, Map.class, IDependencyManager.class });
             
-            if (isExecutionMode()) {
-                return ctr.newInstance(new Object[] { Boolean.FALSE, Boolean.TRUE, getModule().getProperties(), getDependencyManager() });
-            } else {
-                return ctr.newInstance(new Object[] { Boolean.TRUE, Boolean.FALSE, getModule().getProperties(), getDependencyManager() });
+            if (ctr != null) {
+                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(), getModule().getProperties(), getDependencyManager() });
             }
+
+            ctr = c.getConstructor(new Class[] {boolean.class, boolean.class});
+
+            return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode()});
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Using older version of OpenL Wrapper, please run Generate ... Wrapper");
         }
+    }
+    
+    private Constructor<?> findConstructor(Class<?> clazz, Class<?>[] parameterTypes) {
+        return ConstructorUtils.getMatchingAccessibleConstructor(clazz, parameterTypes);
     }
 
     private void preInitWrapper(Class<?> clazz) throws Exception {
