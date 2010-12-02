@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public interface RDeploymentDescriptorProject extends RCommonProject {
+public interface RDeploymentDescriptorProject extends RCommonProject, REntity {
 
     RProjectDescriptor createProjectDescriptor(String name) throws RRepositoryException;
 
