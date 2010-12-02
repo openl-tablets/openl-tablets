@@ -11,7 +11,10 @@
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>
 
-  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" />
+  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl">
+    <property name="user" ref="workspaceUser" />
+  </bean>
+  
 
   <bean id="productionDeployerManager" class="org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl" />
 
