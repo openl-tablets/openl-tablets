@@ -1,6 +1,5 @@
 package org.openl.rules.workspace.uw.impl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,32 +11,31 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.impl.LocalAPI;
+import org.openl.rules.project.impl.RepositoryAPI;
+import org.openl.rules.project.impl.UserWorkspaceAPI;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryDDProject;
 import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.rules.workspace.dtr.RepositoryProject;
-import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private static final Log log = LogFactory.getLog(UserWorkspaceImpl.class);
 
-    private static final Comparator<UserWorkspaceProject> PROJECTS_COMPARATOR = new Comparator<UserWorkspaceProject>() {
-        public int compare(UserWorkspaceProject o1, UserWorkspaceProject o2) {
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = new Comparator<AProject>() {
+        public int compare(AProject o1, AProject o2) {
             return o1.getName().compareTo(o2.getName());
         }
     };
@@ -47,8 +45,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final DesignTimeRepository designTimeRepository;
     private final ProductionDeployer deployer;
 
-    private final HashMap<String, UserWorkspaceProject> userRulesProjects;
-    private final HashMap<String, UserWorkspaceDeploymentProject> userDProjects;
+    private final HashMap<String, AProject> userRulesProjects;
+    private final HashMap<String, ADeploymentProject> userDProjects;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
 
@@ -59,8 +57,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         this.designTimeRepository = designTimeRepository;
         this.deployer = deployer;
 
-        userRulesProjects = new HashMap<String, UserWorkspaceProject>();
-        userDProjects = new HashMap<String, UserWorkspaceDeploymentProject>();
+        userRulesProjects = new HashMap<String, AProject>();
+        userDProjects = new HashMap<String, ADeploymentProject>();
 
         localWorkspace.setUserWorkspace(this);
     }
@@ -73,16 +71,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
         listeners.add(listener);
     }
 
-    protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
-        designTimeRepository.updateProject(localProject, user, major, minor);
-    }
+//    protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
+//        designTimeRepository.updateProject(localProject, user, major, minor);
+//    }
 
-    public void copyDDProject(UserWorkspaceDeploymentProject project, String name) throws ProjectException {
+    public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
         designTimeRepository.copyDDProject(project, name, user);
         refresh();
     }
 
-    public void copyProject(UserWorkspaceProject project, String name) throws ProjectException {
+    public void copyProject(AProject project, String name) throws ProjectException {
         designTimeRepository.copyProject(project, name, user);
         refresh();
     }
@@ -97,10 +95,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refresh();
     }
 
-    public DeployID deploy(UserWorkspaceDeploymentProject deploymentProject) throws DeploymentException,
+    public DeployID deploy(ADeploymentProject deploymentProject) throws DeploymentException,
             RepositoryException {
         Collection<ProjectDescriptor> projectDescriptors = deploymentProject.getProjectDescriptors();
-        Collection<Project> projects = new ArrayList<Project>();
+        Collection<AProject> projects = new ArrayList<AProject>();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             projects.add(designTimeRepository.getProject(descriptor.getProjectName(), descriptor.getProjectVersion()));
         }
@@ -110,29 +108,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return id;
     }
 
-    protected File exportProject(RepositoryProject repositoryProject, CommonVersion version) throws ProjectException {
-        RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
-
-        ProjectExportHelper exportHelper = new ProjectExportHelper();
-        return exportHelper.export(user, oldRP);
-    }
-
-    public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
+    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
-        UserWorkspaceProject uwp = getProject(projectName);
+        AProject uwp = getProject(projectName);
 
         ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
         return uwp.getArtefactByPath(pathInProject);
     }
 
-    public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
+    public ADeploymentProject getDDProject(String name) throws RepositoryException {
         try {
-            RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
+            ADeploymentProject ddp = designTimeRepository.getDDProject(name);
 
-            UserWorkspaceDeploymentProject userDProject = userDProjects.get(name);
+            ADeploymentProject userDProject = userDProjects.get(name);
             if (userDProject == null) {
                 // create new
-                userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+                userDProject = new ADeploymentProject(new UserWorkspaceAPI(null, (RepositoryAPI)ddp.getAPI(), this), user);
 
                 userDProjects.put(name, userDProject);
             }
@@ -146,16 +137,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    protected RepositoryDDProject getDDProjectFor(RepositoryDDProject deploymentProject, CommonVersion version)
+    protected ADeploymentProject getDDProjectFor(ADeploymentProject deploymentProject, CommonVersion version)
             throws ProjectException {
-        RepositoryDDProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
+        ADeploymentProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
         return oldDP;
     }
 
-    public List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException {
+    public List<ADeploymentProject> getDDProjects() throws ProjectException {
         refreshDeploymentProjects();
 
-        ArrayList<UserWorkspaceDeploymentProject> result = new ArrayList<UserWorkspaceDeploymentProject>(userDProjects
+        ArrayList<ADeploymentProject> result = new ArrayList<ADeploymentProject>(userDProjects
                 .values());
         Collections.sort(result, PROJECTS_COMPARATOR);
 
@@ -168,13 +159,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     // --- protected
 
-    public File getLocalWorkspaceLocation() {
-        return localWorkspace.getLocation();
+    public LocalWorkspace getLocalWorkspace() {
+        return localWorkspace;
     }
 
-    public UserWorkspaceProject getProject(String name) throws ProjectException {
+    public AProject getProject(String name) throws ProjectException {
         refreshRulesProjects();
-        UserWorkspaceProject uwp = userRulesProjects.get(name);
+        AProject uwp = userRulesProjects.get(name);
 
         if (uwp == null) {
             throw new ProjectException("Cannot find project ''{0}''", null, name);
@@ -183,7 +174,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return uwp;
     }
 
-    public Collection<UserWorkspaceProject> getProjects() {
+    public Collection<AProject> getProjects() {
         try {
             refreshRulesProjects();
         } catch (ProjectException e) {
@@ -191,7 +182,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             log.error("Failed to resfresh projects!", e);
         }
 
-        ArrayList<UserWorkspaceProject> result = new ArrayList<UserWorkspaceProject>(userRulesProjects.values());
+        ArrayList<AProject> result = new ArrayList<AProject>(userRulesProjects.values());
 
         Collections.sort(result, PROJECTS_COMPARATOR);
 
@@ -227,15 +218,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return false;
     }
 
-    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
-        return localWorkspace.addProject(repositoryProject);
-    }
-
-    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version)
-            throws ProjectException {
-        RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
-        return localWorkspace.addProject(oldRP);
-    }
+//    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
+//        return localWorkspace.addProject(repositoryProject);
+//    }
+//
+//    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version)
+//            throws ProjectException {
+//        RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
+//        return localWorkspace.addProject(oldRP);
+//    }
 
     public void passivate() {
         localWorkspace.saveAll();
@@ -248,32 +239,31 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refreshDeploymentProjects();
     }
 
-    protected void refreshDeploymentProjects() throws RepositoryException {
-        List<RepositoryDDProject> dtrProjects = designTimeRepository.getDDProjects();
+    protected void refreshDeploymentProjects() throws ProjectException {
+        List<ADeploymentProject> dtrProjects = designTimeRepository.getDDProjects();
 
         // add new
-        HashMap<String, RepositoryDDProject> dtrProjectsMap = new HashMap<String, RepositoryDDProject>();
-        for (RepositoryDDProject ddp : dtrProjects) {
+        HashMap<String, ADeploymentProject> dtrProjectsMap = new HashMap<String, ADeploymentProject>();
+        for (ADeploymentProject ddp : dtrProjects) {
             String name = ddp.getName();
             dtrProjectsMap.put(name, ddp);
 
-            UserWorkspaceDeploymentProjectImpl userDProject = (UserWorkspaceDeploymentProjectImpl) userDProjects
-                    .get(name);
+            ADeploymentProject userDProject = userDProjects.get(name);
 
             if (userDProject == null) {
                 // add new
-                userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+                userDProject = new ADeploymentProject(new UserWorkspaceAPI(null, (RepositoryAPI)ddp.getAPI(), this), user);
                 userDProjects.put(name, userDProject);
             } else {
                 // update existing
-                userDProject.updateArtefact(ddp);
+                userDProject.update(ddp);
             }
         }
 
         // remove deleted
-        Iterator<UserWorkspaceDeploymentProject> i = userDProjects.values().iterator();
+        Iterator<ADeploymentProject> i = userDProjects.values().iterator();
         while (i.hasNext()) {
-            UserWorkspaceDeploymentProject userDProject = i.next();
+            ADeploymentProject userDProject = i.next();
             String name = userDProject.getName();
 
             if (!dtrProjectsMap.containsKey(name)) {
@@ -286,10 +276,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         // add new
-        for (RepositoryProject rp : designTimeRepository.getProjects()) {
+        for (AProject rp : designTimeRepository.getProjects()) {
             String name = rp.getName();
 
-            LocalProject lp = null;
+            AProject lp = null;
             if (localWorkspace.hasProject(name)) {
                 try {
                     lp = localWorkspace.getProject(name);
@@ -299,35 +289,40 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
 
-            UserWorkspaceProjectImpl uwp = (UserWorkspaceProjectImpl) userRulesProjects.get(name);
+            AProject uwp = userRulesProjects.get(name);
             if (uwp == null) {
-                uwp = new UserWorkspaceProjectImpl(this, lp, rp);
+            	//TODO:refactor
+            	if(lp == null){
+                    uwp = new AProject(new UserWorkspaceAPI(null, (RepositoryAPI)rp.getAPI(), this), user);
+            	}else{
+            		uwp = new AProject(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), (RepositoryAPI)rp.getAPI(), this), user);
+            	}
                 userRulesProjects.put(name, uwp);
             } else if (uwp.isLocalOnly()) {
-                uwp.updateArtefact(lp, rp);
+                uwp.setAPI(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), (RepositoryAPI)rp.getAPI(), this));
             }
         }
 
         // LocalProjects that hasn't corresponding project in
         // DesignTimeRepository
-        for (LocalProject lp : localWorkspace.getProjects()) {
+        for (AProject lp : localWorkspace.getProjects()) {
             String name = lp.getName();
 
             if (!designTimeRepository.hasProject(name)) {
 
-                UserWorkspaceProjectImpl uwp = (UserWorkspaceProjectImpl) userRulesProjects.get(name);
+                AProject uwp = userRulesProjects.get(name);
                 if (uwp == null) {
-                    uwp = new UserWorkspaceProjectImpl(this, lp, null);
+                    uwp = new AProject(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), null, this), user);
                     userRulesProjects.put(name, uwp);
                 } else {
-                    uwp.updateArtefact(lp, null);
+                    uwp.setAPI(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), null, this));
                 }
             }
         }
 
-        Iterator<Map.Entry<String, UserWorkspaceProject>> entryIterator = userRulesProjects.entrySet().iterator();
+        Iterator<Map.Entry<String, AProject>> entryIterator = userRulesProjects.entrySet().iterator();
         while (entryIterator.hasNext()) {
-            Map.Entry<String, UserWorkspaceProject> entry = entryIterator.next();
+            Map.Entry<String, AProject> entry = entryIterator.next();
             if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
                 entryIterator.remove();
             }
@@ -348,9 +343,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void uploadLocalProject(String name) throws ProjectException {
-        createProject(name);
-        UserWorkspaceProjectImpl workspaceProject = (UserWorkspaceProjectImpl) getProject(name);
-        workspaceProject.checkOutLocal();
+//        createProject(name);
+        AProject workspaceProject = getProject(name);
+//        workspaceProject.checkOutLocal();
         workspaceProject.checkIn();
     }
 }

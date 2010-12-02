@@ -1,36 +1,39 @@
 package org.openl.rules.workspace.uw;
 
-import java.io.File;
 import java.util.List;
 
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 
-public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
+public interface UserWorkspace extends ProjectsContainer {
     void activate() throws ProjectException;
 
     void addWorkspaceListener(UserWorkspaceListener listener);
 
-    void copyDDProject(UserWorkspaceDeploymentProject project, String name) throws ProjectException;
+    void copyDDProject(ADeploymentProject project, String name) throws ProjectException;
 
-    void copyProject(UserWorkspaceProject project, String name) throws ProjectException;
+    void copyProject(AProject project, String name) throws ProjectException;
 
     void createDDProject(String name) throws RepositoryException;
 
     void createProject(String name) throws ProjectException;
 
-    DeployID deploy(UserWorkspaceDeploymentProject deploymentProject) throws ProjectException;
+    DeployID deploy(ADeploymentProject deploymentProject) throws ProjectException;
 
-    UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException;
+    ADeploymentProject getDDProject(String name) throws ProjectException;
 
-    List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException;
+    List<ADeploymentProject> getDDProjects() throws ProjectException;
 
     DesignTimeRepository getDesignTimeRepository();
 
-    File getLocalWorkspaceLocation();
+    LocalWorkspace getLocalWorkspace();
 
     boolean hasDDProject(String name);
 
@@ -43,4 +46,6 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
     boolean removeWorkspaceListener(UserWorkspaceListener listener);
 
     void uploadLocalProject(String name) throws ProjectException;
+    
+    WorkspaceUser getUser();
 }

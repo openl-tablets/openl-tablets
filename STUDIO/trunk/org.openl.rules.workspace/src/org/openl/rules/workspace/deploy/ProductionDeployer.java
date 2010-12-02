@@ -1,6 +1,6 @@
 package org.openl.rules.workspace.deploy;
 
-import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.project.abstraction.AProject;
 
 import java.util.Collection;
 
@@ -16,7 +16,7 @@ public interface ProductionDeployer {
      * @return generated id for this deployment
      * @throws DeploymentException if any deployment error occures
      */
-    DeployID deploy(Collection<? extends Project> projects) throws DeploymentException;
+    DeployID deploy(Collection<AProject> projects) throws DeploymentException;
 
     /**
      * Deploys a collection of <code>Project</code>s to the production
@@ -28,5 +28,5 @@ public interface ProductionDeployer {
      * @return <code>id</code> parameter
      * @throws DeploymentException if any deployment error occures
      */
-    DeployID deploy(DeployID id, Collection<? extends Project> projects) throws DeploymentException;
+    DeployID deploy(DeployID id, Collection<AProject> projects) throws DeploymentException;
 }

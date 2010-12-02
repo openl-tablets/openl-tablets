@@ -2,11 +2,11 @@ package org.openl.rules.workspace;
 
 import java.util.Collection;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
 public class ListUWProjects {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
@@ -16,15 +16,15 @@ public class ListUWProjects {
         UserWorkspace uw = muwm.getUserWorkspace(wu);
         uw.activate();
 
-        Collection<UserWorkspaceProject> projects = uw.getProjects();
+        Collection<AProject> projects = uw.getProjects();
         System.out.println("> Listing rules project:" + projects.size());
 
-        for (UserWorkspaceProject prj : projects) {
+        for (AProject prj : projects) {
             System.out.println(prj.getName() + " " + prj.getVersion().getVersionName());
         }
 
-        UserWorkspaceProject prj = projects.iterator().next();
-        for (UserWorkspaceProjectArtefact a : prj.getArtefacts()) {
+        AProject prj = projects.iterator().next();
+        for (AProjectArtefact a : prj.getArtefacts()) {
             printArtefact(a);
         }
 
@@ -32,15 +32,15 @@ public class ListUWProjects {
         System.out.println("Done.");
     }
 
-    private static void printArtefact(UserWorkspaceProjectArtefact a) {
+    private static void printArtefact(AProjectArtefact a) {
         String path = a.getArtefactPath().getStringValue();
 
         if (a.isFolder()) {
             System.out.println(" F " + path);
 
-            UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) a;
+            AProjectFolder folder = (AProjectFolder) a;
 
-            for (UserWorkspaceProjectArtefact fa : folder.getArtefacts()) {
+            for (AProjectArtefact fa : folder.getArtefacts()) {
                 printArtefact(fa);
             }
         } else {

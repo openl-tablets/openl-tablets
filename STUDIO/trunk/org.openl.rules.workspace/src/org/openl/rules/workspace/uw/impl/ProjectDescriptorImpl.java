@@ -5,20 +5,13 @@ import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 
-public class UserWorkspaceProjectDescriptorImpl implements ProjectDescriptor {
+public class ProjectDescriptorImpl implements ProjectDescriptor {
     private String projectName;
     private CommonVersion projectVersion;
-    private UserWorkspaceDeploymentProjectImpl project;
 
-    public UserWorkspaceProjectDescriptorImpl(UserWorkspaceDeploymentProjectImpl project, String projectName,
-            CommonVersion projectVersion) {
-        this.project = project;
+    public ProjectDescriptorImpl(String projectName, CommonVersion projectVersion) {
         this.projectName = projectName;
         this.projectVersion = projectVersion;
-    }
-
-    public void delete() {
-        project.removeProjectDescriptor(this);
     }
 
     public String getProjectName() {

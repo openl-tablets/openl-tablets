@@ -2,7 +2,7 @@ package org.openl.rules.workspace.lw;
 
 import java.io.File;
 
-import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -13,7 +13,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  *
  * @author Aleh Bykhavets
  */
-public interface LocalWorkspace extends ProjectsContainer<LocalProject> {
+public interface LocalWorkspace extends ProjectsContainer {
     /**
      * Adds a project to the workspace by making a copy from given
      * <code>Project</code> and saving it to the filesystem.
@@ -23,7 +23,7 @@ public interface LocalWorkspace extends ProjectsContainer<LocalProject> {
      * @return newly created <code>LocalProject</code>
      * @throws ProjectException if a project can not be added on some reason
      */
-    LocalProject addProject(Project project) throws ProjectException;
+    AProject addProject(AProject project) throws ProjectException;
 
     /**
      * Adds listener to the workspace that listens to workspace events.
