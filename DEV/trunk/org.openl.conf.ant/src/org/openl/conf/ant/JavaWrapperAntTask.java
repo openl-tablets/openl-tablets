@@ -265,12 +265,12 @@ public class JavaWrapperAntTask extends Task {
         List<OpenLMessage> errorMessages = 
             OpenLMessagesUtils.filterMessagesBySeverity(((CompiledOpenClass)jwrapper.getCompiledClass()).getMessages(), 
                 Severity.ERROR);
-        if (errorMessages != null && !errorMessages.isEmpty()) {
-            String message = getErrorMessage(errorMessages);
-            throw new OpenLCompilationException(message);
-        } else {
+//        if (errorMessages != null && !errorMessages.isEmpty()) {
+//            String message = getErrorMessage(errorMessages);
+//            throw new OpenLCompilationException(message);
+//        } else {
             return jwrapper.getOpenClass();
-        }
+//        }
     }
 
     private String getErrorMessage(List<OpenLMessage> errorMessages) {
