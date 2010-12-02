@@ -257,19 +257,32 @@ public class XlsCellStyle2 implements ICellStyle {
         // HSL, adjust the luminance (L) and convert back to RGB(see
         // http://msdn.microsoft.com/en-us/library/dd560821.aspx)
         float hsl[];
+        short color[];
         if (idx > 3) {
             byte[] rgb = ctColor.getSrgbClr().getVal();
-            hsl = convertRGBtoHSL(rgb[0] & 0xFF, rgb[1] & 0xFF, rgb[2] & 0xFF);
+            color = new short[] {
+                    (short) (rgb[0] & 0xFF), (short) (rgb[1] & 0xFF),(short)(rgb[2] & 0xFF)};
         } else {
             byte[] rgb;
             if (ctColor.getSrgbClr() != null) {
-                rgb = ctColor.getSrgbClr().getVal();//for tints of brown and blue colors
+                rgb = ctColor.getSrgbClr().getVal(); //for tints of brown and blue colors
             } else {
-                rgb = ctColor.getSysClr().getLastClr();//for tints of white and black colors
+                rgb = ctColor.getSysClr().getLastClr(); //for tints of white and black colors
             }
-            hsl = convertRGBtoHSL(255 - rgb[0] & 0xFF, 255 - rgb[1] & 0xFF, 255 - rgb[2] & 0xFF);
-
+            color = new short[] {
+                    (short) (255 - rgb[0] & 0xFF), (short) (255 - rgb[1] & 0xFF),(short)(255 - rgb[2] & 0xFF)};
+            if (tint == 0 &&
+                color[0] == 255 && color[1] == 255 && color[2] == 255) {
+                    color = new short[] {0, 0, 0}; //black
+            }
         }
+
+        if (tint == 0) {
+            return color;
+        }
+
+        hsl = convertRGBtoHSL(color[0], color[1], color[2]);
+
         float lightness;
         if (tint > 0) {
             lightness = (float) Math.min(1.0F, Math.max(0.0F, hsl[2] * (1 - tint) + tint));
@@ -281,7 +294,7 @@ public class XlsCellStyle2 implements ICellStyle {
         return convertHSLtoRGB(hsl[0], hsl[1], lightness);
     }
 
-    private static float[] convertRGBtoHSL(int r, int g, int b) {
+    private static float[] convertRGBtoHSL(short r, short g, short b) {
 
         float var_R = (r / 255f);
         float var_G = (g / 255f);
