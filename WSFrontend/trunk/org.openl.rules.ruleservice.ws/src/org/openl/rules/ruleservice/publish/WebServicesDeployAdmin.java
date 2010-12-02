@@ -99,7 +99,7 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
     private void instantiateServiceBean(Module rulesModule, ServerFactoryBean svrFactory)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true);
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true, null);
         
         if (isProvideRuntimeContext()) {
             serviceEnhancer = new RulesServiceEnhancer(strategy);
