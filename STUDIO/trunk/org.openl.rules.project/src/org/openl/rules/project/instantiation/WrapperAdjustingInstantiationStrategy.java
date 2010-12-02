@@ -52,9 +52,15 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
                 return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(), getModule().getProperties(), getDependencyManager() });
             }
 
-            ctr = c.getConstructor(new Class[] {boolean.class, boolean.class});
+            ctr = findConstructor(c, new Class[] {boolean.class, boolean.class});
+            
+            if (ctr != null) {
+                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode() });
+            }
 
-            return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode()});
+            ctr = c.getConstructor(new Class[] {boolean.class});
+            
+            return ctr.newInstance(new Object[] { Boolean.TRUE });
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Using older version of OpenL Wrapper, please run Generate ... Wrapper");
         }
