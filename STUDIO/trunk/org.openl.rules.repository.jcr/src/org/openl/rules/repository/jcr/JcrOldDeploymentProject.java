@@ -17,7 +17,7 @@ import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public class JcrOldDeploymentProject implements RDeploymentDescriptorProject {
+public class JcrOldDeploymentProject extends JcrCommonProject implements RDeploymentDescriptorProject {
 
     private String name;
     private JcrVersion version;
@@ -25,6 +25,7 @@ public class JcrOldDeploymentProject implements RDeploymentDescriptorProject {
     private HashMap<String, RProjectDescriptor> projects;
 
     public JcrOldDeploymentProject(String name, Node node) throws RepositoryException {
+        super(node);
         this.name = name;
         version = new JcrVersion(node);
 

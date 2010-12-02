@@ -16,7 +16,7 @@ import org.openl.rules.repository.RCommonProject;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public class JcrCommonProject extends JcrCommonArtefact implements RCommonProject {
+public class JcrCommonProject extends JcrEntity implements RCommonProject {
     private static Log log = LogFactory.getLog(JcrCommonProject.class);
 
     private JcrVersion version;
@@ -29,7 +29,12 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
         super(node);
 
         version = new JcrVersion(node);
-        lock = new JcrLock(node);
+        try {
+            lock = new JcrLock(node);
+        } catch (RepositoryException e) {
+            // for old deployments projects
+            lock = null;
+        }
     }
 
     protected void checkInAll(Node n, CommonUser user) throws RepositoryException {
