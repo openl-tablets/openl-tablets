@@ -1,10 +1,10 @@
 package org.openl.rules.workspace;
 
 import org.junit.Ignore;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
 @Ignore("Manual test")
 public class TestCreateDelete {
@@ -22,15 +22,15 @@ public class TestCreateDelete {
             uw.createProject(name);
         }
 
-        UserWorkspaceProject p = uw.getProject(name);
+        AProject p = uw.getProject(name);
         p.checkOut();
 
         try {
-            UserWorkspaceProjectFolder f = (UserWorkspaceProjectFolder) p.getArtefact("F1");
+            AProjectFolder f = (AProjectFolder) p.getArtefact("F1");
             System.out.println("Deleting...");
             f.delete();
         } catch (Exception e) {
-            UserWorkspaceProjectFolder uwpf;
+            AProjectFolder uwpf;
             uwpf = p.addFolder("F1");
             uwpf.addFolder("F1-1");
         }

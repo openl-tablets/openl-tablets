@@ -2,13 +2,16 @@ package org.openl.rules.workspace.abstracts;
 
 import java.util.Collection;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+
 /**
  * An interfaces to be implemented by containers of special types of
  * {@link Project}s;
  *
  * @author Aleh Bykhavets
  */
-public interface ProjectsContainer<T extends Project> {
+public interface ProjectsContainer {
     /**
      * Returns a <code>ProjectArtefact</code> identified by its
      * <code>artefactPath</code>. The implementation must regard first
@@ -22,7 +25,7 @@ public interface ProjectsContainer<T extends Project> {
      * @throws ProjectException if <code>artefactPath</code> does not point to
      *             a <code>ProjectArtefact</code> inside container
      */
-    ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException;
+    AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException;
 
     /**
      * Returns a project by its name.
@@ -32,7 +35,7 @@ public interface ProjectsContainer<T extends Project> {
      * @throws ProjectException if container does not contain a project with
      *             given name
      */
-    T getProject(String name) throws ProjectException;
+    AProject getProject(String name) throws ProjectException;
 
     /**
      * Returns collection of projects in the container. The order of the
@@ -41,7 +44,7 @@ public interface ProjectsContainer<T extends Project> {
      *
      * @return all projects in the container.
      */
-    Collection<T> getProjects();
+    Collection<AProject> getProjects();
 
     /**
      * Returns <code>true</code> if there is a project with given name.

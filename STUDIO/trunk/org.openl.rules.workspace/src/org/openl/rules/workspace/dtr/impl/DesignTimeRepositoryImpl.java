@@ -7,6 +7,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.impl.RepositoryAPI;
+import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.NullRepository;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
@@ -16,15 +21,10 @@ import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryDDProject;
 import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.util.MsgHelper;
 
 /**
@@ -32,14 +32,15 @@ import org.openl.util.MsgHelper;
  * @author Aleh Bykhavets
  *
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository {
+public class DesignTimeRepositoryImpl implements DesignTimeRepository{
     private static final Log log = LogFactory.getLog(DesignTimeRepositoryImpl.class);
 
     /** Rules Repository */
     private RRepository rulesRepository;
     /** Project Cache */
-    private HashMap<String, RepositoryProjectImpl> projects;
-
+    private HashMap<String, AProject> projects;
+    private CommonUser user;
+    
     public DesignTimeRepositoryImpl() {
         try {
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
@@ -48,17 +49,27 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             rulesRepository = new NullRepository();
         }
 
-        projects = new HashMap<String, RepositoryProjectImpl>();
+        projects = new HashMap<String, AProject>();
     }
 
-    public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user)
+	public CommonUser getUser() {
+		return user;
+	}
+
+	public void setUser(CommonUser user) {
+		this.user = user;
+	}
+
+	public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
             throws ProjectException {
         createDDProject(name);
-        RepositoryDDProject newProject = getDDProject(name);
-        newProject.commit((Project) project, user);
+        ADeploymentProject newProject = getDDProject(name);
+        newProject.update(project);
+        newProject.checkIn();
+        
     }
 
-    public void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException {
+    public void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException {
         if (hasProject(name)) {
             throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, name);
         }
@@ -69,9 +80,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             log.debug("Opening temporary write session...");
             writeRep = RulesRepositoryFactory.getRepositoryInstance();
             log.debug("Wrapping temporary write project...");
-            RepositoryProject newProject = wrapProject(writeRep.createProject(name), false);
+            AProject newProject = wrapProject(writeRep.createProject(name), false);
 
-            newProject.commit(project, user);
+            newProject.update(project);
+            newProject.checkIn();
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         } catch (Exception e) {
@@ -102,15 +114,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
+    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
-        RepositoryProject ralProject = getProject(projectName);
+        AProject ralProject = getProject(projectName);
 
         ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
         return ralProject.getArtefactByPath(pathInProject);
     }
 
-    public RepositoryDDProject getDDProject(String name) throws RepositoryException {
+    public ADeploymentProject getDDProject(String name) throws RepositoryException {
         try {
             return wrapDDProject(rulesRepository.getDDProject(name));
         } catch (RRepositoryException e) {
@@ -118,9 +130,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException {
+    public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
         try {
             RDeploymentDescriptorProject ralDeploymentProject = rulesRepository.getDDProject(name);
+            if(ralDeploymentProject.getVersionHistory().get(ralDeploymentProject.getVersionHistory().size()-1).compareTo(version) == 0){
+                return wrapDDProject(ralDeploymentProject);
+            }
             RDeploymentDescriptorProject oldProject = ralDeploymentProject.getProjectVersion(version);
             return wrapDDProject(oldProject);
         } catch (RRepositoryException e) {
@@ -129,12 +144,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public List<RepositoryDDProject> getDDProjects() throws RepositoryException {
-        LinkedList<RepositoryDDProject> result = new LinkedList<RepositoryDDProject>();
+    public List<ADeploymentProject> getDDProjects() throws RepositoryException {
+        LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
 
         try {
             for (RDeploymentDescriptorProject ralDeploymentProject : rulesRepository.getDDProjects()) {
-                RepositoryDDProject dtrDeploymentProject = wrapDDProject(ralDeploymentProject);
+                ADeploymentProject dtrDeploymentProject = wrapDDProject(ralDeploymentProject);
                 result.add(dtrDeploymentProject);
             }
         } catch (RRepositoryException e) {
@@ -144,12 +159,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return result;
     }
 
-    public RepositoryProject getProject(String name) throws RepositoryException {
+    public AProject getProject(String name) throws RepositoryException {
         if (!hasProject(name)) {
             throw new RepositoryException("Cannot find project ''{0}''!", null, name);
         }
 
-        RepositoryProject cached = projects.get(name);
+        AProject cached = projects.get(name);
         if (cached != null) {
             return cached;
         }
@@ -162,9 +177,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public RepositoryProject getProject(String name, CommonVersion version) throws RepositoryException {
+    public AProject getProject(String name, CommonVersion version) throws RepositoryException {
         try {
             RProject ralProject = rulesRepository.getProject(name);
+            if(ralProject.getVersionHistory().get(ralProject.getVersionHistory().size()-1).compareTo(version) == 0){
+                return wrapProject(ralProject, true);
+            }
             RProject oldProject = ralProject.getProjectVersion(version);
 
             // do not cache old version of project
@@ -175,20 +193,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public Collection<RepositoryProject> getProjects() {
-        List<RepositoryProject> result = new LinkedList<RepositoryProject>();
+    public Collection<AProject> getProjects() {
+        List<AProject> result = new LinkedList<AProject>();
 
         try {
             for (RProject ralProject : rulesRepository.getProjects()) {
                 String name = ralProject.getName();
-                RepositoryProject cached = projects.get(name);
+                AProject cached = projects.get(name);
 
                 if (cached != null) {
                     // use cached
                     result.add(cached);
                 } else {
                     // get from the repository
-                    RepositoryProject project = wrapProject(ralProject, true);
+                    AProject project = wrapProject(ralProject, true);
                     result.add(project);
                 }
             }
@@ -210,7 +228,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public boolean hasProject(String name) {
-        RepositoryProject cached = projects.get(name);
+        AProject cached = projects.get(name);
         boolean inCache = (cached != null);
 
         try {
@@ -230,16 +248,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return inCache;
     }
 
-    public void updateProject(Project sourceProject, WorkspaceUser user, int major, int minor)
+    public void updateProject(AProject sourceProject, WorkspaceUser user, int major, int minor)
             throws RepositoryException {
         String name = sourceProject.getName();
-        RepositoryProject dest = getProject(name);
+        AProject dest = getProject(name);
 
         if (!dest.isLocked()) {
             throw new RepositoryException("Cannot update project ''{0}'' while it is not locked!", null, name);
         }
 
-        WorkspaceUser lockedBy = dest.getlLockInfo().getLockedBy();
+        WorkspaceUser lockedBy = dest.getLockInfo().getLockedBy();
         if (!lockedBy.equals(user)) {
             throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy
                     .getUserName());
@@ -251,15 +269,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             log.debug("Opening temporary write session...");
             writeRep = RulesRepositoryFactory.getRepositoryInstance();
             log.debug("Wrapping temporary write project...");
-            RepositoryProject project4Write = wrapProject(writeRep.getProject(name), false);
+            AProject project4Write = wrapProject(writeRep.getProject(name), false);
 
             if (major != 0 || minor != 0) {
                 String msg = MsgHelper.format("Raising project version (''{0}'' -> {1}.{2})...", name, major, minor);
                 log.debug(msg);
-                project4Write.riseVersion(major, minor);
             }
 
-            project4Write.commit(sourceProject, user);
+            project4Write.update(sourceProject);
+            project4Write.checkIn(major, minor);
         } catch (Exception e) {
             throw new RepositoryException("Failed to update project ''{0}''.", e, name);
         } finally {
@@ -274,15 +292,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     // --- private
 
-    private RepositoryDDProject wrapDDProject(RDeploymentDescriptorProject ralDeploymentProject) {
-        return new RepositoryDeploymentDescriptorProjectImpl(ralDeploymentProject);
+    private ADeploymentProject wrapDDProject(RDeploymentDescriptorProject ralDeploymentProject) {
+        ArtefactPath path = new ArtefactPathImpl(new String[] { ralDeploymentProject.getName() });
+        return new ADeploymentProject(new RepositoryAPI(ralDeploymentProject, path, this), user);
     }
 
-    private RepositoryProjectImpl wrapProject(RProject ralRulesProject, boolean cacheIt) {
+    private AProject wrapProject(RProject ralRulesProject, boolean cacheIt) {
         String name = ralRulesProject.getName();
         ArtefactPath projectPath = new ArtefactPathImpl(new String[] { name });
 
-        RepositoryProjectImpl dtrRulesProject = new RepositoryProjectImpl(ralRulesProject, projectPath);
+        AProject dtrRulesProject = new AProject(new RepositoryAPI(ralRulesProject, projectPath, this), user);
         if (cacheIt) {
             projects.put(name, dtrRulesProject);
         }

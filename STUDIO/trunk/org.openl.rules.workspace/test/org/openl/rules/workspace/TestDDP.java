@@ -1,12 +1,11 @@
 package org.openl.rules.workspace;
 
 import org.junit.Ignore;
+import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 
 @Ignore("Manual test")
 public class TestDDP {
@@ -23,7 +22,7 @@ public class TestDDP {
         try {
             uw.createDDProject(name);
 
-            UserWorkspaceDeploymentProject ddp = uw.getDDProject(name);
+            ADeploymentProject ddp = uw.getDDProject(name);
             ddp.checkOut();
 
             ddp.addProjectDescriptor("prj1", new CommonVersionImpl(1, 10, 100));
@@ -35,7 +34,7 @@ public class TestDDP {
         }
 
         System.out.println("Listing DDProject");
-        DeploymentDescriptorProject ddp = uw.getDDProject(name);
+        ADeploymentProject ddp = uw.getDDProject(name);
         System.out.println("  " + ddp.getName());
 
         for (ProjectDescriptor pd : ddp.getProjectDescriptors()) {

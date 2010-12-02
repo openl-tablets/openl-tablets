@@ -6,30 +6,33 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.junit.Ignore;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 
 @Ignore("Manual test")
 public class TestMUWM {
     @Ignore("Auxiliary class")
-    public static class PR implements ProjectResource {
+    public static class PR extends AProjectResource {
+
+        public PR() {
+            super(null, null);
+        }
 
         public void addProperty(Property property) throws PropertyException {
             throw new PropertyException("Not supported", null);
         }
 
-        public ProjectArtefact getArtefact(String name) throws ProjectException {
+        public AProjectArtefact getArtefact(String name) throws ProjectException {
             throw new ProjectException("Not supported", null);
         }
 
@@ -90,13 +93,13 @@ public class TestMUWM {
             uw.createProject(name);
         }
 
-        UserWorkspaceProject p = uw.getProject(name);
+        AProject p = uw.getProject(name);
         p.checkOut();
 
-        UserWorkspaceProjectFolder uwpf;
+        AProjectFolder uwpf;
         try {
-            uwpf = (UserWorkspaceProjectFolder) p.getArtefact("F1");
-            UserWorkspaceProjectResource uwpr = (UserWorkspaceProjectResource) uwpf.getArtefact("some-file");
+            uwpf = (AProjectFolder) p.getArtefact("F1");
+            AProjectResource uwpr = (AProjectResource) uwpf.getArtefact("some-file");
 
             // String s = "Updated at " + System.currentTimeMillis();
             // uwpr.setContent(new ByteArrayInputStream(s.getBytes()));
@@ -126,7 +129,7 @@ public class TestMUWM {
 
         p.checkIn();
 
-        for (UserWorkspaceProject uwp : uw.getProjects()) {
+        for (AProject uwp : uw.getProjects()) {
             System.out.println("-> opening " + uwp.getName());
             uwp.open();
         }

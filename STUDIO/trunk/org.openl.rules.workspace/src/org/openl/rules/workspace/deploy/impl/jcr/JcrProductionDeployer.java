@@ -1,5 +1,9 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RFile;
@@ -9,11 +13,7 @@ import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectFolder;
-import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
@@ -35,19 +35,19 @@ public class JcrProductionDeployer implements ProductionDeployer {
         this.user = user;
     }
 
-    private void copy(RFolder dest, ProjectFolder source) throws RRepositoryException, ProjectException {
-        for (ProjectArtefact artefact : source.getArtefacts()) {
+    private void copy(RFolder dest, AProjectFolder source) throws RRepositoryException, ProjectException {
+        for (AProjectArtefact artefact : source.getArtefacts()) {
             if (artefact.isFolder()) {
                 RFolder folder = dest.createFolder(artefact.getName());
                 copyProperties(folder, (RulesRepositoryArtefact) artefact);
-                copy(folder, (ProjectFolder) artefact);
+                copy(folder, (AProjectFolder) artefact);
             } else {
-                copy(dest, (ProjectResource) artefact);
+                copy(dest, (AProjectResource) artefact);
             }
         }
     }
 
-    private void copy(RFolder folder, ProjectResource artefact) throws RRepositoryException, ProjectException {
+    private void copy(RFolder folder, AProjectResource artefact) throws RRepositoryException, ProjectException {
         RFile rFile = folder.createFile(artefact.getName());
         rFile.setContent(artefact.getContent());
 
@@ -70,7 +70,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
      * @return generated id for this deployment
      * @throws DeploymentException if any deployment error occures
      */
-    public DeployID deploy(Collection<? extends Project> projects) throws DeploymentException {
+    public DeployID deploy(Collection<AProject> projects) throws DeploymentException {
         String name = generatedDeployID(projects);
         return deploy(new DeployID(name), projects);
     }
@@ -85,7 +85,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
      * @throws DeploymentException if any deployment error occures
      */
 
-    public synchronized DeployID deploy(DeployID id, Collection<? extends Project> projects) throws DeploymentException {
+    public synchronized DeployID deploy(DeployID id, Collection<AProject> projects) throws DeploymentException {
 
         boolean alreadyDeployed = false;
         try {
@@ -97,7 +97,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
                 RProductionDeployment deployment = rRepository.createDeployment(id.getName());
 
-                for (Project p : projects) {
+                for (AProject p : projects) {
                     deployProject(deployment, p);
                 }
 
@@ -115,16 +115,17 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return id;
     }
 
-    private void deployProject(RProductionDeployment deployment, Project project) throws RRepositoryException,
+    private void deployProject(RProductionDeployment deployment, AProject project) throws RRepositoryException,
             ProjectException {
         RProject rProject = deployment.createProject(project.getName());
+        copyProperties(rProject.getRootFolder(), (RulesRepositoryArtefact)project);
 
         copy(rProject.getRootFolder(), project);
     }
 
-    private String generatedDeployID(Collection<? extends Project> projects) {
+    private String generatedDeployID(Collection<AProject> projects) {
         StringBuilder name = new StringBuilder();
-        for (Project p : projects) {
+        for (AProject p : projects) {
             name.append(p.getName());
             if (p.getVersion() != null) {
                 name.append('-').append(p.getVersion().getVersionName());

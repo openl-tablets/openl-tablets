@@ -9,10 +9,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.dtr.RepositoryProject;
-import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
@@ -25,7 +24,7 @@ public class ProjectExportHelper {
 
     private byte[] buffer = new byte[1024 * 4];
 
-    public File export(WorkspaceUser user, RepositoryProject oldRP) throws ProjectException {
+    public File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
         File zipFile = null;
         try {
             zipFile = File.createTempFile("export-", "-zip");
@@ -37,7 +36,7 @@ public class ProjectExportHelper {
         tempWsLocation.mkdir();
 
         LocalWorkspaceImpl tempWS = new LocalWorkspaceImpl(user, tempWsLocation, FILE_FILTER, FILE_FILTER);
-        LocalProject localProject = tempWS.addProject(oldRP);
+        AProject localProject = tempWS.addProject(oldRP);
 
         String zipComment = "Project '" + oldRP.getName() + "' version " + oldRP.getVersion().getVersionName()
                 + "\nExported by " + user.getUserName();
