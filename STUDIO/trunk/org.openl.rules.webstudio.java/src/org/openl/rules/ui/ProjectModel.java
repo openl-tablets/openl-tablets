@@ -26,6 +26,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.ModulesCache;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
@@ -72,7 +73,6 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -139,7 +139,7 @@ public class ProjectModel {
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
     }
 
-    public UserWorkspaceProject getProject() {
+    public AProject getProject() {
         return studio.getCurrentProject();
     }
 
@@ -746,7 +746,7 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        UserWorkspaceProject project = getProject();
+        AProject project = getProject();
 
         if (project != null) {
             return project.isCheckedOut() || project.isLocalOnly();

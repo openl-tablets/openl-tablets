@@ -7,13 +7,13 @@ import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeStateManager;
 import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 
@@ -60,25 +60,25 @@ public class TreeBean {
 
     public boolean isProjectExists() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        UserWorkspaceProject currentProject = studio.getCurrentProject();
+        AProject currentProject = studio.getCurrentProject();
         return currentProject != null;
     }
 
     public boolean isProjectCheckedOut() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        UserWorkspaceProject currentProject = studio.getCurrentProject();
+        AProject currentProject = studio.getCurrentProject();
         return currentProject.isCheckedOut();
     }
 
     public boolean isProjectLocalOnly() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        UserWorkspaceProject currentProject = studio.getCurrentProject();
+        AProject currentProject = studio.getCurrentProject();
         return currentProject.isLocalOnly();
     }
 
     public boolean isProjectLocked() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        UserWorkspaceProject currentProject = studio.getCurrentProject();
+        AProject currentProject = studio.getCurrentProject();
         return currentProject.isLocked();
     }
 

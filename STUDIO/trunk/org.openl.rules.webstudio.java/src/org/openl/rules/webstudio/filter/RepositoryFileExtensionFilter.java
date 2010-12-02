@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.filter;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.util.filter.BaseOpenLFilter;
 import org.apache.commons.lang.StringUtils;
 
@@ -42,7 +42,7 @@ public class RepositoryFileExtensionFilter extends BaseOpenLFilter {
     }
 
     public boolean select(Object obj) {
-        ProjectResource res = (ProjectResource) obj;
+        AProjectResource res = (AProjectResource) obj;
         for (String ext : extensions) {
             if (res.getName().endsWith(ext)) {
                 return true;
@@ -52,6 +52,6 @@ public class RepositoryFileExtensionFilter extends BaseOpenLFilter {
     }
 
     public boolean supports(Class<?> aClass) {
-        return ProjectResource.class.isAssignableFrom(aClass);
+        return AProjectResource.class.isAssignableFrom(aClass);
     }
 }

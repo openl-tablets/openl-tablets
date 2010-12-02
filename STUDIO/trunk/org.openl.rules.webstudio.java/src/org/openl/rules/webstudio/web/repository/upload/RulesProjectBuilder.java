@@ -3,20 +3,18 @@ package org.openl.rules.webstudio.web.repository.upload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.FileProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
 import java.io.InputStream;
 
 public class RulesProjectBuilder {
     private static final Log LOG = LogFactory.getLog(RulesProjectBuilder.class);
-    private final UserWorkspaceProject project;
+    private final AProject project;
     
 
     public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
@@ -26,7 +24,7 @@ public class RulesProjectBuilder {
     }
 
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
-        UserWorkspaceProjectFolder folder = project;
+        AProjectFolder folder = project;
         String resName;
 
         int pos = fileName.lastIndexOf('/');
@@ -42,8 +40,7 @@ public class RulesProjectBuilder {
         // throws exception if name is invalid
         checkName(resName);
 
-        ProjectResource projectResource = new FileProjectResource(inputStream);
-        folder.addResource(resName, projectResource);
+        folder.addResource(resName, inputStream);
 
         return true;
     }
@@ -82,12 +79,12 @@ public class RulesProjectBuilder {
         }
     }
 
-    private UserWorkspaceProjectFolder checkPath(UserWorkspaceProject project, String fullName) throws ProjectException {
+    private AProjectFolder checkPath(AProject project, String fullName) throws ProjectException {
         ArtefactPathImpl ap = new ArtefactPathImpl(fullName);
-        UserWorkspaceProjectFolder current = project;
+        AProjectFolder current = project;
         for (String segment : ap.getSegments()) {
             if (current.hasArtefact(segment)) {
-                current = (UserWorkspaceProjectFolder) current.getArtefact(segment);
+                current = (AProjectFolder) current.getArtefact(segment);
             } else {
                 // throws exception if name is invalid
                 checkName(segment);

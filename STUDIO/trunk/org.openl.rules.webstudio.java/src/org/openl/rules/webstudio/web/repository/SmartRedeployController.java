@@ -9,17 +9,16 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 /**
  *
@@ -37,7 +36,7 @@ public class SmartRedeployController {
     private DeploymentManager deploymentManager;
 
     public synchronized List<DeploymentProjectItem> getItems() {
-        UserWorkspaceProject project = getSelectedProject();
+        AProject project = getSelectedProject();
         if (project == null) {
             items = null;
             return null;
@@ -47,7 +46,7 @@ public class SmartRedeployController {
         return items;
     }
 
-    private List<DeploymentProjectItem> getItems4Project(UserWorkspaceProject project) {
+    private List<DeploymentProjectItem> getItems4Project(AProject project) {
         String projectName = project.getName();
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
@@ -57,17 +56,17 @@ public class SmartRedeployController {
         // get all deployment projects
         List<AbstractTreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (AbstractTreeNode node : nodes) {
-            ProjectArtefact artefact = node.getDataBean();
-            if (!(artefact instanceof UserWorkspaceDeploymentProject)) {
+            AProjectArtefact artefact = node.getDataBean();
+            if (!(artefact instanceof ADeploymentProject)) {
                 continue; // should never happen
             }
 
-            UserWorkspaceDeploymentProject deploymentProject = (UserWorkspaceDeploymentProject) artefact;
+            ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
             if (deploymentProject.isDeleted()) {
                 continue; // don't check marked for deletion projects
             }
 
-            DeploymentDescriptorProject latestDeploymentVersion = deploymentProject;
+            ADeploymentProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
                 try {
                     latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(
@@ -153,28 +152,28 @@ public class SmartRedeployController {
         return result;
     }
 
-    private UserWorkspaceProject getSelectedProject() {
-        ProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
-        if (artefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) artefact;
+    private AProject getSelectedProject() {
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
+        if (artefact instanceof AProject) {
+            return (AProject) artefact;
         }
         return null;
     }
 
     public String redeploy() {
-        UserWorkspaceProject project = getSelectedProject();
+        AProject project = getSelectedProject();
         if (project == null) {
             return UiConst.OUTCOME_FAILURE;
         }
 
-        List<UserWorkspaceDeploymentProject> successfulyUpdated = new LinkedList<UserWorkspaceDeploymentProject>();
+        List<ADeploymentProject> successfulyUpdated = new LinkedList<ADeploymentProject>();
         // update selected deployment projects
         for (DeploymentProjectItem item : items) {
             if (!item.isSelected()) {
                 continue;
             }
 
-            UserWorkspaceDeploymentProject deploymentProject = update(item.getName(), project);
+            ADeploymentProject deploymentProject = update(item.getName(), project);
             if (deploymentProject != null) {
                 // OK, it was updated
                 successfulyUpdated.add(deploymentProject);
@@ -182,7 +181,7 @@ public class SmartRedeployController {
         }
 
         // redeploy takes more time
-        for (UserWorkspaceDeploymentProject deploymentProject : successfulyUpdated) {
+        for (ADeploymentProject deploymentProject : successfulyUpdated) {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject);
                 FacesContext.getCurrentInstance().addMessage(
@@ -208,7 +207,7 @@ public class SmartRedeployController {
         this.repositoryTreeState = repositoryTreeState;
     }
 
-    private UserWorkspaceDeploymentProject update(String deploymentName, UserWorkspaceProject project) {
+    private ADeploymentProject update(String deploymentName, AProject project) {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         try {
             if (deploymentName.equals(project.getName())) {
@@ -221,7 +220,7 @@ public class SmartRedeployController {
             }
 
             // get latest version
-            UserWorkspaceDeploymentProject deploymentProject = workspace.getDDProject(deploymentName);
+            ADeploymentProject deploymentProject = workspace.getDDProject(deploymentName);
 
             if (deploymentProject.isLocked()) {
                 // someone else is locked it while we were thinking

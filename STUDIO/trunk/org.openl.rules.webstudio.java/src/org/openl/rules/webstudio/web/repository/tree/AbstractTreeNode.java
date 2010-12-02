@@ -9,12 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.richfaces.model.TreeNode;
 
 /**
@@ -95,7 +94,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      */
     private boolean isLeafOnly;
 
-    private ProjectArtefact dataBean;
+    private AProjectArtefact dataBean;
 
     /**
      * Creates tree node that can have children.
@@ -226,7 +225,7 @@ public abstract class AbstractTreeNode implements TreeNode {
         return this;
     }
 
-    public ProjectArtefact getDataBean() {
+    public AProjectArtefact getDataBean() {
         return dataBean;
     }
 
@@ -293,16 +292,16 @@ public abstract class AbstractTreeNode implements TreeNode {
     public abstract String getType();
 
     public String getVersionName() {
-        if (dataBean instanceof UserWorkspaceProject) {
-            ProjectVersion version = ((UserWorkspaceProject) dataBean).getVersion();
+        if (dataBean instanceof AProject) {
+            ProjectVersion version = ((AProject) dataBean).getVersion();
             return (version == null) ? null : version.getVersionName();
         }
         return null;
     }
 
     public Collection<ProjectVersion> getVersions() {
-        if (dataBean instanceof UserWorkspaceProjectArtefact) {
-            UserWorkspaceProjectArtefact uwpa = (UserWorkspaceProjectArtefact) dataBean;
+        if (dataBean instanceof AProjectArtefact) {
+            AProjectArtefact uwpa = (AProjectArtefact) dataBean;
 
             LinkedList<ProjectVersion> result = new LinkedList<ProjectVersion>(uwpa.getVersions());
 
@@ -352,7 +351,7 @@ public abstract class AbstractTreeNode implements TreeNode {
         // do nothing
     }
 
-    public void setDataBean(ProjectArtefact dataBean) {
+    public void setDataBean(AProjectArtefact dataBean) {
         this.dataBean = dataBean;
     }
 

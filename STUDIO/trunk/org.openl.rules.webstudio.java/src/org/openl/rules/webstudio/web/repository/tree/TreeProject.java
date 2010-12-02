@@ -1,15 +1,14 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.dtr.LockInfo;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Date;
 import java.util.List;
@@ -28,12 +27,12 @@ public class TreeProject extends TreeFolder {
 
     private List<DependencyBean> dependencies;
 
-    protected static String generateComments(ProjectArtefact artefact) {
-        if (artefact == null || !(artefact instanceof UserWorkspaceProject)) {
+    protected static String generateComments(AProjectArtefact artefact) {
+        if (artefact == null || !(artefact instanceof AProject)) {
             return null;
         }
 
-        UserWorkspaceProject userProject = (UserWorkspaceProject) artefact;
+        AProject userProject = (AProject) artefact;
         if (userProject.isLocalOnly()) {
             return "Local";
         }
@@ -70,12 +69,12 @@ public class TreeProject extends TreeFolder {
 
     // ------ UI methods ------
 
-    protected static String generateStatus(ProjectArtefact artefact) {
-        if (artefact == null || !(artefact instanceof UserWorkspaceProject)) {
+    protected static String generateStatus(AProjectArtefact artefact) {
+        if (artefact == null || !(artefact instanceof AProject)) {
             return null;
         }
 
-        UserWorkspaceProject userProject = (UserWorkspaceProject) artefact;
+        AProject userProject = (AProject) artefact;
         if (userProject.isLocalOnly()) {
             return "Local";
         }
@@ -119,7 +118,7 @@ public class TreeProject extends TreeFolder {
 
         Collection<ProjectDependency> newDeps = new ArrayList<ProjectDependency>(dependencies);
         newDeps.add(dep);
-        ((Project) getDataBean()).setDependencies(newDeps);
+        ((AProject) getDataBean()).setDependencies(newDeps);
         this.dependencies = null;
         return true;
     }
@@ -169,7 +168,7 @@ public class TreeProject extends TreeFolder {
 
     @Override
     public String getIcon() {
-        UserWorkspaceProject project = (UserWorkspaceProject) getDataBean();
+        AProject project = (AProject) getDataBean();
 
         if (project.isLocalOnly()) {
             return UiConst.ICON_PROJECT_LOCAL;
@@ -199,8 +198,8 @@ public class TreeProject extends TreeFolder {
         }
     }
 
-    private Project getProject() {
-        return (Project) getDataBean();
+    private AProject getProject() {
+        return (AProject) getDataBean();
     }
 
     public String getStatus() {

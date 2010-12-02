@@ -7,6 +7,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -17,18 +22,12 @@ import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
+import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.OpenLFilter;
 import org.richfaces.model.UploadItem;
 
@@ -114,13 +113,13 @@ public class RepositoryTreeController {
     }
 
     public String addFolder() {
-        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
+        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
         String errorMessage = null;
-        if (projectArtefact instanceof UserWorkspaceProjectFolder) {
+        if (projectArtefact instanceof AProjectFolder) {
             if (NameChecker.checkName(folderName)) {
-                UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
+                AProjectFolder folder = (AProjectFolder) projectArtefact;
                 try {
-                    UserWorkspaceProjectFolder addedFolder = folder.addFolder(folderName);
+                    AProjectFolder addedFolder = folder.addFolder(folderName);
                     TreeFolder treeFolder = new TreeFolder(addedFolder.getName(),addedFolder.getName());
                     treeFolder.setDataBean(addedFolder);
                     repositoryTreeState.getSelectedNode().add(treeFolder);
@@ -181,7 +180,7 @@ public class RepositoryTreeController {
 
     public String copyDeploymentProject() {
         String errorMessage = null;
-        UserWorkspaceDeploymentProject project;
+        ADeploymentProject project;
 
         try {
             project = userWorkspace.getDDProject(projectName);
@@ -210,7 +209,7 @@ public class RepositoryTreeController {
 
         try {
             userWorkspace.copyDDProject(project, newProjectName);
-            UserWorkspaceDeploymentProject newProject = userWorkspace.getDDProject(newProjectName);            
+            ADeploymentProject newProject = userWorkspace.getDDProject(newProjectName);            
             repositoryTreeState.addDeploymentProjectToTree(newProject);
         } catch (ProjectException e) {
             String msg = "Failed to copy deployment project.";
@@ -224,7 +223,7 @@ public class RepositoryTreeController {
 
     public String copyProject() {
         String errorMessage = null;
-        UserWorkspaceProject project;
+        AProject project;
 
         try {
             project = userWorkspace.getProject(projectName);
@@ -266,7 +265,7 @@ public class RepositoryTreeController {
 
         try {
             userWorkspace.copyProject(project, newProjectName);
-            UserWorkspaceProject newProject = userWorkspace.getProject(newProjectName);
+            AProject newProject = userWorkspace.getProject(newProjectName);
             repositoryTreeState.addRulesProjectToTree(newProject);
         } catch (ProjectException e) {
             String msg = "Failed to copy project.";
@@ -281,7 +280,7 @@ public class RepositoryTreeController {
     public String createDeploymentProject() {
         try {
             userWorkspace.createDDProject(projectName);
-            UserWorkspaceDeploymentProject createdProject = userWorkspace.getDDProject(projectName);
+            ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
@@ -303,9 +302,9 @@ public class RepositoryTreeController {
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
         ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
         String creationMessage = projectCreator.createRulesProject();
-        if (errorMessage == null) {
+        if (creationMessage == null) {
             try {
-                UserWorkspaceProject createdProject = userWorkspace.getProject(projectName);
+                AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
@@ -319,7 +318,7 @@ public class RepositoryTreeController {
         String projectName = FacesUtils.getRequestParameter("deploymentProjectName");
 
         try {
-            UserWorkspaceDeploymentProject project = userWorkspace.getDDProject(projectName);
+            ADeploymentProject project = userWorkspace.getDDProject(projectName);
             project.delete();
         } catch (ProjectException e) {
             LOG.error("Cannot delete deployment project '" + projectName + "'.", e);
@@ -332,7 +331,7 @@ public class RepositoryTreeController {
     }
 
     public String deleteElement() {
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) repositoryTreeState
+    	AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState
                 .getSelectedNode().getDataBean();
         String childName = FacesUtils.getRequestParameter("element");
 
@@ -348,7 +347,7 @@ public class RepositoryTreeController {
     }
 
     public String deleteNode() {
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) repositoryTreeState
+        AProjectArtefact projectArtefact = (AProjectArtefact) repositoryTreeState
                 .getSelectedNode().getDataBean();
         try {
             projectArtefact.delete();
@@ -371,7 +370,7 @@ public class RepositoryTreeController {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
         try {
-            UserWorkspaceProject project = userWorkspace.getProject(projectName);
+            AProject project = userWorkspace.getProject(projectName);
             project.delete();
             repositoryTreeState.refreshSelectedNode();
         } catch (ProjectException e) {
@@ -383,7 +382,7 @@ public class RepositoryTreeController {
     }
 
     public String eraseProject() {
-        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        AProject project = repositoryTreeState.getSelectedProject();
         // EPBDS-225
         if (project == null) {
             return null;
@@ -416,9 +415,11 @@ public class RepositoryTreeController {
         File zipFile = null;
         String zipFileName = null;
         try {
-            UserWorkspaceProject p = repositoryTreeState.getSelectedProject();
-            zipFile = p.exportVersion(new CommonVersionImpl(version));
-            zipFileName = String.format("%s-%s.zip", p.getName(), version);
+            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                    new CommonVersionImpl(version));
+            zipFile = new ProjectExportHelper().export(userWorkspace.getUser(), forExport);
+            zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
         } catch (ProjectException e) {
             String msg = "Failed to export project version.";
             LOG.error(msg, e);
@@ -619,7 +620,7 @@ public class RepositoryTreeController {
     }
 
     private ProjectVersion getProjectVersion() {
-        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        AProject project = repositoryTreeState.getSelectedProject();
         if (project != null) {
             return project.getVersion();
         }
@@ -998,7 +999,7 @@ public class RepositoryTreeController {
     }
 
     public String undeleteProject() {
-        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        AProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
             FacesContext.getCurrentInstance().addMessage(
                     null,
@@ -1047,7 +1048,7 @@ public class RepositoryTreeController {
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             try {
-                UserWorkspaceProject createdProject = userWorkspace.getProject(projectName);
+                AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance().addMessage(null,
@@ -1070,11 +1071,10 @@ public class RepositoryTreeController {
         File uploadedFile = getLastUploadedFile().getFile();
 
         try {
-            UserWorkspaceProjectFolder node = (UserWorkspaceProjectFolder) repositoryTreeState.getSelectedNode()
+            AProjectFolder node = (AProjectFolder) repositoryTreeState.getSelectedNode()
                     .getDataBean();
 
-            ProjectResource projectResource = new FileProjectResource(new FileInputStream(uploadedFile));
-            UserWorkspaceProjectResource addedFileResource = node.addResource(fileName, projectResource);
+            AProjectResource addedFileResource = node.addResource(fileName, new FileInputStream(uploadedFile));
 
             TreeFile treeFile = new TreeFile(addedFileResource.getName(),addedFileResource.getName());
             treeFile.setDataBean(addedFileResource);
@@ -1091,7 +1091,7 @@ public class RepositoryTreeController {
     private String uploadAndUpdateFile() {
         File uploadedFile = getLastUploadedFile().getFile();
         try {
-            UserWorkspaceProjectResource node = (UserWorkspaceProjectResource) repositoryTreeState.getSelectedNode()
+            AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode()
                     .getDataBean();
             node.setContent(new FileInputStream(uploadedFile));
 

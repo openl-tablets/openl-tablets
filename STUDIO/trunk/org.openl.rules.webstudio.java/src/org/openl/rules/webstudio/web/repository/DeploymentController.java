@@ -4,17 +4,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
-import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
+import org.openl.rules.workspace.uw.impl.ProjectDescriptorImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,10 +41,9 @@ public class DeploymentController {
     private DeploymentManager deploymentManager;
 
     public synchronized String addItem() {
-        UserWorkspaceDeploymentProject project = getSelectedProject();
+        ADeploymentProject project = getSelectedProject();
 
-        UserWorkspaceProjectDescriptorImpl newItem = new UserWorkspaceProjectDescriptorImpl(
-                (UserWorkspaceDeploymentProjectImpl) project, projectName, new CommonVersionImpl(version));
+        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(projectName, new CommonVersionImpl(version));
         List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
 
         try {
@@ -65,7 +63,7 @@ public class DeploymentController {
         }
 
         DependencyChecker checker = new DependencyChecker();
-        UserWorkspaceDeploymentProject project = getSelectedProject();
+        ADeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         checker.check(items);
     }
@@ -114,7 +112,7 @@ public class DeploymentController {
 
     public String deleteItem() {
         String projectName = FacesUtils.getRequestParameter("key");
-        UserWorkspaceDeploymentProject project = getSelectedProject();
+        ADeploymentProject project = getSelectedProject();
 
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
@@ -127,7 +125,7 @@ public class DeploymentController {
     }
 
     public String deploy() {
-        UserWorkspaceDeploymentProject project = getSelectedProject();
+        ADeploymentProject project = getSelectedProject();
         if (project != null) {
             try {
                 DeployID id = deploymentManager.deploy(project);
@@ -146,7 +144,7 @@ public class DeploymentController {
     }
 
     public synchronized List<DeploymentDescriptorItem> getItems() {
-        UserWorkspaceDeploymentProject project = getSelectedProject();
+        ADeploymentProject project = getSelectedProject();
         if (project == null) {
             return null;
         }
@@ -183,7 +181,7 @@ public class DeploymentController {
 
     public SelectItem[] getProjects() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
-        Collection<UserWorkspaceProject> workspaceProjects = workspace.getProjects();
+        Collection<AProject> workspaceProjects = workspace.getProjects();
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
@@ -194,8 +192,8 @@ public class DeploymentController {
             }
         }
 
-        for (UserWorkspaceProject project : workspaceProjects) {
-            if (!(project.isDeploymentProject() || existing.contains(project.getName()) || project.isLocalOnly())) {
+        for (AProject project : workspaceProjects) {
+            if (!(project instanceof ADeploymentProject || existing.contains(project.getName()) || project.isLocalOnly())) {
                 selectItems.add(new SelectItem(project.getName()));
             }
         }
@@ -207,7 +205,7 @@ public class DeploymentController {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         if (projectName != null) {
             try {
-                UserWorkspaceProject project = workspace.getProject(projectName);
+                AProject project = workspace.getProject(projectName);
                 // sort project versions in descending order (1.1 -> 0.0)
                 List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
                 Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
@@ -224,10 +222,10 @@ public class DeploymentController {
         return new SelectItem[0];
     }
 
-    private UserWorkspaceDeploymentProject getSelectedProject() {
-        ProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
-        if (artefact instanceof UserWorkspaceDeploymentProject) {
-            return (UserWorkspaceDeploymentProject) artefact;
+    private ADeploymentProject getSelectedProject() {
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
+        if (artefact instanceof ADeploymentProject) {
+            return (ADeploymentProject) artefact;
         }
         return null;
     }
@@ -250,7 +248,7 @@ public class DeploymentController {
             if (item.isSelected()) {
                 String projectName = item.getName();
                 try {
-                    UserWorkspaceProject project = workspace.getProject(projectName);
+                    AProject project = workspace.getProject(projectName);
                     if (!project.isOpened()) {
                         project.open();
                     }
@@ -263,8 +261,8 @@ public class DeploymentController {
         return null;
     }
 
-    private List<ProjectDescriptor> replaceDescriptor(UserWorkspaceDeploymentProject project, String projectName,
-            UserWorkspaceProjectDescriptorImpl newItem) {
+    private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project, String projectName,
+            ProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<ProjectDescriptor>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
