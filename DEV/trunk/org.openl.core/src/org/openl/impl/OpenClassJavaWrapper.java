@@ -58,9 +58,13 @@ public class OpenClassJavaWrapper {
 
     public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext,
             IOpenSourceCodeModule source) {
-        return createWrapper(openlName, userContext, source, false, null);
+        return createWrapper(openlName, userContext, source, false);
     }
 
+    public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext, IOpenSourceCodeModule source, boolean executionMode) {
+        return createWrapper(openlName, userContext, source, executionMode, null);
+    }
+    
     public static OpenClassJavaWrapper createWrapper(String openlName, IUserContext userContext,
             IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
         OpenL openl = OpenL.getInstance(openlName, userContext);
