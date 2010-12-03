@@ -54,6 +54,7 @@ public class ADeploymentProject extends AProject {
         if (isCheckedOut()) {
             impl.unlock(user);
         }
+        openVersion(getLastVersion());
         refresh();
     }
     
