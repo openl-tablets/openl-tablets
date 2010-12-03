@@ -70,7 +70,6 @@ public class AProject extends AProjectFolder{
 
     public void checkIn(int major, int minor) throws ProjectException {
         impl.commit(user, major, minor);
-        close();
     }
 
     public void checkOut() throws ProjectException {
