@@ -17,7 +17,6 @@ public class EqualsWriter extends MethodWriter {
         super(beanNameWithPackage, allFields);
     }
 
-    @Override
     public void write(ClassWriter classWriter) {
         CodeVisitor codeVisitor;
         codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "equals", String.format("(%s)%s",

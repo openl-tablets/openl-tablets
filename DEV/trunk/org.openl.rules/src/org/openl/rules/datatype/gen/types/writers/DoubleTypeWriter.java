@@ -6,17 +6,14 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 public class DoubleTypeWriter implements TypeWriter {
 
-    @Override
     public int getConstantForVarInsn() {
         return Constants.DLOAD;
     }
 
-    @Override
     public int getConstantForReturn() {
         return Constants.DRETURN;
     }
 
-    @Override
     public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
         codeVisitor.visitLdcInsn(fieldType.getDefaultValue()); 
         return 3;

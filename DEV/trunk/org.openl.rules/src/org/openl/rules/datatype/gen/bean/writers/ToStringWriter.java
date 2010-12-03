@@ -16,7 +16,6 @@ public class ToStringWriter extends MethodWriter {
         super(beanNameWithPackage, allFields);
     }
     
-    @Override
     public void write(ClassWriter classWriter) {
         CodeVisitor codeVisitor;
         codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "toString", String.format("()%s",

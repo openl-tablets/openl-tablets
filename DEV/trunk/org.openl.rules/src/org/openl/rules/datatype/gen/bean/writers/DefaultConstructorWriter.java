@@ -25,7 +25,6 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
         this.beanFields = new HashMap<String, FieldDescription>(beanFields);
     }
     
-    @Override
     public void write(ClassWriter classWriter) {
 
         CodeVisitor codeVisitor;

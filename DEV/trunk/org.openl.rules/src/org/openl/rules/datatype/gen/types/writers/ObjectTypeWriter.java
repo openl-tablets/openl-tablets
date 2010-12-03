@@ -7,17 +7,14 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 public class ObjectTypeWriter implements TypeWriter {
 
-    @Override
     public int getConstantForVarInsn() {        
         return Constants.ALOAD;
     }
 
-    @Override
     public int getConstantForReturn() {
         return Constants.ARETURN;
     }
 
-    @Override
     public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
         // try to process object field with String constructor.
         Class<?> fieldClass = FieldDescription.getJavaClass(fieldType);

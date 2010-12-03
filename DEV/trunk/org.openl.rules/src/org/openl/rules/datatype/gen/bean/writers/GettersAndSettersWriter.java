@@ -26,7 +26,6 @@ public class GettersAndSettersWriter implements BeanByteCodeWriter {
      * @param beanNameWithPackage
      * @param classWriter
      */
-    @Override
     public void write(ClassWriter classWriter) {
         for(Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
             generateGetter(beanNameWithPackage, classWriter, field);
