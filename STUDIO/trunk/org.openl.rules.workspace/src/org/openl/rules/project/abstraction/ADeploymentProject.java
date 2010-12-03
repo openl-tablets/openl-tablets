@@ -65,7 +65,16 @@ public class ADeploymentProject extends AProject {
 
     @Override
     public boolean isOpened() {
-        return isLockedByMe();
+        return !projectVersion.equals(getLastVersion()) || isCheckedOut();
+    }
+
+    /** is opened other version? (not last) */
+    public boolean isOpenedOtherVersion() {
+        ProjectVersion max = getLastVersion();
+        if(max == null){
+            return false;
+        }
+        return (!getVersion().equals(max));
     }
 
     @Override
