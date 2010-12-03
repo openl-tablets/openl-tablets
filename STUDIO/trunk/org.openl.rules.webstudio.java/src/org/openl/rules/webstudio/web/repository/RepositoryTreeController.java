@@ -371,8 +371,13 @@ public class RepositoryTreeController {
 
         try {
             AProject project = userWorkspace.getProject(projectName);
-            project.delete();
-            repositoryTreeState.refreshSelectedNode();
+            if (project.isLocalOnly()) {
+                project.erase();
+                AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                repositoryTreeState.deleteNode(projectInTree);
+            } else {
+                project.delete();
+            }
         } catch (ProjectException e) {
             LOG.error("Cannot delete rules project '" + projectName + "'.", e);
             FacesContext.getCurrentInstance().addMessage(null,
