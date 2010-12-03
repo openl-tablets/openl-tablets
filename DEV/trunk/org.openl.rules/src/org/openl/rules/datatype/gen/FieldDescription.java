@@ -1,24 +1,39 @@
-package org.openl.rules.datatype.binding;
+package org.openl.rules.datatype.gen;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.ArrayOpenClass;
 
-public class FieldType {
+public class FieldDescription {
     
     private String typeName;
     private Class<?> type;
     
-    public FieldType(String typeName, Class<?> type) {
+    private String defaultValueAsString;
+    private Object defaultValue;
+    
+    public FieldDescription(String typeName, Class<?> type) {
+        this(typeName, type, null);
+    }
+    
+    public FieldDescription(String typeName, Class<?> type, String defaultValue) {
         this.typeName = typeName;
         this.type = type;
+        this.defaultValueAsString = defaultValue;
     }
 
-    public FieldType(IOpenField field) {
-        typeName = getTypeName(field);        
-        type = field.getType().getInstanceClass();
+    public FieldDescription(IOpenField field) {
+        this(field, null);
+    }
+    
+    public FieldDescription(IOpenField field, String defaultValue) {
+        this.typeName = getTypeName(field);        
+        this.type = field.getType().getInstanceClass();
+        this.defaultValueAsString = defaultValue;
     }
         
     private String getTypeName(IOpenField field) {        
@@ -80,4 +95,39 @@ public class FieldType {
         }
         return super.toString();
     }
+    
+    /**
+     * Gets the default value for current field.<br>
+     * Converts the stiraging String value to the type of current field (see {@link #getType()}).<br><br
+     * > 
+     * In case {@link #getType()} method returns one of the primitive classes,<br>
+     * the default value will be represented in the wrapper class for this primitive, e.g.<br>
+     * {@link #getType()} returns <code>int.class</code> and the default value will be wrapped<br>
+     * with {@link Integer}.
+     * 
+     * 
+     */
+    public Object getDefaultValue() {
+        if (defaultValue == null) {
+            if (defaultValueAsString != null) {
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
+                defaultValue = convertor.parse(defaultValueAsString, null, null);                
+            } 
+        }
+        return defaultValue;
+    }
+    
+    public String getDefaultValueAsString() {
+        return defaultValueAsString;
+    }
+    
+    public static Class<?> getJavaClass(FieldDescription fieldType) {
+        Class<?> fieldClass = fieldType.getType();
+        if (fieldClass == null) {
+            return Object.class;
+        } else {
+            return fieldClass;
+        }
+    }
+    
 }

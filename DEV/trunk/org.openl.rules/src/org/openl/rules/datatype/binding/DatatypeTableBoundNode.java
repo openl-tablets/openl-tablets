@@ -16,6 +16,9 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
+import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
@@ -84,7 +87,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        Map<String, FieldType> fields = new LinkedHashMap<String,  FieldType>();
+        Map<String, FieldDescription> fields = new LinkedHashMap<String,  FieldDescription>();
 
         for (int i = 0; i < tableHeight; i++) {
             ILogicalTable row = dataTable.getRow(i);
@@ -122,10 +125,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @return Class<?> descriptor of generated bean class.
      * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
-    private Class<?> createBeanForDatatype(Map<String, FieldType> fields) throws SyntaxNodeException {
+    private Class<?> createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
         String datatypeName = dataType.getName();
         String beanName = getDatatypeBeanNameWithNamespace(datatypeName);
-        SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, dataType.getSuperClass());
+        IOpenClass superClass = dataType.getSuperClass();
+        SimpleBeanByteCodeGenerator beanGenerator;
+        if (superClass != null) {
+            Map<String, FieldDescription> parentFields = ByteCodeGeneratorHelper.convertFields(superClass.getFields());
+            beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, superClass.getInstanceClass(), parentFields);
+        } else {
+            beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields);
+        }
         
         Class<?> beanClass = beanGenerator.generateAndLoadBeanClass(); 
         
@@ -147,58 +157,131 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return String.format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);        
     }
 
-    private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldType> fields, boolean firstField) 
+    private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField) 
         throws SyntaxNodeException, OpenLCompilationException {
-
+        
+        if (row.getWidth() > 2) {
+            processWithAdditionalColumns(row, cxt, fields, firstField);
+        } else {
+            processSimple(row, cxt, fields, firstField);
+        }
+    }
+    
+    /**
+     * Process datatype table row, that contains more than 2 columns.<br>
+     * The 3rd column is a default value one.
+     * 
+     */
+    private void processWithAdditionalColumns(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields,
+            boolean firstField) throws OpenLCompilationException {
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
 
         if (canProcessRow(rowSrc)) {
-            GridCellSourceCodeModule firstLogicalRowSrc = new GridCellSourceCodeModule(
-                    row.getColumn(1).getSource(), cxt);
+            String fieldName = getName(row, cxt);
 
-            IdentifierNode[] idn = getIdentifierNode(firstLogicalRowSrc);
-            
-            String fieldName = idn[0].getIdentifier();
-            
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
-             
+
+            String defaultValue = getDefaultValue(row, cxt);
             try {
                 dataType.addField(field);
-                fields.put(fieldName, new FieldType(field));
-                
-                if (firstField) {   
-                    // This is done for operations like people["john"] in OpenL
-                    // rules to access one instance of datatype from array by
-                    // user defined index.
-                    // If first field type of Datatype is int, for calling the instance, wrap it
-                    // with quotes, e.g. vehicle["23"].
-                    // Calling the instance like: drivers[7], you will get the 8 element of array.
-                    //
-                    // See DynamicArrayAggregateInfo#getIndex(IOpenClass aggregateType, IOpenClass indexType)
-                    // and DatatypeArrayTest
-                    dataType.setIndexField(field);
+                fields.put(fieldName, new FieldDescription(field, defaultValue));
 
+                if (firstField) {
+                    processFirstField(field);
                 }
             } catch (Throwable t) {
-                String errorMessage = String.format("Can not add field %s: %s", fieldName, t.getMessage());
-                throw SyntaxNodeExceptionUtils.createError(errorMessage,
-                    null,
-                    null,
-                    firstLogicalRowSrc);
+                cannottAddField(row, cxt, fieldName, t);
             }
         }
     }
     
-    private IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule firstLogicalRowSrc) 
-        throws OpenLCompilationException, SyntaxNodeException {
-        
-        IdentifierNode[] idn = Tokenizer.tokenize(firstLogicalRowSrc, " \r\n");
-        
-        if (idn.length != 1) {
-            String errorMessage = String.format("Bad field name: %s", firstLogicalRowSrc.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, firstLogicalRowSrc);
+    /**
+     * Process datatype table row, that contains only 2 columns.<br>
+     * The 1st column is a type definition. The 2nd one is a field name.
+     */
+    private void processSimple(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField) 
+        throws OpenLCompilationException {
+        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
+        if (canProcessRow(rowSrc)) {
+            String fieldName = getName(row, cxt);
+            
+            IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
+            IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
+            try {
+                dataType.addField(field);
+                fields.put(fieldName, new FieldDescription(field));
+                
+                if (firstField) {   
+                    processFirstField(field);
+                }
+            } catch (Throwable t) {
+                cannottAddField(row, cxt, fieldName, t);
+            }
         }
+    }
+
+    private void processFirstField(IOpenField field) {
+        // This is done for operations like people["john"] in OpenL
+        // rules to access one instance of datatype from array by
+        // user defined index.
+        // If first field type of Datatype is int, for calling the instance, wrap it
+        // with quotes, e.g. vehicle["23"].
+        // Calling the instance like: drivers[7], you will get the 8 element of array.
+        //
+        // See DynamicArrayAggregateInfo#getIndex(IOpenClass aggregateType, IOpenClass indexType)
+        // and DatatypeArrayTest
+        dataType.setIndexField(field);
+    }    
+
+    private void cannottAddField(ILogicalTable row, IBindingContext cxt, String fieldName, Throwable t) throws SyntaxNodeException {
+        String errorMessage = String.format("Can not add field %s: %s", fieldName, t.getMessage());
+        throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, getCellSource(row, cxt, 1));
+    }
+
+    private String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+        GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
+        IdentifierNode[] idn = getIdentifierNode(nameCellSource);
+        if (idn.length != 1) {
+            String errorMessage = String.format("Bad field name: %s", nameCellSource.getCode());
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+        } else {
+            return idn[0].getIdentifier();
+        }
+    }
+
+    private GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
+        return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);        
+    }
+
+    private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+        GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);    
+        IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
+        if (idn.length > 1) {
+            // only one token is supported as default value.
+            //
+            String errorMessage = String.format("Bad default field value: %s", defaultValueSrc.getCode());
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, defaultValueSrc);
+        } else if (idn.length == 0) {
+            // cell source is empty
+            //
+            return null;
+        } else {
+            String defaultValue = idn[0].getIdentifier(); 
+            if (DatatypeHelper.isCommented(defaultValue)) {
+                // value is commented 
+                //
+                return null; 
+            }
+            return defaultValue;
+        }
+    }
+
+    private IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc) 
+        throws OpenLCompilationException {
+        
+        IdentifierNode[] idn = Tokenizer.tokenize(cellSrc, " \r\n");
+
         return idn;
     }
     
@@ -211,7 +294,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
         String srcCode = rowSrc.getCode().trim();
 
-        if (srcCode.length() == 0 || srcCode.startsWith("//")) {
+        if (srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode)) {
             return false;
         }
         return true;

@@ -230,6 +230,10 @@ public class DatatypeHelper {
         return getInheritanceLevel(types, tsn, new LinkedHashMap<String, TableSyntaxNode>());
     }
     
+    public static boolean isCommented(String s) {
+        return s.startsWith("//");
+    }
+    
     private static int getInheritanceLevel(
             Map<String, TableSyntaxNode> types, TableSyntaxNode tsn, Map<String, TableSyntaxNode> children)
         throws OpenLCompilationException {
