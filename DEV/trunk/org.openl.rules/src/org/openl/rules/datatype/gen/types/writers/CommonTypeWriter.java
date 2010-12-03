@@ -12,23 +12,15 @@ import org.openl.rules.datatype.gen.FieldDescription;
  */
 public class CommonTypeWriter implements TypeWriter {
 
-    @Override
     public int getConstantForReturn() {
         return Constants.IRETURN;
     }
 
-    @Override
     public int getConstantForVarInsn() {
         return Constants.ILOAD;
     }
 
-    @Override
     public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
         throw new UnsupportedOperationException("This operation must be overloaded in childs");
     }
-    
-    
-    
-    
-
 }

@@ -6,17 +6,14 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 public class FloatTypeWriter implements TypeWriter {
 
-    @Override
     public int getConstantForVarInsn() {
         return Constants.FLOAD;
     }
 
-    @Override
     public int getConstantForReturn() {
         return Constants.FRETURN;
     }
 
-    @Override
     public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
         codeVisitor.visitLdcInsn(fieldType.getDefaultValue());
         return 2;

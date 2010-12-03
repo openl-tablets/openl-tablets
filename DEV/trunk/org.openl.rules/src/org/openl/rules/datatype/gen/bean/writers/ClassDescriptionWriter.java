@@ -24,7 +24,6 @@ public class ClassDescriptionWriter implements BeanByteCodeWriter {
      * (e.g. <code>my/test/TestClass</code>) 
      * @param classWriter
      */
-    @Override
     public void write(ClassWriter classWriter) {
         String sourceFileName = JavaClassGeneratorHelper.getClassFileName((beanNameWithPackage));
         if (parentClass == null) {

@@ -15,8 +15,7 @@ public class HashCodeWriter extends MethodWriter {
     public HashCodeWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, allFields);
     }
-    
-    @Override
+ 
     public void write(ClassWriter classWriter) {
         CodeVisitor codeVisitor;
         codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "hashCode", String.format("()%s",

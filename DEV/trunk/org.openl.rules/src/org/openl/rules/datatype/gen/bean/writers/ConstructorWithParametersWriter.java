@@ -36,7 +36,6 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
         this.twoStackElementFieldsCount = ByteCodeGeneratorHelper.getTwoStackElementFieldsCount(allFields);
     }
     
-    @Override
     public void write(ClassWriter classWriter) {
         CodeVisitor codeVisitor;
         
