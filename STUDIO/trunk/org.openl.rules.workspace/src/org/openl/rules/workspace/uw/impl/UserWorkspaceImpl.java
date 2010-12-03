@@ -343,9 +343,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void uploadLocalProject(String name) throws ProjectException {
-//        createProject(name);
+        createProject(name);
         AProject workspaceProject = getProject(name);
-//        workspaceProject.checkOutLocal();
         workspaceProject.checkIn();
     }
 }
