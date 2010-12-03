@@ -102,14 +102,18 @@ public class UserWorkspaceAPI implements ProjectArtefactAPI {
         update(local, repository, user);
         repository.commit(user, major, minor);
         local.close(user);
-        current = repository;
+        if (!isLocalOnly()) {
+            current = repository;
+        }
     }
 
     public void close(CommonUser user) throws ProjectException {
         if (local != null) {
             local.close(user);
         }
-        current = repository;
+        if (!isLocalOnly()) {
+            current = repository;
+        }
     }
 
     public void delete(CommonUser user) throws ProjectException {
