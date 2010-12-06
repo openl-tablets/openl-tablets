@@ -1,16 +1,17 @@
 package org.openl.rules.project.dependencies;
 
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.OpenLClassLoader;
+import org.openl.classloader.OpenLClassLoaderHelper;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.IDependencyLoader;
 import org.openl.dependency.IDependencyManager;
-import org.openl.dependency.OpenLClassLoaderHelper;
+import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -51,15 +52,14 @@ public class RulesProjectDependencyLoader implements IDependencyLoader {
      
             try {
                 URL[] urls = module.getProject().getClassPathUrls();
-                URLClassLoader currentClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
-                OpenLClassLoaderHelper.extendClasspath(currentClassLoader, urls);
+                ClassLoader parentClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
+                OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader();
+                OpenLClassLoaderHelper.extendClasspath(moduleClassLoader, urls);
                 
-                RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager, currentClassLoader);
-                // set to strategy new class loader.
-                
+                RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager, moduleClassLoader);
                 CompiledOpenClass compiledOpenClass = strategy.compile(ReloadType.NO);
                 
-                return new CompiledDependency(dependencyName, compiledOpenClass, Thread.currentThread().getContextClassLoader());
+                return new CompiledDependency(dependencyName, compiledOpenClass, moduleClassLoader);
             } catch (Exception e) {
                 throw new RuntimeException(String.format("Cannot load dependency '%s'", dependencyName) , e);
             }

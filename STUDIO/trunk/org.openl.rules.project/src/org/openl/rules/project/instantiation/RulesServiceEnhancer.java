@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.runtime.RuleInfo;
@@ -50,6 +52,11 @@ public class RulesServiceEnhancer {
      * Internal generated class at runtime which used as service class.
      */
     private Class<?> serviceClass;
+    
+    /**
+     * Internal class loader.
+     */
+    private OpenLBundleClassLoader classLoader;
 
     /**
      * Constructs new instance of enhancer.
@@ -93,7 +100,7 @@ public class RulesServiceEnhancer {
 
         try {
             InvocationHandler handler = makeInvocationHandler(reloadType);
-            return Proxy.newProxyInstance(instantiationStrategy.getClassLoader(), getProxyInterfaces(), handler);
+            return Proxy.newProxyInstance(getInternalClassLoader(), getProxyInterfaces(), handler);
         } catch (Exception e) {
             throw new InstantiationException(e.getMessage());
         }
@@ -135,11 +142,20 @@ public class RulesServiceEnhancer {
 
         String className = clazz.getName() + CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
-        ClassLoader classLoader = instantiationStrategy.getClassLoader();
-
+        
         LOG.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
         
-        return RulesFactory.generateInterface(className, rulesArray, classLoader);
+        return RulesFactory.generateInterface(className, rulesArray, getInternalClassLoader());
+    }
+    
+    private ClassLoader getInternalClassLoader() throws ClassNotFoundException {
+        if (classLoader == null) {
+            ClassLoader originalClassLoader = instantiationStrategy.getClassLoader();
+            classLoader = new SimpleBundleClassLoader(originalClassLoader);
+            classLoader.addClassLoader(instantiationStrategy.getServiceClass().getClassLoader());
+        }
+        
+        return classLoader;
     }
 
     /**

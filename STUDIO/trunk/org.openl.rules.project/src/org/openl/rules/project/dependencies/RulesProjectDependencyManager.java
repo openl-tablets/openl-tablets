@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.dependency.DependencyManager;
-import org.openl.dependency.IDependencyLoader;
+import org.openl.dependency.loader.IDependencyLoader;
 
 public class RulesProjectDependencyManager extends DependencyManager {
 
