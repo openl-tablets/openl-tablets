@@ -54,7 +54,7 @@ public final class MethodKey {
 			IOpenClass param = originalParams[i];
 			IOpenClass normParam = param;
 
-			if (param instanceof DomainOpenClass) {
+			if (param instanceof DomainOpenClass || (param instanceof AOpenClass && param.getInstanceClass() != null)) {
 				normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
 			}
 

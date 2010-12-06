@@ -1,6 +1,7 @@
 package org.openl.runtime;
 
 import org.openl.OpenL;
+import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 
@@ -46,7 +47,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     
     protected ClassLoader getDefaultUserClassLoader() {
 
-        ClassLoader userClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader userClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
 
         try {
             // checking if classloader has openl, sometimes it does not

@@ -47,7 +47,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
             IOpenClass openClass = getCompiledOpenClass().getOpenClass();
             String className = openClass.getName();
             try {
-                interfaceClass = RulesFactory.generateInterface(className, openClass, getDefaultUserClassLoader());
+                interfaceClass = RulesFactory.generateInterface(className, openClass, getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
                 throw new OpenLRuntimeException("Failed to create interface : " + className, e);
             }
@@ -70,7 +70,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
             Object openClassInstance = openClass.newInstance(runtimeEnv);
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getDefaultUserClassLoader());
+            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
 
         } catch (Exception ex) {
             throw new OpenLRuntimeException("Cannot instantiate engine instance", ex);

@@ -4,6 +4,9 @@ import java.io.File;
 import java.net.URL;
 
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoaderHelper;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
@@ -69,7 +72,23 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     }
 
     protected CompiledOpenClass initializeOpenClass() {
-        return OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
+        // Change class loader to OpenLBundleClassLoader
+        //
+        //
+        ClassLoader oldClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
+
+        // if current bundle is dependency of parent bundle it must be visible for parent bundle
+        //
+        if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
+            ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
+            Thread.currentThread().setContextClassLoader(newClassLoader);
+        } 
+
+        try {
+            return OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
     
 }

@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.DependencyManager;
-import org.openl.dependency.IDependencyLoader;
+import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.runtime.RulesFileDependencyLoader;

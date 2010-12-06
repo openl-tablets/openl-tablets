@@ -6,6 +6,7 @@ package org.openl;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -26,6 +27,8 @@ public class CompiledOpenClass {
     private List<OpenLMessage> messages;
 
     private IOpenClass openClass;
+    
+    private ClassLoader classLoader;
 
     public CompiledOpenClass(IOpenClass openClass,
             List<OpenLMessage> messages,
@@ -36,6 +39,7 @@ public class CompiledOpenClass {
         this.parsingErrors = parsingErrors;
         this.bindingErrors = bindingErrors;
         this.messages = messages;
+        this.classLoader = OpenLClassLoaderHelper.getContextClassLoader();
     }
 
     @Deprecated
@@ -83,5 +87,9 @@ public class CompiledOpenClass {
         
         return openClass.getTypes();
     }
-    
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
 }

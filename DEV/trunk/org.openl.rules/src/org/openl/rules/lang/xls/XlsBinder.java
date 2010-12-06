@@ -231,23 +231,6 @@ public class XlsBinder implements IOpenBinder {
         return moduleContext;
     }
 
-    //    NOTE: A temporary implementation of multi-module feature.
-/*    
-    private void loadModules(List<String> modules, IBindingContext bindingContext) {
-        
-        for (String modulePath : modules) {
-            ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(modulePath);
-            CompiledOpenClass compiledOpenClass = factory.getCompiledOpenClass();
-            
-            if (compiledOpenClass.hasErrors()) {
-                System.out.println("SNAG at work");
-            } else {
-                bindingContext.addImport(compiledOpenClass.getOpenClass());
-            }
-        }
-    }
-  */  
-        
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
 
         XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, null);
@@ -287,11 +270,6 @@ public class XlsBinder implements IOpenBinder {
         bindInternal(moduleNode, moduleOpenClass, propertyNodes, openl, moduleContext);
 
         bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, moduleContext);
-        
-        // Import types, fields, methods from imported module class.
-        //
-        // NOTE: A temporary implementation of multi-module feature.  
-        // bindImports(moduleNode, module, bindingContext.getImports());
         
         // Bind datatype nodes.
         //
