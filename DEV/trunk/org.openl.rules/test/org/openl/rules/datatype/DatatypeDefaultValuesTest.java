@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import junit.framework.Assert;
 
@@ -33,7 +35,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     }
     
     @Test    
-    public void testTestTypeClass() {
+    public void testDefaultValues() {
         Class<?> clazz = null;
         
         try {
@@ -48,31 +50,38 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
             
             clazz = Class.forName("org.openl.generated.beans.TestType3", true, Thread.currentThread().getContextClassLoader());
             checkTestType3(clazz);
+            
+            clazz = Class.forName("org.openl.generated.beans.TestBigTypes", true, Thread.currentThread().getContextClassLoader());
+            checkTestBigTypes(clazz);
            
-        } catch (ClassNotFoundException e) {            
+        } catch (Throwable e) {            
             fail();        
-        } catch (InstantiationException e) {
-            fail();
-        } catch (IllegalAccessException e) {
-            fail();
-        } catch (SecurityException e) {
-            fail();
-        } catch (NoSuchMethodException e) {
-            fail();
-        } catch (IllegalArgumentException e) {
-            fail();
-        } catch (InvocationTargetException e) {
-            fail();
-        } 
+        }  
+    }
+
+    private void checkTestBigTypes(Class<?> clazz) throws InstantiationException,
+                                                    IllegalAccessException,
+                                                    NoSuchMethodException,
+                                                    InvocationTargetException {
+        Object instance = getInstance(clazz);
+        
+        String methodName = "getBigIntVal";
+        testValue(clazz, instance, methodName, BigInteger.valueOf(2000000000));
+        
+        methodName = "getBigDecVal";
+        testValue(clazz, instance, methodName, BigDecimal.valueOf(1115.37));
+        
+        methodName = "getBigIntVal2";
+        testValue(clazz, instance, methodName, null);
+        
+        
     }
 
     private void checkTestType3(Class<?> clazz) throws InstantiationException,
                                                 IllegalAccessException,
                                                 NoSuchMethodException,
                                                 InvocationTargetException {
-        assertNotNull(clazz);
-        
-        Object instance = clazz.newInstance();
+        Object instance = getInstance(clazz);
         
         String methodName = "getDoubleValue";
         testValue(clazz, instance, methodName, new DoubleValue("12.44"));
@@ -83,15 +92,14 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         methodName = "getStr";
         testValue(clazz, instance, methodName, "fgfs");
         
-    }
+    }    
 
     private void checkTestType2(Class<?> clazz) throws InstantiationException,
                                                 IllegalAccessException,
                                                 NoSuchMethodException,
                                                 InvocationTargetException {
-        assertNotNull(clazz);
-        
-        Object instance = clazz.newInstance();
+                
+        Object instance = getInstance(clazz);
         
         String methodName = "getOpenlDouble";
         testValue(clazz, instance, methodName, new DoubleValue("12.23"));
@@ -101,9 +109,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
                                                     IllegalAccessException,
                                                     NoSuchMethodException,
                                                     InvocationTargetException {
-        assertNotNull(clazz);
-        
-        Object instance = clazz.newInstance();
+        Object instance = getInstance(clazz);
         
         String methodName = "getStrVal";
         testValue(clazz, instance, methodName, null);            
@@ -122,9 +128,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
                                                    IllegalAccessException,
                                                    NoSuchMethodException,
                                                    InvocationTargetException {
-        assertNotNull(clazz);
-        
-        Object instance = clazz.newInstance();
+        Object instance = getInstance(clazz);
         
         String methodName = "getName";
         testValue(clazz, instance, methodName, "Denis");            
@@ -152,6 +156,13 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         assertNotNull(method);
         Object result = method.invoke(instance, new Object[0]);
         assertEquals(expectedResult, result);
+    }
+    
+    private Object getInstance(Class<?> clazz) throws InstantiationException, IllegalAccessException {
+        assertNotNull(clazz);
+        
+        Object instance = clazz.newInstance();
+        return instance;
     }
 
 }
