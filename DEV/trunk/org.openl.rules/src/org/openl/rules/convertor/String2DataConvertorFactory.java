@@ -7,6 +7,8 @@
 package org.openl.rules.convertor;
 
 import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,6 +55,8 @@ public class String2DataConvertorFactory {
         convertors.put(IOpenClass.class, new String2OpenClassConvertor());
         convertors.put(DoubleValue.class, new String2DoubleValueConvertor());
         convertors.put(IntRange.class, new String2IntRangeConvertor());
+        convertors.put(BigInteger.class, new String2BigIntegerConvertor());
+        convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
     }
 
     public static synchronized IString2DataConvertor getConvertor(Class<?> clazz) {
