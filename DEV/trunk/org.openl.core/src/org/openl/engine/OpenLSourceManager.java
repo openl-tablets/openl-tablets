@@ -8,6 +8,8 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
+import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
@@ -94,10 +96,13 @@ public class OpenLSourceManager extends OpenLHolder {
 
             if (dependencies != null && dependencies.length > 0) {
                 if (dependencyManager != null) {
+               
                     for (int i = 0; i < dependencies.length; i++) {
                         try {
-                            CompiledOpenClass loadedDependency = dependencyManager.loadDependency(dependencies[i]).getCompiledOpenClass();
-                            compiledDependencies.add(loadedDependency);
+                            CompiledDependency loadedDependency = dependencyManager.loadDependency(dependencies[i]);
+                            OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread().getContextClassLoader();
+                            currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
+                            compiledDependencies.add(loadedDependency.getCompiledOpenClass());
                         } catch (Exception e) {
                             throw new OpenLRuntimeException(e);
                         }

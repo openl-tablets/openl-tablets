@@ -1,20 +1,13 @@
-package org.openl.dependency;
+package org.openl.classloader;
 
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 public class OpenLClassLoaderHelper {
-
-    public static OpenLClassLoader createInstance(URL[] urls) {
-        return new OpenLClassLoader(urls);
-    }
-
-    public static OpenLClassLoader createInstance(ClassLoader parent) {
-        return createInstance(new URL[0], parent);
-    }
-    public static OpenLClassLoader createInstance(URL[] urls, ClassLoader parent) {
-        return new OpenLClassLoader(urls, parent);
+    
+    public static ClassLoader getContextClassLoader() {
+        return Thread.currentThread().getContextClassLoader();
     }
 
     public static void extendClasspath(OpenLClassLoader classLoader, URL[] urls) {

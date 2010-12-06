@@ -31,13 +31,16 @@ public abstract class AUserContext implements IUserContext {
 
         return new EqualsBuilder()
         // .append(name, k.name)
-                .append(getUserClassLoader(), c.getUserClassLoader()).append(getUserHome(), c.getUserHome()).append(
+//                .append(getUserClassLoader(), c.getUserClassLoader())
+                .append(getUserHome(), c.getUserHome()).append(
                         getUserProperties(), c.getUserProperties()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(getUserClassLoader()).append(getUserHome())
+        return new HashCodeBuilder()
+//        .append(getUserClassLoader())
+        .append(getUserHome())
                 .append(getUserProperties()).toHashCode();
     }
 

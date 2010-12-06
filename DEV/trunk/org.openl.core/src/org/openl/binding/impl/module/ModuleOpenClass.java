@@ -6,8 +6,10 @@
 
 package org.openl.binding.impl.module;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +27,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.types.impl.MethodKey;
 import org.openl.util.StringTool;
 
 /**
@@ -78,7 +81,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private void initDependencies() throws OpenLCompilationException {    
         for (CompiledOpenClass dependency : usingModules) {
-            addTypes(dependency);
+//            addTypes(dependency);
             addMethods(dependency);
         }
     }
@@ -111,7 +114,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
             }
         }
     }
-    
+
     /**
      * Overriden to add the possibility for overriding fields from dependent modules.<br>
      * At first tries to get the field from current module, if can`t search in dependencies.
@@ -153,7 +156,47 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
         return fields;
     }
-     
+    
+    @Override
+    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
+        
+        IOpenMethod method = super.getMethod(name, classes);
+        if (method != null) {
+            return method;
+        } else {
+            // if can`t find, search in dependencies.
+            //
+            for (CompiledOpenClass dependency : usingModules) {
+                method = dependency.getOpenClass().getMethod(name, classes);
+                if (method != null) {
+                    return method;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    @Override
+    public List<IOpenMethod> getMethods() {
+
+        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
+
+        // get methods from dependencies
+        //
+        for (CompiledOpenClass dependency : usingModules) {
+            for (IOpenMethod method : dependency.getOpenClass().getMethods()) {
+                methods.put(new MethodKey(method), method);
+            }
+        }
+
+        for (IOpenMethod method : super.getMethods()) {
+            methods.put(new MethodKey(method), method);
+        }
+
+        return new ArrayList<IOpenMethod>(methods.values());
+    }
+
     /**
      * Set compiled module dependencies for current module.
      * 
@@ -198,7 +241,20 @@ public class ModuleOpenClass extends ComponentOpenClass {
         String name = StringTool.buildTypeName(namespace, typeName);
         // it will contain all types from current module and dependent ones.
         //
-        return internalTypes.get(name);
+        if (internalTypes.containsKey(name)) {
+            return internalTypes.get(name);
+        }
+        
+        // try to find type which is declared in dependency module
+        //
+        for (CompiledOpenClass dependency : usingModules) {
+            IOpenClass type = dependency.getOpenClass().findType(namespace, typeName);
+            if (type != null) {
+                return type;
+            }
+        }
+        
+        return null;
     }
     
     /**

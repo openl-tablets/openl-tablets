@@ -1,6 +1,6 @@
 package org.openl.rules.runtime;
 
-import org.openl.dependency.FileDependencyLoader;
+import org.openl.dependency.loader.FileDependencyLoader;
 
 public class RulesFileDependencyLoader extends FileDependencyLoader {
 

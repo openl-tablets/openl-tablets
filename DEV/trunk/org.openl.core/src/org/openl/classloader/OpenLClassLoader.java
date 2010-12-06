@@ -1,11 +1,14 @@
-package org.openl.dependency;
+package org.openl.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
 
 public class OpenLClassLoader extends URLClassLoader{
 
+    public OpenLClassLoader() {
+        this(new URL[0]);
+    }
+    
     public OpenLClassLoader(URL[] urls) {
         super(urls);
     }
@@ -14,14 +17,9 @@ public class OpenLClassLoader extends URLClassLoader{
         super(urls, parent);
     }
 
-    public OpenLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
-        super(urls, parent, factory);
-    }
-
     @Override
     public void addURL(URL url) {
         super.addURL(url);
     }
-
     
 }

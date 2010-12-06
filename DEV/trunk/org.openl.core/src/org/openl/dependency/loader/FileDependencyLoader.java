@@ -1,10 +1,12 @@
-package org.openl.dependency;
+package org.openl.dependency.loader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;

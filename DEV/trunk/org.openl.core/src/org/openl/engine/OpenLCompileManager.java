@@ -10,6 +10,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
@@ -78,27 +79,27 @@ public class OpenLCompileManager extends OpenLHolder {
      *            memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
-    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
+    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode,
+        IDependencyManager dependencyManager) {
 
         ProcessedCode processedCode;
-        if(executionMode){
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), true, dependencyManager);
-        }else{
+        if (executionMode) {
+            processedCode = sourceManager.processSource(source, SourceType.MODULE,
+                new ExecutionModeBindingContextDelegator(null), true, dependencyManager);
+        } else {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
         }
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
-
         if (!executionMode) {
             List<ValidationResult> validationResults = validationManager.validate(openClass);
             List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
             OpenLMessages.getCurrentInstance().addMessages(validationMessages);
         }
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
-
         if (executionMode) {
-            ((ModuleOpenClass)openClass).clearOddDataForExecutionMode();
+            ((ModuleOpenClass) openClass).clearOddDataForExecutionMode();
         }
         return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
     }
