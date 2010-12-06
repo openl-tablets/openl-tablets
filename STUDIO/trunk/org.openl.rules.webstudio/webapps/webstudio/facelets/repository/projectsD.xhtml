@@ -53,7 +53,7 @@
       <rich:column style="text-align:center">
         <h:panelGroup rendered="#{!prj.dataBean.deleted}">
           &#160;
-          <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyDeploymentProjectDialog('#{prj.name}');" title="Copy">
+          <h:commandLink styleClass="actionButton" immediate="true" onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" title="Copy">
             <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" />
           </h:commandLink>
           &#160;
