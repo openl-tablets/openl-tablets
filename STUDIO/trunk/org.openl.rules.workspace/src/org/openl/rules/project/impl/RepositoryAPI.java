@@ -53,6 +53,10 @@ public class RepositoryAPI implements ProjectArtefactAPI {
         this.path = path;
         this.repository = repository;
     }
+    
+    public DesignTimeRepository getRepository() {
+        return repository;
+    }
 
     public Date getEffectiveDate() {
         return node.getEffectiveDate();

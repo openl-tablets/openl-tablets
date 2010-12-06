@@ -123,7 +123,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             ADeploymentProject userDProject = userDProjects.get(name);
             if (userDProject == null) {
                 // create new
-                userDProject = new ADeploymentProject(new UserWorkspaceAPI(null, (RepositoryAPI)ddp.getAPI(), this), user);
+                userDProject = new ADeploymentProject(ddp.getAPI(), user);
 
                 userDProjects.put(name, userDProject);
             }
