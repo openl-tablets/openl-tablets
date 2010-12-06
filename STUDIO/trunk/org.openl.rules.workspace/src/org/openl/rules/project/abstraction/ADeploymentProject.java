@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.project.impl.ProjectArtefactAPI;
+import org.openl.rules.project.impl.RepositoryAPI;
 import org.openl.rules.project.impl.UserWorkspaceAPI;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersion;
@@ -43,7 +44,7 @@ public class ADeploymentProject extends AProject {
     @Override
     public void openVersion(CommonVersion version) throws ProjectException {
         // FIXME
-        ADeploymentProject ddProject = ((UserWorkspaceAPI) impl).getUserWorkspace().getDesignTimeRepository().getDDProject(getName(), version);
+        ADeploymentProject ddProject = ((RepositoryAPI) impl).getRepository().getDDProject(getName(), version);
         getDescriptors().clear();
         getDescriptors().addAll(ddProject.getProjectDescriptors());
         projectVersion = ddProject.getVersion();
@@ -80,8 +81,7 @@ public class ADeploymentProject extends AProject {
     @Override
     public void checkIn(int major, int minor) throws ProjectException {
         impl.setProjectDescriptors(getDescriptors());
-        // FIXME
-        ((UserWorkspaceAPI) impl).getRepositoryAPI().commit(user, major, minor);
+        impl.commit(user, major, minor);
         close();
     }
 
