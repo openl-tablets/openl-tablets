@@ -255,26 +255,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+        String defaultValue = null;
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);    
-        IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
-        if (idn.length > 1) {
-            // only one token is supported as default value.
-            //
-            String errorMessage = String.format("Bad default field value: %s", defaultValueSrc.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, defaultValueSrc);
-        } else if (idn.length == 0) {
-            // cell source is empty
-            //
-            return null;
-        } else {
-            String defaultValue = idn[0].getIdentifier(); 
-            if (DatatypeHelper.isCommented(defaultValue)) {
-                // value is commented 
+        if (!DatatypeHelper.isCommented(defaultValueSrc.getCode())) {
+            IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
+            if (idn.length > 1) {
+                // only one token is supported as default value.
                 //
-                return null; 
-            }
-            return defaultValue;
+                String errorMessage = String.format("Bad default field value: %s", defaultValueSrc.getCode());
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, defaultValueSrc);
+            } else if (idn.length == 1) {                
+                defaultValue = idn[0].getIdentifier();
+            }           
         }
+        return defaultValue;
     }
 
     private IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc) 
