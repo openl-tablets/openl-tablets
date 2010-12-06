@@ -251,10 +251,6 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
 
         List<CompiledOpenClass> compiledModules = new ArrayList<CompiledOpenClass>();
         
-        ClassLoader projectClassLoader = project.getClassLoader(false);
-        getDefaultUserClassLoader().addClassLoader(projectClassLoader);
-        project.setClassLoader(getDefaultUserClassLoader());
-
         for (Module module : project.getModules()) {
             
             for (InitializingListener listener : listeners) {
@@ -262,6 +258,7 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
             }
              
             CompiledOpenClass compiledModule = initializeModule(module);
+            getDefaultUserClassLoader().addClassLoader(compiledModule.getClassLoader());
 
             if (compiledModule.getOpenClass() instanceof NullOpenClass || compiledModule.hasErrors()) {
                 LOG.error(String.format("Module '%s' is not loaded and will skipped", module.getName()));
@@ -277,7 +274,7 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
 
     private CompiledOpenClass initializeModule(Module module) {
 
-        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
+        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager, getDefaultUserClassLoader());
         CompiledOpenClass compiledOpenClass = null;
 
         try {

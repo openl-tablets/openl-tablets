@@ -43,7 +43,7 @@ public class ApiInstantiationTest {
         try {
             assertNotNull(strategy.compile(ReloadType.NO));
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             assertFalse(true);
         }
     }
