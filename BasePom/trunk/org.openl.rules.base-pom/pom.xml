@@ -96,6 +96,8 @@
   <properties>
     <openl.version.eclipse>5.7.4</openl.version.eclipse>
     <openl.version.maven>5.7.4-SNAPSHOT</openl.version.maven>
+
+    <org.springframework.version>3.0.5.RELEASE</org.springframework.version>
   </properties>
 
   <pluginRepositories>
@@ -613,34 +615,185 @@
         <version>2-1_3</version>
       </dependency>
 
+      <!-- Spring Framework -->
+
+      <!--
+          Core utilities used by other modules.
+          Define this if you use Spring Utility APIs (org.springframework.core.*/org.springframework.util.*)
+      -->
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring</artifactId>
-        <version>2.5.1</version>
+        <artifactId>spring-core</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Expression Language (depends on spring-core)
+          Define this if you use Spring Expression APIs (org.springframework.expression.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Bean Factory and JavaBeans utilities (depends on spring-core)
+          Define this if you use Spring Bean APIs (org.springframework.beans.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Aspect Oriented Programming (AOP) Framework (depends on spring-core, spring-beans)
+          Define this if you use Spring AOP APIs (org.springframework.aop.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${org.springframework.version}</version>
+        <exclusions>
+        </exclusions>
+      </dependency>
+
+      <!--
+          Application Context (depends on spring-core, spring-expression, spring-aop, spring-beans)
+          This is the central artifact for Spring's Dependency Injection Container and is generally always defined
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Various Application Context utilities, including EhCache, JavaMail, Quartz, and Freemarker integration
+          Define this if you need any of these integrations
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Transaction Management Abstraction (depends on spring-core, spring-beans, spring-aop, spring-context)
+          Define this if you use Spring Transactions or DAO Exception Hierarchy
+          (org.springframework.transaction.*/org.springframework.dao.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          JDBC Data Access Library (depends on spring-core, spring-beans, spring-context, spring-tx)
+          Define this if you use Spring's JdbcTemplate API (org.springframework.jdbc.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Object-to-Relation-Mapping (ORM) integration with Hibernate, JPA, and iBatis.
+          (depends on spring-core, spring-beans, spring-context, spring-tx)
+          Define this if you need ORM (org.springframework.orm.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Object-to-XML Mapping (OXM) abstraction and integration with JAXB, JiBX, Castor, XStream, and XML Beans.
+          (depends on spring-core, spring-beans, spring-context)
+          Define this if you need OXM (org.springframework.oxm.*)
+      -->
+      <!--<dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-oxm</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>-->
+
+      <!--
+          Web application development utilities applicable to both Servlet and Portlet Environments
+          (depends on spring-core, spring-beans, spring-context)
+          Define this if you use Spring MVC, or wish to use Struts, JSF, or another web framework with Spring (org.springframework.web.*)
+      -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!--
+          Spring MVC for Servlet Environments (depends on spring-core, spring-beans, spring-context, spring-web)
+          Define this if you use Spring MVC with a Servlet Container such as Apache Tomcat (org.springframework.web.servlet.*)
+      -->
+      <!--<dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>-->
+
+      <!--
+          Spring MVC for Portlet Environments (depends on spring-core, spring-beans, spring-context, spring-web)
+          Define this if you use Spring MVC with a Portlet Container (org.springframework.web.portlet.*)
+      -->
+      <!--<dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc-portlet</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>-->
+
+      <!--
+          Support for testing Spring applications with tools such as JUnit and TestNG
+          This artifact is generally always defined with a 'test' scope for the integration testing framework and unit testing stubs
+      -->
+      <!--<dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${org.springframework.version}</version>
+        <scope>test</scope>
+      </dependency>-->
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-asm</artifactId>
+        <version>${org.springframework.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>2.0.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>aopalliance</groupId>
-            <artifactId>aopalliance</artifactId>
-          </exclusion>
-        </exclusions>
+        <artifactId>spring-jms</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <!-- Spring Security -->
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>${org.springframework.version}</version>
       </dependency>
 
       <dependency>
@@ -654,51 +807,6 @@
         <artifactId>jsontools-core</artifactId>
         <version>1.5</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.acegisecurity</groupId>
-        <artifactId>acegi-security</artifactId>
-        <version>1.0.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-remoting</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-support</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.acegisecurity</groupId>
-        <artifactId>acegi-security-tiger</artifactId>
-        <version>1.0.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      
 
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -898,13 +1006,13 @@
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-bundle</artifactId>
-        <version>2.2.8</version>
+        <version>2.3.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-distribution-manifest</artifactId>
-        <version>2.2.8</version>
+        <version>2.3.0</version>
 
         <exclusions>
           <exclusion>
@@ -998,137 +1106,7 @@
         </exclusions>
       </dependency>
       
-      <!-- Dependencies for deployment into common services(runtime repository)
--->
-      <dependency>
-        <groupId>com.exigen.common</groupId>
-        <artifactId>serviceaccess</artifactId>
-        <version>7.0.1.014</version>
-
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>com.exigen.common</groupId>
-        <artifactId>repository</artifactId>
-        <version>7.0.1.014</version>
-
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <!-- Exigen JCR -->
-      <dependency>
-        <groupId>com.exigen.cm.jcr.runtime</groupId>
-        <artifactId>exigen-jcr-core</artifactId>
-        <version>7.0.1.007</version>
-        <exclusions>
-          <exclusion>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>org.openoffice</groupId>
-            <artifactId>unoil</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.openoffice</groupId>
-            <artifactId>ridl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.openoffice</groupId>
-            <artifactId>jurt</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.openoffice</groupId>
-            <artifactId>juh</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>org.openoffice</groupId>
-            <artifactId>odf-utils</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>jmimemagic</groupId>
-            <artifactId>jmimemagic</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-scratchpad</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>c3p0</groupId>
-            <artifactId>c3p0</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.martiansoftware</groupId>
-            <artifactId>jsap</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+      
 
       <!-- Eclipse dependencies -->
       <dependency>
@@ -1276,7 +1254,6 @@
         <artifactId>org.eclipse.core.commands</artifactId>
         <version>3.3.0</version>
       </dependency>
-
 
       <dependency>
         <groupId>org.eclipse.text</groupId>
