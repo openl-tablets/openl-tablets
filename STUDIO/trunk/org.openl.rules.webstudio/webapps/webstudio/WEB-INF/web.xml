@@ -109,16 +109,16 @@
   </filter-mapping>
 
   <filter>
-    <filter-name>Acegi Filter Chain Proxy</filter-name>
-    <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
+    <filter-name>SecurityFilterProxy</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     <init-param>
-      <param-name>targetClass</param-name>
-      <param-value>org.acegisecurity.util.FilterChainProxy</param-value>
+      <param-name>targetBeanName</param-name>
+      <param-value>filterChainProxy</param-value>
     </init-param>
   </filter>
 
   <filter-mapping>
-    <filter-name>Acegi Filter Chain Proxy</filter-name>
+    <filter-name>SecurityFilterProxy</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

@@ -1,18 +1,20 @@
 package org.openl.rules.security.standalone.service;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.openl.rules.security.standalone.authentication.UserInfo;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.User;
-import org.springframework.dao.DataAccessException;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
 
 /**
- * {@link org.acegisecurity.userdetails.UserDetailsService} that can load
+ * {@link org.springframework.security.core.userdetails.UserDetailsService} that can load
  * UserInfo as UserDetails from database.
  *
  * @author Andrey Naumenko
@@ -39,8 +41,8 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
         return ret;
     }
 
-    protected GrantedAuthority[] createGrantedAuthorities(User user) {
-        LinkedHashSet<GrantedAuthority> grantedSet = new LinkedHashSet<GrantedAuthority>();
+    protected Collection<GrantedAuthority> createGrantedAuthorities(User user) {
+        Collection<GrantedAuthority> grantedSet = new LinkedHashSet<GrantedAuthority>();
         String privileges = user.getPrivileges();
         if (privileges != null) {
             StringTokenizer st = new StringTokenizer(privileges, ",");
@@ -50,7 +52,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
             }
         }
 
-        return grantedSet.toArray(new GrantedAuthority[grantedSet.size()]);
+        return grantedSet;
     }
 
     /**
@@ -62,7 +64,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
             throw new UsernameNotFoundException("Unknown user: '" + name + "'");
         }
 
-        GrantedAuthority[] grantedAuthorities = createGrantedAuthorities(user);
+        Collection<GrantedAuthority> grantedAuthorities = createGrantedAuthorities(user);
         return new UserInfo(modelUserFromUser(user), grantedAuthorities);
     }
 

@@ -1,7 +1,8 @@
 package org.openl.rules.webstudio.properties;
 
-import org.acegisecurity.userdetails.UserDetails;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Handles information about currently loginned user.

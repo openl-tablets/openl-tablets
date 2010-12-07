@@ -18,15 +18,15 @@
         <td style="height: 440px; width: 100%" valign="middle">
           <div align="center">
             <!-- possible error messages -->
-            <c:if test="#{not empty ACEGI_SECURITY_LAST_EXCEPTION}">
+            <c:if test="#{not empty SPRING_SECURITY_LAST_EXCEPTION}">
               <p class="error">
                Wrong user name or/and password
               </p>
-              <c:set var="ACEGI_SECURITY_LAST_EXCEPTION" value="#{null}"/>
+              <c:set var="SPRING_SECURITY_LAST_EXCEPTION" value="#{null}"/>
             </c:if>
             <div id="loginKey">
               <!-- form itself -->
-              <form action="#{contextPath}/j_acegi_security_check" method="post">
+              <form action="#{contextPath}/security_login_check" method="post">
               <table id="loginForm" cellspacing="0px">
                 <tr>
                   <td align="right">

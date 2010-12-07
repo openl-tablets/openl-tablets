@@ -9,7 +9,7 @@ import javax.faces.el.ValueBinding;
 
 /**
  * Component that displayes user info. See javadocs for AuthenticationTag from
- * Acegi library for more information.
+ * Spring Security library for more information.
  *
  * @author Andrey Naumenko
  */

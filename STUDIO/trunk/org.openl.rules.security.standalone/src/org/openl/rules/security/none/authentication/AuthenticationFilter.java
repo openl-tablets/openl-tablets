@@ -1,6 +1,9 @@
 package org.openl.rules.security.none.authentication;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -8,21 +11,25 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SecurityUtils;
 import org.openl.rules.security.none.SimpleAuthenticationToken;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 /**
  * @author Aliaksandr Antonik.
  */
 public class AuthenticationFilter implements Filter {
-    private static GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl(
-            Privileges.ROLE_ADMIN) };
+
+    private static Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    static {
+        authorities.add(new GrantedAuthorityImpl(Privileges.ROLE_ADMIN));
+    }
 
     /**
      * Composes user name from a <code>ServletRequest</code>. If the request

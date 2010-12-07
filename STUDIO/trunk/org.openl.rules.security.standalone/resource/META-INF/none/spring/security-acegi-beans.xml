@@ -1,54 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  xmlns:security="http://www.springframework.org/schema/security"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.0.4.xsd">
 
-  <!--  if you wish to use channel security, add "channelProcessingFilter," in front
-    of "httpSessionContextIntegrationFilter" in the list below
-  -->
-  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
-    <property name="filterInvocationDefinitionSource">
-      <value>
-        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        PATTERN_TYPE_APACHE_ANT
-        /**=httpSessionContextIntegrationFilter,autoLoginAuthenticationFilter,logoutFilter
-      </value>
+  <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
+    of "securityContextPersistenceFilter" in the list below -->
+
+  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+    <security:filter-chain-map path-type="ant">
+      <security:filter-chain pattern="/**"
+        filters="securityContextPersistenceFilter,autoLoginAuthenticationFilter,logoutFilter" />
+    </security:filter-chain-map>
+  </bean>
+
+  <bean id="securityContextPersistenceFilter"
+    class="org.springframework.security.web.context.SecurityContextPersistenceFilter" />
+
+  <bean id="logoutUrl" class="java.lang.String">
+    <constructor-arg value="/security_logout" />
+  </bean>
+
+  <bean id="autoLoginAuthenticationFilter" class="org.openl.rules.security.none.authentication.AuthenticationFilter" />
+
+  <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+    <property name="providers">
+      <list>
+        <bean class="org.springframework.security.authentication.TestingAuthenticationProvider" />
+      </list>
     </property>
   </bean>
 
-
-  <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
-    <property name="context" value="org.acegisecurity.context.SecurityContextImpl"/>
-  </bean>
-
-  <bean id="autoLoginAuthenticationFilter" class="org.openl.rules.security.none.authentication.AuthenticationFilter"/>
-
-
-  <bean id="authenticationManager" class="org.acegisecurity.MockAuthenticationManager"/>
   <bean id="accessDecisionManager" class="org.openl.rules.security.none.AllowAllAccessDecisionManager"/>
 
-  <bean id="attributes" class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/>
-  <bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">
-    <property name="attributes">
-      <ref local="attributes"/>
-    </property>
-  </bean>
-  <bean id="openlManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+  <bean id="securityMetadataSource" class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
+  <bean id="openlManagerSecurity" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
     <property name="validateConfigAttributes" value="false"/>
     <property name="authenticationManager" ref="authenticationManager"/>
     <property name="accessDecisionManager" ref="accessDecisionManager"/>
-    <property name="objectDefinitionSource" ref="objectDefinitionSource"/>
+    <property name="securityMetadataSource" ref="securityMetadataSource"/>
   </bean>
 
-  <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+  <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
     <constructor-arg value="/"/>
     <constructor-arg>
       <list>
-        <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
+        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
       </list>
     </constructor-arg>
-    <property name="filterProcessesUrl" value="/logoff.servlet"/>
+    <property name="filterProcessesUrl" ref="logoutUrl" />
   </bean>
-
 
 </beans>

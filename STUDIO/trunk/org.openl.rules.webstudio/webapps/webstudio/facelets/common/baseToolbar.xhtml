@@ -55,7 +55,7 @@
         </h:commandLink>
 
         <c:if test="#{not hideLogout}">
-        <a href="#{contextPath}/logoff.servlet?_j_acegi_logout=true" class="actionButton"
+        <a href="#{contextPath}/security_logout" class="actionButton"
           title="Log out" onclick="return confirm('Are you sure you want to Log out?')">
           <h:graphicImage url="/webresource/images/logout.gif" styleClass="actionImage" />
         </a>

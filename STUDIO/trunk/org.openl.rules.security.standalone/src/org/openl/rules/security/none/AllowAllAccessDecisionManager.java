@@ -1,11 +1,12 @@
 package org.openl.rules.security.none;
 
-import org.acegisecurity.AccessDecisionManager;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.AccessDeniedException;
-import org.acegisecurity.InsufficientAuthenticationException;
-import org.acegisecurity.ConfigAttribute;
+import java.util.Collection;
+
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
 
 /**
  * @author Aliaksandr Antonik.
@@ -18,16 +19,15 @@ public class AllowAllAccessDecisionManager implements AccessDecisionManager {
      * @param object the secured object being called
      * @param config the configuration attributes associated with the secured
      *            object being invoked
-     * @throws org.acegisecurity.AccessDeniedException if access is denied as
+     * @throws org.springframework.security.access.AccessDeniedException if access is denied as
      *             the authentication does not hold a required authority or ACL
      *             privilege
-     * @throws org.acegisecurity.InsufficientAuthenticationException if access
+     * @throws org.springframework.security.authentication.InsufficientAuthenticationException if access
      *             is denied as the authentication does not provide a sufficient
      *             level of trust
      */
-    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+    public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException, InsufficientAuthenticationException {
-
     }
 
     /**
@@ -39,7 +39,7 @@ public class AllowAllAccessDecisionManager implements AccessDecisionManager {
      * @return <code>true</code> if the implementation can process the
      *         indicated class
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return true;
     }
 

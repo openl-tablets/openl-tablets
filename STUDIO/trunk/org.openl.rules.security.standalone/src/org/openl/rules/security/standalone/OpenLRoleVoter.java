@@ -1,16 +1,16 @@
 package org.openl.rules.security.standalone;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.ConfigAttribute;
-import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.vote.AccessDecisionVoter;
 import org.openl.rules.security.Privileges;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Iterator;
+import java.util.Collection;
 
 /**
  * <p>
- * Based on {@link org.acegisecurity.vote.RoleVoter}. If Authentication has
+ * Based on {@link org.springframework.security.access.vote.RoleVoter}. If Authentication has
  * {@link org.openl.rules.security.Privileges#ROLE_ADMIN} authority it will get
  * access even if it is not specified explicitly.
  * </p>
@@ -21,7 +21,7 @@ import java.util.Iterator;
  * <p>
  * Abstains from voting if no configuration attribute commences with the role
  * prefix. Votes to grant access if there is an exact matching
- * {@link org.acegisecurity.GrantedAuthority} to a <code>ConfigAttribute</code>
+ * {@link org.springframework.security.core.GrantedAuthority} to a <code>ConfigAttribute</code>
  * starting with the role prefix. Votes to deny access if there is no exact
  * matching <code>GrantedAuthority</code> to a <code>ConfigAttribute</code>
  * starting with the role prefix ({@link org.openl.rules.security.Privileges#ROLE_PREFIX}).
@@ -41,7 +41,7 @@ public class OpenLRoleVoter implements AccessDecisionVoter {
      *
      * @return always <code>true</code>
      */
-    public boolean supports(Class aClass) {
+    public boolean supports(Class<?> aClass) {
         return true;
     }
 
@@ -64,21 +64,17 @@ public class OpenLRoleVoter implements AccessDecisionVoter {
      * @return {@link #ACCESS_DENIED} or {@link #ACCESS_ABSTAIN} or
      *         {@link #ACCESS_GRANTED}
      */
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition configAttributeDefinition) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = configAttributeDefinition.getConfigAttributes();
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attribute : configAttributes) {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
 
                 String attr = attribute.getAttribute();
 
                 // Attempt to find a matching granted authority
-                for (int i = 0; i < authentication.getAuthorities().length; i++) {
-                    String authority = authentication.getAuthorities()[i].getAuthority();
+                for (GrantedAuthority authority : authentication.getAuthorities()) {
                     if (attr.equals(authority) || Privileges.ROLE_ADMIN.equals(authority)) {
                         // admin is always right, even if it is not stated
                         // directly

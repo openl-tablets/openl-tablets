@@ -1,14 +1,19 @@
 package org.openl.rules.security.none;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.User;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
+import java.util.Collection;
+
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author Aliaksandr Antonik.
  */
 public class SimpleAuthenticationToken extends AbstractAuthenticationToken {
+
+    private static final long serialVersionUID = 1L;
+
     private final UserDetails principal;
 
     /**
@@ -18,12 +23,12 @@ public class SimpleAuthenticationToken extends AbstractAuthenticationToken {
      *            principal represented by this authentication object. A
      *            <code>null</code> value indicates that no authorities have
      *            been granted (pursuant to the interface contract specified by
-     *            {@link org.acegisecurity.Authentication#getAuthorities()}<code>null</code>
+     *            {@link org.springframework.security.core.Authentication#getAuthorities()}<code>null</code>
      *            should only be presented if the principal has not been
      *            authenticated).
      * @param userName user name
      */
-    public SimpleAuthenticationToken(GrantedAuthority[] authorities, String userName) {
+    public SimpleAuthenticationToken(Collection<GrantedAuthority> authorities, String userName) {
         super(authorities);
         principal = new User(userName, "", true, true, true, true, authorities);
     }

@@ -5,15 +5,18 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.acegisecurity.AccessDeniedException;
-import org.acegisecurity.InsufficientAuthenticationException;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.ui.AccessDeniedHandler;
-import org.acegisecurity.ui.AccessDeniedHandlerImpl;
-import org.acegisecurity.ui.ExceptionTranslationFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 /**
  * @author Aliaksandr Antonik.
@@ -38,14 +41,15 @@ public class OpenLExceptionTranslationFilter extends ExceptionTranslationFilter 
                                 e);
                     }
 
-                    sendStartAuthentication(request, response, chain, new InsufficientAuthenticationException(
-                            "Full authentication is required to access this resource"));
+                    sendStartAuthentication((HttpServletRequest) request, (HttpServletResponse)response, chain,
+                            new InsufficientAuthenticationException(
+                                    "Full authentication is required to access this resource"));
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler", e);
                     }
 
-                    accessDeniedHandler.handle(request, response, ade);
+                    accessDeniedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ade);
                 }
             } else {
                 throw e;
