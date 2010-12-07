@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import org.acegisecurity.userdetails.UserDetails;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -12,7 +11,10 @@ import org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.Log;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
 public class RulesUserSession {
+
     private UserDetails user;
     private UserWorkspace userWorkspace;
     private MultiUserWorkspaceManager workspaceManager;

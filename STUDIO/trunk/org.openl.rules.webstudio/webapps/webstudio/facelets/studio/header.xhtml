@@ -155,7 +155,7 @@
                      title="Help"><img src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
                   <c:if test="#{not headerBean.hideLogout}">
                     <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <a target="main" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out"
+                    <a target="main" href='#{contextPath}/security_logout' title="Log out"
                         onclick="return confirm('Are you sure you want to Log out?')"><img
                         src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
                   </c:if>

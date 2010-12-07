@@ -1,18 +1,19 @@
 package org.openl.rules.security;
 
-import org.acegisecurity.AccessDecisionManager;
-import org.acegisecurity.AccessDeniedException;
-import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.SecurityConfig;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Aliaksandr Antonik.
  */
 public final class SecurityUtils {
-    private static final Log log = LogFactory.getLog(SecurityUtils.class);
+
     public static final String LOCAL_USER_ID = "LOCAL";
 
     private static AccessDecisionManager accessDecisionManager;
@@ -25,24 +26,23 @@ public final class SecurityUtils {
      * @throws AccessDeniedException if current authentication context does not
      *             hold a required authority
      */
-    public static void check(ConfigAttributeDefinition config) throws AccessDeniedException {
-        accessDecisionManager.decide(SecurityContextHolder.getContext().getAuthentication(), null, config);
+    public static void check(Collection<ConfigAttribute> configAttributes) throws AccessDeniedException {
+        accessDecisionManager.decide(SecurityContextHolder.getContext().getAuthentication(), null, configAttributes);
     }
 
     /**
      * Converts <code>privilege</code> to
-     * <code>ConfigAttributeDefinition</code> object and calls
-     * {@link #check(org.acegisecurity.ConfigAttributeDefinition)}.
+     * collection of <code>ConfigAttribute</code> objects.
      *
      * @param privilege privilege to check.
      * @throws AccessDeniedException if current authentication context does not
      *             hold a required authority
      */
     public static void check(String privilege) throws AccessDeniedException {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig(privilege));
+        Collection<ConfigAttribute> configAttributes = new ArrayList<ConfigAttribute>();
+        configAttributes.add(new SecurityConfig(privilege));
 
-        check(cad);
+        check(configAttributes);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class SecurityUtils {
      * Sets static <code>accessDecisionManager</code> property for further use
      * in <code>check</code> methods. <br/> The only difference of this method
      * from
-     * {@link #useAccessDecisionManager(org.acegisecurity.AccessDecisionManager)}
+     * {@link #useAccessDecisionManager(org.springframework.security.access.AccessDecisionManager)}
      * that this one is not <i>static</i>.
      *
      * @param accessDecisionManager <code>AccessDecisionManager</code>

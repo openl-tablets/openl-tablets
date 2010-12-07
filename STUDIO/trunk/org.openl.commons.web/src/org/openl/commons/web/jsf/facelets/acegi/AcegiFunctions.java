@@ -1,21 +1,20 @@
 package org.openl.commons.web.jsf.facelets.acegi;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
-
-import org.acegisecurity.userdetails.UserDetails;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.lang.reflect.InvocationTargetException;
 
 /**
  * As part of the EL Specification, you can incorporate static Java methods into
  * your documents. Just add new function here and it will be registered within
- * Acegi taglib {@link AcegiTaglib#NAMESPACE}
+ * Spring Security taglib
  *
  * @author Andrey Naumenko
  */
@@ -69,7 +68,7 @@ public class AcegiFunctions {
             return auth.getPrincipal().toString();
         }
         if (log.isDebugEnabled()) {
-            log.debug("Authentication has no principal. Or its principal is not an instanceof acegi UserDetails");
+            log.debug("Authentication has no principal. Or its principal is not an instanceof UserDetails");
         }
 
         return "";

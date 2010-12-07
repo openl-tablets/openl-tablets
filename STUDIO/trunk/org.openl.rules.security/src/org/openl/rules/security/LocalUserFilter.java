@@ -9,15 +9,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
 import org.openl.commons.web.util.WebTool;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 /**
- * Acegi filter, that automatically logins local user if the following
+ * Security filter, that automatically logins local user if the following
  * conditions are satisfied:
  *
  * <pre>
@@ -35,6 +36,7 @@ import org.openl.commons.web.util.WebTool;
  * @author Andrey Naumenko
  */
 public class LocalUserFilter implements Filter {
+
     private UserDetailsService userDetailsService;
     private boolean autoLogin;
     private String[] ignoredUrls = new String[0];

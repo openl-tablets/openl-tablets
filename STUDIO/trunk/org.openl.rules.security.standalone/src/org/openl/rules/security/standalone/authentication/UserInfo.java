@@ -1,30 +1,35 @@
 package org.openl.rules.security.standalone.authentication;
 
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.GrantedAuthority;
+import java.util.Collection;
+
 import org.openl.rules.security.standalone.model.User;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Contains information about user that works with application. This class
  * contains all fields that are specified by
- * {@link org.acegisecurity.userdetails.UserDetails} interface.
+ * {@link org.springframework.security.core.userdetails.UserDetails} interface.
  *
  * @author Andrey Naumenko
  */
 public class UserInfo implements UserDetails {
+
     private static final long serialVersionUID = 1L;
+
     private User user;
-    private GrantedAuthority[] grantedAuthorities;
+    private Collection<GrantedAuthority> grantedAuthorities;
 
     public UserInfo() {
     }
 
-    public UserInfo(User user, GrantedAuthority[] grantedAuthorities) {
+    public UserInfo(User user, Collection<GrantedAuthority> grantedAuthorities) {
         this.user = user;
         this.grantedAuthorities = grantedAuthorities;
     }
 
-    public GrantedAuthority[] getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return grantedAuthorities;
     }
 
