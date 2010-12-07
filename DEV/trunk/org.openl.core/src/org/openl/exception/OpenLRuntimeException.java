@@ -55,14 +55,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         this.node = node;
     }
 
-//    public String getOriginalMessage() {
-//        return ExceptionUtils.getRootCauseMessage(this);
-//    }
-//
-//    public Throwable getOriginalCause() {
-//        return ExceptionUtils.getRootCause(this);
-//    }
-
     public ILocation getLocation() {
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
