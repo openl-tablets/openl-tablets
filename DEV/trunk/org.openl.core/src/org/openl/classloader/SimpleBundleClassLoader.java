@@ -14,8 +14,7 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = findClass(name);
-        
+        Class<?> clazz = findClassInBundles(name);
         
         if (clazz != null) {
             return clazz;
@@ -24,7 +23,7 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
         return super.loadClass(name);
     }
     
-    protected  Class<?> findClass(String name) {
+    protected  Class<?> findClassInBundles(String name) {
         
         Set<ClassLoader> bundleClassLoaders = getBundleClassLoaders();
         
