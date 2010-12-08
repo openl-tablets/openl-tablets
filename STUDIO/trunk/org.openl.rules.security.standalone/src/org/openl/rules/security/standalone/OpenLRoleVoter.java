@@ -74,7 +74,8 @@ public class OpenLRoleVoter implements AccessDecisionVoter {
                 String attr = attribute.getAttribute();
 
                 // Attempt to find a matching granted authority
-                for (GrantedAuthority authority : authentication.getAuthorities()) {
+                for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
+                    String authority = grantedAuthority.getAuthority();
                     if (attr.equals(authority) || Privileges.ROLE_ADMIN.equals(authority)) {
                         // admin is always right, even if it is not stated
                         // directly
