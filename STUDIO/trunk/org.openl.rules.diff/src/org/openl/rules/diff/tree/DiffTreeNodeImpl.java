@@ -1,11 +1,13 @@
 package org.openl.rules.diff.tree;
 
+import java.util.List;
+
 
 public class DiffTreeNodeImpl implements DiffTreeNode {
-    private DiffTreeNode[] children;
+    private List<DiffTreeNode> children;
     private DiffElement[] elements;
 
-    public DiffTreeNode[] getChildren() {
+    public List<DiffTreeNode> getChildren() {
         return children;
     }
 
@@ -13,7 +15,7 @@ public class DiffTreeNodeImpl implements DiffTreeNode {
         return elements;
     }
 
-    public void setChildren(DiffTreeNode[] children) {
+    public void setChildren(List<DiffTreeNode> children) {
         this.children = children;
     }
 
@@ -21,7 +23,7 @@ public class DiffTreeNodeImpl implements DiffTreeNode {
         this.elements = elements;
     }
 
-    public DiffElementImpl getElement(int idx) {
-        return (DiffElementImpl) elements[idx];
+    public DiffElement getElement(int idx) {
+        return elements[idx];
     }
 }

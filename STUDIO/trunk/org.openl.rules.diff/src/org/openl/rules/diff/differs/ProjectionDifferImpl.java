@@ -3,8 +3,8 @@ package org.openl.rules.diff.differs;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.hierarchy.Projection;
+import org.openl.rules.diff.hierarchy.ProjectionProperty;
 
 public class ProjectionDifferImpl implements ProjectionDiffer {
 //    @Override
@@ -33,13 +33,6 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
     }
 
     protected boolean isEquals(ProjectionProperty p1, ProjectionProperty p2) {
-        Class<?> type1 = p1.getType();
-        Class<?> type2 = p2.getType();
-
-        if (type1 != type2) {
-            return false;
-        }
-
         Object v1 = p1.getRawValue();
         Object v2 = p2.getRawValue();
 
@@ -50,11 +43,10 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
         }
     }
 
-    static Map<String, ProjectionProperty> buildMap(Projection projection) {
+    protected static Map<String, ProjectionProperty> buildMap(Projection projection) {
         Map<String, ProjectionProperty> map = new HashMap<String, ProjectionProperty>();
 
-        ProjectionProperty[] properties = projection.getProperties();
-        for (ProjectionProperty property : properties) {
+        for (ProjectionProperty property : projection.getProperties()) {
             map.put(property.getName(), property);
         }
         return map;

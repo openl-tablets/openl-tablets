@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.rules.diff.hierarchy.Projection;
+import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.util.DiffHelper;
 import org.openl.rules.diff.xls.XlsProjection;
 import org.openl.rules.diff.xls.XlsProjectionType;
 import org.openl.rules.table.ICell;
@@ -24,8 +24,11 @@ import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
 public abstract class AbstractDiffController {
-    private DiffTreeNode diffTree;
+    // TODO remove?
     private boolean showEqualElements = false;
+
+    private TreeNode<UiTreeData> richDiffTree;
+    private UiTreeData selectedNode;
 
     public abstract String compare();
 
@@ -78,6 +81,10 @@ public abstract class AbstractDiffController {
         return null;
     }
 
+    public IGridFilter getFilter1() {
+        return getFilter(0);
+    }
+
     public IGridFilter getFilter2() {
         return getFilter(1);
     }
@@ -86,19 +93,10 @@ public abstract class AbstractDiffController {
         XlsProjection projection = projectionTable(i);
         if (projection != null) {
             IOpenLTable table = (IOpenLTable) projection.getData();
-            List<DiffTreeNode> cells = DiffHelper.getDiffNodesByType(getCurrentDiffTreeNode(), XlsProjectionType.CELL.name());
-            List<ICell> diffCells = new ArrayList<ICell>();
-            for (DiffTreeNode cellNode : cells) {
-                DiffElement cellElem = cellNode.getElements()[i];
-                if (!cellElem.isSelfEqual()) {
-                    XlsProjection p = (XlsProjection) cellElem.getProjection();
-                    if (p != null) {
-                        ICell cell = (ICell) p.getData();
-                        diffCells.add(cell);
-                    }
-                }
+            List<ICell> diffCells = projection.getDiffCells();
+            if (diffCells != null) {
+                return makeFilter(table.getGridTable(), diffCells);
             }
-            return makeFilter(table.getGridTable(), diffCells);
         }
         return null;
     }
@@ -118,8 +116,6 @@ public abstract class AbstractDiffController {
     }
 
     public void setDiffTree(DiffTreeNode diffTree) {
-        this.diffTree = diffTree;
-
         if (diffTree == null) {
             richDiffTree = null;
         } else {
@@ -131,7 +127,8 @@ public abstract class AbstractDiffController {
 
             rebuild(idGenerator, richDiffTree, diffTree);
         }
-        // TODO do we need diffTree?
+        // reset selection
+        selectedNode = null;
     }
 
     private void rebuild(AtomicInteger idGenerator, TreeNode<UiTreeData> parent, DiffTreeNode diff) {
@@ -149,21 +146,40 @@ public abstract class AbstractDiffController {
             n.setData(ui);
             parent.addChild(idGenerator.getAndIncrement(), n);
 
+            // props
+            Projection p1 = d.getElement(0).getProjection();
+            Projection p2 = d.getElement(1).getProjection();
+            if (p1 != null && p2 != null && !d.getElement(1).isSelfEqual()) {
+                for(ProjectionProperty pp1 : p1.getProperties()) {
+                    ProjectionProperty pp2 = p2.getProperty(pp1.getName());
+
+                    if (pp2 != null) {
+                        Object v1 = pp1.getRawValue();
+                        Object v2 = pp2.getRawValue();
+                        if (v1 != null && v2 != null) {
+                            if (!v1.equals(v2)) {
+                                if (pp1.getName().equals("name")) {
+                                    v1 = "";
+                                }
+                                String s = pp1.getName() + ": " + v1 + " -> " + v2;
+
+                                UiTreeData2 uip = new UiTreeData2(d, s);
+                                TreeNode<UiTreeData> np = new TreeNodeImpl<UiTreeData>();
+                                np.setData(uip);
+                                n.addChild(idGenerator.getAndIncrement(), np);
+                            }
+                        }
+                    }
+                }
+            }
+
             rebuild(idGenerator, n, d);
         }
     }
 
-    public DiffTreeNode getDiffTree() {
-        return diffTree;
-    }
-
-    private TreeNode<UiTreeData> richDiffTree;
-
     public TreeNode<UiTreeData> getRichDiffTree() {
         return richDiffTree;
     }
-
-    protected UiTreeData selectedNode;
 
     public void processSelection(NodeSelectedEvent event) {
         UITree tree = (UITree) event.getComponent();

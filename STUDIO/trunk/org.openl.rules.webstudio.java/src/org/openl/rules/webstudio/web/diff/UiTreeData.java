@@ -20,13 +20,13 @@ public class UiTreeData {
     public DiffStatus getStatus() {
         // [1] status is what matters
         // [0] is either here or not
-        return diffTreeNode.getElements()[1].getDiffStatus();
+        return diffTreeNode.getElement(1).getDiffStatus();
     }
 
     public String getIcon() {
         String icon = null;
 
-        switch (diffTreeNode.getElements()[1].getDiffStatus()) {
+        switch (diffTreeNode.getElement(1).getDiffStatus()) {
             case ADDED:
                 icon = UiConst.ICON_DIFF_ADDED;
                 break;

@@ -8,10 +8,12 @@ import javax.faces.event.ActionEvent;
 import org.openl.rules.diff.differs.ProjectionDifferImpl;
 import org.openl.rules.diff.hierarchy.AbstractProjection;
 import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
+import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionBuilder;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.richfaces.model.UploadItem;
+import org.openl.rules.diff.xls2.*;
 
 public class ExcelDiffController extends AbstractDiffController {
 
@@ -22,7 +24,8 @@ public class ExcelDiffController extends AbstractDiffController {
 
     /**
      * Then name of file which should be removed from list of files to compare.
-     * NOTE: it is not used directly by controller but required for action listener invocation using ajax request.
+     * NOTE: it is not used directly by controller but required for action
+     * listener invocation using ajax request.
      */
     private String fileName;
     private List<UploadItem> filesToCompare = new ArrayList<UploadItem>();
@@ -56,22 +59,17 @@ public class ExcelDiffController extends AbstractDiffController {
         if (filesToCompare.size() >= 2) {
             UploadItem file1 = filesToCompare.get(0);
             UploadItem file2 = filesToCompare.get(1);
+            filesToCompare.clear();
 
-            XlsMetaInfo xmi1 = XlsHelper.getXlsMetaInfo(file1.getFile().getAbsolutePath());
-            XlsMetaInfo xmi2 = XlsHelper.getXlsMetaInfo(file2.getFile().getAbsolutePath());
+            XlsDiff2 x = new XlsDiff2();
+            DiffTreeNode diffTree = x.diffFiles(file1.getFile().getAbsolutePath(), file2.getFile().getAbsolutePath());
+            setDiffTree(diffTree);
 
-            AbstractProjection p1 = XlsProjectionBuilder.build(xmi1, "xls1");
-            AbstractProjection p2 = XlsProjectionBuilder.build(xmi2, "xls2");
-
-            DiffTreeBuilderImpl builder = new DiffTreeBuilderImpl();
-            builder.setProjectionDiffer(new ProjectionDifferImpl());
-
-            setDiffTree(builder.compare(p1, p2));
+            // clean up
+            file1.getFile().delete();
+            file2.getFile().delete();
         }
-
-        filesToCompare.clear();
 
         return null;
     }
-
 }

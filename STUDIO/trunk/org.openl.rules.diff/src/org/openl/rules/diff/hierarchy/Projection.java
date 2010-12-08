@@ -1,5 +1,8 @@
 package org.openl.rules.diff.hierarchy;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Projection of an artifact.
  * <p>
@@ -44,7 +47,7 @@ public interface Projection {
      * 
      * @return projection specific properties
      */
-    ProjectionProperty[] getProperties();
+    Collection<ProjectionProperty> getProperties();
 
     /**
      * Get property of the artifact by name.
@@ -72,5 +75,5 @@ public interface Projection {
      *
      * @return direct children or empty array
      */
-    Projection[] getChildren();
+    List<Projection> getChildren();
 }
