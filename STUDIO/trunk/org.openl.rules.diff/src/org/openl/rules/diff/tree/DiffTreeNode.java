@@ -1,5 +1,7 @@
 package org.openl.rules.diff.tree;
 
+import java.util.List;
+
 /**
  * Node of Diff Tree.
  * <p>
@@ -23,7 +25,7 @@ public interface DiffTreeNode {
      * 
      * @return direct children of the node or empty array
      */
-    DiffTreeNode[] getChildren();
+    List<DiffTreeNode> getChildren();
 
     /**
      * Comparing elements at some location.
@@ -34,4 +36,6 @@ public interface DiffTreeNode {
      * @return comparing elements
      */
     DiffElement[] getElements();
+
+    DiffElement getElement(int index);
 }

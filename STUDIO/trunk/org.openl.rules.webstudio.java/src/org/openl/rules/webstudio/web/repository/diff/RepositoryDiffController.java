@@ -9,6 +9,7 @@ import org.openl.rules.diff.hierarchy.AbstractProjection;
 import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionBuilder;
+import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.project.abstraction.AProject;
@@ -231,20 +232,18 @@ public class RepositoryDiffController extends AbstractDiffController {
         }
         AProjectArtefact excelArtefact1 = getExcelArtefactByPath(excelArtefactsUW, selectedExcelFileUW);
         File excelFile1 = downloadExelFile(excelArtefact1);
-        XlsMetaInfo xmi1 = XlsHelper.getXlsMetaInfo(excelFile1.getName());
-        AbstractProjection p1 = XlsProjectionBuilder.build(xmi1, "xls1");
-        excelFile1.delete();
 
         AProjectArtefact excelArtefact2 = getExcelArtefactByPath(excelArtefactsRepo, selectedExcelFileRepo);
         File excelFile2 = downloadExelFile(excelArtefact2);
-        XlsMetaInfo xmi2 = XlsHelper.getXlsMetaInfo(excelFile2.getName());
-        AbstractProjection p2 = XlsProjectionBuilder.build(xmi2, "xls2");
-        excelFile2.delete();
 
-        DiffTreeBuilderImpl builder = new DiffTreeBuilderImpl();
-        builder.setProjectionDiffer(new ProjectionDifferImpl());
-        DiffTreeNode diffTree = builder.compare(p1, p2);
-        setDiffTree(diffTree);
+        try {
+            XlsDiff2 x = new XlsDiff2();
+            DiffTreeNode diffTree = x.diffFiles(excelFile1.getAbsolutePath(), excelFile2.getAbsolutePath());
+            setDiffTree(diffTree);
+        } finally {
+            excelFile1.delete();
+            excelFile2.delete();
+        }
 
         return null;
     }

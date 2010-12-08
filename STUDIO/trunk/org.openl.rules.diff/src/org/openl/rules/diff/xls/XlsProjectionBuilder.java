@@ -109,8 +109,7 @@ public class XlsProjectionBuilder {
         ICellStyle cellStyle = cell.getCellStyle();
         ICellFont cellFont = cell.getCellInfo().getFont();*/
         XlsProjection projection = new XlsProjection(cellName, CELL);
-        projection.addProperty(new AbstractProperty(CELL_VALUE.name(),
-                cellValue != null ? cellValue.getClass() : null, cellValue));
+        projection.addProperty(new AbstractProperty(CELL_VALUE.name(), cellValue));
         /*projection.addProperty(new AbstractProperty(CELL_HEIGHT.name(),
                 int.class, cellHeight));
         projection.addProperty(new AbstractProperty(CELL_WIDTH.name(),

@@ -3,9 +3,7 @@ package org.openl.rules.diff.print;
 import java.io.OutputStream;
 
 import org.openl.rules.diff.hierarchy.Projection;
-import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
-import org.openl.rules.diff.tree.DiffProperty;
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 

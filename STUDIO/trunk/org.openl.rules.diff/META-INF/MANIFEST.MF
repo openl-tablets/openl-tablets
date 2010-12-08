@@ -11,5 +11,6 @@ Export-Package: org.openl.rules.diff.differs,
  org.openl.rules.diff.test,
  org.openl.rules.diff.tree,
  org.openl.rules.diff.util,
- org.openl.rules.diff.xls
+ org.openl.rules.diff.xls,
+ org.openl.rules.diff.xls2
 Bundle-Vendor: OpenL

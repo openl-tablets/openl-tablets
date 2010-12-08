@@ -1,8 +1,9 @@
 package org.openl.rules.diff.hierarchy;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class PropertySet {
     private Map<String, ProjectionProperty> properties;
@@ -25,7 +26,7 @@ public class PropertySet {
         properties.put(propertyName, property);
     }
 
-    public ProjectionProperty[] getAll() {
-        return properties.values().toArray(new ProjectionProperty[properties.size()]);
+    public Collection<ProjectionProperty> getAll() {
+        return Collections.unmodifiableCollection(properties.values());
     }
 }

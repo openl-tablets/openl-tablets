@@ -1,16 +1,15 @@
 package org.openl.rules.diff.test;
 
-import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
-import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.tree.DiffElement;
-import org.openl.rules.diff.tree.DiffStatus;
+import static java.lang.System.out;
+
 import org.openl.rules.diff.differs.ProjectionDifferImpl;
 import org.openl.rules.diff.hierarchy.AbstractProjection;
 import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.rules.diff.hierarchy.Projection;
-
-import static java.lang.System.out;
-import java.lang.reflect.Array;
+import org.openl.rules.diff.tree.DiffElement;
+import org.openl.rules.diff.tree.DiffStatus;
+import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
+import org.openl.rules.diff.tree.DiffTreeNode;
 
 public class Test {
     public static void main(String[] args) {
@@ -20,25 +19,25 @@ public class Test {
 
     void test() {
         AbstractProjection p1 = new AbstractProjection("p1", "project");
-        p1.addProperty(new AbstractProperty("prop.str", String.class, "some-string"));
-        p1.addProperty(new AbstractProperty("prop.date", Long.class, System.currentTimeMillis()));
-        p1.addProperty(new AbstractProperty("prop.bytes[]", Array.class, new byte[]{1, 2, 3}));
+        p1.addProperty(new AbstractProperty("prop.str", "some-string"));
+        p1.addProperty(new AbstractProperty("prop.date", System.currentTimeMillis()));
+        p1.addProperty(new AbstractProperty("prop.bytes[]", new byte[]{1, 2, 3}));
         p1.addChild(new AbstractProjection("F1", "folder"));
         p1.addChild(new AbstractProjection("F2", "folder"));
         p1.addChild(new AbstractProjection("F4", "folder"));
         AbstractProjection ap1 = new AbstractProjection("F5", "folder");
-        ap1.addProperty(new AbstractProperty("subname", String.class, "f5a"));
+        ap1.addProperty(new AbstractProperty("subname", "f5a"));
         p1.addChild(ap1);
 
         AbstractProjection p2 = new AbstractProjection("p2", "project");
-        p2.addProperty(new AbstractProperty("prop.str", String.class, "some-string"));
-        p2.addProperty(new AbstractProperty("prop.date", Long.class, System.currentTimeMillis()));
-        p2.addProperty(new AbstractProperty("prop.bytes[]", Array.class, new byte[]{1, 2, 3}));
+        p2.addProperty(new AbstractProperty("prop.str", "some-string"));
+        p2.addProperty(new AbstractProperty("prop.date", System.currentTimeMillis()));
+        p2.addProperty(new AbstractProperty("prop.bytes[]", new byte[]{1, 2, 3}));
         p2.addChild(new AbstractProjection("F2", "folder"));
         p2.addChild(new AbstractProjection("F3", "folder"));
         p2.addChild(new AbstractProjection("F4", "file"));
         AbstractProjection ap2 = new AbstractProjection("F5", "folder");
-        ap2.addProperty(new AbstractProperty("subname", String.class, "f5b"));
+        ap2.addProperty(new AbstractProperty("subname", "f5b"));
         p2.addChild(ap2);
 
         DiffTreeBuilderImpl builder = new DiffTreeBuilderImpl();

@@ -93,14 +93,14 @@
             </td>
           </tr>
           <tr>
-            <td>
+            <td valign="top">
               <p />
               	<a4j:outputPanel ajaxRendered="true">
            			<rules:tableEditor id="tableEditor1" table="#{excelDiffController.table1}" editable="false"
-                        collapseProps="true" />
+                        collapseProps="true" filter="#{excelDiffController.filter1}" />
            		</a4j:outputPanel>
             </td>
-            <td>
+            <td valign="top">
               <p />
                 <a4j:outputPanel ajaxRendered="true">
 	           		<rules:tableEditor id="tableEditor2" table="#{excelDiffController.table2}" editable="false"

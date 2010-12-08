@@ -4,28 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.diff.hierarchy.Projection;
-import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffTreeNode;
 
+/**
+ * @deprecated delete
+ */
 public class DiffHelper {
 
-    /**
-     * @deprecated NOT USED ANYMORE
-     */
-    public static Object getPropValue(ProjectionProperty[] props, String propName) {
-        for (ProjectionProperty prop : props) {
-            if (prop.getName().equalsIgnoreCase((propName))) {
-                return prop.getRawValue();
-            }
-        }
-        return null;
-    }
-
+    /** @deprecated delete */
     public static List<DiffTreeNode> getDiffNodesByType(DiffTreeNode parent, String type) {
         List<DiffTreeNode> nodes = new ArrayList<DiffTreeNode>();
-        DiffTreeNode[] children = parent.getChildren();
-        for (DiffTreeNode child : children) {
+        for (DiffTreeNode child : parent.getChildren()) {
             DiffElement[] elements = child.getElements();
             Projection proj = null;
             int i = 0;

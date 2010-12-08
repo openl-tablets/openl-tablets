@@ -1,6 +1,8 @@
 package org.openl.rules.diff.hierarchy;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -19,8 +21,8 @@ public class AbstractProjection implements Projection {
     }
 
 //    @Override
-    public Projection[] getChildren() {
-        return children.toArray(new Projection[children.size()]);
+    public List<Projection> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
 //    @Override
@@ -34,7 +36,7 @@ public class AbstractProjection implements Projection {
     }
 
 //    @Override
-    public ProjectionProperty[] getProperties() {
+    public Collection<ProjectionProperty> getProperties() {
         return properties.getAll();
     }
 
