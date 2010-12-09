@@ -17,7 +17,7 @@
     <property name="proxyTargetClass" value="true"/>
   </bean>
 
-  <bean id="initSecurityUtil" class="org.openl.rules.security.SecurityUtils" lazy-init="false">
+  <bean id="initAccessManager" class="org.openl.rules.security.AccessManager" lazy-init="false">
     <property name="staticAccessDecisionManager" ref="accessDecisionManager"/>
   </bean>
 </beans>

@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.security.SecurityUtils;
+import org.openl.rules.security.AccessManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -66,7 +66,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (autoLogin && SecurityUtils.LOCAL_USER_ID.equals(userId)) {
+            if (autoLogin && AccessManager.LOCAL_USER_ID.equals(userId)) {
                 lwi = createEclipseWorkspace(user);
             } else {
                 lwi = createWorkspace(user);

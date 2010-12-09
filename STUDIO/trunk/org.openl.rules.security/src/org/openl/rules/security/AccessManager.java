@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * @author Aliaksandr Antonik.
  */
-public final class SecurityUtils {
+public final class AccessManager {
 
     public static final String LOCAL_USER_ID = "LOCAL";
 
