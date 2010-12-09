@@ -3,15 +3,15 @@ package org.openl.meta;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import org.openl.base.INamedThing;
-import org.openl.util.AOpenIterator;
-import org.openl.util.tree.ITreeElement;
+import org.openl.meta.explanation.ExplanationNumberValue;
 
-public class DoubleValue extends Number implements IMetaHolder, Comparable<Number>, ITreeElement<DoubleValue>, INamedThing {
+public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
+    
+    private static final long serialVersionUID = -4594250562069599646L;
+    private String format = "#0.####";
+    private double value;    
 
     public static class DoubleValueOne extends DoubleValue {
 
@@ -48,14 +48,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
             return this;
         }
 
-    }
-
-    private static final long serialVersionUID = -4594250562069599646L;
-
-    public static final int VALUE = 0x01, SHORT_NAME = 0x02, LONG_NAME = 0x04, URL = 0x08, EXPAND_FORMULA = 0x10,
-            EXPAND_FUNCTION = 0x20, PRINT_VALUE_IN_EXPANDED = 0x40,
-            EXPAND_ALL = EXPAND_FORMULA | EXPAND_FUNCTION | PRINT_VALUE_IN_EXPANDED,
-            PRINT_ALL = EXPAND_ALL | LONG_NAME;
+    }    
 
     public static final DoubleValue ZERO = new DoubleValueZero();
     public static final DoubleValue ONE = new DoubleValueOne();
@@ -72,7 +65,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
             return dv1;
         }
 
-        return new DoubleValueFormula(dv1, dv2, dv1.getValue() + dv2.getValue(), "+", false);
+        return new DoubleValue(dv1, dv2, dv1.getValue() + dv2.getValue(), "+", false);
     }
 
     public static DoubleValue autocast(byte x, DoubleValue y) {
@@ -154,7 +147,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 
             return value;
         } else if (!value.getName().equals(name)) {
-            DoubleValue dv = new DoubleValueFunction(value.doubleValue(), "COPY", new DoubleValue[] { value });
+            DoubleValue dv = new DoubleValue(value, "COPY", new DoubleValue[] { value });
             dv.setName(name);
 
             return dv;
@@ -164,7 +157,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public static DoubleValue divide(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFormula(dv1, dv2, dv1.getValue() / dv2.getValue(), "/", true);
+        return new DoubleValue(dv1, dv2, dv1.getValue() / dv2.getValue(), "/", true);
     }
 
     public static boolean eq(DoubleValue dv1, DoubleValue dv2) {
@@ -200,19 +193,18 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public static DoubleValue max(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFunction(dv2.getValue() > dv1.getValue() ? dv2 : dv1,
-            "max",
-            new DoubleValue[] { dv1, dv2 });
+        return new DoubleValue(dv2.getValue() > dv1.getValue() ? dv2 : dv1, "max", new DoubleValue[] { dv1, dv2 });
+
     }
 
     public static DoubleValue min(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFunction(dv2.getValue() < dv1.getValue() ? dv2 : dv1,
+        return new DoubleValue(dv2.getValue() < dv1.getValue() ? dv2 : dv1,
             "min",
             new DoubleValue[] { dv1, dv2 });
     }
 
     public static DoubleValue multiply(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFormula(dv1, dv2, dv1.getValue() * dv2.getValue(), "*", true);
+        return new DoubleValue(dv1, dv2, dv1.getValue() * dv2.getValue(), "*", true);
     }
 
     public static boolean ne(DoubleValue dv1, DoubleValue dv2) {
@@ -220,66 +212,71 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
     }
 
     public static DoubleValue negative(DoubleValue dv) {
-        DoubleValue neg = new DoubleValue(-dv.value);
-        neg.metaInfo = dv.metaInfo;
+        DoubleValue neg = new DoubleValue(-dv.getValue());
+        neg.setMetaInfo(dv.getMetaInfo());
 
         return neg;
     }
 
     public static DoubleValue pow(DoubleValue dv1, DoubleValue dv2) {
-        return new DoubleValueFunction(Math.pow(dv1.value, dv2.value), "pow", new DoubleValue[] { dv1, dv2 });
+        return new DoubleValue(new DoubleValue(Math.pow(dv1.getValue(), dv2.getValue())), "pow", new DoubleValue[] { dv1, dv2 });
     }
 
     public static DoubleValue round(DoubleValue dv1) {
-        return new DoubleValueFunction(Math.round(dv1.getValue()), "round", new DoubleValue[] { dv1 });
+        return new DoubleValue(new DoubleValue(Math.round(dv1.getValue())), "round", new DoubleValue[] { dv1 });
     }
 
     public static DoubleValue round(DoubleValue d, DoubleValue p) {
-
         if (d == null) {
             return ZERO;
         }
-
-        return new DoubleValueFunction(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue(),
-            "round",
-            new DoubleValue[] { d, p });
+        return new DoubleValue(new DoubleValue(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue()),
+          "round",
+          new DoubleValue[] { d, p });
     }
 
     public static DoubleValue subtract(DoubleValue dv1, DoubleValue dv2) {
-
         if (dv2 == null || dv2.getValue() == 0) {
             return dv1;
         }
-
-        return new DoubleValueFormula(dv1, dv2, dv1.getValue() - dv2.getValue(), "-", false);
-    }
-
-    private String format = "#0.####";
-    private IMetaInfo metaInfo;
-    protected double value;
+        return new DoubleValue(dv1, dv2, dv1.getValue() - dv2.getValue(), "-", false);
+    }    
 
     public DoubleValue() {
+        super();
     }
 
     public DoubleValue(double value) {
+        super();
         this.value = value;
     }
 
     public DoubleValue(double value, IMetaInfo metaInfo, String format) {
-        this.metaInfo = metaInfo;
+        super(metaInfo);
         this.value = value;
         this.format = format;
     }
 
     public DoubleValue(double value, String name) {
+        super(name);
         this.value = value;
-        ValueMetaInfo mi = new ValueMetaInfo();
-        mi.setShortName(name);
-        metaInfo = mi;
     }
 
     public DoubleValue(String valueString) {
+        super();
         value = Double.parseDouble(valueString);
+    }
+    
+    /**Formula constructor**/
+    public DoubleValue(DoubleValue dv1, DoubleValue dv2, double value, String operand, boolean isMultiplicative) {
+        super(dv1, dv2, operand, isMultiplicative);
+        this.value = value;
+    }
+    
+    /**Function constructor**/
+    public DoubleValue(DoubleValue result, String functionName, DoubleValue[] params) {
+        super(result, functionName, params);
+        this.value = result.doubleValue();
     }
 
     public int compareTo(Number o) {
@@ -300,45 +297,13 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return (float) value;
     }
 
-    public Iterator<DoubleValue> getChildren() {
-        return AOpenIterator.empty();
-    }
-
-    public String getDisplayName(int mode) {
-
-        switch (mode) {
-            case SHORT:
-                return printValue();
-            default:
-                String name = metaInfo == null ? null : getMetaInfo().getDisplayName(mode);
-                return name == null ? printValue() : name + "(" + printValue() + ")";
-        }
-    }
-
     public String getFormat() {
         return format;
     }
 
-    public IMetaInfo getMetaInfo() {
-        return metaInfo;
-    }
-
-    public String getName() {
-
-        if (metaInfo == null) {
-            return null;
-        }
-
-        return metaInfo.getDisplayName(IMetaInfo.LONG);
-    }
-
-    public DoubleValue getObject() {
-        return this;
-    }
-
-    public String getType() {
-        return "value";
-    }
+//    public DoubleValue getObject() {
+//        return this;
+//    }
 
     public double getValue() {
         return value;
@@ -349,43 +314,9 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return (int) value;
     }
 
-    public boolean isLeaf() {
-        return true;
-    }
-
     @Override
     public long longValue() {
         return (long) value;
-    }
-
-    protected String printContent(int mode, boolean fromMultiplicativeExpr, boolean inBrackets) {
-        return printValue();
-    }
-
-    public String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls) {
-
-        if (urls != null && metaInfo != null && metaInfo.getSourceUrl() != null) {
-            urls.add("" + metaInfo.getDisplayName(IMetaInfo.LONG) + " -> " + metaInfo.getSourceUrl());
-        }
-
-        return printExplanationLocal(mode, fromMultiplicativeExpr);
-    }
-
-    protected String printExplanationLocal(int mode, boolean fromMultiplicativeExpr) {
-
-        switch (mode & (~EXPAND_ALL)) {
-            case VALUE:
-                return printContent(mode, fromMultiplicativeExpr, false);
-            case SHORT_NAME:
-                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false)
-                                       : metaInfo.getDisplayName(IMetaInfo.LONG) + "(" + printContent(mode, false, true) + ")";
-            case LONG_NAME:
-                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false)
-                                       : metaInfo.getDisplayName(IMetaInfo.LONG) + "(" + printContent(mode, false, true) + ")";
-            default:
-        }
-
-        throw new RuntimeException("Wrong print mode!!");
     }
 
     public String printValue() {
@@ -398,28 +329,6 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 
     public void setFormat(String format) {
         this.format = format;
-    }
-
-    public void setFullName(String name) {
-        if (metaInfo == null) {
-            metaInfo = new ValueMetaInfo();
-        }
-        if (metaInfo instanceof ValueMetaInfo) {
-            ((ValueMetaInfo) metaInfo).setFullName(name);
-        }
-    }
-
-    public void setMetaInfo(IMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
-    }
-
-    public void setName(String name) {
-        if (metaInfo == null) {
-            metaInfo = new ValueMetaInfo();
-        }
-        if (metaInfo instanceof ValueMetaInfo) {
-            ((ValueMetaInfo) metaInfo).setShortName(name);
-        }
     }
 
     public void setValue(double value) {
