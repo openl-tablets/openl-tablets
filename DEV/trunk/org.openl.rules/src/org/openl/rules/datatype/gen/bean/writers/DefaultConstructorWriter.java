@@ -19,6 +19,13 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
     
     private Map<String, FieldDescription> beanFields;
     
+    /**
+     * 
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
+     * (e.g. <code>my/test/TestClass</code>)
+     * @param parentClass class descriptor for super class.
+     * @param beanFields fields of generating class.
+     */
     public DefaultConstructorWriter(String beanNameWithPackage, Class<?> parentClass, Map<String, FieldDescription> beanFields) {
         this.beanNameWithPackage = beanNameWithPackage;
         this.parentClass = parentClass;

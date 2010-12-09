@@ -10,22 +10,28 @@ import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
 
+/**
+ * Writes getters and setters to the generated bean class.
+ * 
+ * @author DLiauchuk
+ * TODO: separate for two writers: for getters and setters separately.
+ */
 public class GettersAndSettersWriter implements BeanByteCodeWriter {
     
     private String beanNameWithPackage;
     private Map<String, FieldDescription> beanFields;
     
+    /**
+     * 
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
+     * (e.g. <code>my/test/TestClass</code>)
+     * @param beanFields fields of generating class.
+     */
     public GettersAndSettersWriter(String beanNameWithPackage, Map<String, FieldDescription> beanFields) {
         this.beanNameWithPackage = beanNameWithPackage;
         this.beanFields = new HashMap<String, FieldDescription>(beanFields);
     }
     
-    /**
-     * Writes getters and setters to the generated bean class.
-     * 
-     * @param beanNameWithPackage
-     * @param classWriter
-     */
     public void write(ClassWriter classWriter) {
         for(Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
             generateGetter(beanNameWithPackage, classWriter, field);
