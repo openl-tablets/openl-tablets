@@ -45,7 +45,10 @@ public class SimpleBeanByteCodeGenerator {
 
     private String beanNameWithPackage;
     
-    List<BeanByteCodeWriter> writers = new ArrayList<BeanByteCodeWriter>();
+    /**
+     * list of writers to generate necessary byte code class representation.
+     */
+    private List<BeanByteCodeWriter> writers = new ArrayList<BeanByteCodeWriter>();
 
     /**
      * 

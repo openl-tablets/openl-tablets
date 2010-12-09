@@ -26,6 +26,15 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
      */
     private int twoStackElementFieldsCount;
     
+    /**
+     * 
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
+     * (e.g. <code>my/test/TestClass</code>)
+     * @param parentClass class descriptor for super class.
+     * @param beanFields fields of generating class.
+     * @param parentFields fields of super class.
+     * @param allFields collection of fields for current class and parent`s ones.
+     */
     public ConstructorWithParametersWriter(String beanNameWithPackage, Class<?> parentClass, Map<String, FieldDescription> beanFields, 
             Map<String, FieldDescription> parentFields, Map<String, FieldDescription> allFields) {
         this.beanNameWithPackage = beanNameWithPackage;

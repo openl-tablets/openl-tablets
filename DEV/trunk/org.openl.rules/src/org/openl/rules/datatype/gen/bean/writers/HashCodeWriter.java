@@ -12,6 +12,12 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 public class HashCodeWriter extends MethodWriter {
     
+    /**
+     * 
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
+     * (e.g. <code>my/test/TestClass</code>)
+     * @param allFields collection of fields for current class and parent`s ones.
+     */
     public HashCodeWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, allFields);
     }
