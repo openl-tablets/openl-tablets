@@ -16,8 +16,8 @@ import org.openl.rules.workspace.props.ValueType;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
 
 import static org.openl.rules.security.Privileges.*;
-import static org.openl.rules.security.SecurityUtils.check;
-import static org.openl.rules.security.SecurityUtils.isGranted;
+import static org.openl.rules.security.AccessManager.check;
+import static org.openl.rules.security.AccessManager.isGranted;
 
 public class AProject extends AProjectFolder{
     protected CommonUser user;

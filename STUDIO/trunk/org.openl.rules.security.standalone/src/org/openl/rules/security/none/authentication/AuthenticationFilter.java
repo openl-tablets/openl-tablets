@@ -13,7 +13,7 @@ import javax.servlet.ServletResponse;
 
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.security.Privileges;
-import org.openl.rules.security.SecurityUtils;
+import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.none.SimpleAuthenticationToken;
 
 import org.springframework.security.core.Authentication;
@@ -43,7 +43,7 @@ public class AuthenticationFilter implements Filter {
      */
     private static String nameFromRequest(ServletRequest req) {
         if (WebTool.isLocalRequest(req)) {
-            return SecurityUtils.LOCAL_USER_ID;
+            return AccessManager.LOCAL_USER_ID;
         }
 
         return req.getRemoteAddr();

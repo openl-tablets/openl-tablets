@@ -51,7 +51,7 @@ public class LocalUserFilter implements Filter {
             ServletException {
         if (autoLogin && WebTool.isLocalRequest(request)
                 && SecurityContextHolder.getContext().getAuthentication() == null && !isIgnoredRequest(request)) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(SecurityUtils.LOCAL_USER_ID);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(AccessManager.LOCAL_USER_ID);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails
                     .getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

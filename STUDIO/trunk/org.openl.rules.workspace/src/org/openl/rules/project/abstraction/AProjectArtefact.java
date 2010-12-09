@@ -15,7 +15,7 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import static org.openl.rules.security.Privileges.*;
-import static org.openl.rules.security.SecurityUtils.isGranted;
+import static org.openl.rules.security.AccessManager.isGranted;
 
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
     protected ProjectArtefactAPI impl;

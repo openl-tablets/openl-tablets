@@ -14,7 +14,7 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.uw.impl.ProjectDescriptorImpl;
 
-import static org.openl.rules.security.SecurityUtils.isGranted;
+import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.*;
 
 public class ADeploymentProject extends AProject {
