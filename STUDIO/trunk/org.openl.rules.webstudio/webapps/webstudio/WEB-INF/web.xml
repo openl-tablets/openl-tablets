@@ -65,7 +65,7 @@
   </context-param>
 
   <context-param>
-    <param-name>org.ajax4jsf.SKIN</param-name>
+    <param-name>org.richfaces.SKIN</param-name>
     <param-value>#{skinBean.skin}</param-value>
   </context-param>
 
