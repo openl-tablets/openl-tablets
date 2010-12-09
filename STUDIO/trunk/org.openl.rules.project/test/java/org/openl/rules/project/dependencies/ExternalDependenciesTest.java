@@ -10,7 +10,6 @@ import java.util.Calendar;
 import org.junit.Test;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.meta.DoubleValue;
-import org.openl.meta.DoubleValueFormula;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -75,8 +74,8 @@ public class ExternalDependenciesTest {
         
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult)res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
-        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
-        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
+        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
+        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
     }
 
     @Test
@@ -110,8 +109,8 @@ public class ExternalDependenciesTest {
         
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult)res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
-        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
-        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
+        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
+        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
         
         context.setLob("main");
         
@@ -119,8 +118,8 @@ public class ExternalDependenciesTest {
         
         spreadsheetResult = (SpreadsheetResult)res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
-        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
-        assertEquals(Double.valueOf(4970),  Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
+        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
+        assertEquals(Double.valueOf(4970),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
     }
 
     @Test
@@ -152,8 +151,8 @@ public class ExternalDependenciesTest {
         
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult)res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
-        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
-        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValueFormula)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
+        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
+        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
         
         // Creating current date value
         Calendar calendar = Calendar.getInstance();
