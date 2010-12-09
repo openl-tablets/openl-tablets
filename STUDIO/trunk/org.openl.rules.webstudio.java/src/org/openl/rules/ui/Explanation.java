@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openl.meta.DoubleValue;
-import org.openl.meta.DoubleValueFormula;
-import org.openl.meta.DoubleValueFunction;
 import org.openl.meta.IMetaInfo;
+import org.openl.meta.number.NumberFormula;
+import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.util.AOpenIterator;
@@ -19,11 +19,12 @@ import org.openl.util.tree.TreeIterator;
 public class Explanation {
     static class DoubleValueIterator implements TreeIterator.TreeAdaptor {
 
-        public Iterator children(Object node) {
-            if (node.getClass() == DoubleValueFormula.class) {
-                return OpenIterator.fromArray(((DoubleValueFormula) node).getArguments());
-            } else if (node.getClass() == DoubleValueFunction.class) {
-                return OpenIterator.fromArray(((DoubleValueFunction) node).getParams());
+        public Iterator children(Object node) { // node.getType == NumberValueTypes.Formula
+            if (node.getClass() == DoubleValue.class && ((DoubleValue)node).getValueType().equals(ValueType.FORMULA)) {
+                return OpenIterator.fromArray(((DoubleValue) node).getFormula().getArguments());
+            } else if (node.getClass() == DoubleValue.class && 
+                    ((DoubleValue)node).getValueType().equals(ValueType.FUNCTION)) {
+                return OpenIterator.fromArray(((DoubleValue) node).getFunction().getParams());
             } else {
                 return AOpenIterator.EMPTY;
             }
@@ -65,10 +66,10 @@ public class Explanation {
 
     protected String expandArgument(DoubleValue value, boolean isMultiplicative, String parentUrl, int level) {
         String url = findUrl(value, parentUrl);
-        if (value.getClass() == DoubleValueFormula.class) {
-            DoubleValueFormula formula = (DoubleValueFormula) value;
+        if (value.getValueType().equals(ValueType.FORMULA)) {
+            NumberFormula<DoubleValue> formula = value.getFormula();
             if (formula.isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
-                return expandFormula(formula, url, level + 1);
+                return expandFormula(value, url, level + 1);
             }
         }
 
@@ -76,17 +77,17 @@ public class Explanation {
 
     }
 
-    protected String expandFormula(DoubleValueFormula formula, String parentUrl, int level) {
+    protected String expandFormula(DoubleValue value, String parentUrl, int level) {
 
-        String url = findUrl(formula, parentUrl);
-        return expandArgument(formula.getDv1(), formula.isMultiplicative(), url, level) + formula.getOperand()
-                + expandArgument(formula.getDv2(), formula.isMultiplicative(), url, level);
+        String url = findUrl(value, parentUrl);
+        return expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), url, level) + value.getFormula().getOperand()
+                + expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), url, level);
     }
 
-    private String expandFunction(DoubleValueFunction function, String parentUrl) {
-        String url = findUrl(function, parentUrl);
-        String ret = function.getFunctionName() + "(";
-        DoubleValue[] params = function.getParams();
+    private String expandFunction(DoubleValue value, String parentUrl) {
+        String url = findUrl(value, parentUrl);
+        String ret = value.getFunction().getFunctionName() + "(";
+        DoubleValue[] params = value.getFunction().getParams();
 
         for (int i = 0; i < params.length; i++) {
             if (i > 0) {
@@ -142,10 +143,10 @@ public class Explanation {
     }
 
     public String htmlString(DoubleValue value) {
-        if (value.getClass() == DoubleValueFormula.class) {
-            return expandFormula((DoubleValueFormula) value, null, 0);
-        } else if (value.getClass() == DoubleValueFunction.class) {
-            return expandFunction((DoubleValueFunction) value, null);
+        if (ValueType.FORMULA.equals(value.getValueType())) {
+            return expandFormula(value, null, 0);
+        } else if (ValueType.FUNCTION.equals(value.getValueType())) {
+            return expandFunction(value, null);
         }
         return expandValue(value);
     }
@@ -171,7 +172,7 @@ public class Explanation {
     }
 
     protected boolean isExpandable(DoubleValue value) {
-        return value.getClass() == DoubleValueFormula.class || value.getClass() == DoubleValueFunction.class;
+        return value.getValueType().equals(ValueType.FORMULA) || value.getValueType().equals(ValueType.FUNCTION);
     }
 
     public boolean isShowNamesInFormula() {
