@@ -34,7 +34,11 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
     public ApiBasedRulesEngineFactory(IOpenSourceCodeModule source) {
         super(RULE_OPENL_NAME, source);
     }
-    
+
+    public ApiBasedRulesEngineFactory(String openlName, IOpenSourceCodeModule source) {
+        super(openlName, source);
+    }
+
     public void reset(boolean resetInterface) {
         compiledOpenClass = null;
         if (resetInterface) {

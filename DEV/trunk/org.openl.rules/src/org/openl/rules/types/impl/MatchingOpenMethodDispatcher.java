@@ -17,6 +17,7 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
@@ -38,6 +39,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         super();
         decorate(method);
         this.moduleOpenClass = moduleOpenClass;
+    }
+
+    @Override
+    public IOpenClass getDeclaringClass() {
+        return moduleOpenClass;
     }
 
     @Override
@@ -64,7 +70,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
 
-        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
+        List<IOpenMethod> methods = extractCandidates(candidates);
+        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
 
         selectCandidates(selected, (IRulesRuntimeContext) context);
 
@@ -139,7 +146,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         boolean matchExists = false;
 
         for (IOpenMethod method : selected) {
-
             ITableProperties props = getTableProperties(method);
             MatchingResult res = matcher.match(propName, props, context);
 
@@ -165,6 +171,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private ITableProperties getTableProperties(IOpenMethod method) {
         //FIXME
         TableProperties properties = new TableProperties();
+
         if(method.getInfo().getProperties() != null){
             for (Entry<String, Object> property : method.getInfo().getProperties().entrySet()) {
                 properties.setFieldValue(property.getKey(), property.getValue());
@@ -208,4 +215,27 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         return builder.toString();
     }
+    
+    private List<IOpenMethod> extractCandidates(List<IOpenMethod> methods) {
+
+        List<IOpenMethod> result = new ArrayList<IOpenMethod>();
+        
+        for (IOpenMethod method : methods) {
+            if (method instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) method;
+                List<IOpenMethod> candidates = extractCandidates(dispatcher.getCandidates());
+                
+                for (IOpenMethod candidate : candidates) {
+//                    if (!(candidate instanceof OpenMethodDispatcher)) {
+                        result.add(candidate);
+//                    }
+                }
+            } else {
+                result.add(method);
+            }
+        }
+        
+        return result;
+    }
+    
 }

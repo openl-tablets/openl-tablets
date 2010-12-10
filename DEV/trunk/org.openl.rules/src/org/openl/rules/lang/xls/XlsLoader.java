@@ -213,63 +213,26 @@ public class XlsLoader {
         }
     }
 
-    private void preprocessDependency(TableSyntaxNode tableSyntaxNode,
-            IGridTable gridTable,
-            IOpenSourceCodeModule moduleSource) {      
-                
-//        IDependencyManager depManager = userContext.getDependencyManager();
-//        if (depManager != null) {
-            int height = gridTable.getHeight();
-            
-            // dependent sources for current module
-            //
-//            Set<IOpenSourceCodeModule> dependentSources = new HashSet<IOpenSourceCodeModule>();
-            
-            for (int i = 0; i < height; i++) {
+    private void preprocessDependency(TableSyntaxNode tableSyntaxNode, IGridTable gridTable,
+        IOpenSourceCodeModule moduleSource) {
 
-                String dependency = gridTable.getCell(1, i).getStringValue();
-                if (StringUtils.isNotBlank(dependency)) {
-                    dependency = dependency.trim();
-                    
-//                    // uri to root module path.
-//                    //
-//                    String searchPath = moduleSource.getUri(0);
-//                    
-//                    // find dependency source                    
-//                    IOpenSourceCodeModule dependencySource = depManager.find(dependency, searchPath);
-//                    
-//                    if (dependencySource != null) {
-//                        // add source as dependency
-//                        dependentSources.add(dependencySource);                        
-//                    } else {
-//                        // throw smth, can`t find dependency
-//                        // temporary just logging
-//                        String message = String.format("Can`t find dependeny source for %s module", moduleSource.getUri(0));
-//                        LOG.error(this, new OpenLCompilationException(message));
-//                    }                    
-                    
-                    Dependency moduleDependency = new Dependency(DependencyType.MODULE, 
-                        new IdentifierNode(IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency,
-                            moduleSource));
-                    dependencies.add(moduleDependency);
-                }
-//                    else {
-//                    // skip empty dependency line.
-//                }
+        int height = gridTable.getHeight();
+
+        for (int i = 0; i < height; i++) {
+
+            String dependency = gridTable.getCell(1, i).getStringValue();
+            if (StringUtils.isNotBlank(dependency)) {
+                dependency = dependency.trim();
+
+                Dependency moduleDependency = new Dependency(DependencyType.MODULE, new IdentifierNode(
+                    IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency, moduleSource));
+                dependencies.add(moduleDependency);
             }
-            // add set of dependent sources for current module to dependency manager
-//            depManager.addDependenciesSources(moduleSource, dependentSources);
-//        } else {
-//            // can`t find dependency manager, throw smth.
-//            // temporary just logging
-//            String message = String.format("Can`t find dependeny manager for %s module", moduleSource.getUri(0));
-//            LOG.error(this, new OpenLCompilationException(message));
-//        }
+        }
     }
 
     private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
         int height = table.getHeight();
-        // List<String> importsList = new ArrayList<String>();
 
         for (int i = 0; i < height; i++) {
             String singleImport = table.getCell(1, i).getStringValue();

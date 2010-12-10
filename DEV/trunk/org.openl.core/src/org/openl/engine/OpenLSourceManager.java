@@ -1,9 +1,14 @@
 package org.openl.engine;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
@@ -21,11 +26,14 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
- * Class that defines OpenL engine manager implementation for source processing operations.
+ * Class that defines OpenL engine manager implementation for source processing
+ * operations.
  * 
  */
 public class OpenLSourceManager extends OpenLHolder {
 
+    private static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
+    
     private OpenLParseManager parseManager;
     private OpenLBindManager bindManager;
 
@@ -61,7 +69,8 @@ public class OpenLSourceManager extends OpenLHolder {
      * @param sourceType type of source
      * @return processed code descriptor
      */
-    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType, IDependencyManager dependencyManager) {
+    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
+        IDependencyManager dependencyManager) {
         return processSource(source, sourceType, null, false, dependencyManager);
     }
 
@@ -71,15 +80,12 @@ public class OpenLSourceManager extends OpenLHolder {
      * @param source source
      * @param sourceType type of source
      * @param bindingContextDelegator binding context
-     * @param ignoreErrors define a flag that indicates to suppress errors or break source processing when an error has
-     *            occurred
+     * @param ignoreErrors define a flag that indicates to suppress errors or
+     *            break source processing when an error has occurred
      * @return processed code descriptor
      */
-    public ProcessedCode processSource(IOpenSourceCodeModule source,
-                                       SourceType sourceType,
-                                       IBindingContextDelegator bindingContextDelegator,
-                                       boolean ignoreErrors, 
-                                       IDependencyManager dependencyManager) {
+    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
+        IBindingContextDelegator bindingContextDelegator, boolean ignoreErrors, IDependencyManager dependencyManager) {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
         SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
@@ -88,19 +94,20 @@ public class OpenLSourceManager extends OpenLHolder {
             throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
 
-        // compile source dependencies        
+        // compile source dependencies
         if (SourceType.MODULE.equals(sourceType)) {
 
-            IDependency[] dependencies = parsedCode.getDependencies();
             Set<CompiledOpenClass> compiledDependencies = new LinkedHashSet<CompiledOpenClass>();
+            List<IDependency> externalDependencies = getExternalDependencies(source);
+            Collection<IDependency> dependencies = CollectionUtils.union(externalDependencies, Arrays.asList(parsedCode.getDependencies()));
 
-            if (dependencies != null && dependencies.length > 0) {
+            if (dependencies != null && dependencies.size() > 0) {
                 if (dependencyManager != null) {
-               
-                    for (int i = 0; i < dependencies.length; i++) {
+                    for (IDependency dependency : dependencies) {
                         try {
-                            CompiledDependency loadedDependency = dependencyManager.loadDependency(dependencies[i]);
-                            OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread().getContextClassLoader();
+                            CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
+                            OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread()
+                                .getContextClassLoader();
                             currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
                             compiledDependencies.add(loadedDependency.getCompiledOpenClass());
                         } catch (Exception e) {
@@ -114,13 +121,13 @@ public class OpenLSourceManager extends OpenLHolder {
 
             parsedCode.setCompiledDependencies(compiledDependencies);
         }
-        
+
         Map<String, Object> externalParams = source.getParams();
 
         if (externalParams != null) {
             parsedCode.setExternalParams(externalParams);
-        }        
-        
+        }
+
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
@@ -132,8 +139,23 @@ public class OpenLSourceManager extends OpenLHolder {
         ProcessedCode processedCode = new ProcessedCode();
         processedCode.setParsedCode(parsedCode);
         processedCode.setBoundCode(boundCode);
-        
+
         return processedCode;
     }
 
+    private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
+
+        List<IDependency> dependencies = new ArrayList<IDependency>();
+        Map<String, Object> params = source.getParams();
+
+        if (params != null) {
+            List<IDependency> externalDependencies = (List<IDependency>) params.get(EXTERNAL_DEPENDENCIES_KEY);
+
+            if (externalDependencies != null) {
+                dependencies.addAll(externalDependencies);
+            }
+        }
+
+        return dependencies;
+    }
 }
