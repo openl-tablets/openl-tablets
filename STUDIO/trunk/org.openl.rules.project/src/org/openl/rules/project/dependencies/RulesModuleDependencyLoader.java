@@ -1,8 +1,8 @@
 package org.openl.rules.project.dependencies;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
@@ -16,32 +16,13 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 
-public class RulesProjectDependencyLoader implements IDependencyLoader {
+public class RulesModuleDependencyLoader implements IDependencyLoader {
 
-    private String workspace;
-    private Map<String, Module> modules = new HashMap<String, Module>();
+    private Map<String, Module> modulesMap = new HashMap<String, Module>();
     
-    public RulesProjectDependencyLoader(String workspace) {
-        this.workspace = workspace;
-        
-        init();
-    }
-
-    private void init() {
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(workspace);
-        
-        List<ProjectDescriptor> projects = projectResolver.listOpenLProjects();
-
-        for (ProjectDescriptor project : projects) {
-            for (Module module : project.getModules()) {
-                String key = module.getName();
-                modules.put(key, module);
-            }
-        }
+    public RulesModuleDependencyLoader(Collection<Module> modules) {
+        init(modules);
     }
     
     public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) {
@@ -52,7 +33,6 @@ public class RulesProjectDependencyLoader implements IDependencyLoader {
      
             try {
                 URL[] urls = module.getProject().getClassPathUrls();
-//                ClassLoader parentClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
                 OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader();
                 OpenLClassLoaderHelper.extendClasspath(moduleClassLoader, urls);
                 
@@ -69,7 +49,14 @@ public class RulesProjectDependencyLoader implements IDependencyLoader {
     }
     
     private Module findDependencyModule(String moduleName){
-        return modules.get(moduleName);
+        return modulesMap.get(moduleName);
+    }
+    
+    private void init(Collection<Module> modules) {
+        for (Module module : modules) {
+            String key = module.getName();
+            modulesMap.put(key, module);
+        }
     }
     
 }

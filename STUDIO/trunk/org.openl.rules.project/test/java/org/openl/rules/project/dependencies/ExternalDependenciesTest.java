@@ -31,7 +31,7 @@ public class ExternalDependenciesTest {
         RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
         
         RulesFileDependencyLoader loader1 = new RulesFileDependencyLoader();
-        RulesProjectDependencyLoader loader2 = new RulesProjectDependencyLoader("test/resources/dependencies/test1/module");
+        ResolvingRulesProjectDependencyLoader loader2 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test1/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
         ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
@@ -50,7 +50,7 @@ public class ExternalDependenciesTest {
 
         RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
         
-        IDependencyLoader loader1 = new RulesProjectDependencyLoader("test/resources/dependencies/test2/module");
+        IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test2/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
         ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
@@ -86,7 +86,7 @@ public class ExternalDependenciesTest {
         RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
         
         RulesFileDependencyLoader loader1 = new RulesFileDependencyLoader();
-        RulesProjectDependencyLoader loader2 = new RulesProjectDependencyLoader("test/resources/dependencies/test3/module");
+        ResolvingRulesProjectDependencyLoader loader2 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test3/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
         ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
@@ -129,7 +129,7 @@ public class ExternalDependenciesTest {
 
         RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
         
-        IDependencyLoader loader1 = new RulesProjectDependencyLoader("test/resources/dependencies/test4/module");
+        IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test4/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
         ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);

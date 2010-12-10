@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.rules.project
 Bundle-Version: 5.7.4
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
- org.openl.rules
+ org.openl.rules;visibility:=reexport
 Export-Package: org.openl.rules.project,
  org.openl.rules.project.instantiation,
  org.openl.rules.project.model,
