@@ -68,10 +68,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
             try {
                 initDependencies();
             } catch (OpenLCompilationException e) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype", e,
-                    (ISyntaxNode) this);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype", e, (ISyntaxNode) this);
                 BindHelper.processError(error);
-
             }
         }
     }
@@ -186,7 +184,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
         //
         for (CompiledOpenClass dependency : usingModules) {
             for (IOpenMethod method : dependency.getOpenClass().getMethods()) {
-                methods.put(new MethodKey(method), method);
+                if (!(method instanceof OpenConstructor) && !(method instanceof GetOpenClass)) {
+                    methods.put(new MethodKey(method), method);
+                }
             }
         }
 
