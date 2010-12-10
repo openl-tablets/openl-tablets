@@ -178,8 +178,6 @@ public class MultiModuleInstantiationTest {
         method = serviceClass.getMethod("getData2", new Class<?>[] { IRulesRuntimeContext.class });
         result = method.invoke(instance, new Object[] { context });
         assertEquals(3, ((Object[]) result).length);
-
     }
-
 
 }
