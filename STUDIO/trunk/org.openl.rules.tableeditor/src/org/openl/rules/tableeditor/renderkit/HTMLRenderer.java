@@ -360,7 +360,10 @@ public class HTMLRenderer {
      */
     public static class TableRenderer {
 
-        public static final int MAX_NUM_ROWS = 70;
+        public static final int MIN_NUM_ROWS = 10;
+        public static final int MIN_NUM_COLS_TO_REDUCE_ROWS = 20;
+        public static final int REDUCE_ROWS = 5;
+        public int maxNumRows = 70;
 
         private final TableModel tableModel;
         private String cellIdPrefix;
@@ -384,6 +387,10 @@ public class HTMLRenderer {
             boolean isBigTable = false;
 
             IGridTable table = tableModel.getGridTable();
+
+            int numCols = tableModel.getCells()[0].length;
+            int rowsToReduce = numCols / MIN_NUM_COLS_TO_REDUCE_ROWS * REDUCE_ROWS;
+            maxNumRows = (rowsToReduce >= maxNumRows - MIN_NUM_ROWS ? MIN_NUM_ROWS : maxNumRows - rowsToReduce);
 
             StringBuilder s = new StringBuilder();
             s.append("<table class=\"te_table\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
@@ -445,7 +452,7 @@ public class HTMLRenderer {
                     }
                 }
                 s.append("</tr>\n");
-                if (row >= MAX_NUM_ROWS) {
+                if (row >= maxNumRows) {
                     isBigTable = true;
                     break;
                 }
@@ -455,7 +462,7 @@ public class HTMLRenderer {
             if (isBigTable) {
                 s.append("<div class='te_bigtable_mes'>")
                 .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first "
-                        + MAX_NUM_ROWS + " rows).</div>")
+                        + maxNumRows + " rows).</div>")
                 .append("<div>To view the full table, use 'Edit In Excel'.</div>")
                 .append("</div>");
             }
