@@ -74,7 +74,7 @@ public class TableModel {
         IGridRegion region = table.getRegion();
         if (numRows > -1 && region.getTop() + numRows < region.getBottom()) {
             region = new GridRegion(region);
-            ((GridRegion) region).setBottom(region.getTop() + numRows);
+            ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
         return new TableViewer(htmlGrid, region).buildModel(table, numRows);
