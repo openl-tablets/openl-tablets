@@ -108,6 +108,10 @@ public class TableViewer {
     }
 
     public TableModel buildModel(IGridTable gt) {
+        return buildModel(gt, -1);
+    }
+
+    public TableModel buildModel(IGridTable gt, int numRows) {
 
         // IGridTable table = new GridTable(g.getTop(), g.getLeft(),
         // g.getBottom(),
@@ -117,6 +121,7 @@ public class TableViewer {
         int w = IGridRegion.Tool.width(reg);
 
         TableModel tm = new TableModel(w, h, gt);
+        tm.setNumRowsToDisplay(numRows);
 
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (int column = reg.getLeft(); column <= reg.getRight(); column++) {

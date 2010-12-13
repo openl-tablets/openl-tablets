@@ -5,7 +5,9 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.SimpleFormatFilter;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 
 public class TableModel {
@@ -34,14 +36,25 @@ public class TableModel {
 
     private IGridTable gridTable;
 
+    private int numRowsToDisplay = -1;
+
     public static TableModel initializeTableModel(IGridTable table) {
         return initializeTableModel(table, null);
     }
 
+    public static TableModel initializeTableModel(IGridTable table, int numRows) {
+        return initializeTableModel(table, null, numRows);
+    }
+
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
+        return initializeTableModel(table, null, -1);
+    }
+
+    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows) {
         if (table == null) {
             return null;
         }
+
         boolean filtered = filters != null && filters.length > 0;
         IGrid htmlGrid = table.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
@@ -57,7 +70,14 @@ public class TableModel {
             }
             htmlGrid = new FilteredGrid(table.getGrid(), f1);
         }
-        return new TableViewer(htmlGrid, table.getRegion()).buildModel(table);
+
+        IGridRegion region = table.getRegion();
+        if (numRows > -1 && region.getTop() + numRows < region.getBottom()) {
+            region = new GridRegion(region);
+            ((GridRegion) region).setBottom(region.getTop() + numRows);
+        }
+
+        return new TableViewer(htmlGrid, region).buildModel(table, numRows);
     }
 
     public TableModel(int width, int height, IGridTable gridTable) {
@@ -67,6 +87,14 @@ public class TableModel {
         }
 
         this.gridTable = gridTable;
+    }
+
+    public int getNumRowsToDisplay() {
+        return numRowsToDisplay;
+    }
+
+    public void setNumRowsToDisplay(int numRowsToDisplay) {
+        this.numRowsToDisplay = numRowsToDisplay;
     }
 
     public void addCell(ICellModel cm, int row, int column) {

@@ -33,7 +33,8 @@ public class BaseTableEditorController {
 
     protected TableModel initializeTableModel(String editorId) {
         IGridTable table = getGridTable(editorId);
-        return TableModel.initializeTableModel(table);
+        int numRows = HTMLRenderer.getMaxNumRowsToDisplay(table);
+        return TableModel.initializeTableModel(table, numRows);
     }
 
     protected String render(String editorId) {

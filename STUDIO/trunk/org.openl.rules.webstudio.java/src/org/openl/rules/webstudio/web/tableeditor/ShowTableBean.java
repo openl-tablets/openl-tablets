@@ -84,7 +84,7 @@ public class ShowTableBean {
         final ProjectModel model = studio.getModel();
 
         table = model.getTable(uri);
-        
+
         runnable = model.isRunnable(uri); 
         
         if (runnable) {
