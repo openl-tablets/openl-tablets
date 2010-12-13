@@ -67,7 +67,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         return new DoubleValue(dv1, dv2, dv1.getValue() + dv2.getValue(), "+", false);
     }
-
+    
+    // ******* Autocasts *************
+    
     public static DoubleValue autocast(byte x, DoubleValue y) {
         return new DoubleValue(x);
     }
@@ -103,6 +105,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         return new DoubleValue(x);
     }
+    
+    // ******* Casts *************
 
     public static byte cast(DoubleValue x, byte y) {
         return x.byteValue();
@@ -139,7 +143,27 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         return x.doubleValue();
     }
+    
+    public static ByteValue cast(DoubleValue x, ByteValue y) {
+        return new ByteValue(x.byteValue());
+    }
 
+    public static ShortValue cast(DoubleValue x, ShortValue y) {
+        return new ShortValue(x.shortValue());
+    }
+        
+    public static IntValue cast(DoubleValue x, IntValue y) {
+        return new IntValue(x.intValue());
+    }
+
+    public static LongValue cast(DoubleValue x, LongValue y) {
+        return new LongValue(x.longValue());
+    }
+    
+    public static FloatValue cast(DoubleValue x, FloatValue y) {
+        return new FloatValue(x.floatValue());
+    }
+    
     public static DoubleValue copy(DoubleValue value, String name) {
 
         if (value.getName() == null) {
@@ -241,7 +265,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         return new DoubleValue(dv1, dv2, dv1.getValue() - dv2.getValue(), "-", false);
     }    
-
+    
+    /**
+     * @deprecated double value shouldn`t be empty.
+     */
+    @Deprecated
     public DoubleValue() {
         super();
     }
@@ -301,10 +329,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return format;
     }
 
-//    public DoubleValue getObject() {
-//        return this;
-//    }
-
     public double getValue() {
         return value;
     }
@@ -333,11 +357,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     public void setValue(double value) {
         this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return printValue();
     }
 
     @Override

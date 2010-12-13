@@ -25,8 +25,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
      * Explanator for current value.
      * Its implementation depends on the {@link #getValueType()}, for each value type there is it`s own 
      * explanator. 
-     */
-    private ExplanationForNumber<T> explanation;
+     */    
+    private transient ExplanationForNumber<T> explanation;
 
     public ExplanationNumberValue() {        
         this.explanation = new SingleValueExplanation<T>();
@@ -109,5 +109,10 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     @SuppressWarnings("unchecked")
     public T getObject() {    
         return (T) this;
+    }
+    
+    @Override
+    public String toString() {
+        return printValue();
     }
 }
