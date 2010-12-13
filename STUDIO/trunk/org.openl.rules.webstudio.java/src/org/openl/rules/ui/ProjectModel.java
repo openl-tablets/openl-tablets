@@ -40,17 +40,14 @@ import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.table.CompositeGrid;
-import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.OpenLTable;
-import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridImporter;
@@ -119,24 +116,6 @@ public class ProjectModel {
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
-    }
-
-    public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
-        IGrid htmlGrid = gt.getGrid();
-        if (!(htmlGrid instanceof FilteredGrid)) {
-            int N = 1;
-            IGridFilter[] f1 = new IGridFilter[filters == null ? N : filters.length + N];
-            f1[0] = new SimpleFormatFilter();
-            // f1[1] = new SimpleHtmlFilter();
-            for (int i = N; i < f1.length; i++) {
-                f1[i] = filters[i - N];
-            }
-
-            htmlGrid = new FilteredGrid(gt.getGrid(), f1);
-
-        }
-
-        return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
     }
 
     public AProject getProject() {
@@ -1148,8 +1127,10 @@ public class ProjectModel {
             gt = gtx.getSource();
         }
 
-        TableModel tableModel = buildModel(gt, new IGridFilter[] { new ColorGridFilter(new RegionGridSelector(region,
-                true), filterHolder.makeFilter()) });
+        TableModel tableModel = TableModel.initializeTableModel(gt,
+                new IGridFilter[] {
+                    new ColorGridFilter(new RegionGridSelector(region, true), filterHolder.makeFilter())
+                });
         // FIXME: should formulas be displayed?
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
@@ -1186,10 +1167,10 @@ public class ProjectModel {
 
     @Deprecated
     public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
-        TableModel model = buildModel(gt, filters);
+        TableModel model = TableModel.initializeTableModel(gt, filters);
         return TableViewer.showTable(model, showgrid);
     }
-    
+
     public boolean isProjectCompiledSuccessfully() {
         return compiledOpenClass != null 
             && compiledOpenClass.getOpenClassWithErrors() != null 
