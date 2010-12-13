@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
@@ -44,6 +45,12 @@ public class HTMLRenderer {
 
     /** New line */
     public static final String NL = "\n";
+
+    public static final int ALL_ROWS = -1;
+    public static final int MIN_NUM_ROWS = 10;
+    public static final int MAX_NUM_ROWS = 70;
+    public static final int MIN_NUM_COLS_TO_REDUCE_ROWS = 20;
+    public static final int REDUCE_ROWS = 5;
 
     @SuppressWarnings("unchecked")
     protected Set getResourcesWritten() {
@@ -322,8 +329,9 @@ public class HTMLRenderer {
         }
         if (editor.getTable() != null) {
             IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
-            TableModel tableModel = TableModel.initializeTableModel(editor.getTable().getGridTable(editor.getView()),
-                    filters);
+            IGridTable table = editor.getTable().getGridTable(editor.getView());
+            int numRows = getMaxNumRowsToDisplay(table);
+            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows);
             if (tableModel != null) {
                 String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
@@ -339,6 +347,34 @@ public class HTMLRenderer {
             }
         }
         return result.toString();
+    }
+
+    /**
+     * Returns max number of rows to display.
+     * 
+     * @return number of rows to display or -1 for all rows
+     */
+    public static int getMaxNumRowsToDisplay(IGridTable table) {
+        int numRows;
+
+        IGridRegion region = table.getRegion();
+        int cols = IGridRegion.Tool.width(region);
+        int rows = IGridRegion.Tool.height(region);
+
+        int rowsToReduce = cols / MIN_NUM_COLS_TO_REDUCE_ROWS * REDUCE_ROWS;
+        if (rowsToReduce == 0) {
+            if (rows > MAX_NUM_ROWS) {
+                numRows = MAX_NUM_ROWS;
+            } else {
+                numRows = ALL_ROWS;
+            }
+        } else if (rowsToReduce >= MAX_NUM_ROWS - MIN_NUM_ROWS) {
+            numRows = MIN_NUM_ROWS;
+        } else {
+            numRows = MAX_NUM_ROWS - rowsToReduce;
+        }
+
+        return numRows;
     }
 
     protected String renderPropsEditor(String editorId, IOpenLTable table, String mode, boolean collapseProps) {
@@ -360,11 +396,6 @@ public class HTMLRenderer {
      */
     public static class TableRenderer {
 
-        public static final int MIN_NUM_ROWS = 10;
-        public static final int MIN_NUM_COLS_TO_REDUCE_ROWS = 20;
-        public static final int REDUCE_ROWS = 5;
-        public int maxNumRows = 70;
-
         private final TableModel tableModel;
         private String cellIdPrefix;
 
@@ -384,13 +415,7 @@ public class HTMLRenderer {
             }
             final String prefix = cellIdPrefix != null ? cellIdPrefix : Constants.ID_POSTFIX_CELL;
 
-            boolean isBigTable = false;
-
             IGridTable table = tableModel.getGridTable();
-
-            int numCols = tableModel.getCells()[0].length;
-            int rowsToReduce = numCols / MIN_NUM_COLS_TO_REDUCE_ROWS * REDUCE_ROWS;
-            maxNumRows = (rowsToReduce >= maxNumRows - MIN_NUM_ROWS ? MIN_NUM_ROWS : maxNumRows - rowsToReduce);
 
             StringBuilder s = new StringBuilder();
             s.append("<table class=\"te_table\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
@@ -452,17 +477,13 @@ public class HTMLRenderer {
                     }
                 }
                 s.append("</tr>\n");
-                if (row >= maxNumRows) {
-                    isBigTable = true;
-                    break;
-                }
             }
             s.append("</table>");
 
-            if (isBigTable) {
+            if (tableModel.getNumRowsToDisplay() > -1) {
                 s.append("<div class='te_bigtable_mes'>")
                 .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first "
-                        + maxNumRows + " rows).</div>")
+                        + tableModel.getNumRowsToDisplay() + " rows).</div>")
                 .append("<div>To view the full table, use 'Edit In Excel'.</div>")
                 .append("</div>");
             }
