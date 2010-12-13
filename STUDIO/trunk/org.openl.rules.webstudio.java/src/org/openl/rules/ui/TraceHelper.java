@@ -153,7 +153,7 @@ public class TraceHelper {
         IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
         IGridTable gt = table.getGridTable(view);
 
-        TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });
+        TableModel tableModel = TableModel.initializeTableModel(gt, new IGridFilter[] { makeFilter(tto, model) });
         // TODO: Show formulas in trace
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
