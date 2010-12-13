@@ -6,8 +6,8 @@ package org.openl.rules.ui;
 import java.lang.reflect.Array;
 
 import org.openl.base.INamedThing;
-import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
+import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridTable;
@@ -203,20 +203,20 @@ public class ObjectViewer {
 
         private String makeUrl(int col, int row, TableValueFilter dataAdapter) {
             Object obj = dataAdapter.getCellValue(col, row);
-
-            if (obj == null || !(obj instanceof DoubleValue)) {
+            
+            if (obj == null || !(obj instanceof ExplanationNumberValue<?>)) {
                 return null;
             }
 
-            DoubleValue dv = (DoubleValue) obj;
-            if (Math.abs(dv.doubleValue()) < 0.005) {
+            ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) obj;
+            if (Math.abs(explanationValue.doubleValue()) < 0.005) {
                 return null;
             }
 
-            return getURL(dv);
+            return getURL(explanationValue);
         }
 
-        public static String getURL(DoubleValue dv) {
+        public static String getURL(ExplanationNumberValue<?> dv) {
             int rootID = Explanator.getCurrent().getUniqueId(dv);
             return "javascript: open_explain_win(\'?rootID=" + rootID + "&header=Explanation')";
         }

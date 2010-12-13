@@ -6,7 +6,7 @@ import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
-import org.openl.meta.DoubleValue;
+import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
@@ -125,13 +125,13 @@ public class RunTestMethodBean {
         return StringUtils.EMPTY;
     }
 
-    public DoubleValue getDoubleValueResult() {
+    public ExplanationNumberValue<?> getExplanationValueResult() {
         Object result = resultItems.getRowData();
-        return TestResultsHelper.getDoubleValueResult(result);
+        return TestResultsHelper.getExplanationValueResult(result);
     }
 
     public int getExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getDoubleValueResult());
+        return TestResultsHelper.getExplanatorId(getExplanationValueResult());
     }
 
     public List<OpenLMessage> getErrors() {

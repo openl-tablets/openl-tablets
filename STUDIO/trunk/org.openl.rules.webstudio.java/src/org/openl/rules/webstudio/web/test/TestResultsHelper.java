@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.meta.DoubleValue;
+import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.xls.formatters.FormattersManager;
 import org.openl.rules.ui.Explanator;
@@ -16,16 +16,16 @@ import org.openl.util.formatters.IFormatter;
 public class TestResultsHelper {
     private TestResultsHelper(){}
     
-    public static DoubleValue getDoubleValueResult(Object result) {
-        if (result instanceof DoubleValue) {
-            return (DoubleValue) result;
+    public static ExplanationNumberValue<?> getExplanationValueResult(Object result) {
+        if (result instanceof ExplanationNumberValue<?>) {
+            return (ExplanationNumberValue<?>) result;
         }
         
         return null;
     }
     
-    public static int getExplanatorId(DoubleValue doubleValue) {        
-        return Explanator.getCurrent().getUniqueId(doubleValue);
+    public static int getExplanatorId(ExplanationNumberValue<?> explanationValue) {        
+        return Explanator.getCurrent().getUniqueId(explanationValue);
     }
     
     public static List<OpenLMessage> getErrors(Object result) {
