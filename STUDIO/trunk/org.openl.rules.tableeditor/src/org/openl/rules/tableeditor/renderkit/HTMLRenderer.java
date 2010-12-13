@@ -368,6 +368,8 @@ public class HTMLRenderer {
             } else {
                 numRows = ALL_ROWS;
             }
+        } else if (rowsToReduce >= rows || rows < MIN_NUM_ROWS) {
+            numRows = ALL_ROWS;
         } else if (rowsToReduce >= MAX_NUM_ROWS - MIN_NUM_ROWS) {
             numRows = MIN_NUM_ROWS;
         } else {
