@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections.map.IdentityMap;
-import org.openl.meta.DoubleValue;
+import org.openl.meta.explanation.ExplanationNumberValue;
 
 public class Explanator {
 
@@ -26,8 +26,8 @@ public class Explanator {
         current.set(expl);
     }
 
-    public DoubleValue find(String expandID) {
-        return (DoubleValue) id2value.get(new Integer(Integer.parseInt(expandID)));
+    public ExplanationNumberValue<?> find(String expandID) {
+        return (ExplanationNumberValue<?>) id2value.get(new Integer(Integer.parseInt(expandID)));
     }
 
     public Explanation getExplanation(String rootID) {
@@ -35,15 +35,15 @@ public class Explanator {
         if (expl == null) {
             int id = Integer.parseInt(rootID);
 
-            DoubleValue value = (DoubleValue) id2value.get(new Integer(id));
+            ExplanationNumberValue<?> value = (ExplanationNumberValue<?>) id2value.get(new Integer(id));
             expl = new Explanation(this);
-            expl.root = value;
+            expl.setRoot(value);
             explanators.put(rootID, expl);
         }
         return expl;
     }
 
-    public int getUniqueId(DoubleValue value) {
+    public int getUniqueId(ExplanationNumberValue<?> value) {
         Integer id = (Integer)value2id.get(value);
 
         if (id != null) {
@@ -55,7 +55,7 @@ public class Explanator {
         id2value.put(id, value);
         return id.intValue();
     }
-
+    
     public void reset() {
         id2value = new HashMap<Integer, Object>();
         value2id = new IdentityMap();

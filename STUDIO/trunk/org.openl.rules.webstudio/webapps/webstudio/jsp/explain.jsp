@@ -5,7 +5,8 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
-<html>
+
+<%@page import="org.openl.meta.explanation.ExplanationNumberValue"%><html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
@@ -81,7 +82,7 @@ if (header != null)
 <tr>
 <%
   for(int i = 0; i < expl.getExpandedValues().size(); ++i){
-  DoubleValue dv = (DoubleValue)expl.getExpandedValues().get(i);
+  ExplanationNumberValue<?> dv = (ExplanationNumberValue<?>)expl.getExpandedValues().get(i);
   cc = expl.htmlTable(dv);
 %>
 

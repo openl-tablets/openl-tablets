@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
-import org.openl.meta.DoubleValue;
+import org.openl.meta.explanation.ExplanationNumberValue;
 
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.ProjectModel;
@@ -103,10 +103,10 @@ public class RunAllTestsBean {
         
         return testUnit.getExpectedResult();
     }
-
-    public DoubleValue getDoubleValueExpected() {
+    
+    public ExplanationNumberValue<?> getExplanationValueExpected() {
         Object expected = getExpected();
-        return TestResultsHelper.getDoubleValueResult(expected);
+        return TestResultsHelper.getExplanationValueResult(expected);
     }
 
     public Object getResult() {
@@ -120,18 +120,18 @@ public class RunAllTestsBean {
         }
         return result;
     }
-
-    public DoubleValue getDoubleValueResult() {
+    
+    public ExplanationNumberValue<?> getExplanationValueResult() {
         Object result = getResult();
-        return TestResultsHelper.getDoubleValueResult(result);
+        return TestResultsHelper.getExplanationValueResult(result);
     }
 
     public int getResultExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getDoubleValueResult());
+        return TestResultsHelper.getExplanatorId(getExplanationValueResult());
     }
 
     public int getExpectedExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getDoubleValueExpected());
+        return TestResultsHelper.getExplanatorId(getExplanationValueExpected());
     }
 
     public int getCompareResult() {

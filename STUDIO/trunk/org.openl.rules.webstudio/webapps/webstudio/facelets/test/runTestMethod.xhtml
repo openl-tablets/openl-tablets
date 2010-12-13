@@ -33,11 +33,11 @@
             <c:set var="errors" value="#{runTestMethodBean.errors}" />
             <h:panelGroup rendered="#{empty errors}">
                 <h:outputText value="#{runTestMethodBean.stringResult}"
-                    rendered="#{empty runTestMethodBean.doubleValueResult and empty runTestMethodBean.spreadsheetResult}" />
+                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />
                 <h:outputLink
                     value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
-                    rendered="#{not empty runTestMethodBean.doubleValueResult}">
-                    <h:outputText value="#{runTestMethodBean.doubleValueResult.value}" />
+                    rendered="#{not empty runTestMethodBean.explanationValueResult}">
+                    <h:outputText value="#{runTestMethodBean.explanationValueResult.value}" />
                 </h:outputLink>
                 <h:outputText rendered="#{not empty runTestMethodBean.spreadsheetResult}"
                     value="#{runTestMethodBean.formattedSpreadsheetResult}"

@@ -76,11 +76,11 @@
 
                         <td>
                             <h:outputText value="#{runAllTestsBean.expected}"
-                                rendered="#{empty runAllTestsBean.doubleValueExpected}" />
+                                rendered="#{empty runAllTestsBean.explanationValueExpected}" />
                             <h:outputLink
                                 value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
-                                rendered="#{not empty runAllTestsBean.doubleValueExpected}">
-                                <h:outputText value="#{runAllTestsBean.doubleValueExpected.value}" />
+                                rendered="#{not empty runAllTestsBean.explanationValueExpected}">
+                                <h:outputText value="#{runAllTestsBean.explanationValueExpected.value}" />
                             </h:outputLink>
                         </td>
                         <td>
@@ -92,11 +92,11 @@
                                     rendered="#{runAllTestsBean.compareResult == 1}" />
                                 <h:outputText value=" " />
                                 <h:outputText value="#{runAllTestsBean.result}"
-                                    rendered="#{empty runAllTestsBean.doubleValueResult}" />
+                                    rendered="#{empty runAllTestsBean.explanationValueResult}" />
                                 <h:outputLink
                                     value="javascript: open_explain_win('?rootID=#{runAllTestsBean.resultExplanatorId}&amp;header=Explanation')"
-                                    rendered="#{not empty runAllTestsBean.doubleValueResult}">
-                                    <h:outputText value="#{runAllTestsBean.doubleValueResult.value}" />
+                                    rendered="#{not empty runAllTestsBean.explanationValueResult}">
+                                    <h:outputText value="#{runAllTestsBean.explanationValueResult.value}" />
                                 </h:outputLink>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
