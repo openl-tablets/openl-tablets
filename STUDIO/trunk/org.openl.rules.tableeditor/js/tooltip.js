@@ -51,9 +51,12 @@ var Tooltip = Class.create({
             document.body.appendChild(tooltip);
             this.firedTooltips.set(this.element.id, tooltip);
 
+            var position = (this.params && this.params.position) ? this.params.position : 'top_right';
+            tooltip.addClassName('tooltip_' + position);
+
             this.applyStylesToPointer(tooltip);
 
-            var pos = this.getInitPosition(tooltip);
+            var pos = this.calculateInitPosition(tooltip, position);
             tooltip.style.left = pos[0] + "px";
             tooltip.style.top = pos[1] + "px";
 
@@ -71,15 +74,45 @@ var Tooltip = Class.create({
         }
     },
 
-    getInitPosition: function(tooltip) {
-        var pos = Element.cumulativeOffset(this.element);
-        pos[0] += this.element.getWidth() - 25;
-        pos[1] -= (this.element.getHeight() + tooltip.getHeight() - 4);
-        return pos;
+    calculateInitPosition: function(tooltip, position) {
+        var initPos = Element.cumulativeOffset(this.element);
+
+        switch (position) {
+            case 'top_right':
+                initPos[0] += (this.element.getWidth() - 25);
+                initPos[1] -= (this.element.getHeight() + tooltip.getHeight() - 4);
+                break;
+            case 'top_center':
+                break;
+            case 'top_left':
+                break;
+            case 'right_bottom':
+                initPos[0] += (this.element.getWidth() + 10);
+                initPos[1] -= (this.element.getHeight() - 12);
+                break;
+            case 'right_center':
+                break;
+            case 'right_bottom':
+                break;
+            case 'bottom_right':
+                break;
+            case 'bottom_center':
+                break;
+            case 'bottom_left':
+                break;
+            case 'left_top':
+                break;
+            case 'left_center':
+                break;
+            case 'left_bottom':
+                break;
+        }
+
+        return initPos;
     },
 
     applyStylesToPointer: function(tooltip) {
-        var pointer = tooltip.down('div.tooltip_pointer_down_body');
+        var pointer = tooltip.down('div.tooltip_pointer_body');
         if (pointer) {
             // Set pointer background
             var tooltipBackground = tooltip.getStyle('backgroundColor');
@@ -96,28 +129,14 @@ var Tooltip = Class.create({
         var skin = this.params && this.params.skin ? this.params.skin : 'default';
         var skinClass = "tooltip_skin-" + skin;
 
-        var pointer = this.params && this.params.pointer
-            ? (this.params.pointer == false ? '' : this.params.pointer) : 'left';
-        var pointerClass = '';
+        var pointer = this.params && this.params.pointer == false ? false : true;
         if (pointer) {
-            switch (pointer) {
-                case 'left':
-                    pointerClass = 'tooltip_left';
-                    break;
-                case 'center':
-                    pointerClass = 'tooltip_center';
-                    break;
-                case 'right':
-                    pointerClass = 'tooltip_right';
-                    break;
-            }
-
             var tooltipPointerDiv = new Element("div");
-            tooltipPointerDiv.addClassName('tooltip_pointer_down')
+            tooltipPointerDiv.addClassName('tooltip_pointer')
             tooltipPointerDiv.addClassName(skinClass);
             var tooltipPointerBodyDiv = new Element("div");
 
-            tooltipPointerBodyDiv.addClassName('tooltip_pointer_down_body');
+            tooltipPointerBodyDiv.addClassName('tooltip_pointer_body');
             tooltipPointerDiv.appendChild(tooltipPointerBodyDiv);
             tooltipDiv.appendChild(tooltipPointerDiv);
         }
@@ -134,7 +153,6 @@ var Tooltip = Class.create({
 
         tooltipDiv.addClassName("tooltip");
         tooltipDiv.addClassName(skinClass);
-        tooltipDiv.addClassName(pointerClass);
         tooltipDiv.addClassName("corner_all");
         tooltipDiv.addClassName("shadow_all");
 
