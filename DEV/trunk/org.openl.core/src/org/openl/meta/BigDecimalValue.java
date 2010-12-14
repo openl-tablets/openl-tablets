@@ -26,7 +26,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
             bigDecimalValue1.getValue().add(bigDecimalValue2.getValue()), NumberOperations.ADD.toString(), false);
     }    
     
-    // ******* Autocasts 8*************
+    // ******* Autocasts *************
     
     public static BigDecimalValue autocast(byte x, BigDecimalValue y) {
         return new BigDecimalValue(String.valueOf(x));
@@ -64,7 +64,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return new BigDecimalValue(x);
     }
     
-    // ******* Casts 8*************
+    // ******* Casts *************
 
     public static byte cast(BigDecimalValue x, byte y) {
         return x.byteValue();
@@ -98,8 +98,56 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (x == null) {
             return null;
         }
-
         return x.getValue();
+    }
+    
+    public static ByteValue cast(BigDecimalValue x, ByteValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new ByteValue(x.byteValue());
+    }
+
+    public static ShortValue cast(BigDecimalValue x, ShortValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new ShortValue(x.shortValue());
+    }
+        
+    public static IntValue cast(BigDecimalValue x, IntValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new IntValue(x.intValue());
+    }
+
+    public static LongValue cast(BigDecimalValue x, LongValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new LongValue(x.longValue());
+    }
+    
+    public static FloatValue cast(BigDecimalValue x, FloatValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new FloatValue(x.floatValue());
+    }
+    
+    public static DoubleValue cast(BigDecimalValue x, DoubleValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new DoubleValue(x.doubleValue());
+    }
+    
+    public static BigIntegerValue cast(BigDecimalValue x, BigIntegerValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(String.valueOf(x.longValue()));
     }
 
     public static BigDecimalValue copy(BigDecimalValue value, String name) {

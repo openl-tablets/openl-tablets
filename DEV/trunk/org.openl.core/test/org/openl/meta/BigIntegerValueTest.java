@@ -72,10 +72,10 @@ public class BigIntegerValueTest {
     }
     
     @Test
-    public void testAutocastFloat() {
+    public void testAutocastLong() {
         BigIntegerValue expectedResult = new BigIntegerValue("1234");
         
-        BigIntegerValue result = BigIntegerValue.autocast((float)1234.3534, null);
+        BigIntegerValue result = BigIntegerValue.autocast((long)1234, null);
         
         assertEquals(expectedResult, result);
     }

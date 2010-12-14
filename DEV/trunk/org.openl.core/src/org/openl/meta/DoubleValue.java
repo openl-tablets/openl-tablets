@@ -106,6 +106,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return new DoubleValue(x);
     }
     
+    public static BigDecimalValue autocast(DoubleValue x, BigDecimalValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigDecimalValue(String.valueOf(x.getValue()));
+    }
+    
     // ******* Casts *************
 
     public static byte cast(DoubleValue x, byte y) {
@@ -145,22 +152,37 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static ByteValue cast(DoubleValue x, ByteValue y) {
+        if (x == null) {
+            return null;
+        }
         return new ByteValue(x.byteValue());
     }
 
     public static ShortValue cast(DoubleValue x, ShortValue y) {
+        if (x == null) {
+            return null;
+        }
         return new ShortValue(x.shortValue());
     }
         
     public static IntValue cast(DoubleValue x, IntValue y) {
+        if (x == null) {
+            return null;
+        }
         return new IntValue(x.intValue());
     }
 
     public static LongValue cast(DoubleValue x, LongValue y) {
+        if (x == null) {
+            return null;
+        }
         return new LongValue(x.longValue());
     }
     
     public static FloatValue cast(DoubleValue x, FloatValue y) {
+        if (x == null) {
+            return null;
+        }
         return new FloatValue(x.floatValue());
     }
     

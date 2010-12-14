@@ -45,15 +45,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     public static BigIntegerValue autocast(long x, BigIntegerValue y) {
         return new BigIntegerValue(String.valueOf(x));
-    }
-
-    public static BigIntegerValue autocast(float x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf((long)x));
-    }
-
-    public static BigIntegerValue autocast(double x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf((long)x));
-    }
+    } 
 
     public static BigIntegerValue autocast(BigInteger x, BigIntegerValue y) {
         if (x == null) {
@@ -61,6 +53,13 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
 
         return new BigIntegerValue(x);
+    }
+    
+    public static BigIntegerValue autocast(BigIntegerValue x, BigDecimalValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(String.valueOf(x.getValue()));
     }
     
     // ******* Casts 8*************
@@ -99,6 +98,48 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
 
         return x.getValue();
+    }
+    
+    public static ByteValue cast(BigIntegerValue x, ByteValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new ByteValue(x.byteValue());
+    }
+
+    public static ShortValue cast(BigIntegerValue x, ShortValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new ShortValue(x.shortValue());
+    }
+        
+    public static IntValue cast(BigIntegerValue x, IntValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new IntValue(x.intValue());
+    }
+
+    public static LongValue cast(BigIntegerValue x, LongValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new LongValue(x.longValue());
+    }
+    
+    public static FloatValue cast(BigIntegerValue x, FloatValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new FloatValue(x.floatValue());
+    }
+    
+    public static DoubleValue cast(BigIntegerValue x, DoubleValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new DoubleValue(x.doubleValue());
     }
 
     public static BigIntegerValue copy(BigIntegerValue value, String name) {
