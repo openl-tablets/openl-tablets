@@ -1,7 +1,6 @@
 package org.openl.meta.explanation;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.NumberFormula;
@@ -80,18 +79,6 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
 
     public void setName(String name) {
         explanation.setName(name);
-    }
-
-    public String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls) {
-        return explanation.printExplanation(mode, fromMultiplicativeExpr, urls);
-    }
-        
-    public String printContent(int mode, boolean fromMultiplicativeExpr, boolean inBrackets) {        
-        return explanation.printContent(mode, fromMultiplicativeExpr, inBrackets);
-    }
-
-    public String printExplanationLocal(int mode, boolean fromMultiplicativeExpr) {        
-        return explanation.printExplanationLocal(mode, fromMultiplicativeExpr);
     }
 
     public Iterator<? extends ITreeElement<T>> getChildren() {

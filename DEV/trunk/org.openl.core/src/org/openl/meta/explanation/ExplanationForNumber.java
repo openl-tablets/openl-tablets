@@ -1,7 +1,5 @@
 package org.openl.meta.explanation;
 
-import java.util.List;
-
 import org.openl.base.INamedThing;
 import org.openl.meta.IMetaHolder;
 import org.openl.util.tree.ITreeElement;
@@ -14,13 +12,8 @@ import org.openl.util.tree.ITreeElement;
  *
  * @param <T> type that extends {@link ExplanationNumberValue} 
  */
-public interface ExplanationForNumber<T extends ExplanationNumberValue<T>> extends IMetaHolder, INamedThing, ITreeElement<T> {
-    
-    String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls);
-    
-    String printContent(int mode, boolean fromMultiplicativeExpr, boolean inBrackets);
-
-    String printExplanationLocal(int mode, boolean fromMultiplicativeExpr);
+public interface ExplanationForNumber<T extends ExplanationNumberValue<T>> extends IMetaHolder, INamedThing, 
+    ITreeElement<T> {
     
     String printValue();
     
