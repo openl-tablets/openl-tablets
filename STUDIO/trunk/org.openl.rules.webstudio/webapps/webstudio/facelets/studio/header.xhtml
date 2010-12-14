@@ -30,7 +30,8 @@
         <script type="text/javascript">
             function selectModule(moduleList) {
                 moduleList.disabled = true;
-                top.main.location.href = '#{contextPath}/faces/main.xhtml?selectedModule=' + moduleList.value;
+                top.main.location.href = '#{contextPath}/faces/main.xhtml?selectedModule='
+                    + encodeURIComponent(moduleList.value);
             }
         </script>
     </f:verbatim>
