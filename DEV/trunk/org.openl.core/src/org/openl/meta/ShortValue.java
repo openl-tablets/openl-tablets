@@ -93,6 +93,20 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return new DoubleValue(x.getValue());
     }
     
+    public static BigIntegerValue autocast(ShortValue x, BigIntegerValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(String.valueOf(x.getValue()));
+    }
+    
+    public static BigDecimalValue autocast(ShortValue x, BigDecimalValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigDecimalValue(String.valueOf(x.getValue()));
+    }
+    
     
     // ******* Casts*************
 
@@ -133,23 +147,10 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
     
     public static ByteValue cast(ShortValue x, ByteValue y) {
+        if (x == null) {
+            return null;
+        }
         return new ByteValue(x.byteValue());
-    }
-        
-    public static IntValue cast(ShortValue x, IntValue y) {
-        return new IntValue(x.intValue());
-    }
-
-    public static LongValue cast(ShortValue x, LongValue y) {
-        return new LongValue(x.longValue());
-    }
-    
-    public static FloatValue cast(ShortValue x, FloatValue y) {
-        return new FloatValue(x.floatValue());
-    }
-    
-    public static DoubleValue cast(ShortValue x, DoubleValue y) {
-        return new DoubleValue(x.doubleValue());
     }
 
     public static ShortValue copy(ShortValue value, String name) {
