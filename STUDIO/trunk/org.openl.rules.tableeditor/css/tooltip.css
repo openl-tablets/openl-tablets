@@ -36,8 +36,8 @@
 
 /* Tooltip pointer styles */
 
-.tooltip .tooltip_pointer_down,
-.tooltip .tooltip_pointer_down_body {
+.tooltip .tooltip_pointer,
+.tooltip .tooltip_pointer_body {
     position: absolute;
     width: 0;
     height: 0;
@@ -46,7 +46,7 @@
     font-size: 0;
 }
 
-.tooltip_left .tooltip_pointer_down {
+.tooltip_top_right .tooltip_pointer {
     border-left: 0px;
     border-right: 10px solid transparent;
     border-top-width: 10px;
@@ -54,7 +54,7 @@
     left: 10%;
 }
 
-.tooltip_left .tooltip_pointer_down_body {
+.tooltip_top_right .tooltip_pointer_body {
     border-left: 0px;
     border-right: 8px solid transparent;
     border-top: 8px solid transparent;
@@ -62,13 +62,13 @@
     left: 1px;
 }
 
-*html .tooltip_left .tooltip_pointer_down,
-*html .tooltip_left .tooltip_pointer_down_body {
+*html .tooltip_top_right .tooltip_pointer,
+*html .tooltip_top_right .tooltip_pointer_body {
     border-right-color: #000001;
     filter: chroma(color=#000001);
 }
 
-.tooltip_center .tooltip_pointer_down {
+.tooltip_top_center .tooltip_pointer {
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top-width: 12px;
@@ -76,7 +76,7 @@
     left: 45%;
 }
 
-.tooltip_center .tooltip_pointer_down_body {
+.tooltip_top_center .tooltip_pointer_body {
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
     border-top: 8px solid transparent;
@@ -84,32 +84,54 @@
     left: -4px;
 }
 
-*html .tooltip_center .tooltip_pointer_down,
-*html .tooltip_center .tooltip_pointer_down_body {
+*html .tooltip_top_center .tooltip_pointer,
+*html .tooltip_top_center .tooltip_pointer_body {
     border-left-color: #000001;
     border-right-color: #000001;
     filter: chroma(color=#000001);
 }
 
-.tooltip_right .tooltip_pointer_down {
-    border-left: 12px solid transparent;
+.tooltip_top_left .tooltip_pointer {
+    border-left: 10px solid transparent;
     border-right: 0px;
-    border-top-width: 12px;
-    bottom: -12px;
+    border-top-width: 10px;
+    bottom: -10px;
     right: 10%;
 }
 
-.tooltip_right .tooltip_pointer_down_body {
+.tooltip_top_left .tooltip_pointer_body {
     border-left: 8px solid transparent;
     border-right: 0px;
     border-top: 8px solid transparent;
-    top: -12px;
-    right: 2px;
+    top: -10px;
+    right: 1px;
 }
 
-*html .tooltip_right .tooltip_pointer_down,
-*html .tooltip_right .tooltip_pointer_down_body {
+*html .tooltip_top_left .tooltip_pointer,
+*html .tooltip_top_left .tooltip_pointer_body {
     border-left-color: #000001;
+    filter: chroma(color=#000001);
+}
+
+.tooltip_right_bottom .tooltip_pointer {
+    border-left: 10px solid transparent;
+    border-right: 0px;
+    border-top-width: 10px;
+    top: 9px;
+    left: -10px;
+}
+
+.tooltip_right_bottom .tooltip_pointer_body {
+    border-left: 8px solid transparent;
+    border-right: 0px;
+    border-top: 8px solid transparent;
+    top: -9px;
+    right: 0px;
+}
+
+*html .tooltip_right_bottom .tooltip_pointer,
+*html .tooltip_right_bottom .tooltip_pointer_body {
+    border-top-color: #000001;
     filter: chroma(color=#000001);
 }
 

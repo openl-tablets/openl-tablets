@@ -471,10 +471,9 @@ public class HTMLRenderer {
                     if (cell.getComment() != null) {
                         //s.append(createHiddenField("comment", cell.getComment()));
                         s.append("<script type=\"text/javascript\">")
-                            .append("new Tooltip('" + id + "','"
-                                    + StringEscapeUtils.escapeJavaScript(
-                                            cell.getComment().replaceAll("\\n", "<br/>"))
-                                            + "', {hideOn:['mouseout','dblclick']});")
+                            .append("new Tooltip('" + id + "','" + StringEscapeUtils.escapeJavaScript(
+                                    cell.getComment().replaceAll("\\n", "<br/>"))
+                                    + "', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'170px'});")
                             .append("</script>");
                     }
                 }
