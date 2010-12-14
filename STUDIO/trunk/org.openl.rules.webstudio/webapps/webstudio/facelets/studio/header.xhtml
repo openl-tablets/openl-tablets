@@ -114,10 +114,12 @@
                       <f:verbatim>&amp;nbsp;</f:verbatim>
                     </c:if>
                   </c:if>
+                  <h:panelGroup rendered="#{not empty headerBean.modules}">
                   <a target="mainFrame"
                       href="#{contextPath}/faces/facelets/search/simpleSearch.xhtml?searchQuery=&quot;openl tablets&quot;"
                       title="Search"><img src="#{contextPath}/webresource/images/search.png" alt="Search"/></a>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
+                  </h:panelGroup>
                   <a href="#{contextPath}/faces/main.xhtml?reload=reload&amp;selectedModule=#{headerBean.selectedModule}"
                       title="Refresh Project(s)" target="main"><img src="#{contextPath}/webresource/images/refresh.gif"
                       alt="Refresh Project(s)"/></a>
@@ -134,9 +136,11 @@
                       src="#{contextPath}/webresource/images/compare.gif" alt="Compare Excel files" /></a>
 
                   <f:verbatim>&amp;nbsp;</f:verbatim>
+                  <h:panelGroup rendered="#{not empty headerBean.modules}">
                   <a href="#{contextPath}/faces/facelets/rulesDependencies.xhtml" title="Rules Dependencies"
                       target="mainFrame"><img alt="Rules Dependencies"
                       src="#{contextPath}/webresource/images/graph.png" /></a>
+                  </h:panelGroup>
 
                   <c:if test="#{headerBean.repositoryFailed}">
                     <img src="#{contextPath}/webresource/images/repository/storage-disabled.gif"
