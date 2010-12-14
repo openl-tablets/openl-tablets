@@ -8,6 +8,7 @@ public class DoubleValuePercent extends DoubleValue {
 
     static public final String PERCENT_FORMAT = "#.####%";
 
+    @SuppressWarnings("deprecation")
     public DoubleValuePercent() {
         setFormat(PERCENT_FORMAT);
     }

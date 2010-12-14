@@ -1,7 +1,6 @@
 package org.openl.meta.explanation;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
@@ -71,15 +70,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
 
         return metaInfo.getDisplayName(IMetaInfo.LONG);
     }
-    
-    public String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls) {
-        if (urls != null && metaInfo != null && metaInfo.getSourceUrl() != null) {
-            urls.add("" + metaInfo.getDisplayName(IMetaInfo.LONG) + " -> " + metaInfo.getSourceUrl());
-        }
 
-        return printExplanationLocal(mode, fromMultiplicativeExpr);
-    }
-    
     public String printValue() {
         return getName();
     }
@@ -101,28 +92,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
             ((ValueMetaInfo) metaInfo).setShortName(name);
         }
     }
-    
-    public String printExplanationLocal(int mode, boolean fromMultiplicativeExpr) {
 
-        switch (mode & (~EXPAND_ALL)) {
-            case VALUE:
-                return printContent(mode, fromMultiplicativeExpr, false);
-            case SHORT_NAME:
-                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false)
-                                       : metaInfo.getDisplayName(IMetaInfo.LONG) + "(" + printContent(mode, false, true) + ")";
-            case LONG_NAME:
-                return metaInfo == null ? printContent(mode, fromMultiplicativeExpr, false)
-                                       : metaInfo.getDisplayName(IMetaInfo.LONG) + "(" + printContent(mode, false, true) + ")";
-            default:
-        }
-
-        throw new RuntimeException("Wrong print mode!!");
-    }
-    
-    public String printContent(int mode, boolean fromMultiplicativeExpr, boolean inBrackets) {
-        return printValue();
-    }
-    
     public Iterator<? extends ITreeElement<T>> getChildren() {
         return AOpenIterator.empty();
     }
