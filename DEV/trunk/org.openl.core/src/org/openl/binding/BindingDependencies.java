@@ -118,13 +118,11 @@ public class BindingDependencies {
         node.updateDependency(this);
         visit(node.getTargetNode());
         IBoundNode[] ch = node.getChildren();
-        if (ch == null) {
-            System.out.println("null");
+        if (ch != null) {
+            for (IBoundNode child : ch) {
+                visit(child);
+            }
         }
-        for (int i = 0; i < ch.length; i++) {
-            visit(ch[i]);
-        }
-
     }
 
 }
