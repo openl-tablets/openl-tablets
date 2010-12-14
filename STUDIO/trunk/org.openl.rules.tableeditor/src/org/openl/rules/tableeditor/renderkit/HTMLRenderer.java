@@ -473,7 +473,7 @@ public class HTMLRenderer {
                         s.append("<script type=\"text/javascript\">")
                             .append("new Tooltip('" + id + "','" + StringEscapeUtils.escapeJavaScript(
                                     cell.getComment().replaceAll("\\n", "<br/>"))
-                                    + "', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'170px'});")
+                                    + "', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
                             .append("</script>");
                     }
                 }
