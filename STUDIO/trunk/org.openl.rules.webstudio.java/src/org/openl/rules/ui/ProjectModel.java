@@ -1085,8 +1085,8 @@ public class ProjectModel {
             compiledOpenClass = instantiationStrategy.compile(reloadType);
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-            
-            String message = StringUtils.join(new String[]{"Cannot load the module" ,":", t.getMessage()});
+
+            String message = "Cannot load the module: " + t.getMessage();
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
 
