@@ -114,7 +114,7 @@
                       <f:verbatim>&amp;nbsp;</f:verbatim>
                     </c:if>
                   </c:if>
-                  <h:panelGroup rendered="#{not empty headerBean.modules}">
+                  <h:panelGroup rendered="#{not empty headerBean.modules and headerBean.projectCompiledSuccessfully}">
                   <a target="mainFrame"
                       href="#{contextPath}/faces/facelets/search/simpleSearch.xhtml?searchQuery=&quot;openl tablets&quot;"
                       title="Search"><img src="#{contextPath}/webresource/images/search.png" alt="Search"/></a>
@@ -136,7 +136,8 @@
                       src="#{contextPath}/webresource/images/compare.gif" alt="Compare Excel files" /></a>
 
                   <f:verbatim>&amp;nbsp;</f:verbatim>
-                  <h:panelGroup rendered="#{not empty headerBean.modules}">
+
+                  <h:panelGroup rendered="#{not empty headerBean.modules and headerBean.projectCompiledSuccessfully}">
                   <a href="#{contextPath}/faces/facelets/rulesDependencies.xhtml" title="Rules Dependencies"
                       target="mainFrame"><img alt="Rules Dependencies"
                       src="#{contextPath}/webresource/images/graph.png" /></a>

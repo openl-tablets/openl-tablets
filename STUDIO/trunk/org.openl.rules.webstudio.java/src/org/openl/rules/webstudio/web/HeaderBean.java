@@ -9,6 +9,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -54,6 +55,11 @@ public class HeaderBean {
     public boolean isProjectEditable() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         return webStudio != null && webStudio.getModel().isEditable();
+    }
+
+    public boolean isProjectCompiledSuccessfully() {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        return model.isProjectCompiledSuccessfully();
     }
 
     public boolean isRepositoryFailed() {
