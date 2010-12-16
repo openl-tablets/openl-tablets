@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
@@ -44,16 +45,16 @@ public class DatatypeOpenField extends AOpenField {
                 method = targetClass.getMethod(StringTool.getGetterName(getName()), new Class<?>[0]);
                 res = method.invoke(target, new Object[0]);
             } catch (NoSuchMethodException e1) {
-                LOG.error(this, e1);
+                processError(e1);
             } catch (IllegalArgumentException e) {
-                LOG.error(this, e);
+                processError(e);
             } catch (IllegalAccessException e) {
-                LOG.error(this, e);
+                processError(e);
             } catch (InvocationTargetException e) {
-                LOG.error(this, e);
+                processError(e);
             }
         } catch (SecurityException e) {
-            LOG.error(this, e);
+            processError(e);
         }
         return res != null ? res : getType().nullObject();
     }
@@ -77,17 +78,22 @@ public class DatatypeOpenField extends AOpenField {
                 method = targetClass.getMethod(StringTool.getSetterName(getName()), getType().getInstanceClass());
                 method.invoke(target, value);
             } catch (NoSuchMethodException e1) {
-                LOG.error(this, e1);
-            } catch (IllegalArgumentException e) {
-                LOG.error(this, e);
-            } catch (IllegalAccessException e) {
-                LOG.error(this, e);
-            } catch (InvocationTargetException e) {
-                LOG.error(this, e);
+                processError(e1);
+            } catch (IllegalArgumentException e1) {
+                processError(e1);
+            } catch (IllegalAccessException e1) {
+                processError(e1);
+            } catch (InvocationTargetException e1) {
+                processError(e1);
             }
-        } catch (SecurityException e) {
-            LOG.error(this, e);
+        } catch (SecurityException e1) {
+            processError(e1);
         }
+    }
+
+    private void processError(Throwable e1) {
+        LOG.error(this, e1);
+        OpenLMessagesUtils.addError(e1);  
     }
 
     public void setDeclaringClass(IOpenClass declaringClass) {
