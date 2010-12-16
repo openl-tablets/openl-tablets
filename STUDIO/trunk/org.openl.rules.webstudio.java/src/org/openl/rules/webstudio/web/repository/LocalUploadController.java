@@ -2,12 +2,12 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.abstracts.ProjectException;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;

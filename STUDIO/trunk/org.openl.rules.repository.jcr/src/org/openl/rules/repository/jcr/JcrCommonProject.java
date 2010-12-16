@@ -10,17 +10,16 @@ import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RCommonProject;
-import org.openl.rules.repository.RLock;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonProject extends JcrEntity implements RCommonProject {
     private static Log log = LogFactory.getLog(JcrCommonProject.class);
 
     private JcrVersion version;
-    private JcrLock lock;
 
     // when null -- don't rise version on commit
     private CommonVersionImpl risedVersion;
@@ -29,12 +28,6 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
         super(node);
 
         version = new JcrVersion(node);
-        try {
-            lock = new JcrLock(node);
-        } catch (RepositoryException e) {
-            // for old deployments projects
-            lock = null;
-        }
     }
 
     protected void checkInAll(Node n, CommonUser user) throws RepositoryException {
@@ -60,7 +53,7 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
 
         if (mustBeCheckedIn) {
             version.updateRevision(n);
-            n.setProperty(JcrNT.PROP_MODIFIED_BY, user.getUserName());
+            n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
             n.save();
             log.info("Checking in... " + n.getPath());
             n.checkin();
@@ -109,7 +102,7 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
             Node n = node();
 
             n.checkout();
-            n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, true);
+            n.setProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION, true);
             commit(user);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to Mark project ''{0}'' for Deletion!", e, getName());
@@ -130,16 +123,6 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
         }
     }
 
-    // --- protected
-
-    public RLock getLock() throws RRepositoryException {
-        return lock;
-    }
-
-    public boolean isLocked() throws RRepositoryException {
-        return lock.isLocked();
-    }
-
     public boolean isMarked4Deletion() throws RRepositoryException {
         try {
             boolean isMarked;
@@ -147,16 +130,12 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
             Node n = node();
             // even if property itself is 'false' it still means that project is
             // 'marked'
-            isMarked = n.hasProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION);
+            isMarked = n.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
 
             return isMarked;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to Check Marked4Deletion!", e);
         }
-    }
-
-    public void lock(CommonUser user) throws RRepositoryException {
-        lock.lock(user);
     }
 
     public void riseVersion(int major, int minor) throws RRepositoryException {
@@ -187,14 +166,10 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
             Node n = node();
 
             n.checkout();
-            n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, (Value) null, PropertyType.BOOLEAN);
+            n.setProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION, (Value) null, PropertyType.BOOLEAN);
             commit(user);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to Unmark project ''{0}'' from Deletion!", e, getName());
         }
-    }
-
-    public void unlock(CommonUser user) throws RRepositoryException {
-        lock.unlock(user);
     }
 }

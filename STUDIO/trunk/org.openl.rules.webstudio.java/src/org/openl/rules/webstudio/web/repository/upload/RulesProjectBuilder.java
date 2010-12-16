@@ -3,11 +3,11 @@ package org.openl.rules.webstudio.web.repository.upload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 import java.io.InputStream;

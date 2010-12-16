@@ -1,6 +1,6 @@
 package org.openl.rules.workspace.dtr;
 
-import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.common.ProjectException;
 
 public class RepositoryException extends ProjectException {
     private static final long serialVersionUID = -7556228015092226646L;

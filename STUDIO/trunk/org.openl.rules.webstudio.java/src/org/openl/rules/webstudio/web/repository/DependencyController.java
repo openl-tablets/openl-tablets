@@ -4,14 +4,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.impl.ProjectDependencyImpl;
+import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
-import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 import javax.faces.application.FacesMessage;

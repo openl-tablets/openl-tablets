@@ -2,10 +2,10 @@ package org.openl.rules.workspace.uw;
 
 import java.util.List;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;

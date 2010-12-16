@@ -2,11 +2,11 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.Date;
 
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.VersionInfo;
 
 public class TreeDProject extends TreeFile {
     private static final long serialVersionUID = -1058464776132912419L;

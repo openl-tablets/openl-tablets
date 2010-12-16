@@ -2,6 +2,8 @@ package org.openl.rules.repository;
 
 import java.util.Collection;
 
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -11,9 +13,9 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public interface RProject extends REntity, RCommonProject {
+public interface RProject extends RFolder, RCommonProject {
 
-    Collection<RDependency> getDependencies() throws RRepositoryException;
+    Collection<ProjectDependency> getDependencies() throws RRepositoryException;
 
     RProject getProjectVersion(CommonVersion version) throws RRepositoryException;
 
@@ -24,6 +26,6 @@ public interface RProject extends REntity, RCommonProject {
      */
     RFolder getRootFolder();
 
-    void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException;
+    void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException;
 
 }

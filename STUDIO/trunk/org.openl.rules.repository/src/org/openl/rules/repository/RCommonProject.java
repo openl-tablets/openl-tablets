@@ -1,5 +1,6 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RCommonProject {

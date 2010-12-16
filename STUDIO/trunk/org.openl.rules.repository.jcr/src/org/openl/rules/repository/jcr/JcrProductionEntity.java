@@ -1,9 +1,12 @@
 package org.openl.rules.repository.jcr;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.REntity;
-import org.openl.rules.repository.RProperty;
-import org.openl.rules.repository.RPropertyType;
+import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RVersion;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import static org.openl.rules.repository.jcr.NodeUtil.isSame;
 
@@ -33,21 +36,21 @@ public abstract class JcrProductionEntity implements REntity {
 
         name = node.getName();
 
-        if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
-            effectiveDate = new Date(node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getLong());
+        if (node.hasProperty(ArtefactProperties.PROP_EFFECTIVE_DATE)) {
+            effectiveDate = new Date(node.getProperty(ArtefactProperties.PROP_EFFECTIVE_DATE).getLong());
         }
-        if (node.hasProperty(JcrNT.PROP_EXPIRATION_DATE)) {
-            expirationDate = new Date(node.getProperty(JcrNT.PROP_EXPIRATION_DATE).getLong());
+        if (node.hasProperty(ArtefactProperties.PROP_EXPIRATION_DATE)) {
+            expirationDate = new Date(node.getProperty(ArtefactProperties.PROP_EXPIRATION_DATE).getLong());
         }
-        if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
-            lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
+        if (node.hasProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS)) {
+            lineOfBusiness = node.getProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS).getString();
         }
 
         props = new HashMap<String, Object>();
         loadProps();
     }
 
-    public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException {
+    public void addProperty(String name, ValueType type, Object value) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -112,11 +115,11 @@ public abstract class JcrProductionEntity implements REntity {
         return sb.toString();
     }
 
-    public Collection<RProperty> getProperties() {
+    public Collection<Property> getProperties() {
         return null;
     }
 
-    public RProperty getProperty(String name) throws RRepositoryException {
+    public Property getProperty(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -139,8 +142,8 @@ public abstract class JcrProductionEntity implements REntity {
 
     private void loadProps() throws RepositoryException {
         Node n = node();
-        for (int i = 1; i <= JcrNT.PROPS_COUNT; i++) {
-            String propName = JcrNT.PROP_ATTRIBUTE + i;
+        for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
+            String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
                 Object propValue = null;
@@ -178,7 +181,7 @@ public abstract class JcrProductionEntity implements REntity {
         Node n = node();
 
         try {
-            n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, date.getTime());
+            n.setProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, date.getTime());
             effectiveDate = date;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set effectiveDate", e);
@@ -194,7 +197,7 @@ public abstract class JcrProductionEntity implements REntity {
         Node n = node();
 
         try {
-            n.setProperty(JcrNT.PROP_EXPIRATION_DATE, date.getTime());
+            n.setProperty(ArtefactProperties.PROP_EXPIRATION_DATE, date.getTime());
             expirationDate = date;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set expirationDate", e);
@@ -210,7 +213,7 @@ public abstract class JcrProductionEntity implements REntity {
         Node n = node();
 
         try {
-            n.setProperty(JcrNT.PROP_LINE_OF_BUSINESS, lineOfBusiness);
+            n.setProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, lineOfBusiness);
             this.lineOfBusiness = lineOfBusiness;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set LOB", e);
@@ -257,4 +260,27 @@ public abstract class JcrProductionEntity implements REntity {
         this.props = props;
     }
 
+    public RLock getLock() throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isLocked() throws RRepositoryException {
+        return false;
+    }
+
+    public void lock(CommonUser user) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlock(CommonUser user) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void riseVersion(int major, int minor) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void commit(CommonUser user) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
 }

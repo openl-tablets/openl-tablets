@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**

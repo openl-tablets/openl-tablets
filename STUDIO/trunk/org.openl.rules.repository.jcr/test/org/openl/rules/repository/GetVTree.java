@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 
+import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class GetVTree {
@@ -66,8 +67,8 @@ public class GetVTree {
         out.println("  P " + prj.getPath() + "    ver=" + prj.getActiveVersion().getVersionName() + " lob="
                 + prj.getLineOfBusiness());
 
-        Collection<RDependency> deps = prj.getDependencies();
-        for (RDependency d : deps) {
+        Collection<ProjectDependency> deps = prj.getDependencies();
+        for (ProjectDependency d : deps) {
             out.println("  d " + d.getProjectName() + " " + d.getLowerLimit().getVersionName());
         }
 

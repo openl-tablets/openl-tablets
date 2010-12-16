@@ -2,6 +2,9 @@ package org.openl.rules.repository;
 
 import java.util.Date;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+
 /**
  * OpenL Rules Entity Version.
  *

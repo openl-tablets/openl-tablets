@@ -8,7 +8,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.RDependency;
+import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -27,8 +27,8 @@ public class JcrDependencies extends JcrCommonArtefact {
         return null;
     }
 
-    public Collection<RDependency> getDependencies() throws RRepositoryException {
-        LinkedList<RDependency> result = new LinkedList<RDependency>();
+    public Collection<ProjectDependency> getDependencies() throws RRepositoryException {
+        LinkedList<ProjectDependency> result = new LinkedList<ProjectDependency>();
 
         try {
             NodeIterator ni = node().getNodes();
@@ -49,7 +49,7 @@ public class JcrDependencies extends JcrCommonArtefact {
         throw new RRepositoryException("Not supported!", null);
     }
 
-    public void updateDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException {
+    public void updateDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
         try {
             NodeUtil.smartCheckout(node(), true);
 
@@ -67,7 +67,7 @@ public class JcrDependencies extends JcrCommonArtefact {
 
         try {
             // 2. create new
-            for (RDependency dep : dependencies) {
+            for (ProjectDependency dep : dependencies) {
                 JcrDependency.createDependency(node(), dep.getProjectName(), dep.getLowerLimit(), dep.getUpperLimit());
             }
 

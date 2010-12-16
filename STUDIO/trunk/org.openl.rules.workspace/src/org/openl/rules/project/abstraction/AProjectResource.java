@@ -2,25 +2,29 @@ package org.openl.rules.project.abstraction;
 
 import java.io.InputStream;
 
-import org.openl.rules.project.impl.ProjectArtefactAPI;
-import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.ResourceAPI;
 
-//TODO: check isCheckedOut?
 public class AProjectResource extends AProjectArtefact {
-    public AProjectResource(ProjectArtefactAPI api, AProject project) {
+    public AProjectResource(ResourceAPI api, AProject project) {
         super(api, project);
+    }
+    
+    @Override
+    public ResourceAPI getAPI() {
+        return (ResourceAPI)super.getAPI();
     }
 
     public InputStream getContent() throws ProjectException {
-        return impl.getContent();
+        return getAPI().getContent();
     }
 
     public void setContent(InputStream inputStream) throws ProjectException {
-        impl.setContent(inputStream);
+        getAPI().setContent(inputStream);
     }
 
     public String getResourceType() {
-        return impl.getResourceType();
+        return getAPI().getResourceType();
     }
 
     @Override

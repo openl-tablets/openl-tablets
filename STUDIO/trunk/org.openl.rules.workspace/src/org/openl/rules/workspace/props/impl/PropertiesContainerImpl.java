@@ -3,9 +3,9 @@ package org.openl.rules.workspace.props.impl;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.openl.rules.workspace.props.PropertiesContainer;
-import org.openl.rules.workspace.props.Property;
-import org.openl.rules.workspace.props.PropertyException;
+import org.openl.rules.common.PropertiesContainer;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.PropertyException;
 
 /**
  * Implementation of Properties Container

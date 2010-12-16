@@ -6,7 +6,7 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 

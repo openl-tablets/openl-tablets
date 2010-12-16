@@ -7,13 +7,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.repository.jcr.JcrNT;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
@@ -22,10 +26,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.filter.PathFilter;
-import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.OpenLFilter;
@@ -354,7 +355,6 @@ public class RepositoryTreeController {
             if (UiConst.TYPE_FILE.equals(repositoryTreeState.getSelectedNode().getType())
                     || UiConst.TYPE_FOLDER.equals(repositoryTreeState.getSelectedNode().getType())) {
                 repositoryTreeState.deleteSelectedNodeFromTree();
-                repositoryTreeState.moveSelectionToParentNode();
             } else {
                 repositoryTreeState.refreshSelectedNode();
             }
@@ -453,63 +453,63 @@ public class RepositoryTreeController {
     }
 
     public String getAttribute1() {
-        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 1);
+        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 1);
     }
 
     public Date getAttribute10() {
-        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 10);
+        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 10);
     }
 
     public String getAttribute11() {
-        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 11);
+        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 11);
     }
 
     public String getAttribute12() {
-        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 12);
+        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 12);
     }
 
     public String getAttribute13() {
-        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 13);
+        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 13);
     }
 
     public String getAttribute14() {
-        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 14);
+        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 14);
     }
 
     public String getAttribute15() {
-        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 15);
+        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 15);
     }
 
     public String getAttribute2() {
-        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 2);
+        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 2);
     }
 
     public String getAttribute3() {
-        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 3);
+        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 3);
     }
 
     public String getAttribute4() {
-        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 4);
+        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 4);
     }
 
     public String getAttribute5() {
-        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 5);
+        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 5);
     }
 
     public Date getAttribute6() {
-        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 6);
+        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 6);
     }
 
     public Date getAttribute7() {
-        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 7);
+        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 7);
     }
 
     public Date getAttribute8() {
-        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 8);
+        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 8);
     }
 
     public Date getAttribute9() {
-        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 9);
+        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 9);
     }
 
     /**
@@ -781,63 +781,63 @@ public class RepositoryTreeController {
     }
 
     public void setAttribute1(String attribute1) {
-        setProperty(JcrNT.PROP_ATTRIBUTE + 1, attribute1);
+        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 1, attribute1);
     }
 
     public void setAttribute10(Date attribute10) {
-        setDateProperty(JcrNT.PROP_ATTRIBUTE + 10, attribute10);
+        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 10, attribute10);
     }
 
     public void setAttribute11(String attribute11) {
-        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 11, attribute11);
+        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 11, attribute11);
     }
 
     public void setAttribute12(String attribute12) {
-        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 12, attribute12);
+        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 12, attribute12);
     }
 
     public void setAttribute13(String attribute13) {
-        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 13, attribute13);
+        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 13, attribute13);
     }
 
     public void setAttribute14(String attribute14) {
-        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 14, attribute14);
+        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 14, attribute14);
     }
 
     public void setAttribute15(String attribute15) {
-        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 15, attribute15);
+        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 15, attribute15);
     }
 
     public void setAttribute2(String attribute2) {
-        setProperty(JcrNT.PROP_ATTRIBUTE + 2, attribute2);
+        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 2, attribute2);
     }
 
     public void setAttribute3(String attribute3) {
-        setProperty(JcrNT.PROP_ATTRIBUTE + 3, attribute3);
+        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 3, attribute3);
     }
 
     public void setAttribute4(String attribute4) {
-        setProperty(JcrNT.PROP_ATTRIBUTE + 4, attribute4);
+        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 4, attribute4);
     }
 
     public void setAttribute5(String attribute5) {
-        setProperty(JcrNT.PROP_ATTRIBUTE + 5, attribute5);
+        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 5, attribute5);
     }
 
     public void setAttribute6(Date attribute6) {
-        setDateProperty(JcrNT.PROP_ATTRIBUTE + 6, attribute6);
+        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 6, attribute6);
     }
 
     public void setAttribute7(Date attribute7) {
-        setDateProperty(JcrNT.PROP_ATTRIBUTE + 7, attribute7);
+        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 7, attribute7);
     }
 
     public void setAttribute8(Date attribute8) {
-        setDateProperty(JcrNT.PROP_ATTRIBUTE + 8, attribute8);
+        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 8, attribute8);
     }
 
     public void setAttribute9(Date attribute9) {
-        setDateProperty(JcrNT.PROP_ATTRIBUTE + 9, attribute9);
+        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 9, attribute9);
     }
 
     /**
@@ -861,7 +861,7 @@ public class RepositoryTreeController {
         if (!SPECIAL_DATE.equals(date)) {
             try {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setEffectiveDate(date);
-            } catch (ProjectException e) {
+            } catch (PropertyException e) {
                 LOG.error("Failed to set effective date!", e);
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set effective date.", e.getMessage()));
@@ -878,7 +878,7 @@ public class RepositoryTreeController {
         if (!SPECIAL_DATE.equals(date)) {
             try {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setExpirationDate(date);
-            } catch (ProjectException e) {
+            } catch (PropertyException e) {
                 LOG.error("Failed to set expiration date!", e);
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set expiration date.", e.getMessage()));
@@ -915,7 +915,7 @@ public class RepositoryTreeController {
         try {
             ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
                     .setLineOfBusiness(lineOfBusiness);
-        } catch (ProjectException e) {
+        } catch (PropertyException e) {
             LOG.error("Failed to set LOB!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set line of business.", e.getMessage()));
@@ -975,7 +975,7 @@ public class RepositoryTreeController {
             }
             props.put(propName, propValue);
             ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setProps(props);
-        } catch (ProjectException e) {
+        } catch (PropertyException e) {
             String propUIName = getPropUIName(propName);
             LOG.error("Failed to set " + propUIName + "!", e);
             FacesContext.getCurrentInstance().addMessage(null,

@@ -11,17 +11,16 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.impl.LocalAPI;
-import org.openl.rules.project.impl.RepositoryAPI;
-import org.openl.rules.project.impl.UserWorkspaceAPI;
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.ProjectDescriptor;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
@@ -252,7 +251,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             if (userDProject == null) {
                 // add new
-                userDProject = new ADeploymentProject(new UserWorkspaceAPI(null, (RepositoryAPI)ddp.getAPI(), this), user);
+                userDProject = new ADeploymentProject(ddp.getAPI(), user);
                 userDProjects.put(name, userDProject);
             } else {
                 // update existing
@@ -291,15 +290,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             AProject uwp = userRulesProjects.get(name);
             if (uwp == null) {
-            	//TODO:refactor
-            	if(lp == null){
-                    uwp = new AProject(new UserWorkspaceAPI(null, (RepositoryAPI)rp.getAPI(), this), user);
-            	}else{
-            		uwp = new AProject(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), (RepositoryAPI)rp.getAPI(), this), user);
-            	}
+                // TODO:refactor
+                if (lp == null) {
+                    uwp = new UserWorkspaceProject(null, rp.getAPI(), this);
+                } else {
+                    uwp = new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
+                }
                 userRulesProjects.put(name, uwp);
             } else if (uwp.isLocalOnly()) {
-                uwp.setAPI(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), (RepositoryAPI)rp.getAPI(), this));
+                userRulesProjects.put(name, new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
             }
         }
 
@@ -312,10 +311,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 AProject uwp = userRulesProjects.get(name);
                 if (uwp == null) {
-                    uwp = new AProject(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), null, this), user);
+                    uwp = new UserWorkspaceProject((LocalFolderAPI)lp.getAPI(), null, this);
                     userRulesProjects.put(name, uwp);
                 } else {
-                    uwp.setAPI(new UserWorkspaceAPI((LocalAPI)lp.getAPI(), null, this));
+                    userRulesProjects.put(name, new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), null, this));
                 }
             }
         }

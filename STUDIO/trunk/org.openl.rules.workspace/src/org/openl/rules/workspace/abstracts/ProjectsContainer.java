@@ -2,6 +2,8 @@ package org.openl.rules.workspace.abstracts;
 
 import java.util.Collection;
 
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 

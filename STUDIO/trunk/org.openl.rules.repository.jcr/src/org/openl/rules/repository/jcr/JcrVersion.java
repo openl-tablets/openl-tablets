@@ -8,11 +8,12 @@ import javax.jcr.version.Version;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonUserImpl;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonUserImpl;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RVersion;
+import org.openl.rules.repository.api.ArtefactProperties;
 
 /**
  * Implements JCR Version.
@@ -29,8 +30,8 @@ public class JcrVersion implements RVersion {
     private CommonVersionImpl version;
 
     protected static void create(Node node) throws RepositoryException {
-        node.setProperty(JcrNT.PROP_VERSION, 0);
-        node.setProperty(JcrNT.PROP_REVISION, 0);
+        node.setProperty(ArtefactProperties.PROP_VERSION, 0);
+        node.setProperty(ArtefactProperties.PROP_REVISION, 0);
     }
 
     public JcrVersion(Node node) throws RepositoryException {
@@ -109,7 +110,7 @@ public class JcrVersion implements RVersion {
         long revision = 0;
 
         try {
-            long l = node.getProperty(JcrNT.PROP_VERSION).getLong();
+            long l = node.getProperty(ArtefactProperties.PROP_VERSION).getLong();
             int i = (int) l;
             major = i >> 16;
             minor = i & (0xFFFF);
@@ -118,15 +119,15 @@ public class JcrVersion implements RVersion {
         }
 
         try {
-            revision = node.getProperty(JcrNT.PROP_REVISION).getLong();
+            revision = node.getProperty(ArtefactProperties.PROP_REVISION).getLong();
         } catch (RepositoryException e) {
             // ignore
         }
 
         version = new CommonVersionImpl(major, minor, (int) revision);
 
-        if (node.hasProperty(JcrNT.PROP_MODIFIED_BY)) {
-            modifiedBy = node.getProperty(JcrNT.PROP_MODIFIED_BY).getString();
+        if (node.hasProperty(ArtefactProperties.PROP_MODIFIED_BY)) {
+            modifiedBy = node.getProperty(ArtefactProperties.PROP_MODIFIED_BY).getString();
         }
         // if (node.hasProperty(JcrNT.PROP_MODIFIED_TIME)) {
         // lastModified =
@@ -148,12 +149,12 @@ public class JcrVersion implements RVersion {
     }
 
     protected void updateRevision(Node node) throws RepositoryException {
-        node.setProperty(JcrNT.PROP_REVISION, version.getRevision());
+        node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
 
     protected void updateVersion(Node node) throws RepositoryException {
         long l = ((version.getMajor() & 0x7FFF) << 16) | (version.getMinor() & 0x7FFF);
-        node.setProperty(JcrNT.PROP_VERSION, l);
-        node.setProperty(JcrNT.PROP_REVISION, version.getRevision());
+        node.setProperty(ArtefactProperties.PROP_VERSION, l);
+        node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
 }

@@ -9,11 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.richfaces.model.TreeNode;
 
 /**
@@ -360,5 +360,9 @@ public abstract class AbstractTreeNode implements TreeNode {
      */
     public void setParent(TreeNode parent) {
         this.parent = parent;
+    }
+    
+    public void refresh(){
+        
     }
 }

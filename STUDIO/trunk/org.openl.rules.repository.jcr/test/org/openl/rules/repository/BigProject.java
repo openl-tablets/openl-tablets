@@ -1,5 +1,8 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.impl.CommonUserImpl;
+
 public class BigProject {
     public static final String PROJECT_NAME = "big-project";
 

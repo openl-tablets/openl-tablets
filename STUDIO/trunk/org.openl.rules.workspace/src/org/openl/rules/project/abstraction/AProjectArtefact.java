@@ -5,23 +5,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.project.impl.ProjectArtefactAPI;
-import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.workspace.props.PropertiesContainer;
-import org.openl.rules.workspace.props.Property;
-import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.LockInfo;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.PropertiesContainer;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.common.impl.PropertyImpl;
+import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+
 import static org.openl.rules.security.Privileges.*;
 import static org.openl.rules.security.AccessManager.isGranted;
 
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
-    protected ProjectArtefactAPI impl;
+    private ArtefactAPI impl;
     private AProject project;
 
-    public AProjectArtefact(ProjectArtefactAPI api, AProject project) {
+    public AProjectArtefact(ArtefactAPI api, AProject project) {
         this.impl = api;
         this.project = project;
     }
@@ -30,117 +35,131 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         return project;
     }
 
-    public ProjectArtefactAPI getAPI() {
+    public ArtefactAPI getAPI() {
         return impl;
     }
 
-    public void setAPI(ProjectArtefactAPI impl) {
+    public void setAPI(ArtefactAPI impl) {
         this.impl = impl;
     }
 
     public Date getEffectiveDate() {
-        return impl.getEffectiveDate();
+        try {
+            return getProperty(ArtefactProperties.PROP_EFFECTIVE_DATE).getDate();
+        } catch (PropertyException e) {
+            return null;
+        }
     }
 
     public Date getExpirationDate() {
-        return impl.getExpirationDate();
+        try {
+            return getProperty(ArtefactProperties.PROP_EXPIRATION_DATE).getDate();
+        } catch (PropertyException e) {
+            return null;
+        }
     }
 
     public String getLineOfBusiness() {
-        return impl.getLineOfBusiness();
+        try {
+            return getProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS).getString();
+        } catch (PropertyException e) {
+            return null;
+        }
     }
 
     public Map<String, Object> getProps() {
-        return impl.getProps();
+        return getAPI().getProps();
     }
 
-    public void setEffectiveDate(Date date) throws ProjectException {
-        impl.setEffectiveDate(date);
+    public void setEffectiveDate(Date date) throws PropertyException {
+        getAPI().addProperty(new PropertyImpl(ArtefactProperties.PROP_EFFECTIVE_DATE, date));
     }
 
-    public void setExpirationDate(Date date) throws ProjectException {
-        impl.setExpirationDate(date);
+    public void setExpirationDate(Date date) throws PropertyException {
+        getAPI().addProperty(new PropertyImpl(ArtefactProperties.PROP_EXPIRATION_DATE, date));
     }
 
-    public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
-        impl.setLineOfBusiness(lineOfBusiness);
+    public void setLineOfBusiness(String lineOfBusiness) throws PropertyException {
+        getAPI().addProperty(new PropertyImpl(ArtefactProperties.PROP_LINE_OF_BUSINESS, lineOfBusiness));
     }
 
-    public void setProps(Map<String, Object> props) throws ProjectException {
-        impl.setProps(props);
+    public void setProps(Map<String, Object> props) throws PropertyException {
+        getAPI().setProps(props);
     }
 
     public void addProperty(Property property) throws PropertyException {
-        impl.addProperty(property);
+        getAPI().addProperty(property);
     }
 
     public Collection<Property> getProperties() {
-        return impl.getProperties();
+        return getAPI().getProperties();
     }
 
     public Property getProperty(String name) throws PropertyException {
-        return impl.getProperty(name);
+        return getAPI().getProperty(name);
     }
 
     public boolean hasProperty(String name) {
-        return impl.hasProperty(name);
+        return getAPI().hasProperty(name);
     }
 
     public Property removeProperty(String name) throws PropertyException {
-        return impl.removeProperty(name);
+        return getAPI().removeProperty(name);
     }
 
     public void delete() throws ProjectException {
-        impl.delete(null);
+        getAPI().delete(null);
     }
 
     public ArtefactPath getArtefactPath() {
-        return impl.getArtefactPath();
+        return getAPI().getArtefactPath();
     }
 
     public String getName() {
-        return impl.getName();
+        return getAPI().getName();
     }
 
     public boolean isFolder() {
-        return impl.isFolder();
+        return getAPI().isFolder();
     }
 
     // current version
     public ProjectVersion getVersion() {
-        return impl.getVersion();
+        return getAPI().getVersion();
     }
-    
+
     public ProjectVersion getLastVersion() {
         List<ProjectVersion> versions = getVersions();
-        if(versions.size() == 0){
+        if (versions.size() == 0) {
             return new RepositoryProjectVersionImpl(0, 0, 0, null);
         }
-        ProjectVersion max = versions.get(versions.size()-1);
+        ProjectVersion max = versions.get(versions.size() - 1);
         return max;
     }
-    
+
     public List<ProjectVersion> getVersions() {
-        return impl.getVersions();
+        return getAPI().getVersions();
     }
 
     public void update(AProjectArtefact artefact) throws ProjectException {
-        setProps(artefact.getProps());
         try {
-            // clear properties
-            for (Property property : getProperties()) {
-                removeProperty(property.getName());
-            }
+            setProps(artefact.getProps());
+        } catch (PropertyException e1) {
+            // TODO log
+            e1.printStackTrace();
+        }
+        try {
+            getAPI().removeAllProperties();
+            
             // set all properties
             for (Property property : artefact.getProperties()) {
                 addProperty(property);
             }
         } catch (PropertyException e) {
             // TODO log
+            e.printStackTrace();
         }
-        setEffectiveDate(artefact.getEffectiveDate());
-        setExpirationDate(artefact.getExpirationDate());
-        setLineOfBusiness(artefact.getLineOfBusiness());
+        refresh();
     }
 
     public boolean getCanModify() {
@@ -149,5 +168,33 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     public void refresh() {
         // TODO
+    }
+
+    public void lock(CommonUser user) throws ProjectException {
+        getAPI().lock(user);
+    }
+
+    public void unlock(CommonUser user) throws ProjectException {
+        getAPI().unlock(user);
+    }
+
+    public boolean isLocked() {
+        return getLockInfo().isLocked();
+    }
+
+    public boolean isLockedByUser(CommonUser user) {
+        if (isLocked()) {
+            CommonUser lockedBy = getLockInfo().getLockedBy();
+            //FIXME
+            if (lockedBy.equals(user)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public LockInfo getLockInfo() {
+        return getAPI().getLockInfo();
     }
 }

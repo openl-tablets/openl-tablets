@@ -4,6 +4,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.diff.differs.ProjectionDifferImpl;
 import org.openl.rules.diff.hierarchy.AbstractProjection;
 import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
@@ -16,13 +20,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.impl.LocalAPI;
-import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.project.impl.local.LocalArtefactAPI;
 import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileTypeHelper;
 
@@ -194,7 +194,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
         File tempFile = null;
         OutputStream out = null;
-        String filePrefix = ((excelArtefact.getAPI() instanceof LocalAPI) ? "uw" : selectedVersionRepo) + "_";
+        String filePrefix = ((excelArtefact.getAPI() instanceof LocalArtefactAPI) ? "uw" : selectedVersionRepo) + "_";
         try {
             tempFile = new File(filePrefix + excelArtefact.getName());
             out = new FileOutputStream(tempFile);

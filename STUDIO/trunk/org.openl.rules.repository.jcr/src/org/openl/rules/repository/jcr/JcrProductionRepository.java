@@ -9,6 +9,8 @@ import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
@@ -44,13 +46,13 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         StringBuilder sb = new StringBuilder("//element(*, nt:base)");
         if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
             // todo: check for injection
-            sb.append("[@" + JcrNT.PROP_LINE_OF_BUSINESS + "='").append(params.getLineOfBusiness()).append("']");
+            sb.append("[@" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "='").append(params.getLineOfBusiness()).append("']");
         }
 
-        appendDateCondition(params.getLowerEffectiveDate(), JcrNT.PROP_EFFECTIVE_DATE + " >= ", sb);
-        appendDateCondition(params.getUpperEffectiveDate(), JcrNT.PROP_EFFECTIVE_DATE + " <= ", sb);
-        appendDateCondition(params.getLowerExpirationDate(), JcrNT.PROP_EXPIRATION_DATE + " >= ", sb);
-        appendDateCondition(params.getUpperExpirationDate(), JcrNT.PROP_EXPIRATION_DATE + " <= ", sb);
+        appendDateCondition(params.getLowerEffectiveDate(), ArtefactProperties.PROP_EFFECTIVE_DATE + " >= ", sb);
+        appendDateCondition(params.getUpperEffectiveDate(), ArtefactProperties.PROP_EFFECTIVE_DATE + " <= ", sb);
+        appendDateCondition(params.getLowerExpirationDate(), ArtefactProperties.PROP_EXPIRATION_DATE + " >= ", sb);
+        appendDateCondition(params.getUpperExpirationDate(), ArtefactProperties.PROP_EXPIRATION_DATE + " <= ", sb);
 
         return sb.toString();
     }
@@ -71,10 +73,12 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         listeners.add(listener);
     }
 
+    @Deprecated
     public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public RProductionDeployment createDeployment(String name) throws RRepositoryException {
         try {
             return JcrProductionDeployment.createDeployment(deployLocation, name);
@@ -91,10 +95,12 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
      *             failed
      */
+    @Deprecated
     public RProject createProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public Collection<REntity> findNodes(SearchParams params) throws RRepositoryException {
         try {
             Query query = session.getWorkspace().getQueryManager().createQuery(buildQuery(params), Query.XPATH);
@@ -122,14 +128,17 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
     }
 
+    @Deprecated
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public RProductionDeployment getDeployment(String name) throws RRepositoryException {
         Node node;
         try {
@@ -170,6 +179,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
      *             failed or no project with specified name
      */
+    @Deprecated
     public RProject getProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
@@ -181,6 +191,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
      *             failed
      */
+    @Deprecated
     public List<RProject> getProjects() throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
@@ -190,6 +201,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      *
      * @return list of projects that are marked for deletion
      */
+    @Deprecated
     public List<RProject> getProjects4Deletion() throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
@@ -266,5 +278,40 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
     public synchronized boolean removeListener(RDeploymentListener listener) throws RRepositoryException {
         return listeners.remove(listener);
+    }
+
+    public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public FolderAPI createRulesProject(String name) throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public FolderAPI getRulesProject(String name) throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<FolderAPI> getRulesProjects() throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

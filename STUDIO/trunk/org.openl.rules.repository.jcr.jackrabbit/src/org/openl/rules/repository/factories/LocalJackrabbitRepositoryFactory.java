@@ -8,8 +8,13 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.nodetype.PropertyDefinition;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
@@ -17,6 +22,9 @@ import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.springframework.util.FileCopyUtils;
 
@@ -42,6 +50,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     private String repHome;
     private String nodeTypeFile;
     private ShutDownHook shutDownHook;
+    private boolean convert = false;
 
     @Override
     protected void finalize() {
@@ -119,6 +128,64 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         }
     }
 
+    @Override
+    protected void checkSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
+        String schemaVersion = getCurrentSchemaVersion(ntm);
+        // compare expected and repository schema versions
+        String expectedVersion = getExpectedSchemaVersion();
+        if (!expectedVersion.equals(schemaVersion)) {
+            // TODO Remove conversion sometimes
+            if (RepositoryConvertor.from.compareTo(new CommonVersionImpl(schemaVersion)) == 0
+                    && RepositoryConvertor.to.compareTo(new CommonVersionImpl(expectedVersion)) == 0) {
+                convert = true;
+                return;//success
+            }
+            throw new RepositoryException("Schema version is different. Has (" + schemaVersion + ") when ("
+                    + expectedVersion + ") expected.");
+        }
+    }
+    
+    private void convert() throws RRepositoryException{
+        RRepository repositoryInstance = null;
+        String tempRepoHome = "/temp/repo/";
+        try {
+            repositoryInstance = super.getRepositoryInstance();
+            //FIXME
+            RepositoryConvertor repositoryConvertor = new RepositoryConvertor(confRulesProjectsLocation.getValue(),
+                    confDeploymentProjectsLocation.getValue(), tempRepoHome);
+            log.info("Converting repository. Please, be patient.");
+            repositoryConvertor.convert(repositoryInstance);
+        } catch (Exception e) {
+            throw new RRepositoryException("Failed to convert repository.", e);
+        } finally {
+            if (repositoryInstance != null) {
+                repositoryInstance.release();
+            }
+        }
+        File repoHome = new File(repHome);
+        File tmpRepoHome = new File(tempRepoHome);
+        try {
+            FileUtils.deleteDirectory(repoHome);
+            FileUtils.copyDirectory(tmpRepoHome, repoHome);
+        } catch (IOException e) {
+            throw new RRepositoryException("Failed to convert repository.", e);
+        } finally {
+            FileUtils.deleteQuietly(tmpRepoHome);
+        }
+        return;
+        
+    }
+    
+    @Override
+    public RRepository getRepositoryInstance() throws RRepositoryException {
+        if(convert){
+            convert();
+            convert = false;
+        }
+        // TODO Auto-generated method stub
+        return super.getRepositoryInstance();
+    }
+    
     /** {@inheritDoc} */
     @Override
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {

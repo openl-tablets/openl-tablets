@@ -2,16 +2,18 @@ package org.openl.rules.repository.jcr;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.RDependency;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDependency;
+import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
-import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -31,8 +33,6 @@ public class JcrProject extends JcrEntity implements RProject {
 
     private JcrCommonProject project;
 
-    private JcrLock lock;
-
     /**
      * Creates new project instance.
      * <p>
@@ -48,7 +48,7 @@ public class JcrProject extends JcrEntity implements RProject {
         Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_PROJECT, true);
 
         // TODO what should be in default description?
-        n.setProperty(JcrNT.PROP_PRJ_DESCR, "created " + new Date() + " by UNKNOWN");
+        n.setProperty(ArtefactProperties.PROP_PRJ_DESCR, "created " + new Date() + " by UNKNOWN");
 
         NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_FILES, true);
         NodeUtil.createNode(n, NODE_DEPENDENCIES, JcrNT.NT_DEPENDENCIES, false);
@@ -71,7 +71,6 @@ public class JcrProject extends JcrEntity implements RProject {
         dependencies = new JcrDependencies(deps);
 
         project = new JcrCommonProject(node);
-        lock = new JcrLock(node);
     }
 
     public void commit(CommonUser user) throws RRepositoryException {
@@ -91,12 +90,8 @@ public class JcrProject extends JcrEntity implements RProject {
         project.erase(user);
     }
 
-    public Collection<RDependency> getDependencies() throws RRepositoryException {
+    public Collection<ProjectDependency> getDependencies() throws RRepositoryException {
         return dependencies.getDependencies();
-    }
-
-    public RLock getLock() throws RRepositoryException {
-        return lock;
     }
 
     public RProject getProjectVersion(CommonVersion version) throws RRepositoryException {
@@ -113,23 +108,15 @@ public class JcrProject extends JcrEntity implements RProject {
         return rootFolder;
     }
 
-    public boolean isLocked() throws RRepositoryException {
-        return lock.isLocked();
-    }
-
     public boolean isMarked4Deletion() throws RRepositoryException {
         return project.isMarked4Deletion();
-    }
-
-    public void lock(CommonUser user) throws RRepositoryException {
-        lock.lock(user);
     }
 
     public void riseVersion(int major, int minor) throws RRepositoryException {
         project.riseVersion(major, minor);
     }
 
-    public void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException {
+    public void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
         this.dependencies.updateDependencies(dependencies);
     }
 
@@ -137,7 +124,19 @@ public class JcrProject extends JcrEntity implements RProject {
         project.undelete(user);
     }
 
-    public void unlock(CommonUser user) throws RRepositoryException {
-        lock.unlock(user);
+    public RFile createFile(String name) throws RRepositoryException {
+        return rootFolder.createFile(name);
+    }
+
+    public RFolder createFolder(String name) throws RRepositoryException {
+        return rootFolder.createFolder(name);
+    }
+
+    public List<RFile> getFiles() throws RRepositoryException {
+        return rootFolder.getFiles();
+    }
+
+    public List<RFolder> getFolders() throws RRepositoryException {
+        return rootFolder.getFolders();
     }
 }

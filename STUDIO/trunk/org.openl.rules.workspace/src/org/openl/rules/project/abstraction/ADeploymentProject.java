@@ -1,18 +1,25 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.openl.rules.project.impl.ProjectArtefactAPI;
-import org.openl.rules.project.impl.RepositoryAPI;
-import org.openl.rules.project.impl.UserWorkspaceAPI;
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.workspace.abstracts.ProjectDescriptor;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.uw.impl.ProjectDescriptorImpl;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ResourceAPI;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.*;
@@ -21,9 +28,14 @@ public class ADeploymentProject extends AProject {
     private List<ProjectDescriptor> descriptors;
     private ProjectVersion projectVersion;
 
-    public ADeploymentProject(ProjectArtefactAPI api, CommonUser user) {
+    public ADeploymentProject(FolderAPI api, CommonUser user) {
         super(api, user);
         projectVersion = getLastVersion();
+    }
+
+    @Override
+    public boolean isFolder() {
+        return false;
     }
 
     public ProjectDescriptor addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
@@ -43,22 +55,34 @@ public class ADeploymentProject extends AProject {
 
     @Override
     public void openVersion(CommonVersion version) throws ProjectException {
-        // FIXME
-        ADeploymentProject ddProject = ((RepositoryAPI) impl).getRepository().getDDProject(getName(), version);
-        getDescriptors().clear();
-        getDescriptors().addAll(ddProject.getProjectDescriptors());
-        projectVersion = ddProject.getVersion();
+        FolderAPI openedProjectVersion = getAPI().getVersion(version);
+        if (openedProjectVersion.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+            InputStream content = null;
+            try {
+                content = ((ResourceAPI) openedProjectVersion.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
+                        .getContent();
+                descriptors = ProjectDescriptorHelper.deserialize(content);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                IOUtils.closeQuietly(content);
+            }
+        } else {
+            descriptors = new ArrayList<ProjectDescriptor>();
+        }
+        projectVersion = new RepositoryProjectVersionImpl(version, null);
     }
 
     @Override
     public void close() throws ProjectException {
         if (isCheckedOut()) {
-            impl.unlock(user);
+            getAPI().unlock(user);
         }
         openVersion(getLastVersion());
         refresh();
     }
-    
+
     @Override
     public ProjectVersion getVersion() {
         return projectVersion;
@@ -72,7 +96,7 @@ public class ADeploymentProject extends AProject {
     /** is opened other version? (not last) */
     public boolean isOpenedOtherVersion() {
         ProjectVersion max = getLastVersion();
-        if(max == null){
+        if (max == null) {
             return false;
         }
         return (!getVersion().equals(max));
@@ -80,8 +104,26 @@ public class ADeploymentProject extends AProject {
 
     @Override
     public void checkIn(int major, int minor) throws ProjectException {
-        impl.setProjectDescriptors(getDescriptors());
-        impl.commit(user, major, minor);
+        if (CollectionUtils.isEmpty(descriptors)) {
+            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+                getArtefact(ArtefactProperties.DESCRIPTORS_FILE).delete();
+            }
+        } else {
+            String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
+            try {
+                if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+                    ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
+                            .setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
+                } else {
+                    addResource(ArtefactProperties.DESCRIPTORS_FILE,
+                            new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
+                }
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        getAPI().commit(user, major, minor);
         close();
     }
 
@@ -106,7 +148,7 @@ public class ADeploymentProject extends AProject {
 
     @Override
     public void update(AProjectArtefact artefact) throws ProjectException {
-        super.update(artefact);
+        // super.update(artefact); TODO
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
     }
@@ -118,7 +160,17 @@ public class ADeploymentProject extends AProject {
     private List<ProjectDescriptor> getDescriptors() {
         if (descriptors == null) {
             descriptors = new ArrayList<ProjectDescriptor>();
-            descriptors.addAll(impl.getProjectDescriptors());
+            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+                InputStream content = null;
+                try {
+                    content = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
+                    descriptors = ProjectDescriptorHelper.deserialize(content);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                } finally {
+                    IOUtils.closeQuietly(content);
+                }
+            }
         }
         return descriptors;
     }

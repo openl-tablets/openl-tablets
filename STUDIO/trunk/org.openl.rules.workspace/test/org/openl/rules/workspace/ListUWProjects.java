@@ -2,10 +2,10 @@ package org.openl.rules.workspace;
 
 import java.util.Collection;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class ListUWProjects {

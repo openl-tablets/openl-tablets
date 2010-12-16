@@ -9,15 +9,15 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public class JcrOldDeploymentProject extends JcrCommonProject implements RDeploymentDescriptorProject {
+public class JcrOldDeploymentProject extends JcrOldEntity implements RDeploymentDescriptorProject {
 
     private String name;
     private JcrVersion version;
@@ -25,7 +25,7 @@ public class JcrOldDeploymentProject extends JcrCommonProject implements RDeploy
     private HashMap<String, RProjectDescriptor> projects;
 
     public JcrOldDeploymentProject(String name, Node node) throws RepositoryException {
-        super(node);
+        super(null, name, node);
         this.name = name;
         version = new JcrVersion(node);
 
@@ -62,7 +62,7 @@ public class JcrOldDeploymentProject extends JcrCommonProject implements RDeploy
     }
 
     public RLock getLock() throws RRepositoryException {
-        return JcrOldProject.NO_LOCK;
+        return RLock.NO_LOCK;
     }
 
     public String getName() {

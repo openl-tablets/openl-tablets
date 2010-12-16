@@ -2,14 +2,14 @@ package org.openl.rules.workspace.lw.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.impl.LocalAPI;
+import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.util.MsgHelper;
@@ -68,10 +68,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         File f = new File(location, name);
         f.mkdir();
 
-        AProject localProject = new AProject(new LocalAPI(f, ap, this), user);
+        AProject localProject = new AProject(new LocalFolderAPI(f, ap, this), user);
 
         localProject.update(project);
-//      localProject.save();
+        localProject.checkIn();
 
         // add project
         localProjects.put(name, localProject);
@@ -128,13 +128,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             String name = f.getName();
             ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
 
-            AProject lpi = new AProject(new LocalAPI(f, ap, this), user);;
-            try {
-                lpi.open();
-            } catch (ProjectException e) {
-                log.error(MsgHelper.format("Error loading local project ''{0}''!", lpi.getName()), e);
-            }
-
+            AProject lpi = new AProject(new LocalFolderAPI(f, ap, this), user);;
+            ((LocalFolderAPI) lpi.getAPI()).load();
             localProjects.put(name, lpi);
         }
     }
@@ -170,14 +165,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             if (!localProjects.containsKey(name)) {
                 // new project detected
                 ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
-                AProject newlyDetected = new AProject(new LocalAPI(folder, ap, this), user);;
+                AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this), user);;
 
-                try {
-                    newlyDetected.open();
-                } catch (ProjectException e) {
-                    String msg = MsgHelper.format("Error loading just detected local project ''{0}''!", name);
-                    log.error(msg, e);
-                }
+                ((LocalFolderAPI) newlyDetected.getAPI()).load();
 
                 // add it
                 localProjects.put(name, newlyDetected);

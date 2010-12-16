@@ -20,10 +20,16 @@ public class JcrCommonArtefact {
     private String name;
     private Node node;
 
+    protected JcrCommonArtefact(Node node, String name) throws RepositoryException {
+        this.node = node;
+
+        this.name = name;
+    }
+
     protected JcrCommonArtefact(Node node) throws RepositoryException {
         this.node = node;
 
-        name = node.getName();
+        this.name = node.getName();
     }
 
     public void delete() throws RRepositoryException {
@@ -40,8 +46,7 @@ public class JcrCommonArtefact {
 
     public RVersion getActiveVersion() {
         try {
-            Version v = node().getBaseVersion();
-            RVersion result = new JcrVersion(v);
+            RVersion result = new JcrVersion(node);
             return result;
         } catch (RepositoryException e) {
             log.info("getActiveVersion", e);

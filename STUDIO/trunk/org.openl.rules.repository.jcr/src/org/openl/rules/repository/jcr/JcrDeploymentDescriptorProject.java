@@ -7,7 +7,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.exceptions.RRepositoryException;

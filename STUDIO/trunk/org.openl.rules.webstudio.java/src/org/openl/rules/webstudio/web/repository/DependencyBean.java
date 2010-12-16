@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
-import org.openl.rules.workspace.abstracts.ProjectException;
 
 import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;

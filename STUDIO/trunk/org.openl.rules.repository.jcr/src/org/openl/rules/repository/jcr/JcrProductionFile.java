@@ -1,7 +1,7 @@
 package org.openl.rules.repository.jcr;
 
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.RFile;
-import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
