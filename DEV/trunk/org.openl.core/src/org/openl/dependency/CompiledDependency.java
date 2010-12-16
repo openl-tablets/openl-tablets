@@ -2,18 +2,20 @@ package org.openl.dependency;
 
 import org.openl.CompiledOpenClass;
 
+/**
+ * Simple bean that handles compiled dependency.
+ * 
+ */
 public class CompiledDependency {
 
     private String dependencyName;
     private CompiledOpenClass compiledOpenClass;
-    private ClassLoader classLoader;
     
-    public CompiledDependency(String dependencyName, CompiledOpenClass compiledOpenClass, ClassLoader classLoader) {
+    public CompiledDependency(String dependencyName, CompiledOpenClass compiledOpenClass) {
         this.dependencyName = dependencyName;
         this.compiledOpenClass = compiledOpenClass;
-        this.classLoader = classLoader;
     }
-
+    
     public String getDependencyName() {
         return dependencyName;
     }
@@ -23,7 +25,7 @@ public class CompiledDependency {
     }
 
     public ClassLoader getClassLoader() {
-        return classLoader;
+        return getCompiledOpenClass().getClassLoader();
     }
     
 }
