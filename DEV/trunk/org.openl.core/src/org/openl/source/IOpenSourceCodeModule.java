@@ -27,6 +27,12 @@ public interface IOpenSourceCodeModule {
 
     String getUri(int textpos);
     
+    /**
+     * External parameters for current source code module.<br>
+     * It can be external properties or dependencies.
+     * 
+     * @return external parameters.
+     */
     Map<String, Object> getParams();
     void setParams(Map<String, Object> params);
 }

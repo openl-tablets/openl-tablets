@@ -11,6 +11,10 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
         super(message);
     }
     
+    public OpenlNotCheckedException(String message, Throwable e) {
+        super(message, e);
+    }
+
     public ILocation getLocation() {
         
         return null;
