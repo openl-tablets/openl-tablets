@@ -391,17 +391,6 @@ public interface IWritableGrid extends IGrid {
             return result;
         }
 
-        public static void putCellMetaInfo(IGridTable table, int col, int row, CellMetaInfo meta) {
-            IWritableGrid wgrid = getWritableGrid(table);
-            if (wgrid == null) {
-                return;
-            }
-            int gcol = table.getGridColumn(col, row);
-            int grow = table.getGridRow(col, row);
-
-            wgrid.setCellMetaInfo(gcol, grow, meta);
-        }
-
         private static List<IUndoableGridTableAction> clearCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
             ArrayList<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
             for (int i = startColumn; i < startColumn + nCols; i++) {

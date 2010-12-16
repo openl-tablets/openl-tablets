@@ -82,6 +82,7 @@ public interface ICell {
     Date getNativeDate();
 
     CellMetaInfo getMetaInfo();
+    void setMetaInfo(CellMetaInfo metaInfo);
 
     ICellComment getComment();
 
