@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Rules Mapping Library
+Bundle-SymbolicName: org.openl.rules.mapping.lib
+Bundle-Version: 5.7.4
+Bundle-Vendor: OpenL
+Export-Package: org.dozer,
+ org.dozer.cache,
+ org.dozer.classmap,
+ org.dozer.config,
+ org.dozer.converters,
+ org.dozer.event,
+ org.dozer.factory,
+ org.dozer.fieldmap,
+ org.dozer.jmx,
+ org.dozer.loader,
+ org.dozer.loader.api,
+ org.dozer.loader.xml,
+ org.dozer.propertydescriptor,
+ org.dozer.spring,
+ org.dozer.stats,
+ org.dozer.util
+Bundle-ClassPath: lib/dozer-5.3.1.jar
