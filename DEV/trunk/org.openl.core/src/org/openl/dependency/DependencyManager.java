@@ -12,7 +12,7 @@ public abstract class DependencyManager implements IDependencyManager {
     
     private Map<String, CompiledDependency> compiledDependencies = new HashMap<String, CompiledDependency>();  
     
-    public CompiledDependency loadDependency(IDependency dependency) throws Exception {
+    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
 
         String dependencyName = dependency.getNode().getIdentifier();
 
@@ -24,12 +24,20 @@ public abstract class DependencyManager implements IDependencyManager {
         CompiledDependency compiledDependency = loadDependency(dependencyName, dependencyLoaders);
 
         if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' is not found", dependencyName), null, dependency.getNode().getSourceLocation());
-        }
+            throw new OpenLCompilationException(String.format("Dependency with name '%s' is not found", dependencyName), 
+                null, dependency.getNode().getSourceLocation());
+        }   
         
         compiledDependencies.put(dependencyName, compiledDependency);
 
         return compiledDependency;
+    }
+    
+    public void reset(IDependency dependency) {
+        String dependencyName = dependency.getNode().getIdentifier();
+        if (compiledDependencies.containsKey(dependencyName)) {
+            compiledDependencies.remove(dependencyName);
+        }
     }
 
     public abstract List<IDependencyLoader> getDependencyLoaders();

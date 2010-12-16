@@ -16,7 +16,7 @@ import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.IDependency;
@@ -111,11 +111,11 @@ public class OpenLSourceManager extends OpenLHolder {
                             currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
                             compiledDependencies.add(loadedDependency.getCompiledOpenClass());
                         } catch (Exception e) {
-                            throw new OpenLRuntimeException(e);
+                            OpenLMessagesUtils.addError(e);                            
                         }
                     }
                 } else {
-                    throw new OpenLRuntimeException("Dependency manager is not defined");
+                    OpenLMessagesUtils.addError("Cannot load dependency. Dependency manager is not defined.");                    
                 }
             }
 
