@@ -107,6 +107,10 @@ class CompositeCell implements ICell {
         return delegate.getMetaInfo();
     }
 
+    public void setMetaInfo(CellMetaInfo metaInfo) {
+        delegate.setMetaInfo(metaInfo);
+    }
+
     public ICellComment getComment() {
         return delegate.getComment();
     }

@@ -19,7 +19,6 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -370,9 +369,10 @@ public class RuleRowHelper {
         return false;
     }
 
-    public static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean isMultiValue) {
+    public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
-        IWritableGrid.Tool.putCellMetaInfo(cell.getSource(), 0, 0, meta);
+        ICell cell = logicalCell.getSource().getCell(0, 0);
+        cell.setMetaInfo(meta);
     }
 
     private static void setMetaInfo(IMetaHolder holder,

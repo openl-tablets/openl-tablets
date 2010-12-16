@@ -136,6 +136,9 @@ public class WordCell implements ICell{
     public CellMetaInfo getMetaInfo() {
         return null;
     }
+    
+    public void setMetaInfo(CellMetaInfo metaInfo) {
+    }
 
     public ICellComment getComment() {
         return null;

@@ -293,7 +293,11 @@ public class XlsCell implements ICell {
     public CellMetaInfo getMetaInfo() {
         return gridModel.getCellMetaInfo(column, row);
     }
-    
+
+    public void setMetaInfo(CellMetaInfo metaInfo) {
+        gridModel.setCellMetaInfo(column, row, metaInfo);
+    }
+
     private ICellStyle getCellStyle(Cell cell) {
         CellStyle style = cell.getCellStyle();
         if (style != null) {
