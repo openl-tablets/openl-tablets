@@ -21,6 +21,10 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.commons</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
