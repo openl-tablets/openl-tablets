@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RuleEngineFactory;
@@ -52,7 +53,7 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
         EngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(clazz.getClassLoader()));
 
         try {
             if (!useExisting) {
@@ -70,7 +71,7 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
         EngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(clazz.getClassLoader()));
 
         try {
             if (!useExisting) {

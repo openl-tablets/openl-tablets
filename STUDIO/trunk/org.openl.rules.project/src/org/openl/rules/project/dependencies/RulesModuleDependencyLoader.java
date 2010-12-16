@@ -12,6 +12,7 @@ import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -39,9 +40,9 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
                 RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager, moduleClassLoader);
                 CompiledOpenClass compiledOpenClass = strategy.compile(ReloadType.NO);
                 
-                return new CompiledDependency(dependencyName, compiledOpenClass, moduleClassLoader);
+                return new CompiledDependency(dependencyName, compiledOpenClass);
             } catch (Exception e) {
-                throw new RuntimeException(String.format("Cannot load dependency '%s'", dependencyName) , e);
+                throw new OpenlNotCheckedException(String.format("Cannot load dependency '%s'", dependencyName) , e);
             }
         }
 

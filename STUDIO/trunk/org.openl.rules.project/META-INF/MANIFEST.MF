@@ -7,6 +7,7 @@ Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
  org.openl.rules;visibility:=reexport
 Export-Package: org.openl.rules.project,
+ org.openl.rules.project.dependencies,
  org.openl.rules.project.instantiation,
  org.openl.rules.project.model,
  org.openl.rules.project.model.validation,

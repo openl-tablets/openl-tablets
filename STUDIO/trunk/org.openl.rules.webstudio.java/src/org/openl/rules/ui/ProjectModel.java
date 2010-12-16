@@ -70,7 +70,10 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
+import org.openl.syntax.code.Dependency;
+import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -116,7 +119,7 @@ public class ProjectModel {
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
-    }
+    }    
 
     public AProject getProject() {
         return studio.getCurrentProject();
@@ -903,10 +906,15 @@ public class ProjectModel {
             case FORCED:
                 OpenL.reset();
                 OpenLConfiguration.reset();
-                ClassLoaderFactory.reset();
+                ClassLoaderFactory.reset();                
             case RELOAD:
-                modulesCache.reset();
-                break;
+                modulesCache.reset();                
+            case SINGLE:
+                // clear the cache of dependency manager, as the project has been modified.
+                //
+                studio.getDependencyManager()
+                .reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
+                break;                
         }
         setModuleInfo(moduleInfo, reloadType);
         savedSearches = null;
@@ -1079,7 +1087,8 @@ public class ProjectModel {
                                               // workbooks
         }
         
-        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(moduleInfo);
+        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(moduleInfo, 
+            studio.getDependencyManager());
         
         try {
             compiledOpenClass = instantiationStrategy.compile(reloadType);
