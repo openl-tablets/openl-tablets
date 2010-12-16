@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
+import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
@@ -41,7 +42,16 @@ public class ModulesCache {
         }
         return strategy;
     }
-
+    
+    public RulesInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
+        RulesInstantiationStrategy strategy = moduleInstantiators.get(module);
+        if (strategy == null) {
+            strategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
+            moduleInstantiators.put(module, strategy);
+        }
+        return strategy;
+    }
+   
     /**
      * Removes cached instantiation strategy for the module.
      * 

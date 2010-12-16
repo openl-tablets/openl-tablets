@@ -7,6 +7,7 @@ import java.io.File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
@@ -72,7 +73,7 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
     protected CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
+        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(getClassLoader()));
         try {
             if (!useExisting) {
                 factory.reset(false);
@@ -87,7 +88,7 @@ public class ApiBasedEngineFactoryInstantiationStrategy extends RulesInstantiati
     protected Object instantiate(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(clazz.getClassLoader()));
         try {
             if (!useExisting) {
                 factory.reset(false);

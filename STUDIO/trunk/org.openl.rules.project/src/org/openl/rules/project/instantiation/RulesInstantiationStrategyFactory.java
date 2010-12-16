@@ -12,6 +12,10 @@ public class RulesInstantiationStrategyFactory {
     public static RulesInstantiationStrategy getStrategy(Module moduleInfo) {
         return getStrategy(moduleInfo, false, null);
     }
+    
+    public static RulesInstantiationStrategy getStrategy(Module moduleInfo, IDependencyManager dependencyManager) {
+        return getStrategy(moduleInfo, false, dependencyManager);
+    }    
 
     public static RulesInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode, IDependencyManager dependencyManager) {
         return getStrategy(moduleInfo, executionMode, dependencyManager, null);

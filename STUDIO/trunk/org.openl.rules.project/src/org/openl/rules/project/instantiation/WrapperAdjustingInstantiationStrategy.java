@@ -11,6 +11,7 @@ import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.project.model.Module;
@@ -95,7 +96,7 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
     protected OpenLWrapper instantiate(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(clazz.getClassLoader()));
         try {
             preInitWrapper(clazz);
             if (!useExisting || wrapper == null) {

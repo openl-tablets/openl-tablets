@@ -8,12 +8,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.loader.IDependencyLoader;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.dependencies.ResolvingRulesProjectDependencyLoader;
+import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.runtime.RulesFileDependencyLoader;
 import org.openl.rules.ui.view.BaseBusinessViewMode;
 import org.openl.rules.ui.view.BaseDeveloperViewMode;
 import org.openl.rules.ui.view.BusinessViewMode1;
@@ -30,6 +36,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +84,8 @@ public class WebStudio {
 
     private int businessModeIdx = 0;
     private int developerModeIdx = 0;
+    
+    private RulesProjectDependencyManager dependencyManager;
 
     public WebStudio(HttpSession session) {
         boolean initialized = false;
@@ -91,10 +100,21 @@ public class WebStudio {
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
         }
+        initDependencyManager();
     }
 
     public WebStudio() {
         this(FacesUtils.getSession());
+    }
+    
+    private void initDependencyManager() {
+        this.dependencyManager = new RulesProjectDependencyManager();
+        
+        IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader(projectResolver);
+        IDependencyLoader loader2 = new RulesFileDependencyLoader();
+        
+        dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));    
+        
     }
 
     public boolean init(HttpSession session) {
@@ -421,6 +441,10 @@ public class WebStudio {
         }
 
         return traceHelper;
+    }
+
+    public IDependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 
 }
