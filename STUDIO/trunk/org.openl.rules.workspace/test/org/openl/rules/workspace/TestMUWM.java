@@ -6,17 +6,17 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.junit.Ignore;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
-import org.openl.rules.workspace.props.Property;
-import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Ignore("Manual test")

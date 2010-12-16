@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.common.CommonVersion;
 
 /**
  * Represents a project in a deployment descriptor.

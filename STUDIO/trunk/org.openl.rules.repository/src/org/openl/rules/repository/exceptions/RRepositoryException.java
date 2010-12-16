@@ -2,13 +2,15 @@ package org.openl.rules.repository.exceptions;
 
 import java.text.MessageFormat;
 
+import org.openl.rules.common.ProjectException;
+
 /**
  * OpenL Rules Repository Exception
  *
  * @author Aleh Bykhavets
  *
  */
-public class RRepositoryException extends Exception {
+public class RRepositoryException extends ProjectException {
     private static final long serialVersionUID = 8258995781116021601L;
 
     private static String format(String pattern, Object... params) {

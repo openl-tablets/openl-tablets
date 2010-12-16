@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -14,7 +15,6 @@ import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -174,6 +174,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void refreshNode(AbstractTreeNode node){
+        node.refresh();
         if (!node.isLeaf()) {
             node.removeChildren();
             TreeFolder folder = (TreeFolder) node;
@@ -187,7 +188,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     
     public void deleteSelectedNodeFromTree(){
         deleteNode(selectedNode);
-        invalidateSelection();
+        moveSelectionToParentNode();
     }
     
     public void addDeploymentProjectToTree(ADeploymentProject project) {

@@ -8,14 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.REntity;
-import org.openl.rules.repository.RProperty;
-import org.openl.rules.repository.RPropertyType;
+import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RVersion;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrOldEntity implements REntity {
@@ -38,21 +41,21 @@ public class JcrOldEntity implements REntity {
 
         version = new JcrVersion(node);
 
-        if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
-            effectiveDate = node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getDate().getTime();
+        if (node.hasProperty(ArtefactProperties.PROP_EFFECTIVE_DATE)) {
+            effectiveDate = node.getProperty(ArtefactProperties.PROP_EFFECTIVE_DATE).getDate().getTime();
         }
-        if (node.hasProperty(JcrNT.PROP_EXPIRATION_DATE)) {
-            expirationDate = node.getProperty(JcrNT.PROP_EXPIRATION_DATE).getDate().getTime();
+        if (node.hasProperty(ArtefactProperties.PROP_EXPIRATION_DATE)) {
+            expirationDate = node.getProperty(ArtefactProperties.PROP_EXPIRATION_DATE).getDate().getTime();
         }
-        if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
-            lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
+        if (node.hasProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS)) {
+            lineOfBusiness = node.getProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS).getString();
         }
 
         props = new HashMap<String, Object>();
         loadProps();
     }
 
-    public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException {
+    public void addProperty(String name, ValueType type, Object value) throws RRepositoryException {
         notSupported();
     }
 
@@ -120,13 +123,23 @@ public class JcrOldEntity implements REntity {
         return sb.toString();
     }
 
-    public Collection<RProperty> getProperties() {
+    public Collection<org.openl.rules.common.Property> getProperties() {
         // not supported
         return null;
     }
 
-    public RProperty getProperty(String name) throws RRepositoryException {
-        throw new RRepositoryException("Cannot find property", null);
+    public org.openl.rules.common.Property getProperty(String name) throws RRepositoryException {
+        try {
+            if (node().hasProperty(name)) {
+                Property p = node().getProperty(name);
+
+                return new JcrProperty(node(), p);
+            }else{
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RRepositoryException("Cannot find property", e);
+        }
     }
 
     public Map<String, Object> getProps() {
@@ -148,8 +161,8 @@ public class JcrOldEntity implements REntity {
 
     private void loadProps() throws RepositoryException {
         Node n = node();
-        for (int i = 1; i <= JcrNT.PROPS_COUNT; i++) {
-            String propName = JcrNT.PROP_ATTRIBUTE + i;
+        for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
+            String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
                 Object propValue = null;
@@ -197,6 +210,32 @@ public class JcrOldEntity implements REntity {
     }
 
     public void setProps(Map<String, Object> props) throws RRepositoryException {
+        notSupported();
+    }
+
+    public RLock getLock() throws RRepositoryException {
+        // not supported
+        return RLock.NO_LOCK;
+    }
+
+    public boolean isLocked() throws RRepositoryException {
+        // cannot be locked
+        return false;
+    }
+
+    public void lock(CommonUser user) throws RRepositoryException {
+        notSupported();
+    }
+
+    public void unlock(CommonUser user) throws RRepositoryException {
+        notSupported();
+    }
+
+    public void commit(CommonUser user) throws RRepositoryException {
+        notSupported();
+    }
+
+    public void riseVersion(int major, int minor) throws RRepositoryException {
         notSupported();
     }
 }

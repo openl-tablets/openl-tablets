@@ -7,7 +7,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 

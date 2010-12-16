@@ -1,6 +1,6 @@
 package org.openl.rules.workspace;
 
-import org.openl.CommonException;
+import org.openl.rules.common.CommonException;
 
 public class WorkspaceException extends CommonException {
     private static final long serialVersionUID = -7485609617006473079L;

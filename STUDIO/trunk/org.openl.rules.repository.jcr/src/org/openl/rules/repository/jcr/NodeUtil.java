@@ -16,8 +16,9 @@ import javax.jcr.version.VersionIterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -68,7 +69,7 @@ public class NodeUtil {
      * @return reference on newly created node
      * @throws RepositoryException if operation failed
      */
-    protected static Node createNode(Node parentNode, String name, String type, boolean isVersionable)
+    public static Node createNode(Node parentNode, String name, String type, boolean isVersionable)
             throws RepositoryException {
         if (parentNode.hasNode(name)) {
             throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already!");
@@ -104,7 +105,7 @@ public class NodeUtil {
 
     protected static InputStream getFileNodeContent(Node node) throws RRepositoryException {
         try {
-            return node.getNode("jcr:content").getProperty("jcr:data").getStream();
+            return node.getNode("jcr:content").getProperty("jcr:data").getBinary().getStream();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Content!", e);
         }
@@ -211,8 +212,8 @@ public class NodeUtil {
                 Node oldNode = oldNodes.nextNode();
 
                 int nodeRevision = 0;
-                if (oldNode.hasProperty(JcrNT.PROP_REVISION)) {
-                    nodeRevision = (int) oldNode.getProperty(JcrNT.PROP_REVISION).getLong();
+                if (oldNode.hasProperty(ArtefactProperties.PROP_REVISION)) {
+                    nodeRevision = (int) oldNode.getProperty(ArtefactProperties.PROP_REVISION).getLong();
                 }
 
                 if (nodeRevision <= projectRevision) {
@@ -259,12 +260,12 @@ public class NodeUtil {
 
         // create the file node - see section 6.7.22.6 of the spec
         // create the mandatory child node - jcr:content
-        Node resNode = n.addNode(JcrNT.PROP_RES_CONTENT, JcrNT.NT_RESOURCE);
-        resNode.setProperty(JcrNT.PROP_RES_MIMETYPE, mimeType);
-        resNode.setProperty(JcrNT.PROP_RES_ENCODING, encoding);
+        Node resNode = n.addNode(ArtefactProperties.PROP_RES_CONTENT, JcrNT.NT_RESOURCE);
+        resNode.setProperty(ArtefactProperties.PROP_RES_MIMETYPE, mimeType);
+        resNode.setProperty(ArtefactProperties.PROP_RES_ENCODING, encoding);
         // TODO add real init-content
-        resNode.setProperty(JcrNT.PROP_RES_DATA, new ByteArrayInputStream(new byte[0]));
-        resNode.setProperty(JcrNT.PROP_RES_LASTMODIFIED, lastModified);
+        resNode.setProperty(ArtefactProperties.PROP_RES_DATA, new ByteArrayInputStream(new byte[0]));
+        resNode.setProperty(ArtefactProperties.PROP_RES_LASTMODIFIED, lastModified);
     }
 
     /**
@@ -274,7 +275,7 @@ public class NodeUtil {
      * @param openParent whether parent should be checked out
      * @throws RepositoryException if operation failed
      */
-    protected static void smartCheckout(Node node, boolean openParent) throws RepositoryException {
+    public static void smartCheckout(Node node, boolean openParent) throws RepositoryException {
         if (!node.isCheckedOut()) {
             if (node.isNodeType(JcrNT.MIX_VERSIONABLE)) {
                 node.checkout();

@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
+import org.openl.rules.common.LockInfo;
+import org.openl.rules.common.ProjectDependency;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.ProjectDependency;
-import org.openl.rules.workspace.abstracts.VersionInfo;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.dtr.LockInfo;
 
 import java.util.Date;
 import java.util.List;
@@ -116,7 +116,7 @@ public class TreeProject extends TreeFolder {
             return false;
         }
 
-        Collection<ProjectDependency> newDeps = new ArrayList<ProjectDependency>(dependencies);
+        List<ProjectDependency> newDeps = new ArrayList<ProjectDependency>(dependencies);
         newDeps.add(dep);
         ((AProject) getDataBean()).setDependencies(newDeps);
         this.dependencies = null;
@@ -220,8 +220,8 @@ public class TreeProject extends TreeFolder {
     }
 
     public synchronized void removeDependency(String dependency) throws ProjectException {
-        Collection<ProjectDependency> dependencies = getProject().getDependencies();
-        Collection<ProjectDependency> newDeps = new ArrayList<ProjectDependency>();
+        List<ProjectDependency> dependencies = getProject().getDependencies();
+        List<ProjectDependency> newDeps = new ArrayList<ProjectDependency>();
         boolean changed = false;
         for (ProjectDependency d : dependencies) {
             if (d.getProjectName().equals(dependency)) {
@@ -234,5 +234,10 @@ public class TreeProject extends TreeFolder {
             this.dependencies = null;
             getProject().setDependencies(newDeps);
         }
+    }
+    
+    @Override
+    public void refresh() {
+        dependencies = null;
     }
 }

@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -13,11 +15,9 @@ import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
-import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 
 import java.util.Collection;
 

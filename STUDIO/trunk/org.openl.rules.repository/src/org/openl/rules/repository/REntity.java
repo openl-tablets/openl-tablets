@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -16,7 +19,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public interface REntity {
 
-    void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException;
+    void addProperty(String name, ValueType type, Object value) throws RRepositoryException;
 
     /**
      * Deletes entity. Also can delete other entities. For example, deleting a
@@ -72,9 +75,9 @@ public interface REntity {
      */
     String getPath() throws RRepositoryException;
 
-    Collection<RProperty> getProperties();
+    Collection<Property> getProperties();
 
-    RProperty getProperty(String name) throws RRepositoryException;
+    Property getProperty(String name) throws RRepositoryException;
 
     Map<String, Object> getProps();
 
@@ -117,4 +120,20 @@ public interface REntity {
 
     void setProps(Map<String, Object> props) throws RRepositoryException;
 
+    RLock getLock() throws RRepositoryException;
+
+    boolean isLocked() throws RRepositoryException;
+
+    void lock(CommonUser user) throws RRepositoryException;
+
+    void unlock(CommonUser user) throws RRepositoryException;
+
+    /**
+     * Commits changes in background versioned storage.
+     *
+     * @throws RRepositoryException if failed
+     */
+    void commit(CommonUser user) throws RRepositoryException;
+
+    void riseVersion(int major, int minor) throws RRepositoryException;
 }

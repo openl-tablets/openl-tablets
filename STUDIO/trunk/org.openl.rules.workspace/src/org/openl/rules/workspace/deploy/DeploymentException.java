@@ -1,6 +1,6 @@
 package org.openl.rules.workspace.deploy;
 
-import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.common.ProjectException;
 
 /**
  * An exception related to deployment to production repository and working with

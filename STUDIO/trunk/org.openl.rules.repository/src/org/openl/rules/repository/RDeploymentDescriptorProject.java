@@ -3,6 +3,7 @@ package org.openl.rules.repository;
 import java.util.Collection;
 import java.util.List;
 
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RDeploymentDescriptorProject extends RCommonProject, REntity {

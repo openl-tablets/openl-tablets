@@ -1,5 +1,8 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.impl.CommonUserImpl;
+
 public class LockProject {
     public static void main(String[] args) {
         RRepository repository = null;

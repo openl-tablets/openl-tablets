@@ -5,24 +5,22 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.impl.RepositoryAPI;
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.NullRepository;
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.MsgHelper;
@@ -45,6 +43,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
         try {
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
+            e.printStackTrace();
             log.error("Cannot init DTR! " + e.getMessage());
             rulesRepository = new NullRepository();
         }
@@ -66,7 +65,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
         ADeploymentProject newProject = getDDProject(name);
         newProject.update(project);
         newProject.checkIn();
-        
     }
 
     public void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException {
@@ -80,7 +78,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
             log.debug("Opening temporary write session...");
             writeRep = RulesRepositoryFactory.getRepositoryInstance();
             log.debug("Wrapping temporary write project...");
-            AProject newProject = wrapProject(writeRep.createProject(name), false);
+            AProject newProject = wrapProject(writeRep.createRulesProject(name), false);
 
             newProject.update(project);
             newProject.checkIn();
@@ -100,7 +98,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     public void createDDProject(String name) throws RepositoryException {
         try {
-            rulesRepository.createDDProject(name);
+            rulesRepository.createDeploymentProject(name);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create deployment project ''{0}''!", e, name);
         }
@@ -108,7 +106,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     public void createProject(String name) throws RepositoryException {
         try {
-            rulesRepository.createProject(name);
+            rulesRepository.createRulesProject(name);
         } catch (Exception e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         }
@@ -124,7 +122,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     public ADeploymentProject getDDProject(String name) throws RepositoryException {
         try {
-            return wrapDDProject(rulesRepository.getDDProject(name));
+            return wrapDDProject(rulesRepository.getDeploymentProject(name));
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''!", e, name);
         }
@@ -132,12 +130,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
         try {
-            RDeploymentDescriptorProject ralDeploymentProject = rulesRepository.getDDProject(name);
-            if(ralDeploymentProject.getVersionHistory().get(ralDeploymentProject.getVersionHistory().size()-1).compareTo(version) == 0){
+            FolderAPI ralDeploymentProject = rulesRepository.getDeploymentProject(name);
+            if(ralDeploymentProject.getVersions().get(ralDeploymentProject.getVersions().size()-1).compareTo(version) == 0){
                 return wrapDDProject(ralDeploymentProject);
             }
-            RDeploymentDescriptorProject oldProject = ralDeploymentProject.getProjectVersion(version);
-            return wrapDDProject(oldProject);
+            return wrapDDProject(ralDeploymentProject.getVersion(version));
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
                     .getVersionName());
@@ -148,7 +145,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
         LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
 
         try {
-            for (RDeploymentDescriptorProject ralDeploymentProject : rulesRepository.getDDProjects()) {
+            for (FolderAPI ralDeploymentProject : rulesRepository.getDeploymentProjects()) {
                 ADeploymentProject dtrDeploymentProject = wrapDDProject(ralDeploymentProject);
                 result.add(dtrDeploymentProject);
             }
@@ -170,7 +167,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
         }
 
         try {
-            RProject ralProject = rulesRepository.getProject(name);
+            FolderAPI ralProject = rulesRepository.getRulesProject(name);
             return wrapProject(ralProject, true);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''!", e, name);
@@ -179,14 +176,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     public AProject getProject(String name, CommonVersion version) throws RepositoryException {
         try {
-            RProject ralProject = rulesRepository.getProject(name);
-            if(ralProject.getVersionHistory().get(ralProject.getVersionHistory().size()-1).compareTo(version) == 0){
+            FolderAPI ralProject = rulesRepository.getRulesProject(name);
+            if (ralProject.getVersions().get(ralProject.getVersions().size() - 1).compareTo(version) == 0) {
                 return wrapProject(ralProject, true);
             }
-            RProject oldProject = ralProject.getProjectVersion(version);
-
             // do not cache old version of project
-            return wrapProject(oldProject, false);
+            return wrapProject(ralProject.getVersion(version), false);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
                     .getVersionName());
@@ -197,7 +192,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
         List<AProject> result = new LinkedList<AProject>();
 
         try {
-            for (RProject ralProject : rulesRepository.getProjects()) {
+            for (FolderAPI ralProject : rulesRepository.getRulesProjects()) {
                 String name = ralProject.getName();
                 AProject cached = projects.get(name);
 
@@ -257,7 +252,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
             throw new RepositoryException("Cannot update project ''{0}'' while it is not locked!", null, name);
         }
 
-        WorkspaceUser lockedBy = dest.getLockInfo().getLockedBy();
+        //FIXME
+        WorkspaceUser lockedBy = (WorkspaceUser)dest.getLockInfo().getLockedBy();
         if (!lockedBy.equals(user)) {
             throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy
                     .getUserName());
@@ -269,7 +265,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
             log.debug("Opening temporary write session...");
             writeRep = RulesRepositoryFactory.getRepositoryInstance();
             log.debug("Wrapping temporary write project...");
-            AProject project4Write = wrapProject(writeRep.getProject(name), false);
+            AProject project4Write = wrapProject(writeRep.getRulesProject(name), false);
 
             if (major != 0 || minor != 0) {
                 String msg = MsgHelper.format("Raising project version (''{0}'' -> {1}.{2})...", name, major, minor);
@@ -292,18 +288,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     // --- private
 
-    private ADeploymentProject wrapDDProject(RDeploymentDescriptorProject ralDeploymentProject) {
-        ArtefactPath path = new ArtefactPathImpl(new String[] { ralDeploymentProject.getName() });
-        return new ADeploymentProject(new RepositoryAPI(ralDeploymentProject, path, this), user);
+    private ADeploymentProject wrapDDProject(FolderAPI folder) {
+        return new ADeploymentProject(folder, user);
     }
 
-    private AProject wrapProject(RProject ralRulesProject, boolean cacheIt) {
-        String name = ralRulesProject.getName();
-        ArtefactPath projectPath = new ArtefactPathImpl(new String[] { name });
-
-        AProject dtrRulesProject = new AProject(new RepositoryAPI(ralRulesProject, projectPath, this), user);
+    private AProject wrapProject(FolderAPI folder, boolean cacheIt) {
+        AProject dtrRulesProject = new AProject(folder, user);
         if (cacheIt) {
-            projects.put(name, dtrRulesProject);
+            projects.put(folder.getName(), dtrRulesProject);
         }
 
         return dtrRulesProject;

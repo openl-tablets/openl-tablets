@@ -1,6 +1,6 @@
 package org.openl.rules.workspace;
 
-import org.openl.rules.repository.CommonUser;
+import org.openl.rules.common.CommonUser;
 
 /**
  * User or Owner of Workspace.

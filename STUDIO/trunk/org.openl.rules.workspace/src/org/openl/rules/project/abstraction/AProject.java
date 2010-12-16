@@ -1,28 +1,32 @@
 package org.openl.rules.project.abstraction;
 
-import java.util.Collection;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.openl.rules.project.impl.ProjectArtefactAPI;
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.jcr.JcrNT;
-import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.ProjectDependency;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.dtr.LockInfo;
-import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.ValueType;
-import org.openl.rules.workspace.props.impl.PropertyImpl;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDependency;
+import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.common.impl.PropertyImpl;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
 
 import static org.openl.rules.security.Privileges.*;
 import static org.openl.rules.security.AccessManager.check;
 import static org.openl.rules.security.AccessManager.isGranted;
 
-public class AProject extends AProjectFolder{
+public class AProject extends AProjectFolder {
     protected CommonUser user;
 
-    public AProject(ProjectArtefactAPI api, CommonUser user) {
+    public AProject(FolderAPI api, CommonUser user) {
         super(api, null);
         this.user = user;
     }
@@ -32,12 +36,44 @@ public class AProject extends AProjectFolder{
         return this;
     }
 
-    public Collection<ProjectDependency> getDependencies() {
-        return impl.getDependencies();
+    public List<ProjectDependency> getDependencies() {
+        List<ProjectDependency> dependencies = new ArrayList<ProjectDependency>();
+        if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
+            InputStream content = null;
+            try {
+                content = ((AProjectResource) getArtefact(ArtefactProperties.DEPENDENCIES_FILE)).getContent();
+                dependencies = ProjectDependencyHelper.deserialize(content);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                IOUtils.closeQuietly(content);
+            }
+        }
+
+        return dependencies;
     }
 
-    public void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException {
-        impl.setDependencies(dependencies);
+    public void setDependencies(List<ProjectDependency> dependencies) throws ProjectException {
+        if (CollectionUtils.isEmpty(dependencies)) {
+            if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
+                getArtefact(ArtefactProperties.DEPENDENCIES_FILE).delete();
+            }
+        } else {
+            String dependenciesAsString = ProjectDependencyHelper.serialize(dependencies);
+            try {
+                if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
+                    ((AProjectResource) getArtefact(ArtefactProperties.DEPENDENCIES_FILE))
+                            .setContent(new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
+                } else {
+                    addResource(ArtefactProperties.DEPENDENCIES_FILE,
+                            new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
+                }
+            } catch (Exception e) {
+                // TODO
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -57,7 +93,7 @@ public class AProject extends AProjectFolder{
         }
 
         try {
-            addProperty(new PropertyImpl(JcrNT.PROP_PRJ_MARKED_4_DELETION, ValueType.BOOLEAN, true));
+            addProperty(new PropertyImpl(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION, ValueType.BOOLEAN, true));
         } catch (PropertyException e) {
             throw new ProjectException("Failed to mark project as deleted.", e);
         }
@@ -69,28 +105,25 @@ public class AProject extends AProjectFolder{
     }
 
     public void checkIn(int major, int minor) throws ProjectException {
-        impl.commit(user, major, minor);
+        getAPI().commit(user, major, minor);
+        unlock(user);
+        refresh();
     }
 
     public void checkOut() throws ProjectException {
         open();
-        impl.lock(user);
+        lock(user);
     }
 
     public void close() throws ProjectException {
-        if(isCheckedOut()){
-            impl.unlock(user);
+        if (isCheckedOut()) {
+            unlock(user);
         }
-        impl.close(user);
         refresh();
     }
 
     public void erase() throws ProjectException {
-        impl.delete(user);
-    }
-
-    public LockInfo getLockInfo() {
-        return impl.getLockInfo();
+        getAPI().delete(user);
     }
 
     /** is checked-out by me? -- in LW + locked by me */
@@ -104,23 +137,18 @@ public class AProject extends AProjectFolder{
 
     /** is deleted in DTR */
     public boolean isDeleted() {
-        return impl.hasProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION);
+        return getAPI().hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
     }
 
-    /** no such project in DTR */
     public boolean isLocalOnly() {
-        return impl.isLocalOnly();
-    }
-
-    /** is locked in DTR */
-    public boolean isLocked() {
-        return getLockInfo().isLocked();
+        return false;
     }
 
     public boolean isLockedByMe() {
         if (isLocked()) {
-            WorkspaceUser lockedBy = getLockInfo().getLockedBy();
-            if (lockedBy.equals(user)) {
+            CommonUser lockedBy = getLockInfo().getLockedBy();
+            // FIXME
+            if (lockedBy.getUserName().equals(user.getUserName())) {
                 return true;
             }
         }
@@ -130,7 +158,7 @@ public class AProject extends AProjectFolder{
 
     /** is opened by me? -- in LW */
     public boolean isOpened() {
-        return impl.isOpened();
+        return true;
     }
 
     /** is opened other version? (not last) */
@@ -139,7 +167,7 @@ public class AProject extends AProjectFolder{
             return false;
         }
         ProjectVersion max = getLastVersion();
-        if(max == null){
+        if (max == null) {
             return false;
         }
         return (!getVersion().equals(max));
@@ -150,17 +178,17 @@ public class AProject extends AProjectFolder{
     }
 
     public void openVersion(CommonVersion version) throws ProjectException {
-        impl.openVersion(version);
+        setAPI(getAPI().getVersion(version));
         refresh();
     }
 
-    public void undelete() throws ProjectException{
+    public void undelete() throws ProjectException {
         if (!isDeleted()) {
             throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
         }
-        
+
         try {
-            removeProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION);
+            removeProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
         } catch (PropertyException e) {
             throw new ProjectException("Failed to undelete project.", e);
         }

@@ -3,6 +3,11 @@ package org.openl.rules.repository;
 import java.util.Date;
 import java.util.List;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonUserImpl;
+import org.openl.rules.common.impl.CommonVersionImpl;
+
 public class PopulateDProjects {
     private static class RV2 implements RVersion {
         private CommonVersion version;

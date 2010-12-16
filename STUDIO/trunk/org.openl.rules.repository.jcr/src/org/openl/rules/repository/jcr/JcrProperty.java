@@ -9,50 +9,58 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.openl.rules.repository.RProperty;
-import org.openl.rules.repository.RPropertyType;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public class JcrProperty implements RProperty {
-    private JcrEntity entity;
+public class JcrProperty implements org.openl.rules.common.Property {
+    private static final long serialVersionUID = -8880025417798262825L;
+    private Node node;
     private String name;
-    private RPropertyType type;
+    private ValueType type;
     private Object value;
 
-    protected JcrProperty(JcrEntity entity, Property p) throws RepositoryException {
-        this.entity = entity;
+    protected JcrProperty(Node node, Property p) throws RepositoryException {
+        this.node = node;
         name = p.getName();
 
         Value v = p.getValue();
         switch (v.getType()) {
             case PropertyType.DATE:
                 value = v.getDate().getTime();
-                type = RPropertyType.DATE;
+                type = ValueType.DATE;
+                break;
+            case PropertyType.BOOLEAN:
+                value = v.getBoolean();
+                type = ValueType.BOOLEAN;
                 break;
             default:
                 value = v.getString();
-                type = RPropertyType.STRING;
+                type = ValueType.STRING;
         }
     }
 
-    protected JcrProperty(JcrEntity entity, String name, RPropertyType type, Object value) throws RRepositoryException {
-        this.entity = entity;
+    protected JcrProperty(Node node, String name, ValueType type, Object value) throws RRepositoryException {
+        this.node = node;
         this.name = name;
         this.type = type;
         this.value = value;
 
         try {
-            Node n = entity.node();
             switch (type) {
                 case DATE:
                     Calendar c = date2Calendar((Date) value);
-                    n.setProperty(name, c);
+                    node.setProperty(name, c);
+                    break;
+                case BOOLEAN:
+                    node.setProperty(name, (Boolean)value);
                     break;
                 default:
                     // STRING
-                    n.setProperty(name, value.toString());
+                    node.setProperty(name, value.toString());
             }
         } catch (RepositoryException e) {
+            e.printStackTrace();
             throw new RRepositoryException("Cannot create property ''{0}''.", e, name);
         }
     }
@@ -67,7 +75,7 @@ public class JcrProperty implements RProperty {
         return name;
     }
 
-    public RPropertyType getType() {
+    public ValueType getType() {
         return type;
     }
 
@@ -78,14 +86,8 @@ public class JcrProperty implements RProperty {
     // --- private
 
     public void setValue(Object value) throws RRepositoryException {
-        if (value == null) {
-            entity.removeProperty(name);
-            return;
-        }
-
         try {
-            Node n = entity.node();
-            Property p = n.getProperty(name);
+            Property p = node.getProperty(name);
 
             switch (type) {
                 case DATE:
@@ -101,5 +103,30 @@ public class JcrProperty implements RProperty {
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set value for ''{0}''.", e, name);
         }
+    }
+
+    protected void checkType(ValueType type) throws PropertyException {
+        if (this.type != type) {
+            throw new PropertyException("Property has {0} type", null, this.type);
+        }
+    }
+
+    public Date getDate() throws PropertyException {
+        checkType(ValueType.DATE);
+        return (Date) value;
+    }
+
+    public String getString() {
+        return value.toString();
+    }
+    
+    public void setValue(Date value) throws PropertyException {
+        checkType(ValueType.DATE);
+        this.value = value;
+    }
+
+    public void setValue(String value) throws PropertyException {
+        checkType(ValueType.STRING);
+        this.value = value;
     }
 }

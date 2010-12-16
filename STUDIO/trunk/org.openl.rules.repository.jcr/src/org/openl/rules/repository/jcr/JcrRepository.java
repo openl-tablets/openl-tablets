@@ -11,9 +11,14 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -23,9 +28,10 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class JcrRepository extends BaseJcrRepository implements RRepository {
+    private static final Log LOG = LogFactory.getLog(JcrRepository.class);
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@"
-            + JcrNT.PROP_PRJ_MARKED_4_DELETION + "]";
+            + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]";
     private static final String QUERY_DDPROJECTS = "//element(*, " + JcrNT.NT_DEPLOYMENT_PROJECT + ")";
 
     private Node defRulesLocation;
@@ -44,6 +50,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         }
     }
 
+    @Deprecated
     public RDeploymentDescriptorProject createDDProject(String nodeName) throws RRepositoryException {
         try {
             return JcrDeploymentDescriptorProject.createProject(defDeploymentsLocation, nodeName);
@@ -52,7 +59,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         }
     }
 
-    /** {@inheritDoc} */
+    @Deprecated
     public RProject createProject(String nodeName) throws RRepositoryException {
         try {
             return JcrProject.createProject(defRulesLocation, nodeName);
@@ -61,6 +68,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         }
     }
 
+    @Deprecated
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
         try {
             if (!defDeploymentsLocation.hasNode(name)) {
@@ -75,11 +83,26 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         }
     }
 
+    @Deprecated
     public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
-        return runQueryDDP();
+        NodeIterator ni = runQuery(QUERY_DDPROJECTS);
+
+        LinkedList<RDeploymentDescriptorProject> result = new LinkedList<RDeploymentDescriptorProject>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+
+            try {
+                JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
+                result.add(ddp);
+            } catch (RepositoryException e) {
+                LOG.debug("Failed to add deployment project.");
+            }
+        }
+
+        return result;
     }
 
-    /** {@inheritDoc} */
+    @Deprecated
     public RProject getProject(String name) throws RRepositoryException {
         try {
             if (!defRulesLocation.hasNode(name)) {
@@ -94,15 +117,39 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         }
     }
 
-    /** {@inheritDoc} */
+    @Deprecated
     public List<RProject> getProjects() throws RRepositoryException {
         // TODO list all or only that are active (not marked4deletion)?
-        return runQuery(QUERY_PROJECTS);
+        NodeIterator ni = runQuery(QUERY_PROJECTS);
+        LinkedList<RProject> result = new LinkedList<RProject>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                JcrProject p = new JcrProject(n);
+                result.add(p);
+            } catch (RepositoryException e) {
+                LOG.debug("Failed to add rules project.");
+            }
+        }
+
+        return result;
     }
 
-    /** {@inheritDoc} */
+    @Deprecated
     public List<RProject> getProjects4Deletion() throws RRepositoryException {
-        return runQuery(QUERY_PROJECTS_4_DEL);
+        NodeIterator ni = runQuery(QUERY_PROJECTS_4_DEL);
+        LinkedList<RProject> result = new LinkedList<RProject>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                JcrProject p = new JcrProject(n);
+                result.add(p);
+            } catch (RepositoryException e) {
+                LOG.debug("Failed to add rules project for deletion.");
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -140,45 +187,129 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
      * @return list of OpenL projects
      * @throws RRepositoryException if failed
      */
-    protected List<RProject> runQuery(String statement) throws RRepositoryException {
+    protected NodeIterator runQuery(String statement) throws RRepositoryException {
         try {
             QueryManager qm = session.getWorkspace().getQueryManager();
             Query query = qm.createQuery(statement, Query.XPATH);
 
             QueryResult qr = query.execute();
+            return qr.getNodes();
 
-            LinkedList<RProject> result = new LinkedList<RProject>();
-            for (NodeIterator ni = qr.getNodes(); ni.hasNext();) {
-                Node n = ni.nextNode();
-
-                JcrProject p = new JcrProject(n);
-                result.add(p);
-            }
-
-            return result;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to run query.", e);
         }
     }
 
-    protected List<RDeploymentDescriptorProject> runQueryDDP() throws RRepositoryException {
+    public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
         try {
-            QueryManager qm = session.getWorkspace().getQueryManager();
-            Query query = qm.createQuery(QUERY_DDPROJECTS, Query.XPATH);
+            Node node = NodeUtil.createNode(defDeploymentsLocation, name,
+                    JcrNT.NT_APROJECT, true);
+            defDeploymentsLocation.save();
+            node.checkin();
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name })); 
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to create deployment project.", e);
+        }
+    }
 
-            QueryResult qr = query.execute();
+    public FolderAPI createRulesProject(String name) throws RRepositoryException {
+        try {
+            Node node = NodeUtil.createNode(defRulesLocation, name,
+                    JcrNT.NT_APROJECT, true);
+            defRulesLocation.save();
+            node.checkin();
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name })); 
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to create rules project.", e);
+        }
+    }
 
-            LinkedList<RDeploymentDescriptorProject> result = new LinkedList<RDeploymentDescriptorProject>();
-            for (NodeIterator ni = qr.getNodes(); ni.hasNext();) {
-                Node n = ni.nextNode();
-
-                JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
-                result.add(ddp);
+    public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
+        try {
+            if (!defDeploymentsLocation.hasNode(name)) {
+                throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
             }
 
-            return result;
+            Node n = defDeploymentsLocation.getNode(name);
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to run query.", e);
+            throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
         }
+    }
+
+    public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
+        NodeIterator ni;
+        try {
+            ni = defDeploymentsLocation.getNodes();
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot get any deployment project", e); 
+        }
+
+        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                if (!n.isNodeType(JcrNT.NT_LOCK)) {
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
+                }
+            } catch (RepositoryException e) {
+                LOG.debug("Failed to add deployment project.");
+            }
+        }
+
+        return result;
+    }
+
+    public FolderAPI getRulesProject(String name) throws RRepositoryException {
+        try {
+            if (!defRulesLocation.hasNode(name)) {
+                throw new RRepositoryException("Cannot find project ''{0}''", null, name);
+            }
+
+            Node n = defRulesLocation.getNode(name);
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get project ''{0}''", e, name);
+        }
+    }
+
+    public List<FolderAPI> getRulesProjects() throws RRepositoryException {
+        NodeIterator ni;
+        try {
+            ni = defRulesLocation.getNodes();
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot get any rules project", e); 
+        }
+
+        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                if (!n.isNodeType(JcrNT.NT_LOCK)) {
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
+                }
+            } catch (RepositoryException e) {
+                LOG.debug("Failed to add rules project.");
+            }
+        }
+
+        return result;
+    }
+
+    public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
+        NodeIterator ni = runQuery("//element(*, " + JcrNT.NT_APROJECT + ") [@"
+                + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]");
+
+        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
+            } catch (RepositoryException e) {
+                LOG.debug("Failed to add rules project for deletion.");
+            }
+        }
+
+        return result;
     }
 }

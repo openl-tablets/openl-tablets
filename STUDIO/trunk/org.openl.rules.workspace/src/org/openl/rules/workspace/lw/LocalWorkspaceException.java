@@ -1,6 +1,6 @@
 package org.openl.rules.workspace.lw;
 
-import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.common.ProjectException;
 
 public class LocalWorkspaceException extends ProjectException {
     private static final long serialVersionUID = -2329484055042509751L;

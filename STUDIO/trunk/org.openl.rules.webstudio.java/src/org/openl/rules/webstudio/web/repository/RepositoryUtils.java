@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 import java.util.Comparator;
 

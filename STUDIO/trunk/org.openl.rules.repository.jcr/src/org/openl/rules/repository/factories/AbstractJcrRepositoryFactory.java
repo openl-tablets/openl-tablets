@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
@@ -39,9 +40,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     /** Default path where new project should be created */
-    private final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString("repository.rules.path",
+    protected final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString("repository.rules.path",
             "/rules");
-    private final ConfigPropertyString confDeploymentProjectsLocation = new ConfigPropertyString(
+    protected final ConfigPropertyString confDeploymentProjectsLocation = new ConfigPropertyString(
             "repository.deployments.path", "/deployments");
 
     private Repository repository;
@@ -90,6 +91,56 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @throws RepositoryException if check failed
      */
     protected void checkSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
+        String schemaVersion = getCurrentSchemaVersion(ntm);
+        // compare expected and repository schema versions
+        String expectedVersion = getExpectedSchemaVersion();
+        if (!expectedVersion.equals(schemaVersion)) {
+            throw new RepositoryException("Schema version is different. Has (" + schemaVersion + ") when ("
+                    + expectedVersion + ") expected.");
+        }
+    }
+    
+    /**
+     * Creates JCR Session.
+     *
+     * @param user user id
+     * @param pass password of user
+     * @return new JCR session
+     * @throws RepositoryException if fails or user credentials are not correct
+     */
+    protected Session createSession(String user, String pass) throws RepositoryException {
+        char[] password = pass.toCharArray();
+        SimpleCredentials sc = new SimpleCredentials(user, password);
+        Session session = repository.login(sc);
+        return session;
+    }
+
+    // ------ protected methods ------
+
+    protected String getExpectedSchemaVersion() throws RepositoryException {
+        String xPathQ = "/nodeTypes/nodeType[@name = 'openl:repository']"
+                + "/propertyDefinition[@name = 'schema-version']/defaultValues/defaultValue[1]";
+
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xPath = factory.newXPath();
+
+        String file = DEFAULT_NODETYPE_FILE;
+        try {
+
+            InputSource source = new InputSource(this.getClass().getResourceAsStream(file));
+            String result = xPath.evaluate(xPathQ, source);
+
+            if (result == null || result.length() == 0) {
+                throw new Exception("Cannot find node.");
+            }
+
+            return result;
+        } catch (Exception e) {
+            throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
+        }
+    }
+
+    protected String getCurrentSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
         String schemaVersion = null;
 
         // check special node
@@ -120,53 +171,8 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         if (schemaVersion == null) {
             throw new RepositoryException("Cannot determine scheme version: no special property or value!");
         }
+        return schemaVersion;
 
-        // compare expected and repository schema versions
-        String expectedVersion = getExpectedSchemaVersion();
-        if (!expectedVersion.equals(schemaVersion)) {
-            throw new RepositoryException("Schema version is different. Has (" + schemaVersion + ") when ("
-                    + expectedVersion + ") expected.");
-        }
-    }
-
-    /**
-     * Creates JCR Session.
-     *
-     * @param user user id
-     * @param pass password of user
-     * @return new JCR session
-     * @throws RepositoryException if fails or user credentials are not correct
-     */
-    protected Session createSession(String user, String pass) throws RepositoryException {
-        char[] password = pass.toCharArray();
-        SimpleCredentials sc = new SimpleCredentials(user, password);
-        Session session = repository.login(sc);
-        return session;
-    }
-
-    // ------ protected methods ------
-
-    private String getExpectedSchemaVersion() throws RepositoryException {
-        String xPathQ = "/nodeTypes/nodeType[@name = 'openl:repository']"
-                + "/propertyDefinition[@name = 'schema-version']/defaultValues/defaultValue[1]";
-
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xPath = factory.newXPath();
-
-        String file = DEFAULT_NODETYPE_FILE;
-        try {
-
-            InputSource source = new InputSource(this.getClass().getResourceAsStream(file));
-            String result = xPath.evaluate(xPathQ, source);
-
-            if (result == null || result.length() == 0) {
-                throw new Exception("Cannot find node.");
-            }
-
-            return result;
-        } catch (Exception e) {
-            throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
-        }
     }
 
     /** {@inheritDoc} */

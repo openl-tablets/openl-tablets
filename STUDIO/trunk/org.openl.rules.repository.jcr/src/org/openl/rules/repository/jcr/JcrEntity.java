@@ -8,16 +8,24 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.REntity;
-import org.openl.rules.repository.RProperty;
-import org.openl.rules.repository.RPropertyType;
+import org.openl.rules.repository.RLock;
 import static org.openl.rules.repository.jcr.NodeUtil.isSame;
 import static org.openl.rules.repository.jcr.NodeUtil.convertDate2Calendar;
+
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -28,9 +36,10 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class JcrEntity extends JcrCommonArtefact implements REntity {
+    private static Log LOG = LogFactory.getLog(JcrEntity.class);
     private static final String[] ALLOWED_PROPS = {};
 
-    private Map<String, RProperty> properties;
+    private Map<String, org.openl.rules.common.Property> properties;
     private Date effectiveDate;
     private Date expirationDate;
 
@@ -38,28 +47,36 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
 
     private Map<String, Object> props;
 
+    private JcrLock lock;
+
+    private CommonVersionImpl risedVersion;
+    private JcrVersion version;
+
+
     // ------ protected methods ------
 
     public JcrEntity(Node node) throws RepositoryException {
         super(node);
+        lock = new JcrLock(node);
+        version = new JcrVersion(node);
 
-        if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
-            effectiveDate = node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getDate().getTime();
+        if (node.hasProperty(ArtefactProperties.PROP_EFFECTIVE_DATE)) {
+            effectiveDate = node.getProperty(ArtefactProperties.PROP_EFFECTIVE_DATE).getDate().getTime();
         }
-        if (node.hasProperty(JcrNT.PROP_EXPIRATION_DATE)) {
-            expirationDate = node.getProperty(JcrNT.PROP_EXPIRATION_DATE).getDate().getTime();
+        if (node.hasProperty(ArtefactProperties.PROP_EXPIRATION_DATE)) {
+            expirationDate = node.getProperty(ArtefactProperties.PROP_EXPIRATION_DATE).getDate().getTime();
         }
-        if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
-            lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
+        if (node.hasProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS)) {
+            lineOfBusiness = node.getProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS).getString();
         }
 
-        properties = new HashMap<String, RProperty>();
+        properties = new HashMap<String, org.openl.rules.common.Property>();
         initProperties();
         props = new HashMap<String, Object>();
         loadProps();
     }
 
-    public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException {
+    public void addProperty(String name, ValueType type, Object value) throws RRepositoryException {
         try {
             NodeUtil.smartCheckout(node(), false);
         } catch (RepositoryException e) {
@@ -70,7 +87,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             removeProperty(name);
         }
 
-        JcrProperty jp = new JcrProperty(this, name, type, value);
+        JcrProperty jp = new JcrProperty(node(), name, type, value);
         properties.put(name, jp);
     }
 
@@ -108,12 +125,22 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         return sb.toString();
     }
 
-    public Collection<RProperty> getProperties() {
+    public Collection<org.openl.rules.common.Property> getProperties() {
         return properties.values();
     }
 
-    public RProperty getProperty(String name) throws RRepositoryException {
-        RProperty rp = properties.get(name);
+    public org.openl.rules.common.Property getProperty(String name) throws RRepositoryException {
+        org.openl.rules.common.Property rp = properties.get(name);
+        try {
+            if (node().hasProperty(name)) {
+                Property p = node().getProperty(name);
+
+                rp = new JcrProperty(node(), p);
+                properties.put(name, rp);
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException(String.format("Failed to get property \"%s\"", name), e);
+        }
 
         if (rp == null) {
             throw new RRepositoryException("No such property ''{0}''.", null, name);
@@ -138,7 +165,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             if (n.hasProperty(s)) {
                 Property p = n.getProperty(s);
 
-                JcrProperty prop = new JcrProperty(this, p);
+                JcrProperty prop = new JcrProperty(node(), p);
                 properties.put(prop.getName(), prop);
             }
         }
@@ -146,8 +173,8 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
 
     private void loadProps() throws RepositoryException {
         Node n = node();
-        for (int i = 1; i <= JcrNT.PROPS_COUNT; i++) {
-            String propName = JcrNT.PROP_ATTRIBUTE + i;
+        for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
+            String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
                 Object propValue = null;
@@ -169,7 +196,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
     }
 
     public void removeProperty(String name) throws RRepositoryException {
-        RProperty rp = properties.get(name);
+        org.openl.rules.common.Property rp = properties.get(name);
 
         if (rp == null) {
             throw new RRepositoryException("No such property ''{0}''.", null, name);
@@ -201,7 +228,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
 
         try {
             NodeUtil.smartCheckout(n, false);
-            n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, c);
+            n.setProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, c);
             effectiveDate = date;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set effectiveDate.", e);
@@ -221,7 +248,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
 
         try {
             NodeUtil.smartCheckout(n, false);
-            n.setProperty(JcrNT.PROP_EXPIRATION_DATE, c);
+            n.setProperty(ArtefactProperties.PROP_EXPIRATION_DATE, c);
             expirationDate = date;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set expirationDate.", e);
@@ -238,7 +265,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
 
         try {
             NodeUtil.smartCheckout(n, false);
-            n.setProperty(JcrNT.PROP_LINE_OF_BUSINESS, lineOfBusiness);
+            n.setProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, lineOfBusiness);
             this.lineOfBusiness = lineOfBusiness;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set LOB.", e);
@@ -275,5 +302,103 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             setProperty(propName, propValue);
         }
         this.props = props;
+    }
+
+    public RLock getLock() throws RRepositoryException {
+        return lock;
+    }
+
+    public boolean isLocked() throws RRepositoryException {
+        return lock.isLocked();
+    }
+
+    public void lock(CommonUser user) throws RRepositoryException {
+        lock.lock(user);
+    }
+
+    public void unlock(CommonUser user) throws RRepositoryException {
+        lock.unlock(user);
+    }
+
+    public void riseVersion(int major, int minor) throws RRepositoryException {
+        int ma = version.getMajor();
+        int mi = version.getMinor();
+
+        // clear in case of invalid input
+        risedVersion = null;
+
+        if (major < ma) {
+            throw new RRepositoryException("New major version is less than current!", null);
+        } else if (major == ma) {
+            if (minor < mi) {
+                throw new RRepositoryException(
+                        "New minor version cannot be less than current, when major version remains unchanged!", null);
+            }
+        }
+
+        risedVersion = new CommonVersionImpl(major, minor, version.getRevision());
+    }
+
+    public void commit(CommonUser user) throws RRepositoryException {
+        if (risedVersion != null) {
+            version.set(risedVersion.getMajor(), risedVersion.getMinor());
+            risedVersion = null;
+        }
+
+        try {
+            Node n = node();
+            NodeUtil.smartCheckout(n, true);
+            version.nextRevision();
+            version.updateVersion(n);
+
+            checkInAll(n, user);
+            commitParent(n.getParent());
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to checkin project ''{0}''!", e, getName());
+        }
+    }
+
+    protected void commitParent(Node parent) throws RepositoryException {
+        if (parent.isModified()) {
+            parent.save();
+        }
+        if (parent.isCheckedOut()) {
+            if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
+                parent.checkin();
+            }
+        }
+    }
+
+    protected void checkInAll(Node n, CommonUser user) throws RepositoryException {
+        NodeIterator ni = n.getNodes();
+
+        while (ni.hasNext()) {
+            Node child = ni.nextNode();
+            checkInAll(child, user);
+        }
+
+        boolean saveProps = false;
+        PropertyIterator pi = n.getProperties();
+        while (pi.hasNext()) {
+            Property p = pi.nextProperty();
+            if (p.isModified() || p.isNew()) {
+                saveProps = true;
+                break;
+            }
+        }
+
+        boolean mustBeSaved = (saveProps || n.isModified() || n.isNew());
+        boolean mustBeCheckedIn = (n.isNodeType(JcrNT.MIX_VERSIONABLE) && n.isCheckedOut());
+
+        if (mustBeCheckedIn) {
+            version.updateRevision(n);
+            n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
+            n.save();
+            LOG.info("Checking in... " + n.getPath());
+            n.checkin();
+        } else if (mustBeSaved) {
+            LOG.info("Saving... " + n.getPath());
+            n.save();
+        }
     }
 }

@@ -1,10 +1,10 @@
 package org.openl.rules.workspace;
 
 import org.junit.Ignore;
+import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.workspace.abstracts.ProjectDescriptor;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Ignore("Manual test")

@@ -1,16 +1,17 @@
 package org.openl.rules.repository.jcr;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDependency;
+import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RFolder;
-import org.openl.rules.repository.RDependency;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.CommonUser;
-import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import java.util.Collection;
+import java.util.List;
 
 public class JcrProductionProject extends JcrProductionEntity implements RProject {
     public static final String NODE_FILES = "files";
@@ -76,11 +77,7 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
         throw new UnsupportedOperationException();
     }
 
-    public Collection<RDependency> getDependencies() throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    public RLock getLock() throws RRepositoryException {
+    public Collection<ProjectDependency> getDependencies() throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -97,10 +94,6 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
         return rootFolder;
     }
 
-    public boolean isLocked() throws RRepositoryException {
-        return false;
-    }
-
     /**
      * Returns whether the project is marked for deletion. If a project is
      * marked for deletion, it should not be used.
@@ -112,15 +105,11 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
         return false;
     }
 
-    public void lock(CommonUser user) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
     public void riseVersion(int major, int minor) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
-    public void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException {
+    public void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -132,8 +121,21 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
     public void undelete(CommonUser user) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
-
-    public void unlock(CommonUser user) throws RRepositoryException {
+    
+    
+    public RFile createFile(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
+    }
+
+    public RFolder createFolder(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<RFile> getFiles() throws RRepositoryException {
+        return rootFolder.getFiles();
+    }
+
+    public List<RFolder> getFolders() throws RRepositoryException {
+        return rootFolder.getFolders();
     }
 }

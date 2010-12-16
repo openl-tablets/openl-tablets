@@ -5,13 +5,13 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.repository.RDependency;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDependency;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public class JcrDependency extends JcrCommonArtefact implements RDependency {
+public class JcrDependency extends JcrCommonArtefact implements ProjectDependency {
 
     private CommonVersion lowVersion;
     private CommonVersion highVersion;

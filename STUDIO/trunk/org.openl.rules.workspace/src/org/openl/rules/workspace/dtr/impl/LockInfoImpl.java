@@ -2,10 +2,10 @@ package org.openl.rules.workspace.dtr.impl;
 
 import java.util.Date;
 
+import org.openl.rules.common.LockInfo;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.dtr.LockInfo;
 
 /**
  *

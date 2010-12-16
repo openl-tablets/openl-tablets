@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.io.InputStream;
 
-import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 

@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.deploy.ProductionDeployerManager;
