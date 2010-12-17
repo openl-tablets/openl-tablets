@@ -135,7 +135,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
                 return wrapDDProject(ralDeploymentProject);
             }
             return wrapDDProject(ralDeploymentProject.getVersion(version));
-        } catch (RRepositoryException e) {
+        } catch (ProjectException e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
                     .getVersionName());
         }
@@ -182,7 +182,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
             }
             // do not cache old version of project
             return wrapProject(ralProject.getVersion(version), false);
-        } catch (RRepositoryException e) {
+        } catch (ProjectException e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
                     .getVersionName());
         }

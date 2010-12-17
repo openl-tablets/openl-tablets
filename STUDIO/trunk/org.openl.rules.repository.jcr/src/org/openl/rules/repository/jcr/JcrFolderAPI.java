@@ -175,14 +175,12 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     }
     
     @Override
-    public JcrFolderAPI getVersion(CommonVersion version) {
+    public JcrFolderAPI getVersion(CommonVersion version) throws RRepositoryException{
         try {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
             return new JcrFolderAPI(frozenNode, getArtefactPath(), true);
         } catch (RepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
+            throw new RRepositoryException("Failed to get version for node.", e);
         }
     }
 }

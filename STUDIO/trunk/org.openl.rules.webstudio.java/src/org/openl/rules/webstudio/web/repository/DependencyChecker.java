@@ -93,7 +93,11 @@ public class DependencyChecker {
             CommonVersion projectVersion = descriptor.getProjectVersion();
 
             try {
-                addProject(designRepository.getProject(projectName, projectVersion));
+                if (designRepository.hasProject(projectName)) {
+                    addProject(designRepository.getProject(projectName, projectVersion));
+                }else{
+                    projectVersions.put(projectName, null);
+                }
             } catch (RepositoryException e) {
                 String msg = "Cannot get project '" + projectName + "' version " + projectVersion.getVersionName()
                         + "!";

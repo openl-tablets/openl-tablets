@@ -77,7 +77,7 @@ public interface ArtefactAPI{
     void lock(CommonUser user) throws ProjectException;
 
     void unlock(CommonUser user) throws ProjectException;
-    ArtefactAPI getVersion(CommonVersion version);
+    ArtefactAPI getVersion(CommonVersion version) throws ProjectException;
 
     Map<String, Object> getProps();
     void setProps(Map<String, Object> props) throws PropertyException;
