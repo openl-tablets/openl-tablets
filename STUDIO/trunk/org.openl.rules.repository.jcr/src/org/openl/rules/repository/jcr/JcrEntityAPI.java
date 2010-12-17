@@ -223,6 +223,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
         try {
             n.getProperty(name).remove();
+            n.save();
         } catch (RepositoryException e) {
             throw new PropertyException("Cannot remove property ''{0}''.", e, name);
         }
@@ -240,6 +241,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             } else {
                 n.setProperty(propName, (String) propValue);
             }
+            n.save();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set property " + propName + ".", e);
         }
@@ -384,8 +386,10 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     public void delete(CommonUser user) throws ProjectException {
         try {
+            Node parent = node().getParent();
             delete();
-        } catch (RRepositoryException e) {
+            commitParent(parent);
+        } catch (Exception e) {
             throw new ProjectException("Failed to delete node.", e);
         }
     }
@@ -454,6 +458,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     }
 
     public void removeAllProperties() throws PropertyException {
+        for(String propertyName : properties.keySet()){
+            properties.remove(propertyName);
+        }
         properties.clear();
     }
 }
