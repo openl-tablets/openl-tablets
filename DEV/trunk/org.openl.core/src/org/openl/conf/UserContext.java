@@ -11,8 +11,6 @@ import java.net.URLClassLoader;
 import java.util.Properties;
 import java.util.Stack;
 
-import org.openl.dependency.IDependencyManager;
-
 /**
  * @author snshor
  *
@@ -57,24 +55,15 @@ public class UserContext extends AUserContext {
     }
 
     public UserContext(ClassLoader userClassLoader, String userHome) {
-        this(userClassLoader, userHome, null, null);
+        this(userClassLoader, userHome, null);
     }
 
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
-        this(userClassLoader, userHome, userProperties, null);
-    }
-    
-    public UserContext(ClassLoader userClassLoader, String userHome, IDependencyManager dependencyManager) {
-        this(userClassLoader, userHome, null, dependencyManager);
-    }
-    
-    public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties, 
-            IDependencyManager dependencyManager) {
         this.userClassLoader = userClassLoader;
         this.userHome = userHome;
         this.userProperties = userProperties;
     }
-
+    
     public Object execute(IExecutable exe) {
         try {
             pushCurrentContext(this);

@@ -48,7 +48,7 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     protected UserContext initUserContext() {
-        return new UserContext(Thread.currentThread().getContextClassLoader(), ".", dependencyManager);        
+        return new UserContext(Thread.currentThread().getContextClassLoader(), ".");        
     }
     
     @Deprecated
