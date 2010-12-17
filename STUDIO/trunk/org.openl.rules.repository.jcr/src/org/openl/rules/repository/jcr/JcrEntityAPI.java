@@ -1,5 +1,6 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -379,11 +380,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
-    public void addProperty(org.openl.rules.common.Property property) throws PropertyException {
-        // FIXME
-        addProperty(property.getName(), ValueType.valueOf(property.getType().name()), property.getValue());
-    }
-
     public void delete(CommonUser user) throws ProjectException {
         try {
             Node parent = node().getParent();
@@ -456,8 +452,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     }
 
     public void removeAllProperties() throws PropertyException {
-        for(String propertyName : properties.keySet()){
-            properties.remove(propertyName);
+        List<String> propertyNames = new ArrayList<String>(properties.keySet());
+        for(String propertyName : propertyNames){
+            removeProperty(propertyName);
         }
         properties.clear();
     }
