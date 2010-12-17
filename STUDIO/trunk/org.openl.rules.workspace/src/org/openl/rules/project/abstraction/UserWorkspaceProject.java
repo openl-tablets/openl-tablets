@@ -117,7 +117,7 @@ public class UserWorkspaceProject extends AProject {
             source = local.getSource();
         }
         source.mkdir();
-        local.setCurrentVersion(new RepositoryProjectVersionImpl(version, null));
+        local.setCurrentVersion(openedProject.getVersion());
         update(openedProject, local, null);
         local.commit(null, 0, 0);// save persistence
         setAPI(local);
