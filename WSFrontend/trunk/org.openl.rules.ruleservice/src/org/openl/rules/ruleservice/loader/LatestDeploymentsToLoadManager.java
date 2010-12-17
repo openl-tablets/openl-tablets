@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.common.CommonVersion;
 
 public class LatestDeploymentsToLoadManager implements DeploymentsToLoadManager {
     private Map<String, String> deployment2Version = new HashMap<String, String>();

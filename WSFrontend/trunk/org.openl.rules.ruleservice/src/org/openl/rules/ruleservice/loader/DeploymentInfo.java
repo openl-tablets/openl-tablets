@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.loader;
 
 import java.io.Serializable;
 
-import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.workspace.deploy.DeployID;
 
 /**
