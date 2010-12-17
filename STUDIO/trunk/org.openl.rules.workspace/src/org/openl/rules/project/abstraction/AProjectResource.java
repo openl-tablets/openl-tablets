@@ -2,6 +2,7 @@ package org.openl.rules.project.abstraction;
 
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.ResourceAPI;
 
@@ -21,6 +22,7 @@ public class AProjectResource extends AProjectArtefact {
 
     public void setContent(InputStream inputStream) throws ProjectException {
         getAPI().setContent(inputStream);
+        IOUtils.closeQuietly(inputStream);
     }
 
     public String getResourceType() {
