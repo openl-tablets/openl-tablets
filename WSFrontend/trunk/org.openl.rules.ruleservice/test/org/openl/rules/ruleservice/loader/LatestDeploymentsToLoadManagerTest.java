@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
 
 public class LatestDeploymentsToLoadManagerTest {
     @Test
