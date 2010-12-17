@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.ArtefactAPI;
@@ -50,14 +51,12 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public AProjectResource addResource(String name, AProjectResource resource) throws ProjectException {
-        AProjectResource createdResource = new AProjectResource(getAPI().addResource(name, resource.getContent()),
-                getProject());
-        getArtefactsInternal().put(name, createdResource);
-        return createdResource;
+        return addResource(name, resource.getContent());
     }
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
         AProjectResource createdResource = new AProjectResource(getAPI().addResource(name, content), getProject());
+        IOUtils.closeQuietly(content);
         getArtefactsInternal().put(name, createdResource);
         return createdResource;
     }

@@ -62,7 +62,6 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         } catch (IOException e) {
             throw new ProjectException("Failed to set content.", e);
         } finally {
-            IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(fos);
         }
     }
