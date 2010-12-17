@@ -72,15 +72,15 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void setEffectiveDate(Date date) throws PropertyException {
-        getAPI().addProperty(new PropertyImpl(ArtefactProperties.PROP_EFFECTIVE_DATE, date));
+        addProperty(new PropertyImpl(ArtefactProperties.PROP_EFFECTIVE_DATE, date));
     }
 
     public void setExpirationDate(Date date) throws PropertyException {
-        getAPI().addProperty(new PropertyImpl(ArtefactProperties.PROP_EXPIRATION_DATE, date));
+        addProperty(new PropertyImpl(ArtefactProperties.PROP_EXPIRATION_DATE, date));
     }
 
     public void setLineOfBusiness(String lineOfBusiness) throws PropertyException {
-        getAPI().addProperty(new PropertyImpl(ArtefactProperties.PROP_LINE_OF_BUSINESS, lineOfBusiness));
+        addProperty(new PropertyImpl(ArtefactProperties.PROP_LINE_OF_BUSINESS, lineOfBusiness));
     }
 
     public void setProps(Map<String, Object> props) throws PropertyException {
@@ -88,7 +88,13 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void addProperty(Property property) throws PropertyException {
-        getAPI().addProperty(property);
+        if (property.getValue() == null) {
+            if (hasProperty(property.getName())) {
+                removeProperty(property.getName());
+            }
+        } else {
+            getAPI().addProperty(property);
+        }
     }
 
     public Collection<Property> getProperties() {
@@ -150,7 +156,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         }
         try {
             getAPI().removeAllProperties();
-            
+
             // set all properties
             for (Property property : artefact.getProperties()) {
                 addProperty(property);
@@ -185,7 +191,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     public boolean isLockedByUser(CommonUser user) {
         if (isLocked()) {
             CommonUser lockedBy = getLockInfo().getLockedBy();
-            //FIXME
+            // FIXME
             if (lockedBy.equals(user)) {
                 return true;
             }
