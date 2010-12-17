@@ -50,6 +50,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
     
     /**
      * Set of dependencies for current module.
+     * 
+     * NOTE!!!
+     * Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it
+     * throws errors when there are any ones in {@link CompiledOpenClass}.
+     * Check if there are errors: {@link CompiledOpenClass#hasErrors()} 
+     * 
      */
     private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
     
@@ -79,8 +85,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private void initDependencies() throws OpenLCompilationException {    
         for (CompiledOpenClass dependency : usingModules) {
-//            addTypes(dependency);
-            addMethods(dependency);
+            if (!dependency.hasErrors()) {
+//              addTypes(dependency);
+                addMethods(dependency);
+            }            
         }
     }
     
@@ -128,9 +136,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
             // if can`t find, search in dependencies.
             //
             for (CompiledOpenClass dependency : usingModules) {
-                field = dependency.getOpenClass().getField(fname, strictMatch);
-                if (field != null) {
-                    return field;
+                if (!dependency.hasErrors()) {
+                    field = dependency.getOpenClass().getField(fname, strictMatch);
+                    if (field != null) {
+                        return field;
+                    }
                 }
             }
         }
@@ -144,7 +154,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
         // get fields from dependencies
         //
         for (CompiledOpenClass dependency : usingModules) {
-            fields.putAll(dependency.getOpenClass().getFields());
+            if (!dependency.hasErrors()) {
+                fields.putAll(dependency.getOpenClass().getFields());
+            }            
         }
 
         // get own fields. if current module has duplicated fields they will
@@ -155,40 +167,36 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return fields;
     }
     
-    @Override
-    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-        
-        IOpenMethod method = super.getMethod(name, classes);
-        if (method != null) {
-            return method;
-        } else {
-            // if can`t find, search in dependencies.
-            //
-            for (CompiledOpenClass dependency : usingModules) {
-                method = dependency.getOpenClass().getMethod(name, classes);
-                if (method != null) {
-                    return method;
-                }
-            }
-        }
-        
-        return null;
-    }
+//    @Override
+//    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
+//        
+//        IOpenMethod method = super.getMethod(name, classes);
+//        if (method != null) {
+//            return method;
+//        } /*else {
+//            // if can`t find, search in dependencies.
+//            //
+//            for (CompiledOpenClass dependency : usingModules) {
+//                method = dependency.getOpenClass().getMethod(name, classes);
+//                if (method != null) {
+//                    return method;
+//                }
+//            }
+//        }*/
+//        
+//        return null;
+//    }
 
     @Override
     public List<IOpenMethod> getMethods() {
 
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
 
-        // get methods from dependencies
-        //
-        for (CompiledOpenClass dependency : usingModules) {
-            for (IOpenMethod method : dependency.getOpenClass().getMethods()) {
-                if (!(method instanceof OpenConstructor) && !(method instanceof GetOpenClass)) {
-                    methods.put(new MethodKey(method), method);
-                }
-            }
-        }
+        /**
+         * All methods from dependent modules  will exist in internal methods map.
+         * It was processed during constructing of current ModuleOpenClass. see
+         * initDependencies() method.
+         */
 
         for (IOpenMethod method : super.getMethods()) {
             methods.put(new MethodKey(method), method);
@@ -248,12 +256,13 @@ public class ModuleOpenClass extends ComponentOpenClass {
         // try to find type which is declared in dependency module
         //
         for (CompiledOpenClass dependency : usingModules) {
-            IOpenClass type = dependency.getOpenClass().findType(namespace, typeName);
-            if (type != null) {
-                return type;
+            if (!dependency.hasErrors()) {
+                IOpenClass type = dependency.getOpenClass().findType(namespace, typeName);
+                if (type != null) {
+                    return type;
+                }
             }
         }
-        
         return null;
     }
     

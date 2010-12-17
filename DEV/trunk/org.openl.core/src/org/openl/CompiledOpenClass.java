@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -62,7 +64,9 @@ public class CompiledOpenClass {
     }
 
     public boolean hasErrors() {
-        return (parsingErrors.length > 0) || (bindingErrors.length > 0);
+        List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
+        return (parsingErrors.length > 0) || (bindingErrors.length > 0) || 
+            (errorMessages != null && !errorMessages.isEmpty());
     }
 
     public void throwErrorExceptionsIfAny() {
