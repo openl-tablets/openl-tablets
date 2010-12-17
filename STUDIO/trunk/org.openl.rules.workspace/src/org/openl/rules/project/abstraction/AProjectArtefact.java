@@ -93,7 +93,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 removeProperty(property.getName());
             }
         } else {
-            getAPI().addProperty(property);
+            getAPI().addProperty(property.getName(), property.getType(), property.getValue());
         }
     }
 

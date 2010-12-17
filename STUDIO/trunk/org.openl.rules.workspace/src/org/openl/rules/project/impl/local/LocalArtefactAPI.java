@@ -3,7 +3,6 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +14,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
@@ -80,8 +81,8 @@ public class LocalArtefactAPI implements ArtefactAPI {
         this.props = props;
     }
 
-    public void addProperty(Property property) throws PropertyException {
-        properties.addProperty(property);
+    public void addProperty(String name, ValueType type, Object value) throws PropertyException {
+        properties.addProperty(new PropertyImpl(name, type, value));
     }
 
     public Collection<Property> getProperties() {

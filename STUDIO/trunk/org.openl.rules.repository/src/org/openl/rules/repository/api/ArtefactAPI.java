@@ -12,16 +12,10 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.ValueType;
 
 public interface ArtefactAPI{
-    /**
-     * Adds property into the container.
-     *
-     * @param property adding property
-     * @throws PropertyException if property with the same name exists already
-     *             and value cannot be updated.
-     */
-    void addProperty(Property property) throws PropertyException;
+    void addProperty(String name, ValueType type, Object value) throws PropertyException;
 
     /**
      * Gets list of all properties in the container.
