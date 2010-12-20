@@ -4,7 +4,14 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
     template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <a4j:loadStyle src="resource:///css/tooltip.css" />
+        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+        <a4j:loadScript src="resource:///js/tooltip.js" />
+    </ui:define>
 
     <ui:define name="page">
 
