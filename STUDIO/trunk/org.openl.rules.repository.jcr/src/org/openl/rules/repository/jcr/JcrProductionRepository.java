@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
@@ -34,32 +33,48 @@ import java.util.List;
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository, EventListener {
     private static final Log log = LogFactory.getLog(JcrProductionRepository.class);
 
+    public static class JCR_SQL2QueryBuilder{
+        private boolean firstCondition = true;
+
+        private void appendDateCondition(String propertyName, Date date, String condition, StringBuilder sb) {
+            if (date != null) {
+                if(firstCondition){
+                    firstCondition = false;
+                    sb.append(" WHERE ");
+                }else{
+                    sb.append(" AND ");
+                }
+                sb.append('[').append(propertyName).append(']').append(condition).append(date.getTime());
+            }
+        }
+
+        public String buildQuery(SearchParams params) {
+            StringBuilder sb = new StringBuilder("SELECT * FROM [nt:base]");
+            if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
+                if(firstCondition){
+                    firstCondition = false;
+                    sb.append(" WHERE ");
+                }else{
+                    sb.append(" AND ");
+                }
+                // todo: check for injection
+                sb.append("[" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "]").append("=\"").append(params.getLineOfBusiness()).append("\"");
+            }
+
+            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getLowerEffectiveDate(), " >= ", sb);
+            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getUpperEffectiveDate(), " <= ", sb);
+            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getLowerExpirationDate(), " >= ", sb);
+            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getUpperExpirationDate(), " <= ", sb);
+
+            return sb.toString();
+        }
+    }
+
     final static String PROPERTY_NOTIFICATION = "deploymentReady";
     public static final String DEPLOY_ROOT = "/deploy";
 
     private Node deployLocation;
     private List<RDeploymentListener> listeners = new ArrayList<RDeploymentListener>();
-
-    private static void appendDateCondition(Date date, String condition, StringBuilder sb) {
-        if (date != null) {
-            sb.append("[@").append(condition).append(date.getTime()).append("]");
-        }
-    }
-
-    private static String buildQuery(SearchParams params) {
-        StringBuilder sb = new StringBuilder("//element(*, nt:base)");
-        if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
-            // todo: check for injection
-            sb.append("[@" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "='").append(params.getLineOfBusiness()).append("']");
-        }
-
-        appendDateCondition(params.getLowerEffectiveDate(), ArtefactProperties.PROP_EFFECTIVE_DATE + " >= ", sb);
-        appendDateCondition(params.getUpperEffectiveDate(), ArtefactProperties.PROP_EFFECTIVE_DATE + " <= ", sb);
-        appendDateCondition(params.getLowerExpirationDate(), ArtefactProperties.PROP_EXPIRATION_DATE + " >= ", sb);
-        appendDateCondition(params.getUpperExpirationDate(), ArtefactProperties.PROP_EXPIRATION_DATE + " <= ", sb);
-
-        return sb.toString();
-    }
 
     public JcrProductionRepository(String name, Session session) throws RepositoryException {
         super(name, session);
@@ -106,7 +121,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
     public Collection<ArtefactAPI> findNodes(SearchParams params) throws RRepositoryException {
         try {
-            Query query = session.getWorkspace().getQueryManager().createQuery(buildQuery(params), Query.XPATH);
+            Query query = session.getWorkspace().getQueryManager().createQuery(new JCR_SQL2QueryBuilder().buildQuery(params), Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
 
             NodeIterator nodeIterator = queryResult.getNodes();
@@ -291,12 +306,24 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             Node node = NodeUtil.createNode(deployLocation, name, JcrNT.NT_APROJECT, true);
             deployLocation.save();
             node.checkin();
+            repositoryNotify();
             return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new  RRepositoryException("",e);
         }
     }
 
+    //FIXME
+    private static final Object lock = new Object();
+    private void repositoryNotify() throws RepositoryException {
+        synchronized (lock) {
+            deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
+            deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
+            deployLocation.save();
+        }
+    }
+
+    
     public FolderAPI createRulesProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }

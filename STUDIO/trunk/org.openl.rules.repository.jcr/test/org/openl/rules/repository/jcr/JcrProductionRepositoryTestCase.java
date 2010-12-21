@@ -5,20 +5,22 @@ import junit.framework.TestCase;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.repository.FolderHelper;
-import org.openl.rules.repository.REntity;
-import org.openl.rules.repository.RFile;
-import org.openl.rules.repository.RFolder;
-import org.openl.rules.repository.RProductionDeployment;
-import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,7 +109,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         assertTrue(check(entities2names(entityCollection), "f1"));
     }
 
-    private void _testListeners() throws RRepositoryException, InterruptedException {
+    private void _testListeners() throws ProjectException, InterruptedException {
         final boolean[] flag = new boolean[1];
         class TestListener implements RDeploymentListener {
             public void projectsAdded() {
@@ -118,12 +120,12 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         TestListener listener = new TestListener();
         instance.addListener(listener);
         try {
-            RProductionDeployment deployment = instance.createDeployment("lis");
+            FolderAPI deployment = instance.createDeploymentProject("lis");
 
-            RProject rProject = deployment.createProject("p1");
-            rProject.getRootFolder().createFolder("f1");
+            FolderAPI rProject = deployment.addFolder("p1");
+            rProject.addFolder("f1");
 
-            deployment.save();
+            deployment.commit(new CommonUserImpl("sys"), 0, 0);
             Thread.sleep(500); // notifications come asynchroniously
         } finally {
             instance.removeListener(listener);
@@ -166,7 +168,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         try {
             InputStream is = null;
             try {
-                is = this.getClass().getResourceAsStream("/org/openl/rules/repository/production_nodetypes.xml");
+                is = this.getClass().getResourceAsStream("/org/openl/rules/repository/openl_nodetypes.xml");
                 ntmi.registerNodeTypes(is, JackrabbitNodeTypeManager.TEXT_XML, true);
             } finally {
                 if (is != null) {
@@ -179,6 +181,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     }
 
     @Override
+  //FIXME refactor to use AProjectArtefacts
     protected void setUp() throws Exception {
         FolderHelper.deleteFolder(new File(TEST_FOLDER));
 
@@ -194,30 +197,29 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         instance = new JcrProductionRepository("test", session);
         initNodeTypes(session.getWorkspace().getNodeTypeManager());
 
-        RProductionDeployment deployment = instance.createDeployment("d1");
-        RProject rProject = deployment.createProject("prj1");
-        rProject.setLineOfBusiness(LOB_M);
+        FolderAPI deployment = instance.createDeploymentProject("d1");
+        FolderAPI rProject = deployment.addFolder("prj1");
+        rProject.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, LOB_M);
 
-        RFolder folder1 = rProject.getRootFolder().createFolder("folder1");
-        folder1.setEffectiveDate(EFF_DATE1);
-        folder1.setExpirationDate(EXP_DATE1);
+        FolderAPI folder1 = rProject.addFolder("folder1");
+        folder1.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, EFF_DATE1);
+        folder1.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, EXP_DATE1);
 
-        RFolder folder2 = rProject.getRootFolder().createFolder("folder2");
-        folder2.setEffectiveDate(EFF_DATE4);
-        folder2.setLineOfBusiness(LOB_M);
-        folder2.setExpirationDate(EXP_DATE4);
+        FolderAPI folder2 = rProject.addFolder("folder2");
+        folder2.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, LOB_M);
+        folder2.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, EFF_DATE4);
+        folder2.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, EXP_DATE4);
 
-        RFile rFile1 = rProject.getRootFolder().createFile("f1");
-        rFile1.setLineOfBusiness(LOB_M);
-        rFile1.setEffectiveDate(EFF_DATE2);
-        rFile1.setExpirationDate(EXP_DATE2);
+        ArtefactAPI rFile1 = rProject.addResource("f1", new ByteArrayInputStream(new byte[]{}));
+        rFile1.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, LOB_M);
+        rFile1.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, EFF_DATE2);
+        rFile1.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, EXP_DATE2);
 
-        RFile rFile2 = rProject.getRootFolder().createFile("f2");
-        rFile2.setLineOfBusiness(LOB_S);
-        rFile2.setEffectiveDate(EFF_DATE3);
-        rFile2.setExpirationDate(EXP_DATE3);
-
-        deployment.save();
+        ArtefactAPI rFile2 = rProject.addResource("f2", new ByteArrayInputStream(new byte[]{}));
+        rFile2.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, LOB_S);
+        rFile2.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, EFF_DATE3);
+        rFile2.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, EXP_DATE3);
+        deployment.commit(new CommonUserImpl("sys"), 0, 0);
     }
 
     @Override
@@ -235,7 +237,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
      *
      * @throws RRepositoryException if an error occures
      */
-    public void testIt() throws RRepositoryException, InterruptedException {
+    public void testIt() throws ProjectException, InterruptedException {
         _testLob();
         _testEffectiveDate();
         _testExpirationDate();
