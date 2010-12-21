@@ -64,7 +64,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             boolean initNodeTypes = false;
             try {
                 // Does JCR know anything about OpenL?
-                ntm.getNodeType(JcrNT.NT_PROJECT);
+                ntm.getNodeType(JcrNT.NT_REPOSITORY);
             } catch (NoSuchNodeTypeException e) {
                 // No, it doesn't.
                 initNodeTypes = true;
@@ -146,7 +146,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         // check special node
         NodeType nodeType = null;
         try {
-            nodeType = ntm.getNodeType("openl:repository");
+            nodeType = ntm.getNodeType(JcrNT.NT_REPOSITORY);
         } catch (NoSuchNodeTypeException e) {
             throw new RepositoryException("Cannot determine scheme version: " + e.getMessage());
         }
