@@ -6,12 +6,17 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -26,16 +31,22 @@ public class JcrRulesClient {
         ProductionRepositoryFactoryProxy.getRepositoryInstance().addListener(l);
     }
 
-    private void download(RFolder folder, File location) throws RRepositoryException, IOException {
+    private void download(FolderAPI folder, File location) throws RRepositoryException, IOException {
         location.mkdirs();
-        for (RFile rFile : folder.getFiles()) {
-            FileOutputStream os = new FileOutputStream(new File(location, rFile.getName()));
-            IOUtils.copy(rFile.getContent(), os);
-            IOUtils.closeQuietly(os);
-        }
-
-        for (RFolder rFolder : folder.getFolders()) {
-            download(rFolder, new File(location, rFolder.getName()));
+        for (ArtefactAPI artefact : folder.getArtefacts()) {
+            if(artefact.isFolder()){
+                download((FolderAPI)artefact, new File(location, artefact.getName()));
+            }else{
+                try {
+                    ResourceAPI resource = (ResourceAPI) artefact;
+                    FileOutputStream os = new FileOutputStream(new File(location, resource.getName()));
+                    IOUtils.copy(resource.getContent(), os);
+                    IOUtils.closeQuietly(os);
+                } catch (ProjectException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -54,15 +65,18 @@ public class JcrRulesClient {
         destFolder.mkdirs();
         FolderHelper.clearFolder(destFolder);
 
-        RProductionDeployment rDeployment = ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeployment(
+        FolderAPI rDeployment = ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentProject(
                 deployID.getName());
 
-        Collection<RProject> projects = rDeployment.getProjects();
-        for (RProject project : projects) {
+        //FIXME
+        Collection<? extends ArtefactAPI> projects = rDeployment.getArtefacts();
+        for (ArtefactAPI project : projects) {
+            if(project.isFolder()){
             File projectFolder = new File(destFolder, project.getName());
             projectFolder.mkdirs();
 
-            download(project.getRootFolder(), projectFolder);
+            download((FolderAPI)project, projectFolder);
+            }
         }
     }
 
@@ -73,7 +87,7 @@ public class JcrRulesClient {
      * @throws RRepositoryException on repository error
      */
     public Collection<String> getDeploymentNames() throws RRepositoryException {
-        return ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentNames();
+        return ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentProjectNames();
     }
 
     public void release() throws RRepositoryException {

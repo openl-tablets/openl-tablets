@@ -15,21 +15,22 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * Implementation of JCR File.
- *
+ * 
  * @author Aleh Bykhavets
- *
+ * 
  */
 public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
 
     /**
      * Creates a new instance of file.
-     *
+     * 
      * @param parentNode parent node (files or folder)
      * @param nodeName name of new node
      * @return newly created instance
      * @throws RepositoryException if fails
      */
-    protected static JcrFileAPI createFile(Node parentNode, String nodeName,ArtefactPath path) throws RepositoryException {
+    protected static JcrFileAPI createFile(Node parentNode, String nodeName, ArtefactPath path)
+            throws RepositoryException {
         Node n = NodeUtil.createFileNode(parentNode, nodeName);
 
         parentNode.save();
@@ -41,7 +42,11 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     public JcrFileAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
         super(node, path, oldVersion);
 
-//        NodeUtil.checkNodeType(node, JcrNT.NT_FILE);
+        // NodeUtil.checkNodeType(node, JcrNT.NT_FILE);
+    }
+
+    public JcrFileAPI(Node node, ArtefactPath path) throws RepositoryException {
+        this(node, path, false);
     }
 
     /** {@inheritDoc} */
@@ -64,7 +69,7 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
             return null;
         }
     }
-    
+
     /** {@inheritDoc} */
     public String getResourceType() {
         // TODO Auto-generated method stub

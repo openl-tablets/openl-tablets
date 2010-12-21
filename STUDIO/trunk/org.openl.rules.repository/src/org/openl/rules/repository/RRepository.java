@@ -68,7 +68,7 @@ public interface RRepository {
     @Deprecated
     List<RProject> getProjects4Deletion() throws RRepositoryException;
 
-    boolean hasDDProject(String name) throws RRepositoryException;
+    boolean hasDeploymentProject(String name) throws RRepositoryException;
 
     /**
      * Checks whether project with given name exists in the repository.

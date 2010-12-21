@@ -161,7 +161,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         return session;
     }
 
-    public boolean hasDDProject(String name) throws RRepositoryException {
+    public boolean hasDeploymentProject(String name) throws RRepositoryException {
         try {
             return defDeploymentsLocation.hasNode(name);
         } catch (RepositoryException e) {

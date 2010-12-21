@@ -110,7 +110,7 @@ public class AProjectFolder extends AProjectArtefact {
         }
     }
 
-    private Map<String, AProjectArtefact> getArtefactsInternal() {
+    protected Map<String, AProjectArtefact> getArtefactsInternal() {
         if (artefacts == null) {
             artefacts = new HashMap<String, AProjectArtefact>();
             for (ArtefactAPI artefactAPI : getAPI().getArtefacts()) {

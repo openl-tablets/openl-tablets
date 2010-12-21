@@ -214,7 +214,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
 
     public boolean hasDDProject(String name) {
         try {
-            return rulesRepository.hasDDProject(name);
+            return rulesRepository.hasDeploymentProject(name);
         } catch (RRepositoryException e) {
             String msg = MsgHelper.format("Failed to check deployment project ''{0}'' in the repository!", name);
             log.error(msg, e);

@@ -3,12 +3,15 @@ package org.openl.rules.repository.jcr;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -22,6 +25,7 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -31,7 +35,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     private static final Log log = LogFactory.getLog(JcrProductionRepository.class);
 
     final static String PROPERTY_NOTIFICATION = "deploymentReady";
-    private static final String DEPLOY_ROOT = "/deploy";
+    public static final String DEPLOY_ROOT = "/deploy";
 
     private Node deployLocation;
     private List<RDeploymentListener> listeners = new ArrayList<RDeploymentListener>();
@@ -100,25 +104,23 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    @Deprecated
-    public Collection<REntity> findNodes(SearchParams params) throws RRepositoryException {
+    public Collection<ArtefactAPI> findNodes(SearchParams params) throws RRepositoryException {
         try {
             Query query = session.getWorkspace().getQueryManager().createQuery(buildQuery(params), Query.XPATH);
             QueryResult queryResult = query.execute();
 
             NodeIterator nodeIterator = queryResult.getNodes();
-            List<REntity> result = new ArrayList<REntity>();
+            List<ArtefactAPI> result = new ArrayList<ArtefactAPI>();
             while (nodeIterator.hasNext()) {
                 Node node = nodeIterator.nextNode();
+                ArtefactPath path = new ArtefactPathImpl(new String[] { node.getName() });
                 String type = node.getPrimaryNodeType().getName();
-                if (type.equals(JcrNT.NT_DEPLOYMENT)) {
-                    result.add(new JcrProductionDeployment(node));
-                } else if (type.equals(JcrNT.NT_PROD_FOLDER)) {
-                    result.add(new JcrProductionFolder(node));
-                } else if (type.equals(JcrNT.NT_PROD_FILE)) {
-                    result.add(new JcrProductionFile(node));
-                } else if (type.equals(JcrNT.NT_PROD_PROJECT)) {
-                    result.add(new JcrProductionProject(node));
+                if (type.equals(JcrNT.NT_APROJECT)) {
+                    result.add(new JcrFolderAPI(node, path));
+                } else if (type.equals(JcrNT.NT_FOLDER)) {
+                    result.add(new JcrFolderAPI(node, path));
+                } else if (type.equals(JcrNT.NT_FILE)) {
+                    result.add(new JcrFileAPI(node, path, false));
                 }
             }
 
@@ -206,8 +208,12 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasDDProject(String name) throws RRepositoryException {
-        throw new UnsupportedOperationException();
+    public boolean hasDeploymentProject(String name) throws RRepositoryException {
+        try {
+            return deployLocation.hasNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to check project {0}", e, name);
+        }
     }
 
     public boolean hasDeployment(String name) throws RRepositoryException {
@@ -281,37 +287,76 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            Node node = NodeUtil.createNode(deployLocation, name, JcrNT.NT_APROJECT, true);
+            deployLocation.save();
+            node.checkin();
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name }));
+        } catch (RepositoryException e) {
+            throw new  RRepositoryException("",e);
+        }
     }
 
     public FolderAPI createRulesProject(String name) throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Node node;
+        try {
+            node = deployLocation.getNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to get node", e);
+        }
+
+        try {
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name }));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to wrap JCR node", e);
+        }
     }
 
     public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        List<FolderAPI> result = new ArrayList<FolderAPI>();
+        try {
+            NodeIterator iterator = deployLocation.getNodes();
+            while (iterator.hasNext()) {
+                Node node = iterator.nextNode();
+                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
+                    result.add(new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { node.getName() })));
+                }
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to enumerate deployments", e);
+        }
+        return result;
     }
 
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public List<FolderAPI> getRulesProjects() throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    public Collection<String> getDeploymentProjectNames() throws RRepositoryException {
+        List<String> result = new ArrayList<String>();
+        try {
+            NodeIterator iterator = deployLocation.getNodes();
+            while (iterator.hasNext()) {
+                Node node = iterator.nextNode();
+                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
+                    result.add(node.getName());
+                }
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to enumerate deployments", e);
+        }
+        return result;
     }
 }

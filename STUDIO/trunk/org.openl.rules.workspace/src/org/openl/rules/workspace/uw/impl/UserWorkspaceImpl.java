@@ -102,8 +102,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
             projects.add(designTimeRepository.getProject(descriptor.getProjectName(), descriptor.getProjectVersion()));
         }
 
+        
+        //TODO DeployID id = RepositoryUtils.getDeployID(project);
         DeployID id = new DeployID(deploymentProject.getName() + "#" + deploymentProject.getVersion().getVersionName());
-        deployer.deploy(id, projects);
+        deployer.deploy(deploymentProject, id, projects);
         return id;
     }
 

@@ -96,17 +96,19 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             removeProperty(name);
         }
 
-        JcrProperty jp;
-        try {
-            jp = new JcrProperty(node(), name, type, value);
-        } catch (RRepositoryException e) {
-            throw new PropertyException("Internal error.", e);
-        }
-        properties.put(name, jp);
-        try {
-            node().save();
-        } catch (RepositoryException e) {
-            throw new PropertyException("Internal error.", e);
+        if (value != null) {
+            JcrProperty jp;
+            try {
+                jp = new JcrProperty(node(), name, type, value);
+            } catch (RRepositoryException e) {
+                throw new PropertyException("Internal error.", e);
+            }
+            properties.put(name, jp);
+            try {
+                node().save();
+            } catch (RepositoryException e) {
+                throw new PropertyException("Internal error.", e);
+            }
         }
     }
 
@@ -342,6 +344,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
         if (parent.isCheckedOut()) {
             if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
+                parent.save();
                 parent.checkin();
             }
         }

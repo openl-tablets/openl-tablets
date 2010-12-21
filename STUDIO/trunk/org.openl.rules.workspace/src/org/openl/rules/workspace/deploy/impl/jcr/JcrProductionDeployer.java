@@ -1,18 +1,16 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.REntity;
-import org.openl.rules.repository.RFile;
-import org.openl.rules.repository.RFolder;
-import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -35,44 +33,16 @@ public class JcrProductionDeployer implements ProductionDeployer {
         this.user = user;
     }
 
-    private void copy(RFolder dest, AProjectFolder source) throws RRepositoryException, ProjectException {
-        for (AProjectArtefact artefact : source.getArtefacts()) {
-            if (artefact.isFolder()) {
-                RFolder folder = dest.createFolder(artefact.getName());
-                copyProperties(folder, (RulesRepositoryArtefact) artefact);
-                copy(folder, (AProjectFolder) artefact);
-            } else {
-                copy(dest, (AProjectResource) artefact);
-            }
+    private void copyProperties(ArtefactAPI newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
+        try {
+            newArtefact.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, artefact.getEffectiveDate());
+            newArtefact.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, artefact.getExpirationDate());
+            newArtefact.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, artefact.getLineOfBusiness());
+
+            newArtefact.setProps(artefact.getProps());
+        } catch (PropertyException e) {
+            throw new RRepositoryException("", e);
         }
-    }
-
-    private void copy(RFolder folder, AProjectResource artefact) throws RRepositoryException, ProjectException {
-        RFile rFile = folder.createFile(artefact.getName());
-        rFile.setContent(artefact.getContent());
-
-        copyProperties(rFile, (RulesRepositoryArtefact) artefact);
-    }
-
-    private void copyProperties(REntity rEntity, RulesRepositoryArtefact artefact) throws RRepositoryException {
-        rEntity.setEffectiveDate(artefact.getEffectiveDate());
-        rEntity.setExpirationDate(artefact.getExpirationDate());
-        rEntity.setLineOfBusiness(artefact.getLineOfBusiness());
-
-        rEntity.setProps(artefact.getProps());
-    }
-
-    /**
-     * Deploys a collection of <code>Project</code>s to the production
-     * repository. Generates unique ID for the deployment.
-     *
-     * @param projects projects to deploy
-     * @return generated id for this deployment
-     * @throws DeploymentException if any deployment error occures
-     */
-    public DeployID deploy(Collection<AProject> projects) throws DeploymentException {
-        String name = generatedDeployID(projects);
-        return deploy(new DeployID(name), projects);
     }
 
     /**
@@ -85,7 +55,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
      * @throws DeploymentException if any deployment error occures
      */
 
-    public synchronized DeployID deploy(DeployID id, Collection<AProject> projects) throws DeploymentException {
+    public synchronized DeployID deploy(ADeploymentProject deploymentProject, DeployID id, Collection<AProject> projects) throws DeploymentException {
 
         boolean alreadyDeployed = false;
         try {
@@ -95,13 +65,15 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 alreadyDeployed = true;
             } else {
 
-                RProductionDeployment deployment = rRepository.createDeployment(id.getName());
+                FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
 
                 for (AProject p : projects) {
                     deployProject(deployment, p);
                 }
+                
+                copyProperties(deployment, deploymentProject);
 
-                deployment.save();
+                deployment.commit(user, 0, 0);
             }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
@@ -115,24 +87,11 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return id;
     }
 
-    private void deployProject(RProductionDeployment deployment, AProject project) throws RRepositoryException,
+    private void deployProject(FolderAPI deployment, AProject project) throws RRepositoryException,
             ProjectException {
-        RProject rProject = deployment.createProject(project.getName());
-        copyProperties(rProject.getRootFolder(), (RulesRepositoryArtefact)project);
-
-        copy(rProject.getRootFolder(), project);
-    }
-
-    private String generatedDeployID(Collection<AProject> projects) {
-        StringBuilder name = new StringBuilder();
-        for (AProject p : projects) {
-            name.append(p.getName());
-            if (p.getVersion() != null) {
-                name.append('-').append(p.getVersion().getVersionName());
-            }
-            name.append('_');
-        }
-        name.append(System.currentTimeMillis());
-        return name.toString();
+        FolderAPI rProject = deployment.addFolder(project.getName());
+        AProject copiedProject = new AProject(rProject, user);
+        copiedProject.update(project);
+        copiedProject.checkIn();
     }
 }

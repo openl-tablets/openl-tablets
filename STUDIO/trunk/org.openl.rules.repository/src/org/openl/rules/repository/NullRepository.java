@@ -71,7 +71,7 @@ public class NullRepository implements RRepository {
         return EMPTY_LIST;
     }
 
-    public boolean hasDDProject(String name) throws RRepositoryException {
+    public boolean hasDeploymentProject(String name) throws RRepositoryException {
         return false;
     }
 

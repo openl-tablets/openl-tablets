@@ -80,9 +80,7 @@ public class JcrCommonArtefact {
         }
     }
 
-    // --- protected
-
-    protected Node node() {
+    public Node node() {
         return node;
     }
 }

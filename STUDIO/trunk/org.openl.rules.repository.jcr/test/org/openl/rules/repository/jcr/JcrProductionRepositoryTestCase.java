@@ -12,6 +12,7 @@ import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.RepositoryException;
@@ -62,9 +63,9 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         return repository.login(sc);
     }
 
-    private static Collection<String> entities2names(Collection<REntity> entities) {
+    private static Collection<String> entities2names(Collection<ArtefactAPI> entities) {
         List<String> result = new ArrayList<String>();
-        for (REntity entity : entities) {
+        for (ArtefactAPI entity : entities) {
             result.add(entity.getName());
         }
         return result;
@@ -73,7 +74,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     public void _testEffectiveDate() throws RRepositoryException {
         JcrProductionSearchParams params = new JcrProductionSearchParams();
         params.setLowerEffectiveDate(EFF_DATE2);
-        Collection<REntity> entityCollection = instance.findNodes(params);
+        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
         assertEquals(3, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2"));
 
@@ -91,7 +92,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     public void _testExpirationDate() throws RRepositoryException {
         JcrProductionSearchParams params = new JcrProductionSearchParams();
         params.setLowerExpirationDate(EXP_DATE2);
-        Collection<REntity> entityCollection = instance.findNodes(params);
+        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
         assertEquals(3, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2"));
 
@@ -135,7 +136,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         JcrProductionSearchParams params = new JcrProductionSearchParams();
 
         params.setLineOfBusiness(LOB_M);
-        Collection<REntity> entityCollection = instance.findNodes(params);
+        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
         assertEquals(3, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "prj1", "f1", "folder2"));
 
@@ -149,7 +150,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         JcrProductionSearchParams params = new JcrProductionSearchParams();
         params.setLowerEffectiveDate(new Date(EFF_DATE1.getTime() + 1));
         params.setLineOfBusiness(LOB_M);
-        Collection<REntity> entityCollection = instance.findNodes(params);
+        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
         assertEquals(2, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "folder2", "f1"));
 
