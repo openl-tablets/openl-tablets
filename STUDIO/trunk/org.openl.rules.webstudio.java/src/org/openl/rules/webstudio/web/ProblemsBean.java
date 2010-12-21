@@ -1,24 +1,21 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.exception.OpenLException;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
-import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.TreeNodeData;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.util.StringTool;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
@@ -34,7 +31,16 @@ public class ProblemsBean {
 
     public static final String ERROR_NODE_NAME = "error";
     public static final String WARNING_NODE_NAME = "warning";
-
+    
+    private static Map<Class<?>, MessageHandler> messageHandlers;
+    
+    static {
+        messageHandlers = new HashMap<Class<?>, MessageHandler>();
+        messageHandlers.put(OpenLErrorMessage.class, new ErrorMessageHandler());
+        messageHandlers.put(OpenLWarnMessage.class, new WarningMessageHandler());
+        messageHandlers.put(OpenLMessage.class, new MessageHandler());
+    }
+    
     public ProblemsBean() {
     }
 
@@ -54,14 +60,14 @@ public class ProblemsBean {
             List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
             if (CollectionUtils.isNotEmpty(errorMessages)) {
                 TreeNode<TreeNodeData> errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
-                addMessageNodes(errorsRoot, ERROR_NODE_NAME, errorMessages);
+                addMessageNodes(errorsRoot, ERROR_NODE_NAME, errorMessages, model);
                 root.addChild(nodeCount++, errorsRoot);
             }
 
             List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
             if (CollectionUtils.isNotEmpty(warningMessages)) {
                 TreeNode<TreeNodeData> warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warningMessages.size());
-                addMessageNodes(warningsRoot, WARNING_NODE_NAME, warningMessages);
+                addMessageNodes(warningsRoot, WARNING_NODE_NAME, warningMessages, model);
                 root.addChild(nodeCount++, warningsRoot);
             }
 
@@ -78,12 +84,12 @@ public class ProblemsBean {
         return messagesRoot;
     }
 
-    private void addMessageNodes(TreeNode<TreeNodeData> parent, String nodeName, List<OpenLMessage> messages) {
+    private void addMessageNodes(TreeNode<TreeNodeData> parent, String nodeName, List<OpenLMessage> messages, ProjectModel model) {
         int nodeCount = 1;
 
         for (OpenLMessage message : messages) {
             TreeNode<TreeNodeData> messageNode = new TreeNodeImpl<TreeNodeData>();
-            String url = getNodeUrl(message);
+            String url = getNodeUrl(message, model);
             TreeNodeData nodeData = new TreeNodeData(message.getSummary(), message.getDetails(),
                     url, 0, nodeName.toLowerCase(), true);
             messageNode.setData(nodeData);
@@ -91,48 +97,15 @@ public class ProblemsBean {
         }
     }
 
-    private String getNodeUrl(OpenLMessage message) {
+    private String getNodeUrl(OpenLMessage message, ProjectModel model) {
         String url = null;
-
-        if (message instanceof OpenLErrorMessage) {
-            OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
-            OpenLException error = errorMessage.getError();
-            String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
-            String tableUri = errorUri;//WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
-            if (StringUtils.isNotBlank(tableUri)) {
-                XlsUrlParser uriParser = new XlsUrlParser();
-                uriParser.parse(errorUri);
-                url = "tableeditor/showTable.xhtml"
-                    + "?uri=" + StringTool.encodeURL(tableUri);
-                if (StringUtils.isNotBlank(uriParser.cell)) {
-                    url += "&errorCell=" + uriParser.cell;
-                }
-            }
-        }
         
-        if (message instanceof OpenLWarnMessage) {
-
-            OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
-            ISyntaxNode syntaxNode = warnMessage.getSource();
-
-            String errorUri = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule(), "");
-            String tableUri = errorUri;//WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
-
-            if (StringUtils.isNotBlank(tableUri)) {
-                XlsUrlParser uriParser = new XlsUrlParser();
-                uriParser.parse(errorUri);
-                url = "tableeditor/showTable.xhtml"
-                    + "?uri=" + StringTool.encodeURL(tableUri);
-                if (StringUtils.isNotBlank(uriParser.cell)) {
-                    url += "&errorCell=" + uriParser.cell;
-                }
-            }
-        }
+        MessageHandler messageHandler = messageHandlers.get(message.getClass());
+        
+        url = messageHandler.getSourceUrl(message, model);
 
         if (StringUtils.isBlank(url)) {
-            url = "tableeditor/showMessage.xhtml"
-                + "?type" + "=" + message.getSeverity().name()
-                + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
+            url = messageHandler.getUrlForEmptySource(message);
         }
 
         return url;
