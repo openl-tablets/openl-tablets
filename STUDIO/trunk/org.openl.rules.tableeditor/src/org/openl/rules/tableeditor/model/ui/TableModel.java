@@ -47,7 +47,7 @@ public class TableModel {
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
-        return initializeTableModel(table, null, -1);
+        return initializeTableModel(table, filters, -1);
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows) {
