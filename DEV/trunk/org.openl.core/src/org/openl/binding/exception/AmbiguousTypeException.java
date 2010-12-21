@@ -34,7 +34,7 @@ public class AmbiguousTypeException extends RuntimeException {
         StringBuffer buf = new StringBuffer();
 
         buf.append("Type ").append(typeName);
-        buf.append(" is ambigous:\n").append("Matching types:\n");
+        buf.append(" is ambiguous:\n").append("Matching types:\n");
         for (Iterator<IOpenClass> iter = matchingTypes.iterator(); iter.hasNext();) {
             IOpenClass type = iter.next();
             buf.append(type.getName()).append('\n');

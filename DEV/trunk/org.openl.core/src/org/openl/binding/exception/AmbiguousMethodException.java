@@ -39,7 +39,7 @@ public class AmbiguousMethodException extends RuntimeException {
 
         buf.append("Method ");
         MethodUtil.printMethod(methodName, pars, buf);
-        buf.append(" is ambigous:\n").append("Matching methods:\n");
+        buf.append(" is ambiguous:\n").append("Matching methods:\n");
         for (Iterator<IOpenMethod> iter = matchingMethods.iterator(); iter.hasNext();) {
             IOpenMethod method = iter.next();
             MethodUtil.printMethod(method, buf).append('\n');

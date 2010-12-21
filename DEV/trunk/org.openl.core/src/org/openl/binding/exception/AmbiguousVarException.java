@@ -34,7 +34,7 @@ public class AmbiguousVarException extends RuntimeException {
         StringBuffer buf = new StringBuffer();
 
         buf.append("Variable ").append(varName);
-        buf.append(" is ambigous:\n").append("Matching fieldValues:\n");
+        buf.append(" is ambiguous:\n").append("Matching fieldValues:\n");
         boolean first = true;
         for (Iterator<IOpenField> iter = matchingFields.iterator(); iter.hasNext();) {
             IOpenField f = iter.next();
