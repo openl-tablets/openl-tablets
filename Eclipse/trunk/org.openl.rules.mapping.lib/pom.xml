@@ -1,84 +1,113 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.openl.rules</groupId>
-		<artifactId>org.openl.rules.eclipse-pom</artifactId>
-		<version>5.7.4-SNAPSHOT</version>
-		<relativePath>../org.openl.rules.eclipse-pom</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.eclipse-pom</artifactId>
+        <version>5.7.4-SNAPSHOT</version>
+        <relativePath>../org.openl.rules.eclipse-pom</relativePath>
+    </parent>
 
-	<groupId>org.openl</groupId>
-	<artifactId>org.openl.rules.mapping.lib</artifactId>
-	<packaging>jar</packaging>
-	<name>OpenL - Rules - Mapping - Libraries</name>
-	<description>OpenL Rules Mapping Libraries</description>
-	<url>http://openl-tablets.sf.net/</url>
+    <groupId>org.openl</groupId>
+    <artifactId>org.openl.rules.mapping.lib</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL - Rules - Mapping - Libraries</name>
+    <description>OpenL Rules Mapping Libraries</description>
+    <url>http://openl-tablets.sf.net/</url>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>
-								${project.build.directory}/../lib
-							</directory>
-							<includes>
-								<include>**/*.jar</include>
-							</includes>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.build.directory}/../lib</directory>
+                            <includes>
+                                <include>**/*.jar</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>
-								${project.build.directory}/../lib
-							</outputDirectory>
-							<excludeArtifactIds>
-								junit
-							</excludeArtifactIds>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>
-								true
-							</overWriteSnapshots>
-							<excludeTransitive>true</excludeTransitive>
-							<type>jar</type>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/../lib</outputDirectory>
+                            <excludeArtifactIds>junit</excludeArtifactIds>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <excludeTransitive>true</excludeTransitive>
+                            <type>jar</type>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 
-		<resources>
-			<resource>
-				<directory>${project.build.directory}/..</directory>
-				<includes>
-					<include>lib/**/*.jar</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}/..</directory>
+                <includes>
+                    <include>lib/**/*.jar</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.sf.dozer</groupId>
             <artifactId>dozer</artifactId>
             <version>5.3.1</version>
         </dependency>
-	</dependencies>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+
+    </dependencies>
 
 </project>
