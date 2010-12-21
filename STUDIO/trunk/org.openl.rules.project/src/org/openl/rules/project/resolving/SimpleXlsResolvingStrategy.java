@@ -25,7 +25,8 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
             return false;
         }
         for (File f : folder.listFiles()) {
-            if (FileTypeHelper.isExcelFile(f.getName())) {
+            if (!f.isHidden()
+                    && FileTypeHelper.isExcelFile(f.getName())) {
                 return true;
             }
         }
@@ -36,7 +37,8 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         ProjectDescriptor project = createDescriptor(folder);
         List<Module> modules = new ArrayList<Module>();
         for (File f : folder.listFiles()) {
-            if (FileTypeHelper.isExcelFile(f.getName())) {
+            if (!f.isHidden()
+                    && FileTypeHelper.isExcelFile(f.getName())) {
                 modules.add(createModule(project, f));
             }
         }
