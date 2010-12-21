@@ -53,7 +53,8 @@ public class ProjectIndexer extends FileIndexer {
 	    for (; filesTreeIter.hasNext();) {
 			File file = filesTreeIter.next();
 			String fileName = file.getName();
-			if (FileTypeHelper.isExcelFile(fileName) || FileTypeHelper.isWordFile(fileName))
+			if (!file.isHidden()
+			        && (FileTypeHelper.isExcelFile(fileName) || FileTypeHelper.isWordFile(fileName)))
 				try {
 					String canonPath = file.getCanonicalPath(); 										
 					String fileAlreadyExist = fileMap.get(fileName);					
