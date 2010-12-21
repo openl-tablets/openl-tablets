@@ -281,21 +281,12 @@ public class RepositoryConvertor {
         }
         try {
             newEntity.removeAllProperties();
-            Date effectiveDate = entity.getEffectiveDate();
-            if (effectiveDate != null) {
-                newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_EFFECTIVE_DATE,
-                        ValueType.DATE, effectiveDate);
-            }
-            Date expirationDate = entity.getExpirationDate();
-            if (expirationDate != null) {
-                newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_EXPIRATION_DATE,
-                        ValueType.DATE, expirationDate);
-            }
-            String lob = entity.getLineOfBusiness();
-            if (lob != null) {
-                newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_LINE_OF_BUSINESS,
-                        ValueType.STRING, lob);
-            }
+            newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_EFFECTIVE_DATE,
+                    ValueType.DATE, entity.getEffectiveDate());
+            newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_EXPIRATION_DATE,
+                    ValueType.DATE, entity.getExpirationDate());
+            newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_LINE_OF_BUSINESS,
+                    ValueType.STRING, entity.getLineOfBusiness());
         } catch (PropertyException e) {
             // TODO log
             e.printStackTrace();

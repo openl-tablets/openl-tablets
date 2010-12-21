@@ -1,5 +1,6 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import java.util.Collection;
@@ -32,9 +33,10 @@ public interface RProductionRepository extends RRepository {
      * @throws RRepositoryException if the deployment with given name already
      *             exists or on an error working with the repository
      */
+    @Deprecated
     RProductionDeployment createDeployment(String name) throws RRepositoryException;
 
-    Collection<REntity> findNodes(SearchParams params) throws RRepositoryException;
+    Collection<ArtefactAPI> findNodes(SearchParams params) throws RRepositoryException;
 
     /**
      * Gets deployment by name.
@@ -43,6 +45,7 @@ public interface RProductionRepository extends RRepository {
      * @return the deployment with given name
      * @throws RRepositoryException on error working with repository
      */
+    @Deprecated
     RProductionDeployment getDeployment(String name) throws RRepositoryException;
 
     /**
@@ -51,8 +54,10 @@ public interface RProductionRepository extends RRepository {
      * @return collection of all deployment names.
      * @throws RRepositoryException on error working with repository
      */
+    @Deprecated
     Collection<String> getDeploymentNames() throws RRepositoryException;
 
+    Collection<String> getDeploymentProjectNames() throws RRepositoryException;
     /**
      * Checks if a deployment with given name exists in the repository.
      *
@@ -60,6 +65,7 @@ public interface RProductionRepository extends RRepository {
      * @return if the deployemnt with name <code>name</code> exists
      * @throws RRepositoryException on error working with the repository
      */
+    @Deprecated
     boolean hasDeployment(String name) throws RRepositoryException;
 
     boolean removeListener(RDeploymentListener listener) throws RRepositoryException;

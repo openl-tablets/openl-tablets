@@ -35,7 +35,7 @@ public class DeploymentManager {
         }
 
         DeployID id = RepositoryUtils.getDeployID(project);
-        deployer.deploy(id, projects);
+        deployer.deploy(project, id, projects);
         if (LOG.isDebugEnabled()) {
             String msg = "Project '" + project.getName() + "' successfully deployed with id:" + id.getName();
             LOG.debug(msg);

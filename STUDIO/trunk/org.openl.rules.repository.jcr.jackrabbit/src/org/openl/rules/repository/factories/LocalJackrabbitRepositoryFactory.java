@@ -8,11 +8,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
-import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -22,7 +18,6 @@ import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -47,10 +42,10 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 
     /** Jackrabbit local repository */
     private TransientRepository repository;
-    private String repHome;
+    protected String repHome;
     private String nodeTypeFile;
     private ShutDownHook shutDownHook;
-    private boolean convert = false;
+    protected boolean convert = false;
 
     @Override
     protected void finalize() {
@@ -135,8 +130,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         String expectedVersion = getExpectedSchemaVersion();
         if (!expectedVersion.equals(schemaVersion)) {
             // TODO Remove conversion sometimes
-            if (RepositoryConvertor.from.compareTo(new CommonVersionImpl(schemaVersion)) == 0
-                    && RepositoryConvertor.to.compareTo(new CommonVersionImpl(expectedVersion)) == 0) {
+            if (ProductionRepositoryConvertor.from.compareTo(new CommonVersionImpl(schemaVersion)) == 0
+                    && ProductionRepositoryConvertor.to.compareTo(new CommonVersionImpl(expectedVersion)) == 0) {
                 convert = true;
                 return;//success
             }
@@ -145,7 +140,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         }
     }
     
-    private void convert() throws RRepositoryException{
+    protected void convert() throws RRepositoryException{
         RRepository repositoryInstance = null;
         String tempRepoHome = "/temp/repo/";
         try {
