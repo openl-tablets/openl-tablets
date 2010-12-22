@@ -57,14 +57,16 @@
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" />
           </h:commandLink>
-          &#160;
-          <h:commandLink styleClass="actionButton" immediate="true"
-              action="#{repositoryTreeController.deleteRulesProject}"
-              onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}"
-              title="Delete">
-              <f:param name="projectName" value="#{prj.name}" />
-              <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" />
-          </h:commandLink>
+          <h:panelGroup rendered="#{prj.dataBean.canDelete}">
+              &#160;
+              <h:commandLink styleClass="actionButton" immediate="true"
+                  action="#{repositoryTreeController.deleteRulesProject}"
+                  onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}"
+                  title="Delete">
+                  <f:param name="projectName" value="#{prj.name}" />
+                  <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" />
+              </h:commandLink>
+          </h:panelGroup>
         </h:panelGroup>
         &#160;
       </rich:column>
