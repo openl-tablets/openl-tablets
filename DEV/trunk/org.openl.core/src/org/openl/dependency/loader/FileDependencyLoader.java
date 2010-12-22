@@ -36,7 +36,8 @@ public abstract class FileDependencyLoader implements IDependencyLoader {
 
         if (sourceCode != null) {
             OpenL openl = OpenL.getInstance(openlName);
-            CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(openl, sourceCode, false, dependencyManager);
+            CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(openl, sourceCode, 
+                dependencyManager.isExecutionMode(), dependencyManager);
             return new CompiledDependency(dependencyName, compiledOpenClass);
         }
         
