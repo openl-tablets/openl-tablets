@@ -88,7 +88,7 @@ var Tooltip = Class.create({
                 break;
             case 'right_bottom':
                 initPos[0] += (this.element.getWidth() + 10);
-                initPos[1] -= (this.element.getHeight() - 12);
+                initPos[1] -= 4;
                 break;
             case 'right_center':
                 break;
