@@ -33,8 +33,13 @@ public class ExternalDependenciesTest {
         RulesFileDependencyLoader loader1 = new RulesFileDependencyLoader();
         ResolvingRulesProjectDependencyLoader loader2 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test1/module");
         
+        
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
-        ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
+        boolean executionMode = false;
+        dependencyManager.setExecutionMode(executionMode);
+        
+        ApiBasedEngineFactoryInstantiationStrategy s = 
+            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         Class<?> interfaceClass = s.getServiceClass();
         Method method = interfaceClass.getMethod("hello", new Class[]{int.class});
@@ -53,7 +58,12 @@ public class ExternalDependenciesTest {
         IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test2/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
-        ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
+        
+        boolean executionMode = false;
+        dependencyManager.setExecutionMode(executionMode);
+        
+        ApiBasedEngineFactoryInstantiationStrategy s = 
+            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         Class<?> interfaceClass = s.getServiceClass();
         Object instance = s.instantiate(ReloadType.NO);
@@ -89,7 +99,12 @@ public class ExternalDependenciesTest {
         ResolvingRulesProjectDependencyLoader loader2 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test3/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
-        ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
+        
+        boolean executionMode = false;
+        dependencyManager.setExecutionMode(executionMode);
+        
+        ApiBasedEngineFactoryInstantiationStrategy s = 
+            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
         Class<?> interfaceClass = enhancer.getServiceClass();
@@ -132,7 +147,12 @@ public class ExternalDependenciesTest {
         IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test4/module");
         
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
-        ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), false, dependencyManager);
+        
+        boolean executionMode = false;
+        dependencyManager.setExecutionMode(executionMode);
+        
+        ApiBasedEngineFactoryInstantiationStrategy s = 
+            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
 

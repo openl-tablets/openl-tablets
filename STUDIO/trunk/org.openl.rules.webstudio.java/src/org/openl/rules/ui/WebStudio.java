@@ -110,6 +110,8 @@ public class WebStudio {
     private void initDependencyManager() {
         this.dependencyManager = new RulesProjectDependencyManager();
         
+        dependencyManager.setExecutionMode(false);
+        
         IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader(projectResolver);
         IDependencyLoader loader2 = new RulesFileDependencyLoader();
         

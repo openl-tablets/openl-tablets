@@ -14,6 +14,11 @@ public abstract class RulesInstantiationStrategy {
     
     private Module module;
     private Class<?> clazz;
+    
+    /**
+     * Flag indicating is it execution mode or not. 
+     * In execution mode all meta info that is not used in rules running is being cleaned.
+     */
     private boolean executionMode;
     private ClassLoader classLoader;
     private IDependencyManager dependencyManager;
@@ -25,7 +30,7 @@ public abstract class RulesInstantiationStrategy {
     public RulesInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
         this.module = module;
         this.executionMode = executionMode;
-        this.dependencyManager = dependencyManager;
+        this.dependencyManager = dependencyManager;        
         this.classLoader = classLoader;
     }
 
