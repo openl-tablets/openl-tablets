@@ -10,6 +10,8 @@ import org.openl.syntax.code.IDependency;
 
 public abstract class DependencyManager implements IDependencyManager {
     
+    private boolean executionMode;
+    
     private Map<String, CompiledDependency> compiledDependencies = new HashMap<String, CompiledDependency>();  
     
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
@@ -38,6 +40,20 @@ public abstract class DependencyManager implements IDependencyManager {
         if (compiledDependencies.containsKey(dependencyName)) {
             compiledDependencies.remove(dependencyName);
         }
+    }
+    
+    /**
+     * In execution mode all meta info that is not used in rules running is being cleaned.
+     * 
+     * @param executionMode flag indicating is it execution mode or not. 
+     * 
+     */
+    public void setExecutionMode(boolean executionMode) {
+        this.executionMode = executionMode;
+    }
+
+    public boolean isExecutionMode() {
+        return executionMode;
     }
 
     public abstract List<IDependencyLoader> getDependencyLoaders();

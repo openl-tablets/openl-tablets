@@ -22,4 +22,13 @@ public interface IDependencyManager {
      */
     void reset(IDependency dependency);
     
+    
+    /**
+     * Return flag, describing is it execution mode or not.<br>
+     * In execution mode all meta info that is not used in rules running is being cleaned.
+     * 
+     * @return flag is it execution mode or not. 
+     */
+    boolean isExecutionMode();
+    
 }
