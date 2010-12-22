@@ -96,6 +96,8 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
     private void init() {
         modules = listModules(root);
         dependencyManager = new RulesProjectDependencyManager();
+        
+        dependencyManager.setExecutionMode(true);
         IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
         dependencyManager.setDependencyLoaders(Arrays.asList(loader));
     }

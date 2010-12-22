@@ -37,7 +37,8 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
                 OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader();
                 OpenLClassLoaderHelper.extendClasspath(moduleClassLoader, urls);
                 
-                RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager, moduleClassLoader);
+                RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(module, 
+                    dependencyManager.isExecutionMode(), dependencyManager, moduleClassLoader);
                 CompiledOpenClass compiledOpenClass = strategy.compile(ReloadType.NO);
                 
                 return new CompiledDependency(dependencyName, compiledOpenClass);
