@@ -6,6 +6,9 @@ import java.util.List;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -44,10 +47,18 @@ public class ShowTraceTableBean {
         return tracerName;
     }
 
-    public String getTraceTable() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        String view = studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));
-        return traceHelper.showTrace(traceElementId, studio.getModel(), view);
+    public IOpenLTable getTraceTable() {
+        return traceHelper.getTraceTable(traceElementId);
+    }
+
+    public IGridFilter getTraceFilter() {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        return traceHelper.makeFilter(traceElementId, model);
+    }
+
+    public String getTraceTableView() {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        return model.getTableView(FacesUtils.getRequestParameter("view"));
     }
 
     public List<OpenLMessage> getErrors() {
