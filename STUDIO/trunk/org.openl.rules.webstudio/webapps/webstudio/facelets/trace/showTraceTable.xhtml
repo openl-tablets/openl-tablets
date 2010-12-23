@@ -5,13 +5,8 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/facelets/common/studioBase.xhtml">
-
-    <ui:define name="header">
-        <a4j:loadStyle src="resource:///css/tooltip.css" />
-        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
-        <a4j:loadScript src="resource:///js/tooltip.js" />
-    </ui:define>
 
     <ui:define name="page">
 
@@ -50,7 +45,8 @@
                 <p />
             </h:panelGroup>
 
-            <h:outputText value="#{showTraceTableBean.traceTable}" escape="false" />
+            <rules:tableEditor table="#{showTraceTableBean.traceTable}" filter="#{showTraceTableBean.traceFilter}"
+                editable="false" collapseProps="true" view="#{showTraceTableBean.traceTableView}" />
 
         </h:panelGroup>
 

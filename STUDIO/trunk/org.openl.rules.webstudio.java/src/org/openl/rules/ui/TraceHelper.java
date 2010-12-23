@@ -14,14 +14,11 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.tableeditor.model.ui.TableModel;
-import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
@@ -47,8 +44,8 @@ public class TraceHelper {
         }
     }
 
-    public ITableTracerObject getTableTracer(int elementID) {
-        ITracerObject tt = (ITracerObject) traceTreeCache.getNode(elementID);
+    public ITableTracerObject getTableTracer(int elementId) {
+        ITracerObject tt = (ITracerObject) traceTreeCache.getNode(elementId);
 
         if (!(tt instanceof ITableTracerObject)) {
             return null;
@@ -57,8 +54,8 @@ public class TraceHelper {
         return (ITableTracerObject) tt;
     }
 
-    public String getTracerUri(int elementID) {
-        ITableTracerObject tto = getTableTracer(elementID);
+    public String getTracerUri(int elementId) {
+        ITableTracerObject tto = getTableTracer(elementId);
         if (tto != null) {
             TableSyntaxNode tsn = tto.getTableSyntaxNode();
             return tsn.getUri();
@@ -66,8 +63,8 @@ public class TraceHelper {
         return null;
     }
 
-    public String getTracerName(int elementID) {
-        ITableTracerObject tto = getTableTracer(elementID);
+    public String getTracerName(int elementId) {
+        ITableTracerObject tto = getTableTracer(elementId);
         String displayName = null;
 
         if (tto != null) {
@@ -96,20 +93,24 @@ public class TraceHelper {
         return error;
     }
 
-    IGridFilter makeFilter(ITableTracerObject tto, ProjectModel model) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+    public IGridFilter makeFilter(int elementId, ProjectModel model) {
+        ITableTracerObject tto = getTableTracer(elementId);
+        if (tto != null) {
+            List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        List<IGridRegion> r = tto.getGridRegions();
-        if (CollectionUtils.isNotEmpty(r)) {
-            regions.addAll(r);
-        } else {
-            fillRegions(tto, regions);
+            List<IGridRegion> r = tto.getGridRegions();
+            if (CollectionUtils.isNotEmpty(r)) {
+                regions.addAll(r);
+            } else {
+                fillRegions(tto, regions);
+            }
+
+            IGridRegion[] aRegions = new IGridRegion[regions.size()];
+            aRegions = regions.toArray(aRegions);
+
+            return new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter());
         }
-
-        IGridRegion[] aRegions = new IGridRegion[regions.size()];
-        aRegions = regions.toArray(aRegions);
-
-        return new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter());
+        return null;
     }
 
     public ITreeElement<?> getTraceTree(Tracer tracer) {
@@ -136,25 +137,10 @@ public class TraceHelper {
         return traceTreeCache.getKey(node);
     }
 
-    public String showTrace(int id, ProjectModel model, String view) {
-        ITracerObject tt = (ITracerObject) traceTreeCache.getNode(id);
-
-        if (tt == null) {
-            return "ERROR ID = " + id;
-        }
-
-        if (!(tt instanceof ITableTracerObject)) {
-            return "----";
-        }
-
-        ITableTracerObject tto = (ITableTracerObject) tt;
+    public IOpenLTable getTraceTable(int elementId) {
+        ITableTracerObject tto = getTableTracer(elementId);
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
-
-        IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
-        IGridTable gt = table.getGridTable(view);
-
-        TableModel tableModel = TableModel.initializeTableModel(gt, new IGridFilter[] { makeFilter(tto, model) });
-        // TODO: Show formulas in trace
-        return new HTMLRenderer.TableRenderer(tableModel).render(false);
+        return new TableSyntaxNodeAdapter(tsn);
     }
+
 }
