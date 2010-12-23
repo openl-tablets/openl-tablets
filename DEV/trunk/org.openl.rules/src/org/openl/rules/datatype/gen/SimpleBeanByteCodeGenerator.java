@@ -135,7 +135,15 @@ public class SimpleBeanByteCodeGenerator {
             LOG.error(this, ioe);
         }
     }
-
+    
+    private boolean isClassLoaderContainsClass(ClassLoader classLoader, String className){
+        try {
+            return classLoader.loadClass(className) != null;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+    
     /**
      * Return loaded to classpath class object
      * 
@@ -148,7 +156,11 @@ public class SimpleBeanByteCodeGenerator {
         try {
             // try to define bean class in classloader, and return
             // class object.
-            return ReflectUtils.defineClass(beanName, byteCode, classLoader);
+            if (isClassLoaderContainsClass(classLoader, beanName)) {
+                return classLoader.loadClass(beanName);
+            } else {
+                return ReflectUtils.defineClass(beanName, byteCode, classLoader);
+            }
         } catch (Exception ex) {
             LOG.debug(this, ex);
             try {

@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.commons.io.FileUtils;
@@ -21,6 +23,8 @@ import org.openl.config.ConfigSet;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.jcr.JcrNT;
+import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -157,6 +161,23 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
                 repositoryInstance.release();
             }
         }
+        if(isProductionRepository()){
+            try {
+                // FIXME: do not hardcode credential info
+                Session session = createSession("user", "pass");
+
+                JcrProductionRepository productionRepository = new JcrProductionRepository(repositoryName, session);
+                ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
+                log.info("Converting production repository. Please, be patient.");
+                repositoryConvertor.convert(productionRepository);
+            } catch (Exception e) {
+                throw new RRepositoryException("Failed to convert repository.", e);
+            } finally {
+                if (repositoryInstance != null) {
+                    repositoryInstance.release();
+                }
+            }
+        }
         File repoHome = new File(repHome);
         File tmpRepoHome = new File(tempRepoHome);
         try {
@@ -169,6 +190,25 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         }
         return;
         
+    }
+    
+    private boolean isProductionRepository() {
+        Session systemSession = null;
+        try {
+            // FIXME: do not hardcode system credentials
+            systemSession = createSession("sys", "secret");
+            NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
+
+            boolean initNodeTypes = false;
+            // Does JCR know anything about OpenL?
+            return ntm.hasNodeType(JcrNT.NT_PROD_PROJECT);
+        } catch (RepositoryException e) {
+            return false;
+        } finally {
+            if (systemSession != null) {
+                systemSession.logout();
+            }
+        }
     }
     
     @Override

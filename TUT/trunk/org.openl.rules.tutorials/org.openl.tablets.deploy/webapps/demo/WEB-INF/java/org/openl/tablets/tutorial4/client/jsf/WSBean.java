@@ -1,6 +1,6 @@
 package org.openl.tablets.tutorial4.client.jsf;
 
-import org.openl.tablets.tutorial4.Driver;
+import org.openl.generated.beans.Driver;
 import org.openl.tablets.tutorial4.Tutorial_4Wrapper;
 
 public class WSBean {
