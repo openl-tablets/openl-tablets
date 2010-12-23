@@ -1,5 +1,7 @@
 package org.openl.tablets.tutorial4;
 
+import org.openl.generated.beans.Driver;
+
 
 /**
  * Web app is supposed to call web service via an instance of this interface.

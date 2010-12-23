@@ -53,6 +53,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
                 repositoryInstance.release();
             }
         }
+        
         File repoHome = new File(repHome);
         File tmpRepoHome = new File(tempRepoHome);
         try {
