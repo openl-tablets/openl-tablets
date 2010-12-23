@@ -14,8 +14,14 @@
       <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalRepFilter');"/>
     </f:facet>
 
-    <h:form > 
-      <h:inputText value="#{repositoryTreeController.filterString}" />
+    <h:form id="filterForm">
+      <h:inputText id="filter" value="#{repositoryTreeController.filterString}" />
+
+      <br />
+      <br />
+      <rich:separator height="1" />
+      <br />
+
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Apply" action="#{repositoryTreeController.filter}"/>
         <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalRepFilter')}.hide();" />
@@ -23,6 +29,11 @@
     </h:form>
   </rich:modalPanel>
 
-  <script> function showRepFilterDialog() {Richfaces.showModalPanel('modalRepFilter');}</script>
+  <script>
+    function showRepFilterDialog() {
+        Richfaces.showModalPanel('modalRepFilter');
+        focusElement('filterForm:filter');
+    }
+  </script>
 
 </ui:composition>
