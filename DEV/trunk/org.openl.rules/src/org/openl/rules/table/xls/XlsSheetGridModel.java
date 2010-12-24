@@ -422,12 +422,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     }
 
     public void setCellAlignment(int col, int row, int alignment) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellUtil.setCellStyleProperty(cell, sheet.getWorkbook(), CellUtil.ALIGNMENT, (short) alignment);
     }
 
     public void setCellIndent(int col, int row, int indent) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellUtil.setCellStyleProperty(cell, sheet.getWorkbook(), CellUtil.INDENTION, (short) indent);
     }
 
@@ -463,7 +463,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     }
 
     public void setCellFontColor(int col, int row, short[] color) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
 
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
         Font newFont = PoiExcelHelper.cloneFontFrom(cell);
@@ -518,18 +518,18 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     }
 
     public void setCellFontBold(int col, int row, boolean bold) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         short boldweight = bold ? Font.BOLDWEIGHT_BOLD : Font.BOLDWEIGHT_NORMAL;
         PoiExcelHelper.setCellFontBold(cell, boldweight);
     }
 
     public void setCellFontItalic(int col, int row, boolean italic) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         PoiExcelHelper.setCellFontItalic(cell, italic);
     }
 
     public void setCellFontUnderline(int col, int row, boolean underlined) {
-        Cell cell = PoiExcelHelper.getCell(col, row, sheet);
+        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         byte underline = underlined ? Font.U_SINGLE : Font.U_NONE;
         PoiExcelHelper.setCellFontUnderline(cell, underline);
     }
