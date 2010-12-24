@@ -186,7 +186,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         if (editorModel != null) {
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
             ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
-            int currentIndent = style.getIdent();
+            int currentIndent = style != null ? style.getIdent() : 0;
             int resultIndent = currentIndent + indent;
             editorModel.setIndent(row, col, resultIndent >= 0 ? resultIndent : 0);
             return pojo2json(new TableModificationResponse(null, editorModel));
@@ -266,7 +266,7 @@ public class TableEditorController extends BaseTableEditorController implements 
 
             if (halign != -1) {
                 ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
-                if (style.getHorizontalAlignment() != halign) {
+                if (style == null || style.getHorizontalAlignment() != halign) {
                     editorModel.setAlignment(row, col, halign);
                 }
             }
@@ -285,7 +285,7 @@ public class TableEditorController extends BaseTableEditorController implements 
 
             if (bold != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
-                if (font.isBold() != bold) {
+                if (font == null || font.isBold() != bold) {
                     editorModel.setFontBold(row, col, bold);
                 }
             }
@@ -304,7 +304,7 @@ public class TableEditorController extends BaseTableEditorController implements 
 
             if (italic != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
-                if (font.isItalic() != italic) {
+                if (font == null || font.isItalic() != italic) {
                     editorModel.setFontItalic(row, col, italic);
                 }
             }
@@ -323,7 +323,7 @@ public class TableEditorController extends BaseTableEditorController implements 
 
             if (underlined != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
-                if (font.isUnderlined() != underlined) {
+                if (font == null || font.isUnderlined() != underlined) {
                     editorModel.setFontUnderline(row, col, underlined);
                 }
             }
@@ -369,7 +369,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             if (colorStr != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
                 short[] color = parseColor(colorStr);
-                short[] currentColor = font.getFontColor();
+                short[] currentColor = font != null ? font.getFontColor() : null;
 
                 if (color.length == 3 &&
                         (currentColor == null ||
