@@ -63,6 +63,15 @@
 
     </plugins>
 
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.aegis.xml</include>
+        </includes>
+      </resource>
+    </resources>
+
     <testResources>
       <testResource>
         <directory>test</directory>
