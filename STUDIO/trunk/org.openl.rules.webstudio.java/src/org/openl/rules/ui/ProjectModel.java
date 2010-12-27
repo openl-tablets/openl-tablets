@@ -69,7 +69,7 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -811,7 +811,7 @@ public class ProjectModel {
             } else if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNodes[i].getType())) {
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
             } else if (tableSyntaxNodes[i].getErrors() != null
-                    && !DispatcherTableBuilder.isDispatcherTable(tableSyntaxNodes[i])) {
+                    && !DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNodes[i])) {
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
                 nodesWithErrors.add(tableSyntaxNodes[i]);
             }

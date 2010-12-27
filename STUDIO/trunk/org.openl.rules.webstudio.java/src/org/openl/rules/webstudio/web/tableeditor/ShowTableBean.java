@@ -34,7 +34,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tests.results.Test;
-import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -180,7 +180,7 @@ public class ShowTableBean {
     
     private boolean isDispatcherValidationNode() {
         return ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
-                DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+                DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
     
     private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
