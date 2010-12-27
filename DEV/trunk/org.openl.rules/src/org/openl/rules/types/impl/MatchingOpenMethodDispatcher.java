@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -15,7 +16,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -101,7 +102,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new RuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
+                throw new OpenLRuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
                         toString(candidates), context.toString()));
         }
 
@@ -115,7 +116,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private TableSyntaxNode getDispatcherTable() {
         TableSyntaxNode[] tables = getTableSyntaxNodes();
         for (TableSyntaxNode tsn : tables) {
-            if (DispatcherTableBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
+            if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
                 return tsn;
             }
         }
@@ -168,10 +169,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
     }
 
-    private ITableProperties getTableProperties(IOpenMethod method) {
+    private ITableProperties getTableProperties(IOpenMethod method) {        
         //FIXME
         TableProperties properties = new TableProperties();
-
         if(method.getInfo().getProperties() != null){
             for (Entry<String, Object> property : method.getInfo().getProperties().entrySet()) {
                 properties.setFieldValue(property.getKey(), property.getValue());

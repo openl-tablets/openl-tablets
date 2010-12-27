@@ -5,8 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.DefaultInvokerWithTrace;
-import org.openl.rules.table.InvokerWithTrace;
-import org.openl.types.impl.CompositeMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -14,24 +12,21 @@ import org.openl.vm.trace.Tracer;
  * Invoker for {@link TableMethod}. 
  * 
  * @author DLiauchuk
- * 
- * TODO: refactor, it should extend {@link DefaultInvokerWithTrace}, as it have the same implementation functionality.
- * As this invoker extends CompositeMethodInvoker, there was no possibility to extend {@link DefaultInvokerWithTrace}.
+ *
  *
  */
-public class MethodTableInvoker extends CompositeMethodInvoker implements InvokerWithTrace {
+public class MethodTableInvoker extends DefaultInvokerWithTrace {
 
     private final Log LOG = LogFactory.getLog(MethodTableInvoker.class);
 
     private TableMethod tableMethod;
 
-    public MethodTableInvoker(TableMethod tableMethod) {        
-        super(tableMethod.getMethodBodyBoundNode());
+    public MethodTableInvoker(TableMethod tableMethod) {
         this.tableMethod = tableMethod;
     }
 
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {        
-        return super.invoke(target, params, env);
+        return tableMethod.getCompositeMethod().invoke(target, params, env);
     }
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
@@ -43,7 +38,7 @@ public class MethodTableInvoker extends CompositeMethodInvoker implements Invoke
         Object result = null; 
 
         try {
-            result = super.invoke(target, params, env);
+            result = tableMethod.getCompositeMethod().invoke(target, params, env);
             traceObject.setResult(result);
             return result;
 
@@ -56,29 +51,8 @@ public class MethodTableInvoker extends CompositeMethodInvoker implements Invoke
         }
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        // check if the object can be invoked
-        //
-        if (canInvoke()) {
-            if (Tracer.isTracerOn()) {
-                // invoke in trace
-                return invokeTraced(target, params, env);
-            } else {
-                // simple run invoke
-                return super.invoke(target, params, env);
-            }
-        } else {
-            // object can`t be invoked, inform user about the problem.
-            OpenLRuntimeException error = getError();
-            if (Tracer.isTracerOn()) {
-                setErrorToTrace(error, params);
-            } 
-            throw error;            
-        }     
-    }
-
     public boolean canInvoke() {        
-        return getMethodBodyBoundNode() != null;
+        return tableMethod.getCompositeMethod() != null;
     }
 
     public MethodTableTraceObject createTraceObject(Object[] params) {        

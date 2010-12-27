@@ -5,14 +5,13 @@
  */
 package org.openl.rules.dt;
 
-import java.util.Map;
-
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -23,7 +22,6 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -31,7 +29,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -52,8 +49,7 @@ public class DecisionTable extends ExecutableRulesMethod {
     private int columns;
 
     private TableSyntaxNode tableSyntaxNode;
-    private DecisionTableOptimizedAlgorithm algorithm;
-    private Map<String, Object> properties;
+    private DecisionTableOptimizedAlgorithm algorithm;    
     
     /**
      * Object to invoke current method.
@@ -88,10 +84,6 @@ public class DecisionTable extends ExecutableRulesMethod {
         ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
         return table.getColumn(0);
-    }
-
-    public IMemberMetaInfo getInfo() {
-        return this;
     }
 
     public IOpenMethod getMethod() {
@@ -172,8 +164,9 @@ public class DecisionTable extends ExecutableRulesMethod {
             int columns) throws Exception {
 
         this.conditionRows = conditionRows;
-        this.actionRows = actionRows;
-        properties = tableSyntaxNode.getTableProperties().getAllProperties();
+        this.actionRows = actionRows;        
+        
+        initProperties(tableSyntaxNode.getTableProperties());
         if (!cxtd.isExecutionMode()) {
             this.ruleRow = ruleRow;
         }
@@ -181,6 +174,8 @@ public class DecisionTable extends ExecutableRulesMethod {
 
         prepare(getHeader(), openl, componentOpenClass, cxtd);
     }
+
+    
 
     public BindingDependencies getDependencies() {
 
@@ -202,7 +197,10 @@ public class DecisionTable extends ExecutableRulesMethod {
      * fired.
      */
     public boolean shouldFailOnMiss() {
-        return (Boolean)properties.get("failOnMiss");
+        if (getMethodProperties() != null) {
+            return (Boolean)getMethodProperties().getPropertyValue("failOnMiss");
+        }
+        return false;
     }
 
     protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
@@ -315,10 +313,5 @@ public class DecisionTable extends ExecutableRulesMethod {
         }    
         return ruleExecutionType;
     }
-
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-    
 
 }

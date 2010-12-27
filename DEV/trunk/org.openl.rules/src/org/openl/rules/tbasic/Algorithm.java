@@ -7,7 +7,6 @@ import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
@@ -32,7 +31,6 @@ public class Algorithm extends AlgorithmFunction {
     private IOpenClass thisClass;
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
-    private Map<String, Object> properties;
     
     /**
      * Invoker for current method.
@@ -46,11 +44,7 @@ public class Algorithm extends AlgorithmFunction {
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         super(header);
         this.node = node;
-        properties = getSyntaxNode().getTableProperties().getAllProperties();
-    }
-    
-    public Map<String, Object> getProperties() {
-        return properties;
+        initProperties(getSyntaxNode().getTableProperties());
     }
     
     public AlgorithmBoundNode getNode() {
@@ -59,11 +53,6 @@ public class Algorithm extends AlgorithmFunction {
 
     public void setNode(AlgorithmBoundNode node) {
         this.node = node;
-    }
-
-    @Override
-    public IMemberMetaInfo getInfo() {
-        return this;
     }
 
     public String getSourceUrl() {

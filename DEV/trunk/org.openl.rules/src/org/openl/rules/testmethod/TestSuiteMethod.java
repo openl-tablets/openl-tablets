@@ -1,31 +1,27 @@
 package org.openl.rules.testmethod;
 
-import java.util.Map;
-
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
-import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.rules.ExecutableRulesMethod;
 
 public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
 
     private String tableName;
     private IOpenMethod testedMethod;
     private TestMethodBoundNode boundNode;
-    private IOpenClass methodBasedClass; 
-    private Map<String, Object> properties;
+    private IOpenClass methodBasedClass;
     
     public TestSuiteMethod(String tableName, IOpenMethod testedMethod, TestMethodBoundNode boundNode) {
         super(TestMethodHelper.makeHeader(tableName, testedMethod));
@@ -33,11 +29,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         this.tableName = tableName;
         this.testedMethod = testedMethod;
         this.boundNode = boundNode;
-        properties = getSyntaxNode().getTableProperties().getAllProperties();
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
+        initProperties(getSyntaxNode().getTableProperties());
     }
 
     public TestMethodBoundNode getBoundNode() {
@@ -58,12 +50,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     public BindingDependencies getDependencies() {
         return new BindingDependencies();
-    }
-
-    @Override
-    public IMemberMetaInfo getInfo() {
-        return this;
-    }
+    }    
 
     public int getNumberOfTests() {
 

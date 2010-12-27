@@ -58,7 +58,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
         IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
-        OpenLManager.compileMethod(getOpenl(), src, getTableMethod(), bindingContext);
+        OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
         if (bindingContext.isExecutionMode()) {
             getTableMethod().setMethodTableBoundNode(null);
         }
@@ -71,7 +71,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        getTableMethod().getMethodBodyBoundNode().updateDependency(dependencies);
+        getTableMethod().getCompositeMethod().getMethodBodyBoundNode().updateDependency(dependencies);
     }
 
     private TableMethod getTableMethod() {
