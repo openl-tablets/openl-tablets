@@ -2,11 +2,10 @@ package org.openl.rules.dt.type.domains;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.openl.domain.EnumDomain;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class EnumDomainCollector implements IDomainCollector {
@@ -18,16 +17,15 @@ public class EnumDomainCollector implements IDomainCollector {
     public EnumDomainCollector(String propertyToSearch) {
         this.propertyToSearch = propertyToSearch;
     }
-
-    public void gatherDomains(TableSyntaxNode tsn) {
-        ITableProperties tableProperties = tsn.getTableProperties();
-        if (tableProperties != null) {
-            Object propvalue = tableProperties.getPropertyValue(propertyToSearch);
+    
+    public void gatherDomains(Map<String, Object> methodProperties) {        
+        if (methodProperties != null) {
+            Object propvalue = methodProperties.get(propertyToSearch);
             if (propvalue != null) {                    
                 enumProp.add(propvalue);
             }
         }        
-    }    
+    }
     
     @SuppressWarnings("unchecked")
     public IDomainAdaptor getGatheredDomain() {
@@ -44,5 +42,4 @@ public class EnumDomainCollector implements IDomainCollector {
         }         
         return result; 
     }
-
 }

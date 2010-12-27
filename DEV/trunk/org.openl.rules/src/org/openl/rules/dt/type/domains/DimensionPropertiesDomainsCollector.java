@@ -2,44 +2,53 @@ package org.openl.rules.dt.type.domains;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.properties.dimentional.ADimensionPropertyColumn;
-import org.openl.rules.validation.properties.dimentional.DecisionTableCreator;
 
+/**
+ * Collect domains for all dimension properties.
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class DimensionPropertiesDomainsCollector {
     
+    /**
+     * Map of domain collectors. Key: property name. Value: domain collector for this property.
+     */
     private Map<String, IDomainCollector> domainCollectors = new HashMap<String, IDomainCollector>();
+    
+    /**
+     * Map of domains for appropriate properties.
+     */
     private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<String,IDomainAdaptor>();
     
     // date domain collector should be one for all dates in project. 
-    private DateDomainCollector dateDomainCollector = new DateDomainCollector();    
+    private DateDomainCollector dateDomainCollector = new DateDomainCollector();
+
+    //FIXME: remove this variable
+    protected static final String CURRENT_DATE_PARAM = "currentDate";    
     
     public DimensionPropertiesDomainsCollector() {
         initDomainCollectors();
     }
     
-    public Map<String, IDomainAdaptor> getGatheredPropertiesDomains() {
+    public Map<String, IDomainAdaptor> gatherPropertiesDomains(List<Map<String, Object>> methodsProperties) {
+        gatherAllDomains(methodsProperties);
+        applyAllDomains();  
         return new HashMap<String, IDomainAdaptor>(propertiesDomains);
-    }
-    
-    public Set<String> getPropertiesNeedDomain() {
-        return new HashSet<String>(domainCollectors.keySet());
-    }
-    
-    public void gatherPropertiesDomains(TableSyntaxNode[] tableSyntaxNodes) {
-        propertiesDomains.clear();
-        gatherAllDomains(tableSyntaxNodes);
-        applyAllDomains();        
     }
 
     private void applyAllDomains() {
+        // ensure that map of gathered domains is empty.
+        //
+        propertiesDomains.clear();
+        
         IDomainAdaptor dateDomainAdaptor = null;
         for (String propNeedDomain : domainCollectors.keySet()) {
             
@@ -82,20 +91,26 @@ public class DimensionPropertiesDomainsCollector {
     }
 
     private void applyCurrentDateDomain(IDomainAdaptor dateDomainAdaptor) {
-        if (dateDomainAdaptor != null && !propertiesDomains.containsKey(DecisionTableCreator.CURRENT_DATE_PARAM)) {
-            propertiesDomains.put(DecisionTableCreator.CURRENT_DATE_PARAM, dateDomainAdaptor);
+        if (dateDomainAdaptor != null && !propertiesDomains.containsKey(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM)) {
+            propertiesDomains.put(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM, dateDomainAdaptor);
         }        
     }
-
-    private void gatherAllDomains(TableSyntaxNode[] tableSyntaxNodes) {
-        for (TableSyntaxNode tsn : tableSyntaxNodes) {
+    
+    /**
+     * Gather properties domains by domain collectors. 
+     */
+    private void gatherAllDomains(List<Map<String, Object>> methodsProperties) {
+        for (Map<String, Object> methodProperties : methodsProperties) {
             for (String propNeedDomain : domainCollectors.keySet()) {
                 IDomainCollector domainCollector = domainCollectors.get(propNeedDomain);
-                domainCollector.gatherDomains(tsn);
+                domainCollector.gatherDomains(methodProperties);
             }
         }        
     }
-
+    
+    /**
+     * Initialize domain collectors for each dimension property. 
+     */
     private void initDomainCollectors() {        
         for (TablePropertyDefinition property : TablePropertyDefinitionUtils.getDimensionalTableProperties()) {
             IDomainCollector domainCollector = getDomainCollector(property);
@@ -131,6 +146,4 @@ public class DimensionPropertiesDomainsCollector {
         }        
         return result;
     }
-   
-
 }

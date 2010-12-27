@@ -1,5 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
@@ -12,8 +14,11 @@ import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.TablesValidator;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.impl.ExecutableMethod;
 
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -27,9 +32,11 @@ public class DimensionPropertiesValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {        
         ValidationResult validationResult = null;  
         
-        Map<String, IDomainAdaptor> propertiesDomains = getDomainsForDimensionalProperties(tableSyntaxNodes);
+        Map<String, IDomainAdaptor> propertiesDomains = getDomainsForDimensionalProperties(openClass.getMethods());
         
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
+            // search for generated dispatcher decision table for dimension properties.
+            //
             if (isDimensionPropertiesDispatcherTable(tsn)) {
                 OpenLMessage validationMessage = validateDecisionTable(tsn, propertiesDomains, openClass);
                 if (validationMessage != null) {
@@ -97,16 +104,47 @@ public class DimensionPropertiesValidator extends TablesValidator {
         }
         return validationMessage;
     }
-
+    
+    /**
+     * Check if {@link TableSyntaxNode} represents generated dispatcher decision table for dimension properties.
+     * 
+     * @param tsn {@link TableSyntaxNode} 
+     * @return true if {@link TableSyntaxNode} represents generated dispatcher decision table for dimension properties. 
+     */
     private boolean isDimensionPropertiesDispatcherTable(TableSyntaxNode tsn) {
-        return tsn.getDisplayName() != null && tsn.getDisplayName().contains(DispatcherTableBuilder.DEFAULT_DISPATCHER_TABLE_NAME) && tsn.getMember() instanceof DecisionTable;
+        return tsn.getDisplayName() != null && 
+        tsn.getDisplayName().contains(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) && 
+        tsn.getMember() instanceof DecisionTable;
+    }
+    
+    private Map<String, IDomainAdaptor> getDomainsForDimensionalProperties(List<IOpenMethod> methods) {
+        
+        DimensionPropertiesDomainsCollector domainCollector = new DimensionPropertiesDomainsCollector();
+        
+        Map<String, IDomainAdaptor> gatheredPropertiesDomains = 
+            domainCollector.gatherPropertiesDomains(getMethodProperties(methods));
+        return gatheredPropertiesDomains;
+        
     }
 
-    private Map<String, IDomainAdaptor> getDomainsForDimensionalProperties(TableSyntaxNode[] tableSyntaxNodes) {
-        DimensionPropertiesDomainsCollector domainCollector = new DimensionPropertiesDomainsCollector();
-        domainCollector.gatherPropertiesDomains(tableSyntaxNodes);
-        Map<String, IDomainAdaptor> gatheredPropertiesDomains = domainCollector.getGatheredPropertiesDomains();
-        return gatheredPropertiesDomains;
-    }    
+    private List<Map<String, Object>> getMethodProperties(List<IOpenMethod> methods) {
+        List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+        for (IOpenMethod method : methods) {
+            /**
+             * Process income method, check if it is instance of {@link ExecutableRulesMethod}, if 
+             * it is instance of {@link OpenMethodDispatcher} process its candidates methods.
+             * */
+            if (method instanceof ExecutableMethod) {
+                properties.add(((ExecutableMethod) method).getProperties());
+            } else if (method instanceof OpenMethodDispatcher) {
+                for (IOpenMethod dispatcherMethod : ((OpenMethodDispatcher)method).getCandidates()) {
+                    properties.add(((ExecutableMethod) dispatcherMethod).getProperties());
+                }
+            }
+            
+        }
+        return properties;
+    }
+     
 
 }

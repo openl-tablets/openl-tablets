@@ -55,7 +55,7 @@ import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
-import org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -289,9 +289,12 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNodeComparator tableComparator = new TableSyntaxNodeComparator();
         TableSyntaxNode[] otherNodes = getTableSyntaxNodes(moduleNode, notProp_And_NotDatatypeSelectors, tableComparator);
         IBoundNode topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
-
-        DispatcherTableBuilder dispTableBuilder = new DispatcherTableBuilder(openl, (XlsModuleOpenClass) topNode.getType(), moduleContext);
-        dispTableBuilder.buildDispatcherTables();
+        
+        if (!moduleContext.isExecutionMode()) {
+            DispatcherTablesBuilder dispTableBuilder = 
+                new DispatcherTablesBuilder(openl, (XlsModuleOpenClass) topNode.getType(), moduleContext);
+            dispTableBuilder.build();
+        }
 
         return topNode;
     }

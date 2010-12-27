@@ -1,11 +1,11 @@
 package org.openl.rules.dt.type.domains;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import java.util.Map;
 
 public interface IDomainCollector {
-
-    void gatherDomains(TableSyntaxNode tsn);
+    
+    void gatherDomains(Map<String, Object> methodProperties);
     
     IDomainAdaptor getGatheredDomain();
-
+    
 }
