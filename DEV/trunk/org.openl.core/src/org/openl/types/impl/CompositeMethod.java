@@ -16,7 +16,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
-public class CompositeMethod extends ExecutableRulesMethod {
+public class CompositeMethod extends ExecutableMethod {
     
     private IBoundMethodNode methodBodyBoundNode;
     

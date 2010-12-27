@@ -1,17 +1,15 @@
 package org.openl.rules.cmatch;
 
 import java.util.List;
-import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
-import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
@@ -30,13 +28,12 @@ public class ColumnMatch extends ExecutableRulesMethod {
 
     // WEIGHT algorithm
     private MatchNode totalScore;
-    private int[] columnScores;
-    private Map<String, Object> properties;
+    private int[] columnScores;    
 
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header);
-        this.boundNode = node;
-        properties = getSyntaxNode().getTableProperties().getAllProperties();
+        this.boundNode = node;      
+        initProperties(getSyntaxNode().getTableProperties());
     }
     
     public ColumnMatchBoundNode getBoundNode() {
@@ -45,10 +42,6 @@ public class ColumnMatch extends ExecutableRulesMethod {
 
     public void setBoundNode(ColumnMatchBoundNode boundNode) {
         this.boundNode = boundNode;
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
     }
 
     public IOpenSourceCodeModule getAlgorithm() {
@@ -71,11 +64,6 @@ public class ColumnMatch extends ExecutableRulesMethod {
         BindingDependencies dependencies = new BindingDependencies();
         boundNode.updateDependency(dependencies);
         return dependencies;
-    }
-
-    @Override
-    public IMemberMetaInfo getInfo() {
-        return this;
     }
 
     public Object[] getReturnValues() {

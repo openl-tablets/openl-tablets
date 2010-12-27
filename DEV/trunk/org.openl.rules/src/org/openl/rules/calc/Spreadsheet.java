@@ -2,17 +2,15 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
-import org.openl.types.impl.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
@@ -27,7 +25,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private String[] columnNames;
 
     private SpreadsheetOpenClass spreadsheetType;
-    private Map<String, Object> properties;
     
     /**
      * Invoker for current method.
@@ -36,12 +33,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header);
-        this.node = boundNode;
-        properties = ((TableSyntaxNode) node.getSyntaxNode()).getTableProperties().getAllProperties();
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
+        this.node = boundNode;   
+        initProperties(getSyntaxNode().getTableProperties());
     }
 
     public void setBoundNode(SpreadsheetBoundNode node) {
@@ -61,11 +54,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
         node.updateDependency(bindingDependencies);
 
         return bindingDependencies;        
-    }
-    
-    @Override
-    public IMemberMetaInfo getInfo() {
-        return this;
     }
 
     public IResultBuilder getResultBuilder() {
