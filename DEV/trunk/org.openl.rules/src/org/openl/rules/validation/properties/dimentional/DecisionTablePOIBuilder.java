@@ -10,6 +10,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.openl.rules.lang.xls.IXlsTableNames;
 
+/**
+ * Creates the memory representation of DT table by POI.
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class DecisionTablePOIBuilder {
     
     public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
@@ -28,9 +34,7 @@ public class DecisionTablePOIBuilder {
     private String tableName;    
     
     private Workbook workbook;
-    private Sheet sheet;
-    
-       
+    private Sheet sheet;   
     
     public DecisionTablePOIBuilder(String tableName, List<IDecisionTableColumn> conditions,            
             IDecisionTableReturnColumn returnColumn, int rulesNumber) {
@@ -55,7 +59,7 @@ public class DecisionTablePOIBuilder {
           }
     }
 
-    public Sheet buildTable() {
+    public Sheet build() {
         // table writing starts from 0,0 indexes
         // create all needed rows for table. 
         createAllRows();

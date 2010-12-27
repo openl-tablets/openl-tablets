@@ -5,11 +5,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openl.domain.DateRangeDomain;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 
 public class DateDomainCollector implements IDomainCollector {
     
@@ -20,16 +19,16 @@ public class DateDomainCollector implements IDomainCollector {
     public DateDomainCollector() {        
     }
     
-    public void gatherDomains(TableSyntaxNode tsn) {        
-        ITableProperties tableProperties = tsn.getTableProperties();
-        if (tableProperties != null) {
+    public void gatherDomains(Map<String, Object> methodProperties) {        
+        if (methodProperties != null) {
             for (String propertyName : propertiesToSearch) {            
-                    Date propValue = (Date) tableProperties.getPropertyValue(propertyName);
+                    Date propValue = (Date) methodProperties.get(propertyName);
                     if (propValue != null) {
                         dateValues.add(propValue);
                     }
             }
-        }       
+        }
+        
     }
     
     public IDomainAdaptor getGatheredDomain() {
@@ -45,6 +44,4 @@ public class DateDomainCollector implements IDomainCollector {
     public void addPropertyToSearch(String propertyToSearch) {
         propertiesToSearch.add(propertyToSearch);
     }
-      
-
 }

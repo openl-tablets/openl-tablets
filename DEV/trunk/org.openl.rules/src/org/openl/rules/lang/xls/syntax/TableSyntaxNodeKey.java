@@ -1,10 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.types.IOpenMethod;
-import org.openl.types.impl.MethodKey;
+import org.openl.rules.ExecutableRulesMethod;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 
 /**
  * Key to check identity of tables represented by TableSyntaxNodes. Tables are
@@ -15,9 +12,11 @@ import org.openl.types.impl.MethodKey;
  */
 public class TableSyntaxNodeKey {
     private TableSyntaxNode tsn;
+    private DimensionPropertiesMethodKey methodKey;
 
     public TableSyntaxNodeKey(TableSyntaxNode tsn) {
         this.tsn = tsn;
+        this.methodKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod)tsn.getMember());
     }
 
     /**
@@ -26,6 +25,14 @@ public class TableSyntaxNodeKey {
     public TableSyntaxNode getTableSyntaxNode() {
         return tsn;
     }
+    
+    /**
+     * 
+     * @return {@link DimensionPropertiesMethodKey} for {@link TableSyntaxNode} member.
+     */
+    public DimensionPropertiesMethodKey getMethodKey() {
+        return methodKey;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -33,42 +40,17 @@ public class TableSyntaxNodeKey {
             return false;
         }
         TableSyntaxNodeKey key = (TableSyntaxNodeKey) obj;
-
-        EqualsBuilder equalsBuilder = new EqualsBuilder();
-        equalsBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()), new MethodKey((IOpenMethod) key.getTableSyntaxNode()
-                .getMember()));
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), 
-                    key.getTableSyntaxNode().getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
-        }
-        return equalsBuilder.isEquals();
+        
+        return methodKey.equals(key.getMethodKey());
     }
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        hashCodeBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()));
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            hashCodeBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
-        }
-        return hashCodeBuilder.toHashCode();
+        return methodKey.hashCode();
     }
     
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()));
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        stringBuilder.append('[');
-        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            if(i!= 0){
-                stringBuilder.append(',');
-            }
-            stringBuilder.append(dimensionalPropertyNames[i]).append('=');
-            stringBuilder.append(tsn.getTableProperties().getPropertyValueAsString(dimensionalPropertyNames[i]));
-        }
-        return stringBuilder.append(']').toString();
+        return methodKey.toString();
     }
 }
