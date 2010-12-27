@@ -8,7 +8,7 @@ import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.dependency.graph.DirectedEdge;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.impl.ExecutableRulesMethod;
+import org.openl.types.impl.ExecutableMethod;
 import org.openl.util.StringTool;
 
 /**
@@ -28,15 +28,15 @@ public class RulesDependenciesBean {
         List<Table> tables = new ArrayList<Table>();
         DependencyRulesGraph graph = getDependencyGraph();
 
-        for (ExecutableRulesMethod rulesMethod : graph.vertexSet()) {
+        for (ExecutableMethod rulesMethod : graph.vertexSet()) {
             Table table = new Table();
             table.setName(rulesMethod.getName());
             String tableUri = StringTool.encodeURL(rulesMethod.getSourceUrl());
             table.setUri(tableUri);
 
-            Set<DirectedEdge<ExecutableRulesMethod>> vertexEdges = graph.edgesOf(rulesMethod);
+            Set<DirectedEdge<ExecutableMethod>> vertexEdges = graph.edgesOf(rulesMethod);
             List<String> dependencies = table.getDependencies();
-            for (DirectedEdge<ExecutableRulesMethod> edge : vertexEdges) {
+            for (DirectedEdge<ExecutableMethod> edge : vertexEdges) {
                 String depUri = StringTool.encodeURL(edge.getTargetVertex().getSourceUrl());
                 if (!depUri.equals(tableUri)) {
                     dependencies.add(depUri);
