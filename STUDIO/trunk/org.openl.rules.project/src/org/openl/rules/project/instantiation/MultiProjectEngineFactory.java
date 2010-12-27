@@ -108,6 +108,7 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
         IOpenSourceCodeModule mainModule = createMainModule();
         ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(RULES_XLS_OPENL_NAME, mainModule);
         factory.setDependencyManager(dependencyManager);
+        factory.setExecutionMode(true);
 
         return factory.getCompiledOpenClass();
     }
