@@ -1193,5 +1193,9 @@ public class ProjectModel {
         }
         return dependencyGraph;
     }
+    
+    public boolean tableBelongsToCurrentModule(String tableUri) {
+        return getTable(tableUri) != null;
+    }
 
 }

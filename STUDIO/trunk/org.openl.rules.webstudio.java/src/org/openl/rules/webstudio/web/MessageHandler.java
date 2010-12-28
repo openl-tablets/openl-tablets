@@ -44,17 +44,13 @@ public class MessageHandler {
     
     protected String getUrl(ProjectModel model, String tableUri, String errorUri, OpenLMessage message) {
         String url = null;
-        if (tableBelongsToCurrentModule(model, tableUri)) { // table belongs to current module.
+        if (model.tableBelongsToCurrentModule(tableUri)) { // table belongs to current module.
             url = getUrlForCurrentModule(errorUri, tableUri);
         } else { // table belongs to dependency module.                    
             url = getUrlForDependencyModule(message);
         }
         return url;
-    }
-
-    private boolean tableBelongsToCurrentModule(ProjectModel model, String tableUri) {
-        return model.getTable(tableUri) != null;
-    }
+    }    
     
     private String getUrlForCurrentModule(String errorUri, String tableUri) {
         String url = null;        
@@ -70,11 +66,7 @@ public class MessageHandler {
     }
     
     private String getUrlForDependencyModule(OpenLMessage message) {
-        String url;
-        url = "tableeditor/showMessage.xhtml"
-            + "?type" + "=" + message.getSeverity().name()
-            + "&summary" + "=" + StringTool.encodeURL(String.format("Dependency error: %s", message.getSummary()));
-        return url;
+        return DependencyModuleUrlStub.getUrlForError(message);
     }
 
 }
