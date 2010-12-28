@@ -17,13 +17,6 @@ You need to have OpenL plugins installed in eclipse
 
    deploy            -- prepares environment (by default in /openl folder)
    start_tomcat      -- starts tomcat and repository
-   start_ruleservice -- starts web services
-
-Note:
-  Rule services should be started after tomcat (the message
-  "Server start in 12345 ms" is displayed in tomcat's console window)
-  as it hosts a JCR production repository available through
-  RMI, to which both webstudio and ruleservice connect.
 
 Web Studio is available at url <a href="http://NNN.NNN.NNN.NNN:8080/webstudio">http://NNN.NNN.NNN.NNN:8080/webstudio</a>,
 where NNN.NNN.NNN.NNN is your computer's IP address (due to the known issue with localhost you can not use "localhost" name )
