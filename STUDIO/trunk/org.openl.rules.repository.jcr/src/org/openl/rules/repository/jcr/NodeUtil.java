@@ -105,7 +105,7 @@ public class NodeUtil {
 
     protected static InputStream getFileNodeContent(Node node) throws RRepositoryException {
         try {
-            return node.getNode("jcr:content").getProperty("jcr:data").getBinary().getStream();
+            return node.getNode(ArtefactProperties.PROP_RES_CONTENT).getProperty(ArtefactProperties.PROP_RES_DATA).getStream();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Content!", e);
         }
@@ -115,8 +115,8 @@ public class NodeUtil {
         long result;
 
         try {
-            Node resNode = node.getNode("jcr:content");
-            result = resNode.getProperty("jcr:data").getLength();
+            Node resNode = node.getNode(ArtefactProperties.PROP_RES_CONTENT);
+            result = resNode.getProperty(ArtefactProperties.PROP_RES_DATA).getLength();
         } catch (RepositoryException e) {
             log.warn("getFileNodeSize", e);
             result = -1;
