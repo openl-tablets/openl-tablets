@@ -218,7 +218,7 @@ public class PoiExcelHelper {
 
     public static void setCellFont(Cell cell,
             short boldWeight, short color, short fontHeight, String name, boolean italic,
-            boolean strikeout, short typeOffset, byte underline, int charset) {
+            boolean strikeout, short typeOffset, byte underline) {
         if (cell != null) {
             Workbook workbook = cell.getSheet().getWorkbook();
             Font font = workbook.findFont(
@@ -233,7 +233,6 @@ public class PoiExcelHelper {
                 font.setStrikeout(strikeout);
                 font.setTypeOffset(typeOffset);
                 font.setUnderline(underline);
-                font.setCharSet(charset);
             }
             CellUtil.setFont(cell, workbook, font);
         }
@@ -243,21 +242,21 @@ public class PoiExcelHelper {
         Font font = getCellFont(cell);
         setCellFont(cell,
                 boldweight, font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
-                font.getStrikeout(), font.getTypeOffset(), font.getUnderline(), font.getCharSet());
+                font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
     }
 
     public static void setCellFontItalic(Cell cell, boolean italic) {
         Font font = getCellFont(cell);
         setCellFont(cell,
                 font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
-                font.getStrikeout(), font.getTypeOffset(), font.getUnderline(), font.getCharSet());
+                font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
     }
 
     public static void setCellFontUnderline(Cell cell, byte underline) {
         Font font = getCellFont(cell);
         setCellFont(cell,
                 font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
-                font.getStrikeout(), font.getTypeOffset(), underline, font.getCharSet());
+                font.getStrikeout(), font.getTypeOffset(), underline);
     }
 
 }
