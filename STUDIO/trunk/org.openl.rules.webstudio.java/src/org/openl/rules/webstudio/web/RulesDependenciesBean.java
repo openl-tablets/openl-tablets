@@ -34,15 +34,20 @@ public class RulesDependenciesBean {
             String tableUri = StringTool.encodeURL(rulesMethod.getSourceUrl());
             table.setUri(tableUri);
 
-            Set<DirectedEdge<ExecutableMethod>> vertexEdges = graph.edgesOf(rulesMethod);
+            Set<DirectedEdge<ExecutableMethod>> outgoingEdges = graph.outgoingEdgesOf(rulesMethod);
             List<String> dependencies = table.getDependencies();
-            for (DirectedEdge<ExecutableMethod> edge : vertexEdges) {
+            for (DirectedEdge<ExecutableMethod> edge : outgoingEdges) {
                 String depUri = StringTool.encodeURL(edge.getTargetVertex().getSourceUrl());
                 if (!depUri.equals(tableUri)) {
                     dependencies.add(depUri);
                 }
             }
-            tables.add(table);
+            if (outgoingEdges.size() > 0) {
+                // Tables with dependencies should be in the top of list
+                tables.add(0, table);
+            } else {
+                tables.add(table);
+            }
         }
 
         return tables;
