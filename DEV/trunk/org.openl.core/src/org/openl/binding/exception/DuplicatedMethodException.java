@@ -7,29 +7,30 @@
 package org.openl.binding.exception;
 
 import org.openl.binding.MethodUtil;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
  *
  */
-public class DuplicatedMethodException extends RuntimeException {
+public class DuplicatedMethodException extends OpenlNotCheckedException {
     /**
      *
      */
     private static final long serialVersionUID = 4145939391957085009L;
-    String msg;
-    IOpenMethod method;
+    
+    private IOpenMethod method;
 
     public DuplicatedMethodException(String msg, IOpenMethod method) {
-        this.msg = msg;
+        super(msg);
         this.method = method;
     }
 
     @Override
     public String getMessage() {
-        if (msg != null) {
-            return msg;
+        if (super.getMessage() != null) {
+            return super.getMessage();
         }
 
         StringBuffer buf = new StringBuffer();
