@@ -250,7 +250,7 @@ public class DeploymentController {
                 try {
                     AProject project = workspace.getProject(projectName);
                     if (!project.isOpened()) {
-                        project.open();
+                        project.openVersion(item.getVersion());
                     }
                 } catch (ProjectException e) {
                     LOG.error("Failed to open project '" + projectName + "'!", e);
