@@ -39,9 +39,21 @@ public class ADeploymentProject extends AProject {
     }
 
     public ProjectDescriptor addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
+        if (hasProjectDescriptor(name)) {
+            removeProjectDescriptor(name);
+        }
         ProjectDescriptorImpl projectDescriptor = new ProjectDescriptorImpl(name, version);
         getDescriptors().add(projectDescriptor);
         return projectDescriptor;
+    }
+
+    public boolean hasProjectDescriptor(String name) throws ProjectException {
+        for (ProjectDescriptor descriptor : getProjectDescriptors()) {
+            if (descriptor.getProjectName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public ProjectDescriptor getProjectDescriptor(String name) throws ProjectException {

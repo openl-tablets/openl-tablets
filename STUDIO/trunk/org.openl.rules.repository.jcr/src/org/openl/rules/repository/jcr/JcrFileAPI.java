@@ -10,6 +10,7 @@ import org.apache.jackrabbit.value.BinaryImpl;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -87,13 +88,13 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
             Node n = node();
             NodeUtil.smartCheckout(n, false);
 
-            Node resNode = n.getNode("jcr:content");
+            Node resNode = n.getNode(ArtefactProperties.PROP_RES_CONTENT);
 
             long lastModifiedTime = System.currentTimeMillis();
             Calendar lastModified = Calendar.getInstance();
             lastModified.setTimeInMillis(lastModifiedTime);
 
-            resNode.setProperty("jcr:data", new BinaryImpl(inputStream));
+            resNode.setProperty(ArtefactProperties.PROP_RES_DATA, inputStream);
             resNode.setProperty("jcr:lastModified", lastModified);
 
             n.save();
