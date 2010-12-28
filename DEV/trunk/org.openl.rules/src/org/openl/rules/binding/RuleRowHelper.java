@@ -412,7 +412,7 @@ public class RuleRowHelper {
                         String.format("The value '%s' is outside of domain %s", value, domain.toString()));
                 }
             } catch (RuntimeException e) {
-                throw new OpenLCompilationException(e.getMessage());
+                throw new OpenLCompilationException(e.getMessage(), e.getCause());
             }
         }
     }
