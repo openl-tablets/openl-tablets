@@ -9,13 +9,14 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.openl.binding.BindingDependencies;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 
 /**
  * Dependency rules graph, implemented using {@link org.jgrapht.graph.DefaultDirectedGraph}.
  * Vertexes are represented as {@link ExecutableMethod}, 
- * edges {@link org.jgrapht.graph.DefaultEdge}.
+ * edges {@link DirectedEdge}.
  * 
  * @author DLiauchuk
  *
@@ -176,7 +177,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
             }
             return new DependencyRulesGraph(rulesMethods);
         } else {
-            throw new IllegalArgumentException("There is no rules for building graph.");
+            throw new OpenlNotCheckedException("There is no rules for building graph.");
         }
     }
     
