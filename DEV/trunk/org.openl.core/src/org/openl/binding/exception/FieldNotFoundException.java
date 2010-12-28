@@ -6,23 +6,24 @@
 
 package org.openl.binding.exception;
 
+import org.openl.exception.OpenLCompilationException;
 import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
  *
  */
-public class FieldNotFoundException extends Exception {
+public class FieldNotFoundException extends OpenLCompilationException {
     /**
      *
      */
     private static final long serialVersionUID = -782077307706500730L;
-    String msg;
-    String fieldName;
-    IOpenClass type;
+        
+    private String fieldName;
+    private IOpenClass type;
 
     public FieldNotFoundException(String msg, String fieldName, IOpenClass type) {
-        this.msg = msg;
+        super(msg);
         this.fieldName = fieldName;
         this.type = type;
     }
@@ -30,8 +31,8 @@ public class FieldNotFoundException extends Exception {
     @Override
     public String getMessage() {
         StringBuffer buf = new StringBuffer();
-        if (msg != null) {
-            buf.append(msg);
+        if (super.getMessage() != null) {
+            buf.append(super.getMessage());
         }
 
         buf.append("Field ").append(fieldName);

@@ -10,19 +10,21 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openl.base.INamedThing;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenField;
 
 /**
  * @author snshor
  *
  */
-public class AmbiguousVarException extends RuntimeException {
+public class AmbiguousVarException extends OpenlNotCheckedException {
     /**
      *
      */
     private static final long serialVersionUID = -8752617383143899614L;
-    List<IOpenField> matchingFields;
-    String varName;
+    
+    private List<IOpenField> matchingFields;
+    private String varName;
 
     public AmbiguousVarException(String varName, List<IOpenField> matchingFields) {
         this.varName = varName;
