@@ -28,6 +28,10 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         this(message, cause, location, null);
     }
     
+    public OpenLCompilationException(String message, Throwable cause) {
+        this(message, cause, null, null);
+    }
+    
     public OpenLCompilationException(String message) {
         this(message, null, null, null);
     }
