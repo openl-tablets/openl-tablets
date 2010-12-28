@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.domain.IDomain;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
@@ -391,16 +392,29 @@ public class RuleRowHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static void validateValue(Object value, IOpenClass paramType) throws Exception {
-
+    private static void validateValue(Object value, IOpenClass paramType) throws Exception {        
         IDomain domain = paramType.getDomain();
 
-        if (domain == null || domain.selectObject(value)) {
+        if (domain == null) {
+            // there is no domain so nothing to validate.
             return;
+        } else {             
+            try {
+                // block is surrounded by try block, as EnumDomain implementation throws a
+                // RuntimeException when value doesn`t belong to domain.                
+                // 
+                boolean contains = domain.selectObject(value);
+                if (contains) {
+                    // if value belongs to domain, return
+                    return;
+                } else {
+                    throw new OpenLCompilationException(
+                        String.format("The value '%s' is outside of domain %s", value, domain.toString()));
+                }
+            } catch (RuntimeException e) {
+                throw new OpenLCompilationException(e.getMessage());
+            }
         }
-
-        String message = String.format("The value '%s' is outside of domain %s", value, domain.toString());
-        throw new Exception(message);
     }
 
     public static Object loadParam(ILogicalTable dataTable,

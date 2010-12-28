@@ -48,7 +48,13 @@ public class Enum<T> {
     public T[] getAllObjects() {
         return allObjects;
     }
-
+    
+    /**
+     * 
+     * @param obj
+     * @return
+     * @throws RuntimeException if object is outside of a valid domain.
+     */
     public int getIndex(T obj) {
         Integer idx = indexMap.get(obj);
         if (idx == null) {
