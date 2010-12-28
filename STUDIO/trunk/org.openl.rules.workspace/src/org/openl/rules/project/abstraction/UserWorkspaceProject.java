@@ -46,6 +46,7 @@ public class UserWorkspaceProject extends AProject {
         update(local, repository, user);
         repository.commit(user, major, minor);
         local.setCurrentVersion(repository.getVersion());
+        local.commit(null, 0, 0);// save persistence
         unlock(user);
         refresh();
     }
