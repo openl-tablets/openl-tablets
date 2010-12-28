@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -125,7 +126,11 @@ public class RowParser implements IRowParser {
         for (AlgorithmRow row : rows) {
             StringValue operation = row.getOperation();
             StringValue label = row.getLabel();
-
+            
+            if (operation == null) {                
+                throw new OpenlNotCheckedException(String.format("There is no operations in row '%s'", row.getDescription()));
+            }
+            
             if (operation.isEmpty()) {
                 if (!label.isEmpty()) {
                     // stack up labels
