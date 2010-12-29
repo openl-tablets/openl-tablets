@@ -8,7 +8,7 @@ import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
-import org.openl.rules.table.DefaultInvokerWithTrace;
+import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -18,23 +18,26 @@ import org.openl.vm.trace.Tracer;
  * @author DLiauchuk
  *
  */
-public class DecisionTableInvoker extends DefaultInvokerWithTrace {
+public class DecisionTableInvoker extends RulesMethodInvoker {
     
     private final Log LOG = LogFactory.getLog(DecisionTableInvoker.class);
     
-    private DecisionTable decisionTable;
+    public DecisionTableInvoker(DecisionTable decisionTable) {
+        super(decisionTable);
+    }
     
-    public DecisionTableInvoker(DecisionTable decisionTable) {        
-        this.decisionTable = decisionTable;
+    @Override
+    public DecisionTable getInvokableMethod() {    
+        return (DecisionTable)super.getInvokableMethod();
     }
     
     public boolean canInvoke() {
-        return decisionTable.getAlgorithm() != null;
+        return getInvokableMethod().getAlgorithm() != null;
     }
     
     private Object invokeOptimized(Object target, Object[] params, IRuntimeEnv env) {
 
-        IIntIterator rules = decisionTable.getAlgorithm().checkedRules(target, params, env);
+        IIntIterator rules = getInvokableMethod().getAlgorithm().checkedRules(target, params, env);
 
         Object returnValue = null;
         boolean atLeastOneRuleFired = false;
@@ -44,11 +47,13 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
             atLeastOneRuleFired = true;
             int ruleN = rules.nextInt();
 
-            for (int j = 0; j < decisionTable.getActionRows().length; j++) {
+            for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
 
-                Object actionResult = decisionTable.getActionRows()[j].executeAction(ruleN, target, params, env);
+                Object actionResult = getInvokableMethod().getActionRows()[j].executeAction(ruleN, target, params, env);
 
-                if (decisionTable.getActionRows()[j].isReturnAction() && returnValue == null && (actionResult != null || (decisionTable.getActionRows()[j].getParamValues()!= null && decisionTable.getActionRows()[j].getParamValues()[ruleN] != null))) {
+                if (getInvokableMethod().getActionRows()[j].isReturnAction() && returnValue == null 
+                        && (actionResult != null || (getInvokableMethod().getActionRows()[j].getParamValues()!= null 
+                                && getInvokableMethod().getActionRows()[j].getParamValues()[ruleN] != null))) {
                     returnValue = actionResult;
                 }
             }
@@ -57,12 +62,13 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
             }
         }
 
-        if (!atLeastOneRuleFired && decisionTable.shouldFailOnMiss()) {
+        if (!atLeastOneRuleFired && getInvokableMethod().shouldFailOnMiss()) {
 
-            String method = MethodUtil.printMethodWithParameterValues(decisionTable.getMethod(), params, INamedThing.REGULAR);
+            String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(), params, 
+                INamedThing.REGULAR);
             String message = String.format("%s failed to match any rule condition", method);
 
-            throw new FailOnMissException(message, decisionTable, params);
+            throw new FailOnMissException(message, getInvokableMethod(), params);
         }
 
         return returnValue;
@@ -77,11 +83,11 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
 
         Object ret = null;
 
-        DecisionTableTraceObject traceObject = new DecisionTableTraceObject(decisionTable, params);
+        DecisionTableTraceObject traceObject = (DecisionTableTraceObject)getTraceObject(params);
         tracer.push(traceObject);
 
         try {
-            IIntIterator rules = decisionTable.getAlgorithm().checkedRules(target, params, env);
+            IIntIterator rules = getInvokableMethod().getAlgorithm().checkedRules(target, params, env);
 
             while (rules.hasNext()) {
 
@@ -90,12 +96,14 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
                 try {
                     tracer.push(traceObject.traceRule(ruleN));
 
-                    for (int j = 0; j < decisionTable.getActionRows().length; j++) {
-                        Object actionResult = decisionTable.getActionRows()[j].executeAction(ruleN, target, params, env);
+                    for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
+                        Object actionResult = 
+                            getInvokableMethod().getActionRows()[j].executeAction(ruleN, target, params, env);
 
-                        if (decisionTable.getActionRows()[j].isReturnAction() && ret == null
-                                && (actionResult != null || (decisionTable.getActionRows()[j].getParamValues()!= null
-                                        && decisionTable.getActionRows()[j].getParamValues()[ruleN] != null))) {
+                        if (getInvokableMethod().getActionRows()[j].isReturnAction() && ret == null
+                                && (actionResult != null 
+                                        || (getInvokableMethod().getActionRows()[j].getParamValues()!= null
+                                        && getInvokableMethod().getActionRows()[j].getParamValues()[ruleN] != null))) {
                             ret = actionResult;
                         }
                     }
@@ -122,16 +130,8 @@ public class DecisionTableInvoker extends DefaultInvokerWithTrace {
         throw new OpenLRuntimeException(e);
     }
     
-    public DecisionTableTraceObject createTraceObject(Object[] params) {
-        return new DecisionTableTraceObject(decisionTable, params);
-    }
-    
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         return invokeTracedOptimized(target, params, env);
-    }
-    
-    public OpenLRuntimeException getError() {
-        return new OpenLRuntimeException(decisionTable.getSyntaxNode().getErrors()[0]);
     }
     
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
