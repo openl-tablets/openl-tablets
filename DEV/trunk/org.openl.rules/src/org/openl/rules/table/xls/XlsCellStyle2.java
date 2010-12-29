@@ -166,7 +166,13 @@ public class XlsCellStyle2 implements ICellStyle {
     public short[] getFillForegroundColor() {
         if (hasNoFill())
             return null;
-        return colorToArray(xlsStyle.getFillForegroundXSSFColor());
+        XSSFColor color;
+        try {
+            color = xlsStyle.getFillForegroundXSSFColor();
+        } catch (Exception e) {
+            return new short[] {255, 255, 255};
+        }
+        return colorToArray(color);
     }
 
     public short getFillBackgroundColorIndex() {
@@ -174,7 +180,13 @@ public class XlsCellStyle2 implements ICellStyle {
     }
 
     public short getFillForegroundColorIndex() {
-        return xlsStyle.getFillForegroundColor();
+        short colorIndex;
+        try {
+            colorIndex = xlsStyle.getFillForegroundColor();
+        } catch (Exception e) {
+            colorIndex = 0;
+        }
+        return colorIndex;
     }
 
     public int getHorizontalAlignment() {
