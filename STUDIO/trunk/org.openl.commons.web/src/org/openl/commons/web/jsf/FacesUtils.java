@@ -7,6 +7,7 @@ import java.util.Collection;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
+import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -56,6 +57,10 @@ public abstract class FacesUtils {
 
     public static FacesContext getFacesContext() {
         return FacesContext.getCurrentInstance();
+    }
+
+    public static void addMessage(String message) {
+        getFacesContext().addMessage(null, new FacesMessage(message));
     }
 
     public static ValueExpression createValueExpression(String expressionString) {
