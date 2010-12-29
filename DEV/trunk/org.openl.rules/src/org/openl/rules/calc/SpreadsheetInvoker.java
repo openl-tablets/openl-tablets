@@ -8,9 +8,8 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.trace.SpreadsheetTraceObject;
-import org.openl.rules.table.DefaultInvokerWithTrace;
+import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.DefaultTracePrinter;
@@ -23,31 +22,26 @@ import org.openl.vm.trace.Tracer;
  * @author DLiauchuk
  *
  */
-public class SpreadsheetInvoker extends DefaultInvokerWithTrace {
+public class SpreadsheetInvoker extends RulesMethodInvoker {
 
     private final Log LOG = LogFactory.getLog(SpreadsheetInvoker.class);
 
-    private Spreadsheet spreadsheet;
-
-    public SpreadsheetInvoker(Spreadsheet spreadsheet) {        
-        this.spreadsheet = spreadsheet;
+    public SpreadsheetInvoker(Spreadsheet spreadsheet) {
+        super(spreadsheet);
+    }
+    
+    @Override
+    public Spreadsheet getInvokableMethod() {    
+        return (Spreadsheet)super.getInvokableMethod();
     }
 
     public boolean canInvoke() {        
-        return spreadsheet.getResultBuilder() != null;
-    }
-
-    public SpreadsheetTraceObject createTraceObject(Object[] params) {       
-        return new SpreadsheetTraceObject(spreadsheet, params);
-    }    
-
-    public OpenLRuntimeException getError() {        
-        return new OpenLRuntimeException(spreadsheet.getSyntaxNode().getErrors()[0]);
+        return getInvokableMethod().getResultBuilder() != null;
     }
 
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {        
-      SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(spreadsheet, (IDynamicObject) target, params, env);
-      return spreadsheet.getResultBuilder().makeResult(res);
+      SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(getInvokableMethod(), (IDynamicObject) target, params, env);
+      return getInvokableMethod().getResultBuilder().makeResult(res);
     }
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
@@ -55,14 +49,14 @@ public class SpreadsheetInvoker extends DefaultInvokerWithTrace {
 
         Object result = null;
 
-        SpreadsheetTraceObject traceObject = createTraceObject(params);
+        SpreadsheetTraceObject traceObject = (SpreadsheetTraceObject)getTraceObject(params);
         tracer.push(traceObject);
 
         try {
-            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(spreadsheet, (IDynamicObject) target, params,
+            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(getInvokableMethod(), (IDynamicObject) target, params,
                     env, traceObject);
 
-            result = spreadsheet.getResultBuilder().makeResult(res);
+            result = getInvokableMethod().getResultBuilder().makeResult(res);
             traceObject.setResult(result);
         } catch (RuntimeException e) {
            traceObject.setError(e);

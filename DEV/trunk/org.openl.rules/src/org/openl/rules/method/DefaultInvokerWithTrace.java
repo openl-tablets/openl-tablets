@@ -1,6 +1,7 @@
-package org.openl.rules.table;
+package org.openl.rules.method;
 
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.table.ATableTracerNode;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -11,14 +12,6 @@ import org.openl.vm.trace.Tracer;
  *
  */
 public abstract class DefaultInvokerWithTrace implements InvokerWithTrace {
-    
-    public void setErrorToTrace(OpenLRuntimeException error, Object[] params) {
-        Tracer tracer = Tracer.getTracer();    
-        ATableTracerNode traceObject = createTraceObject(params);
-        traceObject.setError(error);
-        tracer.push(traceObject);
-        tracer.pop();
-    }
         
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         // check if the object can be invoked
@@ -41,7 +34,31 @@ public abstract class DefaultInvokerWithTrace implements InvokerWithTrace {
         }
     }
     
-    protected boolean isTracerOn() {
+    /**
+    * Gets the error.
+    * 
+    * @return error.
+    */
+    protected abstract OpenLRuntimeException getError();
+    
+    
+    /**
+     * Creates traceable node for current invokable object.
+     * 
+     * @param params
+     * @return {@link ATableTracerNode} for current invokable object.
+     */
+    protected abstract ATableTracerNode getTraceObject(Object[] params);
+    
+    protected  boolean isTracerOn() {
         return Tracer.isTracerOn();
+    }
+    
+    protected void setErrorToTrace(OpenLRuntimeException error, Object[] params) {
+        Tracer tracer = Tracer.getTracer();
+        ATableTracerNode traceObject = getTraceObject(params);
+        traceObject.setError(error);
+        tracer.push(traceObject);
+        tracer.pop();
     }
 }

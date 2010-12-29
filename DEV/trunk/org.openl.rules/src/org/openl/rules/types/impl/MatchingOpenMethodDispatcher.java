@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
