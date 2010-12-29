@@ -11,7 +11,6 @@ import org.openl.binding.IBindingContextDelegator;
 
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -22,6 +21,7 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;

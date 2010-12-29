@@ -11,7 +11,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.dt.DecisionTable;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.TableMethod;
+import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;

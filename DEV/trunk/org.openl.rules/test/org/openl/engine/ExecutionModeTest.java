@@ -13,7 +13,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.rules.method.TableMethod;
+import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.overload.OverloadTest.ITestI;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
 import org.openl.rules.runtime.RuleEngineFactory;

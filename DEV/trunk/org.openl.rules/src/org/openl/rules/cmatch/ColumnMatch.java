@@ -3,10 +3,10 @@ package org.openl.rules.cmatch;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;

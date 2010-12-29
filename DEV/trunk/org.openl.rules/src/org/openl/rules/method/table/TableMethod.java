@@ -1,10 +1,10 @@
-package org.openl.rules.method;
+package org.openl.rules.method.table;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
