@@ -5,13 +5,9 @@ import java.util.List;
 
 import javax.faces.event.ActionEvent;
 
-import org.openl.rules.diff.differs.ProjectionDifferImpl;
-import org.openl.rules.diff.hierarchy.AbstractProjection;
-import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.xls.XlsProjectionBuilder;
-import org.openl.rules.lang.xls.XlsHelper;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.richfaces.model.UploadItem;
 import org.openl.rules.diff.xls2.*;
 
@@ -62,12 +58,18 @@ public class ExcelDiffController extends AbstractDiffController {
             filesToCompare.clear();
 
             XlsDiff2 x = new XlsDiff2();
-            DiffTreeNode diffTree = x.diffFiles(file1.getFile().getAbsolutePath(), file2.getFile().getAbsolutePath());
-            setDiffTree(diffTree);
+            try {
+                DiffTreeNode diffTree = x.diffFiles(
+                        file1.getFile().getAbsolutePath(), file2.getFile().getAbsolutePath());
+                setDiffTree(diffTree);
+            } catch (OpenLRuntimeException e) {
+                FacesUtils.addMessage(e.getMessage());
+            } finally {
+                // Clean up
+                file1.getFile().delete();
+                file2.getFile().delete();
+            }
 
-            // clean up
-            file1.getFile().delete();
-            file2.getFile().delete();
         }
 
         return null;

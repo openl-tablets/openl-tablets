@@ -16,6 +16,8 @@
       }
     </style>
 
+    <h:messages style="color:red" globalOnly="true" />
+
     <h:form id="diffForm">
       <h:panelGrid columns="2">
         <h:outputText value="Select 2 Excel Files" />
@@ -43,7 +45,8 @@
         <h:outputText value="Show equal elements" />
         <h:selectBooleanCheckbox value="#{excelDiffController.showEqualElements}" />
 
-        <h:commandButton id="compareButton" value="Compare" action="#{excelDiffController.compare}" disabled="#{excelDiffController.uploadsAvailable != 0}" />
+        <h:commandButton id="compareButton" value="Compare" action="#{excelDiffController.compare}"
+            disabled="#{excelDiffController.uploadsAvailable != 0}" />
       </h:panelGrid>
     </h:form>
 
