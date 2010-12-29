@@ -81,4 +81,3 @@ Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.tablets,
  org.openl.xls
 Bundle-Vendor: OpenL Tablets
-Import-Package: org.openl.rules.method.table
