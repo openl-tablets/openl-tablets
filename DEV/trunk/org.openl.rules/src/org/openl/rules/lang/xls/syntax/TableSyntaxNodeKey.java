@@ -1,6 +1,6 @@
 package org.openl.rules.lang.xls.syntax;
 
-import org.openl.rules.ExecutableRulesMethod;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 
 /**

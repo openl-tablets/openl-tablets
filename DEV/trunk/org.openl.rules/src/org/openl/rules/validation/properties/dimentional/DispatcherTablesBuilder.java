@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
-import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMember;

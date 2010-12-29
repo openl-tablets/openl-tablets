@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.method;
+package org.openl.rules.method.table;
 
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;

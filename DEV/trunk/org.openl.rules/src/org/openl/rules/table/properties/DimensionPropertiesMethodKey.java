@@ -2,7 +2,7 @@ package org.openl.rules.table.properties;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.openl.rules.ExecutableRulesMethod;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.impl.MethodKey;
 

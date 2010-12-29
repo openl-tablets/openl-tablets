@@ -1,4 +1,4 @@
-package org.openl.rules.method;
+package org.openl.rules.method.table;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.ExecutableRulesMethod;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;

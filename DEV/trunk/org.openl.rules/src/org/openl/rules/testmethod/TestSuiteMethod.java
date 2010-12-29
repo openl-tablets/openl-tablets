@@ -3,6 +3,7 @@ package org.openl.rules.testmethod;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.xls.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMethodSignature;
@@ -14,7 +15,6 @@ import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.rules.ExecutableRulesMethod;
 
 public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
 
