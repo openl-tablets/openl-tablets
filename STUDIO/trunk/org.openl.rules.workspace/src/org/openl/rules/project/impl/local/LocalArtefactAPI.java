@@ -110,10 +110,10 @@ public class LocalArtefactAPI implements ArtefactAPI {
                 success = FolderHelper.deleteFolder(source);
             }
         } catch (Exception e) {
-            throw new ProjectException("Failed to delete local resourse", e);
+            throw new ProjectException("Failed to delete local resource", e);
         }
         if (!success) {
-            throw new ProjectException("Failed to delete local resourse");
+            throw new ProjectException("Failed to delete local resource");
         }
     }
 
