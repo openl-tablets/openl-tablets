@@ -180,5 +180,7 @@ public interface ITableProperties {
     void setCurrentTableType(String currentTableType);
 
     String getCurrentTableType();
+
+    void setPropertiesSection(ILogicalTable propertySection);
 	
 }

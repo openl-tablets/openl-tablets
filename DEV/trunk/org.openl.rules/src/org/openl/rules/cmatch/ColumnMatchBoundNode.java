@@ -35,6 +35,9 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
         if (cxt.isExecutionMode()) {
             getColumnMatch().setBoundNode(null);
+            getColumnMatch().getMethodProperties().setModulePropertiesTable(null);
+            getColumnMatch().getMethodProperties().setCategoryPropertiesTable(null);
+            getColumnMatch().getMethodProperties().setPropertiesSection(null);
         }
     }
 

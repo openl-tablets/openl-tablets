@@ -61,6 +61,9 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
         if (bindingContext.isExecutionMode()) {
             getTableMethod().setMethodTableBoundNode(null);
+            getTableMethod().getMethodProperties().setModulePropertiesTable(null);
+            getTableMethod().getMethodProperties().setCategoryPropertiesTable(null);
+            getTableMethod().getMethodProperties().setPropertiesSection(null);
         }
     }
 
