@@ -38,6 +38,9 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
         if (cxt.isExecutionMode()) {
             getAlgorithm().setNode(null);
+            getAlgorithm().getMethodProperties().setModulePropertiesTable(null);
+            getAlgorithm().getMethodProperties().setCategoryPropertiesTable(null);
+            getAlgorithm().getMethodProperties().setPropertiesSection(null);
         }
     }
 

@@ -39,6 +39,9 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         new DecisionTableLoader().loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), (IBindingContextDelegator) bindingContext);
         if (bindingContext.isExecutionMode()) {
             getDecisionTable().setTableSyntaxNode(null);
+            getDecisionTable().getMethodProperties().setModulePropertiesTable(null);
+            getDecisionTable().getMethodProperties().setCategoryPropertiesTable(null);
+            getDecisionTable().getMethodProperties().setPropertiesSection(null);
         }
     }
 

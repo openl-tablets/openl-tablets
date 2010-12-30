@@ -56,6 +56,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         builder.build(tableBody);
         if (bindingContext.isExecutionMode()) {
             getSpreadsheet().setBoundNode(null);
+            getSpreadsheet().getMethodProperties().setModulePropertiesTable(null);
+            getSpreadsheet().getMethodProperties().setCategoryPropertiesTable(null);
+            getSpreadsheet().getMethodProperties().setPropertiesSection(null);
         }
     }
 
