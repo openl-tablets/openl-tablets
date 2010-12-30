@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
@@ -157,7 +158,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             
             String message = String.format("Appropriate overloaded method for '%1$s' not found. Details: \n%2$s", getName(), sb.toString());
             
-            throw new RuntimeException(message);
+            throw new OpenLRuntimeException(message);
         }
 
         return method.invoke(target, params, env);
@@ -186,7 +187,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             StringBuffer sb = new StringBuffer();
             MethodUtil.printMethod(getName(), getSignature(), sb);
             
-            throw new RuntimeException("Invalid method signature to overload: " + sb.toString());
+            throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());
         }
     }
 
