@@ -69,7 +69,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         Tracer tracer = Tracer.getTracer();
         
         /**
-         * this block is for overloaded by active property without any dimension properties.
+         * this block is for overloaded by active property tables without any dimension property.
          * all not active tables should be ignored.
          */
         List<IOpenMethod> methods = extractCandidates(getCandidates());
@@ -77,13 +77,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         removeInactiveMethods(selected);
         
         traceObject = getTracedObject(selected, params);
-        tracer.push(traceObject);        
+            
         try {
             return super.invoke(target, params, env);
         } catch (Exception e) {
             traceObject.setError(e);
             return null;
         } finally {
+            tracer.push(traceObject);    
             tracer.pop();
         }
      
@@ -92,14 +93,22 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
         if (selected.size() == 1) {
             /**
-             * if onlu one table left, we need traced object for this type of table.
+             * if only one table left, we need traced object for this type of table.
              */
             return TracedObjectFactory.getTracedObject((ExecutableRulesMethod)selected.toArray()[0], params); 
         } else {
             /**
              * in other case trace object for overloaded methods.
              */
-            return new OverloadedMethodChoiceTraceObject((DecisionTable)getDispatcherTable().getMember(), params, getCandidates());
+            try {
+                DecisionTable dispatcherTable = (DecisionTable)getDispatcherTable().getMember();
+                return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
+            } catch (OpenLRuntimeException e) {
+                ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((ExecutableRulesMethod)selected.toArray()[0], params);
+                traceObject.setError(e);
+                return traceObject;
+            }
+            
         }
     }
 
