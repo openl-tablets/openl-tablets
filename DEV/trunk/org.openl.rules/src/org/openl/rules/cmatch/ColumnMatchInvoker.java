@@ -3,19 +3,13 @@ package org.openl.rules.cmatch;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.method.DefaultInvokerWithTrace;
 import org.openl.rules.method.RulesMethodInvoker;
-import org.openl.rules.method.TracedObjectFactory;
-import org.openl.rules.table.ATableTracerNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class ColumnMatchInvoker extends RulesMethodInvoker {
 
-//    private ColumnMatch columnMatch;
-
     public ColumnMatchInvoker(ColumnMatch columnMatch) {
         super(columnMatch);
-//        this.columnMatch = columnMatch;
     }
     
     @Override
@@ -26,15 +20,6 @@ public class ColumnMatchInvoker extends RulesMethodInvoker {
     public boolean canInvoke() {        
         return getInvokableMethod().getAlgorithmExecutor() != null;
     }
-
-//    public ATableTracerNode createTraceObject(Object[] params) {        
-////        return new ColumnMatchTraceObject(columnMatch, params);
-//        return TracedObjectFactory.getTracedObject(columnMatch, params);
-//    }
-
-//    protected OpenLRuntimeException getError() {        
-//        return new OpenLRuntimeException(getInvokableMethod().getSyntaxNode().getErrors()[0]);
-//    }
 
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         Object result = getInvokableMethod().getAlgorithmExecutor().invoke(target, params, env, getInvokableMethod());
