@@ -391,8 +391,6 @@ var TableEditor = Class.create({
                 fontWeight: cell.style.fontWeight,
                 fontStyle: cell.style.fontStyle,
 
-                color: cell.style.color,
-
                 textAlign: cell.style.textAlign
             }
     
