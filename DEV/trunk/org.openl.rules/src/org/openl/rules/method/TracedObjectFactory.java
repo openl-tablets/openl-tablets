@@ -12,10 +12,11 @@ import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.runtime.debug.TBasicAlgorithmTraceObject;
+import org.openl.types.IOpenMethod;
 
 public class TracedObjectFactory {
     
-    public static ATableTracerNode getTracedObject(ExecutableRulesMethod method, Object[] params) {
+    public static ATableTracerNode getTracedObject(IOpenMethod method, Object[] params) {
         if (method instanceof Algorithm) {
             return new TBasicAlgorithmTraceObject((Algorithm)method, params);
         } else if (method instanceof ColumnMatch) {
