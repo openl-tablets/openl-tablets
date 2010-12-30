@@ -13,7 +13,6 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.DefaultInvokerWithTrace;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -95,7 +94,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             /**
              * if only one table left, we need traced object for this type of table.
              */
-            return TracedObjectFactory.getTracedObject((ExecutableRulesMethod)selected.toArray()[0], params); 
+            return TracedObjectFactory.getTracedObject((IOpenMethod)selected.toArray()[0], params); 
         } else {
             /**
              * in other case trace object for overloaded methods.
@@ -104,7 +103,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 DecisionTable dispatcherTable = (DecisionTable)getDispatcherTable().getMember();
                 return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
             } catch (OpenLRuntimeException e) {
-                ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((ExecutableRulesMethod)selected.toArray()[0], params);
+                ATableTracerNode traceObject = 
+                    TracedObjectFactory.getTracedObject((IOpenMethod)selected.toArray()[0], params);
                 traceObject.setError(e);
                 return traceObject;
             }
