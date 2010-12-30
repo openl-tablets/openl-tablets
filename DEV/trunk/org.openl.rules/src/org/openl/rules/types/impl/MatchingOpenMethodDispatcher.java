@@ -12,6 +12,10 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.DefaultInvokerWithTrace;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.TracedObjectFactory;
+import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -22,6 +26,10 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
+/**
+ *
+ * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
+ */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
@@ -32,8 +40,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     // Business Dimension will have to apply
     private Set<String> propertiesSet;
 
-    private XlsModuleOpenClass moduleOpenClass;
-    private OverloadedMethodChoiceTraceObject traceObject;
+    private XlsModuleOpenClass moduleOpenClass;    
+    
+    private ATableTracerNode traceObject;
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
@@ -56,14 +65,41 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+        traceObject = null;
         Tracer tracer = Tracer.getTracer();
-
+        
+        /**
+         * this block is for overloaded by active property without any dimension properties.
+         * all not active tables should be ignored.
+         */
+        List<IOpenMethod> methods = extractCandidates(getCandidates());
+        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
+        removeInactiveMethods(selected);
+        
+        traceObject = getTracedObject(selected, params);
+        tracer.push(traceObject);        
         try {
-            traceObject = new OverloadedMethodChoiceTraceObject((DecisionTable)getDispatcherTable().getMember(), params, getCandidates());
-            tracer.push(traceObject);
             return super.invoke(target, params, env);
-        }finally{
+        } catch (Exception e) {
+            traceObject.setError(e);
+            return null;
+        } finally {
             tracer.pop();
+        }
+     
+    }
+
+    private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
+        if (selected.size() == 1) {
+            /**
+             * if onlu one table left, we need traced object for this type of table.
+             */
+            return TracedObjectFactory.getTracedObject((ExecutableRulesMethod)selected.toArray()[0], params); 
+        } else {
+            /**
+             * in other case trace object for overloaded methods.
+             */
+            return new OverloadedMethodChoiceTraceObject((DecisionTable)getDispatcherTable().getMember(), params, getCandidates());
         }
     }
 
@@ -90,7 +126,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints that
                 // removed candidates
-                throw new RuntimeException(String.format(
+                throw new OpenLRuntimeException(String.format(
                         "No matching methods for the context. Details: \n%1$s\nContext: %2$s", toString(candidates),
                         context.toString()));
 
