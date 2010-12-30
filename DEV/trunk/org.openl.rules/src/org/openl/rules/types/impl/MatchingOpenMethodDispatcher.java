@@ -76,14 +76,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         removeInactiveMethods(selected);
         
         traceObject = getTracedObject(selected, params);
-            
+        tracer.push(traceObject);    
         try {
             return super.invoke(target, params, env);
         } catch (Exception e) {
             traceObject.setError(e);
             return null;
-        } finally {
-            tracer.push(traceObject);    
+        } finally {                
             tracer.pop();
         }
      
