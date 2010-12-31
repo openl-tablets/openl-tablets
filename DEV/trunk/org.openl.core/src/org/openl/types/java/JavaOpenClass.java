@@ -20,8 +20,6 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -49,17 +47,19 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenClass extends AOpenClass {  
 
+    @SuppressWarnings("unchecked")
     public static final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
 
-    private static Map<Class<?>, JavaOpenClass> javaClassCache;
+    private static Map<Class<?>, IOpenClass> javaClassCache = null;
 
-    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, Integer.valueOf(0));
-    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, Long.valueOf(0));
-    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, Double.valueOf(0));
-    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, Float.valueOf(0));
-    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, Short.class, Short.valueOf((short) 0));
-    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class, Character.valueOf('\0'));
-    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, Byte.valueOf((byte) 0));
+    @SuppressWarnings("hiding")
+    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, new Integer(0));
+    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, new Long(0));
+    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, new Double(0));
+    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, new Float(0));
+    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, Short.class, new Short((short) 0));
+    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class, new Character('\0'));
+    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, new Byte((byte) 0));
     public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE);
     public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, Void.class, null);
     public static final JavaOpenClass STRING = new JavaOpenClass(String.class, null, true);
@@ -68,41 +68,38 @@ public class JavaOpenClass extends AOpenClass {
 
     protected Class<?> instanceClass;
 
-    private final boolean simple;
+    private boolean simple = false;
     
     private IAggregateInfo aggregateInfo;
 
-    protected HashMap<String, IOpenField> fields;
+    protected HashMap<String, IOpenField> fields = null;
 
-    protected HashMap<MethodKey, IOpenMethod> methods;
+    protected HashMap<MethodKey, IOpenMethod> methods = null;
 
-    private static final Lock cacheLock = new ReentrantLock();
-
-    private static Map<Class<?>, JavaOpenClass> getJavaClassCache() {
+    protected static synchronized Map<Class<?>, IOpenClass> getJavaClassCache() {
         if (javaClassCache == null) {
-            cacheLock.lock();
-            if (javaClassCache == null) {
-                javaClassCache = new HashMap<Class<?>, JavaOpenClass>();
-                javaClassCache.put(int.class, INT);
-                javaClassCache.put(long.class, LONG);
-                javaClassCache.put(double.class, DOUBLE);
-                javaClassCache.put(float.class, FLOAT);
-                javaClassCache.put(short.class, SHORT);
-                javaClassCache.put(char.class, CHAR);
-                javaClassCache.put(byte.class, BYTE);
-                javaClassCache.put(boolean.class, BOOLEAN);
-                javaClassCache.put(void.class, VOID);
-                javaClassCache.put(String.class, STRING);
-                javaClassCache.put(Object.class, OBJECT);
-                javaClassCache.put(Class.class, CLASS);
-            }
-            cacheLock.unlock();
+            javaClassCache = new HashMap<Class<?>, IOpenClass>();
+            javaClassCache.put(int.class, INT);
+            javaClassCache.put(long.class, LONG);
+            javaClassCache.put(double.class, DOUBLE);
+            javaClassCache.put(float.class, FLOAT);
+            javaClassCache.put(short.class, SHORT);
+            javaClassCache.put(char.class, CHAR);
+            javaClassCache.put(byte.class, BYTE);
+            javaClassCache.put(boolean.class, BOOLEAN);
+            javaClassCache.put(void.class, VOID);
+            javaClassCache.put(String.class, STRING);
+            javaClassCache.put(Object.class, OBJECT);
+            javaClassCache.put(Class.class, CLASS);
         }
         return javaClassCache;
-    }
 
+    }
+    
     protected JavaOpenClass(Class<?> instanceClass, IOpenSchema schema) {
-        this(instanceClass, schema, false);
+        super(schema);
+        this.instanceClass = instanceClass;
+        this.schema = schema;
     }
 
     protected JavaOpenClass(Class<?> instanceClass, IOpenSchema schema, boolean simple) {
@@ -113,7 +110,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     public static synchronized JavaOpenClass getOpenClass(Class<?> c) {
-        JavaOpenClass res = getJavaClassCache().get(c);
+        JavaOpenClass res = (JavaOpenClass) getJavaClassCache().get(c);
         if (res == null) {
             if (c.isInterface()) {
                 res = new JavaOpenInterface(c, null);
@@ -188,7 +185,7 @@ public class JavaOpenClass extends AOpenClass {
 
         for (Iterator<Class<?>> iter = toRemove.iterator(); iter.hasNext();) {
             Class<?> c = iter.next();
-            getJavaClassCache().remove(c);
+            javaClassCache.remove(c);
 
             // System.out.println("Removing " + printClass(c));
         }
@@ -204,13 +201,6 @@ public class JavaOpenClass extends AOpenClass {
             return false;
         }
         return instanceClass == ((JavaOpenClass) obj).instanceClass;
-    }
-    
-    public boolean equalsAsPrimitive(Object obj) {
-        if (!(obj instanceof JavaPrimitiveClass)) {
-            return false;
-        }
-        return ((JavaPrimitiveClass) obj).equalsAsPrimitive(this);
     }
 
     @Override
@@ -447,9 +437,14 @@ public class JavaOpenClass extends AOpenClass {
         private Object nullObject;
         
         public JavaPrimitiveClass(Class<?> instanceClass, Class<?> wrapperClass, Object nullObject) {
-            super(instanceClass, null, true);
+            super(instanceClass, null);
             this.wrapperClass = wrapperClass;
             this.nullObject = nullObject;
+        }
+
+        @Override
+        public boolean isSimple() {
+            return true;
         }
         
         @Override
@@ -461,31 +456,22 @@ public class JavaOpenClass extends AOpenClass {
         public Object nullObject() {
             return nullObject;
         }
-        
-        @Override
-        public boolean equalsAsPrimitive(Object obj) {
-            if (!(obj instanceof JavaOpenClass)) {
-                return false;
-            }
-            return wrapperClass == ((JavaOpenClass) obj).instanceClass;
-        }
-        
+
     }
     
     private static class JavaOpenInterface extends JavaOpenClass {
-        private static Method toString;
-        private static Method equals;
-        private static Method hashCode;
+        
+        private static Method toString, equals, hashCode;
 
-        private Map<Method, BeanOpenField> getters;
-        private Map<Method, BeanOpenField> setters;
+        private HashMap<Method, BeanOpenField> getters;
+        private HashMap<Method, BeanOpenField> setters;
 
         @SuppressWarnings("unused")
         private Class<?> proxyClass;
 
         private InvocationHandler handler;
 
-        static {
+        {
             try {
                 toString = Object.class.getMethod("toString");
                 equals = Object.class.getMethod("equals", Object.class);
