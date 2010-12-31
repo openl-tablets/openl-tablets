@@ -271,10 +271,6 @@ public class DecisionTableOptimizedAlgorithm {
                 if (methodType.equals(paramType) || methodType.getInstanceClass().equals(paramType.getInstanceClass())) {
                     return new EqualsIndexedEvaluator();
                 }
-                
-                if (methodType instanceof JavaOpenClass || ((JavaOpenClass)methodType).equalsAsPrimitive(paramType)) {
-                    return new EqualsIndexedEvaluator();
-                }
 
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
 
@@ -290,7 +286,7 @@ public class DecisionTableOptimizedAlgorithm {
                     return new RangeIndexedEvaluator(rangeAdaptor);
                 }
 
-                if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class).equals(methodType)) {
+                if (JavaOpenClass.BOOLEAN.equals(methodType)) {
                     return new DefaultConditionEvaluator();
 
                 }
