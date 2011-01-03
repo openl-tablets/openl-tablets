@@ -338,7 +338,7 @@ public class RepositoryTreeController {
 
         try {
             projectArtefact.getArtefact(childName).delete();
-            repositoryTreeState.deleteSelectedNodeFromTree();
+            repositoryTreeState.refreshSelectedNode();
         } catch (ProjectException e) {
             LOG.error("Error deleting element.", e);
             FacesContext.getCurrentInstance().addMessage(null,
