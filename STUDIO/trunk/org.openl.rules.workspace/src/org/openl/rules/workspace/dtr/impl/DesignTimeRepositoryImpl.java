@@ -1,28 +1,32 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.NullRepository;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEvent;
 import org.openl.util.MsgHelper;
 
 /**
@@ -30,7 +34,7 @@ import org.openl.util.MsgHelper;
  * @author Aleh Bykhavets
  *
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository{
+public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener{
     private static final Log log = LogFactory.getLog(DesignTimeRepositoryImpl.class);
 
     /** Rules Repository */
@@ -38,6 +42,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
     /** Project Cache */
     private HashMap<String, AProject> projects;
     private CommonUser user;
+    
+    private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
     
     public DesignTimeRepositoryImpl() {
         try {
@@ -47,6 +53,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
             log.error("Cannot init DTR! " + e.getMessage());
             rulesRepository = new NullRepository();
         }
+        
+        rulesRepository.addRepositoryListener(this);
 
         projects = new HashMap<String, AProject>();
     }
@@ -299,5 +307,31 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository{
         }
 
         return dtrRulesProject;
+    }
+
+    public void addListener(DesignTimeRepositoryListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(DesignTimeRepositoryListener listener) {
+        listeners.remove(listener);
+    }
+
+    public List<DesignTimeRepositoryListener> getListeners() {
+        return listeners;
+    }
+
+    public void onEventInRulesProjects(RRepositoryEvent event) {
+        DTRepositoryEvent repositoryEvent = new DTRepositoryEvent(event.getProjectName());
+        for (DesignTimeRepositoryListener listener : listeners) {
+            listener.onRulesProjectModified(repositoryEvent);
+        }
+    }
+
+    public void onEventInDeploymentProjects(RRepositoryEvent event) {
+        DTRepositoryEvent repositoryEvent = new DTRepositoryEvent(event.getProjectName());
+        for (DesignTimeRepositoryListener listener : listeners) {
+            listener.onDeploymentProjectModified(repositoryEvent);
+        }
     }
 }

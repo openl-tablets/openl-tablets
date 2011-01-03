@@ -1,5 +1,6 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,16 +8,22 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.Event;
+import javax.jcr.observation.EventIterator;
+import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RRepositoryListener;
+import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -27,7 +34,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public class JcrRepository extends BaseJcrRepository implements RRepository {
+public class JcrRepository extends BaseJcrRepository implements RRepository, EventListener {
     private static final Log LOG = LogFactory.getLog(JcrRepository.class);
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@"
@@ -36,6 +43,8 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
 
     private Node defRulesLocation;
     private Node defDeploymentsLocation;
+
+    private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
 
     public JcrRepository(String name, Session session, String defRulesPath, String defDeploymentsPath)
             throws RepositoryException {
@@ -48,6 +57,12 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
             // save all at once
             session.save();
         }
+        
+        session.getWorkspace()
+                .getObservationManager()
+                .addEventListener(this, Event.PROPERTY_CHANGED, session.getRootNode().getPath(), true, null,
+                        new String[] { JcrNT.NT_APROJECT }, false);
+
     }
 
     @Deprecated
@@ -311,5 +326,46 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         }
 
         return result;
+    }
+    
+    private static String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
+    
+    private String extractProjectName(String projectLocation, String path){
+        return StringUtils.removeEnd(StringUtils.removeStart(path, projectLocation + "/"), "/" + CHECKED_OUT_PROPERTY);
+    }
+
+    public void onEvent(EventIterator eventIterator) {
+        while (eventIterator.hasNext()) {
+            Event event = eventIterator.nextEvent();
+            try {
+                if (event.getPath().contains(CHECKED_OUT_PROPERTY)) {
+                    if (event.getPath().startsWith(defRulesLocation.getPath())) {
+                        for (RRepositoryListener listener : listeners) {
+                            listener.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(
+                                    defRulesLocation.getPath(), event.getPath())));
+                        }
+                    } else if (event.getPath().startsWith(defDeploymentsLocation.getPath())) {
+                        for (RRepositoryListener listener : listeners) {
+                            listener.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(
+                                    defDeploymentsLocation.getPath(), event.getPath())));
+                        }
+                    }
+                }
+            } catch (RepositoryException e) {
+                LOG.error(e);
+            }
+        }
+    }
+
+    public void addRepositoryListener(RRepositoryListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeRepositoryListener(RRepositoryListener listener) {
+        listeners.remove(listener);
+    }
+
+    public List<RRepositoryListener> getRepositoryListeners() {
+        return listeners;
     }
 }

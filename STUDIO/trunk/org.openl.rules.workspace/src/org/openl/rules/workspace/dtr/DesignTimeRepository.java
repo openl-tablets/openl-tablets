@@ -121,4 +121,8 @@ public interface DesignTimeRepository extends ProjectsContainer {
      */
     void updateProject(AProject project, WorkspaceUser user, int major, int minor) throws RepositoryException;
 
+    
+    void addListener(DesignTimeRepositoryListener listener);
+    void removeListener(DesignTimeRepositoryListener listener);
+    List<DesignTimeRepositoryListener> getListeners();
 }

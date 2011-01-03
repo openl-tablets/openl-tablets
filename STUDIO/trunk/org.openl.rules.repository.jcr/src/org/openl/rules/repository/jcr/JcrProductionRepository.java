@@ -10,6 +10,7 @@ import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -385,5 +386,19 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             throw new RRepositoryException("failed to enumerate deployments", e);
         }
         return result;
+    }
+
+
+    public void addRepositoryListener(RRepositoryListener listener) {
+        // TODO Auto-generated method stub
+    }
+
+    public void removeRepositoryListener(RRepositoryListener listener) {
+        // TODO Auto-generated method stub
+    }
+
+    public List<RRepositoryListener> getRepositoryListeners() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
