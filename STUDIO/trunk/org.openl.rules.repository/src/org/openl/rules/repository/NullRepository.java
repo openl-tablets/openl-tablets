@@ -119,4 +119,16 @@ public class NullRepository implements RRepository {
     public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
         return new LinkedList<FolderAPI>();
     }
+
+
+    
+    public void addRepositoryListener(RRepositoryListener listener) {
+    }
+
+    public void removeRepositoryListener(RRepositoryListener listener) {
+    }
+
+    public List<RRepositoryListener> getRepositoryListeners() {
+        return null;
+    }
 }

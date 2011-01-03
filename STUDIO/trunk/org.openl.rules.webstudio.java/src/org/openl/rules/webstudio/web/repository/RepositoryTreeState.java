@@ -16,7 +16,6 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.filter.OpenLFilter;
 import org.openl.util.filter.AllOpenLFilter;
@@ -271,6 +270,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
+        userWorkspace.getDesignTimeRepository().addListener(this);
     }
 
     public void traverseFolder(TreeFolder folder, Collection<AProjectArtefact> artefacts, OpenLFilter filter) {
@@ -292,7 +292,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         }
     }
 
-    public void onArtefactModified(DTRepositoryEvent event) {
+    public void onRulesProjectModified(DTRepositoryEvent event) {
+        AbstractTreeNode rulesProject = getRulesRepository().getChild(event.getProjectName());
+        refreshNode(rulesProject);
+    }
+
+    public void onDeploymentProjectModified(DTRepositoryEvent event) {
+        AbstractTreeNode deploymentProject = getDeploymentRepository().getChild(event.getProjectName());
+        refreshNode(deploymentProject);
     }
 
 }

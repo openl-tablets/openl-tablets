@@ -126,4 +126,8 @@ public interface RRepository {
      * @return list of projects that are marked for deletion
      */
     List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException;
+    
+    void addRepositoryListener(RRepositoryListener listener);
+    void removeRepositoryListener(RRepositoryListener listener);
+    List<RRepositoryListener> getRepositoryListeners();
 }

@@ -301,6 +301,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 userRulesProjects.put(name, uwp);
             } else if (uwp.isLocalOnly()) {
                 userRulesProjects.put(name, new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
+            }else{
+                uwp.refresh();
             }
         }
 

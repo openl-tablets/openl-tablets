@@ -238,6 +238,7 @@ public class TreeProject extends TreeFolder {
     
     @Override
     public void refresh() {
+        super.refresh();
         dependencies = null;
     }
 }

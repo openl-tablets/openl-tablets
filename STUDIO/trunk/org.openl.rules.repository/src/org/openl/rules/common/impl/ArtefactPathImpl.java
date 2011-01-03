@@ -170,6 +170,21 @@ public class ArtefactPathImpl implements ArtefactPath {
         return new ArtefactPathImpl(relativeSegments);
     }
 
+
+    public ArtefactPath withoutSegment(int segmentIndex) {
+        LinkedList<String> relativeSegments = new LinkedList<String>();
+        Iterator<String> segmentIterator = segments.iterator();
+        for (int i = 0; segmentIterator.hasNext(); i++) {
+            if (i != segmentIndex) {
+                relativeSegments.add(segmentIterator.next());
+            } else {
+                segmentIterator.next();
+            }
+        }
+
+        return new ArtefactPathImpl(relativeSegments);
+    }
+
     public ArtefactPath withSegment(String segment) {
         ArtefactPathImpl api = new ArtefactPathImpl(this);
         api.addSegment(segment);

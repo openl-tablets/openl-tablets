@@ -59,6 +59,8 @@ public interface ArtefactPath {
      */
     ArtefactPath withoutFirstSegment();
 
+    ArtefactPath withoutSegment(int segmentIndex);
+
     /**
      * Creates new instance of ArtefactPath from base one, adding one more
      * segment. <p/> It should be used to build artefact paths recursively.

@@ -363,6 +363,6 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
     
     public void refresh(){
-        
+        dataBean.refresh();
     }
 }
