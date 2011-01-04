@@ -17,51 +17,32 @@ import org.openl.util.MsgHelper;
 public class StatePersistance {
     private static final Log log = LogFactory.getLog(StatePersistance.class);
 
-    private final LocalFolderAPI project;
+    private final LocalArtefactAPI artefact;
     private final File propertiesLocation;
 
-    private static void createFolderThrowing(File folder) throws ProjectException {
-        FolderHelper.checkOrCreateFolder(folder);
-        if (!folder.exists()) {
-            throw new ProjectException("Could not create properties folder ''{0}''!", null, folder.getAbsolutePath());
-        }
-    }
-
-    public StatePersistance(LocalFolderAPI project, File projectLocation) {
-        this.project = project;
+    public StatePersistance(LocalArtefactAPI artefact, File projectLocation) {
+        this.artefact = artefact;
         propertiesLocation = new File(projectLocation, FolderHelper.PROPERTIES_FOLDER);
     }
 
-    private File getPropertiesFile(LocalFolderAPI folder) {
-        return new File(propertiesLocation, folder.getArtefactPath().withoutFirstSegment().getStringValue()
-                + ("/" + FolderHelper.FOLDER_PROPERTIES_FILE));
-    }
-
-    private File getPropertiesFile(LocalResourceAPI resource) {
-        return new File(propertiesLocation, resource.getArtefactPath().withoutFirstSegment().getStringValue()
-                + FolderHelper.RESOURCE_PROPERTIES_EXT);
+    private File getPropertiesFile(LocalArtefactAPI artefact) {
+        if (artefact.isFolder()) {
+            return new File(propertiesLocation, artefact.getArtefactPath().withoutFirstSegment().getStringValue()
+                    + ("/" + FolderHelper.FOLDER_PROPERTIES_FILE));
+        } else {
+            return new File(propertiesLocation, artefact.getArtefactPath().withoutFirstSegment().getStringValue()
+                    + FolderHelper.RESOURCE_PROPERTIES_EXT);
+        }
     }
 
     public void load() {
         if (propertiesLocation.exists()) {
-            loadAllStates(project);
+            loadState(artefact);
         }
     }
 
-    private void loadAllStates(LocalFolderAPI folder) {
-        loadState(folder, getPropertiesFile(folder));
-
-        for (LocalArtefactAPI artefact : folder.getArtefacts()) {
-            if (artefact.isFolder()) {
-                LocalFolderAPI localFolder = (LocalFolderAPI) artefact;
-                loadAllStates(localFolder);
-            } else {
-                loadState(artefact, getPropertiesFile((LocalResourceAPI) artefact));
-            }
-        }
-    }
-
-    private void loadState(LocalArtefactAPI artefact, File sourceFile) {
+    private void loadState(LocalArtefactAPI artefact) {
+        File sourceFile = getPropertiesFile(artefact);
         if (!sourceFile.isFile()) {
             return;
         }
@@ -88,24 +69,11 @@ public class StatePersistance {
     }
 
     public void save() throws ProjectException {
-        createFolderThrowing(propertiesLocation);
-        saveAllStates(project);
+        saveState(artefact);
     }
 
-    private void saveAllStates(LocalFolderAPI folder) throws ProjectException {
-        saveState(folder, getPropertiesFile(folder));
-
-        for (LocalArtefactAPI artefact : folder.getArtefacts()) {
-            if (artefact.isFolder()) {
-                LocalFolderAPI localFolder = (LocalFolderAPI) artefact;
-                saveAllStates(localFolder);
-            } else {
-                saveState(artefact, getPropertiesFile((LocalResourceAPI) artefact));
-            }
-        }
-    }
-
-    private void saveState(LocalArtefactAPI artefact, File destFile) {
+    private void saveState(LocalArtefactAPI artefact) {
+        File destFile = getPropertiesFile(artefact);
         File folder = destFile.getParentFile();
         if (!FolderHelper.checkOrCreateFolder(folder)) {
             String msg = MsgHelper.format("Could not create folder ''{0}''!", folder.getAbsolutePath());

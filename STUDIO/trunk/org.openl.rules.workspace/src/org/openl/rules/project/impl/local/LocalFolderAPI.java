@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FolderAPI;
@@ -86,14 +85,5 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
     @Override
     public FolderAPI getVersion(CommonVersion version) {
         return (FolderAPI)super.getVersion(version);
-    }
-
-    @Override
-    public void commit(CommonUser user, int major, int minor) throws ProjectException {
-        new StatePersistance(this, source).save();
-    }
-    
-    public void load(){
-        new StatePersistance(this, source).load();
     }
 }

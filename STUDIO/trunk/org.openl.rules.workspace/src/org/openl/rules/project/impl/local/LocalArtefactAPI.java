@@ -39,6 +39,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         this.workspace = workspace;
         currentVersion = new RepositoryProjectVersionImpl(0, 0, 0, null);
         properties = new PropertiesContainerImpl();
+        load();
     }
 
     public StateHolder getStateHolder() {
@@ -79,10 +80,12 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void setProps(Map<String, Object> props) throws PropertyException {
         this.props = props;
+        save();
     }
 
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {
         properties.addProperty(new PropertyImpl(name, type, value));
+        save();
     }
 
     public Collection<Property> getProperties() {
@@ -135,6 +138,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void setCurrentVersion(ProjectVersion currentVersion) {
         this.currentVersion = currentVersion;
+        save();
     }
 
     public List<ProjectVersion> getVersions() {
@@ -146,6 +150,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void setVersions(List<ProjectVersion> versions) {
         this.versions = versions;
+        save();
     }
 
     private static class ArtefactStateHolder implements StateHolder {
@@ -168,10 +173,6 @@ public class LocalArtefactAPI implements ArtefactAPI {
         // TODO Auto-generated method stub
     }
 
-    public void commit(CommonUser user, int major, int minor) throws ProjectException {
-        // TODO Auto-generated method stub
-    }
-
     public ArtefactAPI getVersion(CommonVersion version) {
         // TODO Auto-generated method stub
         return this;
@@ -179,5 +180,26 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void removeAllProperties() throws PropertyException {
         properties.removeAll();
+    }
+    
+    private File getProjectLocation(){
+        String projectName = getArtefactPath().segment(0);
+        return new File(workspace.getLocation(), projectName);
+    }
+    
+    public void commit(CommonUser user, int major, int minor) throws ProjectException {
+        save();
+    }
+
+    protected void save() {
+        try {
+            new StatePersistance(this, getProjectLocation()).save();
+        } catch (ProjectException e) {
+            // TODO: log
+        }
+    }
+
+    protected void load(){
+        new StatePersistance(this, getProjectLocation()).load();
     }
 }

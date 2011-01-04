@@ -129,7 +129,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
 
             AProject lpi = new AProject(new LocalFolderAPI(f, ap, this), user);;
-            ((LocalFolderAPI) lpi.getAPI()).load();
             localProjects.put(name, lpi);
         }
     }
@@ -166,8 +165,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 // new project detected
                 ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
                 AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this), user);;
-
-                ((LocalFolderAPI) newlyDetected.getAPI()).load();
 
                 // add it
                 localProjects.put(name, newlyDetected);
