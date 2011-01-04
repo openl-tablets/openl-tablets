@@ -16,9 +16,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
