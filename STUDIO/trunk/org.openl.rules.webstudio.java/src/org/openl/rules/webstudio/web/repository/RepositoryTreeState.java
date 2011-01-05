@@ -294,12 +294,36 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
         AbstractTreeNode rulesProject = getRulesRepository().getChild(event.getProjectName());
-        refreshNode(rulesProject);
+        if(rulesProject == null){
+            if(userWorkspace.getDesignTimeRepository().hasProject(event.getProjectName())){
+                try {
+                    addRulesProjectToTree(userWorkspace.getProject(event.getProjectName()));
+                } catch (ProjectException e) {
+                    LOG.error("Failed to add new project to the repository tree.", e);
+                }
+            }
+        }else if (!userWorkspace.getDesignTimeRepository().hasProject(event.getProjectName())){
+            deleteNode(rulesProject);
+        }else{
+            refreshNode(rulesProject);
+        }
     }
 
     public void onDeploymentProjectModified(DTRepositoryEvent event) {
         AbstractTreeNode deploymentProject = getDeploymentRepository().getChild(event.getProjectName());
-        refreshNode(deploymentProject);
+        if(deploymentProject == null){
+            if(userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
+                try {
+                    addRulesProjectToTree(userWorkspace.getProject(event.getProjectName()));
+                } catch (ProjectException e) {
+                    LOG.error("Failed to add new project to the repository tree.", e);
+                }
+            }
+        }else if (!userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
+            deleteNode(deploymentProject);
+        }else{
+            refreshNode(deploymentProject);
+        }
     }
 
 }
