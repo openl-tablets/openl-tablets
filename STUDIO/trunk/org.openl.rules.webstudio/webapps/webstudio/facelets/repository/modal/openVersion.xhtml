@@ -24,7 +24,7 @@
         </h:selectOneMenu>
       </h:panelGrid>
 
-      <h:panelGroup  rendered="#{node.type == 'project' and artefact.opened}">
+      <h:panelGroup  rendered="#{node.type == 'project' and artefact.opened and rulesUserSession.localUser}">
         <br />
         <h:outputText value="Are you sure you want to open the project '#{node.name}'? All your local changes will be lost. 
             Your project in local workspace will be replaced by project of specified version that will be checked out from repository." />
