@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
@@ -17,6 +18,9 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 
+/** 
+ * TODO: Rename to MultiProjectInstantiationStrategy. Too large name. 
+ */
 public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
     private static final Log LOG = LogFactory.getLog(MultiProjectEngineFactoryInstantiationStrategy.class);
 
@@ -49,7 +53,7 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
     @Override
     protected ClassLoader getClassLoader() {
         if (classLoader == null) {
-            classLoader = new OpenLClassLoader();
+            classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());            
         }
         
         return classLoader;
@@ -111,7 +115,13 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
         
         return factory;
     }
-
+    
+    /**
+     * Load modules from root folder.
+     * 
+     * @param root folder for all modules.
+     * @return list of resolved modules.
+     */
     private List<Module> listModules(File root) {
 
         List<Module> modules = new ArrayList<Module>();
