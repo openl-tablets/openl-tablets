@@ -60,8 +60,8 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
         
         session.getWorkspace()
                 .getObservationManager()
-                .addEventListener(this, Event.PROPERTY_CHANGED, session.getRootNode().getPath(), true, null,
-                        new String[] { JcrNT.NT_APROJECT }, false);
+                .addEventListener(this, Event.PROPERTY_CHANGED | Event.NODE_REMOVED, session.getRootNode().getPath(),
+                        true, null, null, false);
 
     }
 
@@ -330,24 +330,44 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
     
     private static String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
     
-    private String extractProjectName(String projectLocation, String path){
-        return StringUtils.removeEnd(StringUtils.removeStart(path, projectLocation + "/"), "/" + CHECKED_OUT_PROPERTY);
+    private String extractProjectName(String relativePath){
+        return new ArtefactPathImpl(relativePath).segment(0);
+    }
+    
+    private boolean isProjectDeletedEvent(Event event, String relativePath){
+        ArtefactPathImpl path = new ArtefactPathImpl(relativePath);
+        if (path.segmentCount() == 1 && event.getType() == Event.NODE_REMOVED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    private boolean isProjectModifiedEvent(Event event, String relativePath){
+        if (relativePath.contains(CHECKED_OUT_PROPERTY)) {
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void onEvent(EventIterator eventIterator) {
         while (eventIterator.hasNext()) {
             Event event = eventIterator.nextEvent();
             try {
-                if (event.getPath().contains(CHECKED_OUT_PROPERTY)) {
-                    if (event.getPath().startsWith(defRulesLocation.getPath())) {
+                if (event.getPath().startsWith(defRulesLocation.getPath())) {
+                    String relativePath = StringUtils.removeStart(event.getPath(), defRulesLocation.getPath() + "/");
+                    if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
                         for (RRepositoryListener listener : listeners) {
-                            listener.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(
-                                    defRulesLocation.getPath(), event.getPath())));
+                            listener.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(relativePath)));
                         }
-                    } else if (event.getPath().startsWith(defDeploymentsLocation.getPath())) {
+                    }
+                } else if (event.getPath().startsWith(defDeploymentsLocation.getPath())) {
+                    String relativePath = StringUtils.removeStart(event.getPath(), defDeploymentsLocation.getPath()
+                            + "/");
+                    if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
                         for (RRepositoryListener listener : listeners) {
-                            listener.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(
-                                    defDeploymentsLocation.getPath(), event.getPath())));
+                            listener.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(relativePath)));
                         }
                     }
                 }
