@@ -100,11 +100,19 @@ public class AProject extends AProjectFolder {
     }
 
     public void checkIn() throws ProjectException {
+        checkIn(user);
+    }
+
+    public void checkIn(CommonUser user) throws ProjectException {
         ProjectVersion currentVersion = getLastVersion();
-        checkIn(currentVersion.getMajor(), currentVersion.getMinor());
+        checkIn(user, currentVersion.getMajor(), currentVersion.getMinor());
     }
 
     public void checkIn(int major, int minor) throws ProjectException {
+        checkIn(user, major, minor);
+    }
+
+    public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
         getAPI().commit(user, major, minor);
         unlock(user);
         refresh();

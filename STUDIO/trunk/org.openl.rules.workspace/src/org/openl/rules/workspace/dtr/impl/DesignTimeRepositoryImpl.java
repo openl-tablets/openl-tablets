@@ -72,7 +72,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         createDDProject(name);
         ADeploymentProject newProject = getDDProject(name);
         newProject.update(project);
-        newProject.checkIn();
+        newProject.checkIn(user);
     }
 
     public void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException {
@@ -89,7 +89,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             AProject newProject = wrapProject(writeRep.createRulesProject(name), false);
 
             newProject.update(project);
-            newProject.checkIn();
+            newProject.checkIn(user);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         } catch (Exception e) {

@@ -43,7 +43,7 @@ public class AProjectFolder extends AProjectArtefact {
         }
         return artefact;
     }
-
+    
     public AProjectFolder addFolder(String name) throws ProjectException {
         AProjectFolder createdFolder = new AProjectFolder(getAPI().addFolder(name), getProject());
         getArtefactsInternal().put(name, createdFolder);
@@ -110,14 +110,19 @@ public class AProjectFolder extends AProjectArtefact {
         }
     }
 
+    private Object lock = new Object();
+
     protected Map<String, AProjectArtefact> getArtefactsInternal() {
-        if (artefacts == null) {
-            artefacts = new HashMap<String, AProjectArtefact>();
-            for (ArtefactAPI artefactAPI : getAPI().getArtefacts()) {
-                if (artefactAPI.isFolder()) {
-                    artefacts.put(artefactAPI.getName(), new AProjectFolder((FolderAPI) artefactAPI, getProject()));
-                } else {
-                    artefacts.put(artefactAPI.getName(), new AProjectResource((ResourceAPI) artefactAPI, getProject()));
+        synchronized (lock) {
+            if (artefacts == null) {
+                artefacts = new HashMap<String, AProjectArtefact>();
+                for (ArtefactAPI artefactAPI : getAPI().getArtefacts()) {
+                    if (artefactAPI.isFolder()) {
+                        artefacts.put(artefactAPI.getName(), new AProjectFolder((FolderAPI) artefactAPI, getProject()));
+                    } else {
+                        artefacts.put(artefactAPI.getName(), new AProjectResource((ResourceAPI) artefactAPI,
+                                getProject()));
+                    }
                 }
             }
         }
@@ -127,6 +132,8 @@ public class AProjectFolder extends AProjectArtefact {
     @Override
     public void refresh() {
         super.refresh();
-        artefacts = null;
+        synchronized (lock) {
+            artefacts = null;
+        }
     }
 }

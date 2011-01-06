@@ -46,6 +46,8 @@ public class JcrVersion implements RVersion {
 
     public JcrVersion(RVersion version) {
         this.version = new CommonVersionImpl(version);
+        this.lastModified = version.getCreated();
+        this.modifiedBy = version.getCreatedBy().getUserName();
     }
 
     public JcrVersion(Version version) throws RepositoryException {
@@ -129,10 +131,6 @@ public class JcrVersion implements RVersion {
         if (node.hasProperty(ArtefactProperties.PROP_MODIFIED_BY)) {
             modifiedBy = node.getProperty(ArtefactProperties.PROP_MODIFIED_BY).getString();
         }
-        // if (node.hasProperty(JcrNT.PROP_MODIFIED_TIME)) {
-        // lastModified =
-        // node.getProperty(JcrNT.PROP_MODIFIED_TIME).getDate().getTime();
-        // }
     }
 
     protected void nextRevision() {

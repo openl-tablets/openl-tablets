@@ -53,8 +53,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private Map<String, org.openl.rules.common.Property> properties;
     private Map<String, Object> props;
 
-    private boolean oldVersion;
-
     private JcrLock lock;
 
     private CommonVersionImpl risedVersion;
@@ -64,8 +62,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     // ------ protected methods ------
 
     public JcrEntityAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
-        super(node, path.segment(path.segmentCount() - 1));
-        this.oldVersion = oldVersion;
+        super(node, path.segment(path.segmentCount() - 1), oldVersion);
         this.path = path;
         if (oldVersion) {
             lock = null;
@@ -78,10 +75,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         initProperties();
         props = new HashMap<String, Object>();
         loadProps();
-    }
-
-    public boolean isOldVersion() {
-        return oldVersion;
     }
 
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {

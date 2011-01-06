@@ -19,17 +19,24 @@ public class JcrCommonArtefact {
 
     private String name;
     private Node node;
+    private boolean oldVersion;
+
+    protected JcrCommonArtefact(Node node, String name, boolean oldVersion) throws RepositoryException {
+        this.node = node;
+        this.name = name;
+        this.oldVersion = oldVersion;
+    }
 
     protected JcrCommonArtefact(Node node, String name) throws RepositoryException {
-        this.node = node;
-
-        this.name = name;
+        this(node, name, false);
     }
 
     protected JcrCommonArtefact(Node node) throws RepositoryException {
-        this.node = node;
+        this(node, node.getName());
+    }
 
-        this.name = node.getName();
+    public boolean isOldVersion() {
+        return oldVersion;
     }
 
     public void delete() throws RRepositoryException {
@@ -46,8 +53,14 @@ public class JcrCommonArtefact {
 
     public RVersion getActiveVersion() {
         try {
-            RVersion result = new JcrVersion(node);
-            return result;
+            if (oldVersion) {
+                RVersion result = new JcrVersion(node);
+                return result;
+            } else {
+                Version v = node().getBaseVersion();
+                RVersion result = new JcrVersion(v);
+                return result;
+            }
         } catch (RepositoryException e) {
             log.info("getActiveVersion", e);
             return null;
