@@ -115,7 +115,7 @@ public class ADeploymentProject extends AProject {
     }
 
     @Override
-    public void checkIn(int major, int minor) throws ProjectException {
+    public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
         if (CollectionUtils.isEmpty(descriptors)) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 getArtefact(ArtefactProperties.DESCRIPTORS_FILE).delete();
@@ -185,10 +185,5 @@ public class ADeploymentProject extends AProject {
             }
         }
         return descriptors;
-    }
-
-    @Override
-    public void refresh() {
-        descriptors = null;
     }
 }
