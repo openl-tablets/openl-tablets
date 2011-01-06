@@ -40,7 +40,7 @@ public class UserWorkspaceProject extends AProject {
         return local;
     }
 
-    public void checkIn(int major, int minor) throws ProjectException {
+    public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
         update(local, repository, user);
         repository.commit(user, major, minor);
         local.setCurrentVersion(repository.getVersion());
