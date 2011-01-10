@@ -308,13 +308,16 @@ public class CastFactory implements ICastFactory {
 
         // Matching method
         IMethodCaller castCaller = null;
+        
+        // To object null value
+        Object toNullObject = to.nullObject();
 
         try {
             // Try to find matching auto cast method
             castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, to });
 
             if (castCaller == null) {
-                Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
+                Class<?> primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
 
                 // If from parameter is wrapper for primitive type try to find
                 // auto cast method using 'from' as primitive type. In this case
@@ -330,11 +333,37 @@ public class CastFactory implements ICastFactory {
                 // operations in
                 // engine by end-user.
                 // 
-                if (primitiveClass != null) {
+                if (primitiveClassFrom != null) {
                     distance = 6;
-                    IOpenClass wrapperOpenClass = JavaOpenClass.getOpenClass(primitiveClass);
+                    IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] {
-                            wrapperOpenClass, to });
+                            wrapperOpenClassFrom, to });
+                }
+            }
+            
+            if (castCaller == null) {
+                Class<?> primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
+
+                // If to parameter is wrapper for primitive type try to find
+                // auto cast method using 'to' as primitive type. In this case
+                // we are emulate 2 operations: 1) autocast operation,
+                // 2) boxing operation.
+                // For example:
+                // <code>
+                // int a = 1;
+                // Double d = a;
+                // </code>
+                // For OpenL we are omitting the check that 'from' type must be
+                // primitive type for our case to simplify understanding type
+                // operations in
+                // engine by end-user.
+                // 
+                if (primitiveClassTo != null) {
+                    distance = 6;
+                    IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] {
+                            from, wrapperOpenClassTo });
+                    toNullObject = wrapperOpenClassTo.nullObject();
                 }
             }
         } catch (AmbiguousMethodException ex) {
@@ -372,7 +401,7 @@ public class CastFactory implements ICastFactory {
                 .invoke(null, new Object[] { from.nullObject(), to.nullObject() }, null)).intValue();
         }
 
-        return new MethodBasedCast(castCaller, auto, distance, to.nullObject());
+        return new MethodBasedCast(castCaller, auto, distance, toNullObject);
     }
 
     /**
