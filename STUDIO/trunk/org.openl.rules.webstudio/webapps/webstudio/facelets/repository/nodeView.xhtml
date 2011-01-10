@@ -43,7 +43,7 @@
     </h:panelGroup>
     
     <h:panelGroup rendered="#{!artefact.deleted}">
-      <h:panelGrid columns="5" cellpadding="4" cellspacing="0">
+      <h:panelGrid columns="6" cellpadding="4" cellspacing="0">
         <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
           <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{artefact.canOpen};"/>
           <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
