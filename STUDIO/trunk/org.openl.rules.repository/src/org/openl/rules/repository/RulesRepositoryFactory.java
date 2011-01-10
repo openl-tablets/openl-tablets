@@ -38,6 +38,10 @@ public class RulesRepositoryFactory {
         return repFactory.getRepositoryInstance();
     }
 
+    public static RRepositoryFactory getRepFactory() {
+        return repFactory;
+    }
+
     private static void initFactory() throws RRepositoryException {
         ConfigSet confSet = SysConfigManager.getConfigManager().locate(PROP_FILE);
         if (confSet == null) {

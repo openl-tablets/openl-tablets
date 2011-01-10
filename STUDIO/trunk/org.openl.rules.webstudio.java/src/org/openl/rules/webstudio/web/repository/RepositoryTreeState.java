@@ -51,7 +51,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         AProjectArtefact projectArtefact = node.getDataBean();
         AProjectArtefact selected = null;
 		if (selectedNode != null) {
-			selectedNode.getDataBean();
+		    selected = selectedNode.getDataBean();
 		}else{
 			return false;
 		}
