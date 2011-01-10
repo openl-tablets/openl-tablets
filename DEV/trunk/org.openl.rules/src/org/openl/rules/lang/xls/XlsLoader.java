@@ -59,7 +59,7 @@ import org.openl.util.StringTool;
  */
 public class XlsLoader {
 
-    private static Log LOG = LogFactory.getLog(XlsLoader.class);
+    private static final Log LOG = LogFactory.getLog(XlsLoader.class);
 
     private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString() },
             { IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString() },
@@ -207,7 +207,7 @@ public class XlsLoader {
                 if (loader != null) {
                     loader.process(this, tableSyntaxNode, tableSyntaxNode.getGridTable(), source);
                 } else {
-                    LOG.warn(String.format("Doesn't find extension loader for '%s'", name));
+                    LOG.warn(String.format("Error in Environment table: can't find extension loader for '%s' keyword", name));
                 }
             }
         }
