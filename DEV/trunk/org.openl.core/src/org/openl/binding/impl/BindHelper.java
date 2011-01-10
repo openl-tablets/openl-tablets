@@ -66,14 +66,11 @@ public class BindHelper {
     }
 
     public static void processWarn(String message, ISyntaxNode source, IBindingContext bindingContext) {
-
-        OpenLWarnMessage warn = new OpenLWarnMessage(message, source);
-        if(bindingContext.isExecutionMode()){
-            warn = new OpenLWarnMessage(message, (ISyntaxNode)null);
-        }else{
-            warn = new OpenLWarnMessage(message, source);
+        if (bindingContext.isExecutionMode()) {
+            OpenLMessagesUtils.addWarn(message);
+        } else {
+            OpenLMessagesUtils.addWarn(message, source);
         }
-        OpenLMessagesUtils.addMessage(warn);
     }
 
     public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
