@@ -47,9 +47,9 @@ public class MapOpenClass extends JavaOpenClass {
 
     }
 
-    protected String name;
+    private String name;
 
-    protected IOpenClass dynamicFieldType = JavaOpenClass.STRING;
+    private IOpenClass dynamicFieldType = JavaOpenClass.STRING;
 
     /**
      * @param instanceClass
