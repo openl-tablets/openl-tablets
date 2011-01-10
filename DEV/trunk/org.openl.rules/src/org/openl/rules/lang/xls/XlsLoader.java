@@ -53,6 +53,8 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
 
+import com.sun.swing.internal.plaf.metal.resources.metal;
+
 /**
  * @author snshor
  * 
@@ -207,7 +209,9 @@ public class XlsLoader {
                 if (loader != null) {
                     loader.process(this, tableSyntaxNode, tableSyntaxNode.getGridTable(), source);
                 } else {
-                    LOG.warn(String.format("Error in Environment table: can't find extension loader for '%s' keyword", name));
+                    String message = String.format("Error in Environment table: can't find extension loader for '%s' keyword", name);
+                    LOG.warn(message);
+                    OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
                 }
             }
         }

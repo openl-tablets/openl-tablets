@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 public class OpenLMessagesUtils {
@@ -49,6 +50,11 @@ public class OpenLMessagesUtils {
 
     public static void addWarn(String message) {
         addMessage(message, Severity.WARN);
+    }
+    
+    public static void addWarn(String message, ISyntaxNode source){
+        OpenLWarnMessage warn = new OpenLWarnMessage(message, source);
+        addMessage(warn);
     }
 
     public static void addMessage(String message, Severity severity) {
