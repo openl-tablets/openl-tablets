@@ -7,8 +7,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.math.NumberUtils;
 import org.openl.util.Log;
+import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 import org.openl.util.formatters.ConstTextFormatter;
 import org.openl.util.formatters.IFormatter;
@@ -241,7 +241,8 @@ public class XlsNumberFormatter extends AXlsFormatter {
     public Object parse(String value) {
 
         try {
-            return NumberUtils.createNumber(value);
+            double doubleValue = Double.parseDouble(value);
+            return NumberUtils.intOrDouble(doubleValue);
         } catch (NumberFormatException ex) {
 
         }
