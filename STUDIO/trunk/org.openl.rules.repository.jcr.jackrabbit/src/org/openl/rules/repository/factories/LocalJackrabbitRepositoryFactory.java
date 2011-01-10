@@ -9,7 +9,6 @@ import java.net.URL;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +35,7 @@ import org.springframework.util.FileCopyUtils;
  */
 public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
     private static Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
+    private static final String LOCK_FILE = ".lock";
 
     private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
             "repository.jackrabbit.local.home", "../local-repository");
@@ -45,7 +45,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             "Local Jackrabbit");
 
     /** Jackrabbit local repository */
-    private TransientRepository repository;
+    protected TransientRepository repository;
     protected String repHome;
     private String nodeTypeFile;
     private ShutDownHook shutDownHook;
@@ -62,6 +62,17 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         if (shutDownHook != null) {
             Runtime.getRuntime().removeShutdownHook(shutDownHook);
         }
+    }
+
+    protected static boolean isRepositoryLocked(String repositoryHome) {
+        return new File(repositoryHome, LOCK_FILE).exists();
+    }
+
+    protected void createTransientRepo(String fullPath) throws RepositoryException {
+        if (isRepositoryLocked(repHome)) {
+            throw new RepositoryException("Repository is already locked.");
+        }
+        repository = new TransientRepository(fullPath, repHome);
     }
 
     // ------ private methods ------
@@ -89,7 +100,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             FileCopyUtils.copy(url.openStream(), tempRepositorySettingsStream);
             tempRepositorySettingsStream.close();
 
-            repository = new TransientRepository(fullPath, repHome);
+            createTransientRepo(fullPath);
 
             // Register shut down hook
             ShutDownHook shutDownHook = new ShutDownHook(this);
