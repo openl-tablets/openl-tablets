@@ -1,6 +1,7 @@
 package org.openl.rules.repository.factories;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,9 +64,19 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             Runtime.getRuntime().removeShutdownHook(shutDownHook);
         }
     }
-
+    
+    private static boolean isFileLocked(File file){
+        try{
+            new FileInputStream(file).read();
+            return false;
+        }catch (IOException e) {
+            return true;
+        }
+    }
+    
     protected static boolean isRepositoryLocked(String repositoryHome) {
-        return new File(repositoryHome, LOCK_FILE).exists();
+        File lockFile = new File(repositoryHome, LOCK_FILE);
+        return lockFile.exists() && isFileLocked(lockFile);
     }
 
     protected void createTransientRepo(String fullPath) throws RepositoryException {
