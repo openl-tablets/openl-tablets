@@ -43,20 +43,20 @@
     </h:panelGroup>
     
     <h:panelGroup rendered="#{!artefact.deleted}">
-      <h:panelGrid columns="9" cellpadding="4" cellspacing="0">
-        <c:if test="#{not (rulesUserSession.localUser and artefact.opened)}">
+      <h:panelGrid columns="5" cellpadding="4" cellspacing="0">
+        <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
           <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{artefact.canOpen};"/>
           <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
           <h:commandButton styleClass="#{artefact.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.canClose};"/>
           <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{artefact.canCheckOut};"/>
-        </c:if>
+        </h:panelGrid>
 
-        <c:if test="#{rulesUserSession.localUser and artefact.opened}">
+        <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
           <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" onclick="#{artefact.canClose} &amp;&amp; #{rich:component('modalOpenProject')}.show();return false;"/>
           <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
           <h:commandButton styleClass="#{artefact.canClose ? 'button':'disabledButton'}" value="Close" onclick="#{artefact.canClose} &amp;&amp; #{rich:component('modalCloseProject')}.show();return false;"/>
           <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" onclick="#{artefact.canCheckOut} &amp;&amp; #{rich:component('modalCheckOutProject')}.show();return false;"/>
-        </c:if>
+        </h:panelGrid>
 
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();return false;" />
         <h:commandButton styleClass="button" value="Copy" onclick="openCopyProjectDialog();return false;" />
