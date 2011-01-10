@@ -38,13 +38,13 @@ public class PoiExcelHelper {
         }
     }
 
-    public static void copyCellStyle(Cell cellFrom, Cell cellTo, Sheet sheet) {
+    public static void copyCellStyle(Cell cellFrom, Cell cellTo, Sheet sheetTo) {
         CellStyle styleFrom = cellFrom.getCellStyle();
         try {
             cellTo.setCellStyle(styleFrom);
         } catch (IllegalArgumentException e) { // copy cell style to cell of
                                                // another workbook
-            CellStyle styleTo = sheet.getWorkbook().createCellStyle();
+            CellStyle styleTo = sheetTo.getWorkbook().createCellStyle();
             styleTo.cloneStyleFrom(styleFrom);
             cellTo.setCellStyle(styleTo);
         }
