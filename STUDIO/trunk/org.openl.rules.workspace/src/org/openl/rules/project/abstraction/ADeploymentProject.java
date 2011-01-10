@@ -83,7 +83,7 @@ public class ADeploymentProject extends AProject {
         } else {
             descriptors = new ArrayList<ProjectDescriptor>();
         }
-        projectVersion = new RepositoryProjectVersionImpl(version, null);
+        projectVersion = openedProjectVersion.getVersion();
     }
 
     @Override
