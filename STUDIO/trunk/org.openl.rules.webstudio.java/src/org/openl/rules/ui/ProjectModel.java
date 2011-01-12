@@ -181,7 +181,7 @@ public class ProjectModel {
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
 
             final Object[] params = {};
 
@@ -980,7 +980,7 @@ public class ProjectModel {
 
     }
 
-    public Object runMethod(IOpenMethod m) {
+    public Object runMethod(IOpenMethod method) {
         
         if (!isProjectCompiledSuccessfully()) {
             return null;
@@ -991,12 +991,12 @@ public class ProjectModel {
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
 
             Object res = null;
 
             try {
-                res = m.invoke(target, new Object[] {}, env);
+                res = method.invoke(target, new Object[] {}, env);
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
@@ -1019,7 +1019,7 @@ public class ProjectModel {
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
 
             Object res = null;
 
@@ -1150,7 +1150,7 @@ public class ProjectModel {
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(moduleInfo.getProject().getClassLoader(false));
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
                 runElement(elementUri, testName, testID);
             } finally {
