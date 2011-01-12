@@ -42,10 +42,10 @@ public class JcrCommonArtefact {
     public void delete() throws RRepositoryException {
         try {
             Node n = node();
-
-            NodeUtil.smartCheckout(n, true);
+            Node parent = n.getParent();
 
             n.remove();
+            parent.save();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to Delete.", e);
         }
@@ -53,7 +53,7 @@ public class JcrCommonArtefact {
 
     public RVersion getActiveVersion() {
         try {
-            if (oldVersion) {
+            if (oldVersion || node.isNew()) {
                 RVersion result = new JcrVersion(node);
                 return result;
             } else {

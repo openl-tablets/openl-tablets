@@ -56,6 +56,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         File newFolder = new File(source, name);
         newFolder.mkdir();
         LocalFolderAPI localFolder = new LocalFolderAPI(newFolder, path.withSegment(name), workspace);
+        notifyModified();
         return localFolder;
     }
 
@@ -65,6 +66,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
             newFile.createNewFile();
             LocalResourceAPI newResource = new LocalResourceAPI(newFile, path.withSegment(name), workspace);
             newResource.setContent(content);
+            notifyModified();
             return newResource;
         } catch (IOException e) {
             throw new ProjectException("Failed to create resource", e);
@@ -85,5 +87,18 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
     @Override
     public FolderAPI getVersion(CommonVersion version) {
         return (FolderAPI)super.getVersion(version);
+    }
+    
+    @Override
+    public boolean isModified() {
+        if (super.isModified()) {
+            return true;
+        }
+        for (LocalArtefactAPI child : getArtefacts()) {
+            if (child.isModified()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -146,6 +146,10 @@ public class JcrVersion implements RVersion {
         version = new CommonVersionImpl(major, minor, version.getRevision());
     }
 
+    protected void set(int major, int minor, int revision) {
+        version = new CommonVersionImpl(major, minor, revision);
+    }
+
     protected void updateRevision(Node node) throws RepositoryException {
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }

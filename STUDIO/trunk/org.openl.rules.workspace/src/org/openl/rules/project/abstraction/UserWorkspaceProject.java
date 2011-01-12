@@ -41,10 +41,9 @@ public class UserWorkspaceProject extends AProject {
     }
 
     public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
-        update(local, repository, user);
-        repository.commit(user, major, minor);
+        smartUpdate(local, repository, user, major, minor);
         local.setCurrentVersion(repository.getVersion());
-        local.commit(null, 0, 0);// save persistence
+        local.commit(user, 0, 0, 0);// save persistence
         unlock(user);
         refresh();
     }
@@ -117,15 +116,18 @@ public class UserWorkspaceProject extends AProject {
         }
         source.mkdir();
         local.setCurrentVersion(openedProject.getVersion());
-        update(openedProject, local, null);
-        local.commit(null, 0, 0);// save persistence
+        update(openedProject, local, user, version.getMajor(), version.getMinor());
         setAPI(local);
         refresh();
     }
 
     // FIXME
-    private void update(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
-        new AProject(to, user).update(new AProject(from, user));
+    private void update(FolderAPI from, FolderAPI to, CommonUser user, int major, int minor) throws ProjectException {
+        new AProject(to, user).update(new AProject(from, user), user, major, minor);
+    }
+    
+    private void smartUpdate(FolderAPI from, FolderAPI to, CommonUser user, int major, int minor) throws ProjectException {
+        new AProject(to, user).smartUpdate(new AProject(from, user), user, major, minor);
     }
     
     @Override

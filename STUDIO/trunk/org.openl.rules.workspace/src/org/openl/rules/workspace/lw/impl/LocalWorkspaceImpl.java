@@ -70,7 +70,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
         AProject localProject = new AProject(new LocalFolderAPI(f, ap, this), user);
 
-        localProject.update(project);
+        localProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
         localProject.checkIn();
 
         // add project

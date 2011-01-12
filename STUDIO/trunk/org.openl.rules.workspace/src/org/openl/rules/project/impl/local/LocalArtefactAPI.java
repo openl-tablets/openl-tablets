@@ -31,10 +31,14 @@ public class LocalArtefactAPI implements ArtefactAPI {
     protected ArtefactPath path;
     private ProjectVersion currentVersion;
     private List<ProjectVersion> versions;
+    private boolean modified;
+    private long creationDate;
     protected LocalWorkspace workspace;
 
     public LocalArtefactAPI(File source, ArtefactPath path, LocalWorkspace workspace) {
         this.source = source;
+        this.modified = false;
+        this.creationDate = source.lastModified();
         this.path = path;
         this.workspace = workspace;
         currentVersion = new RepositoryProjectVersionImpl(0, 0, 0, null);
@@ -47,6 +51,8 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
         state.version = getVersion();
         state.props = getProps();
+        state.modified = this.modified;
+        state.creationDate = this.creationDate;
 
         state.properties = new ArrayList<Property>();
         state.properties.addAll(getProperties());
@@ -58,6 +64,9 @@ public class LocalArtefactAPI implements ArtefactAPI {
             ArtefactStateHolder state = (ArtefactStateHolder) stateHolder;
             this.currentVersion = state.version;
             this.props = state.props;
+            this.modified = state.modified;
+            this.creationDate = state.creationDate;
+            
             for (Property property : state.properties) {
                 try {
                     this.properties.addProperty(property);
@@ -80,12 +89,12 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void setProps(Map<String, Object> props) throws PropertyException {
         this.props = props;
-        save();
+        notifyModified();
     }
 
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {
         properties.addProperty(new PropertyImpl(name, type, value));
-        save();
+        notifyModified();
     }
 
     public Collection<Property> getProperties() {
@@ -138,7 +147,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void setCurrentVersion(ProjectVersion currentVersion) {
         this.currentVersion = currentVersion;
-        save();
+        notifyModified();
     }
 
     public List<ProjectVersion> getVersions() {
@@ -150,7 +159,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public void setVersions(List<ProjectVersion> versions) {
         this.versions = versions;
-        save();
+        notifyModified();
     }
 
     private static class ArtefactStateHolder implements StateHolder {
@@ -159,6 +168,8 @@ public class LocalArtefactAPI implements ArtefactAPI {
         private ProjectVersion version;
         private Map<String, Object> props;
         private Collection<Property> properties;
+        private boolean modified;
+        private long creationDate;
     }
 
     public LockInfo getLockInfo() {
@@ -187,7 +198,9 @@ public class LocalArtefactAPI implements ArtefactAPI {
         return new File(workspace.getLocation(), projectName);
     }
     
-    public void commit(CommonUser user, int major, int minor) throws ProjectException {
+    public void commit(CommonUser user, int major, int minor, int revision) throws ProjectException {
+        modified = false;
+        creationDate = source.lastModified();
         save();
     }
 
@@ -201,5 +214,14 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     protected void load(){
         new StatePersistance(this, getProjectLocation()).load();
+    }
+
+    protected void notifyModified() {
+        modified = true;
+        save();
+    }
+
+    public boolean isModified() {
+        return modified || creationDate != source.lastModified();
     }
 }

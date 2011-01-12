@@ -9,6 +9,7 @@ package org.openl.rules.repository.jcr;
 //TODO extract properties
 public interface JcrNT {
     // Node Types
+    String NT_COMMON_ENTITY = "openl:entity";
     String NT_REPOSITORY = "openl:repository";
     @Deprecated
     String NT_PROJECT = "openl:project";

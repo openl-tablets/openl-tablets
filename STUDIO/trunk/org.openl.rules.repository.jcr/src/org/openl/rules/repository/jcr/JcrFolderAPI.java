@@ -13,7 +13,6 @@ import javax.jcr.RepositoryException;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -157,7 +156,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         }
     }
 
-    public Collection<? extends ArtefactAPI> getArtefacts() {
+    public Collection<? extends JcrEntityAPI> getArtefacts() {
         List<JcrEntityAPI> artefacts = new ArrayList<JcrEntityAPI>();
         try {
             artefacts.addAll(getFolders());

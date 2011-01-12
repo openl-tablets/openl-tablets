@@ -257,7 +257,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 userDProjects.put(name, userDProject);
             } else {
                 // update existing
-                userDProject.update(ddp);
+                userDProject.update(ddp, user, ddp.getVersion().getMajor(), ddp.getVersion().getMinor());
             }
         }
 
