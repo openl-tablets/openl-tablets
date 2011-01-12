@@ -3,6 +3,10 @@ package org.openl.dependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.code.IDependency;
 
+/**
+ * Interface for dependency managers that handles loading dependent modules for projects.  
+ *
+ */
 public interface IDependencyManager {
     
     /**
