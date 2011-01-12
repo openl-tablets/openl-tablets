@@ -2,6 +2,12 @@ package org.openl.classloader;
 
 import java.util.Set;
 
+/**
+ * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find
+ * it in bundle classLoaders if can`t tries to find it in his parent.
+ * 
+ *
+ */
 public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
 
     public SimpleBundleClassLoader() {
@@ -23,16 +29,26 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
         return super.loadClass(name);
     }
     
-    protected  Class<?> findClassInBundles(String name) {
-        
+    /**
+     * Searches for class in bundle classLoaders.
+     */
+    protected Class<?> findClassInBundles(String name) {
+
         Set<ClassLoader> bundleClassLoaders = getBundleClassLoaders();
-        
+
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             try {
                 // if current class loader contains appropriate class - it will
                 // be returned as a result
                 //
-                Class<?> clazz = bundleClassLoader.loadClass(name);
+                Class<?> clazz = null;
+                if (bundleClassLoader instanceof SimpleBundleClassLoader &&
+                        bundleClassLoader.getParent() == this) {
+                    clazz = ((SimpleBundleClassLoader) bundleClassLoader).findLoadedClassInBundle(name);
+                } else {
+                    clazz = bundleClassLoader.loadClass(name);
+                }
+                // Class<?> clazz = findLoadedClass(name);
                 if (clazz != null) {
                     return clazz;
                 }
@@ -40,8 +56,12 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
                 // ignore exception
             }
         }
-        
+
         return null;
+    }
+
+    protected Class<?> findLoadedClassInBundle(String name) {
+        return findLoadedClass(name);
     }
 
 }
