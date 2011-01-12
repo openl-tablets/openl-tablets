@@ -249,7 +249,7 @@ public class DeploymentController {
                 String projectName = item.getName();
                 try {
                     AProject project = workspace.getProject(projectName);
-                    if (!project.isOpened()) {
+                    if (!project.isCheckedOut()) {
                         project.openVersion(item.getVersion());
                     }
                 } catch (ProjectException e) {
