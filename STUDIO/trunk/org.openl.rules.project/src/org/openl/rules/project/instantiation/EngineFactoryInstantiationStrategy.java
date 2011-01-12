@@ -1,8 +1,10 @@
 package org.openl.rules.project.instantiation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.runtime.EngineFactory;
@@ -18,9 +20,13 @@ import java.io.File;
  * @author PUdalau
  */
 public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrategy {
+    
+    private static final Log LOG = LogFactory.getLog(EngineFactoryInstantiationStrategy.class);
+    
     public static final String RULE_OPENL_NAME = "org.openl.xls";
 
     private EngineFactory<?> engineFactory;
+    
     public EngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
         super(module, executionMode, dependencyManager);
     }
@@ -28,7 +34,17 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
     public EngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
         super(module, executionMode, dependencyManager, classLoader);
     }
-
+    
+    @Override
+    public Class<?> getServiceClass() throws ClassNotFoundException {
+        // Service class for current implementation will be interface provided by user.
+        //
+        if (getRulesClass() == null) {
+            // Load rules interface and set it to strategy.
+            setRulesInterface(getClassLoader().loadClass(getModule().getClassname()));
+        }
+        return getRulesClass();
+    }
 
     @SuppressWarnings("unchecked")
     private EngineFactory<?> getEngineFactory(Class<?> clazz) {
@@ -46,14 +62,27 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
         
         return engineFactory;
     }
-
+    
     @Override
-    protected CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException,
+    protected CompiledOpenClass compile(boolean useExisting) throws InstantiationException,
+            IllegalAccessException {
+        try {
+            return compile(getServiceClass(), useExisting);
+        } catch (ClassNotFoundException e) {
+            String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
+            LOG.error(errorMessage, e);
+            throw new OpenlNotCheckedException(errorMessage, e);            
+        }
+    }
+
+    private CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
         EngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
-
+        
+        // Ensure that compilation will be done in strategy classLoader
+        //
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(clazz.getClassLoader()));
+        Thread.currentThread().setContextClassLoader(getClassLoader());
 
         try {
             if (!useExisting) {
@@ -66,12 +95,14 @@ public class EngineFactoryInstantiationStrategy extends RulesInstantiationStrate
     }
 
     @Override
-    protected Object instantiate(Class<?> clazz, boolean useExisting) throws InstantiationException,
+    protected Object instantiate(Class<?> rulesClass, boolean useExisting) throws InstantiationException,
             IllegalAccessException {
-        EngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
-
+        EngineFactory<?> engineInstanceFactory = getEngineFactory(rulesClass);
+        
+        // Ensure that instantiation will be done in strategy classLoader.
+        //
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(new SimpleBundleClassLoader(clazz.getClassLoader()));
+        Thread.currentThread().setContextClassLoader(getClassLoader());
 
         try {
             if (!useExisting) {

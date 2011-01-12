@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLClassLoader;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
@@ -76,7 +75,7 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
 
     
     @Override
-    protected CompiledOpenClass compile(Class<?> clazz, boolean useExisting) throws InstantiationException, IllegalAccessException {
+    protected CompiledOpenClass compile(boolean useExisting) throws InstantiationException, IllegalAccessException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
@@ -87,9 +86,11 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
     }
 
     @Override
-    protected Object instantiate(Class<?> clazz, boolean useExisting) throws InstantiationException, IllegalAccessException {
+    protected Object instantiate(Class<?> rulesClass, boolean useExisting) throws InstantiationException, 
+        IllegalAccessException {
+        
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        Thread.currentThread().setContextClassLoader(rulesClass.getClassLoader());
         try {
             return getEngineFactory().makeInstance();
         } finally {

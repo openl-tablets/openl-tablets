@@ -12,7 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.DependencyManager;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
@@ -68,10 +68,11 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
             try {
                 interfaceClass = RulesFactory.generateInterface(className, openClass, getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
-                throw new OpenLRuntimeException("Failed to create interface : " + className, e);
+                String errorMessage = String.format("Failed to create interface : %s", className);
+                LOG.error(errorMessage, e);
+                throw new OpenlNotCheckedException(errorMessage, e);
             }
         }
-
         return interfaceClass;
     }
 
@@ -92,7 +93,9 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
 
             return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
-            throw new OpenLRuntimeException("Cannot instantiate engine instance", ex);
+            String errorMessage = "Cannot instantiate engine instance";
+            LOG.error(errorMessage, ex);
+            throw new OpenlNotCheckedException(errorMessage, ex);
         }
     }
 

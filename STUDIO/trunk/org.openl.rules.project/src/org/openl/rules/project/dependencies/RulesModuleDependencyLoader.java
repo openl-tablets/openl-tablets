@@ -28,16 +28,17 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
     
     public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) {
 
-        Module module = findDependencyModule(dependencyName);
+        Module dependencyModule = findDependencyModule(dependencyName);
         
-        if(module != null) {
+        if(dependencyModule != null) {
      
             try {
-                URL[] urls = module.getProject().getClassPathUrls();
-                OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader();
+                URL[] urls = dependencyModule.getProject().getClassPathUrls();
+                ClassLoader oldClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
+                OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader(oldClassLoader);
                 OpenLClassLoaderHelper.extendClasspath(moduleClassLoader, urls);
                 
-                RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(module, 
+                RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(dependencyModule, 
                     dependencyManager.isExecutionMode(), dependencyManager, moduleClassLoader);
                 CompiledOpenClass compiledOpenClass = strategy.compile(ReloadType.NO);
                 
