@@ -45,9 +45,14 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
             interfaceClass = null;
         }
     }
-
+    
+    /**
+     * Creates java interface for rules project.
+     * 
+     * @return interface for rules project.
+     */
     public Class<?> getInterfaceClass() {
-        if(interfaceClass == null){
+        if (interfaceClass == null) {
             IOpenClass openClass = getCompiledOpenClass().getOpenClass();
             String className = openClass.getName();
             try {
