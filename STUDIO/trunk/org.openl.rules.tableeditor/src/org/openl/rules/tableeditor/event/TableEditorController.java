@@ -35,6 +35,7 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
     private static final String ERROR_SAVE_TABLE = "Failed to save table.";
+    private static final String ERROR_SET_STYLE = "Failed to set style.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
         + " Please close project Excel file and try again.";
 
@@ -184,12 +185,22 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
+
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
+
             ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
             int currentIndent = style != null ? style.getIdent() : 0;
             int resultIndent = currentIndent + indent;
-            editorModel.setIndent(row, col, resultIndent >= 0 ? resultIndent : 0);
-            return pojo2json(new TableModificationResponse(null, editorModel));
+
+            try {
+                editorModel.setIndent(row, col, resultIndent >= 0 ? resultIndent : 0);
+            } catch (Exception e) {
+                LOG.error(ERROR_SET_STYLE, e);
+                response.setStatus(ERROR_SET_STYLE);
+            }
+
+            return pojo2json(response);
         }
         return null;
     }
@@ -252,6 +263,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
             int halign = -1;
             if ("left".equalsIgnoreCase(align)) {
@@ -267,10 +279,15 @@ public class TableEditorController extends BaseTableEditorController implements 
             if (halign != -1) {
                 ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
                 if (style == null || style.getHorizontalAlignment() != halign) {
-                    editorModel.setAlignment(row, col, halign);
+                    try {
+                        editorModel.setAlignment(row, col, halign);
+                    } catch (Exception e) {
+                        LOG.error(ERROR_SET_STYLE, e);
+                        response.setStatus(ERROR_SET_STYLE);
+                    }
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorModel));
+            return pojo2json(response);
         }
         return null;
     }
@@ -281,15 +298,22 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             Boolean bold = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_BOLD);
 
             if (bold != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
                 if (font == null || font.isBold() != bold) {
-                    editorModel.setFontBold(row, col, bold);
+                    try {
+                        editorModel.setFontBold(row, col, bold);
+                    } catch (Exception e) {
+                        response.setStatus(ERROR_SET_STYLE);
+                        LOG.error(ERROR_SET_STYLE, e);
+                    }
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorModel));
+
+            return pojo2json(response);
         }
         return null;
     }
@@ -300,15 +324,21 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             Boolean italic = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_ITALIC);
 
             if (italic != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
                 if (font == null || font.isItalic() != italic) {
-                    editorModel.setFontItalic(row, col, italic);
+                    try {
+                        editorModel.setFontItalic(row, col, italic);
+                    } catch (Exception e) {
+                        LOG.error(ERROR_SET_STYLE, e);
+                        response.setStatus(ERROR_SET_STYLE);
+                    }
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorModel));
+            return pojo2json(response);
         }
         return null;
     }
@@ -319,15 +349,21 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             Boolean underlined = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_UNDERLINE);
 
             if (underlined != null) {
                 ICellFont font = editorModel.getOriginalGridTable().getCell(col, row).getFont();
                 if (font == null || font.isUnderlined() != underlined) {
-                    editorModel.setFontUnderline(row, col, underlined);
+                    try {
+                        editorModel.setFontUnderline(row, col, underlined);
+                    } catch (Exception e) {
+                        LOG.error(ERROR_SET_STYLE, e);
+                        response.setStatus(ERROR_SET_STYLE);
+                    }
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorModel));
+            return pojo2json(response);
         }
         return null;
     }
@@ -338,6 +374,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String colorStr = getRequestParam(Constants.REQUEST_PARAM_COLOR);
 
             if (colorStr != null) {
@@ -350,10 +387,15 @@ public class TableEditorController extends BaseTableEditorController implements 
                                 (color[0] != currentColor[0] || // red
                                  color[1] != currentColor[1] || // green
                                  color[2] != currentColor[2]))) { // blue
-                    editorModel.setFillColor(row, col, color);
+                    try {
+                        editorModel.setFillColor(row, col, color);
+                    } catch (Exception e) {
+                        LOG.error(ERROR_SET_STYLE, e);
+                        response.setStatus(ERROR_SET_STYLE);
+                    }
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorModel));
+            return pojo2json(response);
         }
         return null;
     }
@@ -364,6 +406,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String colorStr = getRequestParam(Constants.REQUEST_PARAM_COLOR);
 
             if (colorStr != null) {
@@ -376,10 +419,15 @@ public class TableEditorController extends BaseTableEditorController implements 
                                 (color[0] != currentColor[0] || // red
                                  color[1] != currentColor[1] || // green
                                  color[2] != currentColor[2]))) { // blue
-                    editorModel.setFontColor(row, col, color);
+                    try {
+                        editorModel.setFontColor(row, col, color);
+                    } catch (Exception e) {
+                        LOG.error(ERROR_SET_STYLE, e);
+                        response.setStatus(ERROR_SET_STYLE);
+                    }
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorModel));
+            return pojo2json(response);
         }
         return null;
     }
