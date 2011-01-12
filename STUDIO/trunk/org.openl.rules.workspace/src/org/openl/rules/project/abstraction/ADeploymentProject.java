@@ -16,7 +16,6 @@ import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
-import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ResourceAPI;
@@ -135,7 +134,7 @@ public class ADeploymentProject extends AProject {
                 e.printStackTrace();
             }
         }
-        getAPI().commit(user, major, minor);
+        getAPI().commit(user, major, minor, getVersion().getRevision() + 1);
         close();
     }
 
@@ -159,7 +158,7 @@ public class ADeploymentProject extends AProject {
     }
 
     @Override
-    public void update(AProjectArtefact artefact) throws ProjectException {
+    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         // super.update(artefact); TODO
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());

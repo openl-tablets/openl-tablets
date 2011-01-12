@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
@@ -61,7 +62,7 @@ public class AProjectFolder extends AProjectArtefact {
         return createdResource;
     }
 
-    public Collection<AProjectArtefact> getArtefacts() {
+    public synchronized Collection<AProjectArtefact> getArtefacts() {
         return getArtefactsInternal().values();
     }
 
@@ -71,8 +72,8 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     @Override
-    public void update(AProjectArtefact newFolder) throws ProjectException {
-        super.update(newFolder);
+    public void update(AProjectArtefact newFolder, CommonUser user, int major, int minor) throws ProjectException {
+        super.update(newFolder, user, major, minor);
         if (this.isFolder()) {
 
             AProjectFolder folder = (AProjectFolder) newFolder;
@@ -88,7 +89,7 @@ public class AProjectFolder extends AProjectArtefact {
 
                     if (newArtefact.isFolder() == artefact.isFolder()) {
                         // update existing
-                        artefact.update(newArtefact);
+                        artefact.update(newArtefact, user, major, minor);
                     } else {
                         // the same name but other type
                         artefact.delete();
@@ -101,12 +102,56 @@ public class AProjectFolder extends AProjectArtefact {
                 String name = artefact.getName();
                 if (!hasArtefact(name)) {
                     if (artefact.isFolder()) {
-                        addFolder(name).update(artefact);
+                        addFolder(name).update(artefact, user, major, minor);
                     } else {
-                        addResource(name, (AProjectResource) artefact).update(artefact);
+                        addResource(name, (AProjectResource) artefact).update(artefact, user, major, minor);
                     }
                 }
             }
+        }
+        save(user, major, minor);
+    }
+    
+    @Override
+    public void smartUpdate(AProjectArtefact newFolder, CommonUser user, int major, int minor) throws ProjectException {
+        if (newFolder.isModified()) {
+            super.smartUpdate(newFolder, user, major, minor);
+            if (this.isFolder()) {
+
+                AProjectFolder folder = (AProjectFolder) newFolder;
+                // remove absent
+                for (AProjectArtefact artefact : getArtefacts()) {
+                    String name = artefact.getName();
+
+                    if (!folder.hasArtefact(name)) {
+                        // was deleted
+                        artefact.delete();
+                    } else {
+                        AProjectArtefact newArtefact = folder.getArtefact(name);
+
+                        if (newArtefact.isFolder() == artefact.isFolder()) {
+                            // update existing
+                            artefact.smartUpdate(newArtefact, user, major, minor);
+                        } else {
+                            // the same name but other type
+                            artefact.delete();
+                        }
+                    }
+                }
+
+                // add new
+                for (AProjectArtefact artefact : folder.getArtefacts()) {
+                    String name = artefact.getName();
+                    if (!hasArtefact(name)) {
+                        if (artefact.isFolder()) {
+                            addFolder(name).update(artefact, user, major, minor);
+                        } else {
+                            addResource(name, (AProjectResource) artefact).update(artefact, user, major, minor);
+                        }
+                    }
+                }
+            }
+            save(user, major, minor);
         }
     }
 

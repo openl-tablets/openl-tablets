@@ -42,6 +42,10 @@ public class NodeUtil {
             throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects '" + nodeType + "'!");
         }
     }
+    
+    public static boolean isVersionable(Node node) throws RepositoryException {
+        return node.isNodeType(JcrNT.MIX_VERSIONABLE);
+    }
 
     public static Calendar convertDate2Calendar(Date date) {
         if (date == null) {

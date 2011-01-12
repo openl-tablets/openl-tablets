@@ -10,9 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -27,7 +25,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.repository.RLock;
@@ -55,7 +52,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     private JcrLock lock;
 
-    private CommonVersionImpl risedVersion;
     private JcrVersion version;
     private ArtefactPath path;
 
@@ -78,26 +74,20 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     }
 
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {
-        //FIXME
-        try {
-            NodeUtil.smartCheckout(node(), false);
-        } catch (RepositoryException e) {
-            throw new PropertyException("Internal error.", e);
-        }
-
         if (hasProperty(name)) {
             removeProperty(name);
         }
 
         if (value != null) {
-            JcrProperty jp;
             try {
-                jp = new JcrProperty(node(), name, type, value);
-            } catch (RRepositoryException e) {
-                throw new PropertyException("Internal error.", e);
-            }
-            properties.put(name, jp);
-            try {
+                NodeUtil.smartCheckout(node(), false);
+                JcrProperty jp;
+                try {
+                    jp = new JcrProperty(node(), name, type, value);
+                } catch (RRepositoryException e) {
+                    throw new PropertyException("Internal error.", e);
+                }
+                properties.put(name, jp);
                 node().save();
             } catch (RepositoryException e) {
                 throw new PropertyException("Internal error.", e);
@@ -213,11 +203,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         Node n = node();
         try {
             NodeUtil.smartCheckout(n, false);
-        } catch (RepositoryException e) {
-            throw new PropertyException("Internal error.", e);
-        }
-
-        try {
             n.getProperty(name).remove();
             n.save();
         } catch (RepositoryException e) {
@@ -292,95 +277,19 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             throw new ProjectException("", e);
         }
     }
-
-    public void riseVersion(int major, int minor) throws RRepositoryException {
-        int ma = version.getMajor();
-        int mi = version.getMinor();
-
-        // clear in case of invalid input
-        risedVersion = null;
-
-        if (major < ma) {
-            throw new RRepositoryException("New major version is less than current!", null);
-        } else if (major == ma) {
-            if (minor < mi) {
-                throw new RRepositoryException(
-                        "New minor version cannot be less than current, when major version remains unchanged!", null);
-            }
-        }
-
-        risedVersion = new CommonVersionImpl(major, minor, version.getRevision());
-    }
-
-    public void commit(CommonUser user) throws RRepositoryException {
-        if (risedVersion != null) {
-            version.set(risedVersion.getMajor(), risedVersion.getMinor());
-            risedVersion = null;
-        }
-
-        try {
-            Node n = node();
-            NodeUtil.smartCheckout(n, true);
-            version.nextRevision();
-            version.updateVersion(n);
-
-            commitParent(n.getParent());
-            checkInAll(n, user);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to checkin project ''{0}''!", e, getName());
-        }
-    }
-
-    protected void commitParent(Node parent) throws RepositoryException {
-        if (parent.isModified()) {
+    
+    private void saveParent(Node node) throws RepositoryException{
+        Node parent = node.getParent();
+        if (parent.isNew()) {
+            saveParent(parent);
+        } else if (parent.isModified()) {
             parent.save();
-        }
-        if (parent.isCheckedOut()) {
-            if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
-                parent.save();
-                parent.checkin();
-            }
-        }
-    }
-
-    protected void checkInAll(Node n, CommonUser user) throws RepositoryException {
-        NodeIterator ni = n.getNodes();
-
-        while (ni.hasNext()) {
-            Node child = ni.nextNode();
-            checkInAll(child, user);
-        }
-
-        boolean saveProps = false;
-        PropertyIterator pi = n.getProperties();
-        while (pi.hasNext()) {
-            Property p = pi.nextProperty();
-            if (p.isModified() || p.isNew()) {
-                saveProps = true;
-                break;
-            }
-        }
-
-        boolean mustBeSaved = (saveProps || n.isModified() || n.isNew());
-        boolean mustBeCheckedIn = (n.isNodeType(JcrNT.MIX_VERSIONABLE) && n.isCheckedOut());
-
-        if (mustBeCheckedIn) {
-            version.updateRevision(n);
-            n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
-            n.save();
-            LOG.info("Checking in... " + n.getPath());
-            n.checkin();
-        } else if (mustBeSaved) {
-            LOG.info("Saving... " + n.getPath());
-            n.save();
         }
     }
 
     public void delete(CommonUser user) throws ProjectException {
         try {
-            Node parent = node().getParent();
             delete();
-            commitParent(parent);
         } catch (Exception e) {
             throw new ProjectException("Failed to delete node.", e);
         }
@@ -429,12 +338,24 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
-    public void commit(CommonUser user, int major, int minor) throws ProjectException {
+    public void commit(CommonUser user, int major, int minor, int revision) throws ProjectException {
         try {
-            riseVersion(major, minor);
-            commit(user);
-        } catch (RRepositoryException e) {
-            throw new ProjectException("", e);
+            Node n = node();
+            saveParent(n);
+
+            if (NodeUtil.isVersionable(n)) {
+                version.set(major, minor, revision);
+                version.updateVersion(n);
+                n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
+                LOG.info("Checking in... " + n.getPath());
+                n.save();
+                n.checkin();
+            } else {
+                n.save();
+                LOG.info("Saving... " + n.getPath());
+            }
+        } catch (RepositoryException e) {
+            throw new ProjectException("Failed to checkin project ''{0}''!", e, getName());
         }
     }
 
@@ -453,5 +374,10 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             removeProperty(propertyName);
         }
         properties.clear();
+    }
+
+    public boolean isModified() {
+        //FIXME always false
+        return node().isModified();
     }
 }

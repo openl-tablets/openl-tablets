@@ -61,7 +61,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         try {
             RProductionRepository rRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
 
-            if (rRepository.hasDeployment(id.getName())) {
+            if (rRepository.hasDeploymentProject(id.getName())) {
                 alreadyDeployed = true;
             } else {
 
@@ -73,7 +73,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 
                 copyProperties(deployment, deploymentProject);
 
-                deployment.commit(user, 0, 0);
+                deployment.commit(user, 0, 0, 1);
             }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
@@ -91,7 +91,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName());
         AProject copiedProject = new AProject(rProject, user);
-        copiedProject.update(project);
+        copiedProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
         copiedProject.checkIn();
     }
 }

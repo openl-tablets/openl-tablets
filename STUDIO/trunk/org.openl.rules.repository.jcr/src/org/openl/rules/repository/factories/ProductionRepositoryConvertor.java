@@ -32,6 +32,7 @@ import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrEntityAPI;
@@ -167,7 +168,8 @@ public class ProductionRepositoryConvertor {
             JcrFolderAPI jcrProject = new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { project.getName() }));
             copyFolder(project, jcrProject);
             CommonUser user = system;
-            jcrProject.commit(user);
+            RVersion version = project.getActiveVersion();
+            jcrProject.commit(user, version.getMajor(), version.getMinor(), version.getRevision());
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

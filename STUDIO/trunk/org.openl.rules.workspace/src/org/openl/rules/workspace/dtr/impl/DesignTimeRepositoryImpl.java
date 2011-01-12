@@ -12,7 +12,6 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -71,7 +70,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             throws ProjectException {
         createDDProject(name);
         ADeploymentProject newProject = getDDProject(name);
-        newProject.update(project);
+        newProject.update(project, user, 0, 0);
         newProject.checkIn(user);
     }
 
@@ -88,8 +87,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             log.debug("Wrapping temporary write project...");
             AProject newProject = wrapProject(writeRep.createRulesProject(name), false);
 
-            newProject.update(project);
-            newProject.checkIn(user);
+            newProject.update(project, user, 0, 0);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         } catch (Exception e) {
@@ -280,7 +278,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
                 log.debug(msg);
             }
 
-            project4Write.update(sourceProject);
+            project4Write.update(sourceProject, user, 0, 0);
             project4Write.checkIn(major, minor);
         } catch (Exception e) {
             throw new RepositoryException("Failed to update project ''{0}''.", e, name);

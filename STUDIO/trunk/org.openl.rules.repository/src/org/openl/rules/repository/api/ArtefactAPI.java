@@ -15,6 +15,8 @@ import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
 
 public interface ArtefactAPI{
+    boolean isModified();
+    
     void addProperty(String name, ValueType type, Object value) throws PropertyException;
 
     /**
@@ -67,7 +69,7 @@ public interface ArtefactAPI{
 
     LockInfo getLockInfo();
     
-    void commit(CommonUser user, int major, int minor) throws ProjectException;
+    void commit(CommonUser user, int major, int minor, int revision) throws ProjectException;
     void lock(CommonUser user) throws ProjectException;
 
     void unlock(CommonUser user) throws ProjectException;

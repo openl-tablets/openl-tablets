@@ -198,7 +198,7 @@ public class RepositoryConvertor {
                     } else {
                         user = system;
                     }
-                    jcrProject.commit(user, version.getMajor(), version.getMinor());
+                    jcrProject.commit(user, version.getMajor(), version.getMinor(), version.getRevision());
                 }
             }
             if (project.isMarked4Deletion()) {
@@ -337,7 +337,7 @@ public class RepositoryConvertor {
                     } else {
                         user = system;
                     }
-                    jcrDDproject.commit(user, version.getMajor(), version.getMinor());
+                    jcrDDproject.commit(user, version.getMajor(), version.getMinor(), version.getRevision());
                 }
             }
             if (project.isMarked4Deletion()) {

@@ -59,6 +59,7 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         try {
             fos = new FileOutputStream(source);
             IOUtils.copy(inputStream, fos);
+            notifyModified();
         } catch (IOException e) {
             throw new ProjectException("Failed to set content.", e);
         } finally {

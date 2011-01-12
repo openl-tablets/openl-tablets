@@ -147,7 +147,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         return getAPI().getVersions();
     }
 
-    public void update(AProjectArtefact artefact) throws ProjectException {
+    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         try {
             setProps(artefact.getProps());
         } catch (PropertyException e1) {
@@ -168,6 +168,39 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         refresh();
     }
 
+    /**
+     * As usual update but this update will use only artefacts which is modified.
+     * 
+     * @param artefact A source artefact to extract data from.
+     * @throws ProjectException
+     */
+    public void smartUpdate(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+        if (artefact.isModified()) {
+            try {
+                setProps(artefact.getProps());
+            } catch (PropertyException e1) {
+                // TODO log
+                e1.printStackTrace();
+            }
+            try {
+                getAPI().removeAllProperties();
+
+                // set all properties
+                for (Property property : artefact.getProperties()) {
+                    addProperty(property);
+                }
+            } catch (PropertyException e) {
+                // TODO log
+                e.printStackTrace();
+            }
+            refresh();
+        }
+    }
+
+    protected void save(CommonUser user, int major, int minor) throws ProjectException {
+        getAPI().commit(user, major, minor, getProject().getVersion().getRevision() + 1);
+    }
+    
     public boolean getCanModify() {
         return (getProject().isCheckedOut() && isGranted(PRIVILEGE_EDIT));
     }
@@ -202,5 +235,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     public LockInfo getLockInfo() {
         return getAPI().getLockInfo();
+    }
+    
+    public boolean isModified(){
+        return impl.isModified();
     }
 }

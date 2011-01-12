@@ -113,7 +113,7 @@ public class AProject extends AProjectFolder {
     }
 
     public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
-        getAPI().commit(user, major, minor);
+        save(user, major, minor);
         unlock(user);
         refresh();
     }
@@ -203,10 +203,19 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    public void update(AProjectArtefact artefact) throws ProjectException {
-        super.update(artefact);
+    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         AProject project = (AProject) artefact;
         setDependencies(project.getDependencies());
+        super.update(artefact, user, major, minor);
+    }
+    
+    @Override
+    public void smartUpdate(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+        if (artefact.isModified()) {
+            AProject project = (AProject) artefact;
+            setDependencies(project.getDependencies());
+            super.smartUpdate(artefact, user, major, minor);
+        }
     }
 
     public boolean getCanCheckOut() {
