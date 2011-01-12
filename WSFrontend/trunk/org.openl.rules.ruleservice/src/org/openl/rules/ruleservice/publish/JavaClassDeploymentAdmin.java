@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +9,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.main.OpenLWrapper;
+import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
+import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -37,7 +42,7 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         for (ProjectDescriptor wsInfo : infoList) {
             for (Module rulesModule : wsInfo.getModules()) {
                 try {
-                    OpenLWrapper wrapper = deploy(deploymentName, rulesModule);
+                    OpenLWrapper wrapper = deploy(deploymentName, rulesModule, infoList);
                     projectWrappers.put(rulesModule.getName(), wrapper);
                 } catch (Exception e) {
                     log.error("failed to create service", e);
@@ -51,12 +56,28 @@ public class JavaClassDeploymentAdmin implements DeploymentAdmin {
         onAfterDeployment(deploymentName, projectWrappers);
     }
 
-    private OpenLWrapper deploy(String serviceName, Module rulesModule)
+    private OpenLWrapper deploy(String serviceName, Module rulesModule, List<ProjectDescriptor> infoList)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true, null);
+        IDependencyManager dependencyManager = initDependencyManager(infoList);
+        RulesInstantiationStrategy strategy = 
+            RulesInstantiationStrategyFactory.getStrategy(rulesModule, true, dependencyManager);
 
         return (OpenLWrapper) strategy.instantiate(ReloadType.SINGLE);
 
+    }
+
+    private IDependencyManager initDependencyManager(List<ProjectDescriptor> infoList) {
+        List<Module> modules = new ArrayList<Module>();
+        for (ProjectDescriptor wsInfo : infoList) {
+            modules.addAll(wsInfo.getModules());
+        }
+        RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
+        
+        dependencyManager.setExecutionMode(true);
+        IDependencyLoader loader1 = new RulesModuleDependencyLoader(modules);
+        
+        dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
+        return dependencyManager;
     }
 
     private void onAfterDeployment(String deploymentName, Map<String, OpenLWrapper> projectWrappers) {

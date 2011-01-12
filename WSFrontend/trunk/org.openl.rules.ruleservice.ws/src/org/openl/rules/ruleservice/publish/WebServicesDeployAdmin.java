@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
+import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -22,11 +27,11 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
     
     private static final Log LOG = LogFactory.getLog(WebServicesDeployAdmin.class);
     
-    private ObjectFactory serverFactory;
+    private ObjectFactory<?> serverFactory;
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
     private String baseAddress;
     private RulesServiceEnhancer serviceEnhancer;
-    private boolean provideRuntimeContext;
+    private boolean provideRuntimeContext;    
 
     public String getBaseAddress() {
         return baseAddress;
@@ -36,11 +41,11 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         this.baseAddress = address;
     }
 
-    public ObjectFactory getServerFactory() {
+    public ObjectFactory<?> getServerFactory() {
         return serverFactory;
     }
 
-    public void setServerFactory(ObjectFactory serverFactory) {
+    public void setServerFactory(ObjectFactory<?> serverFactory) {
         this.serverFactory = serverFactory;
     }
 
@@ -61,7 +66,7 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         for (ProjectDescriptor wsInfo : infoList) {
             for (Module rulesModule : wsInfo.getModules()) {
                 try {
-                    servers.add(deploy(address, rulesModule));
+                    servers.add(deploy(address, rulesModule, infoList));
                 } catch (Throwable t) {
                     LOG.error("Failed to create service", t);
                 }
@@ -71,12 +76,12 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         runningServices.put(serviceName, servers);
     }
 
-    private Server deploy(String baseAddress, Module rulesModule)
+    private Server deploy(String baseAddress, Module rulesModule, List<ProjectDescriptor> infoList)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
-
-        instantiateServiceBean(rulesModule, svrFactory);
-
+        
+        instantiateServiceBean(rulesModule, svrFactory, infoList);
+       
         return exposeWebService(baseAddress, rulesModule, svrFactory);
     }
     
@@ -96,20 +101,36 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
         return new ServerFactoryBean();
     }
  
-    private void instantiateServiceBean(Module rulesModule, ServerFactoryBean svrFactory)
+    @SuppressWarnings("deprecation")
+    private void instantiateServiceBean(Module rulesModule, ServerFactoryBean svrFactory, List<ProjectDescriptor> infoList)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-
-        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true, null);
+        IDependencyManager dependencyManager = initDependencyManager(infoList);
+        
+        RulesInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(rulesModule, true, dependencyManager);
         
         if (isProvideRuntimeContext()) {
-            serviceEnhancer = new RulesServiceEnhancer(strategy);
+            serviceEnhancer = new RulesServiceEnhancer(strategy);         
+            
             svrFactory.setServiceClass(serviceEnhancer.getServiceClass());
-            svrFactory.setServiceBean(serviceEnhancer.instantiate(ReloadType.SINGLE));
+            svrFactory.setServiceBean(serviceEnhancer.instantiate(ReloadType.SINGLE));            
         } else {
             svrFactory.setServiceClass(strategy.getServiceClass());
             svrFactory.setServiceBean(strategy.instantiate(ReloadType.SINGLE));
+        }            
+    }
+    
+    private IDependencyManager initDependencyManager(List<ProjectDescriptor> infoList) {
+        List<Module> modules = new ArrayList<Module>();
+        for (ProjectDescriptor wsInfo : infoList) {
+            modules.addAll(wsInfo.getModules());
         }
-            
+        RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
+        
+        dependencyManager.setExecutionMode(true);
+        IDependencyLoader loader1 = new RulesModuleDependencyLoader(modules);
+        
+        dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
+        return dependencyManager;
     }
 
     protected String getServiceNameForModule(Module rulesModule) {
@@ -123,6 +144,19 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
     
     private Server exposeWebService(String baseAddress, Module rulesModule, ServerFactoryBean svrFactory) {
         svrFactory.setAddress(baseAddress + getServiceNameForModule(rulesModule));
-        return svrFactory.create();
+        Server wsServer =  null;
+        
+        // Set classLoader used for whole compilation of Openl rules and loading service class of Openl
+        // as current one. It is done to give access to datatypes generated and loaded to classloader at runtime.
+        //
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();                
+        Thread.currentThread().setContextClassLoader(svrFactory.getServiceClass().getClassLoader());
+        try {
+            wsServer =  svrFactory.create();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+        
+        return wsServer;
     }
 }
