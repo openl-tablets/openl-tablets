@@ -112,6 +112,7 @@ public class RulesServiceEnhancer {
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
+    @SuppressWarnings("deprecation")
     private InvocationHandler makeInvocationHandler(ReloadType reloadType) throws Exception {
 
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(), instantiationStrategy.getServiceClass());

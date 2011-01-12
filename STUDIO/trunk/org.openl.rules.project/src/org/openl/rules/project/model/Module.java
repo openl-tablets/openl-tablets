@@ -60,5 +60,10 @@ public class Module {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
+    
+    @Override
+    public String toString() {    
+        return name;
+    }
 
 }
