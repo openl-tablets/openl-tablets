@@ -152,27 +152,22 @@ public class SimpleBeanByteCodeGenerator {
      * @return <code>Class<?></code> descriptor for given byteCode
      */
     private Class<?> loadClass(byte[] byteCode) {
+        Class<?> result = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         try {
-            // try to define bean class in classloader, and return
-            // class object.
+            // try to load bean class from current classloader.
+            // if fails define it to this classloader.
             if (isClassLoaderContainsClass(classLoader, beanName)) {
-                return classLoader.loadClass(beanName);
+                result = classLoader.loadClass(beanName);
+                LOG.debug(String.format("Datatype %s is using previously loaded", beanName));
+                return result;
             } else {
-                return ReflectUtils.defineClass(beanName, byteCode, classLoader);
+                result = ReflectUtils.defineClass(beanName, byteCode, classLoader);
+                LOG.debug(String.format("Datatype %s is using generated at runtime", beanName));
+                    return result;
             }
         } catch (Exception ex) {
-            LOG.debug(this, ex);
-            try {
-                // if defining fails, when this class already exists in
-                // classloader,
-                // try to return class object previosly loaded.
-                return Class.forName(beanName, true, classLoader);
-            } catch (Exception e) {
-                LOG.error(this, e);
-            } catch (VerifyError exc) {
-                LOG.error(this, exc);
-            }
+            LOG.error(this, ex);
         }
 
         return null;
