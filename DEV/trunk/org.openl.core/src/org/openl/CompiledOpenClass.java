@@ -10,7 +10,7 @@ import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 
@@ -64,18 +64,22 @@ public class CompiledOpenClass {
     }
 
     public boolean hasErrors() {
-        List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
+        List<OpenLMessage> errorMessages = getErrorMessages();
         return (parsingErrors.length > 0) || (bindingErrors.length > 0) || 
             (errorMessages != null && !errorMessages.isEmpty());
     }
 
+    private List<OpenLMessage> getErrorMessages() {
+        return OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
+    }
+
     public void throwErrorExceptionsIfAny() {
         if (parsingErrors.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error(s):", parsingErrors);
+            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, getErrorMessages());
         }
 
         if (bindingErrors.length > 0) {
-            throw new CompositeSyntaxNodeException("Binding Error(s):", bindingErrors);
+            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, getErrorMessages());
         }
 
     }
