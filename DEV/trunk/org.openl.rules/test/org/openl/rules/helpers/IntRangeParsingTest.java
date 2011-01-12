@@ -10,6 +10,7 @@ import java.io.File;
 
 import org.junit.Test;
 import org.openl.rules.TestHelper;
+import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 /**
@@ -111,7 +112,7 @@ public class IntRangeParsingTest {
             instance.hello1(10);
         } catch (Exception e) {
             assertTrue(e.toString().contains("IntRangeParsing1.xls?sheet=hello2&cell=C8"));
-            assertEquals(e.getClass(), CompositeSyntaxNodeException.class);
+            assertEquals(CompositeOpenlException.class, e.getClass());
         }
     }
 }

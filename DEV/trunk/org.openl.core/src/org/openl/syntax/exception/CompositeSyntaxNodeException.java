@@ -9,13 +9,15 @@ package org.openl.syntax.exception;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.openl.exception.OpenlNotCheckedException;
+
 /**
  * <code>SyntaxNodeException</code> is the base exception class of those
  * exceptions that can be thrown by engine during compilation process.
  * 
  * @author snshor
  */
-public class CompositeSyntaxNodeException extends RuntimeException {
+public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = 6239517302604363701L;
 
