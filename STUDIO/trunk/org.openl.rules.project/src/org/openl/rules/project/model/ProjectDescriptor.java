@@ -90,7 +90,10 @@ public class ProjectDescriptor {
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
             unregisterClassloader(classLoader);
-            URL[] urls = getClassPathUrls();
+            URL[] urls = new URL[0]; 
+            // temporary commented. as we extends the strategies classloaders with this URLS.
+            // it is done to ensure that wrapper class will be loaded with strategy classloader. 
+//            URL[] urls = getClassPathUrls();
             classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
         }
         return classLoader;
