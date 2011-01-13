@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
@@ -376,8 +375,7 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
     }
 
     private void reportError(String clientId, String detail) {
-        FacesContext.getCurrentInstance().addMessage(clientId,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error: ", detail));
+        FacesUtils.addMessage(clientId, "Validation Error: ", detail, FacesMessage.SEVERITY_ERROR);
     }
 
     @Override

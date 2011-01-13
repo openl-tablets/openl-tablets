@@ -63,7 +63,7 @@ public class ExcelDiffController extends AbstractDiffController {
                         file1.getFile().getAbsolutePath(), file2.getFile().getAbsolutePath());
                 setDiffTree(diffTree);
             } catch (OpenLRuntimeException e) {
-                FacesUtils.addMessage(e.getMessage());
+                FacesUtils.addInfoMessage(e.getMessage());
             } finally {
                 // Clean up
                 file1.getFile().delete();

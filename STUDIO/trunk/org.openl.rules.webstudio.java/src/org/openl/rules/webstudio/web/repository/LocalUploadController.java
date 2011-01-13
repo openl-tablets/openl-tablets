@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -9,9 +10,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,7 +81,7 @@ public class LocalUploadController {
                         }
                     } catch (Exception e) {
                         LOG.error("Failed to list projects for upload!", e);
-                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
+                        FacesUtils.addErrorMessage(e.getMessage());
                     }
                 }
             }
@@ -92,9 +90,7 @@ public class LocalUploadController {
     }
 
     private RulesUserSession getRules() {
-        HttpSession session = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
-                .getSession(false);
-
+        HttpSession session = FacesUtils.getSession();
         return WebStudioUtils.getRulesUserSession(session);
     }
 
@@ -110,15 +106,12 @@ public class LocalUploadController {
                 if (bean.isSelected()) {
                     try {
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
-                        FacesContext.getCurrentInstance().addMessage(
-                                null,
-                                new FacesMessage(FacesMessage.SEVERITY_INFO, "Project " + bean.getProjectName()
-                                        + " was uploaded succesfully", null));
+                        FacesUtils.addInfoMessage("Project " + bean.getProjectName()
+                                        + " was uploaded succesfully");
                     } catch (Exception e) {
                         String msg = "Failed to upload local project '" + bean.getProjectName() + "'!";
                         LOG.error(msg, e);
-                        FacesContext.getCurrentInstance().addMessage(null,
-                                new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+                        FacesUtils.addErrorMessage(msg, e.getMessage());
                     }
                 }
             }

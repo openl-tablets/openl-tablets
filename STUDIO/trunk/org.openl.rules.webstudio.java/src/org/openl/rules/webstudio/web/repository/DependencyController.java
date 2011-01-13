@@ -14,8 +14,6 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,14 +67,12 @@ public class DependencyController {
 
         try {
             if (!project.addDependency(dependency)) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "duplicate dependency", null));
+                FacesUtils.addErrorMessage("duplicate dependency");
                 return null;
             }
         } catch (ProjectException e) {
             LOG.error("Failed to add dependency!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+            FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
 
@@ -87,27 +83,20 @@ public class DependencyController {
         ProjectVersion projectVersion1 = versionFromString(lowerVersion);
         ProjectVersion projectVersion2 = null;
         if (projectVersion1 == null) {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "lower version format error",
-                            "expected format - X[.Y[.Z]]"));
+            FacesUtils.addErrorMessage("lower version format error", "expected format - X[.Y[.Z]]");
             return null;
         }
         if (!StringUtils.isEmpty(upperVersion)) {
             projectVersion2 = versionFromString(upperVersion);
 
             if (projectVersion2 == null) {
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "upper version format error",
-                                "expected format - X[.Y[.Z]]"));
+                FacesUtils.addErrorMessage("upper version format error", "expected format - X[.Y[.Z]]");
                 return null;
             }
         }
 
         if ((projectVersion2 != null) && (projectVersion1.compareTo(projectVersion2) > 0)) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "lower version is greater than upper one", null));
+            FacesUtils.addErrorMessage("lower version is greater than upper one", null);
             return null;
         }
 
@@ -169,7 +158,7 @@ public class DependencyController {
             return selectItems.toArray(new SelectItem[selectItems.size()]);
         } catch (ProjectException e) {
             LOG.error("Cannot get project versions", e);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
+            FacesUtils.addErrorMessage(e.getMessage());
         }
 
         return new SelectItem[0];

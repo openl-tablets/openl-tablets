@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
@@ -161,8 +159,7 @@ public abstract class WizardBase extends BaseWizardBean {
             doSave();
             success = true;
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not save table.", e.getMessage()));
+            FacesUtils.addErrorMessage("Could not save table.", e.getMessage());
             LOG.error("Could not save table: ", e);
         }
         if (success) {

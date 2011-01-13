@@ -22,8 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 /**
@@ -50,8 +48,7 @@ public class DeploymentController {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
             LOG.error("Failed to add project descriptor!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to add project descriptor", e.getMessage()));
+            FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
         return null;
@@ -74,8 +71,7 @@ public class DeploymentController {
             items = null;
         } catch (ProjectException e) {
             LOG.error("Failed to check-in!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check in", e.getMessage()));
+            FacesUtils.addErrorMessage("failed to check in", e.getMessage());
         }
 
         return null;
@@ -87,8 +83,7 @@ public class DeploymentController {
             items = null;
         } catch (ProjectException e) {
             LOG.error("Failed to check-out!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check out", e.getMessage()));
+            FacesUtils.addErrorMessage("failed to check out", e.getMessage());
         }
 
         return null;
@@ -100,11 +95,7 @@ public class DeploymentController {
             items = null;
         } catch (ProjectException e) {
             LOG.error("Failed to close!", e);
-            FacesContext.getCurrentInstance()
-                    .addMessage(
-                            null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to close deployment project", e
-                                    .getMessage()));
+            FacesUtils.addErrorMessage("failed to close deployment project", e.getMessage());
         }
 
         return null;
@@ -118,8 +109,7 @@ public class DeploymentController {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
             LOG.error("Failed to delete project descriptor!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to add project descriptor", e.getMessage()));
+            FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
         return null;
     }
@@ -129,15 +119,12 @@ public class DeploymentController {
         if (project != null) {
             try {
                 DeployID id = deploymentManager.deploy(project);
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Project '" + project.getName()
-                                + "' successfully deployed with id: " + id.getName(), null));
+                FacesUtils.addInfoMessage("Project '" + project.getName()
+                                + "' successfully deployed with id: " + id.getName());
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
                 LOG.error(msg, e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+                FacesUtils.addErrorMessage(msg, e.getMessage());
             }
         }
         return null;
@@ -168,8 +155,7 @@ public class DeploymentController {
             checkConflicts(items);
         } catch (ProjectException e) {
             LOG.error("Failed to check conflicts!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), e.getMessage()));
+            FacesUtils.addErrorMessage(e.getMessage());
         }
 
         return items;
