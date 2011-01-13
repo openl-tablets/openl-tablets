@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="openlAutoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+    <property name="interceptorNames">
+      <list>
+        <idref bean="openlManagerSecurity"/>
+      </list>
+    </property>
+    <property name="beanNames">
+      <list>
+        <idref bean="designTimeRepository"/>
+        <idref bean="productionDeployerManager"/>
+      </list>
+    </property>
+    <property name="proxyTargetClass" value="true"/>
+  </bean>
+
+  <bean id="initAccessManager" class="org.openl.rules.security.AccessManager" lazy-init="false">
+    <property name="staticAccessDecisionManager" ref="accessDecisionManager"/>
+  </bean>
+</beans>
