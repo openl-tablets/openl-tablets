@@ -343,10 +343,12 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             Node n = node();
             saveParent(n);
 
+            NodeUtil.smartCheckout(n, false);
+            version.set(major, minor, revision);
+            version.updateVersion(n);
+            n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
+
             if (NodeUtil.isVersionable(n)) {
-                version.set(major, minor, revision);
-                version.updateVersion(n);
-                n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
                 LOG.info("Checking in... " + n.getPath());
                 n.save();
                 n.checkin();

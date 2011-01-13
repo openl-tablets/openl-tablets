@@ -122,19 +122,21 @@ public class ADeploymentProject extends AProject {
         } else {
             String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
             try {
+                AProjectResource resource;
                 if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                    ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
-                            .setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
+                    resource = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE));
+                    resource.setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
                 } else {
-                    addResource(ArtefactProperties.DESCRIPTORS_FILE,
-                            new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
+                    resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
+                            descriptorsAsString.getBytes("UTF-8")));
                 }
+                resource.save(user, major, minor);
             } catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        getAPI().commit(user, major, minor, getVersion().getRevision() + 1);
+        save(user, major, minor);
         close();
     }
 
@@ -162,6 +164,7 @@ public class ADeploymentProject extends AProject {
         // super.update(artefact); TODO
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
+        save(user, major, minor);
     }
 
     public boolean getCanDeploy() {
