@@ -3,9 +3,7 @@ package org.openl.rules.ui.tablewizard.jsf;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.ui.tablewizard.TableWizard;
 
@@ -88,10 +86,8 @@ public abstract class BaseWizardBean {
             onStart();
             return getName();
         } catch (IllegalArgumentException e) {
-            // process the error during starting.
-            //
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can`t create wizard for this kind of table.", e.getMessage()));
+            // Process the error during starting.
+            FacesUtils.addErrorMessage("Can`t create wizard for this kind of table.", e.getMessage());
             return TableWizard.ERROR;
         }
    

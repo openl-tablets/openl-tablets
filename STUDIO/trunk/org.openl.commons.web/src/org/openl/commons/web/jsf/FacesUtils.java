@@ -8,6 +8,7 @@ import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -57,10 +58,6 @@ public abstract class FacesUtils {
 
     public static FacesContext getFacesContext() {
         return FacesContext.getCurrentInstance();
-    }
-
-    public static void addMessage(String message) {
-        getFacesContext().addMessage(null, new FacesMessage(message));
     }
 
     public static ValueExpression createValueExpression(String expressionString) {
@@ -171,6 +168,42 @@ public abstract class FacesUtils {
     public static void redirect(String page) throws IOException {
         HttpServletResponse response = (HttpServletResponse) getResponse();
         response.sendRedirect(page);
+    }
+
+    public static void addMessage(String summary, Severity severity) {
+        addMessage(summary, null, severity);
+    }
+
+    public static void addMessage(String summary, String detail, Severity severity) {
+        addMessage(null, summary, detail, severity);
+    }
+
+    public static void addMessage(String clientId, String summary, String detail, Severity severity) {
+        getFacesContext().addMessage(clientId, new FacesMessage(severity, summary, detail));
+    }
+
+    public static void addInfoMessage(String summary) {
+        addInfoMessage(summary, null);
+    }
+
+    public static void addInfoMessage(String summary, String detail) {
+        addMessage(summary, detail, FacesMessage.SEVERITY_INFO);
+    }
+
+    public static void addErrorMessage(String summary) {
+        addErrorMessage(summary, null);
+    }
+
+    public static void addErrorMessage(String summary, String detail) {
+        addMessage(summary, detail, FacesMessage.SEVERITY_ERROR);
+    }
+
+    public static void addWarnMessage(String summary) {
+        addWarnMessage(summary, null);
+    }
+
+    public static void addWarnMessage(String summary, String detail) {
+        addMessage(summary, detail, FacesMessage.SEVERITY_WARN);
     }
 
 }

@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -195,8 +193,7 @@ public class OpenLAdvancedSearchBean {
                 savedSearch.setName(getNewSearchName());
                 webStudio.getModel().saveSearch(savedSearch);
             } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage("Failed to save search", e.getMessage()));
+                FacesUtils.addErrorMessage("Failed to save search", e.getMessage());
                 LOG.error("failed to save search", e);
             }
         }

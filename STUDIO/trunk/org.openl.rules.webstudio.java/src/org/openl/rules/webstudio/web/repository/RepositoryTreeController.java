@@ -44,7 +44,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
@@ -94,21 +93,18 @@ public class RepositoryTreeController {
      */
     public String addFile() {
         if (getLastUploadedFile() == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Please select file to be uploaded."));
+            FacesUtils.addErrorMessage("Please select file to be uploaded.");
             return null;
         }
         if (StringUtils.isEmpty(fileName)) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "File name must not be empty."));
+            FacesUtils.addErrorMessage("File name must not be empty.");
             return null;
         }
         String errorMessage = uploadAndAddFile();
         if (errorMessage == null) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("File was uploaded successfully."));
+            FacesUtils.addInfoMessage("File was uploaded successfully.");
         } else {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+            FacesUtils.addErrorMessage(errorMessage);
         }
         return null;
     }
@@ -134,8 +130,7 @@ public class RepositoryTreeController {
         }
 
         if (errorMessage != null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to create folder.", errorMessage));
+            FacesUtils.addErrorMessage("Failed to create folder.", errorMessage);
         }
         return null;
     }
@@ -147,8 +142,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to check in project.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance()
-                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null));
+            FacesUtils.addErrorMessage(msg);
         }
         return null;
     }
@@ -160,8 +154,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to check out project.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -173,8 +166,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to close project.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -187,8 +179,7 @@ public class RepositoryTreeController {
             project = userWorkspace.getDDProject(projectName);
         } catch (ProjectException e) {
             LOG.error("Cannot obtain deployment project '" + projectName + "'.", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
+            FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
 
@@ -203,8 +194,7 @@ public class RepositoryTreeController {
         }
 
         if (errorMessage != null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Cannot copy deployment project.", errorMessage));
+            FacesUtils.addErrorMessage("Cannot copy deployment project.", errorMessage);
             return null;
         }
 
@@ -215,8 +205,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to copy deployment project.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
 
         return null;
@@ -230,8 +219,7 @@ public class RepositoryTreeController {
             project = userWorkspace.getProject(projectName);
         } catch (ProjectException e) {
             LOG.error("Cannot obtain rules project '" + projectName + "'.", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
+            FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
 
@@ -259,8 +247,7 @@ public class RepositoryTreeController {
         }
 
         if (errorMessage != null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Cannot copy project.", errorMessage));
+            FacesUtils.addErrorMessage("Cannot copy project.", errorMessage);
             return null;
         }
 
@@ -271,8 +258,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to copy project.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
 
         return null;
@@ -286,8 +272,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -296,8 +281,7 @@ public class RepositoryTreeController {
         InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
         String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
         if (sampleRulesSource == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+            FacesUtils.addErrorMessage(errorMessage);
             return null;
         }
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
@@ -323,10 +307,7 @@ public class RepositoryTreeController {
             project.delete();
         } catch (ProjectException e) {
             LOG.error("Cannot delete deployment project '" + projectName + "'.", e);
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to delete deployment project.", e
-                            .getMessage()));
+            FacesUtils.addErrorMessage("Failed to delete deployment project.", e.getMessage());
         }
         return null;
     }
@@ -341,8 +322,7 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
         } catch (ProjectException e) {
             LOG.error("Error deleting element.", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting.", e.getMessage()));
+            FacesUtils.addErrorMessage("Error deleting.", e.getMessage());
         }
         return null;
     }
@@ -360,8 +340,7 @@ public class RepositoryTreeController {
             }
         } catch (ProjectException e) {
             LOG.error("Failed to delete node.", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to delete node.", e.getMessage()));
+            FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
         }
         return null;
     }
@@ -380,8 +359,7 @@ public class RepositoryTreeController {
             }
         } catch (ProjectException e) {
             LOG.error("Cannot delete rules project '" + projectName + "'.", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to delete rules project.", e.getMessage()));
+            FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
         return null;
     }
@@ -396,10 +374,8 @@ public class RepositoryTreeController {
         if (!project.isDeleted()) {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Cannot erase project '" + project.getName()
-                            + "'. It must be marked for deletion first!"));
+            FacesUtils.addErrorMessage("Cannot erase project '" + project.getName()
+                    + "'. It must be marked for deletion first!");
             return null;
         }
 
@@ -410,8 +386,7 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateTree();
             String msg = "Cannot erase project '" + project.getName() + "'.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance()
-                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, null, msg));
+            FacesUtils.addErrorMessage(msg);
         }
         return null;
     }
@@ -428,13 +403,12 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to export project version.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
 
         if (zipFile != null) {
-            final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
             writeOutContent(response, zipFile, zipFileName);
             facesContext.responseComplete();
 
@@ -733,8 +707,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to open project.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -746,8 +719,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Failed to open project version.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -850,10 +822,7 @@ public class RepositoryTreeController {
         if (!SPECIAL_DATE.equals(propValue)) {
             setProperty(propName, propValue);
         } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Specified " + getPropUIName(propName)
-                            + " value is not a valid date."));
+            FacesUtils.addErrorMessage("Specified " + getPropUIName(propName) + " value is not a valid date.");
         }
     }
 
@@ -863,14 +832,10 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setEffectiveDate(date);
             } catch (PropertyException e) {
                 LOG.error("Failed to set effective date!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set effective date.", e.getMessage()));
+                FacesUtils.addErrorMessage("Can not set effective date.", e.getMessage());
             }
         } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified effective date value is not a valid date."));
+            FacesUtils.addErrorMessage("Specified effective date value is not a valid date.");
         }
     }
 
@@ -880,14 +845,10 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setExpirationDate(date);
             } catch (PropertyException e) {
                 LOG.error("Failed to set expiration date!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set expiration date.", e.getMessage()));
+                FacesUtils.addErrorMessage("Can not set expiration date.", e.getMessage());
             }
         } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified expiration date value is not a valid date."));
+            FacesUtils.addErrorMessage("Specified expiration date value is not a valid date.");
         }
     }
 
@@ -917,8 +878,7 @@ public class RepositoryTreeController {
                     .setLineOfBusiness(lineOfBusiness);
         } catch (PropertyException e) {
             LOG.error("Failed to set LOB!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set line of business.", e.getMessage()));
+            FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
         }
     }
 
@@ -948,10 +908,7 @@ public class RepositoryTreeController {
             }
             setProperty(propName, numberValue);
         } catch (NumberFormatException e) {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Specified " + getPropUIName(propName)
-                            + " value is not a number."));
+            FacesUtils.addErrorMessage("Specified " + getPropUIName(propName) + " value is not a number.");
         }
     }
 
@@ -978,8 +935,7 @@ public class RepositoryTreeController {
         } catch (PropertyException e) {
             String propUIName = getPropUIName(propName);
             LOG.error("Failed to set " + propUIName + "!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set " + propUIName + ".", e.getMessage()));
+            FacesUtils.addErrorMessage("Can not set " + propUIName + ".", e.getMessage());
         }
     }
 
@@ -1006,10 +962,8 @@ public class RepositoryTreeController {
     public String undeleteProject() {
         AProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Cannot undelete project '" + project.getName()
-                            + "'.", "Project is not marked for deletion."));
+            FacesUtils.addErrorMessage("Cannot undelete project '" + project.getName()
+                    + "'.", "Project is not marked for deletion.");
             return null;
         }
 
@@ -1019,8 +973,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             String msg = "Cannot undelete project '" + project.getName() + "'.";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -1032,19 +985,14 @@ public class RepositoryTreeController {
      */
     public String updateFile() {
         if (getLastUploadedFile() == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Please select file to be uploaded."));
+            FacesUtils.addErrorMessage("Please select file to be uploaded.");
             return null;
         }
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("File was successfully updated."));
+            FacesUtils.addInfoMessage(("File was successfully updated."));
         } else {
-            FacesContext.getCurrentInstance()
-                    .addMessage(
-                            null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage,
-                                    "Error occured during uploading file."));
+            FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file.");
         }
         return null;
     }
@@ -1056,14 +1004,13 @@ public class RepositoryTreeController {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
             } catch (ProjectException e) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
+                FacesUtils.addErrorMessage(e.getMessage());
             }
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Project was uploaded successfully."));
+            FacesUtils.addInfoMessage("Project was uploaded successfully.");
         } else {
-            // don`t need to add errorMessage. It was added in #processErrorMessage method 
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, "Error while uploading project."));
+            // Don`t need to add errorMessage.
+            // It was added in #processErrorMessage method
+            FacesUtils.addErrorMessage("Error while uploading project.");
         }
         return null;
     }
@@ -1135,8 +1082,7 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateTree();
             clearUploadedFiles();
         } else {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
+            FacesUtils.addErrorMessage(errorMessage);
         }
     }
 
@@ -1163,8 +1109,7 @@ public class RepositoryTreeController {
         } catch (final IOException e) {
             String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response!";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+            FacesUtils.addErrorMessage(msg, e.getMessage());
         } finally {
             if (input != null) {
                 try {

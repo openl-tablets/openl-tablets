@@ -4,11 +4,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -184,15 +182,12 @@ public class SmartRedeployController {
         for (ADeploymentProject deploymentProject : successfulyUpdated) {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject);
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Project '" + project.getName()
-                                + "' successfully deployed with id: " + id.getName(), null));
+                FacesUtils.addInfoMessage("Project '" + project.getName()
+                                + "' successfully deployed with id: " + id.getName());
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
                 LOG.error(msg, e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+                FacesUtils.addErrorMessage(msg, e.getMessage());
             }
         }
 
@@ -225,10 +220,7 @@ public class SmartRedeployController {
 
             if (deploymentProject.isLocked()) {
                 // someone else is locked it while we were thinking
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Deployment project '" + deploymentName
-                                + "' is locked by other user", null));
+                FacesUtils.addWarnMessage("Deployment project '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
                 deploymentProject.checkOut();
@@ -238,17 +230,13 @@ public class SmartRedeployController {
 
                 deploymentProject.checkIn();
 
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Deployment project '" + deploymentName
-                                + "' successfully updated", null));
+                FacesUtils.addInfoMessage("Deployment project '" + deploymentName + "' successfully updated");
                 return deploymentProject;
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deployment project '" + deploymentName + "'";
             LOG.error(msg, e);
-            FacesContext.getCurrentInstance()
-                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null));
+            FacesUtils.addErrorMessage(msg);
         }
 
         return null;

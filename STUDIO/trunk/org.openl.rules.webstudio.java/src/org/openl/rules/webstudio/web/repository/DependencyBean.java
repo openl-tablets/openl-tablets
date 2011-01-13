@@ -5,9 +5,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 
-import javax.faces.context.FacesContext;
-import javax.faces.application.FacesMessage;
-
 public class DependencyBean {
     private String projectName;
     private String lowerVersion;
@@ -22,7 +19,7 @@ public class DependencyBean {
                 try {
                     project.removeDependency(projectName);
                 } catch (ProjectException e) {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
+                    FacesUtils.addErrorMessage(e.getMessage());
                     return UiConst.OUTCOME_FAILURE;
                 }
             }
