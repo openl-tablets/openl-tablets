@@ -5,13 +5,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-eclipse-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.7.4.RC1</version>
+  <version>5.7.4-SNAPSHOT</version>
   <name>OpenL Eclipse SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags/release-5.7.4.RC1</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags/release-5.7.4.RC1</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</developerConnection>
   </scm>
 
   <modules>
