@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Rules Mapping Library
 Bundle-SymbolicName: org.openl.rules.mapping.lib
-Bundle-Version: 5.7.4
+Bundle-Version: 5.7.4.RC1
 Bundle-Vendor: OpenL
 Export-Package: org.apache.commons.beanutils,
  org.apache.commons.beanutils.converters,
