@@ -94,7 +94,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         boolean multiValue = false;
 
-        if (valuesHeight == 1 && RuleRowHelper.isCommaSeparatedArray(valuesTable)) {
+        if (valuesHeight == 1) {
 
             multiValue = true;
             RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
