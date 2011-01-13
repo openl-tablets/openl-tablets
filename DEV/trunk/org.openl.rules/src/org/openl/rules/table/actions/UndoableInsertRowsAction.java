@@ -37,7 +37,7 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected boolean canPerformAction(IGridTable table) {        
-        return UndoableInsertRowsAction.canInsertRows(table, nRows);
+        return UndoableInsertRowsAction.canInsertRows(table, getNumberToInsert(table));
     }
 
     @Override
