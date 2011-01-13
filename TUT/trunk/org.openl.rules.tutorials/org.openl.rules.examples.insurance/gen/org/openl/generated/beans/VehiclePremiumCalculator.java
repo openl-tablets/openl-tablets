@@ -5,11 +5,11 @@
 package org.openl.generated.beans;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.openl.generated.beans.InsurableVehicle;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.openl.generated.beans.InsurableDriver;
-import org.apache.commons.lang.ArrayUtils;
 import java.util.Vector;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.ArrayUtils;
+import org.openl.generated.beans.InsurableDriver;
+import org.openl.generated.beans.InsurableVehicle;
 
 public class VehiclePremiumCalculator{
   protected org.openl.generated.beans.InsurableVehicle vehicle;
@@ -33,14 +33,29 @@ public VehiclePremiumCalculator(InsurableVehicle vehicle, Vector discountsForVeh
     this.discountsForDriver = discountsForDriver;
     this.designatedDriver = designatedDriver;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getVehicle());
-    builder.append(getDiscountsForVehicle());
-    builder.append(getDiscountsForDriver());
-    builder.append(getDesignatedDriver());
-    return builder.toHashCode();
+  public org.openl.generated.beans.InsurableVehicle getVehicle() {
+   return vehicle;
+}
+  public java.util.Vector getDiscountsForVehicle() {
+   return discountsForVehicle;
+}
+  public java.util.Vector getDiscountsForDriver() {
+   return discountsForDriver;
+}
+  public org.openl.generated.beans.InsurableDriver getDesignatedDriver() {
+   return designatedDriver;
+}
+  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
+   this.vehicle = vehicle;
+}
+  public void setDiscountsForVehicle(java.util.Vector discountsForVehicle) {
+   this.discountsForVehicle = discountsForVehicle;
+}
+  public void setDiscountsForDriver(java.util.Vector discountsForDriver) {
+   this.discountsForDriver = discountsForDriver;
+}
+  public void setDesignatedDriver(org.openl.generated.beans.InsurableDriver designatedDriver) {
+   this.designatedDriver = designatedDriver;
 }
 
 public boolean equals(Object obj) {
@@ -70,29 +85,14 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
-  public org.openl.generated.beans.InsurableVehicle getVehicle() {
-   return vehicle;
-}
-  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
-   this.vehicle = vehicle;
-}
-  public java.util.Vector getDiscountsForVehicle() {
-   return discountsForVehicle;
-}
-  public void setDiscountsForVehicle(java.util.Vector discountsForVehicle) {
-   this.discountsForVehicle = discountsForVehicle;
-}
-  public java.util.Vector getDiscountsForDriver() {
-   return discountsForDriver;
-}
-  public void setDiscountsForDriver(java.util.Vector discountsForDriver) {
-   this.discountsForDriver = discountsForDriver;
-}
-  public org.openl.generated.beans.InsurableDriver getDesignatedDriver() {
-   return designatedDriver;
-}
-  public void setDesignatedDriver(org.openl.generated.beans.InsurableDriver designatedDriver) {
-   this.designatedDriver = designatedDriver;
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getVehicle());
+    builder.append(getDiscountsForVehicle());
+    builder.append(getDiscountsForDriver());
+    builder.append(getDesignatedDriver());
+    return builder.toHashCode();
 }
 
 }

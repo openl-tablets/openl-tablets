@@ -4,17 +4,17 @@
 
 package org.openl.generated.beans;
 
-import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Discount{
+  protected boolean showInPolicy;
+
   protected double value;
 
   protected java.lang.String type;
-
-  protected boolean showInPolicy;
 
 
 
@@ -28,13 +28,11 @@ public Discount(String type, double value, boolean showInPolicy) {
     this.value = value;
     this.showInPolicy = showInPolicy;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getType());
-    builder.append(getValue());
-    builder.append(getShowInPolicy());
-    return builder.toHashCode();
+  public boolean getShowInPolicy() {
+   return showInPolicy;
+}
+  public void setShowInPolicy(boolean showInPolicy) {
+   this.showInPolicy = showInPolicy;
 }
 
 public boolean equals(Object obj) {
@@ -61,6 +59,14 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getType());
+    builder.append(getValue());
+    builder.append(getShowInPolicy());
+    return builder.toHashCode();
+}
   public double getValue() {
    return value;
 }
@@ -72,12 +78,6 @@ public String toString() {
 }
   public void setType(java.lang.String type) {
    this.type = type;
-}
-  public boolean getShowInPolicy() {
-   return showInPolicy;
-}
-  public void setShowInPolicy(boolean showInPolicy) {
-   this.showInPolicy = showInPolicy;
 }
 
 }

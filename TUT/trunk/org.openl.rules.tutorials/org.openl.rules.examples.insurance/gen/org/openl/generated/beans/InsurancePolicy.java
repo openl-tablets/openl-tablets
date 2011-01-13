@@ -6,20 +6,20 @@ package org.openl.generated.beans;
 
 import org.openl.generated.beans.Address;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.openl.generated.beans.InsurableVehicle;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.generated.beans.Usage;
-import org.openl.generated.beans.InsurableDriver;
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.generated.beans.InsurableDriver;
+import org.openl.generated.beans.InsurableVehicle;
 
 public class InsurancePolicy{
-  protected org.openl.generated.beans.Address address;
-
   protected org.openl.generated.beans.InsurableDriver[] drivers;
 
   protected org.openl.generated.beans.InsurableVehicle[] vehicles;
 
   protected org.openl.generated.beans.Usage[] usages;
+
+  protected org.openl.generated.beans.Address address;
 
 
 
@@ -34,17 +34,23 @@ public InsurancePolicy(InsurableDriver[] drivers, InsurableVehicle[] vehicles, U
     this.usages = usages;
     this.address = address;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getDrivers());
-    builder.append(getVehicles());
-    builder.append(getUsages());
-    builder.append(getAddress());
-    return builder.toHashCode();
+  public org.openl.generated.beans.InsurableDriver[] getDrivers() {
+   return drivers;
 }
-  public org.openl.generated.beans.Address getAddress() {
-   return address;
+  public org.openl.generated.beans.InsurableVehicle[] getVehicles() {
+   return vehicles;
+}
+  public org.openl.generated.beans.Usage[] getUsages() {
+   return usages;
+}
+  public void setDrivers(org.openl.generated.beans.InsurableDriver[] drivers) {
+   this.drivers = drivers;
+}
+  public void setVehicles(org.openl.generated.beans.InsurableVehicle[] vehicles) {
+   this.vehicles = vehicles;
+}
+  public void setUsages(org.openl.generated.beans.Usage[] usages) {
+   this.usages = usages;
 }
 
 public boolean equals(Object obj) {
@@ -74,26 +80,20 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getDrivers());
+    builder.append(getVehicles());
+    builder.append(getUsages());
+    builder.append(getAddress());
+    return builder.toHashCode();
+}
+  public org.openl.generated.beans.Address getAddress() {
+   return address;
+}
   public void setAddress(org.openl.generated.beans.Address address) {
    this.address = address;
-}
-  public org.openl.generated.beans.InsurableDriver[] getDrivers() {
-   return drivers;
-}
-  public void setDrivers(org.openl.generated.beans.InsurableDriver[] drivers) {
-   this.drivers = drivers;
-}
-  public org.openl.generated.beans.InsurableVehicle[] getVehicles() {
-   return vehicles;
-}
-  public void setVehicles(org.openl.generated.beans.InsurableVehicle[] vehicles) {
-   this.vehicles = vehicles;
-}
-  public org.openl.generated.beans.Usage[] getUsages() {
-   return usages;
-}
-  public void setUsages(org.openl.generated.beans.Usage[] usages) {
-   this.usages = usages;
 }
 
 }

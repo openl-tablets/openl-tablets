@@ -94,38 +94,6 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenField test2_Field;
-
-  public org.openl.types.impl.DynamicObject[] getTest2()
-  {
-   Object __res = test2_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
-  }
-
-
-  public void setTest2(org.openl.types.impl.DynamicObject[] __var)
-  {
-   test2_Field.set(__instance, __var, __env.get());
-  }
-
-
-
-  static org.openl.types.IOpenField test3_Field;
-
-  public org.openl.types.impl.DynamicObject[] getTest3()
-  {
-   Object __res = test3_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
-  }
-
-
-  public void setTest3(org.openl.types.impl.DynamicObject[] __var)
-  {
-   test3_Field.set(__instance, __var, __env.get());
-  }
-
-
-
   static org.openl.types.IOpenField test1_Field;
 
   public org.openl.types.impl.DynamicObject[] getTest1()
@@ -158,6 +126,38 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenField test2_Field;
+
+  public org.openl.types.impl.DynamicObject[] getTest2()
+  {
+   Object __res = test2_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setTest2(org.openl.types.impl.DynamicObject[] __var)
+  {
+   test2_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField test3_Field;
+
+  public org.openl.types.impl.DynamicObject[] getTest3()
+  {
+   Object __res = test3_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setTest3(org.openl.types.impl.DynamicObject[] __var)
+  {
+   test3_Field.set(__instance, __var, __env.get());
+  }
+
+
+
   static org.openl.types.IOpenMethod test1TestAll_Method;
   public org.openl.rules.testmethod.TestUnitsResults test1TestAll()  {
     Object[] __params = new Object[0];
@@ -165,23 +165,6 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     {
     Object __myInstance = __instance;
     Object __res = test1TestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod test3TestAll_Method;
-  public org.openl.rules.testmethod.TestUnitsResults test3TestAll()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = test3TestAll_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
   catch(Throwable t)
   {
@@ -209,15 +192,14 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   }
 
 
-  static org.openl.types.IOpenMethod scoreIssueImportance_Method;
-  public java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue)  {
-    Object[] __params = new Object[1];
-    __params[0] = issue;
+  static org.openl.types.IOpenMethod test3TestAll_Method;
+  public org.openl.rules.testmethod.TestUnitsResults test3TestAll()  {
+    Object[] __params = new Object[0];
     try
     {
     Object __myInstance = __instance;
-    Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.String)__res;  }
+    Object __res = test3TestAll_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.testmethod.TestUnitsResults)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -235,6 +217,24 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     {
     Object __myInstance = __instance;
     Object __res = needApprovalOf_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod scoreIssueImportance_Method;
+  public java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue)  {
+    Object[] __params = new Object[1];
+    __params[0] = issue;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -288,20 +288,20 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
-    test2_Field = __class.getField("test2");
-    test3_Field = __class.getField("test3");
     test1_Field = __class.getField("test1");
     this_Field = __class.getField("this");
+    test2_Field = __class.getField("test2");
+    test3_Field = __class.getField("test3");
     test1TestAll_Method = __class.getMatchingMethod("test1TestAll", new IOpenClass[] {
-});
-    test3TestAll_Method = __class.getMatchingMethod("test3TestAll", new IOpenClass[] {
 });
     test2TestAll_Method = __class.getMatchingMethod("test2TestAll", new IOpenClass[] {
 });
-    scoreIssueImportance_Method = __class.getMatchingMethod("scoreIssueImportance", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
+    test3TestAll_Method = __class.getMatchingMethod("test3TestAll", new IOpenClass[] {
+});
     needApprovalOf_Method = __class.getMatchingMethod("needApprovalOf", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Expense.class)});
+    scoreIssueImportance_Method = __class.getMatchingMethod("scoreIssueImportance", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
     scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, org.openl.tablets.tutorial7.Issue.class)});
 

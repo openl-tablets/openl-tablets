@@ -5,9 +5,9 @@
 package org.openl.generated.beans;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import java.util.Vector;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.ArrayUtils;
-import java.util.Vector;
 
 public class PolicyPremiumCalculator{
   protected java.util.Vector discounts;
@@ -25,12 +25,17 @@ public PolicyPremiumCalculator(Vector discounts, Vector rejections) {
     this.discounts = discounts;
     this.rejections = rejections;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getDiscounts());
-    builder.append(getRejections());
-    return builder.toHashCode();
+  public java.util.Vector getDiscounts() {
+   return discounts;
+}
+  public java.util.Vector getRejections() {
+   return rejections;
+}
+  public void setDiscounts(java.util.Vector discounts) {
+   this.discounts = discounts;
+}
+  public void setRejections(java.util.Vector rejections) {
+   this.rejections = rejections;
 }
 
 public boolean equals(Object obj) {
@@ -54,17 +59,12 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
-  public java.util.Vector getDiscounts() {
-   return discounts;
-}
-  public void setDiscounts(java.util.Vector discounts) {
-   this.discounts = discounts;
-}
-  public java.util.Vector getRejections() {
-   return rejections;
-}
-  public void setRejections(java.util.Vector rejections) {
-   this.rejections = rejections;
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getDiscounts());
+    builder.append(getRejections());
+    return builder.toHashCode();
 }
 
 }
