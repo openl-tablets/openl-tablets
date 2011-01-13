@@ -21,6 +21,7 @@ public class AliasDatatypeTest {
 		boolean method3(int z);
 		
 		int testStringAliasType(String state);
+        int testAliasTypeAsArrays(String state);
 		int testIntAliasType(int i);
 		int testIntRangeAliasType2(int i);
 	}
@@ -126,17 +127,31 @@ public class AliasDatatypeTest {
 		assertEquals(1, res);
 	}
 
-	@Test
-	public void test7() {
-		File xlsFile = new File(src);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+    @Test
+    public void test7() {
+        File xlsFile = new File(src);
+        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
+                ITest.class);
 
-		ITest instance = testHelper.getInstance();
-		boolean res = instance.method3(5);
-		assertEquals(true, res);
+        ITest instance = testHelper.getInstance();
+        boolean res = instance.method3(5);
+        assertEquals(true, res);
 
-		res = instance.method3(-1);
-		assertEquals(false, res);
-	}
+        res = instance.method3(-1);
+        assertEquals(false, res);
+    }
+
+    @Test
+    public void testArrays() {
+        File xlsFile = new File(src);
+        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
+                ITest.class);
+
+        ITest instance = testHelper.getInstance();
+        int res = instance.testAliasTypeAsArrays("AR");
+        assertEquals(1, res);
+
+        res = instance.testAliasTypeAsArrays("NY");
+        assertEquals(2, res);
+    }
 }
