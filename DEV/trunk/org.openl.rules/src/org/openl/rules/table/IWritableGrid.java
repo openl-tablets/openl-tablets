@@ -241,7 +241,8 @@ public interface IWritableGrid extends IGrid {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
-            String propsHeader = grid.getCell(leftCell, topCell + 1).getStringValue();
+            int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
+            String propsHeader = grid.getCell(leftCell, topCell + firstPropertyRow).getStringValue();
             if (!tableContainsPropertySection(propsHeader)) {
                 return -1;
             }
@@ -289,7 +290,7 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(IGridRegion.Tool
                     .width(tableRegion)* rowsToMove);
 
-            String propsHeader = grid.getCell(leftCell, topCell + 1).getStringValue();
+            String propsHeader = grid.getCell(leftCell, topCell + firstPropertyRow).getStringValue();
             int propNameCellOffset;
             int propValueCellOffset;
 
@@ -301,9 +302,9 @@ public interface IWritableGrid extends IGrid {
             } else {
                 actions.add(insertRows(1, firstPropertyRow, tableRegion, table));
                 actions.add(resizePropertiesHeader(tableRegion, table));
-                propNameCellOffset = grid.getCell(leftCell, topCell + 1).getWidth();
+                propNameCellOffset = grid.getCell(leftCell, topCell + firstPropertyRow).getWidth();
                 propValueCellOffset = propNameCellOffset
-                        + grid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
+                        + grid.getCell(leftCell + propNameCellOffset, topCell + firstPropertyRow).getWidth();
             }
             
             actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset, topCell + firstPropertyRow,
@@ -352,15 +353,15 @@ public interface IWritableGrid extends IGrid {
 
         private static IUndoableGridTableAction resizePropertiesHeader(IGridRegion tableRegion, IGridTable table) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
-            int firstPropertyRow = 1;
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
+            int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
 
-            int propsCount = grid.getCell(leftCell, topCell + 1).getHeight();
+            int propsCount = grid.getCell(leftCell, topCell + firstPropertyRow).getHeight();
             if (propsCount == 1) {
-                IGridRegion propHeaderRegion = grid.getRegionContaining(leftCell, topCell + 1);
+                IGridRegion propHeaderRegion = grid.getRegionContaining(leftCell, topCell + firstPropertyRow);
                 if (propHeaderRegion == null) {
-                    propHeaderRegion = new GridRegion(topCell + 1, leftCell, topCell + 1, leftCell);
+                    propHeaderRegion = new GridRegion(topCell + firstPropertyRow, leftCell, topCell + firstPropertyRow, leftCell);
                 }
                 return new UndoableResizeMergedRegionAction(propHeaderRegion, 1, INSERT, ROWS);
             } else {
