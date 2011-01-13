@@ -37,7 +37,7 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
     
     @Override
     protected boolean canPerformAction(IGridTable table) {
-        return UndoableInsertColumnsAction.canInsertColumns(table, nCols);
+        return UndoableInsertColumnsAction.canInsertColumns(table, getNumberToInsert(table));
     }
     
     @Override
