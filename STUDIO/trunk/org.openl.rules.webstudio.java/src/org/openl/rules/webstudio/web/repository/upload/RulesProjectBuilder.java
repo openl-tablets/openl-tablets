@@ -22,6 +22,10 @@ public class RulesProjectBuilder {
         project = workspace.getProject(projectName);
         project.checkOut();
     }
+    
+    protected AProject getProject() {
+        return project;
+    }
 
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
         AProjectFolder folder = project;
