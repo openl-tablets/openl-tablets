@@ -30,8 +30,6 @@ public class ExcelFileProjectCreator extends AProjectCreator {
             projectBuilder = new RulesProjectBuilder(getUserWorkspace(), getProjectName());
 
             projectBuilder.addFile(rulesSourceName, rulesSource);
-
-            projectBuilder.checkIn();
         } catch (Exception e) {
             if (projectBuilder != null) {
                 projectBuilder.cancel();
