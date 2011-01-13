@@ -164,7 +164,6 @@ public class ADeploymentProject extends AProject {
         // super.update(artefact); TODO
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
-        save(user, major, minor);
     }
 
     public boolean getCanDeploy() {

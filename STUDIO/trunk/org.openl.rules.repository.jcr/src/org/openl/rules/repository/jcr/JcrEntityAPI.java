@@ -357,7 +357,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 LOG.info("Saving... " + n.getPath());
             }
         } catch (RepositoryException e) {
-            throw new ProjectException("Failed to checkin project ''{0}''!", e, getName());
+            throw new ProjectException("Failed to check in artefact ''{0}''!", e, getPath());
         }
     }
 
