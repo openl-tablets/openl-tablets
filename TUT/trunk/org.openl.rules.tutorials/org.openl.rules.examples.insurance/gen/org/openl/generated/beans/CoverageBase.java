@@ -4,19 +4,19 @@
 
 package org.openl.generated.beans;
 
-import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
 
 public class CoverageBase{
-  protected java.lang.String symbol;
-
   protected double baseBI;
 
   protected double basePD;
 
   protected double baseMP;
+
+  protected java.lang.String symbol;
 
 
 
@@ -31,14 +31,26 @@ public CoverageBase(String symbol, double baseBI, double basePD, double baseMP) 
     this.basePD = basePD;
     this.baseMP = baseMP;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getSymbol());
-    builder.append(getBaseBI());
-    builder.append(getBasePD());
-    builder.append(getBaseMP());
-    return builder.toHashCode();
+  public double getBaseBI() {
+   return baseBI;
+}
+  public double getBasePD() {
+   return basePD;
+}
+  public double getBaseMP() {
+   return baseMP;
+}
+  public void setSymbol(java.lang.String symbol) {
+   this.symbol = symbol;
+}
+  public void setBaseBI(double baseBI) {
+   this.baseBI = baseBI;
+}
+  public void setBasePD(double basePD) {
+   this.basePD = basePD;
+}
+  public void setBaseMP(double baseMP) {
+   this.baseMP = baseMP;
 }
 
 public boolean equals(Object obj) {
@@ -68,29 +80,17 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getSymbol());
+    builder.append(getBaseBI());
+    builder.append(getBasePD());
+    builder.append(getBaseMP());
+    return builder.toHashCode();
+}
   public java.lang.String getSymbol() {
    return symbol;
-}
-  public void setSymbol(java.lang.String symbol) {
-   this.symbol = symbol;
-}
-  public double getBaseBI() {
-   return baseBI;
-}
-  public void setBaseBI(double baseBI) {
-   this.baseBI = baseBI;
-}
-  public double getBasePD() {
-   return basePD;
-}
-  public void setBasePD(double basePD) {
-   this.basePD = basePD;
-}
-  public double getBaseMP() {
-   return baseMP;
-}
-  public void setBaseMP(double baseMP) {
-   this.baseMP = baseMP;
 }
 
 }

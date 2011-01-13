@@ -4,16 +4,12 @@
 
 package org.openl.generated.beans;
 
-import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Driver{
-  protected java.lang.String name;
-
-  protected java.lang.String state;
-
   protected java.lang.String gender;
 
   protected int age;
@@ -27,6 +23,10 @@ public class Driver{
   protected int numDUI;
 
   protected boolean hadTraining;
+
+  protected java.lang.String name;
+
+  protected java.lang.String state;
 
 
 
@@ -46,19 +46,47 @@ public Driver(String name, String gender, int age, String maritalStatus, String 
     this.numDUI = numDUI;
     this.hadTraining = hadTraining;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getName());
-    builder.append(getGender());
-    builder.append(getAge());
-    builder.append(getMaritalStatus());
-    builder.append(getState());
-    builder.append(getNumAccidents());
-    builder.append(getNumMovingViolations());
-    builder.append(getNumDUI());
-    builder.append(getHadTraining());
-    return builder.toHashCode();
+  public java.lang.String getGender() {
+   return gender;
+}
+  public int getAge() {
+   return age;
+}
+  public java.lang.String getMaritalStatus() {
+   return maritalStatus;
+}
+  public int getNumAccidents() {
+   return numAccidents;
+}
+  public int getNumMovingViolations() {
+   return numMovingViolations;
+}
+  public int getNumDUI() {
+   return numDUI;
+}
+  public boolean getHadTraining() {
+   return hadTraining;
+}
+  public void setGender(java.lang.String gender) {
+   this.gender = gender;
+}
+  public void setAge(int age) {
+   this.age = age;
+}
+  public void setMaritalStatus(java.lang.String maritalStatus) {
+   this.maritalStatus = maritalStatus;
+}
+  public void setNumAccidents(int numAccidents) {
+   this.numAccidents = numAccidents;
+}
+  public void setNumMovingViolations(int numMovingViolations) {
+   this.numMovingViolations = numMovingViolations;
+}
+  public void setNumDUI(int numDUI) {
+   this.numDUI = numDUI;
+}
+  public void setHadTraining(boolean hadTraining) {
+   this.hadTraining = hadTraining;
 }
 
 public boolean equals(Object obj) {
@@ -77,9 +105,6 @@ public boolean equals(Object obj) {
     builder.append(another.getNumDUI(),getNumDUI());
     builder.append(another.getHadTraining(),getHadTraining());
     return builder.isEquals();
-}
-  public java.lang.String getName() {
-   return name;
 }
 
 public String toString() {
@@ -106,6 +131,23 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getGender());
+    builder.append(getAge());
+    builder.append(getMaritalStatus());
+    builder.append(getState());
+    builder.append(getNumAccidents());
+    builder.append(getNumMovingViolations());
+    builder.append(getNumDUI());
+    builder.append(getHadTraining());
+    return builder.toHashCode();
+}
+  public java.lang.String getName() {
+   return name;
+}
   public java.lang.String getState() {
    return state;
 }
@@ -114,48 +156,6 @@ public String toString() {
 }
   public void setState(java.lang.String state) {
    this.state = state;
-}
-  public java.lang.String getGender() {
-   return gender;
-}
-  public void setGender(java.lang.String gender) {
-   this.gender = gender;
-}
-  public int getAge() {
-   return age;
-}
-  public void setAge(int age) {
-   this.age = age;
-}
-  public java.lang.String getMaritalStatus() {
-   return maritalStatus;
-}
-  public void setMaritalStatus(java.lang.String maritalStatus) {
-   this.maritalStatus = maritalStatus;
-}
-  public int getNumAccidents() {
-   return numAccidents;
-}
-  public void setNumAccidents(int numAccidents) {
-   this.numAccidents = numAccidents;
-}
-  public int getNumMovingViolations() {
-   return numMovingViolations;
-}
-  public void setNumMovingViolations(int numMovingViolations) {
-   this.numMovingViolations = numMovingViolations;
-}
-  public int getNumDUI() {
-   return numDUI;
-}
-  public void setNumDUI(int numDUI) {
-   this.numDUI = numDUI;
-}
-  public boolean getHadTraining() {
-   return hadTraining;
-}
-  public void setHadTraining(boolean hadTraining) {
-   this.hadTraining = hadTraining;
 }
 
 }

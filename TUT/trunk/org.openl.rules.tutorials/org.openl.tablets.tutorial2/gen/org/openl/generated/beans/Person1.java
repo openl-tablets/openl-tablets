@@ -4,11 +4,11 @@
 
 package org.openl.generated.beans;
 
-import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.util.Date;
+import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
+import java.util.Date;
 
 public class Person1{
   protected java.lang.String ssn;
@@ -60,16 +60,6 @@ public Person1(String name, String ssn, Date dob, String gender, String maritalS
    this.maritalStatus = maritalStatus;
 }
 
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getName());
-    builder.append(getSsn());
-    builder.append(getDob());
-    builder.append(getGender());
-    builder.append(getMaritalStatus());
-    return builder.toHashCode();
-}
-
 public boolean equals(Object obj) {
     EqualsBuilder builder = new EqualsBuilder();
     if (!(obj instanceof Person1)) {;
@@ -82,9 +72,6 @@ public boolean equals(Object obj) {
     builder.append(another.getGender(),getGender());
     builder.append(another.getMaritalStatus(),getMaritalStatus());
     return builder.isEquals();
-}
-  public java.lang.String getName() {
-   return name;
 }
 
 public String toString() {
@@ -102,6 +89,19 @@ public String toString() {
     builder.append(getMaritalStatus());
     builder.append(" }");
     return builder.toString();
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getSsn());
+    builder.append(getDob());
+    builder.append(getGender());
+    builder.append(getMaritalStatus());
+    return builder.toHashCode();
+}
+  public java.lang.String getName() {
+   return name;
 }
   public void setName(java.lang.String name) {
    this.name = name;

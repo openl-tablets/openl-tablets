@@ -4,20 +4,12 @@
 
 package org.openl.generated.beans;
 
-import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Vehicle{
-  protected java.lang.String name;
-
-  protected java.lang.String type;
-
-  protected int year;
-
-  protected java.lang.String model;
-
   protected boolean hasAlarm;
 
   protected boolean onHighTheftProbabilityList;
@@ -31,6 +23,14 @@ public class Vehicle{
   protected java.lang.String[] coverage;
 
   protected boolean hasRollBar;
+
+  protected java.lang.String name;
+
+  protected java.lang.String type;
+
+  protected java.lang.String model;
+
+  protected int year;
 
 
 
@@ -52,21 +52,47 @@ public Vehicle(String name, String model, int year, boolean hasAlarm, String typ
     this.coverage = coverage;
     this.hasRollBar = hasRollBar;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getName());
-    builder.append(getModel());
-    builder.append(getYear());
-    builder.append(getHasAlarm());
-    builder.append(getType());
-    builder.append(getOnHighTheftProbabilityList());
-    builder.append(getAirbags());
-    builder.append(getPrice());
-    builder.append(getBodyType());
-    builder.append(getCoverage());
-    builder.append(getHasRollBar());
-    return builder.toHashCode();
+  public boolean getHasAlarm() {
+   return hasAlarm;
+}
+  public boolean getOnHighTheftProbabilityList() {
+   return onHighTheftProbabilityList;
+}
+  public java.lang.String getAirbags() {
+   return airbags;
+}
+  public double getPrice() {
+   return price;
+}
+  public java.lang.String getBodyType() {
+   return bodyType;
+}
+  public java.lang.String[] getCoverage() {
+   return coverage;
+}
+  public boolean getHasRollBar() {
+   return hasRollBar;
+}
+  public void setHasAlarm(boolean hasAlarm) {
+   this.hasAlarm = hasAlarm;
+}
+  public void setOnHighTheftProbabilityList(boolean onHighTheftProbabilityList) {
+   this.onHighTheftProbabilityList = onHighTheftProbabilityList;
+}
+  public void setAirbags(java.lang.String airbags) {
+   this.airbags = airbags;
+}
+  public void setPrice(double price) {
+   this.price = price;
+}
+  public void setBodyType(java.lang.String bodyType) {
+   this.bodyType = bodyType;
+}
+  public void setCoverage(java.lang.String[] coverage) {
+   this.coverage = coverage;
+}
+  public void setHasRollBar(boolean hasRollBar) {
+   this.hasRollBar = hasRollBar;
 }
 
 public boolean equals(Object obj) {
@@ -87,9 +113,6 @@ public boolean equals(Object obj) {
     builder.append(another.getCoverage(),getCoverage());
     builder.append(another.getHasRollBar(),getHasRollBar());
     return builder.isEquals();
-}
-  public java.lang.String getName() {
-   return name;
 }
 
 public String toString() {
@@ -120,17 +143,36 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getModel());
+    builder.append(getYear());
+    builder.append(getHasAlarm());
+    builder.append(getType());
+    builder.append(getOnHighTheftProbabilityList());
+    builder.append(getAirbags());
+    builder.append(getPrice());
+    builder.append(getBodyType());
+    builder.append(getCoverage());
+    builder.append(getHasRollBar());
+    return builder.toHashCode();
+}
+  public java.lang.String getName() {
+   return name;
+}
   public void setName(java.lang.String name) {
    this.name = name;
 }
   public java.lang.String getType() {
    return type;
 }
+  public java.lang.String getModel() {
+   return model;
+}
   public int getYear() {
    return year;
-}
-  public void setType(java.lang.String type) {
-   this.type = type;
 }
   public void setModel(java.lang.String model) {
    this.model = model;
@@ -138,50 +180,8 @@ public String toString() {
   public void setYear(int year) {
    this.year = year;
 }
-  public java.lang.String getModel() {
-   return model;
-}
-  public boolean getHasAlarm() {
-   return hasAlarm;
-}
-  public void setHasAlarm(boolean hasAlarm) {
-   this.hasAlarm = hasAlarm;
-}
-  public boolean getOnHighTheftProbabilityList() {
-   return onHighTheftProbabilityList;
-}
-  public void setOnHighTheftProbabilityList(boolean onHighTheftProbabilityList) {
-   this.onHighTheftProbabilityList = onHighTheftProbabilityList;
-}
-  public java.lang.String getAirbags() {
-   return airbags;
-}
-  public void setAirbags(java.lang.String airbags) {
-   this.airbags = airbags;
-}
-  public double getPrice() {
-   return price;
-}
-  public void setPrice(double price) {
-   this.price = price;
-}
-  public java.lang.String getBodyType() {
-   return bodyType;
-}
-  public void setBodyType(java.lang.String bodyType) {
-   this.bodyType = bodyType;
-}
-  public java.lang.String[] getCoverage() {
-   return coverage;
-}
-  public void setCoverage(java.lang.String[] coverage) {
-   this.coverage = coverage;
-}
-  public boolean getHasRollBar() {
-   return hasRollBar;
-}
-  public void setHasRollBar(boolean hasRollBar) {
-   this.hasRollBar = hasRollBar;
+  public void setType(java.lang.String type) {
+   this.type = type;
 }
 
 }

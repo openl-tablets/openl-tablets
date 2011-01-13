@@ -123,18 +123,34 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenField phrases21_Field;
+  static org.openl.types.IOpenField customers3_Field;
 
-  public java.lang.String[] getPhrases21()
+  public org.openl.tablets.tutorial2.step3.Customer2_3[] getCustomers3()
   {
-   Object __res = phrases21_Field.get(__instance, __env.get());
-   return (java.lang.String[])__res;
+   Object __res = customers3_Field.get(__instance, __env.get());
+   return (org.openl.tablets.tutorial2.step3.Customer2_3[])__res;
   }
 
 
-  public void setPhrases21(java.lang.String[] __var)
+  public void setCustomers3(org.openl.tablets.tutorial2.step3.Customer2_3[] __var)
   {
-   phrases21_Field.set(__instance, __var, __env.get());
+   customers3_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenField ranges23_Field;
+
+  public org.openl.rules.helpers.IntRange[] getRanges23()
+  {
+   Object __res = ranges23_Field.get(__instance, __env.get());
+   return (org.openl.rules.helpers.IntRange[])__res;
+  }
+
+
+  public void setRanges23(org.openl.rules.helpers.IntRange[] __var)
+  {
+   ranges23_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -155,22 +171,6 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenField customers3_Field;
-
-  public org.openl.tablets.tutorial2.step3.Customer2_3[] getCustomers3()
-  {
-   Object __res = customers3_Field.get(__instance, __env.get());
-   return (org.openl.tablets.tutorial2.step3.Customer2_3[])__res;
-  }
-
-
-  public void setCustomers3(org.openl.tablets.tutorial2.step3.Customer2_3[] __var)
-  {
-   customers3_Field.set(__instance, __var, __env.get());
-  }
-
-
-
   static org.openl.types.IOpenField this_Field;
 
   public org.openl.types.impl.DynamicObject getThis()
@@ -187,18 +187,18 @@ public class Tutorial_2Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
-  static org.openl.types.IOpenField ranges23_Field;
+  static org.openl.types.IOpenField phrases21_Field;
 
-  public org.openl.rules.helpers.IntRange[] getRanges23()
+  public java.lang.String[] getPhrases21()
   {
-   Object __res = ranges23_Field.get(__instance, __env.get());
-   return (org.openl.rules.helpers.IntRange[])__res;
+   Object __res = phrases21_Field.get(__instance, __env.get());
+   return (java.lang.String[])__res;
   }
 
 
-  public void setRanges23(org.openl.rules.helpers.IntRange[] __var)
+  public void setPhrases21(java.lang.String[] __var)
   {
-   ranges23_Field.set(__instance, __var, __env.get());
+   phrases21_Field.set(__instance, __var, __env.get());
   }
 
   static boolean __initialized = false;
@@ -230,11 +230,11 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 
     pp11_Field = __class.getField("pp11");
     numbers22_Field = __class.getField("numbers22");
-    phrases21_Field = __class.getField("phrases21");
-    pp1_Field = __class.getField("pp1");
     customers3_Field = __class.getField("customers3");
-    this_Field = __class.getField("this");
     ranges23_Field = __class.getField("ranges23");
+    pp1_Field = __class.getField("pp1");
+    this_Field = __class.getField("this");
+    phrases21_Field = __class.getField("phrases21");
 
     __initialized=true;
   }

@@ -5,10 +5,10 @@
 package org.openl.generated.beans;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.openl.generated.beans.InsurableVehicle;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.openl.generated.beans.InsurableDriver;
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.generated.beans.InsurableDriver;
+import org.openl.generated.beans.InsurableVehicle;
 
 public class Usage{
   protected int usage;
@@ -29,13 +29,23 @@ public Usage(InsurableDriver driver, InsurableVehicle vehicle, int usage) {
     this.vehicle = vehicle;
     this.usage = usage;
 }
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getDriver());
-    builder.append(getVehicle());
-    builder.append(getUsage());
-    return builder.toHashCode();
+  public void setDriver(org.openl.generated.beans.InsurableDriver driver) {
+   this.driver = driver;
+}
+  public int getUsage() {
+   return usage;
+}
+  public void setUsage(int usage) {
+   this.usage = usage;
+}
+  public org.openl.generated.beans.InsurableVehicle getVehicle() {
+   return vehicle;
+}
+  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
+   this.vehicle = vehicle;
+}
+  public org.openl.generated.beans.InsurableDriver getDriver() {
+   return driver;
 }
 
 public boolean equals(Object obj) {
@@ -62,23 +72,13 @@ public String toString() {
     builder.append(" }");
     return builder.toString();
 }
-  public int getUsage() {
-   return usage;
-}
-  public void setUsage(int usage) {
-   this.usage = usage;
-}
-  public org.openl.generated.beans.InsurableVehicle getVehicle() {
-   return vehicle;
-}
-  public void setVehicle(org.openl.generated.beans.InsurableVehicle vehicle) {
-   this.vehicle = vehicle;
-}
-  public org.openl.generated.beans.InsurableDriver getDriver() {
-   return driver;
-}
-  public void setDriver(org.openl.generated.beans.InsurableDriver driver) {
-   this.driver = driver;
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getDriver());
+    builder.append(getVehicle());
+    builder.append(getUsage());
+    return builder.toHashCode();
 }
 
 }

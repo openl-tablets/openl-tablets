@@ -126,6 +126,25 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
 
+  static org.openl.types.IOpenMethod incomeForecast_Method;
+  public org.openl.rules.calc.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
+    Object[] __params = new Object[2];
+    __params[0] = new Double(bonusRate);
+    __params[1] = new Double(sharePrice);
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = incomeForecast_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.calc.SpreadsheetResult)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod run1TestAll_Method;
   public org.openl.rules.testmethod.TestUnitsResults run1TestAll()  {
     Object[] __params = new Object[0];
@@ -150,25 +169,6 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     {
     Object __myInstance = __instance;
     Object __res = totalAssets_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.calc.SpreadsheetResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod incomeForecast_Method;
-  public org.openl.rules.calc.SpreadsheetResult incomeForecast(double bonusRate, double sharePrice)  {
-    Object[] __params = new Object[2];
-    __params[0] = new Double(bonusRate);
-    __params[1] = new Double(sharePrice);
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = incomeForecast_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.calc.SpreadsheetResult)__res;  }
   catch(Throwable t)
   {
@@ -206,13 +206,13 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 
     run1_Field = __class.getField("run1");
     this_Field = __class.getField("this");
+    incomeForecast_Method = __class.getMatchingMethod("incomeForecast", new IOpenClass[] {
+      OpenClassHelper.getOpenClass(__class, double.class),
+      OpenClassHelper.getOpenClass(__class, double.class)});
     run1TestAll_Method = __class.getMatchingMethod("run1TestAll", new IOpenClass[] {
 });
     totalAssets_Method = __class.getMatchingMethod("totalAssets", new IOpenClass[] {
 });
-    incomeForecast_Method = __class.getMatchingMethod("incomeForecast", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, double.class),
-      OpenClassHelper.getOpenClass(__class, double.class)});
 
     __initialized=true;
   }

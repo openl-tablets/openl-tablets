@@ -111,14 +111,13 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod hello1_Method;
-  public java.lang.String hello1(int hour)  {
+  public void hello1(int hour)  {
     Object[] __params = new Object[1];
     __params[0] = new Integer(hour);
     try
     {
     Object __myInstance = __instance;
-    Object __res = hello1_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.String)__res;  }
+    hello1_Method.invoke(__myInstance, __params, __env.get());  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
