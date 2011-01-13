@@ -280,7 +280,7 @@ public class DecisionTableOptimizedAlgorithm {
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
 
                 if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
-                    .equals(methodType)) {
+                    .isAssignableFrom(methodType)) {
 
                     return new ContainsInArrayIndexedEvaluator();
                 }
