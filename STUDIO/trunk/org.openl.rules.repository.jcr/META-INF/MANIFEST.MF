@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Repository Jcr
 Bundle-SymbolicName: org.openl.rules.repository.jcr;singleton:=true
-Bundle-Version: 5.7.4
+Bundle-Version: 5.7.4.RC1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.repository;visibility:=reexport,
