@@ -278,6 +278,11 @@ public class RepositoryTreeController {
     }
 
     public String createNewRulesProject() {
+        if (StringUtils.isBlank(projectName)) {
+            FacesUtils.addErrorMessage("Project name must not be empty.");
+            return null;
+        }
+
         InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
         String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
         if (sampleRulesSource == null) {
@@ -1007,10 +1012,6 @@ public class RepositoryTreeController {
                 FacesUtils.addErrorMessage(e.getMessage());
             }
             FacesUtils.addInfoMessage("Project was uploaded successfully.");
-        } else {
-            // Don`t need to add errorMessage.
-            // It was added in #processErrorMessage method
-            FacesUtils.addErrorMessage("Error while uploading project.");
         }
         return null;
     }
@@ -1065,25 +1066,27 @@ public class RepositoryTreeController {
 
     private String uploadProject() {
         String errorMessage = null;
-        UploadItem uploadedItem = getLastUploadedFile();
-        if (uploadedItem != null) {
-            ProjectUploader projectUploader = new ProjectUploader(uploadedItem, projectName, userWorkspace, zipFilter);
-            errorMessage = projectUploader.uploadProject();                     
-        } else {
-            errorMessage = "There are no uploaded files .";
-        } 
-        processErrorMessage(errorMessage);
-        
-        return errorMessage;
-    }
 
-    private void processErrorMessage(String errorMessage) {
+        if (StringUtils.isNotBlank(projectName)) {
+            UploadItem uploadedItem = getLastUploadedFile();
+            if (uploadedItem != null) {
+                ProjectUploader projectUploader = new ProjectUploader(uploadedItem, projectName, userWorkspace, zipFilter);
+                errorMessage = projectUploader.uploadProject();                     
+            } else {
+                errorMessage = "There are no uploaded files.";
+            }
+        } else {
+            errorMessage = "Project name must not be empty.";
+        }
+
         if (errorMessage == null) {
             repositoryTreeState.invalidateTree();
             clearUploadedFiles();
         } else {
             FacesUtils.addErrorMessage(errorMessage);
         }
+
+        return errorMessage;
     }
 
     private void clearUploadedFiles() {
