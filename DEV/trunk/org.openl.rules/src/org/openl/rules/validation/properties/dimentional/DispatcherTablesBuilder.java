@@ -15,7 +15,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
-import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
@@ -97,31 +97,21 @@ public class DispatcherTablesBuilder {
     
     private Map<MethodKey, List<ExecutableRulesMethod>> groupExecutableMethods() {  
         Map<MethodKey, List<ExecutableRulesMethod>> groupedMethods = new HashMap<MethodKey, List<ExecutableRulesMethod>>();
-        for (IOpenMethod method : moduleOpenClass.getMethods()) {
-            if (method instanceof OpenMethodDispatcher) {
-                unwrapDispatcherTable(groupedMethods, (OpenMethodDispatcher)method);
-            }
-            
-            if (method instanceof ExecutableRulesMethod) {                
-                addMethod(groupedMethods, (ExecutableRulesMethod)method);
+        for (IOpenMethod method : OpenMethodDispatcherHelper.extractMethods(moduleOpenClass.getMethods())) {
+            if (method instanceof ExecutableRulesMethod) {     
+                ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) method;
+                addMethod(groupedMethods, executableMethod);
             }
         }
         return groupedMethods;
-    }
+    }    
 
-    private void unwrapDispatcherTable(Map<MethodKey, List<ExecutableRulesMethod>> groupedMethods,
-            OpenMethodDispatcher method) {
-        for (IOpenMethod dispMethod : method.getCandidates()) {
-            addMethod(groupedMethods, dispMethod);
-        }
-    }
-
-    private void addMethod(Map<MethodKey, List<ExecutableRulesMethod>> groupedMethods, IOpenMethod method) {
-        MethodKey key = new MethodKey(method);
+    private void addMethod(Map<MethodKey, List<ExecutableRulesMethod>> groupedMethods, ExecutableRulesMethod executableMethod) {
+        MethodKey key = new MethodKey(executableMethod);
         if (!groupedMethods.containsKey(key)) {
             groupedMethods.put(key, new ArrayList<ExecutableRulesMethod>());
         }
-        groupedMethods.get(key).add((ExecutableRulesMethod)method);
+        groupedMethods.get(key).add(executableMethod);
     }
     
 }
