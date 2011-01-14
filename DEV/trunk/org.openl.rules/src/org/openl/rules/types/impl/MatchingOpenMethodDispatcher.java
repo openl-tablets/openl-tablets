@@ -18,6 +18,7 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
@@ -260,25 +261,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
     
     private List<IOpenMethod> extractCandidates(List<IOpenMethod> methods) {
-
-        List<IOpenMethod> result = new ArrayList<IOpenMethod>();
-        
-        for (IOpenMethod method : methods) {
-            if (method instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) method;
-                List<IOpenMethod> candidates = extractCandidates(dispatcher.getCandidates());
-                
-                for (IOpenMethod candidate : candidates) {
-//                    if (!(candidate instanceof OpenMethodDispatcher)) {
-                        result.add(candidate);
-//                    }
-                }
-            } else {
-                result.add(method);
-            }
-        }
-        
-        return result;
+        return OpenMethodDispatcherHelper.extractMethods(methods);
     }
     
 }

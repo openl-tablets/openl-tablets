@@ -17,8 +17,11 @@ import org.openl.rules.dt.validator.DecisionTableAnalyzer;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -38,27 +41,40 @@ public class GapOverlapValidator extends TablesValidator {
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         validationResult = null;
-
-        for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (isValidatableNode(tsn)) {
-                DesionTableValidationResult dtValidResult = null;
-                try {
-                    Map<String, IDomainAdaptor> domains = gatherDomains((DecisionTable) tsn.getMember());
-                    dtValidResult = DecisionTableValidator.validateTable((DecisionTable) tsn.getMember(), domains,
-                            openClass);
-                } catch (Exception t) {
-                    addError(tsn, VALIDATION_FAILED + tsn.getDisplayName() + ". Reason : " + t.getMessage());
+        List<IOpenMethod> allModuleMethods = OpenMethodDispatcherHelper.extractMethods(openClass.getMethods());
+        
+        for (IOpenMethod method : allModuleMethods) {
+            if (method instanceof ExecutableRulesMethod) {
+                ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) method;
+                if (isValidatableMethod(executableMethod)) {
+                    // can cast to DecisionTable, as validateDT property belongs only to DT.
+                    //
+                    DecisionTable decisionTable = (DecisionTable) executableMethod;
+                    DesionTableValidationResult dtValidResult = validate(openClass, decisionTable);
+                    if (dtValidResult != null && dtValidResult.hasProblems()) {
+                        decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
+                        addError(decisionTable.getSyntaxNode(), dtValidResult.toString());
+                    }
                 }
-                if (dtValidResult != null && dtValidResult.hasProblems()) {
-                    tsn.setValidationResult(dtValidResult);
-                    addError(tsn, dtValidResult.toString());
-                }
-            }
-        }
+            }            
+        }    
         if (validationResult != null) {
             return validationResult;
         }
         return ValidationUtils.validationSuccess();
+    }
+
+    private DesionTableValidationResult validate(IOpenClass openClass, DecisionTable decisionTable) {
+        DesionTableValidationResult dtValidResult = null;
+        try {
+            Map<String, IDomainAdaptor> domains = gatherDomains(decisionTable);
+            dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);
+        } catch (Exception t) {
+            String errorMessage = String.format("%s%s.Reason : %s", VALIDATION_FAILED, 
+                decisionTable.getSyntaxNode().getDisplayName(), t.getMessage());
+            addError(decisionTable.getSyntaxNode(), errorMessage);
+        }
+        return dtValidResult;
     }
 
     private Map<String, IDomainAdaptor> gatherDomains(DecisionTable dt) {
@@ -115,12 +131,8 @@ public class GapOverlapValidator extends TablesValidator {
         sourceNode.addError(error);
         ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(error));
     }
-
-    private static boolean isValidatableNode(TableSyntaxNode tsn) {
-        if (tsn.getMember() instanceof DecisionTable) {
-            return !tsn.hasErrors() && "on".equals(tsn.getTableProperties().getPropertyValueAsString("validateDT"));
-        } else {
-            return false;
-        }
+    
+    private static boolean isValidatableMethod(ExecutableRulesMethod executableMethod) {
+        return executableMethod.getMethodProperties() != null && "on".equals(executableMethod.getMethodProperties().getPropertyValueAsString("validateDT"));        
     }
 }
