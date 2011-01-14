@@ -17,8 +17,8 @@ import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.filter.OpenLFilter;
-import org.openl.util.filter.AllOpenLFilter;
+import org.openl.util.filter.IFilter;
+import org.openl.util.filter.AllFilter;
 import org.richfaces.component.UITree;
 
 import org.richfaces.event.NodeSelectedEvent;
@@ -43,7 +43,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
-    private OpenLFilter filter = AllOpenLFilter.INSTANCE;
+    private IFilter filter = AllFilter.INSTANCE;
     
     public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
@@ -92,7 +92,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
         Collection<AProject> rulesProjects = userWorkspace.getProjects();
 
-        OpenLFilter filter = this.filter;
+        IFilter filter = this.filter;
         for (AProject project : rulesProjects) {
             if (!(filter.supports(AProject.class) && !filter.select(project))) {
                 addRulesProjectToTree(project);
@@ -128,7 +128,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return deploymentRepository;
     }
 
-    public OpenLFilter getFilter() {
+    public IFilter getFilter() {
         return filter;
     }
 
@@ -255,8 +255,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         refreshNode(selectedNode);
     }
 
-    public void setFilter(OpenLFilter filter) {
-        this.filter = filter != null ? filter : AllOpenLFilter.INSTANCE;
+    public void setFilter(IFilter filter) {
+        this.filter = filter != null ? filter : AllFilter.INSTANCE;
         root = null;
     }
 
@@ -273,7 +273,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         userWorkspace.getDesignTimeRepository().addListener(this);
     }
 
-    public void traverseFolder(TreeFolder folder, Collection<AProjectArtefact> artefacts, OpenLFilter filter) {
+    public void traverseFolder(TreeFolder folder, Collection<AProjectArtefact> artefacts, IFilter filter) {
 
         Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
         for (AProjectArtefact artefact : artefacts) {
