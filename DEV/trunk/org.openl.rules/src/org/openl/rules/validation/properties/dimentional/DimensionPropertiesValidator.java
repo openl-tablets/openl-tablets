@@ -14,7 +14,8 @@ import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.rules.validation.TablesValidator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -32,7 +33,8 @@ public class DimensionPropertiesValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {        
         ValidationResult validationResult = null;  
         
-        Map<String, IDomainAdaptor> propertiesDomains = getDomainsForDimensionalProperties(openClass.getMethods());
+        Map<String, IDomainAdaptor> propertiesDomains = 
+            getDomainsForDimensionalProperties(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
         
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             // search for generated dispatcher decision table for dimension properties.
@@ -123,25 +125,22 @@ public class DimensionPropertiesValidator extends TablesValidator {
         
         Map<String, IDomainAdaptor> gatheredPropertiesDomains = 
             domainCollector.gatherPropertiesDomains(getMethodProperties(methods));
-        return gatheredPropertiesDomains;
-        
+        return gatheredPropertiesDomains;        
     }
-
-    private List<Map<String, Object>> getMethodProperties(List<IOpenMethod> methods) {
+    
+    /**
+     * Gets properties for all methods in module.
+     * 
+     * @param methods all module methods. 
+     * 
+     * @return properties for all methods in module.
+     */
+    private List<Map<String, Object>> getMethodProperties(List<IOpenMethod> methods) {        
         List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
         for (IOpenMethod method : methods) {
-            /**
-             * Process income method, check if it is instance of {@link ExecutableRulesMethod}, if 
-             * it is instance of {@link OpenMethodDispatcher} process its candidates methods.
-             * */
-            if (method instanceof ExecutableMethod) {
+            if (method instanceof ExecutableRulesMethod) {
                 properties.add(((ExecutableMethod) method).getProperties());
-            } else if (method instanceof OpenMethodDispatcher) {
-                for (IOpenMethod dispatcherMethod : ((OpenMethodDispatcher)method).getCandidates()) {
-                    properties.add(((ExecutableMethod) dispatcherMethod).getProperties());
-                }
             }
-            
         }
         return properties;
     }
