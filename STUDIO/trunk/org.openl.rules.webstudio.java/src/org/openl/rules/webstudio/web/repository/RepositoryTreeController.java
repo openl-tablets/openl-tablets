@@ -29,7 +29,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.util.filter.OpenLFilter;
+import org.openl.util.filter.IFilter;
 import org.richfaces.model.UploadItem;
 
 import java.io.File;
@@ -423,7 +423,7 @@ public class RepositoryTreeController {
     }
 
     public String filter() {
-        OpenLFilter<?> filter = null;
+        IFilter<?> filter = null;
         if (StringUtils.isNotBlank(filterString)) {
             filter = new RepositoryFileExtensionFilter(filterString);
         }

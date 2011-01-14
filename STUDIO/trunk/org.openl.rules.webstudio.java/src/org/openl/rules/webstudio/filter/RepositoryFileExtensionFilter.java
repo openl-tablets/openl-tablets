@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.util.filter.BaseOpenLFilter;
+import org.openl.util.filter.BaseFilter;
 import org.apache.commons.lang.StringUtils;
 
 /**
  * Filter for <code>ProjectResource</code>s based on their file extension.
  */
-public class RepositoryFileExtensionFilter extends BaseOpenLFilter {
+public class RepositoryFileExtensionFilter extends BaseFilter {
     /**
      * Arrays of accepted exceptions.
      */
