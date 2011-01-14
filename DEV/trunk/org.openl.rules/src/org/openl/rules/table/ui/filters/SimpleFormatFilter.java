@@ -5,6 +5,7 @@ package org.openl.rules.table.ui.filters;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
@@ -140,8 +141,9 @@ public class SimpleFormatFilter implements IGridFilter {
 
     @Deprecated
     private XlsNumberFormatter findXlsNumberFormatter(String format) {
+        Locale locale = Locale.US;
         if (isGeneralFormat(format)) {
-            return XlsNumberFormatter.GENERAL;
+            return XlsNumberFormatter.getGeneralFormatter(locale);
         }
 
         IFormatter formatter = existingFormatters.get(format);
@@ -151,7 +153,7 @@ public class SimpleFormatFilter implements IGridFilter {
         }
 
         XlsNumberFormatter numberFormatter = XlsNumberFormatter.makeFormat(format,
-                new HashMap<String, SegmentFormatter>());
+                new HashMap<String, SegmentFormatter>(), locale);
         existingFormatters.put(format, numberFormatter);
 
         return numberFormatter;

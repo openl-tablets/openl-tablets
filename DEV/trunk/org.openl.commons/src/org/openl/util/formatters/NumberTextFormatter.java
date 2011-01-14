@@ -2,7 +2,9 @@ package org.openl.util.formatters;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
+import java.util.Locale;
 
 import org.openl.util.Log;
 
@@ -16,6 +18,10 @@ public class NumberTextFormatter implements IFormatter {
 
     public NumberTextFormatter(String fmt) {
         format = new DecimalFormat(fmt);
+    }
+
+    public NumberTextFormatter(String fmt, Locale locale) {
+        format = new DecimalFormat(fmt, new DecimalFormatSymbols(locale));
     }
 
     public String format(Object obj) {
