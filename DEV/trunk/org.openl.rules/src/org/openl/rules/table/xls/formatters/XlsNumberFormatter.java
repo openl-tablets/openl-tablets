@@ -5,6 +5,7 @@ package org.openl.rules.table.xls.formatters;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.openl.util.Log;
@@ -29,14 +30,8 @@ import org.openl.util.formatters.NumberTextFormatter;
  */
 public class XlsNumberFormatter extends AXlsFormatter {
 
-    public static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("0.00");
-
+    public static final String DEFAULT_FORMAT_STR = "0.00";
     public static final String GENERAL_FORMAT_STR = "#.######";
-
-    public static final DecimalFormat GENERAL_FORMAT = new DecimalFormat(GENERAL_FORMAT_STR);
-
-    public static final XlsNumberFormatter GENERAL = new XlsNumberFormatter(new SegmentFormatter(
-            new NumberTextFormatter(GENERAL_FORMAT), null), null, null);
 
     private static final String[] COLORS_STR = { "[Black]", "[Blue]", "[Cyan]", "[Green]", "[Magenta]", "[Red]",
         "[White]", "[Yellow]" };
@@ -62,14 +57,25 @@ public class XlsNumberFormatter extends AXlsFormatter {
         return format;
     }
 
+    public static XlsNumberFormatter getGeneralFormatter(Locale locale) {
+        DecimalFormat format = getLocaleDecimalFormat(locale);
+        format.applyPattern(GENERAL_FORMAT_STR);
+        return new XlsNumberFormatter(new SegmentFormatter(
+                new NumberTextFormatter(format), null), null, null);
+    }
+
+    public static XlsNumberFormatter getGeneralFormatter() {
+        return getGeneralFormatter(null);
+    }
+
     private static SegmentFormatter getFormat(String format, Map<String, SegmentFormatter> existingFmts, 
-            boolean isNegative) {
+            boolean isNegative, Locale locale) {
         SegmentFormatter segmentFormatter = existingFmts.get(format);
         if (segmentFormatter != null) {
             return segmentFormatter;
         }
 
-        segmentFormatter = makeSegmentFormatter(format, isNegative);
+        segmentFormatter = makeSegmentFormatter(format, isNegative, locale);
         existingFmts.put(format, segmentFormatter);
         return segmentFormatter;
     }
@@ -99,7 +105,8 @@ public class XlsNumberFormatter extends AXlsFormatter {
         }        
     }
 
-    public static XlsNumberFormatter makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts) {
+    public static XlsNumberFormatter makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts,
+            Locale locale) {
         String[] fmts = StringTool.tokenize(xlsformat, ";");
 
         int N = 3;
@@ -108,15 +115,18 @@ public class XlsNumberFormatter extends AXlsFormatter {
         int len = Math.min(fmts.length, N);
 
         for (int i = 0; i < len; ++i) {
-            SegmentFormatter sf = getFormat(fmts[i], existingFmts, i == NEG);
+            SegmentFormatter sf = getFormat(fmts[i], existingFmts, i == NEG, locale);
             sff[i] = sf;
         }
 
         return new XlsNumberFormatter(sff[0], sff[1], sff[2]);
-
     }
 
-    private static SegmentFormatter makeSegmentFormatter(String format, boolean isNegative) {
+    public static XlsNumberFormatter makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts) {
+        return makeFormat(xlsformat, existingFmts, null);
+    }
+
+    private static SegmentFormatter makeSegmentFormatter(String format, boolean isNegative, Locale locale) {
 
         SegmentFormatter segmentFormatter = new SegmentFormatter();
 
@@ -134,18 +144,28 @@ public class XlsNumberFormatter extends AXlsFormatter {
 
         }
 
-        DecimalFormat decimalFormat = null;
+        DecimalFormat decimalFormat = getLocaleDecimalFormat(locale);
         try {
-            decimalFormat = new DecimalFormat(javaFormat);
+            decimalFormat.applyPattern(javaFormat);
         } catch (Throwable t) {
             Log.warn("Bad java format. Using default. Consider custom mapping: '" + javaFormat + "'");
-            decimalFormat = DEFAULT_FORMAT;
+            decimalFormat.applyPattern(DEFAULT_FORMAT_STR);
         }
 
         IFormatter textFormatter = new NumberTextFormatter(decimalFormat);
         segmentFormatter.setFormatter(textFormatter);
 
         return segmentFormatter;
+    }
+
+    private static DecimalFormat getLocaleDecimalFormat(Locale locale) {
+        DecimalFormat decimalFormat = null;
+        if (locale != null) {
+            decimalFormat = (DecimalFormat) DecimalFormat.getCurrencyInstance(locale);
+        } else {
+            decimalFormat = (DecimalFormat) DecimalFormat.getCurrencyInstance();
+        }
+        return decimalFormat;
     }
 
     public static String transformToJavaFormat(String xlsFormat, SegmentFormatter segmentFormatter) {

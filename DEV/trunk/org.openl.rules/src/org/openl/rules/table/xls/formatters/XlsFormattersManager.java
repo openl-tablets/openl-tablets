@@ -2,6 +2,7 @@ package org.openl.rules.table.xls.formatters;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -13,14 +14,16 @@ import org.apache.commons.lang.StringUtils;
  */
 public class XlsFormattersManager {
 private static HashMap<Class<?>, AXlsFormatter> formatters;
-    
+
     static {        
         formatters = new HashMap<Class<?>, AXlsFormatter>();
 
-        formatters.put(Short.class, XlsNumberFormatter.GENERAL);
-        formatters.put(Integer.class, XlsNumberFormatter.GENERAL);
-        formatters.put(Float.class, XlsNumberFormatter.GENERAL);
-        formatters.put(Double.class, XlsNumberFormatter.GENERAL);
+        XlsNumberFormatter generelNumberFormatter = XlsNumberFormatter.getGeneralFormatter(Locale.US);
+
+        formatters.put(Short.class, generelNumberFormatter);
+        formatters.put(Integer.class, generelNumberFormatter);
+        formatters.put(Float.class, generelNumberFormatter);
+        formatters.put(Double.class, generelNumberFormatter);
         formatters.put(Boolean.class, new XlsBooleanFormatter());
         formatters.put(Date.class, new XlsDateFormatter(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
         formatters.put(String.class, new XlsStringFormatter());
