@@ -1,12 +1,12 @@
 package org.openl.util.filter;
 
 /**
- * <code>OpenLFilter</code> that accepts all the objects.
+ * <code>Filter</code> that accepts all the objects.
  *
  * @author Aliaksandr Antonik.
  */
-public class AllOpenLFilter extends BaseOpenLFilter {
-    public final static AllOpenLFilter INSTANCE = new AllOpenLFilter();
+public class AllFilter extends BaseFilter {
+    public final static AllFilter INSTANCE = new AllFilter();
 
     /**
      * Returns <code>true</code> for any object, including <code>null</code>.

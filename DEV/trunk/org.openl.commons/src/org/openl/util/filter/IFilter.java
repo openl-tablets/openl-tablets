@@ -5,7 +5,7 @@ import org.openl.util.ISelector;
 /**
  * Base interface for filters.
  */
-public interface OpenLFilter<T> extends ISelector<T> {
+public interface IFilter<T> extends ISelector<T> {
     /**
      * If given class is supported by this filter.
      *
