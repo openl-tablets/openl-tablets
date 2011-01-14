@@ -12,6 +12,9 @@ import org.openl.config.ClassPathConfigLocator;
 import org.openl.config.ConfigLocator;
 import org.openl.config.ConfigManager;
 import org.openl.config.SysConfigManager;
+import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * Updates system config manager.
@@ -45,6 +48,16 @@ public class RulesStartListener implements ServletContextListener {
     private static final Log LOG = LogFactory.getLog(RulesStartListener.class);
 
     public void contextDestroyed(ServletContextEvent event) {
+        try {
+            ProductionRepositoryFactoryProxy.release();
+        } catch (RRepositoryException e) {
+            LOG.error("Failed to release production repository", e);
+        }
+        try {
+            RulesRepositoryFactory.release();
+        } catch (RRepositoryException e) {
+            LOG.error("Failed to release rules repository", e);
+        }
         String name = event.getServletContext().getServletContextName();
         LOG.info(name + " is down.");
     }

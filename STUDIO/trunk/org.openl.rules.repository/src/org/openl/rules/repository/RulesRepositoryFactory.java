@@ -79,4 +79,12 @@ public class RulesRepositoryFactory {
 
         return isFailed;
     }
+
+    public static synchronized void release() throws RRepositoryException {
+        if (repFactory != null) {
+            repFactory.release();
+            repFactory = null;
+        }
+    }
+
 }
