@@ -222,6 +222,9 @@ public class LocalArtefactAPI implements ArtefactAPI {
     }
 
     public boolean isModified() {
+        if(!new StatePersistance(this, getProjectLocation()).isStateSaved()){
+            return true;
+        }
         return modified || creationDate != source.lastModified();
     }
 }
