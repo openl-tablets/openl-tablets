@@ -314,7 +314,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         if(deploymentProject == null){
             if(userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
                 try {
-                    addRulesProjectToTree(userWorkspace.getProject(event.getProjectName()));
+                    addDeploymentProjectToTree(userWorkspace.getDDProject(event.getProjectName()));
                 } catch (ProjectException e) {
                     LOG.error("Failed to add new project to the repository tree.", e);
                 }

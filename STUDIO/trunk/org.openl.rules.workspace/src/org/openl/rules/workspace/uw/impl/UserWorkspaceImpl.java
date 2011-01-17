@@ -117,7 +117,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return uwp.getArtefactByPath(pathInProject);
     }
 
-    public ADeploymentProject getDDProject(String name) throws RepositoryException {
+    public ADeploymentProject getDDProject(String name) throws ProjectException {
         try {
             ADeploymentProject ddp = designTimeRepository.getDDProject(name);
 
@@ -127,6 +127,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 userDProject = new ADeploymentProject(ddp.getAPI(), user);
 
                 userDProjects.put(name, userDProject);
+            } else {
+                // update existing
+                userDProject.update(ddp, user, ddp.getVersion().getMajor(), ddp.getVersion().getMinor());
             }
 
             return userDProject;
@@ -347,6 +350,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public void uploadLocalProject(String name) throws ProjectException {
         createProject(name);
-        getProject(name).checkIn(user);
+        AProject createdProject = getProject(name);
+        createdProject.checkIn(user);
+        createdProject.checkOut();
     }
 }

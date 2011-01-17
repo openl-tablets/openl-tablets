@@ -161,7 +161,7 @@ public class ADeploymentProject extends AProject {
 
     @Override
     public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
-        // super.update(artefact); TODO
+        this.setAPI(artefact.getAPI());
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
     }

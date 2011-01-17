@@ -71,6 +71,16 @@ public class StatePersistance {
     public void save() throws ProjectException {
         saveState(artefact);
     }
+    
+    /**
+     * Checks if state of the artefact was saved.
+     * 
+     * @return <code>true</code> if state of the artefact was previously saved
+     *         and <code>false</code> otherwise.
+     */
+    public boolean isStateSaved(){
+        return getPropertiesFile(artefact).exists();
+    }
 
     private void saveState(LocalArtefactAPI artefact) {
         File destFile = getPropertiesFile(artefact);
