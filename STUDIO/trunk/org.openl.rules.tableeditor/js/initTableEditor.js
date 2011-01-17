@@ -49,6 +49,7 @@ function initTableEditor(editorId, url, cellToEdit, actions) {
 
 function initToolbar(editorId) {
     $$("." + itemClass).each(function(item) {
+        processItem(item, false);
         item.onmouseover = function() {
             this.addClassName(overClass);
         };
@@ -73,16 +74,17 @@ function getItemId(editorId, itemId) {
 }
 
 function enableToolbarItem(img) {
-    if (isToolbarItemEnabled(img = $(img))) return;
+    if (!isToolbarItemDisabled(img = $(img))) return;
     img.removeClassName(disabledClass);
 
     if (img._mouseover) img.onmouseover = img._mouseover;
     if (img._mouseout) img.onmouseout = img._mouseout;
     if (img._onclick) img.onclick = img._onclick;
+    img._onmouseover = img._onmouseout = img._onclick = '';
 }
 
 function disableToolbarItem(img) {
-    if (!isToolbarItemEnabled(img = $(img))) return;
+    if (isToolbarItemDisabled(img = $(img))) return;
     img.addClassName(disabledClass);
 
     img._mouseover = img.onmouseover;
@@ -91,6 +93,7 @@ function disableToolbarItem(img) {
     img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;
 }
 
-function isToolbarItemEnabled(img) {
-    return !img.hasClassName(disabledClass);
+function isToolbarItemDisabled(img) {
+    return img.hasClassName(disabledClass)
+        && img._onclick;
 }
