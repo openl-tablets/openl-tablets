@@ -81,7 +81,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return name;
     }
 
-    public IOpenMethod getMethod() {
+    public CompositeMethod getMethod() {
         return method;
     }
 

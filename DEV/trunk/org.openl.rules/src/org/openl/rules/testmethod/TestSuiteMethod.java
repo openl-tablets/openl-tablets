@@ -49,8 +49,19 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     public BindingDependencies getDependencies() {
-        return new BindingDependencies();
+        BindingDependencies bindingDependencies = new BindingDependencies();
+        
+        updateDependency(bindingDependencies);
+        
+        return bindingDependencies;
     }    
+
+    private void updateDependency(BindingDependencies bindingDependencies) {
+        IOpenMethod testedMethod = getTestedMethod();
+        if (testedMethod instanceof ExecutableRulesMethod) {
+            bindingDependencies.addMethodDependency(testedMethod, boundNode);
+        }        
+    }
 
     public int getNumberOfTests() {
 
