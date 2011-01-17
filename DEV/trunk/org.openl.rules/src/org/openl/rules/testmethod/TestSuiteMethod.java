@@ -1,10 +1,12 @@
 package org.openl.rules.testmethod;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.xls.formatters.FormattersManager;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -49,7 +51,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     public BindingDependencies getDependencies() {
-        BindingDependencies bindingDependencies = new BindingDependencies();
+        BindingDependencies bindingDependencies = new RulesBindingDependencies();
         
         updateDependency(bindingDependencies);
         
@@ -58,7 +60,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     private void updateDependency(BindingDependencies bindingDependencies) {
         IOpenMethod testedMethod = getTestedMethod();
-        if (testedMethod instanceof ExecutableRulesMethod) {
+        if (testedMethod instanceof ExecutableRulesMethod || testedMethod instanceof OpenMethodDispatcher) {
             bindingDependencies.addMethodDependency(testedMethod, boundNode);
         }        
     }

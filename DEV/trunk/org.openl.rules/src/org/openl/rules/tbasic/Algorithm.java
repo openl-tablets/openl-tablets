@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
@@ -98,7 +99,7 @@ public class Algorithm extends AlgorithmFunction {
     }
     
     public BindingDependencies getDependencies() {
-        BindingDependencies bindingDependencies = new BindingDependencies();
+        BindingDependencies bindingDependencies = new RulesBindingDependencies();
         node.updateDependency(bindingDependencies);
 
         return bindingDependencies;        

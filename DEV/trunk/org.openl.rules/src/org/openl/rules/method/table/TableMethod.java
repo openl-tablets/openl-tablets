@@ -3,6 +3,7 @@ package org.openl.rules.method.table;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -65,7 +66,7 @@ public class TableMethod extends ExecutableRulesMethod {
 
     public BindingDependencies getDependencies() {
 
-        BindingDependencies bindingDependencies = new BindingDependencies();
+        BindingDependencies bindingDependencies = new RulesBindingDependencies();
         method.updateDependency(bindingDependencies);
 
         return bindingDependencies;

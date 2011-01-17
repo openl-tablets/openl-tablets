@@ -11,6 +11,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
@@ -133,7 +134,7 @@ public class DecisionTableAnalyzer {
 
         CompositeMethod method = (CompositeMethod) row.getMethod();
 
-        BindingDependencies bindingDependecies = new BindingDependencies();
+        BindingDependencies bindingDependecies = new RulesBindingDependencies();
         method.updateDependency(bindingDependecies);
 
         IMethodSignature methodSignature = decisionTable.getSignature();

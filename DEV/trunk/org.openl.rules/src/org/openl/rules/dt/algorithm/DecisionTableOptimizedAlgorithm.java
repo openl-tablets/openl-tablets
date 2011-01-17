@@ -13,6 +13,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
@@ -232,7 +233,7 @@ public class DecisionTableOptimizedAlgorithm {
     public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table) {
         this.evaluators = evaluators;
         this.table = table;
-        dependencies = new BindingDependencies();
+        dependencies = new RulesBindingDependencies();
         table.updateDependency(dependencies);
     }
 

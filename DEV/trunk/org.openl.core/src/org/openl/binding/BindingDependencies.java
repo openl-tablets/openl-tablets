@@ -86,8 +86,12 @@ public class BindingDependencies {
     public Set<ExecutableMethod> getRulesMethods() {
         return rulesMethods.keySet();
     }
+    
+    protected Map<ExecutableMethod, IBoundNode> getRulesMethodsMap() {
+        return rulesMethods;
+    }
 
-    public Map<IOpenMethod, IBoundNode> getMethodsMap() {
+    protected Map<IOpenMethod, IBoundNode> getMethodsMap() {
         return methods;
     }
 
