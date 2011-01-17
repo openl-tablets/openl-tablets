@@ -20,20 +20,26 @@ public class OpenMethodDispatcherHelper {
         List<IOpenMethod> result = new ArrayList<IOpenMethod>();
         
         for (IOpenMethod method : methods) {
-            if (method instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) method;
-                List<IOpenMethod> candidates = extractMethods(dispatcher.getCandidates());
-                
-                for (IOpenMethod candidate : candidates) {
-//                    if (!(candidate instanceof OpenMethodDispatcher)) {
-                        result.add(candidate);
-//                    }
-                }
-            } else {
-                result.add(method);
-            }
+            result.addAll(extractMethod(method));
         }        
         return result;
+    }
+
+    public static List<IOpenMethod> extractMethod(IOpenMethod method) {
+        List<IOpenMethod> methods = new ArrayList<IOpenMethod>();
+        if (method instanceof OpenMethodDispatcher) {
+            OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) method;
+            List<IOpenMethod> candidates = extractMethods(dispatcher.getCandidates());
+            
+            for (IOpenMethod candidate : candidates) {
+//                    if (!(candidate instanceof OpenMethodDispatcher)) {
+                methods.add(candidate);
+//                    }
+            }
+        } else {
+            methods.add(method);
+        }
+        return methods;
     }
     
 }
