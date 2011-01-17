@@ -9,6 +9,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -154,7 +155,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
         IParameterDeclaration[] params = getParams();
 
-        BindingDependencies dependencies = new BindingDependencies();
+        BindingDependencies dependencies = new RulesBindingDependencies();
         ((CompositeMethod) getMethod()).updateDependency(dependencies);
 
         Iterator<IOpenField> iter = dependencies.getFieldsMap().values().iterator();

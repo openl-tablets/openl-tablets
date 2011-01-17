@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -61,7 +62,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
     }
 
     public BindingDependencies getDependencies() {
-        BindingDependencies dependencies = new BindingDependencies();
+        BindingDependencies dependencies = new RulesBindingDependencies();
         boundNode.updateDependency(dependencies);
         return dependencies;
     }

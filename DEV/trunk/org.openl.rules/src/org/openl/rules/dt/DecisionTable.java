@@ -12,6 +12,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.DecisionTableDataType;
@@ -179,7 +180,7 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     public BindingDependencies getDependencies() {
 
-        BindingDependencies bindingDependencies = new BindingDependencies();
+        BindingDependencies bindingDependencies = new RulesBindingDependencies();
         updateDependency(bindingDependencies);
 
         return bindingDependencies;
