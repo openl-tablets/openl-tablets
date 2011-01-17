@@ -20,6 +20,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title>OpenL Tracing</title>
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
+<link href="webresource/css/tooltip.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript" src="webresource/js/prototype/prototype-1.6.1.js"></script>
+<script type="text/javascript" src="webresource/js/tooltip.js"></script>
+
 <style type="text/css">
 
 table.top{font-size:80%;background:black}
