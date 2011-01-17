@@ -347,6 +347,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public void uploadLocalProject(String name) throws ProjectException {
         createProject(name);
-        designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user, 0, 0);
+        getProject(name).checkIn(user);
     }
 }
