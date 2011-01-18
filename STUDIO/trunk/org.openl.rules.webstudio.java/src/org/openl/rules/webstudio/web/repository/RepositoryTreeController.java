@@ -268,6 +268,7 @@ public class RepositoryTreeController {
         try {
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
+            createdProject.checkOut();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
@@ -337,8 +338,9 @@ public class RepositoryTreeController {
                 .getSelectedNode().getDataBean();
         try {
             projectArtefact.delete();
-            boolean wasMarkedForDeletion = UiConst.TYPE_PROJECT.equals(repositoryTreeState.getSelectedNode().getType())
-                    && !((AProject) projectArtefact).isLocalOnly();
+            String nodeType = repositoryTreeState.getSelectedNode().getType();
+            boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)
+                    || (UiConst.TYPE_PROJECT.equals(nodeType) && !((AProject) projectArtefact).isLocalOnly());
             if (wasMarkedForDeletion) {
                 repositoryTreeState.refreshSelectedNode();
             } else {
