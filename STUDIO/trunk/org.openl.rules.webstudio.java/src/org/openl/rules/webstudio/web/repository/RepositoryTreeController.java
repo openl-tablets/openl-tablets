@@ -337,11 +337,12 @@ public class RepositoryTreeController {
                 .getSelectedNode().getDataBean();
         try {
             projectArtefact.delete();
-            if (UiConst.TYPE_FILE.equals(repositoryTreeState.getSelectedNode().getType())
-                    || UiConst.TYPE_FOLDER.equals(repositoryTreeState.getSelectedNode().getType())) {
-                repositoryTreeState.deleteSelectedNodeFromTree();
-            } else {
+            boolean wasMarkedForDeletion = UiConst.TYPE_PROJECT.equals(repositoryTreeState.getSelectedNode().getType())
+                    && !((AProject) projectArtefact).isLocalOnly();
+            if (wasMarkedForDeletion) {
                 repositoryTreeState.refreshSelectedNode();
+            } else {
+                repositoryTreeState.deleteSelectedNodeFromTree();
             }
         } catch (ProjectException e) {
             LOG.error("Failed to delete node.", e);
