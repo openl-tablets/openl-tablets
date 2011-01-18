@@ -69,7 +69,7 @@ public class SimpleBeanByteCodeGenerator {
     public SimpleBeanByteCodeGenerator(String beanName, Map<String, FieldDescription> beanFields, Class<?> parentClass, 
             Map<String, FieldDescription> parentFields) {
         this.beanName = beanName;
-        this.beanNameWithPackage = JavaClassGeneratorHelper.replaceCommas(beanName);
+        this.beanNameWithPackage = JavaClassGeneratorHelper.replaceDots(beanName);
         this.beanFields = new LinkedHashMap<String, FieldDescription>(beanFields);
         this.parentFields = new LinkedHashMap<String, FieldDescription>(parentFields);
         this.parentClass = parentClass;

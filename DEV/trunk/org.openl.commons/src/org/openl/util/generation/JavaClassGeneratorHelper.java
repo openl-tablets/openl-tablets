@@ -201,11 +201,11 @@ public class JavaClassGeneratorHelper {
      * @return Java type corresponding to the given type name. (e.g. <code>Lmy/test/TestClass;</code>)
      */
     public static String getJavaType(String typeName) {        
-        boolean isArray = StringUtils.contains(typeName, "[");
+        boolean isArray = isArray(typeName);
         if (isArray) {
             return getJavaArrayType(typeName);
         } else {
-            return String.format("L%s;", replaceCommas(typeName));
+            return String.format("L%s;", replaceDots(typeName));
         }
     }
     
@@ -215,17 +215,54 @@ public class JavaClassGeneratorHelper {
      * @param arrayTypeName e.g. <code>my.test.TestClass[][]</code>
      * @return e.g. <code>[[Lmy/test/TestClass;</code>
      */
-    public static String getJavaArrayType(String arrayTypeName) {   
-        String[] tokens = arrayTypeName.split("\\[");
-        StringBuffer strBuf = new StringBuffer();
-        for (int i = 0; i< tokens.length - 1; i++) {
-            strBuf.append("[");
-        }
-        return String.format("%sL%s;", strBuf.toString(), replaceCommas(tokens[0]));          
+    public static String getJavaArrayType(String arrayTypeName) {
+        if (StringUtils.isNotBlank(arrayTypeName)) {
+            String[] tokens = arrayTypeName.split("\\[");
+            StringBuffer strBuf = new StringBuffer();
+            for (int i = 0; i< tokens.length - 1; i++) {
+                strBuf.append("[");
+            }
+            return String.format("%sL%s;", strBuf.toString(), replaceDots(tokens[0]));
+        } 
+        return null;
     }
     
-    public static String replaceCommas(String typeWithNamespace) {
+    public static int getDimension(String arrayTypeName) {
+        if (StringUtils.isNotBlank(arrayTypeName)) {
+            if (isArray(arrayTypeName)) {
+                String[] tokens = arrayTypeName.split("\\[");
+                return tokens.length - 1;
+            } else {
+                return 0;
+            }
+        }
+        return -1;
+    }
+
+    public static boolean isArray(String arrayTypeName) {
+        return StringUtils.contains(arrayTypeName, "[");
+    }
+    
+    public static String replaceDots(String typeWithNamespace) {
         return typeWithNamespace.replace('.', '/');
+    }
+    
+    /**
+     * Gets the type name without square brackets.
+     * 
+     * @param arrayType type name with square brackets (e.g. org.my.test.Hello[])
+     * 
+     * @return type name without square brackets (e.g. org.my.test.Hello)
+     */
+    public static String cleanTypeName(String arrayType) {        
+        if (StringUtils.isNotBlank(arrayType)) {
+            if (arrayType.indexOf("[") >= 0) {
+                return arrayType.substring(0, arrayType.indexOf("["));
+            } else {
+                return arrayType;
+            }
+        } 
+        return null; 
     }
     
     public static Constructor<?> getBeanConstructorWithAllFields(Class<?> beanClass, int beanFieldsCount) {

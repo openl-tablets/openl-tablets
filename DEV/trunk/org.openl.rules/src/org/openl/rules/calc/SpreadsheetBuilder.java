@@ -46,6 +46,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.ConstOpenField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class SpreadsheetBuilder {
 
@@ -77,8 +78,9 @@ public class SpreadsheetBuilder {
     }
 
     public void build(ILogicalTable tableBody) {
-
-        buildColumnRowNames(tableBody);
+        buildRowNames(tableBody);
+        buildColumnNames(tableBody);
+        
         buildHeaderTypes();
 
         try {
@@ -87,7 +89,28 @@ public class SpreadsheetBuilder {
             buildReturn();
         } catch (SyntaxNodeException e) {
             tableSyntaxNode.addError(e);
-            BindHelper.processError(e, bindingContext);
+            BindHelper.processError(e, bindingContext);            
+        }
+    }
+
+    private void buildColumnNames(ILogicalTable tableBody) {
+        columnNamesTable = tableBody.getRow(0).getColumns(1);
+        
+        int width = columnNamesTable.getWidth();        
+        spreadsheet.setColumnNames(new String[width]);        
+
+        for (int col = 0; col < width; col++) {
+            addColumnNames(col, columnNamesTable.getColumn(col));
+        }
+    }
+    
+    private void buildRowNames(ILogicalTable tableBody) {        
+        rowNamesTable = tableBody.getColumn(0).getRows(1);
+        int height = rowNamesTable.getHeight();
+        spreadsheet.setRowNames(new String[height]);
+        
+        for (int row = 0; row < height; row++) {
+            addRowNames(row, rowNamesTable.getRow(row));
         }
     }
 
@@ -123,7 +146,7 @@ public class SpreadsheetBuilder {
             String value = nameCell.getCell(0, 0).getStringValue();
 
             if (value != null) {
-                String shortName = "scol" + column + "_" + i;
+                String shortName = String.format("scol%d_%d", column, i);
                 StringValue stringValue = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell,
                         bindingContext));
 
@@ -142,7 +165,7 @@ public class SpreadsheetBuilder {
             String value = nameCell.getCell(0, 0).getStringValue();
 
             if (value != null) {
-                String shortName = "srow" + row + "_" + i;
+                String shortName = String.format("srow%d_%d", row, i);
                 StringValue sv = new StringValue(value, shortName, null, new GridCellSourceCodeModule(nameCell,
                         bindingContext));
 
@@ -250,10 +273,7 @@ public class SpreadsheetBuilder {
 
     private void buildHeaderTypes() {
 
-        SpreadsheetOpenClass spreadsheetType = new SpreadsheetOpenClass(null, spreadsheet.getName() + "Type",
-                bindingContext.getOpenL());
-
-        spreadsheet.setSpreadsheetType(spreadsheetType);
+        initSpreadsheetType();
 
         for (SpreadsheetHeaderDefinition headerDefinition : varDefinitions.values()) {
 
@@ -264,24 +284,28 @@ public class SpreadsheetBuilder {
                 if (symbolicTypeDefinition.getType() != null) {
 
                     SyntaxNodeException error = null;
-                    IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, symbolicTypeDefinition
-                            .getType().getIdentifier());
+                    
+                    String typeIdentifier = symbolicTypeDefinition.getType().getIdentifier(); 
+                    
+                    IOpenClass type = findType(typeIdentifier);
 
                     if (type == null) {
-                        String message = "Type not found: " + symbolicTypeDefinition.getType().getIdentifier();
+                        // error case, can`t find type.
+                        //
+                        String message = "Type not found: " + typeIdentifier;
                         error = SyntaxNodeExceptionUtils.createError(message, symbolicTypeDefinition.getType());
                     } else if (headerType == null) {
+                        // initialize header type
+                        //                        
                         headerType = type;
                     } else if (headerType != type) {
                         error = SyntaxNodeExceptionUtils.createError("Type redefinition", symbolicTypeDefinition
                                 .getType());
                     }
-
                     if (error != null) {
                         tableSyntaxNode.addError(error);
                         BindHelper.processError(error, bindingContext);
                     }
-
                 }
             }
 
@@ -290,27 +314,37 @@ public class SpreadsheetBuilder {
             }
         }
     }
-
-    protected void buildColumnRowNames(ILogicalTable tableBody) {
-
-        rowNamesTable = tableBody.getColumn(0).getRows(1);
-        columnNamesTable = tableBody.getRow(0).getColumns(1);
-
-        int height = rowNamesTable.getHeight();
-        int width = columnNamesTable.getWidth();
-
-        spreadsheet.setRowNames(new String[height]);
-        spreadsheet.setColumnNames(new String[width]);
-
-        for (int row = 0; row < height; row++) {
-            addRowNames(row, rowNamesTable.getRow(row));
-        }
-
-        for (int col = 0; col < width; col++) {
-            addColumnNames(col, columnNamesTable.getColumn(col));
-        }
+    
+    /**
+     * Gets appropriate IOpenClass for given typeIdentifier.<br>
+     * Supports array types.
+     * 
+     * @param typeIdentifier String type identifier (e.g. DoubleValue or Driver[], etc)
+     * 
+     * @return appropriate IOpenClass for given typeIdentifier
+     */
+    private IOpenClass findType(String typeIdentifier) {
+        IOpenClass result = null;
+        if (JavaClassGeneratorHelper.isArray(typeIdentifier)) {
+            // gets the name of the type, remove square brackets for array type declaration.
+            //
+            String cleanTypeIdentifier = JavaClassGeneratorHelper.cleanTypeName(typeIdentifier);
+            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, cleanTypeIdentifier);
+            int typeDimension = JavaClassGeneratorHelper.getDimension(typeIdentifier);
+            result = type.getAggregateInfo().getIndexedAggregateType(type, typeDimension);
+        } else {
+            result = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeIdentifier);
+        }        
+        return result;
     }
 
+    private void initSpreadsheetType() {
+        SpreadsheetOpenClass spreadsheetType = new SpreadsheetOpenClass(null, spreadsheet.getName() + "Type",
+                bindingContext.getOpenL());
+
+        spreadsheet.setSpreadsheetType(spreadsheetType);
+    }
+    
     private void buildReturn() throws SyntaxNodeException {
 
         SymbolicTypeDefinition symbolicTypeDefinition = null;
