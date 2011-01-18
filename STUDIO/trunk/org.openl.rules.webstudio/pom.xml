@@ -18,6 +18,9 @@
 
   <properties>
     <war.name>${artifactId}-${version}</war.name>
+    <sonar.language>web</sonar.language>
+    <sonar.web.sourceDirectory>webapps/webstudio</sonar.web.sourceDirectory>
+    <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
   </properties>
 
   <build>
