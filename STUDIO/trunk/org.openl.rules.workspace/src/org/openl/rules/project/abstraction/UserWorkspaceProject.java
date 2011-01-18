@@ -48,6 +48,18 @@ public class UserWorkspaceProject extends AProject {
         refresh();
     }
 
+    @Override
+    public void delete() throws ProjectException {
+        if (isLocalOnly()) {
+            erase();
+        } else {
+            if (isOpened()) {
+                close();
+            }
+            super.delete();
+        }
+    }
+
     public void close() throws ProjectException {
         if (local != null) {
             local.delete(user);

@@ -85,9 +85,6 @@ public class AProject extends AProjectFolder {
 
         check(PRIVILEGE_DELETE);
 
-        if (isOpened()) {
-            close();
-        }
         if (isDeleted()) {
             throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, getName());
         }
