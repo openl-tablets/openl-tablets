@@ -536,18 +536,16 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     }
 
     public void setCellComment(int col, int row, ICellComment comment) {
-        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-
         // setCellComment method of POI 3.7 corrupts workbook
         // TODO Uncomment when POI team will fix this issue
 
         /*Comment poiComment = null;
+        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
+
         if (comment != null) {
             poiComment = ((XlsCellComment) comment).getXlxComment();
         }
         poiCell.setCellComment(poiComment);*/
-
-        poiCell.setCellComment(null);
     }
 
     /**
