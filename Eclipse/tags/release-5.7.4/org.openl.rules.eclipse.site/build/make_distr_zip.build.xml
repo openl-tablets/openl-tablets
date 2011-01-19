@@ -1,0 +1,30 @@
+<project default="make_zip" basedir="..">
+
+<property file="../org.openl.core/src/org/openl/main/openl.version.properties"/>
+
+<property name="build_root" value="/temp"/>	
+
+	 <tstamp>
+	      <format property="tstamp" pattern="MM-dd-yyyy"/>
+	  </tstamp>	
+	<property name="tmp_dir"   value="openl-tablets-site.${openl.version}.b-${openl.build}"/>
+	
+	
+<target name="make_zip" depends="copy_files">
+	<echo message="${tmp_dir}"/>
+	
+	
+</target>
+	
+<target name="copy_files">
+	<copy file="site.xml" todir="${build_root}/${tmp_dir}" preservelastmodified="yes"/>
+		
+	<copy todir="${build_root}/${tmp_dir}/plugins" preservelastmodified="yes">
+		<fileset dir="plugins"/>
+	</copy>
+	<copy todir="${build_root}/${tmp_dir}/features" preservelastmodified="yes">
+		<fileset dir="features"/>
+	</copy>
+</target>
+	
+</project>
