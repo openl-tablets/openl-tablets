@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,8 @@ import org.openl.util.StringTool;
 public class ShowTableBean {
 
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
+    
+    private static final String INFO_MESSAGE = "Can`t find requested table";
 
     // Filled and runnable tests(this group of tests is more tight than allTests).
     private Test[] runnableTestMethods = {};
@@ -82,20 +85,34 @@ public class ShowTableBean {
         }
 
         final ProjectModel model = studio.getModel();
-
-        table = model.getTable(uri);
-
-        runnable = model.isRunnable(uri); 
         
-        if (runnable) {
-            targetTables = model.getTargetTables(uri);
+        
+        table = model.getTable(uri);
+        
+        if (table == null) {
+            try {
+                String infoLink = 
+                    String.format("%s/faces/facelets/tableeditor/showMessage.xhtml?summary=%s", 
+                        FacesUtils.getContextPath(), INFO_MESSAGE);
+                
+                FacesUtils.redirect(infoLink);
+            } catch (IOException e) {                
+                LOG.error("Can`t redirect to info message page", e);
+            }
+        } else {
+            runnable = model.isRunnable(uri); 
+            
+            if (runnable) {
+                targetTables = model.getTargetTables(uri);
+            }
+            
+            initProblems();
+
+            initTests(model);        
+
+            initParams();
         }
         
-        initProblems();
-
-        initTests(model);        
-
-        initParams();
     }
     
     @SuppressWarnings("unchecked")
@@ -153,7 +170,7 @@ public class ShowTableBean {
         if (targetTables != null) {
             for (IOpenLTable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
-                    warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY));
+                    warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY, Severity.WARN));
                     // one warning is enough.
                     break;
                 }
