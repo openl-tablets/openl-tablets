@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                template="/facelets/common/copyWizardBase.xhtml"
+        >
+    <ui:define name="header">
+        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+        <a4j:loadScript src="resource:///javascript/validator.js" />
+    </ui:define>
+  
+  <ui:define name="page">
+    <h:messages errorClass="error" infoStyle="color:green" />
+
+    <h2>Select destination</h2>
+
+    <h:form id="destForm">
+      <a4j:region>
+      <h:panelGrid columns="2">
+        <h:outputText value="Workbook" />
+        <h:selectOneMenu value="#{tableCopierWizard.workbook}">
+          <a4j:support event="onchange" reRender="sheet" ajaxSingle="true" oncomplete="updateControls()"/>
+          <f:selectItems value="#{tableCopierWizard.workbooks}"/>
+        </h:selectOneMenu>
+        </h:panelGrid>
+        </a4j:region>
+        <br/>
+
+      <fieldset><legend>Worksheet</legend>
+      <h:panelGrid columns="2">
+        <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{tableCopierWizard.newWorksheet}" layout="pageDirection">
+          <f:selectItem itemValue="existing" itemLabel="Existing"/>
+          <f:selectItem itemValue="new" itemLabel="New"/>
+        </h:selectOneRadio>
+        <h:panelGrid columns="1">
+          <h:selectOneMenu value="#{tableCopierWizard.worksheetIndex}" id="sheet">
+            <f:selectItems value="#{tableCopierWizard.worksheets}"/>
+          </h:selectOneMenu>
+          <h:inputText value="#{tableCopierWizard.newWorksheetName}" id="newSheetName"/>
+        </h:panelGrid>
+      </h:panelGrid>
+      </fieldset>
+
+      <hr/>
+
+      <h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" onclick="enableControls()"/>
+      <h:commandButton value="Finish" action="#{tableCopierWizard.finish}" onclick="return validateForm()"/>
+      <h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" immediate="true"/>
+    </h:form>
+
+    <f:verbatim>
+    <script type="text/javascript">
+      function validateForm() {
+        return validateNewSheetName();
+      }
+            
+      function validateNewSheetName() {
+        var e = document.forms['destForm']['destForm:newSheet'][0];
+        var newSheet = e.value == 'new' ? e.checked : !e.checked;
+        if (newSheet) {
+          return validateRequired('destForm:newSheetName', true);
+        }
+        return true;
+      }
+
+      function updateControls() {
+        var e = document.forms['destForm']['destForm:newSheet'][0];
+        var newSheet = e.value == 'new' ? e.checked : !e.checked;
+        $('destForm:sheet').disabled = newSheet;
+        $('destForm:newSheetName').disabled = !newSheet;
+      }
+
+      function enableControls() {
+        $('destForm:sheet').disabled = false;
+        $('destForm:newSheetName').disabled = false;
+      }
+
+      updateControls();
+
+    </script>
+    </f:verbatim>
+  </ui:define>
+</ui:composition>

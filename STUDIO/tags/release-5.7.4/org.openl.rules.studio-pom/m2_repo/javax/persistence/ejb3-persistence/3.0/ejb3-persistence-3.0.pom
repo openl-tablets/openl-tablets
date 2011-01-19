@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>javax.persistence</groupId>
+  <artifactId>ejb3-persistence</artifactId>
+  <version>3.0</version>
+  <description>POM was created from install:install-file</description>
+</project>
