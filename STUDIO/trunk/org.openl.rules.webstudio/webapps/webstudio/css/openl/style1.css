@@ -26,16 +26,22 @@ img {
     border: 0px;
 }
 
-.error_box {
-    padding: 12px 7px 12px 43px;
-    background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;
-    border: 1px solid #DC6E6E;
+.info_box {
+    padding: 12px 7px 13px 43px;
+    background: url(webresource/images/info32.png) no-repeat 5px #D8E3F8;
+    border: 1px solid #5C8ADB;
 }
 
 .warning_box {
     padding: 12px 7px 12px 43px;
     background: url(webresource/images/warning32.png) no-repeat 5px #FFF4AD;
     border: 1px solid #DFA660;
+}
+
+.error_box {
+    padding: 12px 7px 12px 43px;
+    background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;
+    border: 1px solid #DC6E6E;
 }
 
 .data_cell {
