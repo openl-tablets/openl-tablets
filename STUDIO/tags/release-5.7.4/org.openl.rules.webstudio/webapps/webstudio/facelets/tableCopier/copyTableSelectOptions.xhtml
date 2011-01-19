@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/facelets/common/copyWizardBase.xhtml">
+
+<ui:define name="page">
+    <h2>Please select which attributes do you want to change during copying.</h2>
+<h:form>
+    <div align="left">    
+    <h:selectOneRadio value="#{tableCopierWizardManager.copyType}" layout="pageDirection">
+        <f:selectItem itemValue="CHANGE_NAMES" itemLabel="Change names"/>
+        <f:selectItem itemValue="CHANGE_PROPERTIES" itemLabel="Change properties"/>
+    </h:selectOneRadio>
+      
+    </div>
+
+    <h:commandButton value="Next" action="#{tableCopierWizardManager.startWizard}">
+    	<f:param name="uri" value="#{tableCopierWizardManager.elementUri}"/>
+    </h:commandButton>
+    
+    <h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}"/>
+  </h:form>
+  </ui:define>
+</ui:composition>

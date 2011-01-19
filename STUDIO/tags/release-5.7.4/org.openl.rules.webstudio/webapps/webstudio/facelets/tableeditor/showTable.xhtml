@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <a4j:loadStyle src="resource:///css/button.css" />
+        <a4j:loadScript src="resource:///javascript/button.js" />
+
+        <script type="text/javascript">
+            function open_win(url, name) {
+                window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+            }
+
+            function openTraceIntoFileDlg(button) {
+                var pos = Element.cumulativeOffset(button);
+                pos[1] += button.getHeight();
+
+                var dlgParams = {left:'', top:'' };
+                dlgParams.left = pos[0];
+                dlgParams.top = pos[1] - 1;
+
+                Richfaces.showModalPanel('traceIntoFileDlg', dlgParams);
+            }
+        </script>
+        <style>
+            form {
+                margin: 0px;
+            }
+            .editToolbar {
+                border: 1px solid rgb(150,150,150);
+                padding: 1px 5px 0px 0px;
+            }
+            .editToolbar a {
+                margin-left: 5px;
+            }
+            .editToolbar .toolbarDelimeter {
+                border-right: 1px solid rgb(150,150,150);
+                padding-left: 5px;
+            }
+            .editToolbar .newTestLink {
+                background: url(#{contextPath}/webresource/images/test_new.gif) no-repeat left;
+                padding-left: 19px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="page">
+        <br />
+
+        <h:panelGroup rendered="#{showTableBean.runnable and not empty showTableBean.targetTables}" layout="block"
+            style="margin-bottom: 15px;">
+            <h:panelGroup style="font-weight: bold;">
+                <h:outputText value="Target Table" />
+                <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
+                <h:outputText value=": " />
+            </h:panelGroup>
+
+            <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
+                rendered="#{fn:length(showTableBean.targetTables) == 1}">
+                <f:param name="uri" value="#{showTableBean.targetTables[0].uri}" />
+                <h:outputText value="#{showTableBean.targetTables[0].name}" />
+            </h:outputLink>
+
+            <rich:dataList value="#{showTableBean.targetTables}" var="targetTable"
+                rendered="#{fn:length(showTableBean.targetTables) > 1}" style="margin: 3px 0px 0px;">
+                <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <f:param name="uri" value="#{targetTable.uri}" />
+                    <h:outputText value="#{targetTable.name}" />
+                </h:outputLink>
+            </rich:dataList>
+        </h:panelGroup>
+
+        <h:form>
+            <table class="editToolbar"><tr><td>
+                <h:outputLink rendered="#{showTableBean.editable}"
+                    value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <f:param name="uri" value="#{showTableBean.uri}" />
+                    <f:param name="mode" value="edit" />
+                    <f:param name="view" value="#{showTableBean.view}" />
+                    <f:param name="showFormulas" value="#{showTableBean.showFormulas}" />
+                    <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
+                </h:outputLink>
+
+                <h:commandLink rendered="#{showTableBean.editableAsNewVersion}"
+                    action="#{tableCopierWizardManager.startWizard}">
+                    <a4j:actionparam assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
+                    <f:param name="uri" value="#{showTableBean.uri}" />
+                    <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
+                        alt="Edit Table as New Version" title="Edit Table as New Version" />
+                </h:commandLink>
+
+                <h:outputLink rendered="#{showTableBean.editable}"
+                    value="#{contextPath}/jsp/showLinks.jsp"
+                    target="show_app_hidden">
+                    <f:param name="uri" value="#{showTableBean.uri}" />
+                    <h:graphicImage
+                        url="/webresource/images/excel.png"
+                        title="Edit Table In Excel - #{showTableBean.uri}"
+                        alt="Edit Table In Excel - #{showTableBean.uri}" />
+                </h:outputLink>
+
+                <h:outputLink rendered="#{showTableBean.copyable}" target="_self"
+                    value="#{contextPath}/faces/facelets/tableCopier/copyTableSelectOptions.xhtml">
+                    <f:param name="uri" value="#{showTableBean.uri}" />
+                    <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
+                </h:outputLink>
+
+                <h:commandLink rendered="#{showTableBean.editable}"
+                    action="#{showTableBean.removeTable}"
+                    onclick="if(!confirm('Do you really want to remove this table?'))return false;">
+                    <h:graphicImage url="/webresource/images/delete.gif" alt="Remove Table" title="Remove Table" />
+                </h:commandLink>
+
+                <c:if test="#{!showTableBean.serviceTable}">
+                    <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
+                        value="#{contextPath}/faces/facelets/test/runAllTests.xhtml">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <h:graphicImage url="/webresource/images/test_ok.gif"
+                            title="Test" alt="Test" />
+                    </h:outputLink>
+
+                    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <h:graphicImage url="/webresource/images/test.gif" alt="Run" title="Run" />
+                        </h:outputLink>
+    
+                        <c:set var="traceUrl"
+                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
+                        <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
+                            <img src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
+
+                        <a onclick="openTraceIntoFileDlg(this);" href="#">
+                            <h:graphicImage url="/webresource/images/traceIntoFile.gif"
+                                title="Trace into File" alt="Trace into File" /></a>
+
+                        <h:outputLink
+                            value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <h:graphicImage url="/webresource/images/clock-icon.png"
+                                title="Benchmark" alt="Benchmark" />
+                        </h:outputLink>
+                    </c:if>
+
+                    <h:outputLink value="?#{showTableBean.notViewParams}">
+                        <f:param value="view.business" name="view" />
+                        <h:graphicImage
+                            url="/webresource/images/business-view.png"
+                            title="Business View" alt="Business View" />
+                    </h:outputLink>
+    
+                    <h:outputLink value="?#{showTableBean.notViewParams}">
+                        <f:param value="view.developer" name="view" />
+                        <h:graphicImage
+                            url="/webresource/images/developer-view.png"
+                            title="Developer (Full) View"
+                            alt="Full View" />
+                    </h:outputLink>
+    
+                    <h:outputLink rendered="#{showTableBean.showFormulas}"
+                        value="?#{showTableBean.paramsWithoutShowFormulas}">
+                        <f:param name="showFormulas" value="false" />
+                        <h:graphicImage
+                            url="/webresource/images/formula.png"
+                            title="Don't Show Formulas"
+                            alt="Don't Show Formulas" />
+                    </h:outputLink>
+    
+                    <h:outputLink rendered="#{not showTableBean.showFormulas}"
+                        value="?#{showTableBean.paramsWithoutShowFormulas}">
+                        <f:param value="true" name="showFormulas" />
+                        <h:graphicImage
+                            url="/webresource/images/formula.png"
+                            title="Show Formulas"
+                            alt="Show Formulas" />
+                    </h:outputLink>
+                </c:if>
+            </td>
+            <h:panelGroup rendered="#{showTableBean.canCreateTest}">
+            <td class="toolbarDelimeter"></td>
+            <td>
+                <h:commandLink action="#{tableCreatorWizardManager.startWizard}"
+                    styleClass="newTestLink">
+                    <a4j:actionparam assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
+                    <f:param name="uri" value="#{showTableBean.uri}" />
+                    <h:outputText value="Create Test" />
+                </h:commandLink>
+            </td>
+            </h:panelGroup>
+            </tr>
+            </table>
+        </h:form>
+
+        <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
+            <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
+                <span style="margin-right: 4px">Problems</span>
+                <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Problems"
+                    onclick="$('problemsPanel').toggle();this.src=(this.title == 'Hide Problems' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Hide Problems' : 'Hide Problems');" />
+            </div>
+            <div id="problemsPanel">
+                <ui:include src="/facelets/messages.xhtml">
+                    <ui:param name="messages" value="#{showTableBean.problems}" />
+                </ui:include>
+                <br />
+            </div>
+        </h:panelGroup>
+
+        <br />
+
+        <script type="text/javascript">
+            function search(f) {
+	           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
+               	    .find(function(s) {
+                        return s.nodeName == "#text"
+                    }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "")
+                      .split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+                      .reject(function(s) {
+                          return !s;
+                      }).join(" ");
+                f.submit();
+            }
+
+            function editInExcel(f) {
+                f.uri.value = $(PopupMenu.lastTarget).down("input[name='uri']").value;
+                f.submit();
+            }
+
+            function onBeforeSave() {
+                $('saveWindow').component.show();
+                top.main.leftFrame.document.getElementById('saveWindow').component.show();
+            }
+
+            function onAfterSave() {
+                $('saveWindow').component.hide();
+                top.main.leftFrame.document.getElementById('saveWindow').component.hide();
+
+                top.main.leftFrame.location.href =
+                    "#{contextPath}/openTable.jsp?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
+            }
+
+            function onSaveFailure() {
+                $('saveWindow').component.hide();
+                top.main.leftFrame.document.getElementById('saveWindow').component.hide();
+            }
+            
+        </script>
+
+        <rich:modalPanel id="saveWindow" height="40" width="105" top="200" left="220"
+            style="text-align:center; background:#fff; border-color:#B4C8FF; color:#323232">
+            <h:panelGrid columns="2">
+                <h:outputText value="Saving... " />
+                <h:graphicImage url="/webresource/images/ajax-loader.gif" />
+            </h:panelGrid>
+        </rich:modalPanel>
+
+        <form name="searchForm" method="post" action="#{contextPath}/faces/facelets/search/simpleSearch.xhtml">
+            <input type="hidden" name="searchQuery" value="" />
+        </form>
+
+        <form target="show_app_hidden" name="editInExcelForm" method="post" action="#{contextPath}/jsp/showLinks.jsp">
+            <input type="hidden" name="uri" value="" />
+        </form>
+
+        <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
+            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+            showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
+            beforeSaveAction="#{showTableBean.updateSystemProperties}"
+            afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
+            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
+            excludeScripts="prototype">
+
+            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
+                rendered="#{showTableBean.editable}" >Edit in Excel</h:outputLink>
+            <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
+
+        </rules:tableEditor>
+
+        <h:panelGroup rendered="#{showTableBean.hasAnyTests}"> <!-- If table has any type of tests, including tests with 
+        test cases, run methods -->
+            <h3>Available Checks and Tests:</h3>
+            <a4j:repeat value="#{showTableBean.allTests}" var="test">
+                <p style="margin-left: 10px">
+                    <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                        <f:param name="uri" value="#{test.uri}" />
+                        <h:outputText value="#{test.testName}" />
+                    </h:outputLink>
+                </p>
+            </a4j:repeat>
+        </h:panelGroup>
+
+        <c:set value="#{showTableBean.testRunResults}" var="testResult" />
+        <c:if test="#{testResult.notEmpty and !showTableBean.hasErrors}">
+            <h3>Available Runs:</h3>
+            <c:forEach var="test" items="#{testResult.tests}">
+                <c:forEach var="description"
+                    items="#{test.descriptions}" varStatus="status">
+                    <p>
+                        <h:panelGroup rendered="#{showTableBean.testable}">
+                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                            <h:outputLink value="#{contextPath}/faces/facelets/test/runAllTests.xhtml" title="Test">
+                                <f:param value="#{showTableBean.uri}" name="uri" />
+                                <f:param value="#{test.testName}" name="testName" />
+                                <f:param value="#{status.index}" name="testID" />
+                                <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
+                            </h:outputLink>
+                         </h:panelGroup>
+
+                        <f:verbatim>&amp;nbsp;</f:verbatim>
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml" title="Run">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <f:param value="#{test.testName}" name="testName" />
+                            <f:param value="#{status.index}" name="testID" />
+                            <f:param value="#{description}" name="testDescr" />
+                            <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
+                        </h:outputLink>
+                        <f:verbatim>&amp;nbsp;</f:verbatim>
+                        <c:set var="traceUrl"
+                            value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
+                        <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
+                            <img src="webresource/images/trace.gif"
+                                title="Trace" alt="Trace" /></a>
+                        <f:verbatim>&amp;nbsp;</f:verbatim>
+                        <h:outputLink
+                            value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml"
+                            title="Benchmark">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <f:param value="#{test.testName}" name="testName" />
+                            <f:param value="#{status.index}" name="testID" />
+                            <f:param value="#{description}" name="testDescr" />
+                            <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
+                        </h:outputLink>
+                        <f:verbatim>&amp;nbsp;</f:verbatim>
+                        <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <f:param value="#{test.testName}" name="testName" />
+                            <f:param value="#{status.index}" name="testID" />
+                            <f:param value="#{description}" name="testDescr" />
+                            <h:outputText value="#{description}" />
+                        </h:outputLink>
+                    </p>
+                </c:forEach>
+            </c:forEach>
+        </c:if>
+
+        <rich:modalPanel id="traceIntoFileDlg" height="70" width="135" resizeable="false">
+            <h:form>
+                <a4j:keepAlive beanName="traceIntoFileBean" />
+                <h:panelGrid columns="2">
+                    <h:outputText value="Format" />
+                    <h:selectOneMenu value="#{traceIntoFileBean.fileFormat}">
+                        <f:selectItems value="#{traceIntoFileBean.fileFormats}" />
+                    </h:selectOneMenu>
+                    <rich:spacer />
+                    <rich:spacer />
+                </h:panelGrid>
+                <h:commandLink id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
+                    onclick="Richfaces.hideModalPanel('traceIntoFileDlg');">
+                    <a4j:actionparam assignTo="#{traceIntoFileBean.tableUri}" value="#{showTableBean.uri}" />
+                </h:commandLink>
+                <rich:spacer width="3px" />
+                <h:commandLink id="cancelBtn" value="Cancel"
+                    onclick="Richfaces.hideModalPanel('traceIntoFileDlg'); return false;" />
+
+                <script type="text/javascript">
+                    new Button(#{rich:element('traceBtn')}.id);
+                    new Button(#{rich:element('cancelBtn')}.id);
+                </script>
+            </h:form>
+        </rich:modalPanel>
+
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="no">
+
+  <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
+    <property name="workspacesRoot" value="@{webstudio.workspacesRoot}" />
+    <property name="autoLogin" value="@{security.autoLogin}" />
+    <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
+    <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
+  </bean>
+
+  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl">
+    <property name="user" ref="workspaceUser" />
+  </bean>
+  
+
+  <bean id="productionDeployerManager" class="org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl" />
+
+  <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
+    <property name="localWorkspaceManager" ref="localWorkspaceManager" />
+    <property name="designTimeRepository" ref="designTimeRepository" />
+    <property name="productionDeployerManager" ref="productionDeployerManager" />
+  </bean>
+
+  <bean id="workspaceUser" class="org.openl.rules.workspace.WorkspaceUserImpl">
+    <!-- TODO: pass correct user -->
+    <constructor-arg value=""></constructor-arg>
+  </bean>
+
+  <!--
+  <bean id="runtimeRepositoryDeployerTarget" class="org.openl.rules.runtime.deployer.RuntimeRepositoryDeployer"
+    lazy-init="true">
+    <constructor-arg value="@{org.openl.rules.webstudio.runtime-deployer.url}" />
+  </bean>
+
+  <bean id="runtimeRepositoryDeployer" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="targetSource">
+      <bean class="org.springframework.aop.target.LazyInitTargetSource">
+        <property name="targetBeanName">
+          <idref bean="runtimeRepositoryDeployerTarget" />
+        </property>
+      </bean>
+    </property>
+    <property name="proxyInterfaces" value="org.openl.rules.workspace.deploy.ProductionDeployer"/>
+  </bean>
+  -->
+
+  <bean id="jcrProductionDeployerTarget" class="org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer"
+    lazy-init="true">
+    <constructor-arg ref="workspaceUser"></constructor-arg>
+  </bean>
+
+  <bean id="jcrProductionDeployer" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="targetSource">
+      <bean class="org.springframework.aop.target.LazyInitTargetSource">
+        <property name="targetBeanName">
+          <idref bean="jcrProductionDeployerTarget" />
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
+    <property name="deployer">
+      <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
+        <property name="testValue" value="@{webstudio.deployer}" />
+        <property name="casesMap">
+          <map>
+            <entry key="production" value-ref="jcrProductionDeployer" />
+          </map>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+</beans>
