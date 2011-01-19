@@ -10,16 +10,16 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.tutorials-pom</artifactId>
-  <version>5.7.4-SNAPSHOT</version>
+  <version>5.7.4</version>
   <packaging>pom</packaging>
   <name>OpenL - Tutorials Pom</name>
   <description>Tutorials Pom Project</description>
   <url>http://openl-tablets.sf.net/</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</developerConnection>
-    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.7.4</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.7.4</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.7.4</url>
   </scm>
 
   <modules>
