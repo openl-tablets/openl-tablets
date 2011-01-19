@@ -49,7 +49,7 @@ public class ShowTableBean {
 
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
     
-    private static final String INFO_MESSAGE = "Can`t find requested table";
+    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
     // Filled and runnable tests(this group of tests is more tight than allTests).
     private Test[] runnableTestMethods = {};
