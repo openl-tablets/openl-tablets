@@ -1,0 +1,19 @@
+<project name="GenJavaWrapper" default="generate" basedir="../">
+
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	
+	
+<target name="generate">
+	<echo message="Generating Insurance Wrapper"/>
+
+	<openlgen openlName="org.openl.xls" userHome="." 
+		srcFile="rules/Insurance.xls"
+	    targetClass="org.openl.rules.examples.insurance.InsuranceGenWrapper"
+		targetSrcDir="gen"
+	>
+	</openlgen>	
+	
+	
+	
+</target>
+</project>
