@@ -17,7 +17,14 @@ public class ShowMessageBean {
         String type = FacesUtils.getRequestParameter("type");
         String summary = FacesUtils.getRequestParameter("summary");
 
-        OpenLMessage message = new OpenLMessage(summary, StringUtils.EMPTY, Severity.valueOf(type));
+        Severity severity;
+        if (StringUtils.isNotBlank(type)) {
+            severity = Severity.valueOf(type);
+        } else {
+            severity = Severity.INFO;
+        }
+
+        OpenLMessage message = new OpenLMessage(summary, StringUtils.EMPTY, severity);
 
         return Collections.singletonList(message);
     }
