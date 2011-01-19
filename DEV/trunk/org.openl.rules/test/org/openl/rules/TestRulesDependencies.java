@@ -13,8 +13,11 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
+import org.openl.types.java.OpenClassHelper;
 
 public class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
@@ -118,4 +121,21 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             fail("Can`t find expected table");
         }
     }
+    
+    @Test
+    public void tesTestTable() {
+        IOpenClass moduleOpenClass = getJavaWrapper().getCompiledClass().getOpenClass();
+        TestSuiteMethod testMethod = (TestSuiteMethod)moduleOpenClass.getMethod("riskScoreTestTestAll", 
+            new IOpenClass[0]);
+              
+        BindingDependencies bindDep = testMethod.getDependencies();
+        Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
+        assertEquals("There is 1 rule dependency", 1, rulesMethods.size());
+            
+        Set<ExecutableMethod> expectedRuledDependencies = new HashSet<ExecutableMethod>();
+        expectedRuledDependencies.add((ExecutableMethod)findTable("Rules DoubleValue riskScore(String driverRisk)").getMember());            
+                        
+        assertTrue("Method contains expected dependency", rulesMethods.containsAll(expectedRuledDependencies));
+    }
+    
 }
