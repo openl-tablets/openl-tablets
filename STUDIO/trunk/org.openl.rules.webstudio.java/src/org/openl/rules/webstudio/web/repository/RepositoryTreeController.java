@@ -389,6 +389,7 @@ public class RepositoryTreeController {
 
         try {
             project.erase();
+            userWorkspace.refresh();
             repositoryTreeState.deleteSelectedNodeFromTree();
         } catch (ProjectException e) {
             repositoryTreeState.invalidateTree();
