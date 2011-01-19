@@ -118,27 +118,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public ADeploymentProject getDDProject(String name) throws ProjectException {
-        try {
-            ADeploymentProject ddp = designTimeRepository.getDDProject(name);
-
-            ADeploymentProject userDProject = userDProjects.get(name);
-            if (userDProject == null) {
-                // create new
-                userDProject = new ADeploymentProject(ddp.getAPI(), user);
-
-                userDProjects.put(name, userDProject);
-            } else {
-                // update existing
-                userDProjects.put(name, ddp);
-            }
-
-            return userDProject;
-        } catch (RepositoryException e) {
-            // no such project
-            userDProjects.remove(name);
-            // re-throw exception
-            throw e;
+        refreshDeploymentProjects();
+        ADeploymentProject deploymentProject = userDProjects.get(name);
+        if (deploymentProject == null) {
+            throw new ProjectException("Cannot find deployment project ''{0}''", null, name);
         }
+        return deploymentProject;
     }
 
     protected ADeploymentProject getDDProjectFor(ADeploymentProject deploymentProject, CommonVersion version)
@@ -254,14 +239,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             ADeploymentProject userDProject = userDProjects.get(name);
 
-            if (userDProject == null) {
-                // add new
-                userDProject = new ADeploymentProject(ddp.getAPI(), user);
-                userDProjects.put(name, userDProject);
-            } else {
-                // update existing
-                userDProjects.put(name, ddp);
-            }
+            userDProject = new ADeploymentProject(ddp.getAPI(), user);
+            userDProjects.put(name, userDProject);
         }
 
         // remove deleted
