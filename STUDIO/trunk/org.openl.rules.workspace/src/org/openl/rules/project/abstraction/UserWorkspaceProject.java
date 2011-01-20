@@ -8,6 +8,7 @@ import static org.openl.rules.security.Privileges.PRIVILEGE_READ;
 import static org.openl.rules.security.AccessManager.isGranted;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
@@ -17,6 +18,7 @@ import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -105,6 +107,18 @@ public class UserWorkspaceProject extends AProject {
             return repository.getVersions();
         } else {
             return local.getVersions();
+        }
+    }
+
+    public List<ProjectVersion> getVersionsForArtefact(ArtefactPath artefactPath) {
+        ArtefactAPI artefact = repository;
+        try {
+            for (String pathElement : artefactPath.getSegments()) {
+                artefact = ((FolderAPI) artefact).getArtefact(pathElement);
+            }
+            return artefact.getVersions();
+        } catch (Exception e) {
+            return new LinkedList<ProjectVersion>();
         }
     }
 

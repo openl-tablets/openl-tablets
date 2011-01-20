@@ -31,7 +31,7 @@
     </script>
 
     <c:set var="node" value="#{repositoryTreeState.selectedNode}"/>
-    <c:set var="artefact" value="#{node.dataBean}"/>
+    <c:set var="artefact" value="#{node.data}"/>
 
     <a4j:outputPanel id="severityFormPanel" ajaxRendered="true">
       <h:form id="severityForm" style="display:none">

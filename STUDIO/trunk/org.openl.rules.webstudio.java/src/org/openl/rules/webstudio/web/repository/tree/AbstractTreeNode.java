@@ -12,6 +12,7 @@ import java.util.Map;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.richfaces.model.TreeNode;
@@ -44,7 +45,7 @@ import org.richfaces.model.TreeNode;
  * @author Aleh Bykhavets
  *
  */
-public abstract class AbstractTreeNode implements TreeNode {
+public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
 
     private static final long serialVersionUID = 1238954077308840345L;
 
@@ -81,7 +82,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Reference on parent node. For upper level node(s) it is <code>null</code>
      */
-    private TreeNode parent;
+    private TreeNode<AProjectArtefact> parent;
     /**
      * Collection of children. In LeafOnly mode it is left uninitialized.
      */
@@ -94,7 +95,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      */
     private boolean isLeafOnly;
 
-    private AProjectArtefact dataBean;
+    private AProjectArtefact data;
 
     /**
      * Creates tree node that can have children.
@@ -144,7 +145,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * @see TreeNode#addChild(Object, TreeNode)
      */
-    public void addChild(Object id, TreeNode child) {
+    public void addChild(Object id, TreeNode<AProjectArtefact> child) {
         checkLeafOnly();
 
         elements.put(id, (AbstractTreeNode) child);
@@ -218,15 +219,8 @@ public abstract class AbstractTreeNode implements TreeNode {
         return result;
     }
 
-    /**
-     * @see TreeNode#getData()
-     */
-    public Object getData() {
-        return this;
-    }
-
-    public AProjectArtefact getDataBean() {
-        return dataBean;
+    public AProjectArtefact getData() {
+        return data;
     }
 
     public List<DependencyBean> getDependencies() {
@@ -275,7 +269,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * @see TreeNode#getParent()
      */
-    public TreeNode getParent() {
+    public TreeNode<AProjectArtefact> getParent() {
         return parent;
     }
 
@@ -292,21 +286,31 @@ public abstract class AbstractTreeNode implements TreeNode {
     public abstract String getType();
 
     public String getVersionName() {
-        if (dataBean instanceof AProject) {
-            ProjectVersion version = ((AProject) dataBean).getVersion();
+        if (data instanceof AProject) {
+            ProjectVersion version = ((AProject) data).getVersion();
             return (version == null) ? null : version.getVersionName();
         }
         return null;
     }
 
+    private UserWorkspaceProject findProjectContainingCurrentArtefact() {
+        TreeNode<AProjectArtefact> node = this;
+        while (node != null && !(node.getData() instanceof UserWorkspaceProject)) {
+            node = node.getParent();
+        }
+        return node == null ? null : (UserWorkspaceProject) node.getData();
+    }
+
     public Collection<ProjectVersion> getVersions() {
-        if (dataBean instanceof AProjectArtefact) {
-            AProjectArtefact uwpa = (AProjectArtefact) dataBean;
-
-            LinkedList<ProjectVersion> result = new LinkedList<ProjectVersion>(uwpa.getVersions());
-
+        if (data instanceof AProjectArtefact) {
+            UserWorkspaceProject project = findProjectContainingCurrentArtefact();
+            List<ProjectVersion> result;
+            if (project != null) {
+                result = project.getVersionsForArtefact((getData()).getArtefactPath().withoutFirstSegment());
+            } else {
+                result = getData().getVersions();
+            }
             Collections.sort(result, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
-
             return result;
         } else {
             return new LinkedList<ProjectVersion>();
@@ -344,25 +348,18 @@ public abstract class AbstractTreeNode implements TreeNode {
         elements.clear();
     }
 
-    /**
-     * @see TreeNode#setData(Object)
-     */
-    public void setData(Object data) {
-        // do nothing
-    }
-
-    public void setDataBean(AProjectArtefact dataBean) {
-        this.dataBean = dataBean;
+    public void setData(AProjectArtefact data) {
+        this.data = data;
     }
 
     /**
      * @see TreeNode#setParent(TreeNode)
      */
-    public void setParent(TreeNode parent) {
+    public void setParent(TreeNode<AProjectArtefact> parent) {
         this.parent = parent;
     }
     
     public void refresh(){
-        dataBean.refresh();
+        data.refresh();
     }
 }

@@ -54,7 +54,7 @@ public class SmartRedeployController {
         // get all deployment projects
         List<AbstractTreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (AbstractTreeNode node : nodes) {
-            AProjectArtefact artefact = node.getDataBean();
+            AProjectArtefact artefact = node.getData();
             if (!(artefact instanceof ADeploymentProject)) {
                 continue; // should never happen
             }
@@ -151,7 +151,7 @@ public class SmartRedeployController {
     }
 
     private AProject getSelectedProject() {
-        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof AProject) {
             return (AProject) artefact;
         }

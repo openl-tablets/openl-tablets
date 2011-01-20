@@ -25,7 +25,7 @@
   <rich:panel style="width:300px; height:505px; overflow:auto; clear:left;">
     <rich:tree switchType="ajax" ajaxSubmitSelection="true" nodeSelectListener="#{repositoryTreeState.processSelection}"
       reRender="modalDeleteNode, modalCloseProject, modalCheckOutProject, nodeView, modalOpenVersion, modalCheckIn, modalCopyProject, modalCopyDeploymentProject, modalSmartRedeploy, modalExportVersion"
-      value="#{repositoryTreeState.root}" var="item" nodeFace="#{item.type}"
+      value="#{repositoryTreeState.root}" treeNodeVar="item" nodeFace="#{item.type}" preserveModel="none"
       adviseNodeSelected="#{repositoryTreeState.adviseNodeSelected}">
 
       <rich:treeNode type="repository" icon="#{item.icon}" iconLeaf="#{item.iconLeaf}">

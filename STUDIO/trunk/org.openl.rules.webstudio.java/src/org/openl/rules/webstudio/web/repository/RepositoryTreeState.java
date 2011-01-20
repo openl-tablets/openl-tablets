@@ -46,12 +46,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private IFilter filter = AllFilter.INSTANCE;
     
     public Boolean adviseNodeSelected(UITree uiTree) {
-        AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
+        AbstractTreeNode node = (AbstractTreeNode) uiTree.getTreeNode();
 
-        AProjectArtefact projectArtefact = node.getDataBean();
+        AProjectArtefact projectArtefact = node.getData();
         AProjectArtefact selected = null;
 		if (selectedNode != null) {
-		    selected = selectedNode.getDataBean();
+            selected = selectedNode.getData();
 		}else{
 			return false;
 		}
@@ -81,11 +81,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
         String rpName = "Rules Projects";
         rulesRepository = new TreeRepository(rpName, rpName, UiConst.TYPE_REPOSITORY);
-        rulesRepository.setDataBean(null);
+        rulesRepository.setData(null);
 
         String dpName = "Deployment Projects";
         deploymentRepository = new TreeRepository(dpName, dpName, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
-        deploymentRepository.setDataBean(null);
+        deploymentRepository.setData(null);
 
         root.add(rulesRepository);
         root.add(deploymentRepository);
@@ -148,7 +148,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public AProject getSelectedProject() {
-        AProjectArtefact artefact = getSelectedNode().getDataBean();
+        AProjectArtefact artefact = getSelectedNode().getData();
         if (artefact instanceof AProject) {
             return (AProject) artefact;
         }
@@ -163,7 +163,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      * Refreshes repositoryTreeState.selectedNode after rebuilding tree.
      */
     public void updateSelectedNode() {
-        Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath().getSegments().iterator();
+        Iterator<String> it = getSelectedNode().getData().getArtefactPath().getSegments().iterator();
         AbstractTreeNode currentNode = getRulesRepository();
         while ((currentNode != null) && it.hasNext()) {
             currentNode = currentNode.getChild(it.next());
@@ -179,7 +179,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         if (!node.isLeaf()) {
             node.removeChildren();
             TreeFolder folder = (TreeFolder) node;
-            traverseFolder(folder, ((AProjectFolder) folder.getDataBean()).getArtefacts(), filter);
+            traverseFolder(folder, ((AProjectFolder) folder.getData()).getArtefacts(), filter);
         }
     }
     
@@ -194,13 +194,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     
     public void addDeploymentProjectToTree(ADeploymentProject project) {
         TreeDProject prj = new TreeDProject(project.getName(), project.getName());
-        prj.setDataBean(project);
+        prj.setData(project);
         deploymentRepository.add(prj);
     }
 
     public void addRulesProjectToTree(AProject project) {
         TreeProject prj = new TreeProject(project.getName(), project.getName());
-        prj.setDataBean(project);
+        prj.setData(project);
         rulesRepository.add(prj);
         traverseFolder(prj, project.getArtefacts(), filter);
     }
@@ -209,12 +209,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         String id = childArtefact.getName();
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName());
-            treeFolder.setDataBean(childArtefact);
+            treeFolder.setData(childArtefact);
             parent.add(treeFolder);
             traverseFolder(treeFolder, ((AProjectFolder) childArtefact).getArtefacts(), filter);
         } else {
             TreeFile treeFile = new TreeFile(id, childArtefact.getName());
-            treeFile.setDataBean(childArtefact);
+            treeFile.setData(childArtefact);
             parent.add(treeFile);
         }
     }
@@ -241,7 +241,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         UITree tree = (UITree) event.getComponent();
         
         try {
-            selectedNode = (AbstractTreeNode) tree.getRowData();
+            selectedNode = (AbstractTreeNode) tree.getTreeNode();
         } catch (IllegalStateException ex) {
             // If nothing selected in tree then invalidate selection. 
             selectedNode = getSelectedNode();

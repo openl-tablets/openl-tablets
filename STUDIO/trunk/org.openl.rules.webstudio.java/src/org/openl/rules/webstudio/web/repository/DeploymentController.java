@@ -209,7 +209,7 @@ public class DeploymentController {
     }
 
     private ADeploymentProject getSelectedProject() {
-        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof ADeploymentProject) {
             return (ADeploymentProject) artefact;
         }

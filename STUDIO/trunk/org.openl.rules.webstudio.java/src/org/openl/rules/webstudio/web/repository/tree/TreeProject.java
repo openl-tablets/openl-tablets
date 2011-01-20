@@ -118,13 +118,13 @@ public class TreeProject extends TreeFolder {
 
         List<ProjectDependency> newDeps = new ArrayList<ProjectDependency>(dependencies);
         newDeps.add(dep);
-        ((AProject) getDataBean()).setDependencies(newDeps);
+        ((AProject) getData()).setDependencies(newDeps);
         this.dependencies = null;
         return true;
     }
 
     public String getComments() {
-        return generateComments(getDataBean());
+        return generateComments(getData());
     }
 
     public Date getCreatedAt() {
@@ -168,7 +168,7 @@ public class TreeProject extends TreeFolder {
 
     @Override
     public String getIcon() {
-        AProject project = (AProject) getDataBean();
+        AProject project = (AProject) getData();
 
         if (project.isLocalOnly()) {
             return UiConst.ICON_PROJECT_LOCAL;
@@ -199,11 +199,11 @@ public class TreeProject extends TreeFolder {
     }
 
     private AProject getProject() {
-        return (AProject) getDataBean();
+        return (AProject) getData();
     }
 
     public String getStatus() {
-        return generateStatus(getDataBean());
+        return generateStatus(getData());
     }
 
     @Override
