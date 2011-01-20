@@ -89,18 +89,20 @@ public abstract class BaseOpenlBuilderHelper {
         buildXlsModuleSyntaxNode(fileToBuildWrapper);        
     }
     
-    protected Object invokeMethod(String methodName) {
+    protected Object invokeMethod(String methodName) {        
+        return invokeMethod(methodName, new IOpenClass[] {},  new Object[0]);        
+    }
+    
+    protected Object invokeMethod(String methodName, IOpenClass[] params, Object[] paramValues) {
         IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
+        IOpenMethod testMethod = __class.getMatchingMethod(methodName, params);
         
-        IOpenMethod testMethod = __class.getMatchingMethod(methodName, new IOpenClass[] {});
+        Assert.assertNotNull(String.format("Method with name %s exists", methodName), testMethod);        
         
-        Assert.assertNotNull(String.format("Method with name %s exists", methodName), testMethod);
-        
-        Object[] __params = new Object[0];
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
         Object __myInstance = __class.newInstance(environment);
         
-        Object result = testMethod.invoke(__myInstance, __params, environment);        
+        Object result = testMethod.invoke(__myInstance, paramValues, environment);        
         
         return result;
     }
