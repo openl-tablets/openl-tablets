@@ -9,7 +9,12 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeSelector implements IIntSelector {
 
     private ICondition condition;
+    
+    /**
+     * TODO: seems it must be of type {@link Number} as it is possible to implement ranges over numbers.
+     */
     private Object value;
+    
     private Object target;
     private Object[] params;
     private IRuntimeEnv env;
