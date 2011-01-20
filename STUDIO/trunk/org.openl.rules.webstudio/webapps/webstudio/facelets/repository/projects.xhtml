@@ -51,13 +51,13 @@
         </h:outputText>
       </rich:column>
       <rich:column style="text-align:center">
-        <h:panelGroup rendered="#{!prj.dataBean.deleted}">
+        <h:panelGroup rendered="#{!prj.data.deleted}">
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true"
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" />
           </h:commandLink>
-          <h:panelGroup rendered="#{prj.dataBean.canDelete}">
+          <h:panelGroup rendered="#{prj.data.canDelete}">
               &#160;
               <h:commandLink styleClass="actionButton" immediate="true"
                   action="#{repositoryTreeController.deleteRulesProject}"

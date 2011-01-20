@@ -116,7 +116,7 @@ public class DependencyController {
 
         List<String> matching = new ArrayList<String>();
         for (AbstractTreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
-            if (!existing.contains(node.getName()) && !((AProject) node.getDataBean()).isLocalOnly()) {
+            if (!existing.contains(node.getName()) && !((AProject) node.getData()).isLocalOnly()) {
                 matching.add(node.getName());
             }
         }

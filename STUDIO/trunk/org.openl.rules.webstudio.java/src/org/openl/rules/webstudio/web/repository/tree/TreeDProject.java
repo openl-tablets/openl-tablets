@@ -18,7 +18,7 @@ public class TreeDProject extends TreeFile {
     // ------ UI methods ------
 
     public String getComments() {
-        return TreeProject.generateComments(getDataBean());
+        return TreeProject.generateComments(getData());
     }
 
     public Date getCreatedAt() {
@@ -43,7 +43,7 @@ public class TreeDProject extends TreeFile {
 
     @Override
     public String getIconLeaf() {
-        ADeploymentProject project = (ADeploymentProject) getDataBean();
+        ADeploymentProject project = (ADeploymentProject) getData();
 
         if (project.isLocalOnly()) {
             return UiConst.ICON_PROJECT_LOCAL;
@@ -74,11 +74,11 @@ public class TreeDProject extends TreeFile {
     }
 
     private AProject getProject() {
-        return (AProject) getDataBean();
+        return (AProject) getData();
     }
 
     public String getStatus() {
-        return TreeProject.generateStatus(getDataBean());
+        return TreeProject.generateStatus(getData());
     }
 
     @Override

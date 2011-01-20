@@ -110,7 +110,7 @@ public class RepositoryTreeController {
     }
 
     public String addFolder() {
-        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
+        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
         String errorMessage = null;
         if (projectArtefact instanceof AProjectFolder) {
             if (NameChecker.checkName(folderName)) {
@@ -118,7 +118,7 @@ public class RepositoryTreeController {
                 try {
                     AProjectFolder addedFolder = folder.addFolder(folderName);
                     TreeFolder treeFolder = new TreeFolder(addedFolder.getName(),addedFolder.getName());
-                    treeFolder.setDataBean(addedFolder);
+                    treeFolder.setData(addedFolder);
                     repositoryTreeState.getSelectedNode().add(treeFolder);
                 } catch (ProjectException e) {
                     LOG.error("Failed to create folder '" + folderName + "'.", e);
@@ -320,7 +320,7 @@ public class RepositoryTreeController {
 
     public String deleteElement() {
     	AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState
-                .getSelectedNode().getDataBean();
+                .getSelectedNode().getData();
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
@@ -334,8 +334,7 @@ public class RepositoryTreeController {
     }
 
     public String deleteNode() {
-        AProjectArtefact projectArtefact = (AProjectArtefact) repositoryTreeState
-                .getSelectedNode().getDataBean();
+        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
         try {
             projectArtefact.delete();
             String nodeType = repositoryTreeState.getSelectedNode().getType();
@@ -527,8 +526,7 @@ public class RepositoryTreeController {
     }
 
     public Date getEffectiveDate() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
+        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
         if (dataBean != null) {
             return dataBean.getEffectiveDate();
         }
@@ -536,8 +534,7 @@ public class RepositoryTreeController {
     }
 
     public Date getExpirationDate() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
+        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
         if (dataBean != null) {
             return dataBean.getExpirationDate();
         }
@@ -557,8 +554,7 @@ public class RepositoryTreeController {
     }
 
     public String getLineOfBusiness() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
+        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
         if (dataBean != null) {
             return dataBean.getLineOfBusiness();
         }
@@ -645,8 +641,7 @@ public class RepositoryTreeController {
      * @return map of properties
      */
     private Map<String, Object> getProps() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
+        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
         if (dataBean != null) {
             return dataBean.getProps();
         }
@@ -838,7 +833,7 @@ public class RepositoryTreeController {
     public void setEffectiveDate(Date date) {
         if (!SPECIAL_DATE.equals(date)) {
             try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setEffectiveDate(date);
+                repositoryTreeState.getSelectedNode().getData().setEffectiveDate(date);
             } catch (PropertyException e) {
                 LOG.error("Failed to set effective date!", e);
                 FacesUtils.addErrorMessage("Can not set effective date.", e.getMessage());
@@ -851,7 +846,7 @@ public class RepositoryTreeController {
     public void setExpirationDate(Date date) {
         if (!SPECIAL_DATE.equals(date)) {
             try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setExpirationDate(date);
+                repositoryTreeState.getSelectedNode().getData().setExpirationDate(date);
             } catch (PropertyException e) {
                 LOG.error("Failed to set expiration date!", e);
                 FacesUtils.addErrorMessage("Can not set expiration date.", e.getMessage());
@@ -883,8 +878,7 @@ public class RepositoryTreeController {
 
     public void setLineOfBusiness(String lineOfBusiness) {
         try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setLineOfBusiness(lineOfBusiness);
+            repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness);
         } catch (PropertyException e) {
             LOG.error("Failed to set LOB!", e);
             FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
@@ -940,7 +934,7 @@ public class RepositoryTreeController {
                 props = new HashMap<String, Object>(props);
             }
             props.put(propName, propValue);
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setProps(props);
+            repositoryTreeState.getSelectedNode().getData().setProps(props);
         } catch (PropertyException e) {
             String propUIName = getPropUIName(propName);
             LOG.error("Failed to set " + propUIName + "!", e);
@@ -1029,12 +1023,12 @@ public class RepositoryTreeController {
 
         try {
             AProjectFolder node = (AProjectFolder) repositoryTreeState.getSelectedNode()
-                    .getDataBean();
+                    .getData();
 
             AProjectResource addedFileResource = node.addResource(fileName, new FileInputStream(uploadedFile));
 
             TreeFile treeFile = new TreeFile(addedFileResource.getName(),addedFileResource.getName());
-            treeFile.setDataBean(addedFileResource);
+            treeFile.setData(addedFileResource);
             repositoryTreeState.getSelectedNode().add(treeFile);
             clearUploadedFiles();
         } catch (Exception e) {
@@ -1049,7 +1043,7 @@ public class RepositoryTreeController {
         File uploadedFile = getLastUploadedFile().getFile();
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode()
-                    .getDataBean();
+                    .getData();
             node.setContent(new FileInputStream(uploadedFile));
 
             clearUploadedFiles();
