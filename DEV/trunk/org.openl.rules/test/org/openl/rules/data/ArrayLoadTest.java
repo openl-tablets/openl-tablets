@@ -24,9 +24,26 @@ public class ArrayLoadTest {
         Customer[] customers = instance.getCustomers();
         assertEquals(2, customers.length);
 
-        assertEquals(1, customers[0].getProblems().length);
-        assertEquals(2, customers[0].getProducts().length);
+        assertEquals(5, customers[0].getProblems().length);
+        assertEquals(null, customers[0].getProblems()[0]);
+        assertEquals(null, customers[0].getProblems()[1]);
+        assertEquals(null, customers[0].getProblems()[2]);
+        assertEquals(null, customers[0].getProblems()[3]);
+        assertEquals("Bill Pay - Overdraft", customers[0].getProblems()[4]);
+        
         assertEquals(1, customers[1].getProblems().length);
-        assertEquals(1, customers[1].getProducts().length);
+        assertEquals("Bill Pay - Overdraft", customers[1].getProblems()[0]);
+
+        assertEquals(5, customers[0].getProducts().length);
+        assertEquals("Checking Account", customers[0].getProducts()[0]);
+        assertEquals(null, customers[0].getProducts()[1]);
+        assertEquals(null, customers[0].getProducts()[2]);
+        assertEquals(null, customers[0].getProducts()[3]);
+        assertEquals("Saving Account", customers[0].getProducts()[4]);
+        
+        assertEquals(3, customers[1].getProducts().length);
+        assertEquals(null, customers[1].getProducts()[0]);
+        assertEquals(null, customers[1].getProducts()[1]);
+        assertEquals("Checking Account", customers[1].getProducts()[2]);
     }
 }
