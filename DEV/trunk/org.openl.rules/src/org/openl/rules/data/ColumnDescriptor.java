@@ -184,7 +184,9 @@ public class ColumnDescriptor {
     private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
         throws SyntaxNodeException {
 
-        int valuesTableHeight = logicalTable.getHeight();
+        // get height of table without empty cells at the end
+        //
+        int valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/*logicalTable.getHeight();*/
         ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
 
         for (int i = 0; i < valuesTableHeight; i++) {
@@ -195,12 +197,16 @@ public class ColumnDescriptor {
                 logicalTable.getRow(i),
                 openlAdaptor);
 
-//            if (res == null) {
-//                res = paramType.nullObject();
-//            }
-            if (res != null) {
-                values.add(res);
+            // Change request: null value cells should be loaded into array as a
+            // null value elements.
+            //
+            if (res == null) {
+                res = paramType.nullObject();
             }
+            
+//            if (res != null) {
+                values.add(res);
+//            }
         }
 
         Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
