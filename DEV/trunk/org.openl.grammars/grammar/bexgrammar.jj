@@ -1178,6 +1178,15 @@ void LiteralFloat() :
   { syntaxBuilder.literal("literal.real.business", pos(token), token.image); }
 }
 
+void NegLiteralFloat():
+{
+  Token x;
+}
+{
+  x = < MINUS>
+  LiteralFloat()
+	{syntaxBuilder.uop("literal.real.negative", pos(x));}	
+}
 
 void NegLiteralBI():
 {
@@ -1291,9 +1300,9 @@ void RangeBracketsFloat():
 {
 	(<LPAREN> | <LBRACKET>)
     {syntaxBuilder.literal("literal.bracket", pos(token), token.image); }
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	(x=<SEMICOLON> {op=";";} | x =<DDOT> {op="ddot";} )
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	(<RPAREN> | <RBRACKET>)
     {syntaxBuilder.literal("literal.bracket", pos(token), token.image); }
 	{syntaxBuilder.nop("literal.range.brackets", null, 4);}
@@ -1305,9 +1314,9 @@ void RangeBinaryFloat():
 	String op; 
 }
 {
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
 }
 
@@ -1315,7 +1324,7 @@ void RangeNumberFloat():
 {
 }
 {
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.uop("literal.range.number", null);}
 }
 
@@ -1327,7 +1336,7 @@ void RangePrefixFloat():
 }
 {
 	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";})
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
 }
 
@@ -1337,7 +1346,7 @@ void RangeSuffixFloat():
 	String op; 
 }
 {
-	LiteralFloat()
+	(LiteralFloat() | NegLiteralFloat())
 	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";} | x ="+" {op="plus";})
 	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
 }

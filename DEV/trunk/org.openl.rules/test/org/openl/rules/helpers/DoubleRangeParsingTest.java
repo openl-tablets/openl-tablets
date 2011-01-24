@@ -54,4 +54,10 @@ public class DoubleRangeParsingTest {
     public void testPlusFormat() {
         assertEquals(new DoubleRange(123457890.0987654321, Double.POSITIVE_INFINITY), new DoubleRange("123457890.0987654321+"));
     }
+    
+    @Test
+    public void testNegativeDoubleRange() {        
+        assertEquals(new DoubleRange(-200.7, -13.01), new DoubleRange("[-200.7;-13.01]"));
+        assertEquals(new DoubleRange(Double.NEGATIVE_INFINITY, -7), new DoubleRange("<= -7"));
+    }
 }
