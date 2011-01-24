@@ -44,6 +44,14 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     protected CompiledOpenClass compiledOpenClass;
     protected Map<Method, IOpenMember> methodMap;
 
+    private ThreadLocal<IRuntimeEnv> environment = new ThreadLocal<IRuntimeEnv>() {
+        @Override
+        protected IRuntimeEnv initialValue() {
+            IRuntimeEnv environment = getOpenL().getVm().getRuntimeEnv();
+            return environment;
+        }
+    };
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}.
@@ -164,11 +172,9 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     @SuppressWarnings("unchecked")
     @Override
     public T makeInstance() {
-
-        IRuntimeEnv env = getOpenL().getVm().getRuntimeEnv();
-        Object openClassInstance = getOpenClass().newInstance(env);
-
-        return (T) makeEngineInstance(openClassInstance, methodMap, env, engineInterface.getClassLoader());
+        Object openClassInstance = getOpenClass().newInstance(environment.get());
+        return (T) makeEngineInstance(
+                openClassInstance, methodMap, environment.get(), engineInterface.getClassLoader());
     }
 
     @Override
