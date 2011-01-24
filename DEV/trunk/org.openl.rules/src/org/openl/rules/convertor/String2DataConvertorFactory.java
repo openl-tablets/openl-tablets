@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openl.meta.DoubleValue;
+import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 
@@ -55,6 +56,7 @@ public class String2DataConvertorFactory {
         convertors.put(IOpenClass.class, new String2OpenClassConvertor());
         convertors.put(DoubleValue.class, new String2DoubleValueConvertor());
         convertors.put(IntRange.class, new String2IntRangeConvertor());
+        convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
         convertors.put(BigInteger.class, new String2BigIntegerConvertor());
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
     }
