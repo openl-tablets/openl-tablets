@@ -20,4 +20,10 @@ public class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
         }
         return min;
     }
+
+    public Double adaptValueType(Number value) {        
+        return Double.valueOf(value.doubleValue());
+    }
+    
+    
 }

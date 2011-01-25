@@ -9,22 +9,22 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeSelector implements IIntSelector {
 
     private ICondition condition;
-    
-    /**
-     * TODO: seems it must be of type {@link Number} as it is possible to implement ranges over numbers.
-     */
-    private Object value;
+    private Number value;
     
     private Object target;
     private Object[] params;
     private IRuntimeEnv env;
     private IRangeAdaptor<Object, Object> adaptor;
 
-    public RangeSelector(ICondition condition, Object value, Object target, Object[] params, IRangeAdaptor<Object, Object> adaptor,  IRuntimeEnv env) {
+    public RangeSelector(ICondition condition, Number value, Object target, Object[] params, IRangeAdaptor<Object, Object> adaptor,  IRuntimeEnv env) {
         this.condition = condition;
-        this.value = value;
-        this.params = params;
         this.adaptor = adaptor;
+        
+        // As income value is of Number type, it should be adapted to the value type 
+        // from range adaptor for further comparasion.
+        //
+        this.value = this.adaptor.adaptValueType(value);
+        this.params = params;        
         this.env = env;
         this.target = target;
     }
@@ -53,7 +53,7 @@ public class RangeSelector implements IIntSelector {
             vFrom = adaptor.getMin(realParams[0]);
             vTo = adaptor.getMax(realParams[0]);
         }
-
+        
         return vFrom.compareTo(value) <= 0 && ((Comparable<Object>) value).compareTo(vTo) < 0;
     }
 
