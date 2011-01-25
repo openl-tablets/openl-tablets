@@ -1,7 +1,6 @@
 package org.openl.runtime;
 
 import java.io.File;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -16,6 +15,7 @@ import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 /**
  * Class EngineFactory creates {@link Proxy} based wrappers around OpenL
@@ -43,14 +43,6 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     // parameter of constructor
     protected CompiledOpenClass compiledOpenClass;
     protected Map<Method, IOpenMember> methodMap;
-
-    private ThreadLocal<IRuntimeEnv> environment = new ThreadLocal<IRuntimeEnv>() {
-        @Override
-        protected IRuntimeEnv initialValue() {
-            IRuntimeEnv environment = getOpenL().getVm().getRuntimeEnv();
-            return environment;
-        }
-    };
 
     /**
      * 
@@ -172,17 +164,10 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     @SuppressWarnings("unchecked")
     @Override
     public T makeInstance() {
-        Object openClassInstance = getOpenClass().newInstance(environment.get());
+        IRuntimeEnv environment = new SimpleVM().getRuntimeEnv();
+        Object openClassInstance = getOpenClass().newInstance(environment);
         return (T) makeEngineInstance(
-                openClassInstance, methodMap, environment.get(), engineInterface.getClassLoader());
-    }
-
-    @Override
-    protected InvocationHandler makeInvocationHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
-        
-        return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+                openClassInstance, methodMap, null, engineInterface.getClassLoader());
     }
 
 }

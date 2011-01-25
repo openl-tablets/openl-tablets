@@ -1,9 +1,15 @@
 package org.openl.runtime;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
+import org.openl.types.IOpenMember;
+import org.openl.vm.IRuntimeEnv;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
 
@@ -57,6 +63,14 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
         }
 
         return userClassLoader;
+    }
+
+    @Override
+    protected InvocationHandler makeInvocationHandler(Object openClassInstance,
+            Map<Method, IOpenMember> methodMap,
+            IRuntimeEnv runtimeEnv) {
+
+        return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
     }
 
 }
