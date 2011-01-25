@@ -31,5 +31,79 @@ public class DoubleRangeRulesParsingTest extends BaseOpenlBuilderHelper {
                 OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
                 new Object[]{param1, param2});
     }
+    
+    /**
+     * Test that long can be processed through DoubleRange
+     */
+    @Test    
+    public void testLongRange() {
+        Object result = invokeMethod("testLongRange", 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
+                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
+                new Object[]{true, 210});
+        assertEquals("rule1", result);
+    }
+    
+    /**
+     * Test that int can be processed through DoubleRange
+     */
+    @Test    
+    public void testIntRange() {
+        Object result = invokeMethod("testIntegerRange", 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
+                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
+                new Object[]{true, 105});
+        assertEquals("rule2", result);
+    }
+    
+    /**
+     * Test that int can be processed through DoubleRange via DecisionTable with one condition(special case)
+     */
+    @Test    
+    public void testIntRange1() {
+        Object result = invokeMethod("testIntegerRange1", 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
+                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
+                new Object[]{true, 105});
+        assertEquals("rule2", result);
+    }
+    
+    /**
+     * Test that byte can be processed through DoubleRange
+     */
+    @Test    
+    public void testByteRange() {
+        Object result = invokeMethod("testByteRange", 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
+                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
+                new Object[]{true, 99});
+        assertEquals("rule2", result);
+    }
+    
+    /**
+     * Test that short can be processed through DoubleRange
+     */
+    @Test    
+    public void testShortRange() {
+        Object result = invokeMethod("testShortRange", 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
+                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
+                new Object[]{false, -50});
+        assertEquals("rule3", result);
+    }
+    
+    /**
+     * Test that float can be processed through DoubleRange
+     */
+    @Test    
+    public void testFloatRange() {
+        Object result = invokeMethod("testFloatRange", 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
+                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), double.class)}, 
+                new Object[]{true, 20.56});
+        assertEquals("rule1", result);
+    }
+    
+    
 
 }

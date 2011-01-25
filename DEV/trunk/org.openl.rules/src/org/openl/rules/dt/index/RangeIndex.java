@@ -4,19 +4,23 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
+import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.util.OpenIterator;
 
 public class RangeIndex extends ARuleIndex {
 
 	private Comparable<?>[] index;
 	private DecisionTableRuleNode[] rules;
+	
+	private IRangeAdaptor<Object, Object> adaptor;
 
 	public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-			Comparable<Object>[] index, DecisionTableRuleNode[] rules) {
+			Comparable<Object>[] index, DecisionTableRuleNode[] rules, IRangeAdaptor<Object, Object> adaptor) {
 		super(emptyOrFormulaNodes);
 
 		this.index = index;
 		this.rules = rules;
+		this.adaptor = adaptor;		
 	}
 
 	@Override
@@ -51,12 +55,11 @@ public class RangeIndex extends ARuleIndex {
 			return value; // there is no values in index to compare => no reason
 			// to convert
 		}
+		
 		if (value instanceof Number) {
-			if (index[0] instanceof Long) {
-				return ((Number) value).longValue();
-			}
-			if (index[0] instanceof Double)
-				return ((Number) value).doubleValue();
+		    if (adaptor != null) {
+		        return adaptor.adaptValueType((Number)value);
+		    }		    
 		}
 		return value;
 	}

@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
@@ -44,8 +45,13 @@ public class RangeIndexedEvaluator implements IConditionEvaluator {
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
-
-        return new RangeSelector(condition, value, target, dtparams, adaptor, env);
+        if (value instanceof Number) {            
+            return new RangeSelector(condition, (Number)value, target, dtparams, adaptor, env);    
+        } 
+        String errorMessage = String.format("Evaluation result for condition %s in method %s must be a numeric value", 
+            condition.getName(), condition.getMethod().getName());
+        throw new OpenLRuntimeException(errorMessage);
+        
     }
 
     public boolean isIndexed() {
@@ -118,7 +124,7 @@ public class RangeIndexedEvaluator implements IConditionEvaluator {
             index.add(indexObj);
         }
 
-        return new RangeIndex(emptyNode, index.toArray(new Comparable[0]), rules.toArray(new DecisionTableRuleNode[0]));
+        return new RangeIndex(emptyNode, index.toArray(new Comparable[0]), rules.toArray(new DecisionTableRuleNode[0]), adaptor);
     }
 
     private List<Integer> merge(List<Integer> list, int[] rules) {

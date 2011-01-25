@@ -25,4 +25,8 @@ public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
         return Integer.valueOf(range.getMin());
     }
 
+    public Integer adaptValueType(Number value) {        
+        return Integer.valueOf(value.intValue());
+    }
+
 }
