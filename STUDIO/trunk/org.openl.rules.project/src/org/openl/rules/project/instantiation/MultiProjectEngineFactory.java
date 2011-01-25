@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +19,6 @@ import org.openl.rules.runtime.RulesFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -99,14 +97,6 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
         }
     }
 
-    @Override
-    protected InvocationHandler makeInvocationHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
-
-        return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
-    }
-
     private CompiledOpenClass initializeOpenClass() {
         IOpenSourceCodeModule mainModule = createMainModule();
         ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(RULES_XLS_OPENL_NAME, mainModule);
@@ -115,7 +105,7 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
 
         return factory.getCompiledOpenClass();
     }
-    
+
     private IOpenSourceCodeModule createMainModule() {
         List<IDependency> dependencies = new ArrayList<IDependency>();
       
