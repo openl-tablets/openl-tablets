@@ -10,6 +10,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper {
 
@@ -24,9 +25,17 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
             Map<Method, IOpenMember> methodMap) {
         this.openlInstance = openlInstance;
         this.engineFactory = engineFactory;
-        this.openlEnv = openlEnv;
+        setRuntimeEnv(openlEnv);
         this.methodMap = methodMap;
     }
+
+    private ThreadLocal<IRuntimeEnv> environment = new ThreadLocal<IRuntimeEnv>() {
+        @Override
+        protected IRuntimeEnv initialValue() {
+            IRuntimeEnv environment = new SimpleVM().getRuntimeEnv();
+            return environment;
+        }
+    };
 
     public AEngineFactory getFactory() {
         return engineFactory;
@@ -38,6 +47,14 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
 
     public IRuntimeEnv getRuntimeEnv() {
         return openlEnv;
+    }
+
+    private void setRuntimeEnv(IRuntimeEnv env) {
+        if (env != null) {
+            this.openlEnv = env;
+        } else {
+            this.openlEnv = environment.get();
+        }
     }
 
     protected Map<Method, IOpenMember> getMethodMap() {
