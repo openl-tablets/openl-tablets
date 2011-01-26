@@ -124,7 +124,8 @@ public class RangeIndexedEvaluator implements IConditionEvaluator {
             index.add(indexObj);
         }
 
-        return new RangeIndex(emptyNode, index.toArray(new Comparable[0]), rules.toArray(new DecisionTableRuleNode[0]), adaptor);
+        return new RangeIndex(emptyNode, index.toArray(new Comparable[index.size()]), 
+            rules.toArray(new DecisionTableRuleNode[rules.size()]), adaptor);
     }
 
     private List<Integer> merge(List<Integer> list, int[] rules) {
