@@ -69,6 +69,9 @@ public class IntRangeParsingTest {
     public void testMinMaxFormat() {
         assertEquals(new IntRange(1, 2), new IntRange("1-2"));
         assertEquals(new IntRange(13, 200), new IntRange("13 .. 200"));
+        assertEquals(new IntRange(14, 99), new IntRange("13 ... 100"));
+        assertEquals(new IntRange(13, 19), new IntRange("[13 .. 20)"));
+        assertEquals(new IntRange(14, 19), new IntRange("(13 .. 20)"));
     }
 
     @Test
@@ -85,7 +88,7 @@ public class IntRangeParsingTest {
 
     @Test
     public void testSignedNumber() {
-        assertEquals(new IntRange(-15, -8), new IntRange("-15  - -8"));
+        assertEquals(new IntRange(-15, -8), new IntRange("-15 - -8"));
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100+"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">2"));
         assertEquals(new IntRange(-10, -10), new IntRange("-10"));
@@ -94,9 +97,16 @@ public class IntRangeParsingTest {
     @Test
     public void testVerbal() {
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100 and more"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(" more than 2"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(" more than 2"));
+        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange("more than 2"));        
         assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
+    }
+    
+    @Test
+    public void testRangeSuffixies() {
+        IntRange range = new IntRange("6-8");
+        assertEquals(8, range.getMax());
+        assertEquals(6, range.getMin());
+        
     }
     
     
