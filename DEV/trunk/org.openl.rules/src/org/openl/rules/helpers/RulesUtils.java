@@ -99,6 +99,43 @@ public class RulesUtils {
         return ArrayTool.containsAll(ary1, ary2);
     }
 
+//
+    public static int indexOf(Object[] array, Object obj) {
+        return ArrayUtils.indexOf(array, obj);
+    }
+
+    public static int indexOf(int[] array, int elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(long[] array, long elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(byte[] array, byte elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(short[] array, short elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(char[] array, char elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(float[] array, float elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(double[] array, double elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
+    public static int indexOf(boolean[] array, boolean elem) {
+        return ArrayUtils.indexOf(array, elem);
+    }
+
     public static void error(String msg) {
         throw new OpenLUserRuntimeException(msg);
     }
