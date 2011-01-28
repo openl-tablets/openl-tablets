@@ -13,6 +13,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.DependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
 import org.openl.rules.runtime.RulesFactory;
@@ -78,18 +79,29 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
     protected Class<?>[] getInstanceInterfaces() {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
+    
+    @Override
+    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
+        return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+            @Override
+            protected org.openl.vm.IRuntimeEnv initialValue() {
+              org.openl.vm.IRuntimeEnv environment = getOpenL().getVm().getRuntimeEnv();
+              environment.setContext(new DefaultRulesRuntimeContext());
+              return environment;
+            }
+          };
+    }
 
     @Override
     public Object makeInstance() {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-
-            IRuntimeEnv runtimeEnv = getOpenL().getVm().getRuntimeEnv();
-            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            
+            Object openClassInstance = openClass.newInstance(getRuntimeEnv());
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
+            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
             LOG.error(errorMessage, ex);
