@@ -16,9 +16,23 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String FIELD_PREFIX = "get";
+    private static final String FIELD_PREFIX = "get";    
+    
+    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env;
 
     public abstract Object makeInstance();
+    
+    public void setRuntimeEnvironment(IRuntimeEnv env) {
+        __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>();
+        __env.set(env);
+    }
+    
+    protected IRuntimeEnv getRuntimeEnv() {
+        if (__env == null) {
+            __env = initRuntimeEnvironment();
+        }
+        return __env.get();
+    }
 
     protected Object makeEngineInstance(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
@@ -32,7 +46,9 @@ public abstract class AEngineFactory {
     }
 
     protected abstract Class<?>[] getInstanceInterfaces();
-
+    
+    protected abstract ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment();
+    
     protected abstract InvocationHandler makeInvocationHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv);

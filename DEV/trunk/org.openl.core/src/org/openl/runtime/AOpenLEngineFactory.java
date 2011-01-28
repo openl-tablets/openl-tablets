@@ -13,24 +13,30 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
 
+    private static final String DEFAULT_USER_HOME = ".";
+    
     private OpenL openl;
     private IUserContext userContext;
 
     private String openlName;
-    private String userHome = ".";
+    private String userHome;
 
     public AOpenLEngineFactory(String openlName) {
-        this.openlName = openlName;
+        this(openlName, DEFAULT_USER_HOME, null);        
     }
     
     public AOpenLEngineFactory(String openlName, String userHome) {
-        this.openlName = openlName;
-        this.userHome = userHome;
+        this(openlName, userHome, null);        
     }
 
     public AOpenLEngineFactory(String openlName, IUserContext userContext) {
+        this(openlName, DEFAULT_USER_HOME, userContext);        
+    }
+    
+    private AOpenLEngineFactory(String openlName, String userHome, IUserContext userContext) {
         this.openlName = openlName;
-        this.userContext = userContext;
+        this.userHome = userHome;
+        this.userContext = userContext;        
     }
 
     public synchronized OpenL getOpenL() {

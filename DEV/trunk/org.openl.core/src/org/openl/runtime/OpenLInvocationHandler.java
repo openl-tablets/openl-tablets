@@ -16,7 +16,6 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
 
     private Object openlInstance;
     private AEngineFactory engineFactory;
-    private IRuntimeEnv openlEnv;
     private Map<Method, IOpenMember> methodMap;
 
     public OpenLInvocationHandler(Object openlInstance,
@@ -46,15 +45,13 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
     }
 
     public IRuntimeEnv getRuntimeEnv() {
-        return openlEnv;
+        return environment.get();
     }
 
     private void setRuntimeEnv(IRuntimeEnv env) {
         if (env != null) {
-            this.openlEnv = env;
-        } else {
-            this.openlEnv = environment.get();
-        }
+            environment.set(env);
+        } 
     }
 
     protected Map<Method, IOpenMember> getMethodMap() {
@@ -74,10 +71,10 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
 
             if (member instanceof IOpenMethod) {
                 IOpenMethod openMethod = (IOpenMethod) member;
-                return openMethod.invoke(openlInstance, args, openlEnv);
+                return openMethod.invoke(openlInstance, args, environment.get());
             } else {
                 IOpenField openField = (IOpenField) member;
-                return openField.get(openlInstance, openlEnv);
+                return openField.get(openlInstance, environment.get());
             }
         } else {
 

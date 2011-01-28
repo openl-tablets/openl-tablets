@@ -7,12 +7,12 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessages;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-import org.openl.vm.IRuntimeEnv;
 
 public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
 
@@ -66,18 +66,29 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
     protected Class<?>[] getInstanceInterfaces() {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
-
+    
+    @Override
+    protected ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment() {        
+        return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+            @Override
+            protected org.openl.vm.IRuntimeEnv initialValue() {
+              org.openl.vm.IRuntimeEnv environment = getOpenL().getVm().getRuntimeEnv();
+              environment.setContext(new DefaultRulesRuntimeContext());
+              return environment;
+            }
+          };
+    }
+    
     @Override
     public Object makeInstance() {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-
-            IRuntimeEnv runtimeEnv = getOpenL().getVm().getRuntimeEnv();
-            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            
+            Object openClassInstance = openClass.newInstance(getRuntimeEnv());
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
+            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass().getClassLoader());
 
         } catch (Exception ex) {
             throw new OpenLRuntimeException("Cannot instantiate engine instance", ex);
