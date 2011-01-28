@@ -160,14 +160,23 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     protected Class<?>[] getInstanceInterfaces() {
         return new Class<?>[] { engineInterface, IEngineWrapper.class };
     }
+    
+    @Override
+    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
+        return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+            @Override
+            protected org.openl.vm.IRuntimeEnv initialValue() {
+              return getOpenL().getVm().getRuntimeEnv();
+            }
+          };
+    }
 
     @SuppressWarnings("unchecked")
     @Override
-    public T makeInstance() {
-        IRuntimeEnv environment = new SimpleVM().getRuntimeEnv();
-        Object openClassInstance = getOpenClass().newInstance(environment);
+    public T makeInstance() {        
+        Object openClassInstance = getOpenClass().newInstance(getRuntimeEnv());        
         return (T) makeEngineInstance(
-                openClassInstance, methodMap, null, engineInterface.getClassLoader());
+                openClassInstance, methodMap, getRuntimeEnv(), engineInterface.getClassLoader());
     }
 
 }
