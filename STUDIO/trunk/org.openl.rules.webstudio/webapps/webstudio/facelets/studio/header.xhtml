@@ -87,6 +87,14 @@
                   </c:if>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
 
+                  <h:panelGroup rendered="#{not empty headerBean.modules and headerBean.projectEditable}">
+                  <a href="#{contextPath}/faces/facelets/revertProjectChanges.xhtml" title="Revert Project Changes"
+                      target="mainFrame"><img alt="Revert Project Changes"
+                      src="#{contextPath}/webresource/images/revert.png" /></a>
+                  </h:panelGroup>
+
+                  <f:verbatim>&amp;nbsp;</f:verbatim>
+
                   <!-- Expand/Collapse Table Properties View  --> 
                   <c:if test="#{headerBean.collapseProperties}">
                     <a href="#{contextPath}/faces/main.xhtml?collapseProperties=false" title="Expand Properties"
@@ -98,7 +106,7 @@
                         target="main"><img alt="Collapse Properties"
                         src="#{contextPath}/webresource/images/extended_props.gif" /></a>
                   </c:if>
-                  
+
                   <f:verbatim>&amp;nbsp;</f:verbatim>
                   <c:if test="#{headerBean.localRequest}">
                     <c:if test="#{headerBean.repositoryFailed}">
@@ -172,4 +180,5 @@
         </tr>  
     </table>
     </div>
+
 </ui:composition>
