@@ -13,7 +13,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.DependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
 import org.openl.rules.runtime.RulesFactory;
@@ -85,9 +84,7 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
         return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
             @Override
             protected org.openl.vm.IRuntimeEnv initialValue() {
-              org.openl.vm.IRuntimeEnv environment = getOpenL().getVm().getRuntimeEnv();
-              environment.setContext(new DefaultRulesRuntimeContext());
-              return environment;
+              return getOpenL().getVm().getRuntimeEnv();
             }
           };
     }
