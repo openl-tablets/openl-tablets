@@ -160,6 +160,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return sourceFile;
     }
 
+    public File getSourceFile() {
+        return sourceFile;
+    }
+
     public boolean isModified() {
         if (sourceFile == null) {
             Log.warn(String.format("Undefined source file for [%s]", getUri()));
