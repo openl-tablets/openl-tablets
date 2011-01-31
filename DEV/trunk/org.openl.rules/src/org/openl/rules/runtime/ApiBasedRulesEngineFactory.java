@@ -7,7 +7,6 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessages;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -72,9 +71,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
         return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
             @Override
             protected org.openl.vm.IRuntimeEnv initialValue() {
-              org.openl.vm.IRuntimeEnv environment = getOpenL().getVm().getRuntimeEnv();
-              environment.setContext(new DefaultRulesRuntimeContext());
-              return environment;
+              return getOpenL().getVm().getRuntimeEnv();
             }
           };
     }
