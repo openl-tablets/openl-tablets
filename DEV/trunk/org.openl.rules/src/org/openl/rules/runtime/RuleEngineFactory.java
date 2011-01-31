@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.EngineFactoryDefinition;
@@ -30,9 +29,7 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
         @Override
         protected org.openl.vm.IRuntimeEnv initialValue() {
-          org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-          environment.setContext(new DefaultRulesRuntimeContext());
-          return environment;
+          return new org.openl.vm.SimpleVM().getRuntimeEnv();
         }
       };
 

@@ -15,7 +15,6 @@ import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 
 /**
  * Class EngineFactory creates {@link Proxy} based wrappers around OpenL
