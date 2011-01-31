@@ -90,8 +90,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
     private void deployProject(FolderAPI deployment, AProject project) throws RRepositoryException,
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName());
-        AProject copiedProject = new AProject(rProject, user);
+        AProject copiedProject = new AProject(rProject);
         copiedProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
-        copiedProject.checkIn();
     }
 }

@@ -21,53 +21,53 @@
 
   <h:panelGroup rendered="#{node.type == 'file'}">
     <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-      <h:commandButton styleClass="#{artefact.canModify ? 'button':'disabledButton'}" value="Update" onclick="#{artefact.canModify} &amp;&amp; openUpdateFileDialog();return false;" />
-      <h:commandButton styleClass="#{artefact.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Update" onclick="#{repositoryTreeState.canModify} &amp;&amp; openUpdateFileDialog();return false;" />
+      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'folder'}">
     <h:panelGrid columns="3" cellpadding="4" cellspacing="0">
-      <h:commandButton styleClass="#{artefact.canModify ? 'button':'disabledButton'}" value="Add Folder" onclick="#{artefact.canModify} &amp;&amp; openNewFolderDialog();return false;" />
-      <h:commandButton styleClass="#{artefact.canModify ? 'button':'disabledButton'}" value="Upload File" onclick="#{artefact.canModify} &amp;&amp; openNewFileDialog();return false;" />
-      <h:commandButton styleClass="#{artefact.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Add Folder" onclick="#{repositoryTreeState.canModify} &amp;&amp; openNewFolderDialog();return false;" />
+      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Upload File" onclick="#{repositoryTreeState.canModify} &amp;&amp; openNewFileDialog();return false;" />
+      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'project'}">
     <h:panelGroup rendered="#{artefact.deleted}">
       <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-        <h:commandButton styleClass="#{artefact.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{artefact.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
-        <h:commandButton styleClass="#{artefact.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{artefact.canErase} &amp;&amp; confirmEraseProject();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
       </h:panelGrid>
     </h:panelGroup>
     
     <h:panelGroup rendered="#{!artefact.deleted}">
       <h:panelGrid columns="6" cellpadding="4" cellspacing="0">
         <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
-          <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{artefact.canOpen};"/>
-          <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
-          <h:commandButton styleClass="#{artefact.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.canClose};"/>
-          <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{artefact.canCheckOut};"/>
+          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{repositoryTreeState.canOpen};"/>
+          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
+          <h:commandButton styleClass="#{repositoryTreeState.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{repositoryTreeState.canClose};"/>
+          <h:commandButton styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{repositoryTreeState.canCheckOut};"/>
         </h:panelGrid>
 
         <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
-          <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" onclick="#{artefact.canClose} &amp;&amp; #{rich:component('modalOpenProject')}.show();return false;"/>
-          <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
-          <h:commandButton styleClass="#{artefact.canClose ? 'button':'disabledButton'}" value="Close" onclick="#{artefact.canClose} &amp;&amp; #{rich:component('modalCloseProject')}.show();return false;"/>
-          <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" onclick="#{artefact.canCheckOut} &amp;&amp; #{rich:component('modalCheckOutProject')}.show();return false;"/>
+          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalOpenProject')}.show();return false;"/>
+          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
+          <h:commandButton styleClass="#{repositoryTreeState.canClose ? 'button':'disabledButton'}" value="Close" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalCloseProject')}.show();return false;"/>
+          <h:commandButton styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" onclick="#{repositoryTreeState.canCheckOut} &amp;&amp; #{rich:component('modalCheckOutProject')}.show();return false;"/>
         </h:panelGrid>
 
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();return false;" />
         <h:commandButton styleClass="button" value="Copy" onclick="openCopyProjectDialog();return false;" />
-        <h:commandButton styleClass="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
-        <h:commandButton styleClass="#{artefact.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" onclick="#{artefact.canRedeploy} &amp;&amp; openSmartRedeployDialog();return false;" />
-        <h:commandButton styleClass="#{artefact.canCompare ? 'button':'disabledButton'}" value="Compare" onclick="#{artefact.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" onclick="#{repositoryTreeState.canRedeploy} &amp;&amp; openSmartRedeployDialog();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canCompare ? 'button':'disabledButton'}" value="Compare" onclick="#{repositoryTreeState.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;" />
       </h:panelGrid>
       <h:panelGrid columns="3" cellpadding="4" cellspacing="0">
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();return false;" />
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Upload File" onclick="#{artefact.checkedOut} &amp;&amp; openNewFileDialog();return false;" />
-        <h:commandButton styleClass="#{artefact.canExport ? 'button':'disabledButton'}" value="Export Version" onclick="#{artefact.canExport} &amp;&amp; openExportVersionDialog();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canExport ? 'button':'disabledButton'}" value="Export Version" onclick="#{repositoryTreeState.canExport} &amp;&amp; openExportVersionDialog();return false;" />
       </h:panelGrid>
 
     </h:panelGroup>
@@ -114,18 +114,18 @@
   <h:panelGroup rendered="#{node.type == 'deployment'}">
     <h:panelGroup rendered="#{artefact.deleted}">
       <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-        <h:commandButton styleClass="#{artefact.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{artefact.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
-        <h:commandButton styleClass="#{artefact.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{artefact.canErase} &amp;&amp; confirmEraseProject();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
+        <h:commandButton styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
       </h:panelGrid>
     </h:panelGroup>
     <h:panelGrid columns="7" cellpadding="4" cellspacing="0" rendered="#{not artefact.deleted}">
-      <h:commandButton styleClass="#{artefact.canDeploy ? 'button':'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{artefact.canDeploy}"/>
-      <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
+      <h:commandButton styleClass="#{repositoryTreeState.canDeploy ? 'button':'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{repositoryTreeState.canDeploy}"/>
+      <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
       <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
-      <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{artefact.canCheckOut};" />
+      <h:commandButton styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{repositoryTreeState.canCheckOut};" />
       <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
       <h:commandButton styleClass="button" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" />
-      <h:commandButton styleClass="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{artefact.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;"/>
+      <h:commandButton styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;"/>
     </h:panelGrid>
 
     <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;">

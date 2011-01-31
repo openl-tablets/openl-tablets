@@ -12,7 +12,7 @@ import java.util.Map;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.richfaces.model.TreeNode;
@@ -293,17 +293,17 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         return null;
     }
 
-    private UserWorkspaceProject findProjectContainingCurrentArtefact() {
+    private RulesProject findProjectContainingCurrentArtefact() {
         TreeNode<AProjectArtefact> node = this;
-        while (node != null && !(node.getData() instanceof UserWorkspaceProject)) {
+        while (node != null && !(node.getData() instanceof RulesProject)) {
             node = node.getParent();
         }
-        return node == null ? null : (UserWorkspaceProject) node.getData();
+        return node == null ? null : (RulesProject) node.getData();
     }
 
     public Collection<ProjectVersion> getVersions() {
         if (data instanceof AProjectArtefact) {
-            UserWorkspaceProject project = findProjectContainingCurrentArtefact();
+            RulesProject project = findProjectContainingCurrentArtefact();
             List<ProjectVersion> result;
             if (project != null) {
                 result = project.getVersionsForArtefact((getData()).getArtefactPath().withoutFirstSegment());

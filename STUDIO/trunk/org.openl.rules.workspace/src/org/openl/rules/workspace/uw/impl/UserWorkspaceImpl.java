@@ -18,7 +18,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -44,7 +44,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final DesignTimeRepository designTimeRepository;
     private final ProductionDeployer deployer;
 
-    private final HashMap<String, AProject> userRulesProjects;
+    private final HashMap<String, RulesProject> userRulesProjects;
     private final HashMap<String, ADeploymentProject> userDProjects;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
@@ -56,7 +56,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         this.designTimeRepository = designTimeRepository;
         this.deployer = deployer;
 
-        userRulesProjects = new HashMap<String, AProject>();
+        userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
 
         localWorkspace.setUserWorkspace(this);
@@ -152,9 +152,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace;
     }
 
-    public AProject getProject(String name) throws ProjectException {
+    public RulesProject getProject(String name) throws ProjectException {
         refreshRulesProjects();
-        AProject uwp = userRulesProjects.get(name);
+        RulesProject uwp = userRulesProjects.get(name);
 
         if (uwp == null) {
             throw new ProjectException("Cannot find project ''{0}''", null, name);
@@ -163,7 +163,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return uwp;
     }
 
-    public Collection<AProject> getProjects() {
+    public Collection<RulesProject> getProjects() {
         try {
             refreshRulesProjects();
         } catch (ProjectException e) {
@@ -171,7 +171,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             log.error("Failed to resfresh projects!", e);
         }
 
-        ArrayList<AProject> result = new ArrayList<AProject>(userRulesProjects.values());
+        ArrayList<RulesProject> result = new ArrayList<RulesProject>(userRulesProjects.values());
 
         Collections.sort(result, PROJECTS_COMPARATOR);
 
@@ -272,17 +272,17 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
 
-            AProject uwp = userRulesProjects.get(name);
+            RulesProject uwp = userRulesProjects.get(name);
             if (uwp == null) {
                 // TODO:refactor
                 if (lp == null) {
-                    uwp = new UserWorkspaceProject(null, rp.getAPI(), this);
+                    uwp = new RulesProject(null, rp.getAPI(), this);
                 } else {
-                    uwp = new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
+                    uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
                 }
                 userRulesProjects.put(name, uwp);
             } else if (uwp.isLocalOnly()) {
-                userRulesProjects.put(name, new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
+                userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
             }else{
                 uwp.refresh();
             }
@@ -295,19 +295,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             if (!designTimeRepository.hasProject(name)) {
 
-                AProject uwp = userRulesProjects.get(name);
+                RulesProject uwp = userRulesProjects.get(name);
                 if (uwp == null) {
-                    uwp = new UserWorkspaceProject((LocalFolderAPI)lp.getAPI(), null, this);
+                    uwp = new RulesProject((LocalFolderAPI)lp.getAPI(), null, this);
                     userRulesProjects.put(name, uwp);
                 } else {
-                    userRulesProjects.put(name, new UserWorkspaceProject((LocalFolderAPI) lp.getAPI(), null, this));
+                    userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), null, this));
                 }
             }
         }
 
-        Iterator<Map.Entry<String, AProject>> entryIterator = userRulesProjects.entrySet().iterator();
+        Iterator<Map.Entry<String, RulesProject>> entryIterator = userRulesProjects.entrySet().iterator();
         while (entryIterator.hasNext()) {
-            Map.Entry<String, AProject> entry = entryIterator.next();
+            Map.Entry<String, RulesProject> entry = entryIterator.next();
             if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
                 entryIterator.remove();
             }
@@ -331,6 +331,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
         createProject(name);
         AProject createdProject = getProject(name);
         createdProject.checkIn(user);
-        createdProject.checkOut();
+        createdProject.checkOut(user);
     }
 }

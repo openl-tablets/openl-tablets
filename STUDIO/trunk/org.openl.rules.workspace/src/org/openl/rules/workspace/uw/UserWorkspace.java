@@ -1,10 +1,12 @@
 package org.openl.rules.workspace.uw;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -48,4 +50,8 @@ public interface UserWorkspace extends ProjectsContainer {
     void uploadLocalProject(String name) throws ProjectException;
     
     WorkspaceUser getUser();
+    
+    RulesProject getProject(String name) throws ProjectException;
+    
+    Collection<RulesProject> getProjects();
 }

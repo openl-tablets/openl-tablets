@@ -23,7 +23,7 @@ public class TestCreateDelete {
         }
 
         AProject p = uw.getProject(name);
-        p.checkOut();
+        p.checkOut(wu);
 
         try {
             AProjectFolder f = (AProjectFolder) p.getArtefact("F1");
@@ -36,7 +36,7 @@ public class TestCreateDelete {
         }
 
         uw.refresh();
-        p.checkIn();
+        p.checkIn(wu);
 
         uw.passivate();
 

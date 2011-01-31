@@ -18,18 +18,14 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.api.ResourceAPI;
+import org.openl.rules.workspace.WorkspaceUser;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
-
-public class ADeploymentProject extends AProject {
+public class ADeploymentProject extends UserWorkspaceProject {
     private List<ProjectDescriptor> descriptors;
-    private ProjectVersion projectVersion;
+    private ADeploymentProject openedVersion;
 
-    public ADeploymentProject(FolderAPI api, CommonUser user) {
+    public ADeploymentProject(FolderAPI api, WorkspaceUser user) {
         super(api, user);
-        projectVersion = getLastVersion();
     }
 
     @Override
@@ -64,53 +60,38 @@ public class ADeploymentProject extends AProject {
         throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found"));
     }
 
-    @Override
+    
+    
+    
     public void openVersion(CommonVersion version) throws ProjectException {
         FolderAPI openedProjectVersion = getAPI().getVersion(version);
-        if (openedProjectVersion.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-            InputStream content = null;
-            try {
-                content = ((ResourceAPI) openedProjectVersion.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
-                        .getContent();
-                descriptors = ProjectDescriptorHelper.deserialize(content);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } finally {
-                IOUtils.closeQuietly(content);
-            }
-        } else {
-            descriptors = new ArrayList<ProjectDescriptor>();
-        }
-        projectVersion = openedProjectVersion.getVersion();
+        openedVersion = new ADeploymentProject(openedProjectVersion, getUser());
+        refresh();
     }
 
     @Override
-    public void close() throws ProjectException {
-        if (isCheckedOut()) {
-            getAPI().unlock(user);
-        }
-        openVersion(getLastVersion());
+    public void close(CommonUser user) throws ProjectException {
+        super.close(user);
+        openedVersion = null;
         refresh();
     }
 
     @Override
     public ProjectVersion getVersion() {
-        return projectVersion;
-    }
-
-    @Override
-    public boolean isOpened() {
-        return !projectVersion.equals(getLastVersion()) || isCheckedOut();
-    }
-
-    /** is opened other version? (not last) */
-    public boolean isOpenedOtherVersion() {
-        ProjectVersion max = getLastVersion();
-        if (max == null) {
-            return false;
+        if (openedVersion == null) {
+            return getAPI().getVersion();
+        } else {
+            return openedVersion.getVersion();
         }
-        return (!getVersion().equals(max));
+    }
+
+    public boolean isOpened() {
+        return openedVersion != null || isCheckedOut();
+    }
+
+    public void checkOut(CommonUser user) throws ProjectException {
+        super.checkOut(user);
+        open();
     }
 
     @Override
@@ -136,8 +117,8 @@ public class ADeploymentProject extends AProject {
                 e.printStackTrace();
             }
         }
-        save(user, major, minor);
-        close();
+        super.checkIn(user, major, minor);
+        open();
     }
 
     public void removeProjectDescriptor(String name) throws ProjectException {
@@ -163,19 +144,17 @@ public class ADeploymentProject extends AProject {
     public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
-    }
-
-    public boolean getCanDeploy() {
-        return (!isCheckedOut() && isGranted(PRIVILEGE_DEPLOY));
+        checkIn(user, major, minor);
     }
 
     private List<ProjectDescriptor> getDescriptors() {
         if (descriptors == null) {
             descriptors = new ArrayList<ProjectDescriptor>();
-            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+            ADeploymentProject source = openedVersion == null ? this : openedVersion;
+            if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 InputStream content = null;
                 try {
-                    content = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
+                    content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
@@ -185,5 +164,15 @@ public class ADeploymentProject extends AProject {
             }
         }
         return descriptors;
+    }
+    
+    
+    @Override
+    public void refresh() {
+        descriptors = null;
+    }
+
+    public boolean getCanDeploy() {
+        return !isCheckedOut();
     }
 }

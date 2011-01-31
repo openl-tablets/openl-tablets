@@ -56,7 +56,7 @@
           <h:commandLink styleClass="actionButton" immediate="true" onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" title="Copy">
             <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" />
           </h:commandLink>
-          <h:panelGroup rendered="#{prj.data.canDelete}">
+          <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
             &#160;
             <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}"
               onclick="if(!window.confirm('Are you sure you want to delete the deployment project?')) {return false;}">

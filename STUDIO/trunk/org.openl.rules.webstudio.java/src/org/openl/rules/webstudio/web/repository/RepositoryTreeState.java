@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY;
+import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT;
+import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE;
+import static org.openl.rules.security.Privileges.PRIVILEGE_READ;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -8,6 +15,8 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
@@ -90,11 +99,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         root.add(rulesRepository);
         root.add(deploymentRepository);
 
-        Collection<AProject> rulesProjects = userWorkspace.getProjects();
+        Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
         IFilter filter = this.filter;
         for (AProject project : rulesProjects) {
-            if (!(filter.supports(AProject.class) && !filter.select(project))) {
+            if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
                 addRulesProjectToTree(project);
             }
         }
@@ -147,10 +156,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return selectedNode;
     }
 
-    public AProject getSelectedProject() {
+    public UserWorkspaceProject getSelectedProject() {
         AProjectArtefact artefact = getSelectedNode().getData();
-        if (artefact instanceof AProject) {
-            return (AProject) artefact;
+        if (artefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) artefact;
         }
         return null;
     }
@@ -325,5 +334,77 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             refreshNode(deploymentProject);
         }
     }
+    
+    
+    
+    //for any project
+    public boolean getCanCheckOut() {
+        if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut() || getSelectedProject().isLocked()) {
+            return false;
+        }
 
+        return isGranted(PRIVILEGE_EDIT);
+    }
+
+    public boolean getCanClose() {
+        return (!getSelectedProject().isLocalOnly() && getSelectedProject().isOpened());
+    }
+
+    public boolean getCanDelete() {
+        if (getSelectedProject().isLocalOnly()) {
+            // any user can delete own local project
+            return true;
+        }
+
+        return (!getSelectedProject().isLocked() || getSelectedProject().isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE);
+    }
+
+    public boolean getCanErase() {
+        return (getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE));
+    }
+
+    public boolean getCanExport() {
+        return getCanOpen();
+    }
+
+    public boolean getCanOpen() {
+        if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_READ);
+    }
+
+    public boolean getCanCompare() {
+        if (getSelectedProject().isLocalOnly()) {
+            return false;
+        }
+        return isGranted(PRIVILEGE_READ);
+    }
+
+    public boolean getCanRedeploy() {
+        if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_DEPLOY);
+    }
+
+    public boolean getCanUndelete() {
+        return (getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT));
+    }
+
+
+    //for any project artefact
+    public boolean getCanModify() {
+        AProjectArtefact selectedArtefact = selectedNode.getData();
+        String projectName = selectedArtefact.getProject().getName();
+        RulesProject project = (RulesProject) getRulesRepository().getChild(projectName).getData();
+        return (project.isCheckedOut() && isGranted(PRIVILEGE_EDIT));
+    }
+
+    //for deployment project
+    public boolean getCanDeploy() {
+        return (!getSelectedProject().isCheckedOut() && isGranted(PRIVILEGE_DEPLOY));
+    }
 }

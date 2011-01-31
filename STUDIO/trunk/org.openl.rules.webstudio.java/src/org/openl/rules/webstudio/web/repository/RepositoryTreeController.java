@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +20,8 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
@@ -77,7 +82,7 @@ public class RepositoryTreeController {
     private String filterString;
 
     private PathFilter zipFilter;
-
+    
     public PathFilter getZipFilter() {
         return zipFilter;
     }
@@ -310,7 +315,7 @@ public class RepositoryTreeController {
 
         try {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
-            project.delete();
+            project.delete(userWorkspace.getUser());
         } catch (ProjectException e) {
             LOG.error("Cannot delete deployment project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete deployment project.", e.getMessage());
@@ -339,7 +344,7 @@ public class RepositoryTreeController {
             projectArtefact.delete();
             String nodeType = repositoryTreeState.getSelectedNode().getType();
             boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)
-                    || (UiConst.TYPE_PROJECT.equals(nodeType) && !((AProject) projectArtefact).isLocalOnly());
+                    || (UiConst.TYPE_PROJECT.equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
             if (wasMarkedForDeletion) {
                 repositoryTreeState.refreshSelectedNode();
             } else {
@@ -356,13 +361,13 @@ public class RepositoryTreeController {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
         try {
-            AProject project = userWorkspace.getProject(projectName);
+            RulesProject project = userWorkspace.getProject(projectName);
             if (project.isLocalOnly()) {
-                project.erase();
+                project.erase(userWorkspace.getUser());
                 AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
                 repositoryTreeState.deleteNode(projectInTree);
             } else {
-                project.delete();
+                project.delete(userWorkspace.getUser());
             }
         } catch (ProjectException e) {
             LOG.error("Cannot delete rules project '" + projectName + "'.", e);
@@ -372,7 +377,7 @@ public class RepositoryTreeController {
     }
 
     public String eraseProject() {
-        AProject project = repositoryTreeState.getSelectedProject();
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         // EPBDS-225
         if (project == null) {
             return null;
@@ -1134,5 +1139,8 @@ public class RepositoryTreeController {
     public SelectItem[] getNewProjectTemplates() {
         return FacesUtils.createSelectItems(projectTemplates);
     }
-
+    
+    public boolean getCanDelete(){
+        return isGranted(PRIVILEGE_DELETE);
+    }
 }

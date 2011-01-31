@@ -46,7 +46,7 @@ public interface ProjectsContainer {
      *
      * @return all projects in the container.
      */
-    Collection<AProject> getProjects();
+    Collection<? extends AProject> getProjects();
 
     /**
      * Returns <code>true</code> if there is a project with given name.

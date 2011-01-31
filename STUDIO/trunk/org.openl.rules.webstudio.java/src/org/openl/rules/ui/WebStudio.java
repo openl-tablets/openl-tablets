@@ -12,7 +12,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ResolvingRulesProjectDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -163,7 +163,7 @@ public class WebStudio {
     public void executeOperation(String operation, HttpSession session) {
         if ("checkIn".equals(operation)) {
             try {
-                AProject project = getCurrentProject(session);
+                RulesProject project = getCurrentProject(session);
                 if (project == null) {
                     return;
                 }
@@ -178,7 +178,7 @@ public class WebStudio {
         }
         if ("checkOut".equals(operation)) {
             try {
-                AProject project = getCurrentProject(session);
+                RulesProject project = getCurrentProject(session);
                 if (project == null) {
                     return;
                 }
@@ -216,12 +216,12 @@ public class WebStudio {
         return benchmarks.toArray(new BenchmarkInfo[0]);
     }
 
-    public AProject getCurrentProject(HttpSession session) {
+    public RulesProject getCurrentProject(HttpSession session) {
         if (currentModule != null) {
             try {
                 String projectFolder = currentModule.getProject().getProjectFolder().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                AProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
+                RulesProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
                 return project;
             } catch (Exception e) {
                 LOG.error("Error when trying to get current project", e);
@@ -230,7 +230,7 @@ public class WebStudio {
         return null;
     }
 
-    public AProject getCurrentProject() {
+    public RulesProject getCurrentProject() {
         return getCurrentProject(FacesUtils.getSession());
     }
 

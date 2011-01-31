@@ -9,6 +9,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDependencyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -116,7 +117,7 @@ public class DependencyController {
 
         List<String> matching = new ArrayList<String>();
         for (AbstractTreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
-            if (!existing.contains(node.getName()) && !((AProject) node.getData()).isLocalOnly()) {
+            if (!existing.contains(node.getName()) && !((RulesProject) node.getData()).isLocalOnly()) {
                 matching.add(node.getName());
             }
         }
