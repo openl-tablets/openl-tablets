@@ -12,6 +12,7 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -167,7 +168,7 @@ public class DeploymentController {
 
     public SelectItem[] getProjects() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
-        Collection<AProject> workspaceProjects = workspace.getProjects();
+        Collection<RulesProject> workspaceProjects = workspace.getProjects();
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
@@ -178,8 +179,8 @@ public class DeploymentController {
             }
         }
 
-        for (AProject project : workspaceProjects) {
-            if (!(project instanceof ADeploymentProject || existing.contains(project.getName()) || project.isLocalOnly())) {
+        for (RulesProject project : workspaceProjects) {
+            if (!(existing.contains(project.getName()) || project.isLocalOnly())) {
                 selectItems.add(new SelectItem(project.getName()));
             }
         }
@@ -234,7 +235,7 @@ public class DeploymentController {
             if (item.isSelected()) {
                 String projectName = item.getName();
                 try {
-                    AProject project = workspace.getProject(projectName);
+                    RulesProject project = workspace.getProject(projectName);
                     if (!project.isCheckedOut()) {
                         project.openVersion(item.getVersion());
                     }

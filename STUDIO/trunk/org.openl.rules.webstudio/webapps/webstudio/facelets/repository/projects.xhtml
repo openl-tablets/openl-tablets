@@ -57,7 +57,7 @@
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" />
           </h:commandLink>
-          <h:panelGroup rendered="#{prj.data.canDelete}">
+          <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
               &#160;
               <h:commandLink styleClass="actionButton" immediate="true"
                   action="#{repositoryTreeController.deleteRulesProject}"

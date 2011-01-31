@@ -5,7 +5,6 @@ import java.util.Date;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 public class TreeDProject extends TreeFile {
@@ -18,7 +17,7 @@ public class TreeDProject extends TreeFile {
     // ------ UI methods ------
 
     public String getComments() {
-        return TreeProject.generateComments(getData());
+        return TreeProject.generateComments(getProject());
     }
 
     public Date getCreatedAt() {
@@ -43,11 +42,7 @@ public class TreeDProject extends TreeFile {
 
     @Override
     public String getIconLeaf() {
-        ADeploymentProject project = (ADeploymentProject) getData();
-
-        if (project.isLocalOnly()) {
-            return UiConst.ICON_PROJECT_LOCAL;
-        }
+        ADeploymentProject project = getProject();
 
         if (project.isDeleted()) {
             return UiConst.ICON_PROJECT_DELETED;
@@ -73,12 +68,12 @@ public class TreeDProject extends TreeFile {
         }
     }
 
-    private AProject getProject() {
-        return (AProject) getData();
+    private ADeploymentProject getProject() {
+        return (ADeploymentProject) getData();
     }
 
     public String getStatus() {
-        return TreeProject.generateStatus(getData());
+        return TreeProject.generateStatus(getProject());
     }
 
     @Override

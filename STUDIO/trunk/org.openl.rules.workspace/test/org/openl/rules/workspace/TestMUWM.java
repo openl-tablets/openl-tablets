@@ -17,6 +17,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Ignore("Manual test")
@@ -94,7 +95,7 @@ public class TestMUWM {
         }
 
         AProject p = uw.getProject(name);
-        p.checkOut();
+        p.checkOut(wu);
 
         AProjectFolder uwpf;
         try {
@@ -127,9 +128,9 @@ public class TestMUWM {
             uwpf.addResource("some-file", resource);
         }
 
-        p.checkIn();
+        p.checkIn(wu);
 
-        for (AProject uwp : uw.getProjects()) {
+        for (RulesProject uwp : uw.getProjects()) {
             System.out.println("-> opening " + uwp.getName());
             uwp.open();
         }

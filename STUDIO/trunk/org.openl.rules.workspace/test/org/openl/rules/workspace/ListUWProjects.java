@@ -6,6 +6,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class ListUWProjects {
@@ -16,7 +17,7 @@ public class ListUWProjects {
         UserWorkspace uw = muwm.getUserWorkspace(wu);
         uw.activate();
 
-        Collection<AProject> projects = uw.getProjects();
+        Collection<RulesProject> projects = uw.getProjects();
         System.out.println("> Listing rules project:" + projects.size());
 
         for (AProject prj : projects) {

@@ -40,7 +40,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     private RRepository rulesRepository;
     /** Project Cache */
     private HashMap<String, AProject> projects;
-    private CommonUser user;
     
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
     
@@ -58,20 +57,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         projects = new HashMap<String, AProject>();
     }
 
-	public CommonUser getUser() {
-		return user;
-	}
-
-	public void setUser(CommonUser user) {
-		this.user = user;
-	}
-
 	public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
             throws ProjectException {
         createDDProject(name);
         ADeploymentProject newProject = getDDProject(name);
         newProject.update(project, user, 0, 0);
-        newProject.checkIn(user);
     }
 
     public void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException {
@@ -141,7 +131,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
                 return wrapDDProject(ralDeploymentProject);
             }
             return wrapDDProject(ralDeploymentProject.getVersion(version));
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
                     .getVersionName());
         }
@@ -188,7 +178,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             }
             // do not cache old version of project
             return wrapProject(ralProject.getVersion(version), false);
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
                     .getVersionName());
         }
@@ -278,8 +268,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
                 log.debug(msg);
             }
 
-            project4Write.update(sourceProject, user, 0, 0);
-            project4Write.checkIn(major, minor);
+            project4Write.update(sourceProject, user, major, minor);
         } catch (Exception e) {
             throw new RepositoryException("Failed to update project ''{0}''.", e, name);
         } finally {
@@ -295,11 +284,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     // --- private
 
     private ADeploymentProject wrapDDProject(FolderAPI folder) {
-        return new ADeploymentProject(folder, user);
+        return new ADeploymentProject(folder, null);
     }
 
     private AProject wrapProject(FolderAPI folder, boolean cacheIt) {
-        AProject dtrRulesProject = new AProject(folder, user);
+        AProject dtrRulesProject = new AProject(folder);
         if (cacheIt) {
             projects.put(folder.getName(), dtrRulesProject);
         }

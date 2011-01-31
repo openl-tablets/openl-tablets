@@ -19,16 +19,9 @@ import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 
-import static org.openl.rules.security.Privileges.*;
-import static org.openl.rules.security.AccessManager.check;
-import static org.openl.rules.security.AccessManager.isGranted;
-
 public class AProject extends AProjectFolder {
-    protected CommonUser user;
-
-    public AProject(FolderAPI api, CommonUser user) {
+    public AProject(FolderAPI api) {
         super(api, null);
-        this.user = user;
     }
 
     @Override
@@ -78,12 +71,14 @@ public class AProject extends AProjectFolder {
 
     @Override
     public void delete() throws ProjectException {
-        if (isLocked() && !isLockedByMe()) {
+        throw new ProjectException("Unsupported operation.");
+    }
+
+    public void delete(CommonUser user) throws ProjectException {
+        if (isLocked() && !isLockedByUser(user)) {
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user!", null,
                     getName());
         }
-
-        check(PRIVILEGE_DELETE);
 
         if (isDeleted()) {
             throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, getName());
@@ -96,17 +91,9 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    public void checkIn() throws ProjectException {
-        checkIn(user);
-    }
-
     public void checkIn(CommonUser user) throws ProjectException {
         ProjectVersion currentVersion = getLastVersion();
         checkIn(user, currentVersion.getMajor(), currentVersion.getMinor());
-    }
-
-    public void checkIn(int major, int minor) throws ProjectException {
-        checkIn(user, major, minor);
     }
 
     public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
@@ -115,76 +102,23 @@ public class AProject extends AProjectFolder {
         refresh();
     }
 
-    public void checkOut() throws ProjectException {
-        open();
+    public void checkOut(CommonUser user) throws ProjectException {
         lock(user);
     }
 
-    public void close() throws ProjectException {
-        if (isCheckedOut()) {
+    public void close(CommonUser user) throws ProjectException {
+        if (isLockedByUser(user)) {
             unlock(user);
         }
         refresh();
     }
 
-    public void erase() throws ProjectException {
+    public void erase(CommonUser user) throws ProjectException {
         getAPI().delete(user);
     }
 
-    /** is checked-out by me? -- in LW + locked by me */
-    public boolean isCheckedOut() {
-        if (isLocalOnly()) {
-            return false;
-        }
-
-        return isLockedByMe();
-    }
-
-    /** is deleted in DTR */
     public boolean isDeleted() {
         return getAPI().hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
-    }
-
-    public boolean isLocalOnly() {
-        return false;
-    }
-
-    public boolean isLockedByMe() {
-        if (isLocked()) {
-            CommonUser lockedBy = getLockInfo().getLockedBy();
-            // FIXME
-            if (lockedBy.getUserName().equals(user.getUserName())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /** is opened by me? -- in LW */
-    public boolean isOpened() {
-        return true;
-    }
-
-    /** is opened other version? (not last) */
-    public boolean isOpenedOtherVersion() {
-        if (!isOpened()) {
-            return false;
-        }
-        ProjectVersion max = getLastVersion();
-        if (max == null) {
-            return false;
-        }
-        return (!getVersion().equals(max));
-    }
-
-    public void open() throws ProjectException {
-        openVersion(getLastVersion());
-    }
-
-    public void openVersion(CommonVersion version) throws ProjectException {
-        setAPI(getAPI().getVersion(version));
-        refresh();
     }
 
     public void undelete() throws ProjectException {
@@ -214,60 +148,8 @@ public class AProject extends AProjectFolder {
             super.smartUpdate(artefact, user, major, minor);
         }
     }
-
-    public boolean getCanCheckOut() {
-        if (isLocalOnly() || isCheckedOut() || isLocked()) {
-            return false;
-        }
-
-        return isGranted(PRIVILEGE_EDIT);
-    }
-
-    public boolean getCanClose() {
-        return (!isLocalOnly() && isOpened());
-    }
-
-    public boolean getCanDelete() {
-        if (isLocalOnly()) {
-            // any user can delete own local project
-            return true;
-        }
-
-        return (!isLocked() || isLockedByMe()) && isGranted(PRIVILEGE_DELETE);
-    }
-
-    public boolean getCanErase() {
-        return (isDeleted() && isGranted(PRIVILEGE_ERASE));
-    }
-
-    public boolean getCanExport() {
-        return getCanOpen();
-    }
-
-    public boolean getCanOpen() {
-        if (isLocalOnly() || isCheckedOut()) {
-            return false;
-        }
-
-        return isGranted(PRIVILEGE_READ);
-    }
-
-    public boolean getCanCompare() {
-        if (isLocalOnly()) {
-            return false;
-        }
-        return isGranted(PRIVILEGE_READ);
-    }
-
-    public boolean getCanRedeploy() {
-        if (isLocalOnly() || isCheckedOut()) {
-            return false;
-        }
-
-        return isGranted(PRIVILEGE_DEPLOY);
-    }
-
-    public boolean getCanUndelete() {
-        return (isDeleted() && isGranted(PRIVILEGE_EDIT));
+    
+    public AProject getProjectVersion(CommonVersion version) throws ProjectException{
+        return new AProject(getAPI().getVersion(version));
     }
 }

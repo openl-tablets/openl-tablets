@@ -19,9 +19,6 @@ import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 
-import static org.openl.rules.security.Privileges.*;
-import static org.openl.rules.security.AccessManager.isGranted;
-
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
     private ArtefactAPI impl;
     private AProject project;
@@ -201,10 +198,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         getAPI().commit(user, major, minor, getProject().getVersion().getRevision() + 1);
     }
     
-    public boolean getCanModify() {
-        return (getProject().isCheckedOut() && isGranted(PRIVILEGE_EDIT));
-    }
-
     public void refresh() {
         // TODO
     }
@@ -224,12 +217,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     public boolean isLockedByUser(CommonUser user) {
         if (isLocked()) {
             CommonUser lockedBy = getLockInfo().getLockedBy();
-            // FIXME
-            if (lockedBy.equals(user)) {
+            if (lockedBy.getUserName().equals(user.getUserName())) {
                 return true;
             }
         }
-
         return false;
     }
 

@@ -6,7 +6,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
@@ -27,12 +28,7 @@ public class TreeProject extends TreeFolder {
 
     private List<DependencyBean> dependencies;
 
-    protected static String generateComments(AProjectArtefact artefact) {
-        if (artefact == null || !(artefact instanceof AProject)) {
-            return null;
-        }
-
-        AProject userProject = (AProject) artefact;
+    protected static String generateComments(UserWorkspaceProject userProject) {
         if (userProject.isLocalOnly()) {
             return "Local";
         }
@@ -69,12 +65,7 @@ public class TreeProject extends TreeFolder {
 
     // ------ UI methods ------
 
-    protected static String generateStatus(AProjectArtefact artefact) {
-        if (artefact == null || !(artefact instanceof AProject)) {
-            return null;
-        }
-
-        AProject userProject = (AProject) artefact;
+    protected static String generateStatus(UserWorkspaceProject userProject) {
         if (userProject.isLocalOnly()) {
             return "Local";
         }
@@ -124,7 +115,7 @@ public class TreeProject extends TreeFolder {
     }
 
     public String getComments() {
-        return generateComments(getData());
+        return generateComments(getProject());
     }
 
     public Date getCreatedAt() {
@@ -168,7 +159,7 @@ public class TreeProject extends TreeFolder {
 
     @Override
     public String getIcon() {
-        AProject project = (AProject) getData();
+        RulesProject project = getProject();
 
         if (project.isLocalOnly()) {
             return UiConst.ICON_PROJECT_LOCAL;
@@ -198,12 +189,12 @@ public class TreeProject extends TreeFolder {
         }
     }
 
-    private AProject getProject() {
-        return (AProject) getData();
+    private RulesProject getProject() {
+        return (RulesProject) getData();
     }
 
     public String getStatus() {
-        return generateStatus(getData());
+        return generateStatus(getProject());
     }
 
     @Override

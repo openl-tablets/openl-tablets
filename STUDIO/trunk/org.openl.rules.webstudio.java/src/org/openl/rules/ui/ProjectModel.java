@@ -26,7 +26,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.ModulesCache;
-import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
@@ -121,7 +121,7 @@ public class ProjectModel {
         this.studio = studio;
     }    
 
-    public AProject getProject() {
+    public RulesProject getProject() {
         return studio.getCurrentProject();
     }
 
@@ -728,7 +728,7 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        AProject project = getProject();
+        RulesProject project = getProject();
 
         if (project != null) {
             return project.isCheckedOut() || project.isLocalOnly();

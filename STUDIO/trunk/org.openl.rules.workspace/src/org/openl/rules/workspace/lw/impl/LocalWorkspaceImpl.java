@@ -68,10 +68,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         File f = new File(location, name);
         f.mkdir();
 
-        AProject localProject = new AProject(new LocalFolderAPI(f, ap, this), user);
+        AProject localProject = new AProject(new LocalFolderAPI(f, ap, this));
 
         localProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
-        localProject.checkIn();
 
         // add project
         localProjects.put(name, localProject);
@@ -128,7 +127,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             String name = f.getName();
             ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
 
-            AProject lpi = new AProject(new LocalFolderAPI(f, ap, this), user);;
+            AProject lpi = new AProject(new LocalFolderAPI(f, ap, this));;
             localProjects.put(name, lpi);
         }
     }
@@ -164,7 +163,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             if (!localProjects.containsKey(name)) {
                 // new project detected
                 ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
-                AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this), user);;
+                AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this));;
 
                 // add it
                 localProjects.put(name, newlyDetected);
@@ -187,7 +186,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public void removeProject(String name) throws ProjectException {
         AProject project = getProject(name);
         notifyRemoved(project);
-        project.delete();
+        project.delete(user);
     }
 
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
@@ -198,7 +197,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         for (AProject lp : localProjects.values()) {
             if (!isLocalOnly(lp)) {
                 try {
-                    lp.checkIn();
+                    lp.checkIn(user);
                 } catch (ProjectException e) {
                     String msg = MsgHelper.format("Error saving local project ''{0}''!", lp.getName());
                     log.error(msg, e);

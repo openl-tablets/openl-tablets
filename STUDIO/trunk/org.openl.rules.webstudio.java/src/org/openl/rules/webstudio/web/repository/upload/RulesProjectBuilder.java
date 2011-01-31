@@ -7,6 +7,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -14,7 +15,7 @@ import java.io.InputStream;
 
 public class RulesProjectBuilder {
     private static final Log LOG = LogFactory.getLog(RulesProjectBuilder.class);
-    private final AProject project;
+    private final RulesProject project;
     
 
     public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
@@ -23,7 +24,7 @@ public class RulesProjectBuilder {
         project.checkOut();
     }
     
-    protected AProject getProject() {
+    protected RulesProject getProject() {
         return project;
     }
 
