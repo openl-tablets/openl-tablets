@@ -404,6 +404,14 @@ public class ShowTableBean {
         return "mainPage";
     }
 
+    public boolean beforeSaveAction() {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+
+        model.getHistoryManager().save(uri);
+
+        return updateSystemProperties();
+    }
+
     public void afterSaveAction(String newUri) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTableUri(newUri);

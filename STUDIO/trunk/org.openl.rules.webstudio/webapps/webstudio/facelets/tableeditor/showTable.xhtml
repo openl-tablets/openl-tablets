@@ -274,7 +274,7 @@
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
-            beforeSaveAction="#{showTableBean.updateSystemProperties}"
+            beforeSaveAction="#{showTableBean.beforeSaveAction}"
             afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
             onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
             excludeScripts="prototype">

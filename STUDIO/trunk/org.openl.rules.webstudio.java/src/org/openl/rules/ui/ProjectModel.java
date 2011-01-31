@@ -92,6 +92,10 @@ import org.openl.vm.trace.Tracer;
 
 public class ProjectModel {
 
+    //TODO Move to config
+    public static final String HISTORY_FOLDER_NAME = "openl_project_history";
+    public static final int HISTORY_COUNT = 10;
+
     /**
      * Compiled rules with errors. Representation of wrapper.
      */
@@ -116,6 +120,8 @@ public class ProjectModel {
     private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
 
     private DependencyRulesGraph dependencyGraph;
+
+    private ProjectHistoryManager historyManager;
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
@@ -834,6 +840,7 @@ public class ProjectModel {
         cacheTree(projectRoot);
 
         dependencyGraph = null;
+        historyManager = null;
     }
 
     private TableSyntaxNode[] getTableSyntaxNodes() {
@@ -910,10 +917,10 @@ public class ProjectModel {
             case RELOAD:
                 modulesCache.reset();                
             case SINGLE:
-                // clear the cache of dependency manager, as the project has been modified.
-                //
+                // Clear the cache of dependency manager, as the project has been modified.
                 studio.getDependencyManager()
-                .reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
+                    .reset(new Dependency(
+                            DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
                 break;                
         }
         setModuleInfo(moduleInfo, reloadType);
@@ -1196,6 +1203,47 @@ public class ProjectModel {
 
     public boolean tableBelongsToCurrentModule(String tableUri) {
         return getTable(tableUri) != null;
+    }
+
+    public File getSource(String tableUri) {
+        XlsSheetGridModel sheet = (XlsSheetGridModel) getGridTable(tableUri).getGrid();
+        File sourceFile = sheet.getSheetSource().getWorkbookSource().getSourceFile();
+        return sourceFile;
+    }
+
+    public List<File> getSources() {
+        List<File> sourceFiles = new ArrayList<File>();
+
+        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        if (workbookNodes != null) {
+            for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
+                File sourceFile = workbookSyntaxNode.getWorkbookSourceCodeModule().getSourceFile();
+                sourceFiles.add(sourceFile);
+            }
+        }
+
+        return sourceFiles;
+    }
+
+    public File getSourceByName(String fileName) {
+        List<File> sourceFiles = getSources();
+
+        for (File file : sourceFiles) {
+            if (file.getName().equals(fileName)) {
+                return file;
+            }
+        }
+
+        return null;
+    }
+
+    public ProjectHistoryManager getHistoryManager() {
+        if (historyManager == null) {
+            String storagePath = studio.getWorkspacePath() + File.separator + HISTORY_FOLDER_NAME
+                + File.separator + getProject().getName();
+            historyManager = new FileBasedProjectHistoryManager(this, storagePath);
+        }
+        return historyManager;
     }
 
 }

@@ -1,0 +1,43 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+
+        <h2>Revert Project Changes</h2>
+
+        <c:set var="versions" value="#{revertProjectChangesBean.versions}" />
+
+        <h:panelGroup rendered="#{not empty versions}">
+            <h:panelGrid>
+                <h:messages globalOnly="true" errorClass="error_box" infoClass="info_box"
+                    style="list-style: none; padding: 0px" />
+            </h:panelGrid>
+
+            <br />
+
+            <h:form>
+                <h:panelGrid columns="2">
+                    <h:outputText value="Modified" />
+                    <h:selectOneMenu value="#{revertProjectChangesBean.versionToRevert}">
+                        <f:selectItems value="#{versions}" />
+                    </h:selectOneMenu>
+                </h:panelGrid>
+
+                <br />
+
+                <h:commandButton value="Revert" action="#{revertProjectChangesBean.revert}" />
+            </h:form>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{empty versions}">
+            <h:panelGrid>
+                <p class="info_box">Project has no changes</p>
+            </h:panelGrid>
+        </h:panelGroup>
+
+    </ui:define>
+</ui:composition>
