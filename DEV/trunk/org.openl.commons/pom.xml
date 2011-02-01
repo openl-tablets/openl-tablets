@@ -31,6 +31,12 @@
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
