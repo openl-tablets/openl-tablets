@@ -34,7 +34,7 @@
           onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
           rendered="#{artefact.project.checkedOut}" title="Delete">
           <f:param name="element" value="#{el.name}" />
-          <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" />
+          <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
         </h:commandLink>
       </rich:column>
     </rich:columnGroup>

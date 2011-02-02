@@ -47,17 +47,17 @@
 
       <div id="iconbar">
         <a class="actionButton" href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/guide/html/5.7.4/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;" title="Help">
-          <h:graphicImage url="/webresource/images/help.png" styleClass="actionImage" />
+          <h:graphicImage url="/webresource/images/help.png" styleClass="actionImage" alt="Help" />
         </a>
 
         <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open Rules Editor">
-            <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" />
+            <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" alt="Open Rules Editor" />
         </h:commandLink>
 
         <c:if test="#{not hideLogout}">
         <a href="#{contextPath}/security_logout" class="actionButton"
           title="Log out" onclick="return confirm('Are you sure you want to Log out?')">
-          <h:graphicImage url="/webresource/images/logout.gif" styleClass="actionImage" />
+          <h:graphicImage url="/webresource/images/logout.gif" styleClass="actionImage" alt="Log out" />
         </a>
         </c:if>
       </div>

@@ -44,7 +44,7 @@
       <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
         onclick="if(!window.confirm('Are you sure you want to delete the descriptor?')) {return false;}" rendered="#{artefact.checkedOut}" title="Delete">
         <f:param name="key" value="#{item.name}" />
-        <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" />
+        <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
       </h:commandLink>
     </rich:column>
   </rich:dataTable>
