@@ -1,13 +1,16 @@
 package org.openl.rules.table.xls.formatters;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.util.BooleanUtils;
-import org.openl.util.Log;
 
 public class XlsBooleanFormatter extends AXlsFormatter{
     
+    private static final Log LOG = LogFactory.getLog(XlsBooleanFormatter.class);
+    
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
-            Log.error("Should be Boolean" + value);
+            LOG.error("Should be Boolean" + value);
             return null;
         }
         Boolean bool = (Boolean) value;
@@ -20,7 +23,7 @@ public class XlsBooleanFormatter extends AXlsFormatter{
         if (boolValue != null) {
             return boolValue;
         } else {
-            Log.warn("Could not parse Boolean: " + value);
+            LOG.warn("Could not parse Boolean: " + value);
             return value;
         }
     }

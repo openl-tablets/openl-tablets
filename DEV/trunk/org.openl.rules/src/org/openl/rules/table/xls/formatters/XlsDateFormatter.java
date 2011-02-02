@@ -7,14 +7,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.openl.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author snshor
  *
  */
 public class XlsDateFormatter extends AXlsFormatter {
-    
+
+    private static final Log LOG = LogFactory.getLog(XlsDateFormatter.class);
+
     public static String DEFAULT_JAVA_DATE_FORMAT = "MM/dd/yyyy";
     public static String DEFAULT_XLS_DATE_FORMAT = "m/d/yy";
     
@@ -37,7 +40,7 @@ public class XlsDateFormatter extends AXlsFormatter {
     
     public String format(Object value) {
         if (!(value instanceof Date)) {
-            Log.error("Should be date" + value);
+            LOG.error("Should be date" + value);
             return null;
         }
         Date date = (Date) value;
@@ -49,7 +52,7 @@ public class XlsDateFormatter extends AXlsFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            Log.warn("Could not parse Date: " + value, e);
+            LOG.warn("Could not parse Date: " + value, e);
             return value;
         }
     }

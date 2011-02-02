@@ -1,12 +1,16 @@
 package org.openl.rules.table.xls.formatters;
 
-//import org.openl.util.Log;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Andrei Astrouski
  *
  */
 public class XlsFormulaFormatter extends AXlsFormatter {
+
+    //private static final Log LOG = LogFactory.getLog(XlsFormulaFormatter.class);
+
     //private static final String FORMULA_PREFIX = "=";
     private AXlsFormatter formulaResultFormatter;
 
@@ -29,7 +33,7 @@ public class XlsFormulaFormatter extends AXlsFormatter {
     
     public Object parse(String value) {
         /*if (!value.startsWith(FORMULA_PREFIX)) {
-            Log.warn("Could not parse Formula: " + value);
+            LOG.warn("Could not parse Formula: " + value);
         }*/
         return value;
     }

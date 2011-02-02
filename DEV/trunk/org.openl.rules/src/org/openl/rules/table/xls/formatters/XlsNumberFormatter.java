@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.openl.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 import org.openl.util.formatters.ConstTextFormatter;
@@ -29,6 +30,8 @@ import org.openl.util.formatters.NumberTextFormatter;
  *
  */
 public class XlsNumberFormatter extends AXlsFormatter {
+
+    private static final Log LOG = LogFactory.getLog(XlsNumberFormatter.class);
 
     public static final String DEFAULT_FORMAT_STR = "0.00";
     public static final String GENERAL_FORMAT_STR = "#.######";
@@ -148,7 +151,7 @@ public class XlsNumberFormatter extends AXlsFormatter {
         try {
             decimalFormat.applyPattern(javaFormat);
         } catch (Throwable t) {
-            Log.warn("Bad java format. Using default. Consider custom mapping: '" + javaFormat + "'");
+            LOG.warn("Bad java format. Using default. Consider custom mapping: '" + javaFormat + "'");
             decimalFormat.applyPattern(DEFAULT_FORMAT_STR);
         }
 
@@ -227,7 +230,7 @@ public class XlsNumberFormatter extends AXlsFormatter {
 
     public String format(Object value, SegmentFormatter segmentFormatter) {
         if (!(value instanceof Number)) {
-            Log.error("Should be Number " + value);
+            LOG.error("Should be Number " + value);
             return null;
         }
         Number number = (Number) value;
