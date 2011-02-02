@@ -15,14 +15,14 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.xls.formatters.SegmentFormatter;
 import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
-import org.openl.rules.table.xls.formatters.BooleanFormatter;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.xls.formatters.EnumFormatter;
 import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 import org.openl.rules.table.xls.formatters.XlsFormulaFormatter;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.types.IOpenClass;
+import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DefaultFormatter;
+import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
 /**

@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.util.Calendar;
 
 import org.junit.Test;
+import org.openl.util.formatters.BooleanFormatter;
+import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.FormatterAdapter;
 import org.openl.util.formatters.IFormatter;
 

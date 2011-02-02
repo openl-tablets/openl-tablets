@@ -1,10 +1,9 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.util.formatters;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.EnumUtils;
-import org.openl.util.formatters.IFormatter;
 
 public class EnumFormatter implements IFormatter {
 

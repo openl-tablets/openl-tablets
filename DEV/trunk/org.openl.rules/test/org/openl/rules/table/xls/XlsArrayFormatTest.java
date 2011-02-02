@@ -3,8 +3,8 @@ package org.openl.rules.table.xls;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
-import org.openl.rules.table.xls.formatters.EnumFormatter;
 import org.openl.util.formatters.DefaultFormatter;
+import org.openl.util.formatters.EnumFormatter;
 
 public class XlsArrayFormatTest {
     

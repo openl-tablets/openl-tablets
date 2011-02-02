@@ -14,7 +14,7 @@ import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
-import org.openl.util.formatters.NumberTextFormatter;
+import org.openl.util.formatters.NumberFormatter;
 
 /**
  * This class provides default conversion of MS Excel formats to Java formats.
@@ -64,7 +64,7 @@ public class XlsNumberFormatter extends AXlsFormatter {
         DecimalFormat format = getLocaleDecimalFormat(locale);
         format.applyPattern(GENERAL_FORMAT_STR);
         return new XlsNumberFormatter(new SegmentFormatter(
-                new NumberTextFormatter(format), null), null, null);
+                new NumberFormatter(format), null), null, null);
     }
 
     public static XlsNumberFormatter getGeneralFormatter() {
@@ -155,7 +155,7 @@ public class XlsNumberFormatter extends AXlsFormatter {
             decimalFormat.applyPattern(DEFAULT_FORMAT_STR);
         }
 
-        IFormatter textFormatter = new NumberTextFormatter(decimalFormat);
+        IFormatter textFormatter = new NumberFormatter(decimalFormat);
         segmentFormatter.setFormatter(textFormatter);
 
         return segmentFormatter;

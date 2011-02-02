@@ -8,19 +8,19 @@ import java.util.Locale;
 
 import org.openl.util.Log;
 
-public class NumberTextFormatter implements IFormatter {
+public class NumberFormatter implements IFormatter {
 
     private DecimalFormat format;    
 
-    public NumberTextFormatter(DecimalFormat fmt) {
+    public NumberFormatter(DecimalFormat fmt) {
         format = fmt;        
     }
 
-    public NumberTextFormatter(String fmt) {
+    public NumberFormatter(String fmt) {
         format = new DecimalFormat(fmt);
     }
 
-    public NumberTextFormatter(String fmt, Locale locale) {
+    public NumberFormatter(String fmt, Locale locale) {
         format = new DecimalFormat(fmt, new DecimalFormatSymbols(locale));
     }
 
