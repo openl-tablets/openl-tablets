@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.util.ArrayTool;
-import org.openl.util.Log;
 import org.openl.util.StringTool;
 
 /**
@@ -23,6 +24,8 @@ import org.openl.util.StringTool;
  * 
  */
 public class XlsArrayFormatter extends AXlsFormatter {
+
+    private static final Log LOG = LogFactory.getLog(XlsArrayFormatter.class);
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It
@@ -62,7 +65,7 @@ public class XlsArrayFormatter extends AXlsFormatter {
         String result = null;
         if (value != null) {
             if (!(value.getClass().isArray())) {
-                Log.error(String.format("Should be an array: %s", value.toString()));
+                LOG.error(String.format("Should be an array: %s", value.toString()));
                 return result;
             }
             
