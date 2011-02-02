@@ -1,9 +1,8 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.util.formatters;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.BooleanUtils;
-import org.openl.util.formatters.IFormatter;
 
 public class BooleanFormatter implements IFormatter {
 

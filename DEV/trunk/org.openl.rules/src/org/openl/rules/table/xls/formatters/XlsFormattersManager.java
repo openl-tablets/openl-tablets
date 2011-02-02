@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DefaultFormatter;
+import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
 /**
