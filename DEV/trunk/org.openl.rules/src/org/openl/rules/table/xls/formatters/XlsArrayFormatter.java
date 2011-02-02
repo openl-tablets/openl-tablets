@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.ArrayTool;
 import org.openl.util.StringTool;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * 
@@ -41,12 +42,12 @@ public class XlsArrayFormatter extends AXlsFormatter {
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private AXlsFormatter elementFormat;
+    private IFormatter elementFormat;
 
     /**
      * @param elementFormat formatter for the component type of array.
      */
-    public XlsArrayFormatter(AXlsFormatter elementFormat) {
+    public XlsArrayFormatter(IFormatter elementFormat) {
         this.elementFormat = elementFormat;
     }
 
