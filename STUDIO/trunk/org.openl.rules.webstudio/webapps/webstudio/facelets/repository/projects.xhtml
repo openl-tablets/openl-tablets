@@ -55,7 +55,7 @@
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true"
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
-              <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" />
+              <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
               &#160;
@@ -64,7 +64,7 @@
                   onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}"
                   title="Delete">
                   <f:param name="projectName" value="#{prj.name}" />
-                  <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" />
+                  <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" alt="Delete"/>
               </h:commandLink>
           </h:panelGroup>
         </h:panelGroup>
