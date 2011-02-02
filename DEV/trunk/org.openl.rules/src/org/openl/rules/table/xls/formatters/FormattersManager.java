@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls.formatters;
 
+import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.FormatterAdapter;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.print.DefaultFormat;
@@ -29,7 +30,7 @@ public class FormattersManager {
         if (value != null) {
             Class<?> clazz = value.getClass();
             formatter = XlsFormattersManager.getFormatter(clazz);
-            if (formatter instanceof XlsStringFormatter) { // this is formatter used by default, we don`t like it, 
+            if (formatter instanceof DefaultFormatter) { // this is formatter used by default, we don`t like it, 
                                                             // so we try to format the value by other way.
                 formatter = new FormatterAdapter();
             }
