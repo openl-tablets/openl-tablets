@@ -1,5 +1,7 @@
 package org.openl.rules.table.xls.formatters;
 
+import org.openl.util.formatters.IFormatter;
+
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
 
@@ -12,12 +14,12 @@ public class XlsFormulaFormatter extends AXlsFormatter {
     //private static final Log LOG = LogFactory.getLog(XlsFormulaFormatter.class);
 
     //private static final String FORMULA_PREFIX = "=";
-    private AXlsFormatter formulaResultFormatter;
+    private IFormatter formulaResultFormatter;
 
     public XlsFormulaFormatter() {
     }
 
-    public XlsFormulaFormatter(AXlsFormatter formulaResultFormatter) {
+    public XlsFormulaFormatter(IFormatter formulaResultFormatter) {
         if (formulaResultFormatter instanceof XlsFormulaFormatter) {
             throw new IllegalArgumentException();
         }

@@ -13,7 +13,6 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ui.IGridSelector;
-import org.openl.rules.table.xls.formatters.AXlsFormatter;
 import org.openl.rules.table.xls.formatters.SegmentFormatter;
 import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
 import org.openl.rules.table.xls.formatters.XlsBooleanFormatter;
@@ -74,7 +73,7 @@ public class SimpleFormatFilter implements IGridFilter {
 
     // TODO Move to factory class
     private IFormatter getCellFormatter(ICell cell) {
-        AXlsFormatter formatter = null;
+        IFormatter formatter = null;
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
         if (dataType != null) {
@@ -84,7 +83,7 @@ public class SimpleFormatFilter implements IGridFilter {
 //            if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
 //                || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
                 String format = cell.getStyle().getTextFormat();
-                AXlsFormatter numberFormatter = findXlsNumberFormatter(format);
+                IFormatter numberFormatter = findXlsNumberFormatter(format);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new XlsArrayFormatter(numberFormatter);
@@ -100,7 +99,7 @@ public class SimpleFormatFilter implements IGridFilter {
                 formatter = new XlsBooleanFormatter();
             // Enum
             } else if (instanceClass.isEnum()) {
-                AXlsFormatter enumFormatter = new XlsEnumFormatter(instanceClass);
+                IFormatter enumFormatter = new XlsEnumFormatter(instanceClass);
                 // Enum Array
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new XlsArrayFormatter(enumFormatter);
