@@ -18,56 +18,104 @@
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>
-
+  
+	<c:set var="deleteMessage" value="Removes the project from user's workspace and markes as deleted in design time repository" />
+	<c:set var="addFolderMessage" value="Adds a folder" />
+	<c:set var="uploadFileMessage" value="Upload a file" />
+	<c:set var="openMessage" value="Open the project. Copy it to user's workspace and becomes available for selection in rule editor" />
+    <c:set var="openVersionMessage" value="Open the specified project version. Copy it to user's workspace and becomes available for selection in rule editor" />
+    <c:set var="closeMessage" value="Deletes the project from user's workspace" />
+    <c:set var="checkOutMessage" value="Copy the project to user's workspace and makes is available for selection in rule editor. Only checked out projects can be modified" />
+	
   <h:panelGroup rendered="#{node.type == 'file'}">
-    <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Update" onclick="#{repositoryTreeState.canModify} &amp;&amp; openUpdateFileDialog();return false;" />
-      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+    <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
+      <h:commandButton id="updateId" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Update" onclick="#{repositoryTreeState.canModify} &amp;&amp; openUpdateFileDialog();return false;" />
+      <rich:toolTip for="updateId" showDelay="500">Updates the file</rich:toolTip>
+      
+      <h:commandButton id="deleteFileId" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+      <rich:toolTip for="deleteFileId" showDelay="500">Deletes the file</rich:toolTip>
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'folder'}">
-    <h:panelGrid columns="3" cellpadding="4" cellspacing="0">
-      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Add Folder" onclick="#{repositoryTreeState.canModify} &amp;&amp; openNewFolderDialog();return false;" />
-      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Upload File" onclick="#{repositoryTreeState.canModify} &amp;&amp; openNewFileDialog();return false;" />
-      <h:commandButton styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+    <h:panelGrid columns="6" cellpadding="4" cellspacing="0">
+      <h:commandButton id="addFolder1" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Add Folder" onclick="#{repositoryTreeState.canModify} &amp;&amp; openNewFolderDialog();return false;" />
+      <rich:toolTip for="addFolder1" showDelay="500"><h:outputText value="#{addFolderMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="uploadFile1" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Upload File" onclick="#{repositoryTreeState.canModify} &amp;&amp; openNewFileDialog();return false;" />
+      <rich:toolTip for="uploadFile1" showDelay="500"><h:outputText value="#{uploadFileMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="deleteFolderId" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+      <rich:toolTip for="deleteFolderId" showDelay="500">Deletes the folder</rich:toolTip>
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'project'}">
     <h:panelGroup rendered="#{artefact.deleted}">
-      <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-        <h:commandButton styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
-        <h:commandButton styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
+      <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
+        <h:commandButton id="undeleteId" styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
+        <rich:toolTip for="undeleteId" showDelay="500">Revert deleting</rich:toolTip>
+        
+        <h:commandButton id="eraseId" styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
+        <rich:toolTip for="eraseId" showDelay="500">Permanently removes project from design time repository</rich:toolTip>
       </h:panelGrid>
     </h:panelGroup>
     
     <h:panelGroup rendered="#{!artefact.deleted}">
-      <h:panelGrid columns="6" cellpadding="4" cellspacing="0">
-        <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
-          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{repositoryTreeState.canOpen};"/>
-          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
-          <h:commandButton styleClass="#{repositoryTreeState.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{repositoryTreeState.canClose};"/>
-          <h:commandButton styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{repositoryTreeState.canCheckOut};"/>
+      <h:panelGrid columns="12" cellpadding="4" cellspacing="0">
+        <h:panelGrid columns="8" cellpadding="4" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
+          <h:commandButton id="openId1" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{repositoryTreeState.canOpen};"/>
+          <rich:toolTip for="openId1" showDelay="500"><h:outputText value="#{openMessage}" /></rich:toolTip>
+                    
+          <h:commandButton id="openVersionId1" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
+          <rich:toolTip for="openVersionId1" showDelay="500"><h:outputText value="#{openVersionMessage}" /></rich:toolTip>
+          
+          <h:commandButton id="closeId1" styleClass="#{repositoryTreeState.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{repositoryTreeState.canClose};"/>
+          <rich:toolTip for="closeId1" showDelay="500"><h:outputText value="#{closeMessage}" /></rich:toolTip>
+          
+          <h:commandButton id="checkOutId1" styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{repositoryTreeState.canCheckOut};"/>
+          <rich:toolTip for="checkOutId1" showDelay="500"><h:outputText value="#{checkOutMessage}" /></rich:toolTip>
         </h:panelGrid>
 
-        <h:panelGrid columns="4" cellpadding="4" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
-          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalOpenProject')}.show();return false;"/>
-          <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
-          <h:commandButton styleClass="#{repositoryTreeState.canClose ? 'button':'disabledButton'}" value="Close" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalCloseProject')}.show();return false;"/>
-          <h:commandButton styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" onclick="#{repositoryTreeState.canCheckOut} &amp;&amp; #{rich:component('modalCheckOutProject')}.show();return false;"/>
+        <h:panelGrid columns="8" cellpadding="4" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
+          <h:commandButton id="openId2" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalOpenProject')}.show();return false;"/>
+          <rich:toolTip for="openId2" showDelay="500"><h:outputText value="#{openMessage}" /></rich:toolTip>   
+              
+          <h:commandButton id="openVersionId2" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
+          <rich:toolTip for="openVersionId2" showDelay="500"><h:outputText value="#{openVersionMessage}" /></rich:toolTip>
+          
+          <h:commandButton id="closeId2" styleClass="#{repositoryTreeState.canClose ? 'button':'disabledButton'}" value="Close" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalCloseProject')}.show();return false;"/>
+          <rich:toolTip for="closeId2" showDelay="500"><h:outputText value="#{closeMessage}" /></rich:toolTip>
+          
+          <h:commandButton id="checkOutId2" styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" onclick="#{repositoryTreeState.canCheckOut} &amp;&amp; #{rich:component('modalCheckOutProject')}.show();return false;"/>
+          <rich:toolTip for="checkOutId2" showDelay="500"><h:outputText value="#{checkOutMessage}" /></rich:toolTip>
         </h:panelGrid>
 
-        <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();return false;" />
-        <h:commandButton styleClass="button" value="Copy" onclick="openCopyProjectDialog();return false;" />
-        <h:commandButton styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
-        <h:commandButton styleClass="#{repositoryTreeState.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" onclick="#{repositoryTreeState.canRedeploy} &amp;&amp; openSmartRedeployDialog();return false;" />
-        <h:commandButton styleClass="#{repositoryTreeState.canCompare ? 'button':'disabledButton'}" value="Compare" onclick="#{repositoryTreeState.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;" />
+        <h:commandButton id="checkInId" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();return false;" />
+        <rich:toolTip for="checkInId" showDelay="500">Copy the project from the user's workspace to design time repository as a new version</rich:toolTip>
+        
+        <h:commandButton id="copyId" styleClass="button" value="Copy" onclick="openCopyProjectDialog();return false;" />
+        <rich:toolTip for="copyId" showDelay="500">Creates a new project with identical contents and a different name in design time repository</rich:toolTip>
+        
+        <h:commandButton id="deleteId2" styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
+        <rich:toolTip for="deleteId2" showDelay="500"><h:outputText value="#{deleteMessage}" /></rich:toolTip>
+        
+        <h:commandButton id="redeployId" styleClass="#{repositoryTreeState.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" onclick="#{repositoryTreeState.canRedeploy} &amp;&amp; openSmartRedeployDialog();return false;" />
+        <rich:toolTip for="redeployId" showDelay="500">Redeploy the deployment</rich:toolTip>
+        
+        <h:commandButton id="compareId" styleClass="#{repositoryTreeState.canCompare ? 'button':'disabledButton'}" value="Compare" onclick="#{repositoryTreeState.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;" />
+        <rich:toolTip for="compareId" showDelay="500">Compare files and sheets in Excel files between two project versions</rich:toolTip>
       </h:panelGrid>
-      <h:panelGrid columns="3" cellpadding="4" cellspacing="0">
-        <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();return false;" />
-        <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Upload File" onclick="#{artefact.checkedOut} &amp;&amp; openNewFileDialog();return false;" />
-        <h:commandButton styleClass="#{repositoryTreeState.canExport ? 'button':'disabledButton'}" value="Export Version" onclick="#{repositoryTreeState.canExport} &amp;&amp; openExportVersionDialog();return false;" />
+      
+      <h:panelGrid columns="6" cellpadding="4" cellspacing="0">
+        <h:commandButton id="addFolder2" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();return false;" />
+        <rich:toolTip for="addFolder2" showDelay="500"><h:outputText value="#{addFolderMessage}" /></rich:toolTip>
+        
+        <h:commandButton id="uploadFile2" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Upload File" onclick="#{artefact.checkedOut} &amp;&amp; openNewFileDialog();return false;" />
+        <rich:toolTip for="uploadFile2" showDelay="500"><h:outputText value="#{uploadFileMessage}" /></rich:toolTip>
+        
+        <h:commandButton id="exportVersionId" styleClass="#{repositoryTreeState.canExport ? 'button':'disabledButton'}" value="Export Version" onclick="#{repositoryTreeState.canExport} &amp;&amp; openExportVersionDialog();return false;" />
+        <rich:toolTip for="exportVersionId" showDelay="500">Download project as zip archive</rich:toolTip>
       </h:panelGrid>
 
     </h:panelGroup>
