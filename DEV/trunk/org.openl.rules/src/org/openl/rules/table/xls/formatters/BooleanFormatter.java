@@ -3,11 +3,12 @@ package org.openl.rules.table.xls.formatters;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.BooleanUtils;
+import org.openl.util.formatters.IFormatter;
 
-public class XlsBooleanFormatter extends AXlsFormatter{
-    
-    private static final Log LOG = LogFactory.getLog(XlsBooleanFormatter.class);
-    
+public class BooleanFormatter implements IFormatter {
+
+    private static final Log LOG = LogFactory.getLog(BooleanFormatter.class);
+
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
             LOG.error("Should be Boolean" + value);
@@ -24,7 +25,7 @@ public class XlsBooleanFormatter extends AXlsFormatter{
             return boolValue;
         } else {
             LOG.warn("Could not parse Boolean: " + value);
-            return value;
+            return null;
         }
     }
     

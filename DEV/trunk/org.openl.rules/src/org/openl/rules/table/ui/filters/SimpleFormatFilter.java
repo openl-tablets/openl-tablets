@@ -15,14 +15,14 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.xls.formatters.SegmentFormatter;
 import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
-import org.openl.rules.table.xls.formatters.XlsBooleanFormatter;
+import org.openl.rules.table.xls.formatters.BooleanFormatter;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.xls.formatters.XlsEnumFormatter;
+import org.openl.rules.table.xls.formatters.EnumFormatter;
 import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 import org.openl.rules.table.xls.formatters.XlsFormulaFormatter;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
-import org.openl.rules.table.xls.formatters.XlsStringFormatter;
 import org.openl.types.IOpenClass;
+import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 
 /**
@@ -96,10 +96,10 @@ public class SimpleFormatFilter implements IGridFilter {
                 formatter = findXlsDateFormatter(format);
             // Boolean
             } else if (instanceClass == boolean.class || instanceClass == Boolean.class) {
-                formatter = new XlsBooleanFormatter();
+                formatter = new BooleanFormatter();
             // Enum
             } else if (instanceClass.isEnum()) {
-                IFormatter enumFormatter = new XlsEnumFormatter(instanceClass);
+                IFormatter enumFormatter = new EnumFormatter(instanceClass);
                 // Enum Array
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new XlsArrayFormatter(enumFormatter);
@@ -107,7 +107,7 @@ public class SimpleFormatFilter implements IGridFilter {
                     formatter = enumFormatter;
                 }
             } else {
-                formatter = new XlsStringFormatter();
+                formatter = new DefaultFormatter();
             }
             // Formula
             if (cell.getFormula() != null) {

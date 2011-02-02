@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.util.formatters.DefaultFormatter;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * Manager of xls formatters. Use it only in org.openl.rules project.
@@ -13,10 +15,11 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class XlsFormattersManager {
-private static HashMap<Class<?>, AXlsFormatter> formatters;
 
-    static {        
-        formatters = new HashMap<Class<?>, AXlsFormatter>();
+    private static HashMap<Class<?>, IFormatter> formatters;
+
+    static {
+        formatters = new HashMap<Class<?>, IFormatter>();
 
         XlsNumberFormatter generelNumberFormatter = XlsNumberFormatter.getGeneralFormatter(Locale.US);
 
@@ -24,9 +27,9 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
         formatters.put(Integer.class, generelNumberFormatter);
         formatters.put(Float.class, generelNumberFormatter);
         formatters.put(Double.class, generelNumberFormatter);
-        formatters.put(Boolean.class, new XlsBooleanFormatter());
+        formatters.put(Boolean.class, new BooleanFormatter());
         formatters.put(Date.class, new XlsDateFormatter(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
-        formatters.put(String.class, new XlsStringFormatter());
+        formatters.put(String.class, new DefaultFormatter());
     }
     
     /**
@@ -34,10 +37,10 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
      * it will be returned {@link XlsStringFormatter} as default.<br>
      * Existing formatters:<ul>
      *      <li>{@link XlsNumberFormatter} for {@link Integer}, {@link Double}, {@link Short}, {@link Float} types.</li>
-     *      <li>{@link XlsBooleanFormatter} for {@link Boolean} type.</li>
+     *      <li>{@link BooleanFormatter} for {@link Boolean} type.</li>
      *      <li>{@link XlsDateFormatter} for {@link Date} type.</li>
      *      <li>{@link XlsStringFormatter} for {@link String} type.</li>
-     *      <li>{@link XlsEnumFormatter} for Enum types.</li>
+     *      <li>{@link EnumFormatter} for Enum types.</li>
      *      <li>{@link XlsArrayFormatter} for array types, also supports primitive arrays.</li>
      * </ul>
      * 
@@ -46,8 +49,8 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
      * {@link XlsDateFormatter#DEFAULT_XLS_DATE_FORMAT}.
      * @return formatter for a type.
      */
-    public static AXlsFormatter getFormatter(Class<?> clazz, String format) {
-        AXlsFormatter formatter = formatters.get(clazz);
+    public static IFormatter getFormatter(Class<?> clazz, String format) {
+        IFormatter formatter = formatters.get(clazz);
         
         if (formatter != null) {
             // apply users format for date formatter instead of default one from initialization.
@@ -56,22 +59,22 @@ private static HashMap<Class<?>, AXlsFormatter> formatters;
             }
         } else {            
             if (clazz.isEnum()) {
-                formatter = new XlsEnumFormatter(clazz);
+                formatter = new EnumFormatter(clazz);
             } else  if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
-                AXlsFormatter componentFormatter = getFormatter(componentType, null);
-                formatter = new XlsArrayFormatter((AXlsFormatter) componentFormatter);
+                IFormatter componentFormatter = getFormatter(componentType, null);
+                formatter = new XlsArrayFormatter(componentFormatter);
             }
         }
-        
+
         // if formatter wasn`t found use XlsStringFormat as default.
         if (formatter == null) {            
-            formatter = new XlsStringFormatter();
+            formatter = new DefaultFormatter();
         }
         return formatter;
     }
 
-    public static AXlsFormatter getFormatter(Class<?> clazz) {
+    public static IFormatter getFormatter(Class<?> clazz) {
         return getFormatter(clazz, null);
     }
 

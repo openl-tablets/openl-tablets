@@ -44,7 +44,7 @@ public class FormattersManagerTest {
     @Test
     public void testBoolean() {
         IFormatter formatter = FormattersManager.getFormatter(Boolean.TRUE);
-        assertTrue(formatter instanceof XlsBooleanFormatter);
+        assertTrue(formatter instanceof BooleanFormatter);
     }
     
     @Test
@@ -57,6 +57,6 @@ public class FormattersManagerTest {
     @Test
     public void testEnums() {        
         IFormatter formatter = FormattersManager.getFormatter(TestValues.FIRST_VALUE);
-        assertTrue(formatter instanceof XlsEnumFormatter);
+        assertTrue(formatter instanceof EnumFormatter);
     }
 }

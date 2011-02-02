@@ -12,7 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
-import org.openl.util.formatters.ConstTextFormatter;
+import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberTextFormatter;
 
@@ -141,7 +141,7 @@ public class XlsNumberFormatter extends AXlsFormatter {
         }
 
         if (javaFormat.indexOf('#') < 0 && javaFormat.indexOf('0') < 0) {
-            IFormatter textFormatter = new ConstTextFormatter();
+            IFormatter textFormatter = new DefaultFormatter();
             segmentFormatter.setFormatter(textFormatter);
             return segmentFormatter;
 

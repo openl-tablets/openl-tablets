@@ -3,16 +3,16 @@ package org.openl.rules.table.xls.formatters;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.table.FormattedCell;
 import org.openl.util.EnumUtils;
+import org.openl.util.formatters.IFormatter;
 
-public class XlsEnumFormatter extends AXlsFormatter {
+public class EnumFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(XlsEnumFormatter.class);
+    private static final Log LOG = LogFactory.getLog(EnumFormatter.class);
 
     private Class<?> enumClass;
     
-    public XlsEnumFormatter(Class<?> enumType) {
+    public EnumFormatter(Class<?> enumType) {
         this.enumClass = enumType;
     }
     
@@ -32,7 +32,4 @@ public class XlsEnumFormatter extends AXlsFormatter {
         return EnumUtils.valueOf(enumClass, value);
     }
 
-    public FormattedCell filterFormat(FormattedCell cell) {
-        return cell;
-    }
 }

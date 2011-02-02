@@ -1,10 +1,8 @@
 package org.openl.util.formatters;
 
+public class DefaultFormatter implements IFormatter {
 
-
-public class ConstTextFormatter implements IFormatter {
-
-    public ConstTextFormatter() {        
+    public DefaultFormatter() {        
     }
 
     public String format(Object obj) {
