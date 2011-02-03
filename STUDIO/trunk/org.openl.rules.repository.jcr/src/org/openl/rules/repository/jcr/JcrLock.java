@@ -80,7 +80,7 @@ public class JcrLock implements RLock {
         }
     }
 
-    protected void lock(CommonUser user) throws RRepositoryException {
+    public void lock(CommonUser user) throws RRepositoryException {
         try {
             if (lockNode == null) {
                 createLockNode();
@@ -104,7 +104,7 @@ public class JcrLock implements RLock {
         }
     }
 
-    protected void unlock(CommonUser user) throws RRepositoryException {
+    public void unlock(CommonUser user) throws RRepositoryException {
         try {
             if (lockNode == null || !lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY)) {
                 // no locks

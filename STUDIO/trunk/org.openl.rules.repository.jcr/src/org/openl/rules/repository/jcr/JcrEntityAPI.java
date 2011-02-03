@@ -50,8 +50,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private Map<String, org.openl.rules.common.Property> properties;
     private Map<String, Object> props;
 
-    private JcrLock lock;
-
     private JcrVersion version;
     private ArtefactPath path;
 
@@ -60,11 +58,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     public JcrEntityAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
         super(node, path.segment(path.segmentCount() - 1), oldVersion);
         this.path = path;
-        if (oldVersion) {
-            lock = null;
-        } else {
-            lock = new JcrLock(node);
-        }
         version = new JcrVersion(node);
 
         properties = new HashMap<String, org.openl.rules.common.Property>();
@@ -250,11 +243,14 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     }
 
     public RLock getLock() throws RRepositoryException {
-        // FIXME
-        if (lock == null) {
+        if (isOldVersion()) {
             return RLock.NO_LOCK;
         } else {
-            return lock;
+            try {
+                return new JcrLock(node());
+            } catch (RepositoryException e) {
+                throw new RRepositoryException("Failed to get lock.", e);
+            }
         }
     }
 
@@ -264,7 +260,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     public void lock(CommonUser user) throws ProjectException {
         try {
-            lock.lock(user);
+            getLock().lock(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("", e);
         }
@@ -272,7 +268,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     public void unlock(CommonUser user) throws ProjectException {
         try {
-            lock.unlock(user);
+            getLock().unlock(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("", e);
         }

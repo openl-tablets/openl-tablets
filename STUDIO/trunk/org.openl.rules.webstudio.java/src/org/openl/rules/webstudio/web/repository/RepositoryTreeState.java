@@ -185,7 +185,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void refreshNode(AbstractTreeNode node){
         node.refresh();
-        if (!node.isLeaf()) {
+        if (node.getData().isFolder()) {
             node.removeChildren();
             TreeFolder folder = (TreeFolder) node;
             traverseFolder(folder, ((AProjectFolder) folder.getData()).getArtefacts(), filter);
@@ -302,19 +302,25 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
-        AbstractTreeNode rulesProject = getRulesRepository().getChild(event.getProjectName());
-        if(rulesProject == null){
-            if(userWorkspace.getDesignTimeRepository().hasProject(event.getProjectName())){
+        String projectName = event.getProjectName();
+        AbstractTreeNode rulesProject = getRulesRepository().getChild(projectName);
+        if (rulesProject == null) {
+            if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
                 try {
-                    addRulesProjectToTree(userWorkspace.getProject(event.getProjectName()));
+                    addRulesProjectToTree(userWorkspace.getProject(projectName));
                 } catch (ProjectException e) {
                     LOG.error("Failed to add new project to the repository tree.", e);
                 }
             }
-        }else if (!userWorkspace.getDesignTimeRepository().hasProject(event.getProjectName())){
+        } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
             deleteNode(rulesProject);
-        }else{
-            refreshNode(rulesProject);
+        } else {
+            try {
+                rulesProject.setData(userWorkspace.getProject(projectName));
+                refreshNode(rulesProject);
+            } catch (ProjectException e) {
+                LOG.error(String.format("Failed to refresh project \"%s\" in the repository tree.", projectName), e);
+            }
         }
     }
 
@@ -328,10 +334,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                     LOG.error("Failed to add new project to the repository tree.", e);
                 }
             }
-        }else if (!userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
-            deleteNode(deploymentProject);
         }else{
-            refreshNode(deploymentProject);
+            if (!userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
+                deleteNode(deploymentProject);
+            } else {
+                refreshNode(deploymentProject);
+            }
         }
     }
     

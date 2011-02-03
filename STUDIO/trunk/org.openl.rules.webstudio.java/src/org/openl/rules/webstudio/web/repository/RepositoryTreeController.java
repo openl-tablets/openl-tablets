@@ -1083,7 +1083,6 @@ public class RepositoryTreeController {
         }
 
         if (errorMessage == null) {
-            repositoryTreeState.invalidateTree();
             clearUploadedFiles();
         } else {
             FacesUtils.addErrorMessage(errorMessage);
