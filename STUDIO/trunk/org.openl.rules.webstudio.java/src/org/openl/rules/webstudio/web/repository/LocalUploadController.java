@@ -56,10 +56,6 @@ public class LocalUploadController {
         }
 
         rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName());
-        RepositoryTreeState treeState = (RepositoryTreeState) FacesUtils.getSessionParam("repositoryTreeState");
-        if (treeState != null) {// repository tree have been initialized
-            treeState.invalidateTree();
-        }
     }
 
     public List<UploadBean> getProjects4Upload() {

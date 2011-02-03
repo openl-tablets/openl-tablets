@@ -210,8 +210,6 @@ public class SmartRedeployController {
                 if (!workspace.hasDDProject(deploymentName)) {
                     // create if absent
                     workspace.createDDProject(deploymentName);
-                    //FIXME
-                    repositoryTreeState.invalidateTree();
                 }
             }
 
