@@ -76,7 +76,7 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public void delete() throws ProjectException {
-        erase(user);
+        delete(user);
     }
 
     public void erase() throws ProjectException {
