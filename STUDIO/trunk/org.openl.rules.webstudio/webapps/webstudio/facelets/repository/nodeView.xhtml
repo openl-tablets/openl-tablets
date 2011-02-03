@@ -7,9 +7,12 @@
   xmlns:c="http://java.sun.com/jstl/core">
 
   <h:panelGroup rendered="#{node.type == 'repository'}">
-    <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-      <h:commandButton styleClass="button" value="Create New Project" onclick="openNewProjectDialog();return false;" />
-      <h:commandButton styleClass="button" value="Upload Project" onclick="openUploadProjectDialog();return false;" />
+    <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
+      <h:commandButton id="createId" styleClass="button" value="Create New Project" onclick="openNewProjectDialog();return false;" />
+      <rich:toolTip for="createId" showDelay="500">Creates new projects in design time repository by creating folders and uploading files</rich:toolTip>
+      
+      <h:commandButton id="uploadId" styleClass="button" value="Upload Project" onclick="openUploadProjectDialog();return false;" />
+      <rich:toolTip for="uploadId" showDelay="500">Uploads rule projects archived in a ZIP file to design time repository</rich:toolTip>
     </h:panelGrid>
 
     <rich:tabPanel style="height:500px;">
@@ -22,10 +25,14 @@
 	<c:set var="deleteMessage" value="Removes the project from user's workspace and markes as deleted in design time repository" />
 	<c:set var="addFolderMessage" value="Adds a folder" />
 	<c:set var="uploadFileMessage" value="Upload a file" />
-	<c:set var="openMessage" value="Open the project. Copy it to user's workspace and becomes available for selection in rule editor" />
-    <c:set var="openVersionMessage" value="Open the specified project version. Copy it to user's workspace and becomes available for selection in rule editor" />
-    <c:set var="closeMessage" value="Deletes the project from user's workspace" />
-    <c:set var="checkOutMessage" value="Copy the project to user's workspace and makes is available for selection in rule editor. Only checked out projects can be modified" />
+	<c:set var="undeleteMessage" value="Revert deleting" />
+	<c:set var="eraseMessage" value="Permanently removes project from design time repository" />
+	<c:set var="openMessage" value="Open the project. Makes it available for selection in rule editor" />
+    <c:set var="openVersionMessage" value="Open the specified project version. Makes it available for selection in rule editor" />
+    <c:set var="closeMessage" value="Closes opened project" />
+    <c:set var="checkOutMessage" value="Makes it available for selection and editiong in rules editor" />
+    <c:set var="checkInMessage" value="Copy the project from the user's workspace to design time repository as a new version" />
+    <c:set var="copyMessage" value="Creates a new project with identical contents and a different name in design time repository" />
 	
   <h:panelGroup rendered="#{node.type == 'file'}">
     <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
@@ -53,11 +60,11 @@
   <h:panelGroup rendered="#{node.type == 'project'}">
     <h:panelGroup rendered="#{artefact.deleted}">
       <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
-        <h:commandButton id="undeleteId" styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
-        <rich:toolTip for="undeleteId" showDelay="500">Revert deleting</rich:toolTip>
+        <h:commandButton id="undeleteId1" styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
+        <rich:toolTip for="undeleteId1" showDelay="500"><h:outputText value="#{undeleteMessage}" /></rich:toolTip>
         
-        <h:commandButton id="eraseId" styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
-        <rich:toolTip for="eraseId" showDelay="500">Permanently removes project from design time repository</rich:toolTip>
+        <h:commandButton id="eraseId1" styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
+        <rich:toolTip for="eraseId1" showDelay="500"><h:outputText value="#{eraseMessage}" /></rich:toolTip>
       </h:panelGrid>
     </h:panelGroup>
     
@@ -91,11 +98,11 @@
           <rich:toolTip for="checkOutId2" showDelay="500"><h:outputText value="#{checkOutMessage}" /></rich:toolTip>
         </h:panelGrid>
 
-        <h:commandButton id="checkInId" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();return false;" />
-        <rich:toolTip for="checkInId" showDelay="500">Copy the project from the user's workspace to design time repository as a new version</rich:toolTip>
+        <h:commandButton id="checkInId1" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();return false;" />
+        <rich:toolTip for="checkInId1" showDelay="500"><h:outputText value="#{checkInMessage}" /></rich:toolTip>
         
-        <h:commandButton id="copyId" styleClass="button" value="Copy" onclick="openCopyProjectDialog();return false;" />
-        <rich:toolTip for="copyId" showDelay="500">Creates a new project with identical contents and a different name in design time repository</rich:toolTip>
+        <h:commandButton id="copyId1" styleClass="button" value="Copy" onclick="openCopyProjectDialog();return false;" />
+        <rich:toolTip for="copyId1" showDelay="500"><h:outputText value="#{copyMessage}" /></rich:toolTip>
         
         <h:commandButton id="deleteId2" styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
         <rich:toolTip for="deleteId2" showDelay="500"><h:outputText value="#{deleteMessage}" /></rich:toolTip>
@@ -148,8 +155,9 @@
   </rich:tabPanel>
 
   <h:panelGroup rendered="#{node.type == 'drepository'}">
-    <h:panelGrid columns="1" cellpadding="4" cellspacing="0">
-      <input type="button" class="button" value="Create New Deployment Project" onclick="openNewDeploymentProjectDialog();" />
+    <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
+      <input id="createDeploymentId" type="button" class="button" value="Create New Deployment Project" onclick="openNewDeploymentProjectDialog();" />
+      <rich:toolTip for="createDeploymentId" showDelay="500">Creates a deployment project</rich:toolTip>
     </h:panelGrid>
 
     <rich:tabPanel style="height:500px;">
@@ -161,19 +169,35 @@
 
   <h:panelGroup rendered="#{node.type == 'deployment'}">
     <h:panelGroup rendered="#{artefact.deleted}">
-      <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
-        <h:commandButton styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
-        <h:commandButton styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
+      <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
+        <h:commandButton id="undeleteId2" styleClass="#{repositoryTreeState.canUndelete ? 'button':'disabledButton'}" value="Undelete" onclick="#{repositoryTreeState.canUndelete} &amp;&amp; confirmUndeleteProject();return false;" />
+        <rich:toolTip for="undeleteId2" showDelay="500"><h:outputText value="#{undeleteMessage}" /></rich:toolTip>
+        
+        <h:commandButton id="eraseId2" styleClass="#{repositoryTreeState.canErase ? 'button':'disabledButton'}" value="Erase" onclick="#{repositoryTreeState.canErase} &amp;&amp; confirmEraseProject();return false;" />
+        <rich:toolTip for="eraseId2" showDelay="500"><h:outputText value="#{eraseMessage}" /></rich:toolTip>
       </h:panelGrid>
     </h:panelGroup>
-    <h:panelGrid columns="7" cellpadding="4" cellspacing="0" rendered="#{not artefact.deleted}">
-      <h:commandButton styleClass="#{repositoryTreeState.canDeploy ? 'button':'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{repositoryTreeState.canDeploy}"/>
-      <h:commandButton styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
-      <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
-      <h:commandButton styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{repositoryTreeState.canCheckOut};" />
-      <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
-      <h:commandButton styleClass="button" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" />
-      <h:commandButton styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;"/>
+    <h:panelGrid columns="14" cellpadding="4" cellspacing="0" rendered="#{not artefact.deleted}">
+      <h:commandButton id="deployId" styleClass="#{repositoryTreeState.canDeploy ? 'button':'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{repositoryTreeState.canDeploy}"/>
+      <rich:toolTip for="deployId" showDelay="500">Deploy project to production time repository</rich:toolTip>
+      
+      <h:commandButton id="openVersionId3" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
+      <rich:toolTip for="openVersionId3" showDelay="500"><h:outputText value="#{openVersionMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="closeId3" styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
+      <rich:toolTip for="closeId3" showDelay="500"><h:outputText value="#{closeMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="checkOutId3" styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{repositoryTreeState.canCheckOut};" />
+      <rich:toolTip for="checkOutId3" showDelay="500"><h:outputText value="#{checkOutMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="checkInId2" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
+      <rich:toolTip for="checkInId2" showDelay="500"><h:outputText value="#{checkInMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="copyId2" styleClass="button" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" />
+      <rich:toolTip for="copyId2" showDelay="500"><h:outputText value="#{copyMessage}" /></rich:toolTip>
+      
+      <h:commandButton id="deleteId3" styleClass="#{repositoryTreeState.canDelete ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canDelete} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;"/>
+      <rich:toolTip for="deleteId3" showDelay="500"><h:outputText value="#{deleteMessage}" /></rich:toolTip>
     </h:panelGrid>
 
     <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;">
