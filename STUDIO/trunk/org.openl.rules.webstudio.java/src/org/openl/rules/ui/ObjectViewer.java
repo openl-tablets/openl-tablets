@@ -18,11 +18,9 @@ import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
-import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.StringTool;
-import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -60,7 +58,7 @@ public class ObjectViewer {
         };
 
         TableValueFilter tvf = new TableValueFilter(gt, model);
-        IGridFilter[] filters = { tvf, new SimpleFormatFilter(), new SimpleHtmlFilter(), new LinkMaker(tvf) };
+        IGridFilter[] filters = { tvf, new SimpleHtmlFilter(), new LinkMaker(tvf) };
 
         FilteredGrid fg = new FilteredGrid(gt.getGrid(), filters);
 
@@ -221,18 +219,10 @@ public class ObjectViewer {
             return "javascript: open_explain_win(\'?rootID=" + rootID + "&header=Explanation')";
         }
 
-        public Object parse(String value) {
-            return value;
-        }
-
         public boolean selectCoords(int col, int row) {
             url = makeUrl(col, row, dataAdapter);
 
             return url != null;
-        }
-
-        public IFormatter getFormatter() {
-            return null;
         }
 
     }

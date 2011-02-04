@@ -8,7 +8,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.table.xls.formatters.FormattersManager;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.formatters.IFormatter;

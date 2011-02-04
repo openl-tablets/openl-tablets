@@ -5,9 +5,9 @@ import java.util.Date;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.rules.table.xls.formatters.FormattersManager;
 
 /**
  * Temporary class for holding table properties

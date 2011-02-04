@@ -460,9 +460,6 @@ public class HTMLRenderer {
                     if (embedCellURI) {
                         s.append(createHiddenField("uri", cellUri));
                     }
-                    if (cell.hasFormula()) {
-                        s.append(createHiddenField("formula", cell.getFormula()));
-                    }
                     String cellContent = cell.getContent(showFormulas);
                     if (cellContent != null) {
                         cellContent.replaceAll("", "");
