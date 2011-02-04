@@ -47,6 +47,9 @@ import org.richfaces.model.TreeNode;
  *
  */
 public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
+    //to sort elements by adding prefix in id: folder before files.
+    public static final String FOLDER_PREFIX = "dir_";
+    public static final String FILE_PREFIX = "file_";
 
     private static final long serialVersionUID = 1238954077308840345L;
 
@@ -139,9 +142,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      * @return self-reference on the node
      */
     public AbstractTreeNode add(AbstractTreeNode child) {
-        //to sort elements: folders before files.
-        String prefix = child.getData().isFolder() ? "dir_" : "file_";
-        addChild(prefix + child.getId(), child);
+        addChild(child.getId(), child);
         return this;
     }
 
@@ -193,7 +194,18 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     public AbstractTreeNode getChild(Object id) {
         checkLeafOnly();
 
-        return elements.get(id);
+        if(elements.containsKey(id)){
+            return elements.get(id);
+        } else if (id instanceof String){
+            String idAsString = (String)id;
+            if(elements.containsKey(FOLDER_PREFIX + idAsString)){
+                return elements.get(FOLDER_PREFIX + idAsString);
+            }
+            if(elements.containsKey(FILE_PREFIX + idAsString)){
+                return elements.get(FILE_PREFIX + idAsString);
+            }
+        }
+        return null;
     }
 
     public List<AbstractTreeNode> getChildNodes() {

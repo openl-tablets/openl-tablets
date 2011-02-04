@@ -36,4 +36,9 @@ public class TreeFolder extends AbstractTreeNode {
     public String getType() {
         return UiConst.TYPE_FOLDER;
     }
+    
+    @Override
+    public String getId() {
+        return AbstractTreeNode.FOLDER_PREFIX + super.getId();
+    }
 }

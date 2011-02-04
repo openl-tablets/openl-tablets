@@ -233,6 +233,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      * Forces tree rebuild during next access.
      */
     public void invalidateTree() {
+        invalidateSelection();
         root = null;
     }
     
