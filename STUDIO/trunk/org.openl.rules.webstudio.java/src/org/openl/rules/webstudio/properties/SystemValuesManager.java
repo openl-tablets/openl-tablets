@@ -1,12 +1,12 @@
 package org.openl.rules.webstudio.properties;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * Manager for system values. Handles implementations for specified system properties.
@@ -71,8 +71,8 @@ public class SystemValuesManager {
             resultValue = systemValue.getValue();
             if(resultValue != null) {
                 if (resultValue instanceof Date) {
-                    SimpleDateFormat format = new SimpleDateFormat(XlsDateFormatter.DEFAULT_JAVA_DATE_FORMAT);
-                    result = format.format((Date)resultValue);                    
+                    IFormatter formatter = FormattersManager.getFormatter(Date.class);
+                    result = formatter.format(resultValue);
                 } else {
                     result = resultValue.toString();
                 }

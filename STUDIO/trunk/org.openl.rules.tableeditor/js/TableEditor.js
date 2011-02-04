@@ -315,9 +315,9 @@ var TableEditor = Class.create({
         var typedText = undefined;
         if (keyCode) typedText = String.fromCharCode(keyCode);
 
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.GET_CELL_TYPE), {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.GET_CELL_EDITOR), {
             onSuccess  : function(response) {
-                self.editBegin(cell, eval(response.responseText), typedText)
+                self.editBegin(cell, eval(response.responseText), typedText);
             },
             parameters : {
                 editorId: this.editorId,
@@ -332,10 +332,16 @@ var TableEditor = Class.create({
      *  Create and activate new editor.
      */
     editBegin : function(cell, response, initialValue) {
-        if (response.editor == 'formula') {
-            var formula = cell.down("input[name='formula']");
-            initialValue = formula ? formula.value : '';
+        if (!initialValue) {
+            if (response.initValue) {
+                initialValue = response.initValue;
+            } else {
+                // Get initial value from table cell
+                initialValue = AjaxHelper.unescapeHTML(
+                        cell.innerHTML.replace(/<br>/ig, "\n")).strip();
+            }
         }
+
         var editorStyle = this.getCellEditorStyle(cell);
 
         this.showCellEditor(response.editor, cell, initialValue, response.params, editorStyle);
@@ -350,7 +356,7 @@ var TableEditor = Class.create({
         document.body.appendChild(this.editorWrapper);
 
         if (!initialValue) {
-            initialValue = AjaxHelper.unescapeHTML(cell.innerHTML.replace(/<br>/ig, "\n")).strip();
+            
         }
 
         if (editorName == 'array') {
@@ -425,8 +431,6 @@ var TableEditor = Class.create({
                                 "Error during setting the value.");
                     }
                 });
-                var displayValue = this.editor.getDisplayValue();
-                this.editCell.innerHTML = displayValue;
             }
             this.editor.destroy();
             document.body.removeChild(this.editorWrapper);
@@ -949,7 +953,8 @@ TableEditor.Editors = $H();
 
 TableEditor.Operations = {
     LOAD : "load",
-    GET_CELL_TYPE : "getCellType",
+    GET_CELL_EDITOR : "getCellEditor",
+    GET_CELL_VALUE : "getCellValue",
     SET_CELL_VALUE : "setCellValue",
     SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",

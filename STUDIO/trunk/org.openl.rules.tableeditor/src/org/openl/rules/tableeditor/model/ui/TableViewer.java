@@ -1,7 +1,6 @@
 package org.openl.rules.tableeditor.model.ui;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
@@ -92,7 +91,7 @@ public class TableViewer {
             cm.setWidth(getWidth(cell));
         }
 
-        String formattedValue = ((FormattedCell) cell).getFormattedValue();
+        String formattedValue = cell.getFormattedValue();
         if (StringUtils.isNotBlank(formattedValue)) {
             cm.setContent(formattedValue);
             if (cell.getFormula() != null) {

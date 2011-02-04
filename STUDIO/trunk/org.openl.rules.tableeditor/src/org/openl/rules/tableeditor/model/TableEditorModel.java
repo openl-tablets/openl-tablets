@@ -9,9 +9,8 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
-import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGrid;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -34,12 +33,8 @@ import org.openl.rules.table.actions.style.font.SetBoldAction;
 import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.rules.table.actions.style.font.SetColorAction;
-import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
-import org.openl.util.formatters.IFormatter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,8 +60,6 @@ public class TableEditorModel {
 
     private UndoableActions actions = new UndoableActions();
 
-    private FilteredGrid filteredGrid;
-
     private TableEditor tableEditor;
 
     public TableEditorModel(TableEditor editor) {
@@ -83,8 +76,6 @@ public class TableEditorModel {
             this.view = view;
         }
         this.showFormulas = showFormulas;
-
-        makeFilteredGrid(gridTable);
     }
 
     public boolean isBusinessView() {
@@ -95,22 +86,6 @@ public class TableEditorModel {
         while (actions.hasUndo()) {
             undo();
         }
-    }
-
-    private IFormatter getFormatter(int col, int row) {
-        IFormatter formatter = null;
-        IGridRegion originalRegion = getOriginalTableRegion();
-        FormattedCell fc = filteredGrid.getFormattedCell(
-                originalRegion.getLeft() + col, originalRegion.getTop() + row);
-
-        if (fc != null) {
-            IGridFilter filter = fc.getFilter();
-            if (filter != null) {
-                formatter = filter.getFormatter();
-            }
-        }
-
-        return formatter;
     }
 
     public IOpenLTable getTable() {
@@ -159,16 +134,6 @@ public class TableEditorModel {
         actions.addNewAction(insertRowsAction);
     }
 
-    private void makeFilteredGrid(IGridTable gt) {
-        IGrid g = gt.getGrid();
-        if (g instanceof FilteredGrid) {
-            filteredGrid = (FilteredGrid) g;
-            return;
-        }
-
-        filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[] { new SimpleFormatFilter() });
-    }
-
     public synchronized void redo() {
         IUndoableAction ua = actions.getRedoAction();
 
@@ -212,8 +177,9 @@ public class TableEditorModel {
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
+        ICell cell = gridTable.getCell(col, row);
         IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
-                col, row, getOriginalTableRegion(), value, getFormatter(col, row));
+                col, row, getOriginalTableRegion(), value, cell.getDataFormatter());
         action.doAction(gridTable);
         actions.addNewAction(action);
     }

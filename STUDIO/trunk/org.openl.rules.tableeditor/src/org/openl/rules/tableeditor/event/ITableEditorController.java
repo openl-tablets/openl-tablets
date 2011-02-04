@@ -9,8 +9,6 @@ public interface ITableEditorController {
 
     String load() throws Exception;
 
-    String getCellType() throws Exception;
-
     String insertRowBefore() throws Exception;
 
     String insertColumnBefore() throws Exception;

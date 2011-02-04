@@ -95,15 +95,33 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String getCellType() {
+    public String getCellEditor() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
             ICell cell = editorModel.getOriginalGridTable().getCell(getCol(), getRow());
             ICellEditor editor = new CellEditorSelector().selectEditor(cell);
-            EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
-            return pojo2json(typeResponse);
+            EditorTypeResponse editorResponse = editor.getEditorTypeAndMetadata();
+
+            String editorType = editorResponse.getEditor();
+            String initValue = getCellEditorInitValue(editorType, cell);
+            editorResponse.setInitValue(initValue);
+
+            return pojo2json(editorResponse);
         }
         return "";
+    }
+
+    private String getCellEditorInitValue(String editorType, ICell cell) {
+        String value = null;
+
+        if (editorType.equals(ICellEditor.CE_NUMERIC)) {
+            value = cell.getStringValue();
+
+        } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
+            value = "=" + cell.getFormula();
+        }
+
+        return value;
     }
 
     private int getCol() {
@@ -217,15 +235,12 @@ public class TableEditorController extends BaseTableEditorController implements 
                 LOG.warn("ERROR_SET_NEW_VALUE", ex);
                 message = ERROR_SET_NEW_VALUE + ex.getMessage();   
             }
+
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            // rerender the table if value is a formula
-            
             if (message != null) {
                 tmResponse.setStatus(message);
             } else {
-                if (value.startsWith("=")) {
-                    tmResponse.setResponse(render(editorId));
-                }
+                tmResponse.setResponse(render(editorId));
             }
             return pojo2json(tmResponse);
         }
@@ -529,6 +544,7 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public static class EditorTypeResponse {
         private String editor;
+        private String initValue;
         private Object params;
 
         public EditorTypeResponse(String editor) {
@@ -539,17 +555,26 @@ public class TableEditorController extends BaseTableEditorController implements 
             return editor;
         }
 
-        public Object getParams() {
-            return params;
-        }
-
         public void setEditor(String editor) {
             this.editor = editor;
+        }
+
+        public String getInitValue() {
+            return initValue;
+        }
+
+        public void setInitValue(String initValue) {
+            this.initValue = initValue;
+        }
+
+        public Object getParams() {
+            return params;
         }
 
         public void setParams(Object params) {
             this.params = params;
         }
+
     }
 
     public static class LoadResponse {
