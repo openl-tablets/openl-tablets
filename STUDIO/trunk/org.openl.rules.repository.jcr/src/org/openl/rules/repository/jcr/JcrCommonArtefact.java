@@ -62,8 +62,8 @@ public class JcrCommonArtefact {
                 return result;
             }
         } catch (RepositoryException e) {
-            log.info("getActiveVersion", e);
-            return null;
+            log.error("getActiveVersion", e);
+            return RVersion.NON_DEFINED_VERSION;
         }
     }
 

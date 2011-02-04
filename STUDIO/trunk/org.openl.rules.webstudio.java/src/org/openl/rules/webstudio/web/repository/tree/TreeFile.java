@@ -46,4 +46,9 @@ public class TreeFile extends AbstractTreeNode {
     public String getType() {
         return UiConst.TYPE_FILE;
     }
+    
+    @Override
+    public String getId() {
+        return AbstractTreeNode.FILE_PREFIX + super.getId();
+    }
 }
