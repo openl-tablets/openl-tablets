@@ -5,7 +5,6 @@ package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.IGridSelector;
-import org.openl.util.formatters.IFormatter;
 
 public interface IGridFilter {
     
@@ -17,8 +16,4 @@ public interface IGridFilter {
     FormattedCell filterFormat(FormattedCell cell);
 
     IGridSelector getGridSelector();
-
-    Object parse(String value);
-    
-    IFormatter getFormatter();
 }

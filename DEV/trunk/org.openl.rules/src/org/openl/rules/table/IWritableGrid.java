@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.actions.AUndoableCellAction;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
@@ -20,16 +19,14 @@ import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.actions.UndoableShiftValueAction;
 import org.openl.rules.table.actions.UnmergeByColumnsAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.XlsSheetGridExporter;
-import org.openl.rules.table.xls.XlsSheetGridHelper;
-import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.formatters.XlsFormattersManager;
 
-import org.openl.util.export.IExporter;
+
 import org.openl.util.formatters.IFormatter;
+
 import org.apache.commons.lang.StringUtils;
 
 
@@ -43,27 +40,6 @@ public interface IWritableGrid extends IGrid {
 
         private static final String PROPERTIES_SECTION_NAME = "properties";
         static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;        
-        
-        @Deprecated
-        public static IExporter createExporter(IWritableGrid wGrid) {
-            if (wGrid instanceof XlsSheetGridModel) {
-                return new XlsSheetGridExporter((XlsSheetGridModel) wGrid);
-            }
-
-            return null;
-        }
-        
-        /**
-         * Is deprecated, because of incorrect location. Use 
-         * {@link XlsSheetGridHelper#createExporter(XlsWorkbookSourceCodeModule)}
-         * 
-         * @param workbookModule
-         * @return
-         */
-        @Deprecated
-        public static IExporter createExporter(XlsWorkbookSourceCodeModule workbookModule) {
-            return XlsSheetGridHelper.createExporter(workbookModule);
-        }
 
         public static IWritableGrid getWritableGrid(IGrid grid) {
             if (grid instanceof IWritableGrid) {
@@ -274,14 +250,15 @@ public interface IWritableGrid extends IGrid {
                 // property with such name and value already exists.
                 return null;
             }
-            IFormatter format = getFormat(newPropName);
-            return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, newPropValue, format);
+            IFormatter formatter = getFormatter(newPropName);
+            Object propObjectValue = parseStringValue(formatter, newPropValue);
+            return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, propObjectValue);
         }
-        
+
         private static IUndoableGridTableAction insertNewProperty(IGridRegion tableRegion,
                 IGridTable table, String newPropName, String newPropValue) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
-            IFormatter format = getFormat(newPropName);
+            IFormatter formatter = getFormatter(newPropName);
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
@@ -306,14 +283,27 @@ public interface IWritableGrid extends IGrid {
                 propValueCellOffset = propNameCellOffset
                         + grid.getCell(leftCell + propNameCellOffset, topCell + firstPropertyRow).getWidth();
             }
-            
+
             actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset, topCell + firstPropertyRow,
-                    newPropName, null));
+                    newPropName));
+
+            Object propObjectValue = parseStringValue(formatter, newPropValue);
             actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset, topCell + firstPropertyRow,
-                    newPropValue, format));
+                    propObjectValue));
+
             return new UndoableCompositeAction(actions);
         }
-        
+
+        private static Object parseStringValue(IFormatter formatter, String value) {
+            Object result = null;
+            if (formatter != null) {
+                result = formatter.parse(value);
+            } else {
+                result = value;
+            }
+            return result;
+        }
+
         private static IUndoableGridTableAction createPropertiesSection(IGridRegion tableRegion, IGridTable table) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
             int regionWidth = IGridRegion.Tool.width(tableRegion);
@@ -324,8 +314,7 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
             actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1, leftCell, headerRegion
                     .getBottom() + 1, tableRegion.getRight())));
-            actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME,
-                    null));
+            actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME));
             if (regionWidth > 3) {
                 // clear cells
                 for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {
@@ -378,7 +367,7 @@ public interface IWritableGrid extends IGrid {
             return containsPropSection;
         }
 
-        private static IFormatter getFormat(String propertyName) {
+        private static IFormatter getFormatter(String propertyName) {
 
             IFormatter result = null;
             TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
@@ -387,7 +376,7 @@ public interface IWritableGrid extends IGrid {
             if (tablePropeprtyDefinition != null) {
 
                 Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                result = XlsFormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
+                result = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
             }
 
             return result;
@@ -566,23 +555,24 @@ public interface IWritableGrid extends IGrid {
         }
 
         public static IUndoableGridTableAction setStringValue(int col, int row, IGridRegion region, String value,
-                IFormatter format) {
+                IFormatter formatter) {
             int gcol = region.getLeft() + col;
             int grow = region.getTop() + row;
 
-            // wgrid.setCellStringValue(gcol, grow, value);
-            return new UndoableSetValueAction(gcol, grow, value, format);
+            Object objectValue = parseStringValue(formatter, value);
+
+            return new UndoableSetValueAction(gcol, grow, objectValue);
         }
 
         public static IUndoableGridTableAction setStringValue(int col, int row, IGridTable table, String value,
-                IFormatter format) {
+                IFormatter formatter) {
             // IWritableGrid wgrid = getWritableGrid(table);
             int gcol = table.getGridColumn(col, row);
             int grow = table.getGridRow(col, row);
 
-            // wgrid.setCellStringValue(gcol, grow, value);
-            return new UndoableSetValueAction(gcol, grow, value, format);
+            Object objectValue = parseStringValue(formatter, value);
 
+            return new UndoableSetValueAction(gcol, grow, objectValue);
         }
 
     }

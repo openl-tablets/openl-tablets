@@ -1,7 +1,4 @@
-/**
- * Created Feb 27, 2007
- */
-package org.openl.rules.table.ui.filters;
+package org.openl.rules.table.xls.formatters;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -9,15 +6,13 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.ui.IGridSelector;
+import org.openl.rules.table.formatters.ArrayFormatter;
+import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.xls.formatters.SegmentFormatter;
-import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.xls.formatters.XlsFormattersManager;
-import org.openl.rules.table.xls.formatters.XlsFormulaFormatter;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.types.IOpenClass;
 import org.openl.util.formatters.BooleanFormatter;
@@ -25,95 +20,61 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
-/**
- * @author snshor
- */
-public class SimpleFormatFilter implements IGridFilter {
+public class XlsDataFormatterFactory {
 
     public static final String GENERAL_XLS_FORMAT = "General";
 
     private Map<String, IFormatter> existingFormatters = new HashMap<String, IFormatter>();
 
-    public Object parse(String value) {
-        throw new UnsupportedOperationException("This format does not parse");
-    }
-
-    public IGridSelector getGridSelector() {
-        return null;
-    }
-
-    public FormattedCell filterFormat(FormattedCell cell) {
-        IFormatter cellFormatter = getCellFormatter(cell);
-        if (cellFormatter != null) {
-            FormatFilter formatFilter = new FormatFilter(cellFormatter);
-            Object cellValue = cell.getObjectValue();
-            if (cellValue instanceof String) {
-                Object cellObjectValue = formatFilter.parse(cellValue.toString());
-                cell.setObjectValue(cellObjectValue);
-            }
-            
-            // Try to format cell value.
-            //
-            FormattedCell formattedCell = formatFilter.filterFormat(cell);
-            
-            // If cell value is not null and cell formatted value is null then
-            // a formatter cannot to format cell value in right way. In this
-            // case we are using original string value of cell as formatted
-            // value.
-            //
-            if (cellValue != null && formattedCell.getFormattedValue() == null) {
-                formattedCell.setFormattedValue(cellValue.toString());
-            }
-            
-            return formattedCell;
-        }
-        
-        return cell;
-    }
-
-    // TODO Move to factory class
-    private IFormatter getCellFormatter(ICell cell) {
+    public IFormatter getFormatter(ICell cell) {
         IFormatter formatter = null;
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
         if (dataType != null) {
             Class<?> instanceClass = dataType.getInstanceClass();
+
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
-//            if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
-//                || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
+            //if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
+                //|| instanceClass == BigInteger.class || instanceClass == BigDecimal.class) { // Unbounded numeric
                 String format = cell.getStyle().getTextFormat();
                 IFormatter numberFormatter = findXlsNumberFormatter(format);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
-                    formatter = new XlsArrayFormatter(numberFormatter);
+                    formatter = new ArrayFormatter(numberFormatter);
                 } else {
                     formatter = numberFormatter;
                 }
+
             // Date
             } else if (instanceClass == Date.class) {
                 String format = cell.getStyle().getTextFormat();
                 formatter = findXlsDateFormatter(format);
+
             // Boolean
-            } else if (instanceClass == boolean.class || instanceClass == Boolean.class) {
+            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
                 formatter = new BooleanFormatter();
+
             // Enum
             } else if (instanceClass.isEnum()) {
                 IFormatter enumFormatter = new EnumFormatter(instanceClass);
                 // Enum Array
                 if (cellMetaInfo.isMultiValue()) {
-                    formatter = new XlsArrayFormatter(enumFormatter);
+                    formatter = new ArrayFormatter(enumFormatter);
                 } else {
                     formatter = enumFormatter;
                 }
+
             } else {
                 formatter = new DefaultFormatter();
             }
+
             // Formula
             if (cell.getFormula() != null) {
-                formatter = new XlsFormulaFormatter(formatter);
+                formatter = new FormulaFormatter(formatter);
             }
         }
+
         return formatter;
     }
 
@@ -123,16 +84,16 @@ public class SimpleFormatFilter implements IGridFilter {
 
     @Deprecated
     private XlsDateFormatter findXlsDateFormatter(String format) {
-        if (isGeneralFormat(format)) {
+        if (StringUtils.isBlank(format) || isGeneralFormat(format)) {
             format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
         }
-        
+
         IFormatter formatter = existingFormatters.get(format);
         if (formatter instanceof XlsDateFormatter) {
             return (XlsDateFormatter) formatter;
         }
 
-        XlsDateFormatter dateFormat = (XlsDateFormatter) XlsFormattersManager.getFormatter(Date.class, format);
+        XlsDateFormatter dateFormat = new XlsDateFormatter(format);
         existingFormatters.put(format, dateFormat);
 
         return dateFormat;
@@ -157,9 +118,5 @@ public class SimpleFormatFilter implements IGridFilter {
 
         return numberFormatter;
     }
-
-    public IFormatter getFormatter() {
-        return null;
-    }    
 
 }

@@ -7,7 +7,6 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.IGridSelector;
-import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -78,11 +77,6 @@ public class ColorGridFilter extends AGridFilter {
         }
 
         return formattedCell;
-    }
-
-    public IFormatter getFormatter() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

@@ -5,7 +5,6 @@ package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.util.StringTool;
-import org.openl.util.formatters.IFormatter;
 
 public class SimpleHtmlFilter extends AGridFilter {
 
@@ -16,11 +15,6 @@ public class SimpleHtmlFilter extends AGridFilter {
             cell.setFormattedValue(StringTool.prepareXMLBodyValue(cell.getFormattedValue()));
         }
         return cell;
-    }
-
-    public IFormatter getFormatter() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

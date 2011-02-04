@@ -7,8 +7,8 @@ public class FormatFilter extends AGridFilter {
 
     private IFormatter formatter;
 
-    public FormatFilter(IFormatter format) {
-        this.formatter = format;
+    public FormatFilter(IFormatter formatter) {
+        this.formatter = formatter;
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
@@ -27,11 +27,6 @@ public class FormatFilter extends AGridFilter {
 
     public IFormatter getFormatter() {
         return this.formatter;
-    }
-
-    @Override
-    public Object parse(String value) {
-        return formatter.parse(value);
     }
 
 }

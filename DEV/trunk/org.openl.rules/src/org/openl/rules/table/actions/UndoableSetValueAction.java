@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -15,13 +14,11 @@ import org.openl.util.formatters.IFormatter;
  */
 public class UndoableSetValueAction extends AUndoableCellAction {
 
-    private String newValue;
-    private IFormatter format;
+    private Object newValue;
 
-    public UndoableSetValueAction(int col, int row, String value, IFormatter format) {
+    public UndoableSetValueAction(int col, int row, Object value) {
         super(col, row);
         this.newValue = value;
-        this.format = format;
     }
 
     public void doAction(IGridTable table) {
@@ -31,12 +28,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
 
-        Object result = newValue;
-        if (format != null) {
-            result = format.parse(newValue);
-        }
-
-        grid.setCellValue(getCol(), getRow(), result);
+        grid.setCellValue(getCol(), getRow(), newValue);
     }
 
     public void undoAction(IGridTable table) {
