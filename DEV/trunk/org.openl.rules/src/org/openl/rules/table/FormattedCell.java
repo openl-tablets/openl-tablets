@@ -14,6 +14,7 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.IncorrectFormulaException;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * @author snshor
@@ -41,8 +42,8 @@ public class FormattedCell implements ICell {
             //logged in XlsCell.getObjectValue() method.
             this.objectValue = ERROR_VALUE;
         }
-        this.formattedValue = this.delegate.getStringValue();
-                
+        this.formattedValue = this.delegate.getFormattedValue();
+
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());
     }
@@ -160,6 +161,10 @@ public class FormattedCell implements ICell {
 
     public ICellComment getComment() {
         return delegate.getComment();
+    }
+
+    public IFormatter getDataFormatter() {
+        return delegate.getDataFormatter();
     }
 
 }

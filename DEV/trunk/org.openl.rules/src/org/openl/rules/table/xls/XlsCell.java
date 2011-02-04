@@ -2,6 +2,7 @@ package org.openl.rules.table.xls;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,8 +21,10 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
+import org.openl.util.formatters.IFormatter;
 
 public class XlsCell implements ICell {
 
@@ -146,6 +149,30 @@ public class XlsCell implements ICell {
 
     public void setStringValue(String value) {
         cell.setCellValue(value);
+    }
+
+    public String getFormattedValue() {
+        String formattedValue = null;
+
+        IFormatter cellDataFormatter = getDataFormatter();
+
+        if (cellDataFormatter != null) {
+            formattedValue = cellDataFormatter.format(getObjectValue());
+        }
+
+        if (formattedValue == null) {
+            formattedValue = getStringValue();
+            if (formattedValue == null) {
+                formattedValue = StringUtils.EMPTY;
+            }
+        }
+
+        return formattedValue;
+    }
+
+    public IFormatter getDataFormatter() {
+        XlsDataFormatterFactory dataFormatterFactory = new XlsDataFormatterFactory();
+        return dataFormatterFactory.getFormatter(this);
     }
 
     private ICell getTopLeftCellFromRegion() {

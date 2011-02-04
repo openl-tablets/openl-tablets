@@ -1,4 +1,4 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.rules.table.formatters;
 
 import org.openl.util.formatters.IFormatter;
 
@@ -9,18 +9,18 @@ import org.openl.util.formatters.IFormatter;
  * @author Andrei Astrouski
  *
  */
-public class XlsFormulaFormatter extends AXlsFormatter {
+public class FormulaFormatter implements IFormatter {
 
     //private static final Log LOG = LogFactory.getLog(XlsFormulaFormatter.class);
 
     //private static final String FORMULA_PREFIX = "=";
     private IFormatter formulaResultFormatter;
 
-    public XlsFormulaFormatter() {
+    public FormulaFormatter() {
     }
 
-    public XlsFormulaFormatter(IFormatter formulaResultFormatter) {
-        if (formulaResultFormatter instanceof XlsFormulaFormatter) {
+    public FormulaFormatter(IFormatter formulaResultFormatter) {
+        if (formulaResultFormatter instanceof FormulaFormatter) {
             throw new IllegalArgumentException();
         }
         this.formulaResultFormatter = formulaResultFormatter;

@@ -2,7 +2,7 @@ package org.openl.rules.table.xls;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.openl.rules.table.xls.formatters.XlsArrayFormatter;
+import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 
@@ -26,7 +26,7 @@ public class XlsArrayFormatTest {
     
     @Test
     public void testParse() {
-        XlsArrayFormatter arrayFormat = new XlsArrayFormatter(new DefaultFormatter());
+        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter());
         String value = "tag1,tag2,tag3";
         
         Object result = arrayFormat.parse(value);
@@ -41,7 +41,7 @@ public class XlsArrayFormatTest {
     
     @Test
     public void testParseEmptyString() {
-        XlsArrayFormatter arrayFormat = new XlsArrayFormatter(new DefaultFormatter());
+        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter());
         String value = null;
         
         Object result = arrayFormat.parse(value);
@@ -50,7 +50,7 @@ public class XlsArrayFormatTest {
     
     @Test
     public void testFormatEnums() {
-        XlsArrayFormatter arrayFormat = new XlsArrayFormatter(new EnumFormatter(TestConstants.class));
+        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class));
         
         TestConstants[] arrayEnum = new TestConstants[2];
         
@@ -64,7 +64,7 @@ public class XlsArrayFormatTest {
     
     @Test
     public void testFormatNull() {
-        XlsArrayFormatter arrayFormat = new XlsArrayFormatter(new EnumFormatter(TestConstants.class));
+        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class));
         
         TestConstants[] arrayEnum = new TestConstants[2];
         

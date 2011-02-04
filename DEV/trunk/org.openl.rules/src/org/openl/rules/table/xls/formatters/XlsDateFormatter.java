@@ -18,17 +18,15 @@ public class XlsDateFormatter extends AXlsFormatter {
 
     private static final Log LOG = LogFactory.getLog(XlsDateFormatter.class);
 
-    public static String DEFAULT_JAVA_DATE_FORMAT = "MM/dd/yyyy";
     public static String DEFAULT_XLS_DATE_FORMAT = "m/d/yy";
-    
+
     private SimpleDateFormat format;
     
     public static String convertTojavaFormat(String fmt) {
         // TODO this will require much more work than that
-
         return fmt.replace('m', 'M');
     }
-        
+
     public XlsDateFormatter(SimpleDateFormat fmt) {
         format = fmt;
     }
@@ -37,7 +35,7 @@ public class XlsDateFormatter extends AXlsFormatter {
         String javaFormat = convertTojavaFormat(fmt);
         format = new SimpleDateFormat(javaFormat);
     }    
-    
+
     public String format(Object value) {
         if (!(value instanceof Date)) {
             LOG.error("Should be date" + value);
@@ -56,9 +54,5 @@ public class XlsDateFormatter extends AXlsFormatter {
             return value;
         }
     }
-    
-    public void setFormat(String format) {
-        String javaFormat = convertTojavaFormat(format);
-        this.format = new SimpleDateFormat(javaFormat);
-    }
+
 }

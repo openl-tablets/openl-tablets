@@ -1,14 +1,18 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.rules.table.formatters;
 
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
 
 import org.junit.Test;
+import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.util.formatters.BooleanFormatter;
+import org.openl.util.formatters.DateFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.FormatterAdapter;
 import org.openl.util.formatters.IFormatter;
+import org.openl.util.formatters.NumberFormatter;
 
 public class FormattersManagerTest {
     
@@ -21,12 +25,12 @@ public class FormattersManagerTest {
     public void testDouble() {
         Double dd = Double.valueOf(12.345);
         IFormatter formatter = FormattersManager.getFormatter(dd);
-        assertTrue(formatter instanceof XlsNumberFormatter);
+        assertTrue(formatter instanceof NumberFormatter);
     }
     
     @Test
     public void testNull() {        
-        IFormatter formatter = FormattersManager.getFormatter(null);
+        IFormatter formatter = FormattersManager.getFormatter((Object) null);
         assertTrue(formatter instanceof FormatterAdapter);
     }
     
@@ -40,7 +44,7 @@ public class FormattersManagerTest {
     public void testDate() {        
         Calendar date = Calendar.getInstance();
         IFormatter formatter = FormattersManager.getFormatter(date.getTime());
-        assertTrue(formatter instanceof XlsDateFormatter);
+        assertTrue(formatter instanceof DateFormatter);
     }
     
     @Test
@@ -53,7 +57,7 @@ public class FormattersManagerTest {
     public void testArray() {
         Integer[] intArray = new Integer[]{12, 34};
         IFormatter formatter = FormattersManager.getFormatter(intArray);
-        assertTrue(formatter instanceof XlsArrayFormatter);
+        assertTrue(formatter instanceof ArrayFormatter);
     }
     
     @Test

@@ -5,6 +5,7 @@ import java.util.Date;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.util.formatters.IFormatter;
 
 public class Cell implements ICell {
 
@@ -18,6 +19,7 @@ public class Cell implements ICell {
 
     private Object objectValue;
     private String stringValue;
+    private String formattedValue;
 
     private ICellFont font;
 
@@ -32,6 +34,8 @@ public class Cell implements ICell {
     private CellMetaInfo metaInfo;
 
     private ICellComment comment;
+
+    private IFormatter dataFormatter;
 
     public Cell() {
     }
@@ -108,6 +112,10 @@ public class Cell implements ICell {
         this.stringValue = stringValue;
     }
 
+    public String getFormattedValue() {
+        return formattedValue;
+    }
+
     public ICellFont getFont() {
         return font;
     }
@@ -181,6 +189,14 @@ public class Cell implements ICell {
 
     public void setComment(ICellComment comment) {
         this.comment = comment;
+    }
+
+    public IFormatter getDataFormatter() {
+        return dataFormatter;
+    }
+    
+    public void setDataFormatter(IFormatter dataFormatter) {
+        this.dataFormatter = dataFormatter;
     }
 
 }

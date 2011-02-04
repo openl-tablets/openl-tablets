@@ -6,6 +6,7 @@ package org.openl.rules.table.ui.filters;
 import org.openl.rules.table.ui.IGridSelector;
 
 public abstract class AGridFilter implements IGridFilter {
+
     private IGridSelector selector;
 
     public AGridFilter() {
@@ -19,7 +20,4 @@ public abstract class AGridFilter implements IGridFilter {
         return selector;
     }
 
-    public Object parse(String value) {
-        throw new UnsupportedOperationException("This format does not parse");
-    }
 }

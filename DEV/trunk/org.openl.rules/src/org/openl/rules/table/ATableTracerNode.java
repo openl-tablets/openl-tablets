@@ -1,7 +1,7 @@
 package org.openl.rules.table;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.xls.formatters.FormattersManager;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;

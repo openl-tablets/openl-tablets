@@ -12,6 +12,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.util.formatters.IFormatter;
 
 public class WordCell implements ICell{
     TableCell tcell;
@@ -46,6 +47,10 @@ public class WordCell implements ICell{
             return text.substring(0, len - 1);
         }
         return text;
+    }
+
+    public String getFormattedValue() {
+        return getStringValue();
     }
 
     public String getUri() {
@@ -141,6 +146,10 @@ public class WordCell implements ICell{
     }
 
     public ICellComment getComment() {
+        return null;
+    }
+
+    public IFormatter getDataFormatter() {
         return null;
     }
 

@@ -1,4 +1,4 @@
-package org.openl.rules.table.xls.formatters;
+package org.openl.rules.table.formatters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.openl.util.formatters.IFormatter;
 
 /**
  * 
- * Xls array format is a formatter for converting an array of elements,
+ * A formatter for converting an array of elements,
  * represented by <code>{@link String}</code> (elements are separated by
  * <code>{@link #ARRAY_ELEMENTS_SEPARATOR}</code> escaper for the separator is
  * <code>{@link #ARRAY_ELEMENTS_SEPARATOR_ESCAPER}</code>) to an array of
@@ -24,9 +24,9 @@ import org.openl.util.formatters.IFormatter;
  * <code>{@link #format(Object)}</code>).
  * 
  */
-public class XlsArrayFormatter extends AXlsFormatter {
+public class ArrayFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(XlsArrayFormatter.class);
+    private static final Log LOG = LogFactory.getLog(ArrayFormatter.class);
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It
@@ -47,7 +47,7 @@ public class XlsArrayFormatter extends AXlsFormatter {
     /**
      * @param elementFormat formatter for the component type of array.
      */
-    public XlsArrayFormatter(IFormatter elementFormat) {
+    public ArrayFormatter(IFormatter elementFormat) {
         this.elementFormat = elementFormat;
     }
 
