@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -121,7 +122,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         this.isLeafOnly = isLeafOnly;
 
         if (!isLeafOnly) {
-            elements = new LinkedHashMap<Object, AbstractTreeNode>();
+            elements = new TreeMap<Object, AbstractTreeNode>();
         }
     }
 
@@ -138,7 +139,9 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      * @return self-reference on the node
      */
     public AbstractTreeNode add(AbstractTreeNode child) {
-        addChild(child.getId(), child);
+        //to sort elements: folders before files.
+        String prefix = child.getData().isFolder() ? "dir_" : "file_";
+        addChild(prefix + child.getId(), child);
         return this;
     }
 

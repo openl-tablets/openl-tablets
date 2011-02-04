@@ -96,8 +96,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         deploymentRepository = new TreeRepository(dpName, dpName, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
-        root.add(rulesRepository);
-        root.add(deploymentRepository);
+        //Such keys are used for correct order of repositories.
+        root.addChild("1st - RulesProjects", rulesRepository);
+        root.addChild("2nd - DeploymentProjects", deploymentRepository);
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
