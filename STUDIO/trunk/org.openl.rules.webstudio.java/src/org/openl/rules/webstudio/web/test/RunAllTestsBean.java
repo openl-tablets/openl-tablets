@@ -101,11 +101,12 @@ public class RunAllTestsBean {
     public Object getExpected() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
         
-        return testUnit.getExpectedResult();
+        return TestResultsHelper.format(testUnit.getExpectedResult());
     }
     
     public ExplanationNumberValue<?> getExplanationValueExpected() {
         Object expected = getExpected();
+        // value should be formatted before displaying on UI
         return TestResultsHelper.getExplanationValueResult(expected);
     }
 
@@ -115,10 +116,8 @@ public class RunAllTestsBean {
             Throwable rootCause = ExceptionUtils.getRootCause((Throwable)result);
             return rootCause.getMessage();
         }
-        if (result == null) {
-            return TestResultsHelper.format(result);
-        }
-        return result;
+        // value should be formatted before displaying on UI
+        return TestResultsHelper.format(result);
     }
     
     public ExplanationNumberValue<?> getExplanationValueResult() {
