@@ -9,7 +9,6 @@ import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
-import org.openl.rules.table.ui.filters.SimpleFormatFilter;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.MethodsHelper;
@@ -61,8 +60,7 @@ public class GameInterface
 
 		};
 
-		IGridFilter[] filters = { new TableValueFilter(gt, model),
-				new SimpleFormatFilter(), new SimpleHtmlFilter(), };
+		IGridFilter[] filters = { new TableValueFilter(gt, model), new SimpleHtmlFilter(), };
 
 		FilteredGrid fg = new FilteredGrid(gt.getGrid(), filters);
 
