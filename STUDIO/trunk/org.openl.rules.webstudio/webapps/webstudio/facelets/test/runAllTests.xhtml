@@ -75,12 +75,12 @@
                         </h:panelGroup>
 
                         <td>
-                            <h:outputText value="#{runAllTestsBean.expected}"
+                            <h:outputText value="#{runAllTestsBean.formattedExpected}"
                                 rendered="#{empty runAllTestsBean.explanationValueExpected}" />
                             <h:outputLink
                                 value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
                                 rendered="#{not empty runAllTestsBean.explanationValueExpected}">
-                                <h:outputText value="#{runAllTestsBean.explanationValueExpected.value}" />
+                                <h:outputText value="#{runAllTestsBean.formattedExplanationValueExpected}" />
                             </h:outputLink>
                         </td>
                         <td>
@@ -91,12 +91,12 @@
                                 <h:graphicImage value="webresource/images/error.png"
                                     rendered="#{runAllTestsBean.compareResult == 1}" />
                                 <h:outputText value=" " />
-                                <h:outputText value="#{runAllTestsBean.result}"
-                                    rendered="#{empty runAllTestsBean.explanationValueResult}" />
+                                <h:outputText value="#{runAllTestsBean.formattedActualResult}"
+                                    rendered="#{empty runAllTestsBean.explanationValueActual}" />
                                 <h:outputLink
-                                    value="javascript: open_explain_win('?rootID=#{runAllTestsBean.resultExplanatorId}&amp;header=Explanation')"
-                                    rendered="#{not empty runAllTestsBean.explanationValueResult}">
-                                    <h:outputText value="#{runAllTestsBean.explanationValueResult.value}" />
+                                    value="javascript: open_explain_win('?rootID=#{runAllTestsBean.actualExplanatorId}&amp;header=Explanation')"
+                                    rendered="#{not empty runAllTestsBean.explanationValueActual}">
+                                    <h:outputText value="#{runAllTestsBean.formattedExplanationValueActual}" />
                                 </h:outputLink>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
