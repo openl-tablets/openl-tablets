@@ -1,9 +1,9 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -54,19 +54,14 @@ public class TableModel {
             return null;
         }
 
-        boolean filtered = filters != null && filters.length > 0;
-        IGrid htmlGrid = table.getGrid();
-        if (!(htmlGrid instanceof FilteredGrid)) {
-            int N = 0;
-            IGridFilter[] f1 = new IGridFilter[!filtered ? (N + 1) : (N + filters.length)];
-            if (!filtered) {
-                f1[N] = new SimpleHtmlFilter();
+        IGrid grid = null;
+
+        if (!(grid instanceof FilteredGrid)) {
+            if (ArrayUtils.isNotEmpty(filters)) {
+                grid = new FilteredGrid(table.getGrid(), filters);
             } else {
-                for (int i = N; i < f1.length; i++) {
-                    f1[i] = filters[i - N];
-                }
+                grid = table.getGrid();
             }
-            htmlGrid = new FilteredGrid(table.getGrid(), f1);
         }
 
         IGridRegion region = table.getRegion();
@@ -75,7 +70,7 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(htmlGrid, region).buildModel(table, numRows);
+        return new TableViewer(grid, region).buildModel(table, numRows);
     }
 
     public TableModel(int width, int height, IGridTable gridTable) {

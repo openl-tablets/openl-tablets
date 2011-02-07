@@ -5,6 +5,7 @@ package org.openl.rules.ui;
 
 import java.lang.reflect.Array;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.openl.base.INamedThing;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -20,7 +21,6 @@ import org.openl.rules.table.ui.filters.SimpleHtmlFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.util.StringTool;
 
 /**
  * @author snshor
@@ -129,7 +129,10 @@ public class ObjectViewer {
         buf.append("<a ");
         makeXlsOrDocUrl(mh.getMetaInfo().getSourceUrl(), buf);
         buf.append(">");
-        StringTool.encodeHTMLBody(display, buf);
+
+        String escapedStr = StringEscapeUtils.escapeHtml(display);
+        buf.append(escapedStr);
+
         buf.append("</a>");
 
         return buf;

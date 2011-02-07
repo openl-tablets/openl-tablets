@@ -1,7 +1,5 @@
 package org.openl.rules.tableeditor.model;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
 
 import org.apache.commons.lang.ClassUtils;
@@ -36,9 +34,7 @@ public class CellEditorSelector {
             Class<?> instanceClass = dataType.getInstanceClass();
 
             // Numeric
-            //if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
-            if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
-                || instanceClass == BigInteger.class || instanceClass == BigDecimal.class) {// Unbounded numeric
+            if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
                 if (domain == null) {
                     if (!meta.isMultiValue()) {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
@@ -49,22 +45,15 @@ public class CellEditorSelector {
                         return factory.makeArrayEditor(",", ICellEditor.CE_NUMERIC);
                     }
                 }
-            // String
-            } else if (instanceClass == String.class) {
-                if (domain instanceof EnumDomain) {
-                    EnumDomain enumDomain = (EnumDomain) domain;
-                    if (meta.isMultiValue()) {
-                        result = factory.makeMultiSelectEditor((String[]) enumDomain.getEnum().getAllObjects());
-                    } else {
-                        result = factory.makeComboboxEditor((String[]) enumDomain.getEnum().getAllObjects());
-                    }
-                }
+
             // Date
             } else if (instanceClass == Date.class) {
                 result = factory.makeDateEditor();
+
             // Boolean
-            } else if (instanceClass == boolean.class || instanceClass == Boolean.class) {
+            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
                 result = factory.makeBooleanEditor();
+
             // Enum
             } else if (instanceClass.isEnum()) {
                 String[] values = EnumUtils.getNames(instanceClass);
@@ -75,7 +64,19 @@ public class CellEditorSelector {
                 } else {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
+
+            // String
+            } else if (instanceClass == String.class) {
+                if (domain instanceof EnumDomain) {
+                    EnumDomain enumDomain = (EnumDomain) domain;
+                    if (meta.isMultiValue()) {
+                        result = factory.makeMultiSelectEditor((String[]) enumDomain.getEnum().getAllObjects());
+                    } else {
+                        result = factory.makeComboboxEditor((String[]) enumDomain.getEnum().getAllObjects());
+                    }
+                }
             }
+
         }
 
         return result;

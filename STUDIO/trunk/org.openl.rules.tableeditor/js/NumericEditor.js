@@ -35,8 +35,11 @@ var NumericEditor = Class.create(BaseTextEditor, {
         if (event.charCode == 0) return true;
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
 
-        if (code == 46) return v.indexOf(".") < 0; // point
-        if (code == 45) return true; // minus
+        if (code == 45)  // minus
+            return v.indexOf("-") < 0;
+        if (code == 46)  // point
+            return v.indexOf(".") < 0;
+
         return code >= 48 && code <= 57; // digits (0-9)
     }
 
