@@ -42,7 +42,8 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             if (hasError()) {
                 buf.append(ERROR_RESULT);
             } else {
-                buf.append(String.valueOf(result));
+                
+                buf.append(getFormattedValue(result));
             }
             buf.append(' ');
         }
@@ -112,6 +113,17 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public boolean hasError() {
         return error != null;
+    }
+    
+    private String getFormattedValue(Object value) {
+        IFormatter formatter = FormattersManager.getFormatter(value);
+        String strValue = null;
+        if (formatter != null) {
+            strValue = formatter.format(value);
+        } else {
+            strValue = String.valueOf(value);
+        }
+        return strValue;
     }
 
 }
