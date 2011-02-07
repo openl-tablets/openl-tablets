@@ -19,7 +19,7 @@ public class EnumFormatter implements IFormatter {
 
         if (!(value instanceof Enum<?>)) {
             
-            LOG.error(String.format("Should be a %s value: %s" , enumClass.toString(),
+            LOG.debug(String.format("Should be a %s value: %s" , enumClass.toString(),
                     ObjectUtils.toString(value, null)));
             return null;
         }

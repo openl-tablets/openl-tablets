@@ -43,7 +43,7 @@ public class NumberFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Number)) {
-            LOG.error("Should be Number: " + value);
+            LOG.debug("Should be Number: " + value);
             return null;
         }
 
@@ -54,7 +54,7 @@ public class NumberFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            LOG.error("Could not parse Number: " + value);
+            LOG.debug("Could not parse Number: " + value);
             return null;
         }
     }
