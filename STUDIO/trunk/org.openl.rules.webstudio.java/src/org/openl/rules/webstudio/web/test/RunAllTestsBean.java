@@ -86,32 +86,60 @@ public class RunAllTestsBean {
     public void setTestDataColumnHeaders(UIRepeat testDataColumnHeaders) {
         this.testDataColumnHeaders = testDataColumnHeaders;
     }
-
+    
+    /**     
+     * @return list of errors if there were any during execution of the test. In other case <code>null</code>.
+     */
     public List<OpenLMessage> getErrors() {
-        Object result = getActualResult();
+        Object result = getActualResultInternal();
         
         return TestResultsHelper.getErrors(result);
     }
-
-    private Object getActualResult() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
-        return testUnit.getActualResult();        
-    }
-
+    
+    /* ------------------------------ EXPECTED VALUE SECTION----------------------------*/
+    
+    /**
+     * @return expected result for test
+     */
     public Object getExpected() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
         
-        return TestResultsHelper.format(testUnit.getExpectedResult());
+        return testUnit.getExpectedResult();
     }
     
+    /**
+     * @return formatted for UI expected result for test
+     */
+    public String getFormattedExpected() {
+        return TestResultsHelper.format(getExpected());
+    }
+        
     public ExplanationNumberValue<?> getExplanationValueExpected() {
         Object expected = getExpected();
-        // value should be formatted before displaying on UI
+        
         return TestResultsHelper.getExplanationValueResult(expected);
     }
-
-    public Object getResult() {
-        Object result = getActualResult();
+    
+    public int getExpectedExplanatorId() {
+        return TestResultsHelper.getExplanatorId(getExplanationValueExpected());
+    }
+    
+    /**
+     * @return formatted for UI explanation expected value
+     */
+    public String getFormattedExplanationValueExpected() {
+        return TestResultsHelper.format(getExplanationValueExpected());
+    }
+    
+    /* ------------------------------ END EXPECTED VALUE ----------------------------*/
+    
+    
+    /* ------------------------------ ACTUAL VALUE SECTION----------------------------*/
+    /**
+     * @return formatted actual result
+     */
+    public String getFormattedActualResult() {        
+        Object result = getActualResultInternal();
         if (result instanceof Throwable) {
             Throwable rootCause = ExceptionUtils.getRootCause((Throwable)result);
             return rootCause.getMessage();
@@ -120,19 +148,33 @@ public class RunAllTestsBean {
         return TestResultsHelper.format(result);
     }
     
-    public ExplanationNumberValue<?> getExplanationValueResult() {
-        Object result = getResult();
-        return TestResultsHelper.getExplanationValueResult(result);
+    public String getFormattedExplanationValueActual() {
+        return TestResultsHelper.format(getExplanationValueActual());
+    }
+    
+    public ExplanationNumberValue<?> getExplanationValueActual() {        
+        return TestResultsHelper.getExplanationValueResult(getActualResultInternal());
     }
 
-    public int getResultExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getExplanationValueResult());
+    public int getActualExplanatorId() {
+        return TestResultsHelper.getExplanatorId(getExplanationValueActual());
     }
-
-    public int getExpectedExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getExplanationValueExpected());
+    
+    /**
+     * @return actual calculated result as Object
+     */
+    private Object getActualResultInternal() {
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        return testUnit.getActualResult();        
     }
-
+    
+    /* ------------------------------ END ACTUAL VALUE ----------------------------*/
+    
+    /**
+     * Compares the expected and actual test results.
+     * 
+     * @return see {@link TestUnit#compareResult()}
+     */
     public int getCompareResult() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
         return testUnit.compareResult();

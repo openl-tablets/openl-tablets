@@ -129,6 +129,10 @@ public class RunTestMethodBean {
         Object result = resultItems.getRowData();
         return TestResultsHelper.getExplanationValueResult(result);
     }
+    
+    public String getFormattedExplanationValueResult() {
+        return TestResultsHelper.format(getExplanationValueResult());
+    }
 
     public int getExplanatorId() {
         return TestResultsHelper.getExplanatorId(getExplanationValueResult());
