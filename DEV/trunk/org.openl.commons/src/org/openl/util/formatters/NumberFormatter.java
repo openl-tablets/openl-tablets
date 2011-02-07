@@ -1,50 +1,62 @@
 package org.openl.util.formatters;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import org.openl.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+/**
+ * Number formatter.
+ * 
+ * @author Andrei Astrouski
+ */
 public class NumberFormatter implements IFormatter {
 
-    private DecimalFormat format;    
+    private static final Log LOG = LogFactory.getLog(NumberFormatter.class);
 
-    public NumberFormatter(DecimalFormat fmt) {
-        format = fmt;        
+    private NumberFormat format;
+
+    public NumberFormatter() {
+        this(new DecimalFormat());
     }
 
-    public NumberFormatter(String fmt) {
-        format = new DecimalFormat(fmt);
+    public NumberFormatter(Locale locale) {
+        this(NumberFormat.getInstance(
+                locale == null ? Locale.getDefault() : locale));
     }
 
-    public NumberFormatter(String fmt, Locale locale) {
-        format = new DecimalFormat(fmt, new DecimalFormatSymbols(locale));
+    public NumberFormatter(NumberFormat format) {
+        this.format = format;        
     }
 
-    public String format(Object obj) {
-        return format.format(obj);
+    public NumberFormatter(String format) {
+        this(new DecimalFormat(format));
     }
-    
-    /**
-     * Tries to parse value using inner {@link DecimalFormat}, if can`t, tries
-     * to parse the income value by {@link DateFormat#parse(String)}
-     */
+
+    public NumberFormatter(String format, Locale locale) {
+        this(new DecimalFormat(format, new DecimalFormatSymbols(locale)));
+    }
+
+    public String format(Object value) {
+        if (!(value instanceof Number)) {
+            LOG.error("Should be Number: " + value);
+            return null;
+        }
+
+        return format.format(value);
+    }
+
     public Object parse(String value) {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            Log.warn("Could not parse number: " + value);
+            LOG.error("Could not parse Number: " + value);
+            return null;
         }
-
-        try {
-            return DateFormat.getDateInstance().parse(value);
-        } catch (ParseException pe) {
-            return value;
-        }
-
     }
 
 }

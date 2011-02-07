@@ -102,10 +102,6 @@ public class XlsCellStyle implements ICellStyle {
         return xlsStyle.getRotation();
     }
 
-    public String getTextFormat() {
-        return xlsStyle.getDataFormatString();
-    }
-
     public int getVerticalAlignment() {
         return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
     }

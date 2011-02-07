@@ -1,17 +1,17 @@
 package org.openl.rules.table.xls.formatters;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
-import org.openl.rules.table.xls.formatters.SegmentFormatter;
+import org.openl.rules.table.xls.XlsCell;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.types.IOpenClass;
@@ -22,9 +22,19 @@ import org.openl.util.formatters.IFormatter;
 
 public class XlsDataFormatterFactory {
 
-    public static final String GENERAL_XLS_FORMAT = "General";
+    public static final String GENARAL_FORMAT = "General";
 
-    private Map<String, IFormatter> existingFormatters = new HashMap<String, IFormatter>();
+    private DataFormatter dataFormatter;
+    private Locale locale;
+
+    public XlsDataFormatterFactory() {
+        this(null);
+    }
+
+    public XlsDataFormatterFactory(Locale locale) {
+        this.locale = locale;
+        this.dataFormatter = new DataFormatter(locale);
+    }
 
     public IFormatter getFormatter(ICell cell) {
         IFormatter formatter = null;
@@ -35,10 +45,7 @@ public class XlsDataFormatterFactory {
 
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
-            //if (ClassUtils.isAssignable(instanceClass, double.class, true) // Simple numeric
-                //|| instanceClass == BigInteger.class || instanceClass == BigDecimal.class) { // Unbounded numeric
-                String format = cell.getStyle().getTextFormat();
-                IFormatter numberFormatter = findXlsNumberFormatter(format);
+                IFormatter numberFormatter = getNumberFormatter(cell);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new ArrayFormatter(numberFormatter);
@@ -48,8 +55,7 @@ public class XlsDataFormatterFactory {
 
             // Date
             } else if (instanceClass == Date.class) {
-                String format = cell.getStyle().getTextFormat();
-                formatter = findXlsDateFormatter(format);
+                formatter = getDateFormatter(cell);
 
             // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
@@ -78,45 +84,37 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private static boolean isGeneralFormat(String format) {
-        return format == null || GENERAL_XLS_FORMAT.equalsIgnoreCase(format);
-    }    
+    private IFormatter getNumberFormatter(ICell cell) {
+        IFormatter formatter = null;
 
-    @Deprecated
-    private XlsDateFormatter findXlsDateFormatter(String format) {
-        if (StringUtils.isBlank(format) || isGeneralFormat(format)) {
-            format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
+        CellStyle xlsStyle = ((XlsCell) cell).getXlsCell().getCellStyle();
+
+        if (xlsStyle != null) {
+            short formatIndex = xlsStyle.getDataFormat();
+            String format = xlsStyle.getDataFormatString();
+
+            formatter = new XlsNumberFormatter(
+                    formatIndex, format, dataFormatter, locale);
+
         }
 
-        IFormatter formatter = existingFormatters.get(format);
-        if (formatter instanceof XlsDateFormatter) {
-            return (XlsDateFormatter) formatter;
-        }
-
-        XlsDateFormatter dateFormat = new XlsDateFormatter(format);
-        existingFormatters.put(format, dateFormat);
-
-        return dateFormat;
+        return formatter;
     }
 
-    @Deprecated
-    private XlsNumberFormatter findXlsNumberFormatter(String format) {
-        Locale locale = Locale.US;
-        if (isGeneralFormat(format)) {
-            return XlsNumberFormatter.getGeneralFormatter(locale);
+    private IFormatter getDateFormatter(ICell cell) {
+        IFormatter formatter = null;
+
+        CellStyle xlsStyle = ((XlsCell) cell).getXlsCell().getCellStyle();
+
+        if (xlsStyle != null) {
+            String format = xlsStyle.getDataFormatString();
+            if (StringUtils.isBlank(format) || format.equals(GENARAL_FORMAT)) {
+                format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
+            }
+            formatter = new XlsDateFormatter(format);
         }
 
-        IFormatter formatter = existingFormatters.get(format);
-
-        if (formatter instanceof XlsNumberFormatter) {
-            return (XlsNumberFormatter) formatter;
-        }
-
-        XlsNumberFormatter numberFormatter = XlsNumberFormatter.makeFormat(format,
-                new HashMap<String, SegmentFormatter>(), locale);
-        existingFormatters.put(format, numberFormatter);
-
-        return numberFormatter;
+        return formatter;
     }
 
 }
