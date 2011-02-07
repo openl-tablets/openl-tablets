@@ -1,16 +1,12 @@
 package org.openl.meta;
 
-import java.text.DecimalFormat;
-import java.text.Format;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openl.meta.explanation.ExplanationNumberValue;
+
 
 public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     
-    private static final long serialVersionUID = -4594250562069599646L;
-    private String format = "#0.####";
+    private static final long serialVersionUID = -4594250562069599646L;        
+    
     private double value;    
 
     public static class DoubleValueOne extends DoubleValue {
@@ -52,8 +48,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     public static final DoubleValue ZERO = new DoubleValueZero();
     public static final DoubleValue ONE = new DoubleValueOne();
-
-    private static Map<String, Format> formats = new HashMap<String, Format>();
     
     public static DoubleValue add(DoubleValue dv1, DoubleValue dv2) {
 
@@ -214,18 +208,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return dv1.getValue() >= dv2.getValue();
     }
 
-    public static synchronized Format getFormat(String fmt) {
-
-        Format format = formats.get(fmt);
-
-        if (format == null) {
-            format = new DecimalFormat(fmt);
-            formats.put(fmt, format);
-        }
-
-        return format;
-    }
-
     public static boolean gt(DoubleValue dv1, DoubleValue dv2) {
         return dv1.getValue() > dv2.getValue();
     }
@@ -301,10 +283,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.value = value;
     }
 
+    @Deprecated
+    /**
+     * @deprecated format is not used inside Double value
+     */
     public DoubleValue(double value, IMetaInfo metaInfo, String format) {
         super(metaInfo);
         this.value = value;
-        this.format = format;
     }
 
     public DoubleValue(double value, String name) {
@@ -347,8 +332,10 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return (float) value;
     }
 
+    @Deprecated
     public String getFormat() {
-        return format;
+//        return format;
+        return null;
     }
 
     public double getValue() {
@@ -366,15 +353,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public String printValue() {
-        return printValue(format);
+        return String.valueOf(value);
     }
 
-    public String printValue(String format) {
-        return getFormat(format).format(value);
-    }
-
+    @Deprecated
     public void setFormat(String format) {
-        this.format = format;
+//        this.format = format;
     }
 
     public void setValue(double value) {
