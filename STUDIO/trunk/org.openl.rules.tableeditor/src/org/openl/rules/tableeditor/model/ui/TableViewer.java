@@ -1,5 +1,6 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -23,6 +24,9 @@ public class TableViewer {
         }
 
         switch (style.getHorizontalAlignment()) {
+            case ICellStyle.ALIGN_LEFT:
+                // Left by default    
+                break;
             case ICellStyle.ALIGN_RIGHT:
                 cm.setHalign("right");
                 break;
@@ -31,6 +35,12 @@ public class TableViewer {
                 break;
             case ICellStyle.ALIGN_JUSTIFY:
                 cm.setHalign("justify");
+                break;
+            default:
+                // Align right numeric and date
+                if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
+                    cm.setHalign("right");
+                }
                 break;
         }
 
@@ -93,7 +103,8 @@ public class TableViewer {
 
         String formattedValue = cell.getFormattedValue();
         if (StringUtils.isNotBlank(formattedValue)) {
-            cm.setContent(formattedValue);
+            String htmlEscapedValue = StringEscapeUtils.escapeHtml(formattedValue);
+            cm.setContent(htmlEscapedValue);
             if (cell.getFormula() != null) {
                 cm.setFormula(cell.getFormula());
             }
