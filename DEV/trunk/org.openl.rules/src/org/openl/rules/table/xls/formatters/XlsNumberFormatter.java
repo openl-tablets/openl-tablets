@@ -1,308 +1,56 @@
-/**
- * Created Feb 26, 2007
- */
 package org.openl.rules.table.xls.formatters;
 
-import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.util.NumberUtils;
-import org.openl.util.StringTool;
-import org.openl.util.formatters.DefaultFormatter;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
 
 /**
  * This class provides default conversion of MS Excel formats to Java formats.
  * There is no way for practical and technical reasons to map it completely
- * 100%. Therefore this class will be supplemented by a) pre-defined hardcoded
- * mapping for most of embedded MS Excel formats; b) by providing app developers
- * with ability to plug-in their own custom transformers and/or mappings.
+ * 100%. Therefore this class will be supplemented by pre-defined hardcoded
+ * mapping for most of embedded MS Excel formats.
  *
  * @author snshor
- *
- *  TODO: refactor this class. Remove from method parse() next parameters: SegmentFormatter positiveFormat,
- *  SegmentFormatter negativeFormat, SegmentFormatter zeroFormat;
- *
  */
-public class XlsNumberFormatter extends AXlsFormatter {
+public class XlsNumberFormatter implements IFormatter {
 
     private static final Log LOG = LogFactory.getLog(XlsNumberFormatter.class);
 
-    public static final String DEFAULT_FORMAT_STR = "0.00";
-    public static final String GENERAL_FORMAT_STR = "#.######";
+    private int formatIndex;
+    private String format;
+    private DataFormatter dataFormatter;
+    private Locale locale;
 
-    private static final String[] COLORS_STR = { "[Black]", "[Blue]", "[Cyan]", "[Green]", "[Magenta]", "[Red]",
-        "[White]", "[Yellow]" };
-
-    private static final short[][] COLORS = { { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0xff }, { 0x00, 0xff, 0xff },
-            { 0x00, 0xff, 0x00 }, { 0xff, 0x00, 0xff }, { 0xff, 0x00, 0x00 }, { 0xff, 0xff, 0xff },
-            { 0xff, 0xff, 0x00 }, };
-
-    private SegmentFormatter positiveFormat;
-
-    private SegmentFormatter negativeFormat;
-
-    private SegmentFormatter zeroFormat;
-   
-    private static String detectColor(SegmentFormatter segmentFormatter, String format) {
-        for (int i = 0; i < COLORS_STR.length; i++) {
-            if (format.contains(COLORS_STR[i]) || format.contains(COLORS_STR[i].toUpperCase())) {
-                segmentFormatter.setColor(COLORS[i]);
-                return format.substring(COLORS_STR[i].length());
-            }
-        }
-
-        return format;
+    public XlsNumberFormatter(int xlsFormatIndex, String xlsFormat, DataFormatter xlsDataFormatter) {
+        this(xlsFormatIndex, xlsFormat, xlsDataFormatter, null);
     }
 
-    public static XlsNumberFormatter getGeneralFormatter(Locale locale) {
-        DecimalFormat format = getLocaleDecimalFormat(locale);
-        format.applyPattern(GENERAL_FORMAT_STR);
-        return new XlsNumberFormatter(new SegmentFormatter(
-                new NumberFormatter(format), null), null, null);
+    public XlsNumberFormatter(int xlsFormatIndex, String xlsFormat, DataFormatter xlsDataFormatter, Locale locale) {
+        this.formatIndex = xlsFormatIndex;
+        this.format = xlsFormat;
+        this.dataFormatter = xlsDataFormatter;
+        this.locale = locale;
     }
 
-    public static XlsNumberFormatter getGeneralFormatter() {
-        return getGeneralFormatter(null);
-    }
-
-    private static SegmentFormatter getFormat(String format, Map<String, SegmentFormatter> existingFmts, 
-            boolean isNegative, Locale locale) {
-        SegmentFormatter segmentFormatter = existingFmts.get(format);
-        if (segmentFormatter != null) {
-            return segmentFormatter;
-        }
-
-        segmentFormatter = makeSegmentFormatter(format, isNegative, locale);
-        existingFmts.put(format, segmentFormatter);
-        return segmentFormatter;
-    }
-
-    public static void main(String[] args) {
-
-        //System.out.println(new DecimalFormat("$#,##0").format(12.334) + "|");
-
-        //System.out.println(new DecimalFormat(" #,##0.0; (#,##0.0)").format(-12.334) + "|");
-
-        double[] x = { -12.35, 12345.6789, 8.9, .631, 12, 12.35, };
-
-        String[] formats = { "$#,##0_);[Red]($#,##0)", "_(* #,##0.0_);_(* (#,##0.0);_(* \"-\"??_);_(@_)", "#,###",
-                "#,", "####.#", "#.000", "0.#", "#.0#", "???.???", "#.0;(#.0)", };
-
-        HashMap<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
-        for (int i = 0; i < formats.length; i++) {
-            XlsNumberFormatter xnf = makeFormat(formats[i], existingFmts);
-            // NumberFormat f = new DecimalFormat(jf);
-            System.out.println(formats[i] + "  :  ");
-            for (int j = 0; j < x.length; j++) {
-                Double value = new Double(x[j]);
-
-                System.out.println(xnf.format(value) + "|  " + x[j]);
-            }
-            System.out.println();
-        }        
-    }
-
-    public static XlsNumberFormatter makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts,
-            Locale locale) {
-        String[] fmts = StringTool.tokenize(xlsformat, ";");
-
-        int N = 3;
-        int NEG = 1;
-        SegmentFormatter[] sff = new SegmentFormatter[N];
-        int len = Math.min(fmts.length, N);
-
-        for (int i = 0; i < len; ++i) {
-            SegmentFormatter sf = getFormat(fmts[i], existingFmts, i == NEG, locale);
-            sff[i] = sf;
-        }
-
-        return new XlsNumberFormatter(sff[0], sff[1], sff[2]);
-    }
-
-    public static XlsNumberFormatter makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts) {
-        return makeFormat(xlsformat, existingFmts, null);
-    }
-
-    private static SegmentFormatter makeSegmentFormatter(String format, boolean isNegative, Locale locale) {
-
-        SegmentFormatter segmentFormatter = new SegmentFormatter();
-
-        format = detectColor(segmentFormatter, format);
-
-        String javaFormat = transformToJavaFormat(format, segmentFormatter);
-        if (isNegative) {
-            javaFormat = StringTool.removeChars(javaFormat, "()") + ';' + javaFormat;
-        }
-
-        if (javaFormat.indexOf('#') < 0 && javaFormat.indexOf('0') < 0) {
-            IFormatter textFormatter = new DefaultFormatter();
-            segmentFormatter.setFormatter(textFormatter);
-            return segmentFormatter;
-
-        }
-
-        DecimalFormat decimalFormat = getLocaleDecimalFormat(locale);
-        try {
-            decimalFormat.applyPattern(javaFormat);
-        } catch (Throwable t) {
-            LOG.warn("Bad java format. Using default. Consider custom mapping: '" + javaFormat + "'");
-            decimalFormat.applyPattern(DEFAULT_FORMAT_STR);
-        }
-
-        IFormatter textFormatter = new NumberFormatter(decimalFormat);
-        segmentFormatter.setFormatter(textFormatter);
-
-        return segmentFormatter;
-    }
-
-    private static DecimalFormat getLocaleDecimalFormat(Locale locale) {
-        DecimalFormat decimalFormat = null;
-        if (locale != null) {
-            decimalFormat = (DecimalFormat) DecimalFormat.getCurrencyInstance(locale);
-        } else {
-            decimalFormat = (DecimalFormat) DecimalFormat.getCurrencyInstance();
-        }
-        return decimalFormat;
-    }
-
-    public static String transformToJavaFormat(String xlsFormat, SegmentFormatter segmentFormatter) {
-
-        StringBuffer sb = new StringBuffer();
-
-        boolean skip = false;
-
-        for (int i = 0; i < xlsFormat.length(); i++) {
-            if (skip) {
-                skip = false;
-                continue;
-            }
-            char c = xlsFormat.charAt(i);
-
-            switch (c) {
-                case '_':
-                    sb.append(' ');
-                    skip = true;
-                    continue;
-                case '*':
-                    skip = true;
-                    continue;
-                case '\\':
-                case '"':
-                    continue;
-                default:
-                    sb.append(c);
-            }
-        }
-
-        xlsFormat = sb.toString();
-
-        // transform trailing commas
-
-        while (xlsFormat.endsWith(",")) {
-            double newMultiplier = segmentFormatter.getMultiplier() / 1000;
-            segmentFormatter.setMultiplier(newMultiplier);
-            xlsFormat = xlsFormat.substring(0, xlsFormat.length() - 1);
-        }
-
-        // TODO sure it works differently, but do we want to deal with it? Not
-        // for
-        // now.
-        if (xlsFormat.indexOf(".?") >= 0) {
-            xlsFormat = xlsFormat.replace('?', '#');
-        } else {
-            xlsFormat = xlsFormat.replace('?', ' ');
-        }
-
-        return xlsFormat;
-    }
-
-    public XlsNumberFormatter(SegmentFormatter positiveFormat, SegmentFormatter negativeFormat, SegmentFormatter zeroFormat) {
-        this.positiveFormat = positiveFormat;
-        this.negativeFormat = negativeFormat;
-        this.zeroFormat = zeroFormat;
-    }
-
-    public String format(Object value, SegmentFormatter segmentFormatter) {
+    public String format(Object value) {
         if (!(value instanceof Number)) {
-            LOG.error("Should be Number " + value);
+            LOG.error("Should be Number: " + value);
             return null;
         }
-        Number number = (Number) value;
-        if (segmentFormatter == null) {
-            segmentFormatter = getSegmentFormatter(number);
-        }
-        if (segmentFormatter.getMultiplier() != 1) {
-            value = new Double(number.doubleValue() * segmentFormatter.getMultiplier());
-        }
-        return segmentFormatter.getFormatter().format(value);
-    }
-    
-    public String format(Object value) {
-        return format(value, null);
+
+        double doubleValue = ((Number) value).doubleValue();
+        String formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
+
+        return formattedDate;
     }
 
-    public SegmentFormatter getSegmentFormatter(Number number) {
-        SegmentFormatter segmentFormatter = positiveFormat;
-        if (number.doubleValue() < 0) {
-            segmentFormatter = isNegativeFormat();
-        } else if (number.doubleValue() == 0) {
-            segmentFormatter = zeroFormat();
-        }
-        return segmentFormatter;
-    }
-
-    private SegmentFormatter isNegativeFormat() {
-        return negativeFormat == null ? positiveFormat : negativeFormat;
-    }
-    
     public Object parse(String value) {
-
-        try {
-            double doubleValue = Double.parseDouble(value);
-            return NumberUtils.intOrDouble(doubleValue);
-        } catch (NumberFormatException ex) {
-
-        }
-
-        Object firstTry = positiveFormat.parse(value);
-        if (firstTry != value) {
-            // parse
-            return firstTry;
-        }
-
-        if (negativeFormat != null) {
-            firstTry = negativeFormat.parse(value);
-            if (firstTry != value) {
-                // from
-                // parse
-                return firstTry;
-            }
-        } else {
-            return value;
-        }
-
-        if (zeroFormat != null) {
-            firstTry = zeroFormat.parse(value);
-            if (firstTry != value) {
-                // from
-                // parse
-                return firstTry;
-            }
-        } else {
-            return value;
-        }
-
-        return value;
-    }
-
-    private SegmentFormatter zeroFormat() {
-        return zeroFormat == null ? positiveFormat : zeroFormat;
+        NumberFormatter numberFormatter = new NumberFormatter(locale);
+        return numberFormatter.parse(value);
     }
 
 }

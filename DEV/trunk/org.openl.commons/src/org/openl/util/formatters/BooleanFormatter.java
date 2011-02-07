@@ -10,12 +10,12 @@ public class BooleanFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
-            LOG.error("Should be Boolean" + value);
+            LOG.error("Should be Boolean: " + value);
             return null;
         }
+
         Boolean bool = (Boolean) value;
-        String fBoolean = bool.toString(); 
-        return fBoolean;        
+        return bool.toString();
     }
 
     public Object parse(String value) {

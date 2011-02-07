@@ -9,6 +9,7 @@ package org.openl.rules.table.xls;
 import java.awt.Color;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +43,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
@@ -69,6 +71,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
     private Map<String, AXlsCellWriter> cellWriters = new HashMap<String, AXlsCellWriter>();
 
+    private XlsDataFormatterFactory dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
+
     // private final static Log LOG =
     // LogFactory.getLog(XlsSheetGridModel.class);
     
@@ -95,17 +99,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
     public static IGridRegion makeRegion(String range) {
         return IGridRegion.Tool.makeRegion(range);
     }
-        
-    /**
-     * For internal usages, when we need to create virtual grid.
-     * 
-     * @deprecated For creating virtual grids use {@link XlsSheetGridHelper#createVirtualGrid(Sheet)}
-     */
-    protected XlsSheetGridModel(Sheet sheet) {
-        this.sheet = sheet;
-        extractMergedRegions();
-        initCellWriters();
-    }    
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
@@ -115,6 +108,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         sheetSource.getWorkbookSource().addListener(this);
         
         initCellWriters();
+
+        dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
+    }
+
+    public XlsDataFormatterFactory getDataFormatterFactory() {
+        return dataFormatterFactory;
     }
 
     private void extractMergedRegions() {
@@ -220,31 +219,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
         return new GridRegion(top, left, top + height - 1, left + width - 1);
     }
-    
-    /**
-     * Deprecated due to incorrect name. It was not clear that we get the cell from Poi.<br>
-     * Use {@link PoiExcelHelper#getCell(int, int)}
-     *      
-     */
-    @Deprecated
-    public Cell getXlsCell(int colIndex, int rowIndex) {
-        return PoiExcelHelper.getCell(colIndex, rowIndex, sheet);
-    }
-    
-    /**
-     * Deprecated due to incorrect name. It was not clear that we get the cell from Poi.<br>
-     * Use {@link PoiExcelHelper#getOrCreateCell(int, int)}.
-     */
-    @Deprecated
-    public Cell getOrCreateXlsCell(int colIndex, int rowIndex) {
-        return PoiExcelHelper.getOrCreateCell(colIndex, rowIndex, sheet);
-    }
 
     public ICell getCell(int column, int row) {        
         return new XlsCell(column, row, this);
     }
 
-    // protected to be accessible from XlsCell
+    // Protected to be accessible from XlsCell
     protected CellMetaInfo getCellMetaInfo(int col, int row) {
         CellKey ck = new CellKey(col, row);
         return metaInfoMap.get(ck);
@@ -314,14 +294,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
 
     public IGridRegion getRegionContaining(int x, int y) {
         return mergedRegionsPool.getRegionContaining(x, y);
-    }
-
-    /**
-     * Deprecated as there is no usages
-     */
-    @Deprecated
-    public static boolean contains(CellRangeAddress reg, int x, int y) {
-        return reg.getFirstColumn() <= x && x <= reg.getLastColumn() && reg.getFirstRow() <= y && y <= reg.getLastRow();
     }
 
     public XlsSheetSourceCodeModule getSheetSource() {

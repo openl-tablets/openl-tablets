@@ -21,8 +21,8 @@ import org.openl.util.print.DefaultFormat;
  */
 public class FormattersManager {
 
-    public static String DEFAULT_DATE_FORMAT = "M/d/yy";
-    public static String DEFAULT_NUMBER_FORMAT = "#.######";
+    public static String DEFAULT_DATE_FORMAT = "MM/dd/yyyy";
+    public static String DEFAULT_NUMBER_FORMAT = "#.##########";
 
     /**
      * Gets the formatter for appropriate value.       

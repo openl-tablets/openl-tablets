@@ -153,11 +153,15 @@ public class XlsCell implements ICell {
 
     public String getFormattedValue() {
         String formattedValue = null;
+        
+        Object value = getObjectValue();
 
-        IFormatter cellDataFormatter = getDataFormatter();
-
-        if (cellDataFormatter != null) {
-            formattedValue = cellDataFormatter.format(getObjectValue());
+        if (value != null) {
+            IFormatter cellDataFormatter = getDataFormatter();
+    
+            if (cellDataFormatter != null) {
+                formattedValue = cellDataFormatter.format(value);
+            }
         }
 
         if (formattedValue == null) {
@@ -171,7 +175,7 @@ public class XlsCell implements ICell {
     }
 
     public IFormatter getDataFormatter() {
-        XlsDataFormatterFactory dataFormatterFactory = new XlsDataFormatterFactory();
+        XlsDataFormatterFactory dataFormatterFactory = gridModel.getDataFormatterFactory();
         return dataFormatterFactory.getFormatter(this);
     }
 
@@ -349,6 +353,10 @@ public class XlsCell implements ICell {
             }
         }
         return null;
+    }
+
+    public Cell getXlsCell() {
+        return cell;
     }
 
 }

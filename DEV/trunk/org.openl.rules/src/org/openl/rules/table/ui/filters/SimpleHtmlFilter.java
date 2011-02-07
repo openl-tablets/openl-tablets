@@ -3,17 +3,15 @@
  */
 package org.openl.rules.table.ui.filters;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.openl.rules.table.FormattedCell;
-import org.openl.util.StringTool;
 
+@Deprecated
 public class SimpleHtmlFilter extends AGridFilter {
 
     public FormattedCell filterFormat(FormattedCell cell) {
-        if (cell.getStyle().isWrappedText()) {
-            cell.setFormattedValue(StringTool.encodeHTMLBody(cell.getFormattedValue()));
-        } else {
-            cell.setFormattedValue(StringTool.prepareXMLBodyValue(cell.getFormattedValue()));
-        }
+        String escapedStr = StringEscapeUtils.escapeHtml(cell.getFormattedValue());
+        cell.setFormattedValue(escapedStr);
         return cell;
     }
 

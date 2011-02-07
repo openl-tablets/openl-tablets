@@ -23,8 +23,6 @@ public class CellStyle implements ICellStyle {
 
     private short fillPattern;
 
-    private String textFormat;
-
     private short[] borderStyle;
 
     private short[][] borderRGB;
@@ -49,8 +47,6 @@ public class CellStyle implements ICellStyle {
         fillBackgroundColorIndex = cellStyle.getFillBackgroundColorIndex();
         fillForegroundColorIndex = cellStyle.getFillForegroundColorIndex();
         fillPattern = cellStyle.getFillPattern();
-
-        textFormat = cellStyle.getTextFormat();
 
         borderStyle = cellStyle.getBorderStyle();
         borderRGB = cellStyle.getBorderRGB();
@@ -88,10 +84,6 @@ public class CellStyle implements ICellStyle {
 
     public int getRotation() {
         return rotation;
-    }
-
-    public String getTextFormat() {
-        return textFormat;
     }
 
     public int getVerticalAlignment() {
@@ -152,10 +144,6 @@ public class CellStyle implements ICellStyle {
 
     public void setRotation(int rotation) {
         this.rotation = rotation;
-    }
-
-    public void setTextFormat(String textFormat) {
-        this.textFormat = textFormat;
     }
 
     public void setVerticalAlignment(int verticalAlignment) {

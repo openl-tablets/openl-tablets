@@ -279,12 +279,7 @@ public interface ICellStyle {
      * @return rotation degrees (between -90 and 90 degrees)
      */
     int getRotation();
-    
-    /**
-     * Get the format string
-     */
-    String getTextFormat();
-    
+
     /**
      * get the type of vertical alignment for the cell
      * @return align the type of alignment

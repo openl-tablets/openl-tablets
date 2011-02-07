@@ -16,18 +16,6 @@ import org.apache.commons.lang.StringUtils;
 
 public class StringTool {
 
-    public static abstract class CharToStringConverter {
-        public String convert(char ch) {
-            String res = convertOrNull(ch);
-            if (res == null) {
-                return String.valueOf(ch);
-            }
-            return res;
-        }
-
-        public abstract String convertOrNull(char ch);
-    }
-
     public interface Convertor {
         void convert(char c, int idx, StringBuffer out);
     }
@@ -151,26 +139,6 @@ public class StringTool {
         }
     }
 
-    static final char[] STRING_TO_XML_REPLACE_FROM = { '>', '<', '&', '\'', '"' };
-
-    static final String[] STRING_TO_XML_REPLACE_TO = { "&gt;", "&lt;", "&amp;", "&#39;", "&quot;" };
-
-    static final char[] STRING_TO_XML_BODY_REPLACE_FROM = { '>', '<', '&', '\'', '"', ' ' };
-
-    static final String[] STRING_TO_XML_BODY_REPLACE_TO = { "&gt;", "&lt;", "&amp;", "&#39;", "&quot;", "&nbsp;" };
-
-    static final public int EMPTY = 1, COPY = 2, ERROR = 3;
-
-    public static Selector VALID_JAVA_IDENTIFICATOR = new Selector() {
-        public boolean select(char c, int idx) {
-            if (idx > 0) {
-                return Character.isJavaIdentifierPart(c);
-            } else {
-                return Character.isJavaIdentifierStart(c);
-            }
-        }
-    };
-
     static public Convertor IGNORE = new Convertor() {
         public void convert(char c, int idx, StringBuffer out) {
         }
@@ -290,16 +258,6 @@ public class StringTool {
         } // for
 
         buf.append(src, start, src.length - start);
-        return buf;
-    }
-    public static String encodeHTMLBody(String content) {
-        StringBuffer buf = new StringBuffer(100);
-        encodeHTMLBody(content, buf);
-        return buf.toString();
-    }
-
-    public static StringBuffer encodeHTMLBody(String content, StringBuffer buf) {
-        prepareXMLAttributeValue(content, buf);
         return buf;
     }
 
@@ -448,81 +406,8 @@ public class StringTool {
         return (String[]) v.toArray(new String[v.size()]);
     }
 
-    public static StringBuffer prepareXMLAttributeValue(String attrValue, StringBuffer buf) {
-        return replaceCharsWithStrings(buf, attrValue, STRING_TO_XML_REPLACE_FROM, STRING_TO_XML_REPLACE_TO);
-    }
-
-    public static String prepareXMLBodyValue(String content) {
-        StringBuffer buf = new StringBuffer(100);
-        prepareXMLBodyValue(content, buf);
-        return buf.toString();
-    }
-
-    public static StringBuffer prepareXMLBodyValue(String attrValue, StringBuffer buf) {
-        return replaceCharsWithStrings(buf, attrValue, STRING_TO_XML_BODY_REPLACE_FROM, STRING_TO_XML_BODY_REPLACE_TO);
-    }
-
-    public static String propetyToLabel(String propertyName) {
-        return propetyToLabel(propertyName, new StringBuffer()).toString();
-    }
-
-    public static StringBuffer propetyToLabel(String propertyName, StringBuffer sb) {
-        if (propertyName == null || propertyName.length() == 0) {
-            return sb;
-        // StringBuffer sb = new StringBuffer();
-        }
-
-        int len = propertyName.length();
-        int i = 0;
-        char lastChar = ' ';
-        while (i < len) {
-            char c = propertyName.charAt(i);
-            if (c == '_') {
-                if (sb.length() > 0) {
-                    lastChar = ' ';
-                    sb.append(lastChar);
-                }
-                while (++i < len && propertyName.charAt(i) == '_') {
-                    ;
-                }
-
-                continue;
-            }
-
-            if (Character.isUpperCase(c) && (!Character.isUpperCase(lastChar)) && (lastChar != ' ')) {
-                lastChar = ' ';
-                sb.append(lastChar);
-            }
-
-            if (lastChar == ' ') {
-                sb.append(Character.toUpperCase(c));
-            } else {
-                sb.append(c);
-            }
-
-            lastChar = c;
-            ++i;
-        }
-        return sb;
-    }
-
-    public static String removeChars(String src, String toRemove) {
-        StringBuffer buf = new StringBuffer(src.length());
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
-            if (toRemove.indexOf(c) < 0) {
-                buf.append(c);
-            }
-        }
-        return buf.toString();
-    }
-
     public static String replace(String src, String toFind, String toReplace) {
         return replace(src, toFind, toReplace, true, false, new StringBuffer()).toString();
-    }
-
-    public static String replace(String src, String toFind, String toReplace, boolean all, boolean ignoreCase) {
-        return replace(src, toFind, toReplace, all, ignoreCase, new StringBuffer()).toString();
     }
 
     public static StringBuffer replace(String src, String toFind, String toReplace, boolean all, boolean ignoreCase,
@@ -563,85 +448,6 @@ public class StringTool {
         return out;
     }
 
-    public static final String replaceCharsWithStrings(String sourceStr, char[] replaceFrom, String[] replaceTo) {
-        if (sourceStr == null || sourceStr.equals("")) {
-            return "";
-        }
-        if (replaceFrom.length == 0) {
-            return sourceStr;
-        }
-        int length = sourceStr.length();
-        StringBuffer result = new StringBuffer(length + 20);
-        replaceCharsWithStrings(result, sourceStr, replaceFrom, replaceTo);
-        return result.toString();
-    }
-
-    public static final String replaceCharsWithStrings(String sourceStr, CharToStringConverter converter) {
-        if (sourceStr == null || sourceStr.equals("")) {
-            return "";
-        }
-        if (converter == null) {
-            return sourceStr;
-        }
-        int length = sourceStr.length();
-        StringBuffer result = new StringBuffer(length + 20);
-        replaceCharsWithStrings(result, sourceStr, converter);
-        return result.toString();
-    }
-
-    public static final StringBuffer replaceCharsWithStrings(StringBuffer result, String sourceStr, char[] replaceFrom,
-            String[] replaceTo) {
-        if (replaceFrom.length != replaceTo.length) {
-            throw new RuntimeException("Program Error: replaceFrom.length != replaceTo.length");
-        }
-        if (sourceStr == null || sourceStr.equals("")) {
-            return result;
-        }
-        if (replaceFrom.length == 0) {
-            result.append(sourceStr);
-            return result;
-        }
-        int length = sourceStr.length();
-        for (int i = 0; i < length; i++) {
-            char nextChar = sourceStr.charAt(i);
-            boolean isFound = false;
-            for (int j = 0; j < replaceFrom.length; j++) {
-                char replaceChar = replaceFrom[j];
-                if (nextChar == replaceChar) {
-                    result.append(replaceTo[j]);
-                    isFound = true;
-                    break;
-                }
-            }
-            if (!isFound) {
-                result.append(nextChar);
-            }
-        }
-
-        return result;
-    }
-
-    public static final void replaceCharsWithStrings(StringBuffer result, String sourceStr,
-            CharToStringConverter converter) {
-        if (sourceStr == null || sourceStr.equals("")) {
-            return;
-        }
-        if (converter == null) {
-            result.append(sourceStr);
-            return;
-        }
-        int length = sourceStr.length();
-        for (int i = 0; i < length; i++) {
-            char nextChar = sourceStr.charAt(i);
-            String newChar = converter.convertOrNull(nextChar);
-            if (newChar == null) {
-                result.append(nextChar);
-            } else {
-                result.append(newChar);
-            }
-        }
-    };
-
     public static String[] splitLines(Reader reader) {
         BufferedReader br = new BufferedReader(reader);
         List<String> v = new ArrayList<String>();
@@ -676,38 +482,6 @@ public class StringTool {
         return res;
     }
 
-    public static String toValidJavaIdentificator(String src) {
-        return filter(src, VALID_JAVA_IDENTIFICATOR, IGNORE);
-    }
-
-    public static String trimGood(String src) {
-        return trimGood(src, new StringBuffer()).toString();
-    }
-
-    public static StringBuffer trimGood(String src, StringBuffer out) {
-        int len = src.length();
-        int count = len;
-        int st = 0;
-        // char[] val = src.toCharArray(); /* avoid getfield opcode */
-
-        while ((st < len) && (isSpace(src.charAt(st)))) {
-            st++;
-        }
-        while ((st < len) && (isSpace(src.charAt(len - 1)))) {
-            len--;
-        }
-
-        if (st > 0 || len < count) {
-            if (st != len) {
-                out.append(src.substring(st, len));
-            }
-        } else {
-            out.append(src);
-        }
-
-        return out;
-    }
-
     static public String untab(String src, int tabSize) {
         StringBuffer buf = new StringBuffer(src.length() + 10);
 
@@ -725,17 +499,6 @@ public class StringTool {
             }
         }
         return buf.toString();
-    }
-
-    public static String xmlProperty(String key, String value) {
-        return xmlProperty(key, value, new StringBuffer()).toString();
-    }
-
-    public static StringBuffer xmlProperty(String key, String value, StringBuffer buf) {
-        buf.append(key).append("='");
-        prepareXMLAttributeValue(value, buf);
-        buf.append('\'');
-        return buf;
     }
 
     static public String getFileNameOfJavaClass(Class<?> c)
