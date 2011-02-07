@@ -2,8 +2,10 @@ package org.openl.rules.ui.tree.richfaces;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.tree.AbstractTreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeData;
 import org.openl.util.tree.ITreeElement;
@@ -84,7 +86,10 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
         return StringUtils.EMPTY;
     }
 
-    protected String getDisplayName(Object obj, int mode) {
+    protected String getDisplayName(Object obj, int mode) { 
+        if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
+            return FormattersManager.getFormatter(obj).format(obj);
+        }
         if (obj instanceof INamedThing) {
             INamedThing nt = (INamedThing) obj;
             return nt.getDisplayName(mode);

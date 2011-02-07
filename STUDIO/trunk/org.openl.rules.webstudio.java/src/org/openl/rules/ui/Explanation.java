@@ -8,18 +8,20 @@ import org.openl.meta.IMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue.ValueType;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
+import org.openl.util.formatters.IFormatter;
 import org.openl.util.tree.TreeIterator;
 
 public class Explanation {
     static class ExplanationValueIterator implements TreeIterator.TreeAdaptor {
 
-        public Iterator children(Object node) { // node.getType == NumberValueTypes.Formula
+        public Iterator<?> children(Object node) { // node.getType == NumberValueTypes.Formula
             if (node.getClass() == ExplanationNumberValue.class && ((ExplanationNumberValue<?>)node).getValueType().equals(ValueType.FORMULA)) {
                 return OpenIterator.fromArray(((ExplanationNumberValue<?>) node).getFormula().getArguments());
             } else if (node.getClass() == ExplanationNumberValue.class && 
@@ -96,25 +98,36 @@ public class Explanation {
         return ret + ")";
     }
     
-    public String expandValue(ExplanationNumberValue<?> value) {
-        String text = String.valueOf(value.toString());
+    public String expandValue(ExplanationNumberValue<?> explanationValue) {        
+        String value = getFormattedValue(explanationValue);
 
-        String name = getName(value);
+        String name = getName(explanationValue);
 
         if (name != null && showNamesInFormula) {
             if (showValuesInFormula) {
-                text = name + "(" + text + ")";
+                value = name + "(" + value + ")";
             } else {
-                text = name;
+                value = name;
             }
         }
 
-        if (expandedValues.contains(value)) {
-            return text;
+        if (expandedValues.contains(explanationValue)) {
+            return value;
         }
-        int id = explanator.getUniqueId(value);
+        int id = explanator.getUniqueId(explanationValue);
 
-        return HTMLHelper.urlLink(makeExpandUrl(id), name == null ? "expand" : name, text, null);
+        return HTMLHelper.urlLink(makeExpandUrl(id), name == null ? "expand" : name, value, null);
+    }
+
+    private String getFormattedValue(ExplanationNumberValue<?> explanationValue) {
+        IFormatter formatter = FormattersManager.getFormatter(explanationValue);
+        String value = null;
+        if (formatter != null) {
+            value = formatter.format(explanationValue);
+        } else {
+            value = String.valueOf(explanationValue.toString());
+        }
+        return value;
     }
     
     public String findUrl(ExplanationNumberValue<?> value, String parentUrl) {
@@ -149,14 +162,14 @@ public class Explanation {
         return expandValue(value);
     }
     
-    public String[] htmlTable(ExplanationNumberValue<?> value) {
-        String text = String.valueOf(value.toString());
-        String url = findUrl(value, null);
-        IMetaInfo mi = value.getMetaInfo();
+    public String[] htmlTable(ExplanationNumberValue<?> explanationValue) {
+        String value = getFormattedValue(explanationValue);
+        String url = findUrl(explanationValue, null);
+        IMetaInfo mi = explanationValue.getMetaInfo();
         String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
 
         if (url != null) {
-            text = HTMLHelper.urlLink(makeUrl(url), "show", text, null);
+            value = HTMLHelper.urlLink(makeUrl(url), "show", value, null);
         }
 
         if (name == null) {
@@ -166,7 +179,7 @@ public class Explanation {
                     name, "mainFrame");
         }
 
-        return new String[] { text, name, htmlString(value) };
+        return new String[] { value, name, htmlString(explanationValue) };
     }
     
     protected boolean isExpandable(ExplanationNumberValue<?> value) {
