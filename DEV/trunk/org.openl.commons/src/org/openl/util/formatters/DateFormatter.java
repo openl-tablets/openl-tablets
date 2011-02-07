@@ -43,7 +43,7 @@ public class DateFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Date)) {
-            LOG.error("Should be Date: " + value);
+            LOG.debug("Should be Date: " + value);
             return null;
         }
 
@@ -54,7 +54,7 @@ public class DateFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            LOG.error("Could not parse Date: " + value, e);
+            LOG.debug("Could not parse Date: " + value, e);
             return null;
         }
     }

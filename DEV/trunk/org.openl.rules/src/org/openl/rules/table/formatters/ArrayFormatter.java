@@ -66,7 +66,7 @@ public class ArrayFormatter implements IFormatter {
         String result = null;
         if (value != null) {
             if (!(value.getClass().isArray())) {
-                LOG.error(String.format("Should be an array: %s", value.toString()));
+                LOG.debug(String.format("Should be an array: %s", value.toString()));
                 return result;
             }
             

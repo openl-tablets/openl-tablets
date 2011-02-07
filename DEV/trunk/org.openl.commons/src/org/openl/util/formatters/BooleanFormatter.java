@@ -10,7 +10,7 @@ public class BooleanFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
-            LOG.error("Should be Boolean: " + value);
+            LOG.debug("Should be Boolean: " + value);
             return null;
         }
 
@@ -23,7 +23,7 @@ public class BooleanFormatter implements IFormatter {
         if (boolValue != null) {
             return boolValue;
         } else {
-            LOG.warn("Could not parse Boolean: " + value);
+            LOG.debug("Could not parse Boolean: " + value);
             return null;
         }
     }

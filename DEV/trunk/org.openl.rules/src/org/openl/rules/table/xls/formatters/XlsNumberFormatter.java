@@ -38,7 +38,7 @@ public class XlsNumberFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Number)) {
-            LOG.error("Should be Number: " + value);
+            LOG.debug("Should be Number: " + value);
             return null;
         }
 
