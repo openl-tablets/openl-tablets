@@ -11,7 +11,8 @@ public enum NumberOperations {
     ADD("+"),
     MULTIPLY("*"),
     SUBTRACT("-"),
-    DIVIDE("/"),    
+    DIVIDE("/"),  
+    REM("%"),
     
     COPY("COPY"),
     MAX("max"),    

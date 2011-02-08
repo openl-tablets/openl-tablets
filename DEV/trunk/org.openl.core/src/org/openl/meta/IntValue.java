@@ -23,6 +23,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             NumberOperations.ADD.toString(), false);
     }    
     
+    public static IntValue rem(IntValue intValue1, IntValue intValue2) {
+        return new IntValue(intValue1, intValue2, intValue1.getValue() % intValue2.getValue(), 
+            NumberOperations.REM.toString(), true);
+    }
+    
     // ******* Autocasts*************
     
     public static IntValue autocast(byte x, IntValue y) {
