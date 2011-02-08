@@ -87,10 +87,28 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return id;
     }
 
+    public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects) throws DeploymentException {
+        String idKey = generatedDeployID(projects);
+        return deploy(deploymentProject, new DeployID(idKey), projects);
+    }
+    
     private void deployProject(FolderAPI deployment, AProject project) throws RRepositoryException,
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName());
         AProject copiedProject = new AProject(rProject);
         copiedProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
+    }
+
+    private String generatedDeployID(Collection<AProject> projects) {
+        StringBuilder name = new StringBuilder();
+        for (AProject p : projects) {
+            name.append(p.getName());
+            if (p.getVersion() != null) {
+                name.append('-').append(p.getVersion().getVersionName());
+            }
+            name.append('_');
+        }
+        name.append(System.currentTimeMillis());
+        return name.toString();
     }
 }

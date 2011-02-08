@@ -8,7 +8,8 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.commons,
  org.openl.rules.repository,
  org.openl.rules.security,
- org.openl.rules.webstudio.lib
+ org.openl.rules.webstudio.lib,
+ org.openl.rules.repository.jcr.jackrabbit
 Export-Package: org.openl,
  org.openl.rules.project.abstraction,
  org.openl.rules.project.impl.local,

@@ -26,7 +26,12 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public AProjectArtefact getArtefact(String name) throws ProjectException {
-        return getArtefactsInternal().get(name);
+        AProjectArtefact artefact = getArtefactsInternal().get(name);
+        if (artefact == null) {
+            throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
+        }
+
+        return artefact;
     }
 
     public boolean hasArtefact(String name) {
