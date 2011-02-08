@@ -174,6 +174,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                     case PropertyType.DATE:
                         propValue = value.getDate().getTime();
                         break;
+                    case PropertyType.LONG:
+                        propValue = new Date(value.getLong());
+                        break;
                     case PropertyType.DOUBLE:
                         propValue = value.getDouble();
                         break;

@@ -42,8 +42,8 @@ public class ProjectDependencyImpl implements ProjectDependency {
 
         ProjectDependencyImpl that = (ProjectDependencyImpl) o;
 
-        return projectName.equals(that.projectName) && lowerLimit.equals(that.lowerLimit)
-                && (upperLimit == null ? that.upperLimit == null : upperLimit.equals(that.upperLimit));
+        return projectName.equals(that.projectName) && lowerLimit.compareTo(that.lowerLimit) == 0
+                && (upperLimit == null ? that.upperLimit == null : upperLimit.compareTo(that.upperLimit) == 0);
 
     }
 

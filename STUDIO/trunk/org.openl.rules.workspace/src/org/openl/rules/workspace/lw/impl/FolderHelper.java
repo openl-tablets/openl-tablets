@@ -15,7 +15,6 @@ public class FolderHelper {
     private static final Log log = LogFactory.getLog(FolderHelper.class);
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
-    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
 

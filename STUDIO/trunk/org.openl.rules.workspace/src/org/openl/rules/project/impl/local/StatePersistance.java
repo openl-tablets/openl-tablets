@@ -28,7 +28,7 @@ public class StatePersistance {
     private File getPropertiesFile(LocalArtefactAPI artefact) {
         if (artefact.isFolder()) {
             return new File(propertiesLocation, artefact.getArtefactPath().withoutFirstSegment().getStringValue()
-                    + ("/" + FolderHelper.FOLDER_PROPERTIES_FILE));
+                    + (File.separator + FolderHelper.FOLDER_PROPERTIES_FILE));
         } else {
             return new File(propertiesLocation, artefact.getArtefactPath().withoutFirstSegment().getStringValue()
                     + FolderHelper.RESOURCE_PROPERTIES_EXT);
