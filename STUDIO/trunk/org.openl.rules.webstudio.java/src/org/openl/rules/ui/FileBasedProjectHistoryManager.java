@@ -10,13 +10,14 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.source.SourceHistoryManager;
 import org.openl.util.Log;
 import org.openl.util.file.FileStorage;
 
 /**
  * @author Andrei Astrouski
  */
-public class FileBasedProjectHistoryManager implements ProjectHistoryManager {
+public class FileBasedProjectHistoryManager implements SourceHistoryManager<File> {
 
     private ProjectModel projectModel;
     private FileStorage storage;
@@ -32,9 +33,8 @@ public class FileBasedProjectHistoryManager implements ProjectHistoryManager {
         storage = new FileStorage(storagePath, true);
     }
 
-    public void save(String tableUri) {
-        File sourceFile = projectModel.getSource(tableUri);
-        storage.add(sourceFile);
+    public void save(File source) {
+        storage.add(source);
     }
 
     public long[] getVersions() {

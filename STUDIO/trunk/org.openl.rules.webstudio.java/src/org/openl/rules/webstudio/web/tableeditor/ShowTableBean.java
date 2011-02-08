@@ -405,10 +405,6 @@ public class ShowTableBean {
     }
 
     public boolean beforeSaveAction() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-
-        model.getHistoryManager().save(uri);
-
         return updateSystemProperties();
     }
 
