@@ -177,9 +177,11 @@ public class TableEditorModel {
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
-        ICell cell = gridTable.getCell(col, row);
+        IGridRegion originalRegion = getOriginalTableRegion();
+        ICell cell = gridTable.getGrid().getCell(
+                originalRegion.getLeft() + col, originalRegion.getRight() + row);
         IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
-                col, row, getOriginalTableRegion(), value, cell.getDataFormatter());
+                col, row, originalRegion, value, cell.getDataFormatter());
         action.doAction(gridTable);
         actions.addNewAction(action);
     }
