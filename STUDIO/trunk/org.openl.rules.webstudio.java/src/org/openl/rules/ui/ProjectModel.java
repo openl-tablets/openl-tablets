@@ -2,6 +2,7 @@ package org.openl.rules.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,7 +20,9 @@ import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -70,6 +73,7 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -121,7 +125,7 @@ public class ProjectModel {
 
     private DependencyRulesGraph dependencyGraph;
 
-    private ProjectHistoryManager historyManager;
+    private SourceHistoryManager<File> historyManager;
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
@@ -840,7 +844,28 @@ public class ProjectModel {
         cacheTree(projectRoot);
 
         dependencyGraph = null;
+
         historyManager = null;
+        initProjectHistory();
+    }
+
+    private void initProjectHistory() {
+        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        if (workbookNodes != null) {
+            for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
+                XlsWorkbookSourceCodeModule sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
+
+                Collection<XlsWorkbookListener> listeners = sourceCodeModule.getListeners();
+                for (XlsWorkbookListener listener : listeners) {
+                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                        return;
+                    }
+                }
+
+                XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
+                sourceCodeModule.addListener(historyListener);
+            }
+        }
     }
 
     private TableSyntaxNode[] getTableSyntaxNodes() {
@@ -907,21 +932,21 @@ public class ProjectModel {
     public void redraw() throws Exception {
         projectRoot = null;
     }
-    
+
     public void reset(ReloadType reloadType) throws Exception {
         switch (reloadType) {
             case FORCED:
                 OpenL.reset();
                 OpenLConfiguration.reset();
-                ClassLoaderFactory.reset();                
+                ClassLoaderFactory.reset();
             case RELOAD:
-                modulesCache.reset();                
+                modulesCache.reset();
             case SINGLE:
                 // Clear the cache of dependency manager, as the project has been modified.
                 studio.getDependencyManager()
                     .reset(new Dependency(
                             DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
-                break;                
+                break;
         }
         setModuleInfo(moduleInfo, reloadType);
         savedSearches = null;
@@ -1073,11 +1098,12 @@ public class ProjectModel {
         }
         
         File projectFolder = moduleInfo.getProject().getProjectFolder();
-        if(reloadType == ReloadType.FORCED){
+        if (reloadType == ReloadType.FORCED) {
             RulesProjectResolver projectResolver = studio.getProjectResolver();
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder).getModuleByClassName(moduleInfo.getClassname());
-        }else{
+            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder)
+                .getModuleByClassName(moduleInfo.getClassname());
+        } else {
             this.moduleInfo = moduleInfo;
         }
 
@@ -1089,9 +1115,10 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
         savedSearches = null;
+        
+
         if (reloadType != ReloadType.NO) {
-            XlsCellStyle2.cleareThemesCache();// clear cache due to new loaded
-                                              // workbooks
+            XlsCellStyle2.cleareThemesCache(); // Clear cache due to new loaded workbooks
         }
         
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(moduleInfo, 
@@ -1106,10 +1133,12 @@ public class ProjectModel {
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
 
-            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0], new SyntaxNodeException[0]);
+            compiledOpenClass = new CompiledOpenClass(
+                    NullOpenClass.the, messages, new SyntaxNodeException[0], new SyntaxNodeException[0]);
         }
+
     }
-    
+
     /**
      * To prevent memory leaks. OpenLMessages instance is ThreadLocal and we
      * have to clear previous OpenLMessages instance if it was created from
@@ -1205,12 +1234,6 @@ public class ProjectModel {
         return getTable(tableUri) != null;
     }
 
-    public File getSource(String tableUri) {
-        XlsSheetGridModel sheet = (XlsSheetGridModel) getGridTable(tableUri).getGrid();
-        File sourceFile = sheet.getSheetSource().getWorkbookSource().getSourceFile();
-        return sourceFile;
-    }
-
     public List<File> getSources() {
         List<File> sourceFiles = new ArrayList<File>();
 
@@ -1237,7 +1260,7 @@ public class ProjectModel {
         return null;
     }
 
-    public ProjectHistoryManager getHistoryManager() {
+    public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
             String storagePath = studio.getWorkspacePath() + File.separator + HISTORY_FOLDER_NAME
                 + File.separator + getProject().getName();
