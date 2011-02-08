@@ -21,7 +21,12 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
         return new ShortValue(shortValue1, shortValue2, (short)(shortValue1.getValue() + shortValue2.getValue()), 
             NumberOperations.ADD.toString(), false);
-    }    
+    }  
+    
+    public static ShortValue rem(ShortValue shortValue1, ShortValue shortValue2) {
+        return new ShortValue(shortValue1, shortValue2, (short)(shortValue1.getValue() % shortValue2.getValue()), 
+            NumberOperations.REM.toString(), true);
+    }
     
     // ******* Autocasts*************
     

@@ -23,6 +23,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             NumberOperations.ADD.toString(), false);
     }    
     
+    public static FloatValue rem(FloatValue floatValue1, FloatValue floatValue2) {
+        return new FloatValue(floatValue1, floatValue2, floatValue1.getValue() % floatValue2.getValue(), 
+            NumberOperations.REM.toString(), true);
+    }
+    
     // ******* Autocasts*************
     
     public static FloatValue autocast(byte x, FloatValue y) {

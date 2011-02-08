@@ -1274,6 +1274,32 @@ public class Operators {
     public static long rshiftu(long x, int y) {
         return x >>> y;
     }
+    
+    // operator '%' implementations
+    
+    public static int rem(byte x, byte y) {
+        return x % y;
+    }
+    
+    public static int rem(short x, short y) {
+        return x % y;
+    }
+    
+    public static int rem(int x, int y) {
+        return x % y;
+    }
+    
+    public static long rem(long x, long y) {
+        return x % y;
+    }
+    
+    public static float rem(float x, float y) {
+        return x % y;
+    }
+    
+    public static double rem(double x, double y) {
+        return x % y;
+    }
 
     public static int subtract(Date d1, Date d2) {        
         return DateDifference.getDifferenceInDays(d1, d2);

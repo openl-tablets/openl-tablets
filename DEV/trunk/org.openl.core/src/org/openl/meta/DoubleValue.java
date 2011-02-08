@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.NumberOperations;
 
 
 public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
@@ -60,6 +61,10 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
 
         return new DoubleValue(dv1, dv2, dv1.getValue() + dv2.getValue(), "+", false);
+    }
+    
+    public static DoubleValue rem(DoubleValue dv1, DoubleValue dv2) {
+        return new DoubleValue(dv1, dv2, dv1.getValue() % dv2.getValue(), NumberOperations.REM.toString(), true);
     }
     
     // ******* Autocasts *************

@@ -21,7 +21,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
         return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() + byteValue2.getValue()), 
             NumberOperations.ADD.toString(), false);
-    }    
+    }
+    
+    public static ByteValue rem(ByteValue byteValue1, ByteValue byteValue2) {
+        return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() % byteValue2.getValue()),
+            NumberOperations.REM.toString(), true);
+    }
     
     // ******* Autocasts *************
     

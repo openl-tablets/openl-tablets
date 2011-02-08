@@ -19,7 +19,12 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
 
         return new LongValue(lv1, lv2, lv1.getValue() + lv2.getValue(), NumberOperations.ADD.toString(), false);
-    }    
+    }
+    
+    public static LongValue rem(LongValue lv1, LongValue lv2) {
+        return new LongValue(lv1, lv2, lv1.getValue() % lv2.getValue(), 
+            NumberOperations.REM.toString(), true);
+    }
     
     // ******* Autocasts*************
     
