@@ -15,6 +15,8 @@ import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrLock implements RLock {
+    private static final String LOCK_NODE_NAME_PREFIX = "lock~";
+
     private static final Log log = LogFactory.getLog(JcrLock.class);
 
     private Node lockNode;
@@ -25,7 +27,7 @@ public class JcrLock implements RLock {
         String projectName = forNode.getName();
         Node parent = forNode.getParent();
 
-        String lockNodeName = "lock~" + projectName;
+        String lockNodeName = LOCK_NODE_NAME_PREFIX + projectName;
 
         if (parent.hasNode(lockNodeName)) {
             lockNode = parent.getNode(lockNodeName);
@@ -34,7 +36,7 @@ public class JcrLock implements RLock {
     
     private void createLockNode() throws RepositoryException{
         String projectName = forNode.getName();
-        String lockNodeName = "lock~" + projectName;
+        String lockNodeName = LOCK_NODE_NAME_PREFIX + projectName;
         Node parent = forNode.getParent();
         lockNode = NodeUtil.createNode(parent, lockNodeName, JcrNT.NT_LOCK, false);
         parent.save();
@@ -106,26 +108,23 @@ public class JcrLock implements RLock {
 
     public void unlock(CommonUser user) throws RRepositoryException {
         try {
-            if (lockNode == null || !lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY)) {
+            if (lockNode == null) {
                 // no locks
                 return;
             }
 
-            String whoLocked = lockNode.getProperty(ArtefactProperties.PROP_LOCKED_BY).getString();
-            String whoUnlocks = user.getUserName();
+            if (lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY)) {
+                String whoLocked = lockNode.getProperty(ArtefactProperties.PROP_LOCKED_BY).getString();
+                String whoUnlocks = user.getUserName();
 
-            if (!whoLocked.equals(whoUnlocks)) {
-                throw new RRepositoryException("Lock that was set by ''{0}'' cannot be removed by ''{1}''.", null,
-                        whoLocked, whoUnlocks);
+                if (!whoLocked.equals(whoUnlocks)) {
+                    throw new RRepositoryException("Lock that was set by ''{0}'' cannot be removed by ''{1}''.", null,
+                            whoLocked, whoUnlocks);
+                }else{
+                    lockNode.remove();
+                    forNode.getParent().save();
+                }
             }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot check lock.", e);
-        }
-
-        try {
-            lockNode.setProperty(ArtefactProperties.PROP_LOCKED_BY, (String) null);
-            lockNode.setProperty(ArtefactProperties.PROP_LOCKED_AT, (Calendar) null);
-            lockNode.save();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to remove lock.", e);
         }
