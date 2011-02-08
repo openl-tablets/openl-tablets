@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.EventListener;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Set;
@@ -30,15 +29,11 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
-    public interface WorkbookListener extends EventListener {
-        void beforeSave(XlsWorkbookSourceCodeModule xwscm);
-    }
-
-	private Workbook workbook;
+    private Workbook workbook;
 
 	private Set<Short> wbColors = new TreeSet<Short>();
 
-    private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
+    private Collection<XlsWorkbookListener> listeners = new ArrayList<XlsWorkbookListener>();
 
     /*raised for test*/ File sourceFile;
     private long lastModified;
@@ -104,8 +99,12 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         }
     }
 
-    public void addListener(WorkbookListener listener) {
+    public void addListener(XlsWorkbookListener listener) {
         listeners.add(listener);
+    }
+
+    public Collection<XlsWorkbookListener> getListeners() {
+        return listeners;
     }
 
     public String getCategory() {
@@ -178,7 +177,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     }
 
     public void saveAs(String fileName) throws IOException {
-        for (WorkbookListener wl : listeners) {
+        for (XlsWorkbookListener wl : listeners) {
             wl.beforeSave(this);
         }
         FileOutputStream fileOut = new FileOutputStream(fileName);

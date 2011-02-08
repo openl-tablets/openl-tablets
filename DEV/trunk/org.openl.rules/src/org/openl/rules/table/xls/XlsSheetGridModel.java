@@ -32,7 +32,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.CellKey;
@@ -60,7 +59,7 @@ import org.openl.util.EnumUtils;
  * @author snshor
  * 
  */
-public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbookSourceCodeModule.WorkbookListener {
+public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private XlsSheetSourceCodeModule sheetSource;
 
@@ -104,9 +103,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
         this.sheetSource = sheetSource;
         sheet = sheetSource.getSheet();
         extractMergedRegions();        
-        
-        sheetSource.getWorkbookSource().addListener(this);
-        
+
         initCellWriters();
 
         dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
@@ -160,9 +157,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, XlsWorkbo
             }
         }
         return null;
-    }
-
-    public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
     }
 
     public void clearCellValue(int col, int row) {
