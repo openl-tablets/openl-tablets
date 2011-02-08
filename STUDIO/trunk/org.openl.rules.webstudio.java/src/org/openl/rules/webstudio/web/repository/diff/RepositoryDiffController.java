@@ -8,14 +8,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.diff.differs.ProjectionDifferImpl;
-import org.openl.rules.diff.hierarchy.AbstractProjection;
-import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.xls.XlsProjectionBuilder;
 import org.openl.rules.diff.xls2.XlsDiff2;
-import org.openl.rules.lang.xls.XlsHelper;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -53,7 +47,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     private String selectedExcelFileUW;
     private String selectedExcelFileRepo;
-    private String selectedVersionRepo = "0.0.0";
+    private String selectedVersionRepo;
 
     public void setSelectedExcelFileUW(String selectedExcelFileUW) {
         this.selectedExcelFileUW = selectedExcelFileUW;
@@ -80,8 +74,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     public SelectItem[] getVersionsRepo() {
-        AProjectArtefact projectArtefact = (AProjectArtefact) projectUW;
-        Collection<ProjectVersion> versions = projectArtefact.getVersions();
+        Collection<ProjectVersion> versions = projectUW.getVersions();
         SelectItem[] selectItems = new SelectItem[versions.size()];
 
         int i = 0;
@@ -130,6 +123,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     public void initProjectUW() {
         try {
             projectUW = repositoryTreeState.getSelectedProject();
+            selectedVersionRepo = projectUW.getVersion().getVersionName();
             excelArtefactsUW = getExcelArtefacts(projectUW, "");
         } catch (Exception e) {
             e.printStackTrace();
