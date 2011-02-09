@@ -1,5 +1,7 @@
 package org.openl.util.math;
 
+import java.math.BigDecimal;
+
 public class MathUtils {
 
 	public static boolean eq(float x, float y) {
@@ -49,5 +51,9 @@ public class MathUtils {
 	public static boolean le(double x, double y) {
 		return eq(x, y) || lt(x, y);
 	}
+	
+	public static boolean eq(BigDecimal x, BigDecimal y) {
+        return x.subtract(y).abs().compareTo(x.ulp()) <= 0 ;
+    }
 
 }
