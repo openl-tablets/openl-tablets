@@ -1,12 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: POI 3.5 Modified Plug-in
-Bundle-SymbolicName: org.openl.lib.poi35.dev.modified
+Bundle-Name: POI 3.7 Modified Plug-in
+Bundle-SymbolicName: org.openl.lib.poi.dev.modified
 Bundle-Version: 5.7.5
 Bundle-Vendor: OpenL
-Require-Bundle: org.openl.lib.poi35.dev;visibility:=reexport
+Require-Bundle: org.openl.lib.poi.dev
 Bundle-ClassPath: bin/,
  .
+Import-Package: org.apache.xmlbeans,
+ org.openxmlformats.schemas.officeDocument.x2006.relationships,
+ org.openxmlformats.schemas.spreadsheetml.x2006.main
 
 
 
