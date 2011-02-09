@@ -25,6 +25,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             bigIntValue1.getValue().add(bigIntValue2.getValue()), NumberOperations.ADD.toString(), false);
     }    
     
+    public static BigIntegerValue rem(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {        
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue().remainder(bigIntValue2.getValue()),
+            NumberOperations.REM.toString(), true);
+    }
+    
     // ******* Autocasts 8*************
     
     public static BigIntegerValue autocast(byte x, BigIntegerValue y) {

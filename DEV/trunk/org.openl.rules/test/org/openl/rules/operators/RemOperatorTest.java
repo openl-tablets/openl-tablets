@@ -6,6 +6,8 @@ import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
@@ -40,6 +42,8 @@ public class RemOperatorTest {
         String testRemLongValue(LongValue v1, LongValue v2);
         String testRemFloatValue(FloatValue v1, FloatValue v2);
         String testRemDoubleValue(DoubleValue v1, DoubleValue v2);
+        String testRemBigIntegerValue(BigIntegerValue v1, BigIntegerValue v2);
+        String testRemBigDecimalValue(BigDecimalValue v1, BigDecimalValue v2);
     }
     
     @Before
@@ -123,6 +127,18 @@ public class RemOperatorTest {
     public void testDoubleValue() {
         assertEquals("passed", instance.testRemDoubleValue(new DoubleValue((double)4.44), new DoubleValue((double)2.22)));
         assertEquals("not passed", instance.testRemDoubleValue(new DoubleValue((double)5.57), new DoubleValue((double)44)));
+    }
+    
+    @Test
+    public void testBigIntegerValue() {
+        assertEquals("passed", instance.testRemBigIntegerValue(new BigIntegerValue("10"), new BigIntegerValue("5")));
+        assertEquals("not passed", instance.testRemBigIntegerValue(new BigIntegerValue("17"), new BigIntegerValue("3")));
+    }
+    
+    @Test
+    public void testBigDecimalValue() {
+        assertEquals("passed", instance.testRemBigDecimalValue(new BigDecimalValue("4.44"), new BigDecimalValue("2.22")));
+        assertEquals("not passed", instance.testRemBigDecimalValue(new BigDecimalValue("5.57"), new BigDecimalValue("44")));
     }
 
 }

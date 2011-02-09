@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.math.MathUtils;
 
 public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
@@ -25,6 +26,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
             bigDecimalValue1.getValue().add(bigDecimalValue2.getValue()), NumberOperations.ADD.toString(), false);
     }    
+    
+    public static BigDecimalValue rem(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
+        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().remainder(bigDecimalValue2.getValue()),
+            NumberOperations.REM.toString(), true);
+    }
     
     // ******* Autocasts *************
     
@@ -178,7 +184,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (bigDecimalValue1 == null || bigDecimalValue2 == null) {
             return false;
         }
-        return bigDecimalValue1.equals(bigDecimalValue2);
+        
+        return MathUtils.eq(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
     }
 
     public static boolean ge(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
