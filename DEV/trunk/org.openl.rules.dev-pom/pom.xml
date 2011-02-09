@@ -199,6 +199,13 @@
         <artifactId>org.openl.test</artifactId>
         <version>${version}</version>
       </dependency>
+
+      <!-- OPENL MODIFIED POI -->
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.lib.poi.dev.modified</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

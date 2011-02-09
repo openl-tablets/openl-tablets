@@ -104,14 +104,14 @@
 		</dependency>
 
 
-		<!-- OPENL MODIFIED POI 
+		<!-- OPENL MODIFIED POI -->
 		<dependency>
 			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+			<artifactId>org.openl.lib.poi.dev.modified</artifactId>
 		</dependency>
-		-->
+		
 
-		<!-- ORIGINAL POI ARTIFACTS -->
+		<!-- ORIGINAL POI ARTIFACTS
 			
 			
 			<dependency>
@@ -127,7 +127,7 @@
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-scratchpad</artifactId>
 			</dependency>
-		
+		 -->
 	</dependencies>
 
 </project>

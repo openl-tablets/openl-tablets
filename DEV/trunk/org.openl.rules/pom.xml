@@ -107,11 +107,20 @@
       <artifactId>org.openl.j</artifactId>
     </dependency>
 
-    <!-- poi dependencies  -->
+    <!-- OPENL MODIFIED POI -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.lib.poi.dev.modified</artifactId>
+    </dependency>
+		
+
+    <!-- ORIGINAL POI ARTIFACTS
+			
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
@@ -121,7 +130,8 @@
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
     </dependency>
-    
+    -->
+
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>ooxml-schemas</artifactId>
