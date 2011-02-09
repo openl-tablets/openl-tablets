@@ -7,5 +7,5 @@
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${env_var:ComSpec}"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="/C mvn clean package"/>
 <booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
-<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${workspace_loc:/org.openl.lib.poi3.7.dev}"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${workspace_loc:/org.openl.lib.poi.dev}"/>
 </launchConfiguration>
