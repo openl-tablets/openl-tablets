@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-poi-lib-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.3.1-SNAPSHOT</version>
+  <version>5.7.5-SNAPSHOT</version>
   <name>OpenL POI LIB SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
@@ -15,7 +15,7 @@
   </scm>
 
   <modules>
-    <module>org.openl.lib.poi35.dev-pom</module>
+    <module>org.openl.lib.poi.dev-pom</module>
   </modules>
   <build>
     <pluginManagement>
