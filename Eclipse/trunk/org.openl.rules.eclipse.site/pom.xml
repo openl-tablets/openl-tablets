@@ -41,6 +41,12 @@
   </build>
 
   <dependencies>
+    <!-- OPENL MODIFIED POI -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.lib.poi.dev.modified</artifactId>
+    </dependency>
+
     <!-- DEV -->
     <dependency>
       <groupId>org.openl.rules</groupId>
