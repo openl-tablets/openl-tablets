@@ -283,7 +283,7 @@ public class RulesUtils {
         }
         Comparable<Number>[] numberArray = (Comparable<Number>[])values;
         Number max = (Number) numberArray[0];
-        for (int i = 0; i < numberArray.length; i++) {
+        for (int i = 1; i < numberArray.length; i++) {
             if (numberArray[i].compareTo(max) > 0) {
                 max = (Number) numberArray[i];
             }
@@ -339,7 +339,7 @@ public class RulesUtils {
         }
         Comparable<Number>[] numberArray = (Comparable<Number>[])values;
         Number min = (Number) numberArray[0];
-        for (int i = 0; i < numberArray.length; i++) {
+        for (int i = 1; i < numberArray.length; i++) {
             if (numberArray[i].compareTo(min) < 0) {
                 min = (Number) numberArray[i];
             }
