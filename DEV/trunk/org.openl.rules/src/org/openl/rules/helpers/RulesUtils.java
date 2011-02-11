@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
@@ -230,5 +233,118 @@ public class RulesUtils {
     public static int year(Date d) {
         return DateTool.year(d);
     }
+    
+    // Math functions
+    
+    public static byte max(byte[] values) {
+        return NumberUtils.max(values);
+    }
+    
+    public static char max(char[] values) {
+        char max = Character.MIN_VALUE;
+        for (char value : values) {
+            if (value > max)
+                max = value;
+        }
+        return max;
+    }
+    
+    public static short max(short[] values) {
+        return NumberUtils.max(values);
+    }
+    
+    public static int max(int[] values) {
+        return NumberUtils.max(values);
+    }
+    
+    public static long max(long[] values) {
+        return NumberUtils.max(values);
+    }
+    
+    public static float max(float[] values) {
+        return NumberUtils.max(values);
+    }
+    
+    public static double max(double[] values) {
+        return NumberUtils.max(values);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static Object max(Object[] values) {
+        if (values == null) {
+            throw new OpenlNotCheckedException(new IllegalArgumentException("The Array must not be null"));
+        }            
+        if (values.length == 0) {
+            throw  new OpenlNotCheckedException(new IllegalArgumentException("Array cannot be empty."));
+        }
+        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class, true) && 
+                ClassUtils.isAssignable(values.getClass().getComponentType(), Comparable.class, true))) {
+            throw new OpenlNotCheckedException(new IllegalArgumentException("Income array must be comparable numeric."));
+        }
+        Comparable<Number>[] numberArray = (Comparable<Number>[])values;
+        Number max = (Number) numberArray[0];
+        for (int i = 0; i < numberArray.length; i++) {
+            if (numberArray[i].compareTo(max) > 0) {
+                max = (Number) numberArray[i];
+            }
+        }        
+        return max;
+    }
+    
+    public static byte min(byte[] values) {
+        return NumberUtils.min(values);
+    }
+    
+    public static char min(char[] values) {
+        char min = values[0];
+        for (int i = 1; i < values.length; i++) {
+            if (values[i] < min) {
+                min = values[i];
+            }
+        }
+        return min;
+    }
+    
+    public static short min(short[] values) {
+        return NumberUtils.min(values);
+    }
+    
+    public static int min(int[] values) {
+        return NumberUtils.min(values);
+    }
+    
+    public static long min(long[] values) {
+        return NumberUtils.min(values);
+    }
+    
+    public static float min(float[] values) {
+        return NumberUtils.min(values);
+    }
+    
+    public static double min(double[] values) {
+        return NumberUtils.min(values);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static Object min(Object[] values) {
+        if (values == null) {
+            throw new OpenlNotCheckedException(new IllegalArgumentException("The Array must not be null"));
+        }            
+        if (values.length == 0) {
+            throw  new OpenlNotCheckedException(new IllegalArgumentException("Array cannot be empty."));
+        }
+        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class, true) && 
+                ClassUtils.isAssignable(values.getClass().getComponentType(), Comparable.class, true))) {
+            throw new OpenlNotCheckedException(new IllegalArgumentException("Income array must be comparable numeric."));
+        }
+        Comparable<Number>[] numberArray = (Comparable<Number>[])values;
+        Number min = (Number) numberArray[0];
+        for (int i = 0; i < numberArray.length; i++) {
+            if (numberArray[i].compareTo(min) < 0) {
+                min = (Number) numberArray[i];
+            }
+        }        
+        return min;
+    }    
 
 }
