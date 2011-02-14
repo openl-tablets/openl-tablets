@@ -26,7 +26,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ehcache-1.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ejb3-persistence-3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/geronimo-stax-api_1.0_spec-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.5.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-annotations-3.3.0.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-commons-annotations-3.3.0.ga.jar"/>
