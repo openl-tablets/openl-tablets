@@ -23,6 +23,8 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
+import org.openl.util.formatters.DefaultFormatter;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * Table editor controller.
@@ -225,12 +227,16 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String setCellValue() {
         String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
+
+        String newEditor = getRequestParam(Constants.REQUEST_PARAM_EDITOR);
+        IFormatter newFormatter = getCellFormatter(newEditor);
+
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
             String message = null;
             try {
-                editorModel.setCellValue(getRow(), getCol(), value);
+                editorModel.setCellValue(getRow(), getCol(), value, newFormatter);
             } catch (FormulaParseException ex) {  
                 LOG.warn("ERROR_SET_NEW_VALUE", ex);
                 message = ERROR_SET_NEW_VALUE + ex.getMessage();   
@@ -245,6 +251,17 @@ public class TableEditorController extends BaseTableEditorController implements 
             return pojo2json(tmResponse);
         }
         return null;
+    }
+
+    private IFormatter getCellFormatter(String cellEditor) {
+        IFormatter formatter = null;
+
+        if (ICellEditor.CE_TEXT.equals(cellEditor)
+                || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
+            formatter = new DefaultFormatter();
+        }
+
+        return formatter;
     }
 
     public String setProperty() throws Exception {

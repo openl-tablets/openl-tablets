@@ -90,21 +90,6 @@ var BaseEditor = Class.create({
     switchTo: function(editorName) {
         this.tableEditor.switchEditor(editorName);
     },
-   
-    doSwitching: function(newEditor) {
-        var value = this.isCancelled() ? this.initialValue : this.getValue();
-        newEditor.tableEditor = this.tableEditor;
-        newEditor.parentElement = this.parentElement;
-        newEditor.initialValue = this.initialValue;
-        newEditor.style = this.style;
-        newEditor.focus = true;
-
-        this.isCancelled = BaseEditor.T;
-        this.destroy();
-
-        newEditor.editor_initialize();
-        newEditor.show(value);
-    },
 
     /**
      * Can be overridden in editors to clean up resources.
@@ -139,6 +124,14 @@ var BaseEditor = Class.create({
 
     is: function(element) {
         return element == this.getInputElement();
+    },
+
+    bind: function(event, handler) {
+        Event.observe(this.getInputElement(), event, handler);
+    },
+
+    unbind: function(event, handler) {
+        Event.stopObserving(this.getInputElement(), event, handler);
     },
 
     /**

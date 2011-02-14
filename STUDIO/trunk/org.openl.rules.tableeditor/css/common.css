@@ -30,3 +30,22 @@
     font-weight: bold;
     margin-bottom: 2px;
 }
+
+.te_menu_header {
+    font-weight: bold;
+    padding: 0px 0px 1px 6px;
+}
+
+.te_menu_item * {
+    color: rgb(50, 50, 50) !important;
+    text-decoration: none !important;
+ }
+
+.te_menu_item {
+    padding: 1px 10px;
+}
+
+.te_menu_item_hover {
+    background: #C8DEFF;
+    cursor: pointer;
+}
