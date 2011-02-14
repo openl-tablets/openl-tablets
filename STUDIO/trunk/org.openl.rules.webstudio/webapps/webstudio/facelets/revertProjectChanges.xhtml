@@ -3,41 +3,95 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:c="http://java.sun.com/jstl/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
     template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <style>
+            .column {
+                padding: 5px 21px;
+            }
+        </style>
+    </ui:define>
 
     <ui:define name="page">
 
         <h2>Revert Project Changes</h2>
 
-        <c:set var="versions" value="#{revertProjectChangesBean.versions}" />
+        <c:set var="history" value="#{revertProjectChangesBean.history}" />
 
-        <h:panelGroup rendered="#{not empty versions}">
+        <h:panelGroup rendered="#{not empty history}">
             <h:panelGrid>
                 <h:messages globalOnly="true" errorClass="error_box" infoClass="info_box"
                     style="list-style: none; padding: 0px" />
             </h:panelGrid>
 
-            <br />
-
             <h:form>
-                <h:panelGrid columns="2">
-                    <h:outputText value="Modified" />
-                    <h:selectOneMenu value="#{revertProjectChangesBean.versionToRevert}">
-                        <f:selectItems value="#{versions}" />
-                    </h:selectOneMenu>
-                </h:panelGrid>
+
+                <rich:dataTable value="#{history}" var="historyItem" rowKeyVar="row"
+                    onRowMouseOver="rowMouseOver(this)" onRowMouseOut="rowMouseOut(this)"
+                    onRowClick="setVersionToRevert(#{historyItem.version}); rowMouseClick(this)"
+                    columnClasses="column">
+                    <rich:column>
+                        <f:facet name="header">
+                            <h:outputText value="#" />
+                        </f:facet>
+                        <h:outputText value="#{row + 1}" />
+                    </rich:column>
+                    <rich:column>
+                        <f:facet name="header">
+                            <h:outputText value="Modified On" />
+                        </f:facet>
+                        <h:outputText value="#{historyItem.modifiedOn}" />
+                    </rich:column>
+                </rich:dataTable>
 
                 <br />
-
-                <h:commandButton value="Revert" action="#{revertProjectChangesBean.revert}" />
+                <input type="hidden" id="versionToRevert" name="version" value=""  />
+                <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
+                    disabled="true" />
             </h:form>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{empty versions}">
+        <h:panelGroup rendered="#{empty history}">
             <h:panelGrid>
                 <p class="info_box">Project has no changes</p>
             </h:panelGrid>
         </h:panelGroup>
+
+        <script type="text/javascript">
+            var rowHoverColor = '#FAE5C1';
+            var rowDefaultColor = '#{a4jSkin.tableBackgroundColor}';
+            var rowSelectedColor = '#FBBE83';
+            var selectedRow;
+
+            function rowMouseOver(row) {
+                row.style.cursor = 'pointer';
+                if (row != selectedRow) {
+                    row.style.backgroundColor = rowHoverColor;
+                }
+            }
+
+            function rowMouseOut(row) {
+                if (row != selectedRow) {
+                    row.style.backgroundColor =  rowDefaultColor;
+                }
+            }
+
+            function rowMouseClick(row) {
+                if (selectedRow) {
+                    selectedRow.style.backgroundColor = rowDefaultColor;
+                }
+                row.style.backgroundColor = rowSelectedColor;
+                selectedRow = row;
+            }
+
+            function setVersionToRevert(version) {
+                document.getElementById('versionToRevert').value = version;
+                #{rich:element('revertBtn')}.disabled = false;
+            }
+        </script>
 
     </ui:define>
 </ui:composition>
