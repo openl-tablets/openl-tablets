@@ -11,7 +11,9 @@ var TableEditor = Class.create({
     editorId: -1,
     tableContainer: null,
     currentElement: null,
+    editorName: null,
     editor: null,
+    editorSwitched: false,
     baseUrl: null,
     selectionPos: null,
     //selectedPropValue: null,
@@ -27,6 +29,7 @@ var TableEditor = Class.create({
     actions: null,
     inheritedPropStyleClass: null,
     editorWrapper: null,
+    switchEditorMenu: null,
 
     fillColorPicker: null,
     fontColorPicker: null,
@@ -240,6 +243,13 @@ var TableEditor = Class.create({
         if (this.editor && this.editor.is(elt)) {
             return;
         }
+        if (this.switchEditorMenu) {
+            this.switchEditorMenu.hide();
+            this.switchEditorMenu = null;
+            if (this.switchEditorMenu.has(elt)) {
+                return;
+            }
+        }
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
@@ -343,21 +353,17 @@ var TableEditor = Class.create({
         }
 
         var editorStyle = this.getCellEditorStyle(cell);
+        this.editorWrapper = this.createEditorWrapper(cell);
+        document.body.appendChild(this.editorWrapper);
 
-        this.showCellEditor(response.editor, cell, initialValue, response.params, editorStyle);
+        this.showCellEditor(response.editor, this.editorWrapper, initialValue, response.params, editorStyle);
 
         this.editCell = cell;
         this.selectElement(cell);
     },
 
-    showCellEditor: function(editorName, cell, initialValue, params, style) {
-        this.editorWrapper = this.createEditorWrapper(cell);
-
-        document.body.appendChild(this.editorWrapper);
-
-        if (!initialValue) {
-            
-        }
+    showCellEditor: function(editorName, editorWrapper, initialValue, params, style) {
+        var self = this;
 
         if (editorName == 'array') {
             var entryEditorName = params.entryEditor;
@@ -367,7 +373,87 @@ var TableEditor = Class.create({
         }
 
         this.editor = new TableEditor.Editors[editorName](
-                this, this.editorWrapper.id, params, initialValue, true, style);
+                this, editorWrapper.id, params, initialValue, true, style);
+        this.editorName = editorName;
+
+        // Increase height of multiline editor
+        if (editorName == 'multiline') {
+        	var input = this.editor.getInputElement();
+            var inputHeight = input.getHeight();
+            input.style.height = (inputHeight + 13) + 'px';
+        }
+
+        var switchEditorMenuHandler = function(e) {
+            if (Event.isRightClick(e)) {
+                if (self.switchEditorMenu) {
+                    return true;
+                }
+                self.switchEditorMenu = self.createSwitchEditorMenu(editorName);
+                // Disable browser context menu
+                e.target.oncontextmenu = function() { return false; };
+                self.switchEditorMenu.left = e.clientX + 2;
+                self.switchEditorMenu.top = e.clientY;
+                self.switchEditorMenu.show();
+            }
+        };
+        this.editor.bind("mousedown", switchEditorMenuHandler);
+    },
+
+    createSwitchEditorMenu: function(editorName) {
+        var self = this;
+
+        var availableEditors = this.getAvailableEditors(editorName);
+
+        var content = new Element("div");
+        var header = new Element("div");
+        header.className = "te_menu_header";
+        header.innerHTML = "Switch to:";
+        content.appendChild(header);
+
+        availableEditors.each(function(e) {
+            var editorItem = new Element("div");
+            editorItem.className = "te_menu_item";
+            var editorLink = new Element("a");
+            editorLink.observe('click', function() {
+                self.switchEditor(e.key);
+            });
+            editorLink.innerHTML = e.value;
+            editorItem.appendChild(editorLink);
+            ['mouseover', 'mouseout'].each(function(event) {
+                editorItem.observe(event, function() {
+                    this.toggleClassName('te_menu_item_hover');
+                });
+            });
+            content.appendChild(editorItem);
+        });
+
+        return new Popup(content);
+    },
+
+    getAvailableEditors: function(editorName) {
+        var availableEditors = $H();
+        if (editorName != 'text') {
+            availableEditors.set('text', 'Text Editor');
+        }
+        if (editorName != 'multiline') {
+            availableEditors.set('multiline', 'Multiline Editor');
+        }
+        return availableEditors;
+    },
+
+    switchEditor: function(editorName, params) {
+        var prevEditor = this.editor;
+
+        var editorWrapper = prevEditor.parentElement;
+        var initialValue = prevEditor.isCancelled() ? prevEditor.initialValue : prevEditor.getValue();
+        var style = prevEditor.style;
+
+        this.showCellEditor(editorName, editorWrapper, initialValue, params, style);
+
+        prevEditor.isCancelled = function () { return true; };
+        prevEditor.destroy();
+        
+        this.editorSwitched = true;
     },
 
     createEditorWrapper: function(cell) {
@@ -404,13 +490,7 @@ var TableEditor = Class.create({
         }
     },
 
-    switchEditor: function(editorName) {
-        var prevEditor = this.editor;
-        this.editor = new TableEditor.Editors[editorName];
-        prevEditor.doSwitching(this.editor);
-    },
-
-    setCellValue : function() {
+    setCellValue: function() {
         if (this.editor) {
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
@@ -424,7 +504,8 @@ var TableEditor = Class.create({
                         editorId: this.editorId,
                         row : self.selectionPos[0],
                         col : self.selectionPos[1],
-                        value: val
+                        value: val,
+                        editor: this.editorSwitched ? this.editorName : ''
                     },
                     onFailure: function(response) {
                         AjaxHelper.handleError(response,
@@ -434,8 +515,10 @@ var TableEditor = Class.create({
             }
             this.editor.destroy();
             document.body.removeChild(this.editorWrapper);
+            this.editor = null;
+            this.editorName = null;
+            this.editorSwitched = false;
         }
-        this.editor = null;
     },
 
     buildUrl: function(action, paramString) {

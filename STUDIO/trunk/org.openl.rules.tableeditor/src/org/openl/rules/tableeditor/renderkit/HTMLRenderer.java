@@ -77,7 +77,8 @@ public class HTMLRenderer {
             .append(renderCSS("css/datepicker.css"))
             .append(renderCSS("css/multiselect.css"))
             .append(renderCSS("css/tooltip.css"))
-            .append(renderCSS("css/colorPicker.css"));
+            .append(renderCSS("css/colorPicker.css"))
+            .append(renderCSS("css/popup.css"));
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
         }
@@ -205,7 +206,8 @@ public class HTMLRenderer {
                 .append(renderJS("js/DateEditor.js"))
                 .append(renderJS("js/MultiselectEditor.js"))
                 .append(renderJS("js/ArrayEditor.js"))
-                .append(renderJS("js/colorPicker.js"));
+                .append(renderJS("js/colorPicker.js"))
+                .append(renderJS("js/popup.js"));
         result.append(
                 renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT, editor.isCollapseProps()));
         result.append("<div id=\"").append(tableId).append("\"></div>");

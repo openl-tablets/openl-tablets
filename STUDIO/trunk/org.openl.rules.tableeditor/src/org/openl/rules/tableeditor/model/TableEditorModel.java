@@ -35,6 +35,7 @@ import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
+import org.openl.util.formatters.IFormatter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -176,14 +177,24 @@ public class TableEditorModel {
         getSheetSource().getWorkbookSource().saveAs(fname);
     }
 
-    public synchronized void setCellValue(int row, int col, String value) {
+    public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
         IGridRegion originalRegion = getOriginalTableRegion();
-        ICell cell = gridTable.getGrid().getCell(
-                originalRegion.getLeft() + col, originalRegion.getRight() + row);
+        IFormatter dataFormatter = null;
+        if (formatter != null) {
+            dataFormatter = formatter;
+        } else {
+            ICell cell = gridTable.getGrid().getCell(
+                    originalRegion.getLeft() + col, originalRegion.getRight() + row);
+            dataFormatter = cell.getDataFormatter();
+        }
         IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
-                col, row, originalRegion, value, cell.getDataFormatter());
+                col, row, originalRegion, value, dataFormatter);
         action.doAction(gridTable);
         actions.addNewAction(action);
+    }
+
+    public synchronized void setCellValue(int row, int col, String value) {
+        setCellValue(row, col, value, null);
     }
 
     public synchronized void setProperty(String name, String value) throws Exception {
