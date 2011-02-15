@@ -183,8 +183,7 @@ public class TableEditorModel {
         if (formatter != null) {
             dataFormatter = formatter;
         } else {
-            ICell cell = gridTable.getGrid().getCell(
-                    originalRegion.getLeft() + col, originalRegion.getRight() + row);
+            ICell cell = gridTable.getGrid().getCell(originalRegion.getLeft() + col, originalRegion.getTop() + row);
             dataFormatter = cell.getDataFormatter();
         }
         IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
