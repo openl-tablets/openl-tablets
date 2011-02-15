@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://exigen.com/le/schemas">
+	<beans>
+		<bean name="Context">
+			<fields>
+				<field name="vehicle" type="Vehicle" collection="false" />
+				<field name="coverage" type="Coverage" collection="false" />
+				<field name="driver" type="Driver" collection="false" />
+				<field name="policy" type="Policy" collection="false" />
+			</fields>
+		</bean>
+		<bean name="Vehicle">
+			<fields>
+				<field name="zipCode" type="string" collection="false" />
+				<field name="antiTheftDeviceCode" type="string" collection="false" />
+				<field name="estimatedAnnualDistance" type="numeric" collection="false" />
+				<field name="modelYear" type="numeric" collection="false" />
+				<field name="rateEffectiveDate" type="date" collection="false" />
+				<field name="vehicleUsageCode" type="string" collection="false" />
+				<field name="collisionSymbol" type="string" collection="false" />
+				<field name="comprehensiveSymbol" type="string" collection="false" />
+				<field name="multiCar" type="boolean" collection="false" />
+				<field name="nonOwnedPolicy" type="boolean" collection="false" />
+			</fields>
+		</bean>
+		<bean name="Coverage">
+			<fields>
+				<field name="coverageCode" type="string" collection="false" />
+				<field name="dedactibleAmount" type="numeric" collection="false" />
+			</fields>
+		</bean>		
+		<bean name="Driver">
+			<fields>
+				<field name="driverTypeCode" type="string" collection="false" />
+				<field name="maxPoints" type="numeric" collection="false" />
+				<field name="farmBureauMemberIndicator" type="boolean" collection="false" />
+				<field name="gender" type="string" collection="false" />
+				<field name="goodEliteDriverCode" type="string" collection="false" />
+				<field name="goodStudentIndicator" type="boolean" collection="false" />
+				<field name="maritalStatusCode" type="string" collection="false" />
+				<field name="occupationCode" type="string" collection="false" />
+				<field name="relationToInsuredCode" type="string" collection="false" />
+				<field name="experience" type="Experience" collection="false" />
+				<field name="salary" type="numeric" collection="true" />
+			</fields>
+		</bean>		
+		<bean name="Policy">
+			<fields>
+				<field name="effectiveDate" type="date" collection="false" />
+				<field name="expirationDate" type="date" collection="false" />
+				<field name="multiplePolicyDiscount" type="boolean" collection="false" />
+			</fields>
+		</bean>		
+		<bean name="Experience">
+			<fields>
+				<field name="yearsLisensed" type="numeric" collection="false" />
+				<field name="yearsOfCoverage" type="numeric" collection="false" />
+			</fields>
+		</bean>		
+	</beans>
+</root>

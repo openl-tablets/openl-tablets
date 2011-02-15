@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.liveexcel-pom</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <relativePath>../org.openl.rules.liveexcel-pom</relativePath>
   </parent>
 
@@ -70,29 +70,61 @@
     </resources>
     <testResources>
       <testResource>
-        <directory>test</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
+        <directory>test-resources</directory>
       </testResource>
     </testResources>
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.commons</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+      <artifactId>org.openl.lib.poi.dev.modified</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math</artifactId>
     </dependency>
 
     <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.liveexcel.lib</artifactId>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
     </dependency>
+
+    <!-- TODO: remove -->
+    <dependency>
+        <artifactId>svnkit</artifactId>
+        <groupId>org.tmatesoft.svnkit</groupId>
+    </dependency>
+    <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+    </dependency>        
+    <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm-util</artifactId>
+    </dependency>        
   </dependencies>  
   
 </project>

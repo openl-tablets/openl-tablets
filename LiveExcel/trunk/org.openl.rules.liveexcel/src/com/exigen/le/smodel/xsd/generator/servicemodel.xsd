@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="serviceModel" type="serviceModel"/>
+
+  <xs:complexType name="serviceModel">
+    <xs:sequence>
+      <xs:element name="functions" type="function" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="tables" type="tableDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="types" type="type" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="function">
+    <xs:sequence>
+      <xs:element name="arguments" type="functionArgument" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="attributes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="definitionArea" type="xs:string" minOccurs="0"/>
+      <xs:element name="excel" type="xs:string" minOccurs="0"/>
+      <xs:element name="functionDescription" type="xs:string" minOccurs="0"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="returnArea" type="xs:string" minOccurs="0"/>
+      <xs:element name="returnType" type="type" minOccurs="0"/>
+      <xs:element name="service" type="xs:boolean"/>
+      <xs:element name="sheet" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="functionArgument">
+    <xs:sequence>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="inputArea" type="xs:string" minOccurs="0"/>
+      <xs:element name="type" type="type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="type">
+    <xs:sequence>
+      <xs:element name="childs" type="property" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="complex" type="xs:boolean"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="property">
+    <xs:sequence>
+      <xs:element name="collection" type="xs:boolean"/>
+      <xs:element name="embedded" type="xs:boolean"/>
+      <xs:element name="key" type="xs:boolean"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="type" type="type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="tableDesc">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="paramDescs" type="columnDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="valueDesc" type="columnDesc" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="columnDesc">
+    <xs:sequence>
+      <xs:element name="additional" type="xs:boolean"/>
+      <xs:element name="additionalName" type="xs:string" minOccurs="0"/>
+      <xs:element name="interval" type="xs:boolean"/>
+      <xs:element name="maxLength" type="xs:int"/>
+      <xs:element name="type" type="dataType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="dataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BOOLEAN"/>
+      <xs:enumeration value="DOUBLE"/>
+      <xs:enumeration value="STRING"/>
+      <xs:enumeration value="DATE"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
