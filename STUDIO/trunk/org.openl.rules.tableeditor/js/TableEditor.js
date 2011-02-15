@@ -244,10 +244,13 @@ var TableEditor = Class.create({
             return;
         }
         if (this.switchEditorMenu) {
-            this.switchEditorMenu.hide();
-            this.switchEditorMenu = null;
-            if (this.switchEditorMenu.has(elt)) {
-                return;
+            try {
+                if (this.switchEditorMenu.has(elt)) {
+                    return;
+                }
+            } finally {
+                this.switchEditorMenu.hide();
+                this.switchEditorMenu = null;
             }
         }
         this.setCellValue();
