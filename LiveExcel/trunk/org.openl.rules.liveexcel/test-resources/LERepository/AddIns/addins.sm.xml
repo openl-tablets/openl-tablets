@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<serviceModel>
+    <types>
+       <complex>false</complex>
+        <name>argument</name>
+    </types>
+    <functions>
+        <excel>addins</excel>
+        <functionDescription>Test IFError with error</functionDescription>
+        <name>service_IfErrorYes</name>
+        <returnArea>B3</returnArea>
+        <service>true</service>
+        <sheet>IFERROR</sheet>
+    </functions>
+    <functions>
+        <excel>addins</excel>
+        <functionDescription>Test IFError without error</functionDescription>
+        <name>service_IfErrorNO</name>
+        <returnArea>B4</returnArea>
+        <service>true</service>
+        <sheet>IFERROR</sheet>
+    </functions>
+    <functions>
+        <arguments>
+            <description>X</description>
+            <inputArea>B1</inputArea>
+	    <typeName>numeric</typeName>
+            <ordination>0</ordination>
+        </arguments>
+        <excel>addins</excel>
+        <functionDescription>Test NORMSDIST</functionDescription>
+        <name>service_NormsDist</name>
+        <returnArea>B2</returnArea>
+        <service>true</service>
+        <sheet>NormDist</sheet>
+    </functions>
+</serviceModel>

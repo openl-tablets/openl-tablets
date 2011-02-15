@@ -5,13 +5,13 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
-    <version>5.3.1-SNAPSHOT</version>
+    <version>5.7.5-SNAPSHOT</version>
   </parent>
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.liveexcel-pom</artifactId>
   <packaging>pom</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.3-SNAPSHOT</version>
   <name>OpenL - Live Excel - Base POM</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
@@ -19,7 +19,7 @@
   <modules>
     <module>../org.openl.rules.liveexcel.lib</module>
     <module>../org.openl.rules.liveexcel</module>
-    <module>../org.openl.rules.liveexcel.extension</module>
+    <!--module>../org.openl.rules.liveexcel.extension</module-->
   </modules>
   <scm>
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</connection>
@@ -114,7 +114,7 @@
       </dependency>
       <dependency>
         <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+        <artifactId>org.openl.lib.poi.dev.modified</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
       <dependency>
@@ -127,16 +127,40 @@
         <artifactId>org.openl.commons</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
+
+
+
+      <!-- TODO: remove -->
       <dependency>
-        <groupId>com.exigen.le</groupId>
-        <artifactId>le-model-access</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>10.6.1.0</version>
       </dependency>
       <dependency>
-        <groupId>com.exigen.le</groupId>
-        <artifactId>le-commons</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-      </dependency>				
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.8.2</version>
+      </dependency>
+      <dependency>
+        <artifactId>svnkit</artifactId>
+        <groupId>org.tmatesoft.svnkit</groupId>
+        <version>1.3.0.5847</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.8.2</version>
+      </dependency>
+      <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>2.2.3</version>
+      </dependency>        
+      <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm-util</artifactId>
+        <version>2.2.3</version>
+      </dependency>        
     </dependencies>
   </dependencyManagement>
 </project>

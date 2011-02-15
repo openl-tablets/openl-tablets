@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://exigen.com/le/schemas" xmlns:schemas="http://exigen.com/le/schemas">
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="schemas:beans" minOccurs="1" maxOccurs="1" />
+      </xs:sequence>
+      <xs:attribute name="rootBean" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="bean">
+    <xs:complexType>
+      <xs:sequence minOccurs="1" maxOccurs="1">
+        <xs:element ref="schemas:fields" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="schemas:beans" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="beans">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="schemas:bean"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="fields">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="schemas:field"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="field">
+    <xs:complexType>
+	  <xs:all minOccurs="1">
+	  	<xs:element ref="schemas:mapping"/>
+	  </xs:all>	
+      <xs:attribute name="collection" type="xs:boolean"/>
+      <xs:attribute name="embedded" type="xs:boolean"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mapping">
+  	<xs:complexType>
+  		<xs:attribute name="property" use="required" type="xs:NCName"/>
+  		<xs:attribute name="retriever" type="xs:NCName"/>
+  	</xs:complexType>
+  </xs:element>
+</xs:schema>

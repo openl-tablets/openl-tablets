@@ -1,0 +1,2 @@
+"Good Driver",	0.8
+"Elite Good Driver",	0.73

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://exigen.com/le/schemas">
+	<beans>
+		<bean name="Insurance">
+			<fields>
+				<field name="d" type="Person" collection="false">
+					<mapping property="driver" />
+				</field>
+			</fields>
+			<beans>
+				<bean name="Person">
+					<fields>
+						<field name="data" type="Data" collection="false">
+							<mapping property="not_used" retriever="" />
+						</field>
+						<field name="age_plus_25" type="numeric" collection="false">
+							<mapping property="age"
+								retriever="com.exigen.le.servicedescr.evaluator.AgeRetriever" />
+						</field>
+					</fields>
+				</bean>
+				<bean name="Data">
+					<fields>
+						<field name="name" type="string" collection="false">
+							<mapping property="firstName" />
+						</field>
+					</fields>
+				</bean>
+			</beans>
+		</bean>
+	</beans>
+</root>
