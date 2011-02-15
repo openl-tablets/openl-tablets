@@ -533,6 +533,13 @@ That&apos;s all there is to it!
    </requires>
 
    <plugin
+         id="org.openl.lib.poi.dev.modified"
+         download-size="0"
+         install-size="0"
+         version="5.7.5"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.poi.lib"
          download-size="0"
          install-size="0"
