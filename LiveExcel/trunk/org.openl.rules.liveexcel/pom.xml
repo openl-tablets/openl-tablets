@@ -26,8 +26,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<excludes>
-								<exclude>**/PerformanceAndThreadSafetyTest.java</exclude>
-								<exclude>**/Benchmark.java</exclude>
+								<exclude>**/LEIntegrationBeanTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -58,6 +57,18 @@
           </archive>
         </configuration>
       </plugin>
+
+
+
+      <!--plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>com/exigen/le/beangenerator/LEIntegrationBeanTest.java</include>
+          </includes>
+        </configuration>
+      </plugin-->
     </plugins>	
 
     <resources>
