@@ -132,8 +132,8 @@ public class TableProperty {
     
     /**
      * This is a setter for the value of the property. Value must be always typify. 
-     * This method is commonly used from UI. If property <code>{@link #isDate()}</code>, 
-     * <code>{@link #isBoolean()}</code> UI controls will be typify, and the income 
+     * This method is commonly used from UI. If property <code>{@link #isDateType()}</code>, 
+     * <code>{@link #isBooleanType()}</code> UI controls will be typify, and the income 
      * value will be of the appropriate type. And if the income value is String we try 
      * to parse it to the appropriate type.
      *  
@@ -159,23 +159,23 @@ public class TableProperty {
         this.group = group;
     }
 
-    public boolean isString() {
+    public boolean isStringType() {
         return String.class.equals(type);
     }
 
-    public boolean isDate() {
+    public boolean isDateType() {
         return Date.class.equals(type);
     }
 
-    public boolean isBoolean() {
+    public boolean isBooleanType() {
         return Boolean.class.equals(type);
     }
 
-    public boolean isDouble() {
+    public boolean isDoubleType() {
         return Double.class.equals(type);
     }
 
-    public boolean isEnum() {
+    public boolean isEnumType() {
         return type != null && type.isEnum();
     }
 

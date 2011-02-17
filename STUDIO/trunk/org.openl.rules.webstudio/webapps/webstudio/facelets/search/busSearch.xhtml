@@ -45,13 +45,13 @@
             </h:column>
             <h:column>
 	            <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
-                   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.date}" />
+                   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.dateType}" />
 
                 <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
-                    value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enum}">
+                    value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enumType}">
                     <f:attribute name="property" value="#{prop}"/>
                 </h:outputText>
-                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enum}" />
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType}" />
 
                 <h:outputText binding="#{bussinessSearch.enumHelper.enumArrayOutput}" escape="false" 
                     value="#{bussinessSearch.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
@@ -62,7 +62,7 @@
                 <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
 
   		    	<h:inputText value="#{prop.value}"
-                    rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray || prop.stringArray)}" />
+                    rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
 
                 <input type="hidden" name="id" value="#{prop.name}" />
             </h:column>

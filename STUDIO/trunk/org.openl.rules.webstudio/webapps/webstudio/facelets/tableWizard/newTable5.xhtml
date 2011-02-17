@@ -11,13 +11,13 @@
     <h:form id="newTableWiz5">
 
       <h3>Return Logic:</h3>
-      <h:inputTextarea value="#{tableWizard.return.logic}"/>
+      <h:inputTextarea value="#{tableWizard.returnValue.logic}"/>
 
       <hr/>
       <h3>Return Parameters:</h3>
 
       <h:commandLink value="Add more" action="#{tableWizard.addReturnParameter}"><h:graphicImage value="/images/add_obj.gif" alt="" /></h:commandLink>
-      <h:dataTable var="p" value="#{tableWizard.return.parameters}" id="paramTable">
+      <h:dataTable var="p" value="#{tableWizard.returnValue.parameters}" id="paramTable">
         <h:column>
           <f:facet name="header"><h:outputText value="Business Name"/></f:facet>
           <h:inputText value="#{p.businessName}" id="pname"/>
@@ -34,14 +34,14 @@
         </h:column>
         <h:column>
           <h:commandLink action="#{tableWizard.removeReturnParameter}"
-            rendered="#{tableWizard.return.paramsCount > 1}">
+            rendered="#{tableWizard.returnValue.paramsCount > 1}">
             <f:param name="index" value="#{counter.count}"/>
             <h:graphicImage value="/images/delete.gif"/>
           </h:commandLink>
 
           <h:graphicImage value="/images/moveup.gif" rendered="#{counter.prev &gt; 0}" onclick='wiz_moveup(this, #{counter.prev})'/>
             <h:graphicImage value="/images/empty.gif" rendered="#{counter.prev == 0}" width="16"/>
-            <h:graphicImage value="/images/movedown.gif" rendered="#{tableWizard.return.paramsCount > 1 and counter.current &lt; tableWizard.return.paramsCount}"
+            <h:graphicImage value="/images/movedown.gif" rendered="#{tableWizard.returnValue.paramsCount > 1 and counter.current &lt; tableWizard.returnValue.paramsCount}"
               onclick='wiz_moveup(this, #{counter.current})'/>
         </h:column>
         <h:column><h:message for="pname" errorClass="error" showSummary="true" showDetail="true"/></h:column>
