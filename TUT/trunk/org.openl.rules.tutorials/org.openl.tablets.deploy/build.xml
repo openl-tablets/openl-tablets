@@ -11,7 +11,7 @@
 	<property name="plugin.base.path" location="${eclipse.pdebuild.home}../" />
 	<property name="openl.plugin.version" value="_5.7.5" />
 
-	<property name="tomcat.path" value="${plugin.base.path}/org.openl.rules.tomcat.lib${openl.plugin.version}/apache-tomcat-6.0.20" />
+	<property name="tomcat.path" value="${plugin.base.path}/org.openl.rules.tomcat.lib${openl.plugin.version}/apache-tomcat-7.0.8" />
 
 	<property name="project.lib" value="${plugin.base.path}/org.openl.rules.webstudio.lib${openl.plugin.version}" />
 	<property name="project.jars" value="project.jars" />
