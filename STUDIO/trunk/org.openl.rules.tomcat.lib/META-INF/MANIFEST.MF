@@ -5,17 +5,20 @@ Bundle-SymbolicName: org.openl.rules.tomcat.lib
 Bundle-Version: 5.7.5
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
-Bundle-ClassPath: apache-tomcat-6.0.20/lib/jsp-api.jar,
- apache-tomcat-6.0.20/lib/servlet-api.jar,
- apache-tomcat-6.0.20/bin/bootstrap.jar,
- apache-tomcat-6.0.20/lib/el-api.jar,
- apache-tomcat-6.0.20/lib/annotations-api.jar
+Bundle-ClassPath: apache-tomcat-7.0.8/lib/jsp-api.jar,
+ apache-tomcat-7.0.8/lib/servlet-api.jar,
+ apache-tomcat-7.0.8/bin/bootstrap.jar,
+ apache-tomcat-7.0.8/lib/el-api.jar,
+ apache-tomcat-7.0.8/lib/annotations-api.jar,
+ apache-tomcat-7.0.8/bin/tomcat-juli.jar
 Export-Package: javax.annotation,
  javax.annotation.security,
  javax.ejb,
  javax.el,
  javax.persistence,
  javax.servlet,
+ javax.servlet.annotation,
+ javax.servlet.descriptor,
  javax.servlet.http,
  javax.servlet.jsp,
  javax.servlet.jsp.el,
@@ -24,4 +27,8 @@ Export-Package: javax.annotation,
  org.apache.catalina.loader,
  org.apache.catalina.security,
  org.apache.catalina.startup,
+ org.apache.commons.daemon,
+ org.apache.commons.daemon.support,
+ org.apache.juli,
+ org.apache.juli.logging,
  org.apache.naming
