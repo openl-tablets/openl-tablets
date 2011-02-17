@@ -39,7 +39,7 @@
 								<rich:calendar value="#{prop.value}"
 									datePattern="#{prop.format}" defaultTime="00:00"
 									timeZone="#{formatPatterns.defaultTimeZone}"
-									rendered="#{prop.date}" />
+									rendered="#{prop.dateType}" />
 
 								<h:panelGroup id="editVersionPanel"
 									rendered="#{prop.name == 'version'}">
@@ -50,17 +50,17 @@
 								</h:panelGroup>
 
 								<h:selectBooleanCheckbox value="#{prop.value}"
-									rendered="#{prop.boolean}" />
+									rendered="#{prop.booleanType}" />
 
 								<h:outputText
 									binding="#{propertiesManager.enumHelper.enumOutput}"
 									escape="false"
 									value="#{propertiesManager.enumHelper.enumValue}"
-									rendered="#{prop.enum}">
+									rendered="#{prop.enumType}">
 									<f:attribute name="property" value="#{prop}" />
 								</h:outputText>
 								<h:inputHidden value="#{prop.stringValue}"
-									rendered="#{prop.enum}" />
+									rendered="#{prop.enumType}" />
 
 								<h:outputText
 									binding="#{propertiesManager.enumHelper.enumArrayOutput}"
@@ -73,7 +73,7 @@
 									rendered="#{prop.enumArray}" />
 
 								<h:inputText value="#{prop.value}"
-									rendered="#{!(prop.date || prop.name == 'version' || prop.boolean || prop.enum || prop.enumArray)}" />
+									rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
 							</td>
 							<td>
 								<a4j:commandLink action="#{propertiesManager.removeProperty}"

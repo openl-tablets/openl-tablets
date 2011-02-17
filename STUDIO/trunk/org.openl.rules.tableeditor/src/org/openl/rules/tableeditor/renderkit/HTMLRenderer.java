@@ -745,15 +745,15 @@ public class HTMLRenderer {
             
             String propValue = prop.getStringValue();
 
-            if (prop.isString() || prop.isDouble()) {
+            if (prop.isStringType() || prop.isDoubleType()) {
                 insertTextbox(prop, id); 
             } else if (prop.isStringArray()) {
                 insertTextbox(prop, id);
-            } else if (prop.isDate()) {
+            } else if (prop.isDateType()) {
                 insertCalendar(prop, id);
-            } else if (prop.isBoolean()) {
+            } else if (prop.isBooleanType()) {
                 insertCheckbox(propValue, id);
-            } else if (prop.isEnum()) {
+            } else if (prop.isEnumType()) {
                 insertSingleSelectForEnum(prop, id);
             } else if (prop.isEnumArray()) {
                 insertMultiSelectForEnum(prop, id);

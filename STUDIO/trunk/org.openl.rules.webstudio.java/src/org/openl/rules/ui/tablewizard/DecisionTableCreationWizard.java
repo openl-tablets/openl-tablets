@@ -90,7 +90,7 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
     }
 
     public void addReturnParameter() {
-        getReturn().getParameters().add(new Parameter());
+        getReturnValue().getParameters().add(new Parameter());
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -202,7 +202,7 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
         return parameters;
     }
 
-    public TableArtifact getReturn() {
+    public TableArtifact getReturnValue() {
         return returnValue;
     }
 
@@ -368,7 +368,7 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
     }
 
     public void removeReturnParameter() {
-        TableArtifact ret = getReturn();
+        TableArtifact ret = getReturnValue();
         if (ret.getParameters().size() > 1) {
             removeByIndex(ret.getParameters());
         }
