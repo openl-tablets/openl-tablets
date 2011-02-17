@@ -285,3 +285,4 @@ Export-Package: java_cup.runtime,
  schemaorg_apache_xmlbeans.system.sXMLLANG,
  schemaorg_apache_xmlbeans.system.sXMLSCHEMA,
  schemaorg_apache_xmlbeans.system.sXMLTOOLS
+Require-Bundle: org.openl.poi.lib;visibility:=reexport

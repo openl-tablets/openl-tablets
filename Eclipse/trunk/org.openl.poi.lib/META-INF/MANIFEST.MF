@@ -146,4 +146,3 @@ Bundle-ClassPath: lib/commons-lang-2.5.jar,
  lib/stax-api-1.0.1.jar,
  lib/xmlbeans-2.3.0.jar,
  lib/ooxml-schemas-1.1.jar
-Require-Bundle: org.openl.lib.poi.dev.modified;visibility:=reexport
