@@ -12,13 +12,13 @@ FOR %%c in ("%SITE%/plugins/*.jar") DO set CP=!CP!;%SITE%/plugins/%%c
 
 FOR %%c in ("%SITE%/org.openl.lib.apache.commons/*.jar") DO set CP=!CP!;%SITE%/org.openl.lib.apache.commons/%%c
 
-set CATALINA_HOME=../org.openl.rules.tomcat.lib/apache-tomcat-6.0.20
+set CATALINA_HOME=../org.openl.rules.tomcat.lib/apache-tomcat-7.0.8
 
 FOR %%c in ("%CATALINA_HOME%/common/lib/*.jar") DO set CP=!CP!;%CATALINA_HOME%/common/lib/%%c
 
 FOR %%c in ("%CATALINA_HOME%/server/lib/*.jar") DO set CP=!CP!;%CATALINA_HOME%%CATALINA_HOME%/server/lib/%%c
 
-set CP=%CP%;../org.openl.rules.tomcat.lib/apache-tomcat-6.0.20/bin/bootstrap.jar
+set CP=%CP%;../org.openl.rules.tomcat.lib/apache-tomcat-7.0.8/bin/bootstrap.jar
 set CP=%CP%;../org.openl.rules.webstudio/bin
 set CP=%CP%;../org.openl.commons.web/bin
 set CP=%CP%;../org.openl.rules.constrainer/bin
