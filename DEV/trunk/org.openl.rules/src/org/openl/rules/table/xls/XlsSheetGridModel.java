@@ -345,7 +345,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 writeCellMetaInfo = false;
             }
 
-            AXlsCellWriter cellWriter = getCellWriter(poiCell.getCellType(), value);
+            AXlsCellWriter cellWriter = getCellWriter(value);
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue(writeCellMetaInfo);
@@ -536,7 +536,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     // TODO: move to factory.
-    public AXlsCellWriter getCellWriter(int cellType, Object value) {
+    public AXlsCellWriter getCellWriter(Object value) {
         AXlsCellWriter result = null;
         if (value instanceof Number) {
             result = cellWriters.get(AXlsCellWriter.NUMBER_WRITER);
@@ -553,7 +553,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } else { // String
             String strValue = String.valueOf(value);
             // Formula
-            if (strValue.startsWith("=") && cellType == CELL_TYPE_FORMULA) {
+            if (strValue.startsWith("=")) {
                 result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
             } else {
                 result = cellWriters.get(AXlsCellWriter.STRING_WRITER);

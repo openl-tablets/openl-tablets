@@ -128,7 +128,7 @@ public class XlsCell implements ICell {
                 writeCellMetaInfo = false;
             }
 
-            AXlsCellWriter cellWriter = gridModel.getCellWriter(cell.getCellType(), value);
+            AXlsCellWriter cellWriter = gridModel.getCellWriter(value);
             cellWriter.setCellToWrite(cell);
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue(writeCellMetaInfo);
