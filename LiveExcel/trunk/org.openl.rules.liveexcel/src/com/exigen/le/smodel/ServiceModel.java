@@ -14,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.exigen.le.evaluator.ThreadEvaluationContext;
-import com.exigen.le.evaluator.selector.SelectorFactory;
 
 
 /**
@@ -65,7 +64,7 @@ public List<Type> getTypes() {
  */
 public Type getType(String typeName) {
 	// try primitive
-	Type primitive = Type.Primary.getTypeByNameOrClass(typeName);
+	Type primitive = Primary.getTypeByNameOrClass(typeName);
 	if (primitive != null){
 		return primitive;
 	}
@@ -146,7 +145,7 @@ public List<Function> getServiceFunctions(){
 	List<Function> funcs =getFunctions();
 	for(Function func:funcs){
 		if(func.isService()){
-	   		Function function = SelectorFactory.getInstance().getFunctionSelector().selectFunction(func.getName(),funcs,ThreadEvaluationContext.getInstance());
+	   		Function function = ThreadEvaluationContext.getFunctionSelector().selectFunction(func.getName(),funcs,ThreadEvaluationContext.getInstance());
 	   		if(!answer.contains(function))
 	   			answer.add(function);
 		}

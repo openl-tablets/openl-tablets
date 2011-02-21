@@ -28,8 +28,6 @@ import com.exigen.le.evaluator.function.UDFFinderLE;
 import com.exigen.le.evaluator.table.TableLooker;
 import com.exigen.le.project.ElementFactory;
 import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
@@ -58,7 +56,7 @@ public class LiveExcelWorkbookFactory implements ElementFactory{
 	public static LiveExcelWorkbookFactory getInstance(){
 		return INSTANCE;
 	}
-    public static Workbook create(InputStream inp, String projectName,VersionDesc versionDesc) throws IOException, InvalidFormatException {
+    public static Workbook create(InputStream inp) throws IOException, InvalidFormatException {
         
     	LiveExcelWorkbook result = null;
         if(! inp.markSupported()) {
@@ -66,19 +64,19 @@ public class LiveExcelWorkbookFactory implements ElementFactory{
         }
         
         if(POIFSFileSystem.hasPOIFSHeader(inp)) {
-        	result = new LiveExcelHSSFWorkbook(inp, projectName,versionDesc);
+        	result = new LiveExcelHSSFWorkbook(inp);
         	registerServiceModelUDFs(result);
             return result;
         }
         
         if(POIXMLDocument.hasOOXMLHeader(inp)) {
         	
-        	File temp = File.createTempFile("poi", ".tmp", new File(ProjectManager.getInstance().getSetTempDir(projectName,versionDesc)));
+        	File temp = File.createTempFile("poi", ".tmp");
         	FileOutputStream fout = new FileOutputStream(temp);
         	IOUtils.copy(inp,fout);
         	inp.close();
         	fout.close();
-        	result = new LiveExcelXSSFWorkbook(OPCPackage.open(temp.getAbsolutePath()), projectName,versionDesc);
+        	result = new LiveExcelXSSFWorkbook(OPCPackage.open(temp.getAbsolutePath()));
         	registerServiceModelUDFs(result);
             return result;
         }
@@ -86,11 +84,9 @@ public class LiveExcelWorkbookFactory implements ElementFactory{
         throw new IllegalArgumentException("Your InputStream was neither an OLE2 stream, nor an OOXML stream");
     }
 
-	public ProjectElement create(String projectName, VersionDesc versionDesc,
-			String elementFileName, InputStream is, ServiceModel serviceModel,
-			Properties configuration) {
+	public ProjectElement create(String elementFileName, InputStream is, ServiceModel serviceModel) {
 		try {
-			Workbook wb = create(is, projectName,versionDesc);
+			Workbook wb = create(is);
 			ProjectElement result = new ProjectElement(elementFileName,ProjectElement.ElementType.WORKBOOK){
 				@Override
 				public void dispose(){
@@ -135,7 +131,7 @@ public class LiveExcelWorkbookFactory implements ElementFactory{
         }
         
         // Register all "global" java UDF
-		for(Entry<String,FreeRefFunction> javaUDF: LiveExcel.getInstance().getJavaUDF().entrySet()){
+		for(Entry<String,FreeRefFunction> javaUDF: LiveExcel.getJavaUDF().entrySet()){
 	        finder.addUDF(javaUDF.getKey(), javaUDF.getValue());
 	        FunctionMetadataRegistry.removeFunction(javaUDF.getKey()); // Overwrite standard function definition
 		}

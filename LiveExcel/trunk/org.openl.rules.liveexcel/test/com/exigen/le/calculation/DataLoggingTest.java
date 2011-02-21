@@ -2,14 +2,13 @@ package com.exigen.le.calculation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.junit.Test;
@@ -20,14 +19,11 @@ import com.exigen.le.democase.Coverage;
 import com.exigen.le.democase.Driver;
 import com.exigen.le.democase.Policy;
 import com.exigen.le.democase.Vehicle;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.servicedescr.evaluator.MapWrapper;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.Type;
 import com.exigen.le.smodel.provider.ServiceModelJAXB;
-import com.exigen.le.smodel.provider.ServiceModelProviderFactory;
 
 public class DataLoggingTest {
 	@Test
@@ -36,20 +32,11 @@ public class DataLoggingTest {
 		Coverage coverage = fillCoverage();
 		Policy policy = fillPolicy();
 		Vehicle vehicle = fillVehicle();
-		
-		String project = "DemoCase2";
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
+
 		// Restore regular SM provider(from xml), which can be overriden by other tests
-		ServiceModelProviderFactory.getInstance().setProvider(new ServiceModelJAXB());
+		ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/DemoCase2"));
+        LiveExcel le = new LiveExcel(provider);
 	
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		VersionDesc versionDesc = le.getDefaultVersionDesc(project);
 		List args = new LinkedList();
 		args.add(coverage);
 		args.add(vehicle);
@@ -58,13 +45,13 @@ public class DataLoggingTest {
 		
 		
 		// initiate logging
-		ProjectManager.getInstance().setLogFile(project, versionDesc, "mylog1");
-		ProjectManager.getInstance().setDoLog(project, versionDesc, true);
+		le.setLogFile("mylog1");
+		le.setDoLog(true);
 		
 // test bean log		
 		LE_Value result = null;
 		for (int i=0;i<10; i++){
-			 result = le.calculate(project, versionDesc, "rateAutoLE".toUpperCase(), args);
+			 result = le.calculate("rateAutoLE".toUpperCase(), args);
 		}	
 		// after that file would be in temp directory for this project/version
 		// log should be checked visually!
@@ -74,8 +61,8 @@ public class DataLoggingTest {
 		
 		
 // test holder log
-		ProjectManager.getInstance().setLogFile(project, versionDesc, "mylog2"); 
-		ServiceModel sm = le.getServiceModel(project, versionDesc);
+		le.setLogFile("mylog2"); 
+		ServiceModel sm = le.getServiceModel();
 		List args2 = new ArrayList();
 		args2.add(fillCoverageHolder(sm.getType("Coverage")));
 		args2.add(fillVehicleHolder(sm.getType("Vehicle")));
@@ -84,7 +71,7 @@ public class DataLoggingTest {
 		
 		result = null;
 		for (int i=0;i<10; i++){
-			 result = le.calculate(project, versionDesc, "rateAutoLE".toUpperCase(), args2);
+			 result = le.calculate("rateAutoLE".toUpperCase(), args2);
 		}	
 		// after that file would be in temp directory for this project/version
 		// log should be checked visually!

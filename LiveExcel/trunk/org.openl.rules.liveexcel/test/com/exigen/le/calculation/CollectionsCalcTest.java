@@ -3,12 +3,11 @@
  */
 package com.exigen.le.calculation;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -18,22 +17,19 @@ import com.exigen.le.LiveExcel;
 import com.exigen.le.collections.Collections;
 import com.exigen.le.collections.Departament;
 import com.exigen.le.collections.departament.Person;
-import com.exigen.le.evaluator.table.LETableFactory;
+import com.exigen.le.evaluator.function.UDFRegister;
+import com.exigen.le.evaluator.selector.FunctionByDateSelector;
 import com.exigen.le.evaluator.table.TableFactory;
 import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.servicedescr.evaluator.BeanWrapper;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
-import com.exigen.le.smodel.Type;
-import com.exigen.le.smodel.accessor.ValueHolder;
 import com.exigen.le.smodel.emulator.JavaUDF;
 import com.exigen.le.smodel.emulator.SMEmulator;
 import com.exigen.le.smodel.emulator.SMEmulator2;
 import com.exigen.le.smodel.provider.ServiceModelJAXB;
-import com.exigen.le.smodel.provider.ServiceModelProviderFactory;
 
 import static junit.framework.Assert.*;
 
@@ -45,7 +41,6 @@ public class CollectionsCalcTest {
 	
 	@Test
 	public void testVersionFunctions(){
-		String projectName = "Collections";
 		Collections context = buildContext();
 		
 		String[][] etalons = {
@@ -95,43 +90,28 @@ public class CollectionsCalcTest {
 		};
 
 
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-		ServiceModelProviderFactory.getInstance().setProvider(new SMEmulator());
+        SMEmulator provider = new SMEmulator(new File("./test-resources/LERepository/Collections/d"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
+        ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 
 
 //		prop.put("Collections.version","a");
-		ServiceModel sm =le.getServiceModelMakeDefault(projectName,new VersionDesc("c") );
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+		ServiceModel sm =le.getServiceModel();
+		le.printoutServiceModel(System.out);
 		
 		BeanWrapper bw = new BeanWrapper(context.getDepartament(), sm.getType("Departament"));
 		List<Object> args = new ArrayList<Object>();
 		args.add(bw);
 		
-		List<Function> servFunc = le.getServiceFunctions(projectName,le.getDefaultVersionDesc(projectName));
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
+		List<Function> servFunc = le.getServiceFunctions(envProps);
 
-		DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-		Date date=new Date();
-		try {
-			date = df.parse("2010/05/21-08:00");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        VersionDesc version = new VersionDesc("",date); 		
 //		for(int i =10;i<13;i++){
 //		for(int i =1;i<2;i++){
 		for(int i =0;i<servFunc.size();i++){
 				System.out.println("*******Calculate function(service) "+servFunc.get(i).getName());
-				LE_Value[][] answer = le.calculate(projectName,version,servFunc.get(i).getName(),args).getArray();
+				LE_Value[][] answer = le.calculate(servFunc.get(i).getName(),args, envProps).getArray();
 				for(int j=0;j<answer.length;j++){
 					for(int jj=0;jj<answer[j].length;jj++){
 					System.out.println("Answer Value["+j+"]["+jj+"]="+answer[j][jj].getValue());
@@ -145,13 +125,10 @@ public class CollectionsCalcTest {
 				}
 				
 		}
-		le.clean();
-
 	}
 	
 	@Test
 	public void testEffectiveDate4Functions(){
-		String projectName = "Collections";
 		String[] calDate ={"2010/03/01-00:00",
 							"2010/07/01-00:00",
 							"2011/01/02-00:00",
@@ -166,46 +143,21 @@ public class CollectionsCalcTest {
 		};
 
 
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-		ServiceModelProviderFactory.getInstance().setProvider(new SMEmulator());
+		SMEmulator provider = new SMEmulator(new File("./test-resources/LERepository/Collections/d"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
+        ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 
 
-//		prop.put("Collections.version","a");
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		ServiceModel sm =le.getServiceModelMakeDefault(projectName,new VersionDesc("c") );
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+		le.printoutServiceModel(System.out);
 		
 		List<Object> args = new ArrayList<Object>();
 		
 
-		
-        VersionDesc version = new VersionDesc("");
  		for(int i =0;i<calDate.length;i++){
 				System.out.println("*******Calculate function(service_Date) on "+calDate[i]);
-				String ed = calDate[i];
-				DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-				Date date = new Date();
-				if(ed != null){
-					try {
-						date = df.parse(ed);
-					} catch (ParseException e) {
-						String msg = "Undefined or wrong "+Function.EFFECTIVE_DATE+":"+ed;
-						System.out.println("Error "+msg);
-						return;
-						
-					}
-					}
-				version.setDate(date);
-				LE_Value[][] answer=le.calculate(projectName,version,"service_Date".toUpperCase(),args).getArray();
+		        Map<String, String> envProps = new HashMap<String, String>();
+		        envProps.put(Function.EFFECTIVE_DATE, calDate[i]);
+				LE_Value[][] answer=le.calculate("service_Date".toUpperCase(),args,envProps).getArray();
 				for(int j=0;j<answer.length;j++){
 					for(int jj=0;jj<answer[j].length;jj++){
 					System.out.println("Answer Value["+j+"]["+jj+"]="+answer[j][jj].getValue());
@@ -214,13 +166,11 @@ public class CollectionsCalcTest {
 				}
 				
 		}
- 		le.clean();
 	}
 	@Test
 	public void testJavaUDFunctions(){
         // JavaUDF will be set via API
 		// JavaUDF2 and JavaUDF3 - via configuration properties
-		String projectName = "Collections";
 		String[][] etalons = {
 				new String[]{ // service_JavaUDF
 						"Java greets Excel",  // javaUDF
@@ -231,15 +181,12 @@ public class CollectionsCalcTest {
 				
 		};
 
-		LiveExcel le = LiveExcel.getInstance();
 		Properties prop = new Properties();
 		prop.put("repositoryManager.excelExtension",".xlsm");
 		prop.put("repositoryManager.headPath","");
 		prop.put("repositoryManager.branchPath","");
 		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
 		
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-
 		
 		// Set our UDF via configuration  properties
 		prop.put("UDFFactory.className.proba","com.exigen.le.evaluator.function.FunctionUDFFactoryImpl");
@@ -248,37 +195,30 @@ public class CollectionsCalcTest {
 		prop.put("UDF.function.JavaUDF2","com.exigen.le.smodel.emulator.JavaUDF2");
 		prop.put("UDF.function.JavaUDF3","com.exigen.le.smodel.emulator.JavaUDF3");
 		prop.put("LE_Function.function.JavaFunction4","com.exigen.le.smodel.emulator.JavaFunction4");
+		UDFRegister.getInstance().init(prop);
 		// Set new SM Emulator
-		ServiceModelProviderFactory.getInstance().setProvider(new SMEmulator2());
+		SMEmulator2 provider = new SMEmulator2(new File("./test-resources/LERepository/Collections/c"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
+        
+        ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		
 		// register our java UDF via API
-		le.registerJavaUDF("javaUDF",new JavaUDF());
+		LiveExcel.registerJavaUDF("javaUDF",new JavaUDF());
 		
-		ServiceModel sm =le.getServiceModelMakeDefault(projectName,new VersionDesc("c") );
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+		le.printoutServiceModel(System.out);
 		 
 		List<Object> args = new ArrayList<Object>();
 		
-		List<Function> servFunc = le.getServiceFunctions(projectName,le.getDefaultVersionDesc(projectName));
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
+		List<Function> servFunc = le.getServiceFunctions(envProps);
 
-		DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-		Date date=new Date();
-		try {
-			date = df.parse("2010/05/21-08:00");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        VersionDesc version = new VersionDesc("",date); 		
 //		for(int i =12;i<13;i++){
 //		for(int i =10;i<11;i++){
         
 		for(int i =0;i<servFunc.size();i++){
 				System.out.println("*******Calculate function(service) "+servFunc.get(i).getName());
-				LE_Value[][] answer=le.calculate(projectName,version,servFunc.get(i).getName(),args).getArray();
+				LE_Value[][] answer=le.calculate(servFunc.get(i).getName(),args, envProps).getArray();
 				for(int j=0;j<answer.length;j++){
 					for(int jj=0;jj<answer[j].length;jj++){
 					System.out.println("Answer Value["+j+"]["+jj+"]="+answer[j][jj].getValue());
@@ -292,12 +232,9 @@ public class CollectionsCalcTest {
 				}
 				
 		}
-		le.clean();
-
 	}
 	@Test
 	public void testSM_FromXML(){
-		String projectName = "Collections";
 		Collections context = buildContext();
 		
 		String[][] etalons = {
@@ -346,53 +283,33 @@ public class CollectionsCalcTest {
 				},
 		};
 
-
-		LiveExcel le = LiveExcel.getInstance();
-		le.setUnInitialized();
-		
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		
-		le.init(prop);
-		le.clean();
-
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-
 		// Set regular SM Provider, because it may be switched before to any Emulator
-		ServiceModelProviderFactory.getInstance().setProvider(new ServiceModelJAXB());
+		ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/Collections/d"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
 
+        ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 		// Set version "D" 
 		// which contains xml with service model 
 		// and certain calculation date for results comparison
 		
-		DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-		Date date=new Date();
-		try {
-			date = df.parse("2010/05/21-08:00");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        VersionDesc version = new VersionDesc("d",date); 		
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
 		// Set new SM provider, which get SM from xml
-		ServiceModelProviderFactory.getInstance().setProvider(new ServiceModelJAXB());
 
-		ServiceModel sm =le.getServiceModelMakeDefault(projectName,version );
-		le.printoutServiceModel(System.out, projectName,version);
+		ServiceModel sm =le.getServiceModel();
+		le.printoutServiceModel(System.out);
 		
 		BeanWrapper bw = new BeanWrapper(context.getDepartament(), sm.getType("Departament"));
 		List<Object> args = new ArrayList<Object>();
 		args.add(bw);
 		
-		List<Function> servFunc = le.getServiceFunctions(projectName,le.getDefaultVersionDesc(projectName));
+		List<Function> servFunc = le.getServiceFunctions(envProps);
 
 //		for(int i =12;i<13;i++){
 		
 		for(int i =0;i<servFunc.size();i++){
 				System.out.println("*******Calculate function(service) "+servFunc.get(i).getName());
-				LE_Value[][] answer=le.calculate(projectName,version,servFunc.get(i).getName(),args).getArray();
+				LE_Value[][] answer=le.calculate(servFunc.get(i).getName(),args,envProps).getArray();
 				for(int j=0;j<answer.length;j++){
 					for(int jj=0;jj<answer[j].length;jj++){
 					System.out.println("Answer Value["+j+"]["+jj+"]="+answer[j][jj].getValue());
@@ -406,7 +323,6 @@ public class CollectionsCalcTest {
 				}
 				
 		}
-		le.clean();
 	}
 		static public  Collections  buildContext(){ 
 		    // Set context

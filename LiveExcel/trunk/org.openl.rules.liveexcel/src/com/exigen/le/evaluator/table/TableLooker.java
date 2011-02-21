@@ -25,9 +25,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.exigen.le.evaluator.ThreadEvaluationContext;
 import com.exigen.le.evaluator.table.LETableFactory.TableElement;
 import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
-import com.exigen.le.repository.RepositoryFactory;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.ExcelSpace;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.TableDesc;
@@ -52,28 +50,25 @@ public class TableLooker implements FreeRefFunction {
 	public TableLooker(TableDesc tableDesc){
 		this.tableDesc=tableDesc;
 		
-		String projectName = ThreadEvaluationContext.getProject();
-		VersionDesc versionDesc = ThreadEvaluationContext.getVersion();
-		
-		
-		tablesFileName = getTablesFileName(projectName,versionDesc);
+		tablesFileName = getTablesFileName();
 		
 		
 
 		
 	} 
-	private String getTablesFileName(String project,VersionDesc version){
-		for(ProjectElement element :RepositoryFactory.getRepository().retrieveElementList(project, version)){
-			if(element.getType()!=null && element.getType().equals(ProjectElement.ElementType.TABLE)){
-				return element.getElementFileName();
-			}
-		}
-		String msg = "Project "+project+", version "+version.getVersion()+" did not contains tables data, but has reference to table "+tableDesc.getName();
+	private String getTablesFileName(){
+        for(ProjectElement element :ProjectLoader.retrieveElementList(ThreadEvaluationContext.getProject())){
+            if(element.getType()!=null && element.getType().equals(ProjectElement.ElementType.TABLE)){
+                return element.getElementFileName();
+            }
+        }
+	    //TODO find tables else next:
+		String msg = "Project did not contains tables data, but has reference to table "+tableDesc.getName();
 		LOG.error(msg);
 		throw new RuntimeException(msg);
 	}
-	private TableElement getOrCreateTableElement(String projectName, VersionDesc versionDesc,String tablesFileName){
-		return (TableElement)ProjectManager.getInstance().getProjectElement(projectName, versionDesc, tablesFileName , ProjectElement.ElementType.TABLE);
+	private TableElement getOrCreateTableElement(String tablesFileName){
+		return (TableElement)ProjectLoader.getFullElement(ThreadEvaluationContext.getProject(),tablesFileName, ProjectElement.ElementType.TABLE).getElement();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FreeRefFunction#evaluate(org.apache.poi.hssf.record.formula.eval.ValueEval[], org.apache.poi.ss.formula.OperationEvaluationContext)
@@ -123,9 +118,7 @@ public class TableLooker implements FreeRefFunction {
 	    // Invoke table implementation
 	   
 		try {
-			String projectName = ThreadEvaluationContext.getProject();
-			VersionDesc versionDesc = ThreadEvaluationContext.getVersion();
-			TableElement te = getOrCreateTableElement(projectName, versionDesc, tablesFileName);
+			TableElement te = getOrCreateTableElement(tablesFileName);
 			ValueEval result = te.calculate(tableDesc.getName(), params);
 			if (result instanceof StringEval  &&
 					((StringEval) result).getStringValue().startsWith(REF_PREFIX)
@@ -163,9 +156,7 @@ public class TableLooker implements FreeRefFunction {
 		WorkbookEvaluator wbe =  ec.getWorkbookEvaluator();
 		ForkedEvaluationWorkbook wb = (ForkedEvaluationWorkbook)wbe.getEvaluationWorkbook();
 		if(workbookName.length()>0){
-				String projectName = ThreadEvaluationContext.getProject();
-				VersionDesc versionDesc = ThreadEvaluationContext.getVersion();
-				Workbook refBook = ProjectManager.getInstance().getWorkbook(projectName, versionDesc, workbookName);
+				Workbook refBook = ProjectLoader.getWorkbook(ThreadEvaluationContext.getProject(), workbookName);
 				if(! refBook.equals(ec.getWorkbook().getWorkbook()) ){
 					// Other workbook
 					workbookName = wb.translateExternalWorkbookRef(workbookName);

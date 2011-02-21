@@ -2,24 +2,23 @@ package com.exigen.le.calculation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
 import com.exigen.le.LiveExcel;
-import com.exigen.le.project.VersionDesc;
+import com.exigen.le.evaluator.ThreadEvaluationContext;
 import com.exigen.le.servicedescr.evaluator.PropertyRetriever;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.provider.ServiceModelJAXB;
-import com.exigen.le.smodel.provider.ServiceModelProviderFactory;
 
 public class MappingPropertyTest implements PropertyRetriever{
 	
@@ -34,20 +33,10 @@ public class MappingPropertyTest implements PropertyRetriever{
 		Policy policy = fillPolicy();
 		Vehicle vehicle = fillVehicle();
 		
-		String project = "DemoCase2Mapped";
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
 		// Restore regular SM provider(from xml), which can be overriden by other tests
-		ServiceModelProviderFactory.getInstance().setProvider(new ServiceModelJAXB());
+        ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/DemoCase2Mapped"));
+        LiveExcel le = new LiveExcel(provider);
 	
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		
-		VersionDesc versionDesc = le.getDefaultVersionDesc(project);
 		List args = new LinkedList();
 		args.add(coverage);
 		args.add(vehicle);
@@ -55,7 +44,8 @@ public class MappingPropertyTest implements PropertyRetriever{
 		args.add(policy);
 		
 		
-		LE_Value result = le.calculate(project, versionDesc, "rateAutoLE".toUpperCase(), args);
+        ThreadEvaluationContext.getEnvProperties().clear();
+		LE_Value result = le.calculate("rateAutoLE".toUpperCase(), args);
 		String s = SMHelper.valueToString(result);
 		assertEquals("343.07",s);
 		

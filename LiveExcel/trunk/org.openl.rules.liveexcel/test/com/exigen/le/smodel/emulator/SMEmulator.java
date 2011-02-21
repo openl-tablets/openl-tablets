@@ -3,6 +3,7 @@
  */
 package com.exigen.le.smodel.emulator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,12 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.exigen.le.LE_Value;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.smodel.Cell;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.MappedProperty;
-import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.Range;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
@@ -30,7 +28,15 @@ import com.exigen.le.smodel.provider.ServiceModelProvider;
  *
  */
 public class SMEmulator implements ServiceModelProvider {
-	public List<Type> findTypes(String projectName, VersionDesc versionDesc) {
+    
+    private final File projectLocation;
+    
+    public SMEmulator(File projectLocation) {
+        this.projectLocation = projectLocation;
+    }
+
+    
+	public List<Type> findTypes() {
 		List<Type> result = new ArrayList<Type>();
 		
 		Type numeric = new Type();
@@ -91,7 +97,7 @@ public class SMEmulator implements ServiceModelProvider {
 		
 		return result;
 	}
-	public List<Function> findFunctions(String projectName, VersionDesc versionDesc, List<Type> types) {
+	public List<Function> findFunctions(List<Type> types) {
 		List<Function> result = new ArrayList<Function>();
 		
 		FunctionArgument arg = new FunctionArgument();
@@ -319,7 +325,7 @@ public class SMEmulator implements ServiceModelProvider {
 		result.add(service_chiefSalRefObject);
 		return result;
 	}
-	public List<TableDesc> findTables(String projectName, VersionDesc versionDesc) {
+	public List<TableDesc> findTables() {
 		List<TableDesc> result = new ArrayList<TableDesc>();
 		
 		
@@ -339,12 +345,15 @@ public class SMEmulator implements ServiceModelProvider {
 		
 		return result;
 	}
-	public ServiceModel create(String projectName, VersionDesc versionDesc) {
-		List<Type>   types = findTypes(projectName, versionDesc);
-		List<Function>    functions = findFunctions(projectName, versionDesc, types);
-		List<TableDesc>   tables  = findTables(projectName, versionDesc);
+	public ServiceModel create() {
+		List<Type>   types = findTypes();
+		List<Function>    functions = findFunctions(types);
+		List<TableDesc>   tables  = findTables();
 		ServiceModel serviceModel=new ServiceModel(types,functions,tables);
 		return serviceModel;
 
 	}
+    public File getProjectLocation() {
+        return projectLocation;
+    }
 }

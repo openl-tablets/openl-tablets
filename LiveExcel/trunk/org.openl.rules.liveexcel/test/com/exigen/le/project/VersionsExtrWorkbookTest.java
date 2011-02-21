@@ -1,7 +1,7 @@
 package com.exigen.le.project;
 
+import java.io.File;
 import java.util.List;
-import java.util.Properties;
 
 import org.junit.Test;
 
@@ -11,6 +11,7 @@ import com.exigen.le.collections.Collections;
 import com.exigen.le.collections.Departament;
 import com.exigen.le.collections.departament.Person;
 import com.exigen.le.smodel.Function;
+import com.exigen.le.smodel.provider.ServiceModelJAXB;
 
 import junit.framework.TestCase;
 
@@ -20,22 +21,13 @@ public class VersionsExtrWorkbookTest extends TestCase {
 	@Test
 	public void testVersionFunctions(){
 		String[] etalon = {"d","d"};
-		String projectName = "Collections";
 		Collections context = buildContext();
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
 
-//		prop.put("Collections.version","a");
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		le.getServiceModelMakeDefault(projectName,new VersionDesc("d") );
-		le.printoutServiceModel(System.out, projectName,new VersionDesc(" "));
+		LiveExcel le = new LiveExcel(new ServiceModelJAXB(new File("./test-resources/LERepository/Collections/d")));
+		le.getServiceModel();
+		le.printoutServiceModel(System.out);
 		
-		List<Function> servFunc = le.getServiceFunctions(projectName, le.getDefaultVersionDesc(projectName));
+		List<Function> servFunc = le.getServiceFunctions(null);
 		Object[] func =  servFunc.toArray();
 		
 //        VersionDesc version = new VersionDesc(""); 		

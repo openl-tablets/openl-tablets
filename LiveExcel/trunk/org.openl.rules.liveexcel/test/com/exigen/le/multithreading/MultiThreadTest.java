@@ -2,14 +2,12 @@ package com.exigen.le.multithreading;
 
 import static junit.framework.Assert.assertEquals;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,17 +27,12 @@ import com.exigen.le.democase.Coverage;
 import com.exigen.le.democase.Driver;
 import com.exigen.le.democase.Policy;
 import com.exigen.le.democase.Vehicle;
-import com.exigen.le.evaluator.table.TableFactory;
-import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
+import com.exigen.le.evaluator.selector.FunctionByDateSelector;
 import com.exigen.le.servicedescr.evaluator.BeanWrapper;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
-import com.exigen.le.smodel.Type;
-import com.exigen.le.smodel.emulator.SMEmulator;
-import com.exigen.le.smodel.provider.ServiceModelProviderFactory;
+import com.exigen.le.smodel.provider.ServiceModelJAXB;
 
 
 
@@ -75,28 +68,18 @@ public class MultiThreadTest {
 		if (args.length >2){
 			taskPortion = Integer.parseInt(args[2]);
 		}
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		le.init(prop);
-		
-		VersionDesc versionDesc = new VersionDesc("");
-		String projectName = "DemoCase2";
-		ServiceModel sm =le.getServiceModel(projectName,versionDesc );
-		le.printoutServiceModel(System.out, projectName,versionDesc);
-		
-		projectName = "Collections";
-		versionDesc = new VersionDesc("d");
-		sm =le.getServiceModel(projectName,versionDesc );
-		le.printoutServiceModel(System.out, projectName,versionDesc);
-		
-		projectName = "Tables";
-		versionDesc = new VersionDesc("0");
-		sm =le.getServiceModel(projectName,versionDesc);
-		le.printoutServiceModel(System.out, projectName,versionDesc);
+
+        LiveExcel leDemoCase2 = new LiveExcel(new FunctionByDateSelector(), new ServiceModelJAXB(new File(
+                "./test-resources/LERepository/DemoCase2")));
+        leDemoCase2.printoutServiceModel(System.out);
+
+        LiveExcel leCollections = new LiveExcel(new FunctionByDateSelector(), new ServiceModelJAXB(new File(
+                "./test-resources/LERepository/Collections/d")));
+        leCollections.printoutServiceModel(System.out);
+
+        LiveExcel leTables = new LiveExcel(new FunctionByDateSelector(), new ServiceModelJAXB(new File(
+                "./test-resources/LERepository/Tables/0")));
+        leTables.printoutServiceModel(System.out);
 		
 		MultiThreadTest test = new MultiThreadTest();
 		test.dummy(0);
@@ -104,7 +87,6 @@ public class MultiThreadTest {
 		test.dummy(2);
 	
 		test.test(threadNumber, taskNumber, taskPortion);
-		le.clean();
 	    System.out.println("Done");
 		
 	}
@@ -206,8 +188,6 @@ public class MultiThreadTest {
 //	}
 	}
 	private void testCollections(int taskID){
-		String projectName = "Collections";
-		
 		String[][] etalons = {
 				new String[]{     // SERVICE_CHIEFSALARY
 						"100.0",
@@ -255,26 +235,19 @@ public class MultiThreadTest {
 		};
 
 
-		LiveExcel le = LiveExcel.getInstance();
- 		
-		
-		List<Function> servFunc = le.getServiceFunctions(projectName,le.getDefaultVersionDesc(projectName));
+        LiveExcel le = new LiveExcel(null, new ServiceModelJAXB(new File("./test-resources/LERepository/Collections/d")));
 
-		DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-		Date date=new Date();
-		try {
-			date = df.parse("2010/05/21-08:00");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        VersionDesc version = new VersionDesc("",date); 		
- 		ServiceModel sm =le.getServiceModel(projectName,new VersionDesc("d") );
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
+        List<Function> servFunc = le.getServiceFunctions(envProps);
+
+ 		ServiceModel sm =le.getServiceModel();
 		BeanWrapper bw = new BeanWrapper(context.getDepartament(), sm.getType("Departament"));
 		List<Object> args = new ArrayList<Object>();
 		args.add(bw);
 		for(int i =0;i<servFunc.size();i++){
 				System.out.println("*******Calculate function(service) "+servFunc.get(i).getName());
-				LE_Value[][] answer=le.calculate(projectName,version,servFunc.get(i).getName(),args).getArray();
+				LE_Value[][] answer=le.calculate(servFunc.get(i).getName(),args,envProps).getArray();
 				for(int j=0;j<answer.length;j++){
 					for(int jj=0;jj<answer[j].length;jj++){
 						System.out.printf("[Collections]Thread - %s;Task -%d ",
@@ -293,7 +266,6 @@ public class MultiThreadTest {
 		}
 }
 	private void testTables(int taskID){
-			String projectName = "Tables";
 			int[] arg1Set = new int[]{1,2,3,4,5,6,};
 			String[] arg2Set = new String[]{"X1","X2","X3"};
 			
@@ -319,18 +291,12 @@ public class MultiThreadTest {
 			};
 
 
-			LiveExcel le = LiveExcel.getInstance();
+	        LiveExcel le = new LiveExcel(null, new ServiceModelJAXB(new File("./test-resources/LERepository/Tables/0")));
 
 			String function = "service_calcSimplestTable";
 
-			DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-			Date date=new Date();
-			try {
-				date = df.parse("2010/05/21-08:00");
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-	        VersionDesc version = new VersionDesc("0",date); 		
+	        Map<String, String> envProps = new HashMap<String, String>();
+	        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
 			System.out.println("*******Calculate function(service) "+function);
 			for(int i=0;i<arg2Set.length;i++){
 				String arg2 = arg2Set[i];
@@ -339,7 +305,7 @@ public class MultiThreadTest {
 					List<Object> args = new ArrayList<Object>();
 					args.add(new Double(arg1));
 					args.add(arg2);
-					LE_Value[][] answer=le.calculate(projectName,version,function,args).getArray();
+					LE_Value[][] answer=le.calculate(function,args,envProps).getArray();
 					for(int j=0;j<answer.length;j++){
 						for(int jj=0;jj<answer[j].length;jj++){
 							System.out.printf("[Tables]Thread - %s;Task -%d ",
@@ -360,8 +326,6 @@ public class MultiThreadTest {
 		
 	}
 	private void testDemocase2(int taskID){	
-		String projectName = "DemoCase2";
-		
 		String[][][][] etalons = {
 		   new String[][][]{	
 			 new String[][] {  
@@ -454,19 +418,12 @@ public class MultiThreadTest {
 		};
 
 
-		LiveExcel le = LiveExcel.getInstance();
+        LiveExcel le = new LiveExcel(null, new ServiceModelJAXB(new File("./test-resources/LERepository/DemoCase2")));
 		String function = "rateAutoLE";
 
-		DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-		Date date=new Date();
-		try {
-			date = df.parse("2010/05/21-08:00");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        VersionDesc version = new VersionDesc("",date); 
-        
-		ServiceModel sm =le.getServiceModel(projectName,new VersionDesc("") );
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
+		ServiceModel sm =le.getServiceModel();
 
 		System.out.println("*******Calculate function(service) "+function);
 //		for(Coverage coverage:coverages){
@@ -490,7 +447,7 @@ public class MultiThreadTest {
 						args.add(bw2);
 						args.add(bw3);
 						args.add(bw4);
-						LE_Value[][] answer=le.calculate(projectName,version,function,args).getArray();
+						LE_Value[][] answer=le.calculate(function,args,envProps).getArray();
 						for(int j=0;j<answer.length;j++){
 							for(int jj=0;jj<answer[j].length;jj++){
 								System.out.printf("[DemoCase]Thread - %s;Task -%d [v=%d][c=%d][d=%d][p=%d]",

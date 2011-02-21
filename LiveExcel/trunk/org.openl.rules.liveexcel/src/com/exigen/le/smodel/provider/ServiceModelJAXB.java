@@ -3,6 +3,8 @@
  */
 package com.exigen.le.smodel.provider;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Vector;
@@ -14,9 +16,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.VersionDesc;
-import com.exigen.le.repository.RepositoryFactory;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Function;
+import com.exigen.le.smodel.Primary;
 import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
@@ -32,20 +34,25 @@ public class ServiceModelJAXB implements ServiceModelProvider {
 	
 	private static final Log LOG = LogFactory.getLog(ServiceModelJAXB.class);
 
-	static 	JAXBContext jc = null; 
-	static Unmarshaller u = null;
+	JAXBContext jc = null; 
+	Unmarshaller u = null;
+	
+	private final File projectLocation;
+	
+	public ServiceModelJAXB(File projectLocation) {
+        this.projectLocation = projectLocation;
+    }
 
-
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see com.exigen.le.smodel.provider.ServiceModelProvider#create(java.lang.String, com.exigen.le.project.VersionDesc)
 	 */
-	public ServiceModel create(String projectName, VersionDesc versionDesc) {
+	public ServiceModel create() {
 		
 		try {
-			List<ProjectElement> elems = RepositoryFactory.getRepository().retrieveElementList(projectName, versionDesc);
+			List<ProjectElement> elems = ProjectLoader.retrieveElementList(projectLocation);
 			for(ProjectElement elem : elems){
 				if(elem.getType()!= null && elem.getType().equals(ProjectElement.ElementType.SERVICEMODEL)){
-					InputStream is = RepositoryFactory.getRepository().getProjectElement(projectName, versionDesc, elem.getElementFileName());
+					InputStream is = new FileInputStream(new File(projectLocation, elem.getElementFileName()));
 					if(jc == null){ // init JAXB infrastructure
 						jc = JAXBContext.newInstance( "com.exigen.le.smodel" );
 						u = jc.createUnmarshaller();
@@ -85,11 +92,11 @@ public class ServiceModelJAXB implements ServiceModelProvider {
 				}
 			}
 		} catch (Exception e) {
-			String msg = "Error during getting service model for project "+projectName+",version "+versionDesc.getVersion();
+			String msg = "Error during getting service model";
 			LOG.error(msg, e);
 			throw new RuntimeException(msg,e);
 		}
-		String msg = "Did not find service model for project "+projectName+",version "+versionDesc.getVersion();
+		String msg = "Did not find service model.";
 		LOG.error(msg);
 		throw new RuntimeException(msg);
 	}
@@ -97,24 +104,22 @@ public class ServiceModelJAXB implements ServiceModelProvider {
 	/* (non-Javadoc)
 	 * @see com.exigen.le.smodel.provider.ServiceModelProvider#findFunctions(java.lang.String, com.exigen.le.project.VersionDesc, java.util.List)
 	 */
-	public List<Function> findFunctions(String projectName,
-			VersionDesc versionDesc, List<Type> types) {
-		return create(projectName, versionDesc).getFunctions();
+	public List<Function> findFunctions(List<Type> types) {
+		return create().getFunctions();
 	}
 
 	/* (non-Javadoc)
 	 * @see com.exigen.le.smodel.provider.ServiceModelProvider#findTables(java.lang.String, com.exigen.le.project.VersionDesc)
 	 */
-	public List<TableDesc> findTables(String projectName,
-			VersionDesc versionDesc) {
-		return create(projectName, versionDesc).getTables();
+	public List<TableDesc> findTables() {
+		return create().getTables();
 	}
 
 	/* (non-Javadoc)
 	 * @see com.exigen.le.smodel.provider.ServiceModelProvider#findTypes(java.lang.String, com.exigen.le.project.VersionDesc)
 	 */
-	public List<Type> findTypes(String projectName, VersionDesc versionDesc) {
-		return create(projectName, versionDesc).getTypes();
+	public List<Type> findTypes() {
+		return create().getTypes();
 	}
 	protected void restoreTypeRef(Type type,ServiceModel sm, Vector<Type> done){
 		if(!done.contains(type)){
@@ -123,7 +128,7 @@ public class ServiceModelJAXB implements ServiceModelProvider {
 				if(child.getType()==null){
 					String typeName = child.getTypeName().toUpperCase();
 					child.setTypeName(typeName);
-					Type childType = Type.Primary.getTypeByName(typeName); // Try primitive type
+					Type childType = Primary.getTypeByName(typeName); // Try primitive type
 					if(childType == null){  // No, it's our complex
 						childType = sm.getType(typeName);
 						child.setType(childType);
@@ -138,6 +143,10 @@ public class ServiceModelJAXB implements ServiceModelProvider {
 				}
 			}
 		}	
-	} 
+	}
+
+    public File getProjectLocation() {
+        return projectLocation;
+    } 
 	
 }

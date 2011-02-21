@@ -5,9 +5,8 @@ package com.exigen.le.proba;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 
-import com.exigen.le.project.ProjectManager;
+import com.exigen.le.evaluator.selector.FunctionByDateSelector;
 
 
 /**
@@ -20,17 +19,10 @@ public class ProfilerSample {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
 		int iterationCount = 20;
 
 //		CollectionsEvaluator ceval = new CollectionsEvaluator(prop);
-		TableEvaluator teval = new TableEvaluator(prop);
+		TableEvaluator teval = new TableEvaluator(new FunctionByDateSelector());
 		
 		System.out.println("Start profiler and press any key..");
 		try {
@@ -70,7 +62,6 @@ public class ProfilerSample {
 		Date end = new Date();
 		
 		
-		ProjectManager pr = ProjectManager.getInstance();
         // Dispose resources 
 //        ceval.dispose();
         teval.dispose();

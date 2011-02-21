@@ -3,9 +3,9 @@
  */
 package com.exigen.le.smodel.provider;
 
+import java.io.File;
 import java.util.List;
 
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
@@ -17,12 +17,13 @@ import com.exigen.le.smodel.Type;
  */
 public interface ServiceModelProvider {
 	
-	public List<Function> findFunctions(String projectName, VersionDesc versionDesc, List<Type> types) ;
+	List<Function> findFunctions(List<Type> types) ;
 
-	public List<Type> findTypes(String projectName, VersionDesc versionDesc) ;
+	List<Type> findTypes() ;
 
-	public List<TableDesc> findTables(String projectName, VersionDesc versionDesc);
+	List<TableDesc> findTables();
 	
-	public ServiceModel create(String projectName, VersionDesc versionDesc);
-
+	ServiceModel create();
+	
+	File getProjectLocation();
 }

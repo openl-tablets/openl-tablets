@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -20,18 +19,12 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.junit.Test;
 
-import com.exigen.le.LiveExcel;
 import com.exigen.le.evaluator.ThreadEvaluationContext;
 import com.exigen.le.evaluator.table.LETableFactory;
 import com.exigen.le.evaluator.table.LETableFactory.TableElement;
-import com.exigen.le.project.ElementFactory;
 import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
-import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
-import com.exigen.le.smodel.Type;
 import com.exigen.le.smodel.TableDesc.ColumnDesc;
 import com.exigen.le.smodel.TableDesc.DataType;
 import static junit.framework.Assert.*;
@@ -41,21 +34,14 @@ public class DBInitTest {
 	
 	@Test
 	public void initTest() throws IOException, SQLException, ClassNotFoundException {
-		String projectName = "P";
-		VersionDesc vd = new VersionDesc("c");
 		LETableFactory letf = new LETableFactory();
-		Properties p = new Properties();
-		p.setProperty(ElementFactory.TEMP_DIR_PROPERTY, ProjectManager.createTempDir());
 		File zip = prepareImportZip();
 		FileInputStream fis = new FileInputStream(zip);
-		ProjectElement pe = letf.create(projectName, vd, null, fis, new ServiceModel(null,null, findTables()), p);
+		ProjectElement pe = letf.create(null, fis, new ServiceModel(null,null, findTables()));
 		
-		// read imported data from DB
-		String pathToDb = LETableFactory.pathToDb(p.getProperty(ElementFactory.TEMP_DIR_PROPERTY), 
-				projectName, vd.getVersion());
+        //connect to DB
+		String connectionURL = ((TableElement)pe.getElement()).getConnectionURL();
 		
-		//connect to DB
-		String connectionURL = LETableFactory.getConnectionURL(pathToDb);
 		Class.forName(LETableFactory.DB_DRIVER);
 
 		Connection conn = DriverManager.getConnection(connectionURL);

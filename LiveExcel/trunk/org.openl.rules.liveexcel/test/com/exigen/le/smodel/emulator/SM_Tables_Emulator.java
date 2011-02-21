@@ -3,25 +3,17 @@
  */
 package com.exigen.le.smodel.emulator;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import com.exigen.le.LE_Value;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.smodel.Cell;
 import com.exigen.le.smodel.Function;
-import com.exigen.le.smodel.Property;
-import com.exigen.le.smodel.Range;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
 import com.exigen.le.smodel.Type;
 import com.exigen.le.smodel.Function.FunctionArgument;
-import com.exigen.le.smodel.TableDesc.ColumnDesc;
-import com.exigen.le.smodel.TableDesc.DataType;
 import com.exigen.le.smodel.provider.ServiceModelProvider;
 import com.exigen.le.smodel.table.DBInitTest;
 
@@ -30,7 +22,7 @@ import com.exigen.le.smodel.table.DBInitTest;
  *
  */
 public class SM_Tables_Emulator implements ServiceModelProvider {
-	public List<Type> findTypes(String projectName, VersionDesc versionDesc) {
+	public List<Type> findTypes() {
 		List<Type> result = new ArrayList<Type>();
 		Type numeric = new Type();
 		numeric.setComplex(false);
@@ -44,7 +36,7 @@ public class SM_Tables_Emulator implements ServiceModelProvider {
 		
 		return result;
 	}
-	public List<Function> findFunctions(String projectName, VersionDesc versionDesc, List<Type> types) {
+	public List<Function> findFunctions(List<Type> types) {
 		List<Function> result = new ArrayList<Function>();
 		
 		List<FunctionArgument> arguments = new ArrayList<FunctionArgument>();
@@ -84,15 +76,19 @@ public class SM_Tables_Emulator implements ServiceModelProvider {
 		
 		return result;
 	}
-	public List<TableDesc> findTables(String projectName, VersionDesc versionDesc) {
+	public List<TableDesc> findTables() {
 		return DBInitTest.findTables();
 	}
-	public ServiceModel create(String projectName, VersionDesc versionDesc) {
-		List<Type>   types = findTypes(projectName, versionDesc);
-		List<Function>    functions = findFunctions(projectName, versionDesc, types);
-		List<TableDesc>   tables  = findTables(projectName, versionDesc);
+	public ServiceModel create() {
+		List<Type>   types = findTypes();
+		List<Function>    functions = findFunctions(types);
+		List<TableDesc>   tables  = findTables();
 		ServiceModel serviceModel=new ServiceModel(types,functions,tables);
 		return serviceModel;
 
 	}
+    public File getProjectLocation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

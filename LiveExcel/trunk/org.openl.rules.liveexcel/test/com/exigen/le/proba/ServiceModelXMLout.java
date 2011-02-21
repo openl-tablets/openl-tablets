@@ -34,9 +34,9 @@ public class ServiceModelXMLout {
 			JAXBContext jc = JAXBContext.newInstance( "com.exigen.le.smodel" );
 			
 			ServiceModelProvider provider = new  PYDEmulator();
-			List<Type> types = provider.findTypes(null,null);
-			List<Function> functions =  provider.findFunctions(null,null, types); 
-			List<TableDesc> tables =  provider.findTables(null, null);
+			List<Type> types = provider.findTypes();
+			List<Function> functions =  provider.findFunctions(types); 
+			List<TableDesc> tables =  provider.findTables();
 			ServiceModel sm = new ServiceModel(types,functions,tables); 
 			// marshal to System.out
 			Marshaller m = jc.createMarshaller();

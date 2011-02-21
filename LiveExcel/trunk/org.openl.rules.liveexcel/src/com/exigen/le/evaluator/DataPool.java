@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.exigen.le.project.ProjectManager;
-
 /**
  * Class stores objects associated with some UUID.
  * 

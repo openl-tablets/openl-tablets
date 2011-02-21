@@ -6,36 +6,29 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.exigen.le.evaluator.function.UDFFinderLE;
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.usermodel.LiveExcelWorkbook;
 
 public class LiveExcelXSSFWorkbook extends XSSFWorkbook implements LiveExcelWorkbook {
 
-	private UDFFinderLE udfFinder;
+    private UDFFinderLE udfFinder;
 
     /** All constructors from superclass */
-    public LiveExcelXSSFWorkbook(String projectNamae,VersionDesc versionDesc) {
+    public LiveExcelXSSFWorkbook() {
         super();
         udfFinder = new UDFFinderLE(this);
-        initializeContext(projectNamae,versionDesc);
     }
 
-    public LiveExcelXSSFWorkbook(OPCPackage pkg, String projectNamae,VersionDesc versionDesc) throws IOException {
+    public LiveExcelXSSFWorkbook(OPCPackage pkg) throws IOException {
         super(pkg);
         udfFinder = new UDFFinderLE(this);
-        initializeContext(projectNamae,versionDesc);
     }
 
-    public LiveExcelXSSFWorkbook(String path, String projectNamae,VersionDesc versionDesc) throws IOException {
+    public LiveExcelXSSFWorkbook(String path) throws IOException {
         super(path);
         udfFinder = new UDFFinderLE(this);
-        initializeContext(projectNamae,versionDesc);
-    }
-    
-    private void initializeContext(String projectName,VersionDesc versionDesc) {
     }
 
     public UDFFinderLE getUDFFinder() {
-		return udfFinder;
-	}
+        return udfFinder;
+    }
 }
