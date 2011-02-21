@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.ICellFont;
@@ -226,17 +227,19 @@ public class TableEditorController extends BaseTableEditorController implements 
     }
 
     public String setCellValue() {
-        String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
+        int row = getRow();
+        int col = getCol();
 
+        String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
         String newEditor = getRequestParam(Constants.REQUEST_PARAM_EDITOR);
-        IFormatter newFormatter = getCellFormatter(newEditor);
 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
+            IFormatter newFormatter = getCellFormatter(newEditor, editorModel, row, col);
             String message = null;
             try {
-                editorModel.setCellValue(getRow(), getCol(), value, newFormatter);
+                editorModel.setCellValue(row, col, value, newFormatter);
             } catch (FormulaParseException ex) {  
                 LOG.warn("ERROR_SET_NEW_VALUE", ex);
                 message = ERROR_SET_NEW_VALUE + ex.getMessage();   
@@ -253,10 +256,20 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    private IFormatter getCellFormatter(String cellEditor) {
+    private IFormatter getCellFormatter(String cellEditor, TableEditorModel editorModel, int row, int col) {
         IFormatter formatter = null;
 
-        if (ICellEditor.CE_TEXT.equals(cellEditor)
+        if (ICellEditor.CE_FORMULA.equals(cellEditor)) {
+            ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
+
+            IFormatter currentFormatter = cell.getDataFormatter();
+            IFormatter formulaResultFormatter = null;
+            if (!(currentFormatter instanceof FormulaFormatter)) {
+                formulaResultFormatter = currentFormatter;
+            }
+            formatter = new FormulaFormatter(formulaResultFormatter);
+
+        } else if (ICellEditor.CE_TEXT.equals(cellEditor)
                 || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
             formatter = new DefaultFormatter();
         }

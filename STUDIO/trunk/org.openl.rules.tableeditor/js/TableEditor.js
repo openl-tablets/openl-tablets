@@ -386,26 +386,27 @@ var TableEditor = Class.create({
             input.style.height = (inputHeight + 13) + 'px';
         }
 
-        var switchEditorMenuHandler = function(e) {
-            if (Event.isRightClick(e)) {
-                if (self.switchEditorMenu) {
-                    return true;
+        var availableEditors = this.getAvailableEditors(editorName);
+        if (availableEditors.size() > 0) {
+            var switchEditorMenuHandler = function(e) {
+                if (Event.isRightClick(e)) {
+                    if (self.switchEditorMenu) {
+                        return true;
+                    }
+                    self.switchEditorMenu = self.createSwitchEditorMenu(availableEditors);
+                    // Disable browser context menu
+                    e.target.oncontextmenu = function() { return false; };
+                    self.switchEditorMenu.left = e.clientX + 2;
+                    self.switchEditorMenu.top = e.clientY;
+                    self.switchEditorMenu.show();
                 }
-                self.switchEditorMenu = self.createSwitchEditorMenu(editorName);
-                // Disable browser context menu
-                e.target.oncontextmenu = function() { return false; };
-                self.switchEditorMenu.left = e.clientX + 2;
-                self.switchEditorMenu.top = e.clientY;
-                self.switchEditorMenu.show();
-            }
-        };
-        this.editor.bind("mousedown", switchEditorMenuHandler);
+            };
+            this.editor.bind("mousedown", switchEditorMenuHandler);
+        }
     },
 
-    createSwitchEditorMenu: function(editorName) {
+    createSwitchEditorMenu: function(availableEditors) {
         var self = this;
-
-        var availableEditors = this.getAvailableEditors(editorName);
 
         var content = new Element("div");
         var header = new Element("div");
@@ -435,10 +436,13 @@ var TableEditor = Class.create({
 
     getAvailableEditors: function(editorName) {
         var availableEditors = $H();
-        if (editorName != 'text') {
+        if (editorName != 'formula' && editorName != 'text' && editorName != 'multiline') {
+            availableEditors.set('formula', 'Formula Editor');
+        }
+        if (editorName == 'multiline') {
             availableEditors.set('text', 'Text Editor');
         }
-        if (editorName != 'multiline') {
+        if (editorName == 'text') {
             availableEditors.set('multiline', 'Multiline Editor');
         }
         return availableEditors;
