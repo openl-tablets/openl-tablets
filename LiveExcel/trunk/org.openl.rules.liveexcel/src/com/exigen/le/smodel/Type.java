@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import com.exigen.le.LE_Value;
 
 
+
 /**
  * Service Model Type
  * @author vabramovs
@@ -18,78 +19,11 @@ import com.exigen.le.LE_Value;
  */
 public class Type {
 	
-	public static enum Primary  {
-		DOUBLE(new Type(LE_Value.TypeString.NUMERIC, false), "java.lang.Double"),
-		STRING(new Type(LE_Value.TypeString.STRING, false), "java.lang.String"),
-		DATE(new Type(LE_Value.TypeString.DATE,false), "java.util.Calendar"),
-		BOOLEAN(new Type(LE_Value.TypeString.BOOLEAN,false), "java.lang.Boolean");
-		
-		private final Type type;
-		private final Class<?> clazz;
-		
-		Primary(Type type, String javaClass){
-			this.type = type;
-			try {
-				clazz = Class.forName(javaClass);
-			} catch (ClassNotFoundException cnfe){
-				throw new RuntimeException(cnfe);
-			}
-		}
-		
-		public Type getType(){
-			return type;
-		}
-		
-		public String getPrimaryName(){
-			return type.getName();
-		}
-		
-		public Class<?> getJavaClass(){
-			return clazz;
-		}
-		
-		public static Type getTypeByName(String name){
-			for (Primary p: Primary.values()){
-				if (p.type.getName().equalsIgnoreCase(name)){
-					return p.type;
-				}
-			}
-			return null;
-		}
-		
-		public static Type getTypeByClass(String className){
-			for (Primary p: Primary.values()){
-				if (p.clazz.getCanonicalName().equals(className)){
-					return p.type;
-				}
-			}
-			return null;
-		}
-		
-		public static Type getTypeByNameOrClass(String nameOrClassName){
-			Type result = getTypeByName(nameOrClassName);
-			if (result !=null){
-				return result;
-			}
-			return getTypeByClass(nameOrClassName);
-		}
-		
-		
-		public static Primary getPrimary(Type type){
-			for (Primary p: Primary.values()){
-				if (p.type.equals(type)){
-					return p;
-				}
-			}
-			return null;
-		}
-		
-	}
 	public static final String DATE_FORMAT = "yyyy/MM/dd-HH:mm";
-	public final static Type DOUBLE = Primary.DOUBLE.getType();
-	public final static Type STRING = Primary.STRING.getType();
-	public final static Type DATE = Primary.DATE.getType();
-	public final static Type BOOLEAN = Primary.BOOLEAN.getType();
+	public final static Type DOUBLE = new Type(LE_Value.TypeString.NUMERIC, false);
+	public final static Type STRING = new Type(LE_Value.TypeString.STRING, false);
+	public final static Type DATE = new Type(LE_Value.TypeString.DATE,false);
+	public final static Type BOOLEAN = new Type(LE_Value.TypeString.BOOLEAN,false);
 	
 	
 	private String name;

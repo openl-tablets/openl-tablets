@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.log4j.Logger;
 
+import com.exigen.le.smodel.Primary;
 import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.Type;
 import com.exigen.le.smodel.MappedProperty;
@@ -120,7 +121,7 @@ public class BeanWrapper implements com.exigen.le.smodel.accessor.ValueHolder {
 			}
 		}
 		// primitive
-		Class<?> clazz = Type.Primary.getPrimary(ref).getClass();
+		Class<?> clazz = Primary.getPrimary(ref).getClass();
 		if (property.isCollection()){
 			clazz = (Array.newInstance(clazz, 1)).getClass();
 		}

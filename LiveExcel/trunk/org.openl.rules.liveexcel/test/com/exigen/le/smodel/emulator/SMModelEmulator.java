@@ -1,14 +1,13 @@
 package com.exigen.le.smodel.emulator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.smodel.Cell;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.MappedProperty;
-import com.exigen.le.smodel.Range;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
 import com.exigen.le.smodel.Type;
@@ -17,13 +16,12 @@ import com.exigen.le.smodel.provider.ServiceModelProvider;
 
 public class SMModelEmulator implements ServiceModelProvider {
 
-	public ServiceModel create(String projectName, VersionDesc versionDesc) {
+	public ServiceModel create() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List<Function> findFunctions(String projectName,
-			VersionDesc versionDesc, List<Type> types) {
+	public List<Function> findFunctions(List<Type> types) {
 		List<Function> result = new ArrayList<Function>();
 		
 		List<FunctionArgument> arguments = new ArrayList<FunctionArgument>();
@@ -44,13 +42,12 @@ public class SMModelEmulator implements ServiceModelProvider {
 		return result;
 	}
 
-	public List<TableDesc> findTables(String projectName,
-			VersionDesc versionDesc) {
+	public List<TableDesc> findTables() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List<Type> findTypes(String projectName, VersionDesc versionDesc) {
+	public List<Type> findTypes() {
 		
 		
 		Type person = new Type("Person",true);
@@ -170,5 +167,10 @@ public class SMModelEmulator implements ServiceModelProvider {
 		
 		return types;
 	}
+
+    public File getProjectLocation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 	
 }

@@ -4,13 +4,11 @@
 package com.exigen.le.evaluator.selector;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.exigen.le.evaluator.ThreadEvaluationContext;
-import com.exigen.le.project.ProjectManager;
 import com.exigen.le.smodel.Function;
 
 /**

@@ -18,20 +18,16 @@ import org.apache.poi.ss.formula.IExternalWorkbookResolver;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 //import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Workbook;
 
 import com.exigen.le.evaluator.DataPool;
 import com.exigen.le.evaluator.LiveExcelEvaluator;
 import com.exigen.le.evaluator.ThreadEvaluationContext;
 import com.exigen.le.evaluator.function.TypifiedRange.TypifiedRange;
-import com.exigen.le.evaluator.selector.SelectorFactory;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Cell;
 import com.exigen.le.smodel.ExcelSpace;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.MappedProperty;
-import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.Range;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
@@ -57,19 +53,23 @@ public class DeclaredFunction implements FreeRefFunction  {
 		LOG.debug("Invoke function "+funcName);
 		ServiceModel sm = ThreadEvaluationContext.getServiceModel();
 		
-	    Function funcDesc = SelectorFactory.getInstance().getFunctionSelector().selectFunction(funcName, sm.getFunctions(), ThreadEvaluationContext.getInstance());
+	    Function funcDesc = ThreadEvaluationContext.getFunctionSelector().selectFunction(funcName, sm.getFunctions(), ThreadEvaluationContext.getInstance());
 		
-		String projectName = ThreadEvaluationContext.getProject();
-		VersionDesc versionDesc = ThreadEvaluationContext.getVersion();
-		
-		Workbook wb = ProjectManager.getInstance().getWorkbook(projectName, versionDesc, funcDesc.getExcel());
 		WorkbookEvaluator wbEvaluator = ec.getWorkbookEvaluator();
 		DataPool pool = ThreadEvaluationContext.getDataPool();
-		if(wb != ec.getWorkbook().getWorkbook()){
+		//FIXME: workbook comparsion: now in compares by  "==", and works only because cache of workbooks is used in ProjectLoader 
+        if (!ProjectLoader.getWorkbook(ThreadEvaluationContext.getProject(), funcDesc.getExcel()).equals(
+                ec.getWorkbook().getWorkbook())) {
 			IExternalWorkbookResolver resolver = ec.getWorkbookEvaluator().getResolver();
-			LiveExcelEvaluator evaluator = new LiveExcelEvaluator(wb, resolver);
-    		LOG.debug("Function "+funcName+" is defined in other workbook "+funcDesc.getExcel());
-			return evaluator.evaluateServiceModelUDF(funcName, args);
+			LiveExcelEvaluator evaluator;
+            try {
+                evaluator = new LiveExcelEvaluator(resolver.resolveExternalWorkbook(funcDesc.getExcel()), resolver);
+                LOG.debug("Function "+funcName+" is defined in other workbook "+funcDesc.getExcel());
+                return evaluator.evaluateServiceModelUDF(funcName, args);
+            } catch (Exception e) {
+                LOG.error("Can not find workbook " + funcDesc.getExcel() + " that contains function " + funcName,e);
+                return ErrorEval.REF_INVALID;
+            }
 		}
         if (args.length != funcDesc.getArguments().size()) {
     		LOG.debug("Wrong arguments count for function "+funcName+". Expected "+funcDesc.getArguments().size()+", but was "+args.length);

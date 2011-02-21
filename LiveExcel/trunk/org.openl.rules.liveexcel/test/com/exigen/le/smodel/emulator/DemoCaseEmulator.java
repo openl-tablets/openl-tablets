@@ -1,13 +1,12 @@
 package com.exigen.le.smodel.emulator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.MappedProperty;
-import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
 import com.exigen.le.smodel.Type;
@@ -17,13 +16,12 @@ import com.exigen.le.smodel.provider.ServiceModelProvider;
 
 public class DemoCaseEmulator implements ServiceModelProvider {
 
-	public ServiceModel create(String projectName, VersionDesc versionDesc) {
+	public ServiceModel create() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List<Function> findFunctions(String projectName,
-			VersionDesc versionDesc, List<Type> types) {
+	public List<Function> findFunctions(List<Type> types) {
 		
 		List<Function> result = new ArrayList<Function>();
 		Function serviceFunc = new Function("DemoCase2","Rating Algorithm", "rateAutoLE", "E8",
@@ -109,8 +107,7 @@ public class DemoCaseEmulator implements ServiceModelProvider {
 		return result;
 	}
 
-	public List<TableDesc> findTables(String projectName,
-			VersionDesc versionDesc) {
+	public List<TableDesc> findTables() {
 		
 		List<TableDesc> tables = new ArrayList<TableDesc>();
 		
@@ -180,7 +177,7 @@ public class DemoCaseEmulator implements ServiceModelProvider {
 		return tables;
 	}
 
-	public List<Type> findTypes(String projectName, VersionDesc versionDesc) {
+	public List<Type> findTypes() {
 
 		List<Type> result = new LinkedList<Type>();
 		
@@ -233,5 +230,10 @@ public class DemoCaseEmulator implements ServiceModelProvider {
 		
 		return result;
 	}
+
+    public File getProjectLocation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

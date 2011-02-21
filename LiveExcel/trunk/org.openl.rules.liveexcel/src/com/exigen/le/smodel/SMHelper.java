@@ -173,7 +173,7 @@ public class SMHelper {
 						value = Array.get(object, index);
 					}
 				}	
-				if(field.getType().equals(Type.Primary.DATE.getType())){
+				if(field.getType().equals(Primary.DATE.getType())){
 					if(value instanceof Calendar){
 						Date date = ((Calendar)value).getTime();
 						valueStr=df.format(date);

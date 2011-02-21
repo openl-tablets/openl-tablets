@@ -3,37 +3,20 @@
  */
 package com.exigen.le.calculation;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
 import com.exigen.le.LiveExcel;
-import com.exigen.le.collections.Collections;
-import com.exigen.le.collections.Departament;
-import com.exigen.le.collections.departament.Person;
-import com.exigen.le.evaluator.table.LETableFactory;
+import com.exigen.le.evaluator.selector.FunctionByDateSelector;
 import com.exigen.le.evaluator.table.TableFactory;
 import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
-import com.exigen.le.servicedescr.evaluator.BeanWrapper;
-import com.exigen.le.smodel.Function;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.SMHelper;
-import com.exigen.le.smodel.ServiceModel;
-import com.exigen.le.smodel.Type;
-import com.exigen.le.smodel.accessor.ValueHolder;
-import com.exigen.le.smodel.emulator.JavaUDF;
-import com.exigen.le.smodel.emulator.SMEmulator;
-import com.exigen.le.smodel.emulator.SMEmulator2;
 import com.exigen.le.smodel.provider.ServiceModelJAXB;
-import com.exigen.le.smodel.provider.ServiceModelProviderFactory;
 
 import static junit.framework.Assert.*;
 
@@ -46,24 +29,12 @@ public class MosaicTest {
 	@Test
 
 	public void testMosaicFunction(){
-		String projectName = "Mosaic";
+        ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/Mosaic"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
 
+        ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsx");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-
-	     VersionDesc version = new VersionDesc(""); 		
-		     
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+		le.printoutServiceModel(System.out);
         String function = "mosaic".toUpperCase();
 		
 		List<Object> args = new ArrayList<Object>();
@@ -88,7 +59,7 @@ public class MosaicTest {
 		args.add(y);
 		args.add(z);
 		
-		answer = le.calculate(projectName,version,function,args).getArray();
+		answer = le.calculate(function,args).getArray();
 				for(int j=0;j<answer.length;j++){
 					for(int jj=0;jj<answer[j].length;jj++){
 					System.out.println("Answer Value["+j+"]["+jj+"]="+answer[j][jj].getValue());
@@ -128,7 +99,7 @@ public class MosaicTest {
 		args.add(y);
 		args.add(z);
 		
-		 answer = le.calculate(projectName,version,function,args).getArray();
+		 answer = le.calculate(function,args).getArray();
 		assertEquals("34.0", answer[0][0].getValue());
 		assertEquals("64.0", answer[1][0].getValue());
 		
@@ -160,7 +131,7 @@ public class MosaicTest {
 		args.add(y);
 		args.add(z);
 		
-		 answer = le.calculate(projectName,version,function,args).getArray();
+		 answer = le.calculate(function,args).getArray();
 		assertEquals("34.0", answer[0][0].getValue());
 		assertEquals("64.0", answer[1][0].getValue());
 		assertEquals("34.0", answer[1][1].getValue());
@@ -184,34 +155,20 @@ public class MosaicTest {
 		args.add(y);
 		args.add(z);
 		
-		 answer = le.calculate(projectName,version,function,args).getArray();
+		 answer = le.calculate(function,args).getArray();
 		assertEquals("34.0", answer[0][0].getValue());
 		assertEquals("64.0", answer[0][1].getValue());
 		
-		le.clean();
-
 	}
 	
 	@Test(expected=RuntimeException.class )
 	public void testMosaicFunctionNotDivisible(){
-		String projectName = "Mosaic";
+        ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/Mosaic"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
 
+        ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsx");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-
-	     VersionDesc version = new VersionDesc(""); 		
-		     
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+		le.printoutServiceModel(System.out);
         String function = "mosaic".toUpperCase();
 		
 		List<Object> args = new ArrayList<Object>();
@@ -238,36 +195,21 @@ public class MosaicTest {
 		args.add(z);
 		
 		 try {
-			answer = le.calculate(projectName,version,function,args).getArray();
+			answer = le.calculate(function,args).getArray();
 		} catch (RuntimeException e) {
 			assertEquals("Argument with index  0 need to have divisible dimensions", e.getCause().getMessage());
 			throw e;
 		}
-		
-		le.clean();
-
 	}
 
 	@Test(expected=RuntimeException.class )
 	public void testMosaicFunctionNotSameFactor(){
-		String projectName = "Mosaic";
+        ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/Mosaic"));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
 
+		ProjectLoader.registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
 
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsx");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		
-		ProjectManager.getInstance().registerElementFactory(ProjectElement.ElementType.TABLE, TableFactory.getInstance());
-
-	     VersionDesc version = new VersionDesc(""); 		
-		     
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+		le.printoutServiceModel(System.out);
         String function = "mosaic".toUpperCase();
 		
 		List<Object> args = new ArrayList<Object>();
@@ -300,13 +242,11 @@ public class MosaicTest {
 			args.add(z);
 
 		 try {
-			answer = le.calculate(projectName,version,function,args).getArray();
+			answer = le.calculate(function,args).getArray();
 		} catch (RuntimeException e) {
 			assertEquals("All arrays arguments need to have same dimension factor, but argument 2 has 2,while previous 1", e.getCause().getMessage());
 			throw e;
 			
 		}
-		le.clean();
-
 	}
 }

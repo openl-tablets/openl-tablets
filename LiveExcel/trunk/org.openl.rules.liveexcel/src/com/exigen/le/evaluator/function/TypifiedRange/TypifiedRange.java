@@ -31,11 +31,11 @@ import com.exigen.le.evaluator.ThreadEvaluationContext;
 import com.exigen.le.servicedescr.evaluator.BeanWrapper;
 import com.exigen.le.servicedescr.evaluator.CollectionBeanWrapper;
 import com.exigen.le.servicedescr.evaluator.MapWrapper;
+import com.exigen.le.smodel.Primary;
 import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.Range;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.Type;
-import com.exigen.le.smodel.Type.Primary;
 import com.exigen.le.smodel.accessor.CollectionValueHolder;
 import com.exigen.le.smodel.accessor.ValueHolder;
 
@@ -430,7 +430,7 @@ private ValueHolder deReferencedObject(VirtualRow row, Type type2) {
 public  Object convertToJavaObject(ValueEval poiValue, Type type2){
 		if(poiValue instanceof NumberEval)
 		{
-			if(type2.equals(Type.Primary.DATE.getType())){ // Date - convert numeric to Calendar
+			if(type2.equals(Primary.DATE.getType())){ // Date - convert numeric to Calendar
 				Date date = DateUtil.getJavaDate(((NumberEval)poiValue).getNumberValue(), is1904BaseDate);
 				Calendar calendar = new GregorianCalendar();
 				calendar.setTime(date);

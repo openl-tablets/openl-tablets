@@ -5,26 +5,14 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import com.exigen.le.beangenerator.BeanGenerator;
-import com.exigen.le.beangenerator.BeanTreeGenerator;
-import com.exigen.le.beangenerator.GeneratorClassLoader;
-import com.exigen.le.beangenerator.HolderToBeanConverter;
-import com.exigen.le.project.VersionDesc;
 import com.exigen.le.servicedescr.evaluator.BeanWrapper;
-import com.exigen.le.smodel.Type;
+import com.exigen.le.smodel.Primary;
 import com.exigen.le.smodel.accessor.ValueHolder;
 
 public class DataLogger {
 	
 	private XMLEncoder encoder;
-	private Map<String, Class<?>>  loadedClasses = new HashMap<String, Class<?>>();
-	private GeneratorClassLoader cl = new GeneratorClassLoader();
-	
-	
 	
 	private DataLogger(){};
 	
@@ -76,39 +64,20 @@ public class DataLogger {
 			if (o instanceof BeanWrapper){ // bean - simply serialize
 				encoder.writeObject(((BeanWrapper)o).getHolder());
 			} else if (o instanceof ValueHolder){
-				// value holder but not a bean wrapper - need to generate class for it
-				ValueHolder vh = (ValueHolder)o;
-				Type type = vh.getModel();
-				String className = BeanGenerator.getQualifiedType(type);
-				Class<?> clazz = loadedClasses.get(className);
-				if (clazz == null){
-					// define and load class
-					clazz = BeanTreeGenerator.loadBeanClasses(className, type, cl);
-					loadedClasses.put(className, clazz);
-				}
-				// copy from value holder to bean
-				try {
-					Object bean = HolderToBeanConverter.convert(type, vh, cl);
-					ClassLoader old = Thread.currentThread().getContextClassLoader();
-					Thread.currentThread().setContextClassLoader(cl);
-					encoder.writeObject(bean);
-					Thread.currentThread().setContextClassLoader(old);
-				} catch (Exception e){
-					throw new RuntimeException("failed to convert to bean", e);
-				}
-			} else if (Type.Primary.BOOLEAN.getJavaClass().isInstance(o)){
+			    //TODO
+			} else if (Primary.BOOLEAN.getJavaClass().isInstance(o)){
 				BooleanBean b = new BooleanBean(); 
 				b.setValue((Boolean)o);
 				encoder.writeObject(b);
-			} else if (Type.Primary.DATE.getJavaClass().isInstance(o)){
+			} else if (Primary.DATE.getJavaClass().isInstance(o)){
 				CalendarBean c = new CalendarBean();
 				c.setValue((Calendar)o);
 				encoder.writeObject(c);
-			} else if (Type.Primary.DOUBLE.getJavaClass().isInstance(o)){
+			} else if (Primary.DOUBLE.getJavaClass().isInstance(o)){
 				DoubleBean d = new DoubleBean();
 				d.setValue((Double)o);
 				encoder.writeObject(d);
-			} else if (Type.Primary.STRING.getJavaClass().isInstance(o)){
+			} else if (Primary.STRING.getJavaClass().isInstance(o)){
 				StringBean s = new StringBean();
 				s.setValue((String)o);
 				encoder.writeObject(s);

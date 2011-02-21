@@ -121,21 +121,9 @@
 
     <!-- TODO: remove -->
     <dependency>
-        <artifactId>svnkit</artifactId>
-        <groupId>org.tmatesoft.svnkit</groupId>
-    </dependency>
-    <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
     </dependency>
-    <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-    </dependency>        
-    <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm-util</artifactId>
-    </dependency>        
   </dependencies>  
   
 </project>

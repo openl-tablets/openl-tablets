@@ -3,41 +3,27 @@
  */
 package com.exigen.le.calculation;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
 import com.exigen.le.LiveExcel;
-import com.exigen.le.collections.Collections;
-import com.exigen.le.collections.Departament;
-import com.exigen.le.collections.departament.Person;
 import com.exigen.le.democase.BuildDemoCaseObjects;
 import com.exigen.le.democase.Coverage;
 import com.exigen.le.democase.Driver;
 import com.exigen.le.democase.Policy;
 import com.exigen.le.democase.Vehicle;
-import com.exigen.le.evaluator.table.LETableFactory;
-import com.exigen.le.evaluator.table.TableFactory;
-import com.exigen.le.project.ProjectElement;
-import com.exigen.le.project.ProjectManager;
-import com.exigen.le.project.VersionDesc;
+import com.exigen.le.evaluator.selector.FunctionByDateSelector;
 import com.exigen.le.servicedescr.evaluator.BeanWrapper;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
-import com.exigen.le.smodel.Type;
-import com.exigen.le.smodel.accessor.ValueHolder;
-import com.exigen.le.smodel.emulator.JavaUDF;
-import com.exigen.le.smodel.emulator.SMEmulator2;
 import com.exigen.le.smodel.provider.ServiceModelJAXB;
-import com.exigen.le.smodel.provider.ServiceModelProviderFactory;
 
 import static junit.framework.Assert.*;
 
@@ -49,8 +35,6 @@ public class DemoCase2CalcTest {
 	
 	@Test
 	public void testDemoCase2(){
-		String projectName = "DemoCase2";
-		
 		String[][][][] etalons = {
 		   new String[][][]{	
 			 new String[][] {  
@@ -143,20 +127,12 @@ public class DemoCase2CalcTest {
 		};
 
 
-		LiveExcel le = LiveExcel.getInstance();
-		Properties prop = new Properties();
-		prop.put("repositoryManager.excelExtension",".xlsm");
-		prop.put("repositoryManager.headPath","");
-		prop.put("repositoryManager.branchPath","");
-		prop.put("functionSelector.className","com.exigen.le.evaluator.selector.FunctionByDateSelector");
 		// Restore regular SM provider(from xml), which can be overriden by other tests
-		ServiceModelProviderFactory.getInstance().setProvider(new ServiceModelJAXB());
-	
-		le.setUnInitialized();
-		le.init(prop);
-		le.clean();
-		ServiceModel sm =le.getServiceModelMakeDefault(projectName,new VersionDesc("") );
-		le.printoutServiceModel(System.out, projectName,le.getDefaultVersionDesc(projectName));
+        ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/DemoCase2"));
+		LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
+
+		ServiceModel sm =le.getServiceModel();
+		le.printoutServiceModel(System.out);
 		
 		List<Vehicle> vehicles = BuildDemoCaseObjects.createVehicles();
 		List<Policy> policies = BuildDemoCaseObjects.createPolicies();
@@ -165,14 +141,8 @@ public class DemoCase2CalcTest {
 		
 		String function = "rateAutoLE".toUpperCase();
 
-		DateFormat df = new SimpleDateFormat(Type.DATE_FORMAT);
-		Date date=new Date();
-		try {
-			date = df.parse("2010/05/21-08:00");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        VersionDesc version = new VersionDesc("",date); 		
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
 		System.out.println("*******Calculate function(service) "+function);
 //		for(Coverage coverage:coverages){
 		for(int i=0;i<3;i++){
@@ -195,7 +165,7 @@ public class DemoCase2CalcTest {
 						args.add(bw2);
 						args.add(bw3);
 						args.add(bw4);
-						LE_Value[][] answer=le.calculate(projectName,version,function,args).getArray();
+						LE_Value[][] answer=le.calculate(function,args,envProps).getArray();
 						for(int j=0;j<answer.length;j++){
 							for(int jj=0;jj<answer[j].length;jj++){
 								System.out.printf("[v=%d][c=%d][d=%d][p=%d]",
@@ -214,8 +184,6 @@ public class DemoCase2CalcTest {
 				}
 			}
 		}
-		le.clean();
-
 	}
 
 }

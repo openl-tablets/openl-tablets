@@ -32,7 +32,7 @@ public class UDFRegister {
 	static private UDFExecutorFactory udfFactory;
 	
 	private UDFRegister(){
-		
+	    init(new Properties());
 	}
 
 	public static UDFRegister getInstance(){
