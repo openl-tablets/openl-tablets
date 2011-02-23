@@ -1,0 +1,101 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.openl.rules</groupId>
+    <artifactId>openl-simple-project</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0</version>
+    <name>@project.name@</name>
+
+    <properties>
+        <openl.rules.version>5.7.5-SNAPSHOT</openl.rules.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
+            <version>${openl.rules.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+
+        <resources>
+            <resource>
+                <directory>
+                    src/main/resources
+                </directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>
+                    src/test/resources
+                </directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>create-java-source</id>
+                        <phase>process-sources</phase>
+
+                        <configuration>
+                            <target>
+                                <echo message="Generating project java wrapper..."/>
+                                <ant antfile="${basedir}/build/GenerateJavaWrapper.build.xml" />
+                            </target>
+                        </configuration>
+
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openl</groupId>
+                        <artifactId>org.openl.conf.ant</artifactId>
+                        <version>${openl.rules.version}</version>
+                    
+                        <exclusions>
+                            <exclusion> 
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions> 
+                    </dependency>
+                </dependencies>
+
+            </plugin>
+        </plugins>
+
+    </build>
+
+</project>
