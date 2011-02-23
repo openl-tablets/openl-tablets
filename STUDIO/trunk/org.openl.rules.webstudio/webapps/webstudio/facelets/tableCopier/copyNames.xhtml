@@ -23,9 +23,9 @@
             </h:panelGrid>
             <br />
 
-      		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" />
+      		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" immediate="true" />
       		<h:commandButton value="Next" action="#{tableCopierWizardManager.next}" />
-      		<h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" />
+      		<h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" immediate="true" />
         </h:form>
 
     </ui:define>
