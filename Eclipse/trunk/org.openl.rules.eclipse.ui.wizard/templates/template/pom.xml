@@ -25,26 +25,6 @@
 
     <build>
 
-        <resources>
-            <resource>
-                <directory>
-                    src/main/resources
-                </directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>
-                    src/test/resources
-                </directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
-
         <plugins>
 
             <plugin>
@@ -68,7 +48,7 @@
                         <configuration>
                             <target>
                                 <echo message="Generating project java wrapper..."/>
-                                <ant antfile="${basedir}/build/GenerateJavaWrapper.build.xml" />
+                                <ant antfile="${basedir}/build/GenerateJavaWrapper.build.xml"/>
                             </target>
                         </configuration>
 
@@ -83,17 +63,52 @@
                         <groupId>org.openl</groupId>
                         <artifactId>org.openl.conf.ant</artifactId>
                         <version>${openl.rules.version}</version>
-                    
+
                         <exclusions>
-                            <exclusion> 
+                            <exclusion>
                                 <groupId>org.apache.ant</groupId>
                                 <artifactId>ant</artifactId>
                             </exclusion>
-                        </exclusions> 
+                        </exclusions>
                     </dependency>
                 </dependencies>
-
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src</source>
+                                <source>gen</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>rules</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
 
     </build>
