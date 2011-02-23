@@ -25,8 +25,7 @@ public class MethodBoundNode extends ATargetBoundNode {
     protected IMethodCaller boundMethod;
 
     public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
-        super(syntaxNode, child);
-        boundMethod = method;
+        this(syntaxNode, child, method, null);        
     }
 
     public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method, IBoundNode targetNode) {
@@ -34,11 +33,6 @@ public class MethodBoundNode extends ATargetBoundNode {
         boundMethod = method;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
 
         try {
@@ -63,11 +57,6 @@ public class MethodBoundNode extends ATargetBoundNode {
     // return boundMethod.invoke(target, pars);
     // }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#getType()
-     */
     public IOpenClass getType() {
         return boundMethod.getMethod().getType();
     }
