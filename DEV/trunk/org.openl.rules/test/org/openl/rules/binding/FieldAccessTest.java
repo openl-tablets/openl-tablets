@@ -10,14 +10,13 @@ import org.openl.rules.TestHelper;
 
 public class FieldAccessTest {
     
-private static final String src = "test/rules/binding/FieldAccessTest.xlsx";
+    private static final String src = "test/rules/binding/FieldAccessTest.xlsx";
     
     private static FieldAccessInterface instance;
     
     public interface FieldAccessInterface {
         DoubleValue test();       
-        String test1();
-        String test2();
+        String test1();        
     }
     
     @Before
