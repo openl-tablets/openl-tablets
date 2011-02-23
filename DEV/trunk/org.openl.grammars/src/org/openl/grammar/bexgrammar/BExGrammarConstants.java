@@ -119,17 +119,19 @@ public interface BExGrammarConstants {
   int FP_LITERAL2 = 118;
   int FLOATING_POINT_LITERAL = 119;
   int BUSINESS_INTEGER_LITERAL = 120;
-  int PERCENT_LITERAL = 121;
-  int EXPONENT = 122;
-  int CHARACTER_LITERAL = 123;
-  int STRING_LITERAL = 124;
-  int IDENTIFIER = 125;
-  int LETTER = 126;
-  int DIGIT = 127;
-  int LABEL = 128;
-  int SINGLE_LINE_COMMENT = 131;
-  int FORMAL_COMMENT = 132;
-  int MULTI_LINE_COMMENT = 133;
+  int DATE_FORMAT_LITERAL_4_2_2 = 121;
+  int TIME_FORMAT_LITERAL = 122;
+  int PERCENT_LITERAL = 123;
+  int EXPONENT = 124;
+  int CHARACTER_LITERAL = 125;
+  int STRING_LITERAL = 126;
+  int IDENTIFIER = 127;
+  int LETTER = 128;
+  int DIGIT = 129;
+  int LABEL = 130;
+  int SINGLE_LINE_COMMENT = 133;
+  int FORMAL_COMMENT = 134;
+  int MULTI_LINE_COMMENT = 135;
 
   int DEFAULT = 0;
   int IN_FORMAL_COMMENT = 1;
@@ -257,6 +259,8 @@ public interface BExGrammarConstants {
     "<FP_LITERAL2>",
     "<FLOATING_POINT_LITERAL>",
     "<BUSINESS_INTEGER_LITERAL>",
+    "<DATE_FORMAT_LITERAL_4_2_2>",
+    "<TIME_FORMAT_LITERAL>",
     "<PERCENT_LITERAL>",
     "<EXPONENT>",
     "<CHARACTER_LITERAL>",
@@ -265,12 +269,12 @@ public interface BExGrammarConstants {
     "<LETTER>",
     "<DIGIT>",
     "<LABEL>",
-    "<token of kind 129>",
+    "<token of kind 131>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 134>",
+    "<token of kind 136>",
     "\"equals to\"",
     "\"is same as\"",
     "\"does not equal to\"",

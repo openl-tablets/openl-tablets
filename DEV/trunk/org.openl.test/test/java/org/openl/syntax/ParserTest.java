@@ -54,9 +54,9 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
+        TreeIterator it = new TreeIterator<ISyntaxNode>(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
 
-        LiteralNode ln = (LiteralNode) it.select(ASelector.selectClass(LiteralNode.class)).next();
+        ILiteralNode ln = (ILiteralNode) it.select(ASelector.selectClass(ILiteralNode.class)).next();
 
         Assert.assertEquals(res, ln.getImage());
         Assert.assertEquals(type, ln.getType());
@@ -169,6 +169,11 @@ public class ParserTest extends TestCase {
         _testLiteral("0xff", "0xff", "literal.integer");
         _testLiteral("5L", "5L", "literal.integer");
         _testLiteral("\"ab\\n\"", "\"ab\\n\"", "literal.string");
+        _testLiteral("2001-01-01", "2001-01-01", "literal.date");
+        _testLiteral("11:40", "11:40", "literal.time");
+        _testLiteral("11:40:33", "11:40:33", "literal.time");
+        _testLiteral("11:40:33.744", "11:40:33.744", "literal.time");
+        _testLiteral("2001-01-01 11:40:33.744", "2001-01-01 11:40:33.744", "literal.datetime");
 
     }
 

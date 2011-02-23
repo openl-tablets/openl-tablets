@@ -379,6 +379,14 @@ TOKEN :
   	("$")?	<FP_LITERAL2>  (["M","K", "B"])?
   				
   >
+|
+  < DATE_FORMAT_LITERAL_4_2_2:
+  	["0"-"9"]["0"-"9"]["0"-"9"]["0"-"9"] "-"  ["0"-"9"]["0"-"9"] "-"  ["0"-"9"]["0"-"9"]
+  >   
+|
+  < TIME_FORMAT_LITERAL:
+  	["0"-"9"]["0"-"9"] ":"  ["0"-"9"]["0"-"9"] (":"  ["0"-"9"]["0"-"9"] ("." ["0"-"9"]["0"-"9"]["0"-"9"])?)?
+  >   
 
 |
 	<PERCENT_LITERAL:
@@ -1155,6 +1163,13 @@ void Literal() :
   |
   BooleanLiteral()
   |
+  LOOKAHEAD(DateTimeLiteral())
+  DateTimeLiteral()
+  |
+  DateLiteral()
+  |
+  TimeLiteral()
+  |
   NullLiteral()
 }
 
@@ -1374,6 +1389,33 @@ void RangeLiteralFloat() :
 	)
 	<EOF>
 }
+
+void DateLiteral() :
+{}
+{
+  <DATE_FORMAT_LITERAL_4_2_2>              
+  {syntaxBuilder.literal("literal.date", pos(token), token.image);}
+}
+
+void TimeLiteral() :
+{}
+{
+  <TIME_FORMAT_LITERAL>              
+  {syntaxBuilder.literal("literal.time", pos(token), token.image);}
+}
+
+void DateTimeLiteral() :
+{
+}
+{
+  DateLiteral() 
+  TimeLiteral()             
+  {syntaxBuilder.literal("literal.datetime", null, 2);}
+}
+
+
+
+
 
 void BooleanLiteral() :
 {}
