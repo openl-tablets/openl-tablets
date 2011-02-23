@@ -18,11 +18,10 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class FieldBoundNode extends ATargetBoundNode {
 
-    IOpenField boundField;
+    private IOpenField boundField;
 
     public FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field) {
-        super(syntaxNode, new IBoundNode[0]);
-        boundField = field;
+        this(syntaxNode, field, null);        
     }
 
     public FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field, IBoundNode target) {
@@ -30,10 +29,6 @@ public class FieldBoundNode extends ATargetBoundNode {
         boundField = field;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.IBoundNode#assign(java.lang.Object)
-     */
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
@@ -50,28 +45,17 @@ public class FieldBoundNode extends ATargetBoundNode {
     // return boundField.get(target);
     // }
     //
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
+    
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
 
         return boundField.get(target, env);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.IBoundNode#getType()
-     */
     public IOpenClass getType() {
         return boundField.getType();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.IBoundNode#isLvalue()
-     */
     @Override
     public boolean isLvalue() {
         return boundField.isWritable();
@@ -91,5 +75,4 @@ public class FieldBoundNode extends ATargetBoundNode {
     public boolean isLiteralExpressionParent() {
         return boundField.isConst();
     }
-
 }

@@ -15,8 +15,8 @@ import org.openl.util.text.ILocation;
  *
  */
 public class BinaryNode extends ASyntaxNode {
-    ISyntaxNode left;
-    ISyntaxNode right;
+    private ISyntaxNode left;
+    private ISyntaxNode right;
 
     // public BinaryNode(String type, TextInterval pos, ISyntaxNode left,
     // ISyntaxNode right, Map properties, IOpenSourceCodeModule module)

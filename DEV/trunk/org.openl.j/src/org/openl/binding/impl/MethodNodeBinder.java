@@ -7,23 +7,20 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.syntax.impl.BinaryNode;
 
 /**
  * @author snshor
  */
 
-public class MethodNodeBinder extends ANodeBinder {
+public class MethodNodeBinder extends ANodeBinder {    
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
-     * org.openl.binding.IBindingContext)
-     */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         int childrenCount = node.getNumberOfChildren();
@@ -45,6 +42,13 @@ public class MethodNodeBinder extends ANodeBinder {
                                                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, types);
 
         if (methodCaller == null) {
+            // try to bind method call Name(driver) as driver.name;
+            if (childrenCount == 2) {
+                IBoundNode accessorChain = bindAsAccessorChain(node.getModule(), bindingContext, methodName, node.getChild(0));
+                if (accessorChain != null) {
+                    return accessorChain;
+                }
+            }
 
             String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, types));
             BindHelper.processError(message, node, bindingContext, false);
@@ -54,12 +58,35 @@ public class MethodNodeBinder extends ANodeBinder {
 
         return new MethodBoundNode(node, children, methodCaller);
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.INodeBinder#bindTarget(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
-     * org.openl.types.IOpenClass)
+    
+    /**
+     * 
+     * @param sourceCodeModule
+     * @param bindingContext
+     * @param methodName
+     * @param leftSide
+     * @return
      */
+    private IBoundNode bindAsAccessorChain(IOpenSourceCodeModule sourceCodeModule, IBindingContext bindingContext, String methodName, ISyntaxNode leftSide) {
+        IdentifierNode rightNode = createIdentifierNode(sourceCodeModule, methodName);
+        
+        ISyntaxNode dotNode = new BinaryNode("chain.suffix.dot.identifier", null, leftSide, rightNode, sourceCodeModule);
+
+        return bindChildNode(dotNode, bindingContext);
+    }
+    
+    /**
+     * 
+     * @param sourceCodeModule
+     * @param methodName
+     * @return
+     */
+    private IdentifierNode createIdentifierNode(IOpenSourceCodeModule sourceCodeModule, String methodName) {
+        String identifier = String.format("%s%s", methodName.substring(0, 1).toLowerCase(), methodName.substring(1));
+        
+        return new IdentifierNode("identifier", null, identifier, sourceCodeModule);        
+    }
+
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) throws Exception {
 

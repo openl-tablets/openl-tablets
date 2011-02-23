@@ -20,9 +20,11 @@ public abstract class ATargetBoundNode extends ABoundNode {
     /**
      * @param syntaxNode
      * @param children
+     * @deprecated 22.02.2011. Is not used any more 
      */
+    @Deprecated
     public ATargetBoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
-        super(syntaxNode, children);
+        this(syntaxNode, children, null);
     }
 
     public ATargetBoundNode(ISyntaxNode syntaxNode, IBoundNode[] children, IBoundNode targetNode) {
@@ -30,17 +32,11 @@ public abstract class ATargetBoundNode extends ABoundNode {
         this.targetNode = targetNode;
     }
 
-    /**
-     * @return
-     */
     @Override
     public IBoundNode getTargetNode() {
         return targetNode;
     }
 
-    /**
-     * @param node
-     */
     public void setTargetNode(IBoundNode node) {
         targetNode = node;
     }
