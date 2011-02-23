@@ -76,6 +76,18 @@ public class RunTest extends TestCase {
         _runNoError("BigInteger x = 10; BigDecimal y = x; x == y", true, "org.openl.j");
         _runNoError("BigInteger x = 10; BigDecimal y = x; y == x", true, "org.openl.j");
 
+        _runNoError("BigInteger x = 10; x != null", true, "org.openl.j");
+        _runNoError("BigInteger x = 10; null != x", true, "org.openl.j");
+
+        _runNoError("BigDecimal x = 10; x != null", true, "org.openl.j");
+        _runNoError("BigDecimal x = 10; null != x", true, "org.openl.j");
+
+        _runNoError("BigInteger x = 10; x == null", false, "org.openl.j");
+        _runNoError("BigInteger x = 10; null == x", false, "org.openl.j");
+
+        _runNoError("BigDecimal x = 10; x == null", false, "org.openl.j");
+        _runNoError("BigDecimal x = 10; null == x", false, "org.openl.j");
+
     }
 
     public void testComparable() {
@@ -116,6 +128,9 @@ public class RunTest extends TestCase {
     public void testLong() {
         _runNoError("long x = 4; x + 5.0", 9.0, "org.openl.j");
         _runNoError("long x = 4; x - 5.0", -1.0, "org.openl.j");
+        _runNoError("long x = 4; x - 5", -1L, "org.openl.j");
+//        _runNoError("Long x = null; x - 5.0", -1.0, "org.openl.j");
+        
     }
 
     public void testRange() {
@@ -168,6 +183,9 @@ public class RunTest extends TestCase {
         _runNoError("boolean a=true; boolean b = false; a == !b", new Boolean(true), "org.openl.j");
         _runNoError("boolean a=true; boolean b = false; a != b", new Boolean(true), "org.openl.j");
         
+        _runNoError("Integer x = 1; \"aaa\".substring(x)", "aaa".substring(1), "org.openl.j");
+
+        
         
         _runNoError("int x=5, y=7; x & y", 5 & 7, "org.openl.j");
         _runNoError("int x=5, y=7; x | y", 5 | 7, "org.openl.j");
@@ -206,7 +224,15 @@ public class RunTest extends TestCase {
     {
         _runNoError("int.class", int.class, "org.openl.j");
         _runWithError("String.length()", CompositeSyntaxNodeException.class, "org.openl.j", SourceType.METHOD_BODY);
+        
 
 //        _runWithError("int x = 5; x.class", SyntaxNodeException.class, "org.openl.j", SourceType.METHOD_BODY);
     }
+    
+    
+    public void testLongName()
+    {
+        _runNoError("new java.math.BigDecimal(10)", new java.math.BigDecimal(10), "org.openl.j");
+    }
+    
 }
