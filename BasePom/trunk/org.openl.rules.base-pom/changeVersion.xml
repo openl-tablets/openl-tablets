@@ -37,6 +37,7 @@
     	<include name="**/build.xml"/>
     	<include name="**/run.bat"/>
     	<include name="openl-simple-project/pom.xml"/>
+		<include name="org.openl.rules.eclipse.ui.wizard/templates/template/pom.xml"/>
     </fileset>
 
     <target name="change" description="Change Version">
