@@ -118,6 +118,11 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         push(new NaryNode(type, pos, popN(args), module));
     }
 
+    public void literal(String type, TextInterval pos, int args) {
+        push(new CompositeLiteralNode(type, pos, popN(args), module));
+    }
+    
+    
     public void notImplemented(String type) {
         throw new RuntimeException(type + " has not been implemented yet");
     }

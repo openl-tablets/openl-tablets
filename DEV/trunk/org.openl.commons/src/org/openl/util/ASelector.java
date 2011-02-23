@@ -64,16 +64,16 @@ public abstract class ASelector<T> implements ISelector<T> {
 
     }
 
-    public static class ClassSelector extends ASelector<Object> {
-        Class<?> c;
+    public static  class ClassSelector<T> extends ASelector<T> {
+        Class<T> c;
 
-        public ClassSelector(Class<?> c) {
+        public ClassSelector(Class<T> c) {
             this.c = c;
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<Object> sel) {
-            return c == ((ClassSelector) (ASelector<Object>) sel).c;
+        protected boolean equalsSelector(ASelector<T> sel) {
+            return c == ((ClassSelector<T>)  sel).c;
         }
 
         @Override
@@ -224,8 +224,8 @@ public abstract class ASelector<T> implements ISelector<T> {
         return new AllSelector<T>();
     }
 
-    public static ISelector<Object> selectClass(Class<?> c) {
-        return new ClassSelector(c);
+    public static <T> ISelector<T> selectClass(Class<T> c) {
+        return new ClassSelector<T>(c);
     }
 
     public static <T> ISelector<T> selectNone(T obj) {

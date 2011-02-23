@@ -7,13 +7,14 @@
 package org.openl.syntax.impl;
 
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.ILiteralNode;
 import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor
  *
  */
-public class LiteralNode extends TerminalNode {
+public class LiteralNode extends TerminalNode implements ILiteralNode {
     
     private String image;
 
