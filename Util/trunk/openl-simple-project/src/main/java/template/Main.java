@@ -1,6 +1,8 @@
 package template;
 
-import gen.template.TemplateJavaWrapper;
+import org.openl.rules.runtime.RuleEngineFactory;
+
+import java.io.File;
 
 /**
  * This class shows how to execute OpenL Tablets methods using Java wrapper.
@@ -9,7 +11,11 @@ import gen.template.TemplateJavaWrapper;
 public class Main {
 
     public static void main(String[] args) {
-        TemplateJavaWrapper jw = new TemplateJavaWrapper();
-        jw.hello1(10);
+        File xlsFile = new File("src/main/resources/rules/TemplateRules.xls");
+
+        RuleEngineFactory<Wrapper> engineFactory = new RuleEngineFactory<Wrapper>(xlsFile, Wrapper.class);
+
+        Wrapper instance = engineFactory.makeInstance();
+        instance.hello1(10);
     }
 }
