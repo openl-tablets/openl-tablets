@@ -1,6 +1,9 @@
 package org.openl.rules.project.instantiation;
 
+import java.net.URL;
+
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -123,9 +126,12 @@ public abstract class RulesInstantiationStrategy {
     @SuppressWarnings("deprecation")
     protected ClassLoader getClassLoader() {        
         if (classLoader == null) {
-            ClassLoader parent = getModule().getProject().getClassLoader(false);            
-            classLoader = new SimpleBundleClassLoader(parent);            
-        }        
+            ClassLoader parent = getModule().getProject().getClassLoader(false);
+            URL[] urls = getModule().getProject().getClassPathUrls();          
+            classLoader = new SimpleBundleClassLoader(parent);
+            OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader)classLoader, urls);
+        }
+        
         return classLoader;
     }
     
