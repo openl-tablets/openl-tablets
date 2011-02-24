@@ -16,8 +16,8 @@
 
         <module>
             <name>Template Rules</name>
-            <type>static</type>
-            <classname>gen.template.TemplateJavaWrapper</classname>
+            <type>dynamic</type>
+            <classname>template.Wrapper</classname>
 
             <!--
                 Rules root document. Usually excel file on file system.
