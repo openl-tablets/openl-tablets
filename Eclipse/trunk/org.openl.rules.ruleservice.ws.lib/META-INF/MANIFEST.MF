@@ -87,8 +87,8 @@ Bundle-ClassPath: lib/antlr-2.7.7.jar,
  lib/XmlSchema-1.4.7.jar,
  lib/xmlsec-1.4.3.jar,
  lib/xsdlib-2010.1.jar,
- lib/jaxb-api-2.1.jar,
- lib/jaxb-impl-2.1.3.jar
+ lib/jaxb-api-2.2.1.jar,
+ lib/jaxb-impl-2.2.1.1.jar
 Export-Package: antlr,
  antlr.ASdebug,
  antlr.actions.cpp,
