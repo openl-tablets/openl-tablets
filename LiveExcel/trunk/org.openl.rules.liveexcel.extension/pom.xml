@@ -29,14 +29,41 @@
 	
   </build>
   <dependencies>
-	<dependency>
-		<groupId>org.openl.rules</groupId>
-  		<artifactId>org.openl.rules.liveexcel</artifactId>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
     <dependency>
-		<groupId>org.openl.rules</groupId>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.lib.poi.dev.modified</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
