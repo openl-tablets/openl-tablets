@@ -357,7 +357,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public boolean getCanClose() {
-        return (!getSelectedProject().isLocalOnly() && getSelectedProject().isOpened());
+        return getSelectedProject().isLockedByMe() || (!getSelectedProject().isLocalOnly() && getSelectedProject().isOpened());
     }
 
     public boolean getCanDelete() {

@@ -165,7 +165,6 @@ public class RulesProject extends UserWorkspaceProject {
         if (isLocalOnly()) {
             return false;
         }
-
-        return isLockedByMe();
+        return isLockedByMe() && local != null;
     }
 }
