@@ -198,7 +198,11 @@ public class ParserTest extends TestCase {
         _testOperator("x+y", "op.binary.add");
         _testOperator("x+3", "op.binary.add");
         _testOperator("x-3", "op.binary.subtract");
-        _testOperator("x%3", "op.binary.rem");        
+        _testOperator("x%3", "op.binary.rem");
+//        _testOperator("x or y", "op.binary.or");        
+//        _testOperator("x and y", "op.binary.and");        
+//        _testOperator("x is less than 3", "op.binary.rem");        
+//        _testOperator("x ? 1:3", "op.binary.lt");        
     }
 
     public void testParse() {
