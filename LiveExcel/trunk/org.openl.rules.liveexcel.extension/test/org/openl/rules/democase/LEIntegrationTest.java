@@ -5,27 +5,43 @@ import java.text.SimpleDateFormat;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.openl.conf.UserContext;
+import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 import static junit.framework.Assert.*;
 
-public class LEIntegrationTest extends BaseOpenlBuilderHelper {
+public class LEIntegrationTest {
 
     private static final String TEST_DATE = "2010/05/21-08:00";
     private static final String src = "test/openl-project/SimpleLiveExcellUsage.xls";
+    private OpenClassJavaWrapper wrapper;
 
     public LEIntegrationTest() {
-        super(src);
+        buildXlsModuleSyntaxNode(src);        
+    }
+    
+    protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {        
+        buildJavaWrapper(fileToBuildWrapper);
+    }
+    
+    protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {        
+        UserContext ucxt = initUserContext();
+        wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper, false, null);
+        return wrapper;
+    }
+
+    protected UserContext initUserContext() {
+        return new UserContext(Thread.currentThread().getContextClassLoader(), ".");        
     }
 
     @Test
     public void test() throws Exception {
-        if (getJavaWrapper().getCompiledClass().hasErrors()) {
-            for (OpenLMessage message : getJavaWrapper().getCompiledClass().getMessages()) {
+        if (wrapper.getCompiledClass().hasErrors()) {
+            for (OpenLMessage message : wrapper.getCompiledClass().getMessages()) {
                 System.out.println(message);
             }
             assertFalse(true);
@@ -35,7 +51,7 @@ public class LEIntegrationTest extends BaseOpenlBuilderHelper {
     }
 
     protected Object invokeMethodWithEnvProperties(String methodName) throws Exception{
-        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors();
+        IOpenClass __class = wrapper.getOpenClassWithErrors();
         IOpenMethod testMethod = __class.getMatchingMethod(methodName, new IOpenClass[] {});
 
         Assert.assertNotNull(String.format("Method with name %s exists", methodName), testMethod);
