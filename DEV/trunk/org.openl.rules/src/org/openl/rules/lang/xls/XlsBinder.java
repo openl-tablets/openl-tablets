@@ -253,7 +253,7 @@ public class XlsBinder implements IOpenBinder {
             OpenL openl,
             RulesModuleBindingContext moduleContext,
             XlsModuleOpenClass moduleOpenClass) {
-        processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes());
+        processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes(), moduleContext);
         
         IVocabulary vocabulary = makeVocabulary(moduleNode);
 
@@ -394,7 +394,7 @@ public class XlsBinder implements IOpenBinder {
 
     private void processExtensions(XlsModuleOpenClass module,
             XlsModuleSyntaxNode moduleNode,
-            List<IdentifierNode> extensionNodes) {
+            List<IdentifierNode> extensionNodes,RulesModuleBindingContext moduleContext) {
 
         for (int i = 0; i < extensionNodes.size(); i++) {
 
@@ -402,7 +402,7 @@ public class XlsBinder implements IOpenBinder {
             IExtensionBinder binder = NameConventionBinderFactory.INSTANCE.getNodeBinder(identifierNode);
 
             if (binder != null && binder.getNodeType().equals(identifierNode.getType())) {
-                binder.bind(module, moduleNode, identifierNode);
+                binder.bind(module, moduleNode, identifierNode, moduleContext);
             }
         }
     }

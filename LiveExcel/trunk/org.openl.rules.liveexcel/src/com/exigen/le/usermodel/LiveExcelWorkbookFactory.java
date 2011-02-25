@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.util.Properties;
 import java.util.Vector;
 import java.util.Map.Entry;
 
@@ -56,7 +55,7 @@ public class LiveExcelWorkbookFactory implements ElementFactory{
 	public static LiveExcelWorkbookFactory getInstance(){
 		return INSTANCE;
 	}
-    public static Workbook create(InputStream inp) throws IOException, InvalidFormatException {
+    public static LiveExcelWorkbook create(InputStream inp) throws IOException, InvalidFormatException {
         
     	LiveExcelWorkbook result = null;
         if(! inp.markSupported()) {

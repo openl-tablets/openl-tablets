@@ -1,23 +1,27 @@
 package org.openl.rules.liveexcel;
 
-import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 
+import com.exigen.le.smodel.Function;
+
 public class LiveExcelMethodHeader implements IOpenMethodHeader {
 
-    private ParsedDeclaredFunction declaredFunction;
+    private Function function;
 
     private IMethodSignature methodSignature;
 
-    private IOpenClass clazz;
+    private IOpenClass declaringclass = null;
 
-    public LiveExcelMethodHeader(ParsedDeclaredFunction declaredFunction, IOpenClass clazz) {
-        this.declaredFunction = declaredFunction;
-        methodSignature = new LiveExcelMethodSignature(declaredFunction);
-        this.clazz = clazz;
+    private IOpenClass returnType;
+
+    public LiveExcelMethodHeader(Function function, RulesModuleBindingContext bindingContext) {
+        this.function = function;
+        this.methodSignature = LiveExcelMethodSignatureBuilder.build(function, bindingContext);
+        this.returnType = TypeUtils.getOpenClass(function.getReturnTypeName(), bindingContext);
     }
 
     public IMethodSignature getSignature() {
@@ -25,7 +29,7 @@ public class LiveExcelMethodHeader implements IOpenMethodHeader {
     }
 
     public IOpenClass getDeclaringClass() {
-        return clazz;
+        return declaringclass;
     }
 
     public IMemberMetaInfo getInfo() {
@@ -33,7 +37,7 @@ public class LiveExcelMethodHeader implements IOpenMethodHeader {
     }
 
     public IOpenClass getType() {
-        return TypeUtils.getParameterClass(declaredFunction.getReturnCell());
+        return returnType;
     }
 
     public boolean isStatic() {
@@ -41,11 +45,11 @@ public class LiveExcelMethodHeader implements IOpenMethodHeader {
     }
 
     public String getDisplayName(int mode) {
-        return TypeUtils.convertName(declaredFunction.getDeclFuncName());
+        return TypeUtils.convertName(function.getDeclaredName());
     }
 
     public String getName() {
-        return TypeUtils.convertName(declaredFunction.getDeclFuncName());
+        return TypeUtils.convertName(function.getDeclaredName());
     }
 
 }

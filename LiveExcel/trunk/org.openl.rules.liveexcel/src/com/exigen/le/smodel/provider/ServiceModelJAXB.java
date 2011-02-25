@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import com.exigen.le.project.ProjectElement;
 import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Function;
+import com.exigen.le.smodel.MappedProperty;
 import com.exigen.le.smodel.Primary;
 import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.ServiceModel;
