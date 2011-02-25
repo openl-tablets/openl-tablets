@@ -1,39 +1,43 @@
 package org.openl.rules.liveexcel;
 
-import java.net.URL;
+import java.io.File;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.lang.xls.XlsLoader;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
-import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
-import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.syntax.ISyntaxError;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.SyntaxError;
-import org.openl.syntax.impl.URLSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.util.PathTool;
+
+import com.exigen.le.LiveExcel;
+import com.exigen.le.smodel.provider.ServiceModelJAXB;
+import com.exigen.le.usermodel.LiveExcelWorkbook;
+import com.exigen.le.usermodel.LiveExcelWorkbookFactory;
 
 public class LiveexcelLoader implements IExtensionLoader {
 
     public static final String LIVEEXCEL_TYPE = "liveexcel";
-    
+
     public static final String LIVEEXCEL_MODULE = "liveexcel";
 
     public String getModuleName() {
         return LIVEEXCEL_MODULE;
     }
-    
+
     public void process(XlsLoader xlsLoader, TableSyntaxNode tsn, IGridTable table, XlsSheetSourceCodeModule sheetSource) {
-        int h = table.getLogicalHeight();
+        ILogicalTable logicalTable = LogicalTableHelper.logicalTable(table);
+        int h = logicalTable.getHeight();
 
         for (int i = 0; i < h; i++) {
-            String include = table.getCell(1, i).getStringValue();
+            IGridTable includeCell = logicalTable.getSubtable(1, i, 1, 1).getSource();
+            String include = includeCell.getCell(0, 0).getStringValue();
             if (include == null) {
                 continue;
             }
@@ -43,34 +47,33 @@ public class LiveexcelLoader implements IExtensionLoader {
             }
             String[] split = include.split(";");
             String includePath = split[0];
-            String projectName = split.length == 2 ? split[1] : null;
-            
-            IOpenSourceCodeModule src = null;
+
+            FileSourceCodeModule src = null;
             try {
-                String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), includePath);
-                src = new URLSourceCodeModule(new URL(newURL));
+                String newURI = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), includePath);
+                src = new FileSourceCodeModule(new File(sheetSource.getWorkbookSource().getSourceFile().getParent(), includePath), newURI);
             } catch (Throwable t) {
-                ISyntaxError se = new SyntaxError(null, "Include " + includePath + " not found", t,
-                        new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
-                xlsLoader.addError(se);
-                tsn.addError(se);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Include " + includePath
+                        + " not found", t, null, new GridCellSourceCodeModule(includeCell));
+                xlsLoader.addError(error);
+                tsn.addError(error);
                 continue;
             }
 
             try {
-                preprocessLiveExcelWorkbook(xlsLoader, src, sheetSource, projectName);
+                preprocessLiveExcelWorkbook(xlsLoader, src, sheetSource);
             } catch (Throwable t) {
-                ISyntaxError se = new SyntaxError(null, "Include " + include + " not found", t,
-                        new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
-                xlsLoader.addError(se);
-                tsn.addError(se);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
+                        t, null, new GridCellSourceCodeModule(includeCell));
+                xlsLoader.addError(error);
+                tsn.addError(error);
                 continue;
             }
         }
     }
 
-    private void preprocessLiveExcelWorkbook(XlsLoader xlsLoader, IOpenSourceCodeModule source,
-            XlsSheetSourceCodeModule sheetSource, String projectName) {
+    private void preprocessLiveExcelWorkbook(XlsLoader xlsLoader, FileSourceCodeModule source,
+            XlsSheetSourceCodeModule sheetSource) {
         String uri = source.getUri(0);
         if (xlsLoader.getPreprocessedWorkBooks().contains(uri)) {
             return;
@@ -78,13 +81,14 @@ public class LiveexcelLoader implements IExtensionLoader {
         xlsLoader.getPreprocessedWorkBooks().add(uri);
         LiveExcelWorkbook wb;
         try {
-            wb = LiveExcelWorkbookFactory.create(source.getByteStream(), projectName);
+            File leProjectElementsFolder = source.getFile().getParentFile();
+            LiveExcel liveExcel = new LiveExcel(new ServiceModelJAXB(leProjectElementsFolder));
+            wb = LiveExcelWorkbookFactory.create(source.getByteStream());
             XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source, wb);
-            DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
-            searcher.findFunctions();
-            xlsLoader.addExtensionNode(new IdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(), xlsWorkbookSourceCodeModule));
+            xlsLoader.addExtensionNode(new LiveExcelIdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(),
+                    xlsWorkbookSourceCodeModule, liveExcel));
         } catch (Exception e) {
-             throw new RuntimeException("Error processing file.", e);
+            throw new RuntimeException("Error processing file.", e);
         }
     }
 

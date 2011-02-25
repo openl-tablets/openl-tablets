@@ -64,7 +64,7 @@ public class Function {
 	public Function(String excel, String sheet, String name, String returnArea, String...args){
 		this.excel = excel;
 		this.sheet = sheet;
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.returnArea = returnArea;
 		if (args.length %2 !=0){
 			throw new RuntimeException("Args should be odd: " + args.length);
@@ -117,12 +117,22 @@ public class Function {
 		this.sheet = sheet;
 	}
 
-	public String getName() {
-		return name;
-	}
+    /**
+     * @return the name in upper c≈ase
+     */
+    public String getName() {
+        return name.toUpperCase();
+    }
+
+    /**
+     * @return the declared name
+     */
+    public String getDeclaredName() {
+        return name;
+    }
 
 	public void setName(String name) {
-		this.name = name.toUpperCase();
+		this.name = name;
 	}
 
 	// This getter begin with "obtain" to exclude this field from JAXB conversion
@@ -172,7 +182,7 @@ public class Function {
 	 * @param returnTypeName the returnTypeName to set
 	 */
 	public void setReturnTypeName(String returnTypeName) {
-		this.returnTypeName = returnTypeName.toUpperCase();
+		this.returnTypeName = returnTypeName;
 	}
 	/**
 	 * @return the isReturnCollection
@@ -279,7 +289,7 @@ public class Function {
 		}
 		
 		public FunctionArgument(String typeName, String inputArea){
-			this.typeName = typeName.toUpperCase();
+			this.typeName = typeName;
 			this.inputArea = inputArea;
 		}
 		public int compare(FunctionArgument o1, FunctionArgument o2) {
@@ -326,7 +336,7 @@ public class Function {
 		 * @param typeName the typeName to set
 		 */
 		public void setTypeName(String typeName) {
-			this.typeName = typeName.toUpperCase();
+			this.typeName = typeName;
 		}
 
 		public String getDescription() {

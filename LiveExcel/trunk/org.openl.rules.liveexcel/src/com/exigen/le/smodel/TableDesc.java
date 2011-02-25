@@ -33,14 +33,22 @@ public class TableDesc {
 		return defaultValue;
 	}
 	
-	
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-	
+    
+    /**
+     * @return the declared name
+     */
+    public String getDeclaredName() {
+        return name;
+    }
+    
+    
+    /**
+     * @return the name in upper case
+     */
+    public String getName() {
+        return name.toUpperCase();
+    }
+    
 	/*
 	 * @return column description for the parameters.  
 	 */
@@ -56,7 +64,7 @@ public class TableDesc {
 	}
 	
 	public TableDesc(String name, List<ColumnDesc> params, ColumnDesc value){
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.paramDescs = params;
 		this.valueDesc = value;
 	}
@@ -67,7 +75,7 @@ public class TableDesc {
 	 * @param params Types of params (param assumed non-intervals)
 	 */
 	public TableDesc(String name, DataType value, DataType...params){
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.valueDesc = new ColumnDesc(value);
 		if (params.length == 0){
 			throw new RuntimeException("No params provided");
@@ -314,7 +322,7 @@ public class TableDesc {
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name.toUpperCase();
+		this.name = name;
 	}
 
 	/**

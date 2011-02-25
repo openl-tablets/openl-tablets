@@ -30,17 +30,23 @@ public class Type {
 	private boolean complex;
 	transient	private String path;
 	private List<MappedProperty> childs = new ArrayList<MappedProperty>();
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * @return the declared name
+     */
+    public String getDeclaredName() {
+        return name;
+    }
+    /**
+     * @return the name in upper case
+     */
+    public String getName() {
+        return name.toUpperCase();
+    }
 	/**
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name.toUpperCase();
+		this.name = name;
 	}
 	/**
 	 * @return the complex
@@ -91,7 +97,7 @@ public class Type {
 	public Type(){};
 	
 	public Type(String name, boolean complex){
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.complex = complex;
 	}
 	

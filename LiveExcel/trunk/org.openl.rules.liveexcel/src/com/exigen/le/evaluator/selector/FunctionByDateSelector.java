@@ -29,7 +29,7 @@ public class FunctionByDateSelector implements FunctionSelector,Comparator<Funct
 			ThreadEvaluationContext context) {
 		List<Function> rivals = new ArrayList<Function>();
 		for(Function func:functions){
-			if(func.getName().equals(functionName))
+			if(func.getName().equalsIgnoreCase(functionName))
 				if(func.getEffectiveDate()!= null)
 					rivals.add(func);
 		}

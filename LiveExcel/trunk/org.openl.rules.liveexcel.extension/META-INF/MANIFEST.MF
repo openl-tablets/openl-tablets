@@ -7,5 +7,5 @@ Bundle-Vendor: OpenL
 Bundle-ClassPath: bin/,
  .
 Export-Package: org.openl.rules.liveexcel
-Require-Bundle: org.openl.rules;bundle-version="5.3.0",
- org.openl.rules.liveexcel;bundle-version="1.0.0"
+Require-Bundle: org.openl.rules.liveexcel,
+ org.openl.rules

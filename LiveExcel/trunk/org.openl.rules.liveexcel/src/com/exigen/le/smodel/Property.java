@@ -19,13 +19,13 @@ public class Property {
 	
 	public Property(){};
 	public Property (String name, Type type){
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.type = type;
 		this.typeName = type.getName();
 	}
 	
 	public Property (String name, Type type, boolean embedded){
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.typeName = type.getName();
 		this.type = type;
 		this.embedded = embedded;
@@ -35,7 +35,7 @@ public class Property {
 	}
 
 	public Property (String name, Type type, boolean embedded, boolean collection){
-		this.name = name.toUpperCase();
+		this.name = name;
 		this.typeName = type.getName();
 		this.type = type;
 		this.embedded = embedded;
@@ -57,17 +57,23 @@ public class Property {
 	public void setKey(boolean key) {
 		this.key = key;
 	}
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * @return the declared name
+     */
+    public String getDeclaredName() {
+        return name;
+    }
+    /**
+     * @return the name in upper case
+     */
+    public String getName() {
+        return name.toUpperCase();
+    }
 	/**
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name.toUpperCase();
+		this.name = name;
 	}
 	/**
 	 * @return the type
@@ -91,7 +97,7 @@ public class Property {
 	 * @param typeName the typeName to set
 	 */
 	public void setTypeName(String typeName) {
-		this.typeName = typeName.toUpperCase();
+		this.typeName = typeName;
 	}
 
 	/**

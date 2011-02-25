@@ -207,7 +207,7 @@ public class XlsLoader {
                 IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
 
                 if (loader != null) {
-                    loader.process(this, tableSyntaxNode, tableSyntaxNode.getGridTable(), source);
+                    loader.process(this, tableSyntaxNode, row.getSource(), source);
                 } else {
                     String message = String.format("Error in Environment table: can't find extension loader for '%s' keyword", name);
                     LOG.warn(message);

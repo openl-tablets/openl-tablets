@@ -26,7 +26,7 @@ public class DummyFunctionSelector implements FunctionSelector {
 	public Function selectFunction(String functionName,List<Function> functions,
 			ThreadEvaluationContext context) {
 		for(Function func:functions){
-			if(func.getName().equals(functionName))
+			if(func.getName().equalsIgnoreCase(functionName))
 				return func;
 		}
 		String msg = "Function "+functionName+" not found ";

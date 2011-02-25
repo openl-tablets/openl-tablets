@@ -3,6 +3,7 @@ package com.exigen.le.evaluator;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -178,6 +179,8 @@ public static ValueEval createEvalForObject(Object object, WorkbookEvaluator eva
             return interpretString((String) object);
         } else if (object instanceof Calendar) {
             return new NumberEval(DateUtil.getExcelDate((Calendar) object, false));
+        } else if (object instanceof Date) {
+            return new NumberEval(DateUtil.getExcelDate((Date) object));
         } else if (object instanceof Collection<?>) {
             return createEvalForCollection((Collection<?>)object, evaluator,pool);
         }  else  {  
