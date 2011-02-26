@@ -39,7 +39,7 @@ public class PAYDCalcTest {
 
 
 		// Restore regular SM provider(from xml), which can be overriden by other tests
-        LiveExcel le = new LiveExcel(new FunctionByDateSelector() ,new ServiceModelJAXB(new File("d:/ololo/PAYD/")));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector() ,new ServiceModelJAXB(new File("./test-resources/LERepository/PAYD/4")));
 	
 //		VersionDesc versionDesc = new VersionDesc("0");
 		ServiceModel sm =le.getServiceModel();
@@ -47,23 +47,23 @@ public class PAYDCalcTest {
 		
 		List<Function> funcs = sm.getFunctions();
 		
-		Function getTestVehicles = new Function("PAYD Rater GJD","Data Sample", "getTestVehicles", "G1019:Y1526" );
+		Function getTestVehicles = new Function("PAYD Rater GJD","Data Sample", "getTestVehicles", "G1020:Y1527" );
 //		Function getTestVehicles = new Function("PAYD Rater GJD","Data Sample", "getTestVehicles", "G1515:Y1527" );
 		getTestVehicles.setReturnType(sm.getType("Vehicle"));
 		getTestVehicles.setReturnCollection(true);
 		funcs.add(getTestVehicles);
 		
-		Function getTestDrivers = new Function("PAYD Rater GJD","Data Sample", "getTestDrivers", "G515:T1014" );
+		Function getTestDrivers = new Function("PAYD Rater GJD","Data Sample", "getTestDrivers", "G516:T1015" );
 		getTestDrivers.setReturnType(sm.getType("Driver"));
 		getTestDrivers.setReturnCollection(true);
 		funcs.add(getTestDrivers);
 		
-		Function getTestPolicies = new Function("PAYD Rater GJD","Data Sample", "getTestPolicies", "G10:L509" );
+		Function getTestPolicies = new Function("PAYD Rater GJD","Data Sample", "getTestPolicies", "G11:L510" );
 		getTestPolicies.setReturnType(sm.getType("Policy"));
 		getTestPolicies.setReturnCollection(true);
 		funcs.add(getTestPolicies);
 		
-		Function getTestCoverages = new Function("PAYD Rater GJD","Data Sample", "getTestCoverages", "G6:G7" );
+		Function getTestCoverages = new Function("PAYD Rater GJD","Data Sample", "getTestCoverages", "G7:G8" );
 		getTestCoverages.setReturnType(sm.getType("Coverage"));
 		getTestCoverages.setReturnCollection(true);
 		funcs.add(getTestCoverages);
