@@ -2,11 +2,13 @@ package com.exigen.le.project;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -29,6 +31,30 @@ public class ProjectLoader {
             return new SimpleCache<String, ProjectElement>();
         };
     };
+
+    private static ThreadLocal<File> tempDir = new ThreadLocal<File>() {
+        protected File initialValue() {
+            return new File(createTempDir());
+        };
+        
+        protected void finalize() throws Throwable {
+            try {
+                FileUtils.deleteDirectory(get());
+            } catch (IOException e) {
+                LOG.warn(String.format("Failed to clean temporary directory \"%s\"", get().getAbsolutePath()));
+            }
+        };
+    };
+
+    public static File getTempDir() {
+        if(tempDir.get() == null){
+            tempDir.set(new File(createTempDir()));
+        }
+        if(!tempDir.get().exists()){
+            tempDir.get().mkdirs();
+        }
+        return tempDir.get();
+    }
 
     private static HashMap<ElementType, ElementFactory> initCreators() {
         HashMap<ElementType, ElementFactory> result = new HashMap<ElementType, ElementFactory>();
@@ -196,6 +222,15 @@ public class ProjectLoader {
 
     public static void reset() {
         creators = initCreators();
+        for (ProjectElement element : elementsCache.get().getValues()) {
+            element.dispose();
+        }
         elementsCache.get().removeAll();
+        File currentTempDir = getTempDir();
+        try {
+            FileUtils.cleanDirectory(currentTempDir);
+        } catch (IOException e) {
+            LOG.warn(String.format("Failed to clean temporary directory \"%s\"", currentTempDir.getAbsolutePath()));
+        }
     }
 }

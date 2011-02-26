@@ -1,21 +1,27 @@
 package com.exigen.le.PAYD;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
 import com.exigen.le.LiveExcel;
 import com.exigen.le.evaluator.selector.FunctionByDateSelector;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.accessor.ValueHolder;
 import com.exigen.le.smodel.provider.ServiceModelJAXB;
+
+import static junit.framework.Assert.*;
 
 public class PAYDCalcTest {
 	@Test
@@ -33,7 +39,7 @@ public class PAYDCalcTest {
 
 
 		// Restore regular SM provider(from xml), which can be overriden by other tests
-        LiveExcel le = new LiveExcel(new FunctionByDateSelector() ,new ServiceModelJAXB(new File("./test-resources/LERepository/PAYD/4")));
+        LiveExcel le = new LiveExcel(new FunctionByDateSelector() ,new ServiceModelJAXB(new File("d:/ololo/PAYD/")));
 	
 //		VersionDesc versionDesc = new VersionDesc("0");
 		ServiceModel sm =le.getServiceModel();
@@ -41,23 +47,23 @@ public class PAYDCalcTest {
 		
 		List<Function> funcs = sm.getFunctions();
 		
-		Function getTestVehicles = new Function("PAYD Rater GJD","Data Sample", "getTestVehicles", "G1020:Y1527" );
+		Function getTestVehicles = new Function("PAYD Rater GJD","Data Sample", "getTestVehicles", "G1019:Y1526" );
 //		Function getTestVehicles = new Function("PAYD Rater GJD","Data Sample", "getTestVehicles", "G1515:Y1527" );
 		getTestVehicles.setReturnType(sm.getType("Vehicle"));
 		getTestVehicles.setReturnCollection(true);
 		funcs.add(getTestVehicles);
 		
-		Function getTestDrivers = new Function("PAYD Rater GJD","Data Sample", "getTestDrivers", "G516:T1015" );
+		Function getTestDrivers = new Function("PAYD Rater GJD","Data Sample", "getTestDrivers", "G515:T1014" );
 		getTestDrivers.setReturnType(sm.getType("Driver"));
 		getTestDrivers.setReturnCollection(true);
 		funcs.add(getTestDrivers);
 		
-		Function getTestPolicies = new Function("PAYD Rater GJD","Data Sample", "getTestPolicies", "G11:L510" );
+		Function getTestPolicies = new Function("PAYD Rater GJD","Data Sample", "getTestPolicies", "G10:L509" );
 		getTestPolicies.setReturnType(sm.getType("Policy"));
 		getTestPolicies.setReturnCollection(true);
 		funcs.add(getTestPolicies);
 		
-		Function getTestCoverages = new Function("PAYD Rater GJD","Data Sample", "getTestCoverages", "G7:G8" );
+		Function getTestCoverages = new Function("PAYD Rater GJD","Data Sample", "getTestCoverages", "G6:G7" );
 		getTestCoverages.setReturnType(sm.getType("Coverage"));
 		getTestCoverages.setReturnCollection(true);
 		funcs.add(getTestCoverages);
@@ -95,5 +101,17 @@ public class PAYDCalcTest {
 		System.out.println("Result="+SMHelper.valueToString(result));
 
 	}
-
+    
+    // We should clear all created temp files manually because JUnit terminates
+    // JVM incorrectly and finalization methods are not executed
+    @After
+    public void finalize() {
+        try {
+            ProjectLoader.reset();
+            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+    }
 }

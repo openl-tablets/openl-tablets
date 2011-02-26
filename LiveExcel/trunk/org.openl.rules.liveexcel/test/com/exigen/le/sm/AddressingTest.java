@@ -1,12 +1,19 @@
 
 package com.exigen.le.sm;
+import static junit.framework.Assert.assertFalse;
+
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.junit.After;
 import org.junit.Test;
 
 import junit.framework.TestCase;
 
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Cell;
 import com.exigen.le.smodel.Range;
 //import com.exigen.le.utils.POIHelper;
@@ -91,4 +98,17 @@ public class AddressingTest extends TestCase{
 		System.out.println("SheetName = "+range.from().getSheetName());
 		
 	}
+    
+    // We should clear all created temp files manually because JUnit terminates
+    // JVM incorrectly and finalization methods are not executed
+    @After
+    public void finalize() {
+        try {
+            ProjectLoader.reset();
+            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+    }
 }

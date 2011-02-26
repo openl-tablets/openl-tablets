@@ -129,6 +129,7 @@ public class ThreadEvaluationContext {
     public static void setProject(File prj) {
         if (prj == null || !prj.equals(project.get())) {
             project.set(prj);
+            freeEvalContext();
             ProjectLoader.reset();
         }
     }

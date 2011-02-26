@@ -4,11 +4,14 @@
 package com.exigen.le.calculation;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
@@ -19,6 +22,7 @@ import com.exigen.le.democase.Driver;
 import com.exigen.le.democase.Policy;
 import com.exigen.le.democase.Vehicle;
 import com.exigen.le.evaluator.selector.FunctionByDateSelector;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.servicedescr.evaluator.BeanWrapper;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.SMHelper;
@@ -145,19 +149,19 @@ public class DemoCase2CalcTest {
         envProps.put(Function.EFFECTIVE_DATE, "2010/05/21-08:00");
 		System.out.println("*******Calculate function(service) "+function);
 //		for(Coverage coverage:coverages){
-		for(int i=0;i<3;i++){
+		for(int i=0;i<1;i++){
 			Coverage coverage = coverages.get(i);
 			BeanWrapper bw1 = new BeanWrapper(coverage, sm.getType("Coverage"));
 //			for(Vehicle vehicle:vehicles){
-			for(int ii = 0;ii<2;ii++){
+			for(int ii = 0;ii<1;ii++){
 				Vehicle vehicle=vehicles.get(ii);
 				BeanWrapper bw2 = new BeanWrapper(vehicle, sm.getType("Vehicle"));
 //				for(Driver driver:drivers){
-				for(int iii = 0;iii<3;iii++){
+				for(int iii = 0;iii<1;iii++){
 					Driver driver=drivers.get(iii);
 					BeanWrapper bw3 = new BeanWrapper(driver, sm.getType("Driver"));
 //					for(Policy policy:policies){
-					for(int iiii=0;iiii<2;iiii++){
+					for(int iiii=0;iiii<1;iiii++){
 						Policy policy=policies.get(iiii);
 						BeanWrapper bw4 = new BeanWrapper(policy, sm.getType("Policy"));
 						List<Object> args = new ArrayList<Object>();
@@ -185,5 +189,17 @@ public class DemoCase2CalcTest {
 			}
 		}
 	}
-
+    
+    // We should clear all created temp files manually because JUnit terminates
+    // JVM incorrectly and finalization methods are not executed
+    @After
+    public void finalize() {
+        try {
+            ProjectLoader.reset();
+            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+    }
 }

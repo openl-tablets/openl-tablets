@@ -1,8 +1,9 @@
 package com.exigen.le.calculation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
@@ -19,6 +22,7 @@ import com.exigen.le.democase.Coverage;
 import com.exigen.le.democase.Driver;
 import com.exigen.le.democase.Policy;
 import com.exigen.le.democase.Vehicle;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.servicedescr.evaluator.MapWrapper;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
@@ -191,4 +195,17 @@ public class DataLoggingTest {
 		return pMap;
 	}
 	
+    
+    // We should clear all created temp files manually because JUnit terminates
+    // JVM incorrectly and finalization methods are not executed
+    @After
+    public void finalize() {
+        try {
+            ProjectLoader.reset();
+            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+    }
 }

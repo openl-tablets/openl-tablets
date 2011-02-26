@@ -4,16 +4,20 @@
 package com.exigen.le.calculation;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import com.exigen.le.LE_Value;
 import com.exigen.le.LiveExcel;
 import com.exigen.le.evaluator.selector.FunctionByDateSelector;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Function;
 import com.exigen.le.smodel.SMHelper;
 import com.exigen.le.smodel.ServiceModel;
@@ -95,5 +99,17 @@ public class TablesCalcTestXLS {
 				
 		}
 	}
-
+    
+    // We should clear all created temp files manually because JUnit terminates
+    // JVM incorrectly and finalization methods are not executed
+    @After
+    public void finalize() {
+        try {
+            ProjectLoader.reset();
+            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+    }
 }

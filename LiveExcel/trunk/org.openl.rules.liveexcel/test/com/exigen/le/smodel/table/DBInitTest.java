@@ -14,15 +14,18 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.junit.After;
 import org.junit.Test;
 
 import com.exigen.le.evaluator.ThreadEvaluationContext;
 import com.exigen.le.evaluator.table.LETableFactory;
 import com.exigen.le.evaluator.table.LETableFactory.TableElement;
 import com.exigen.le.project.ProjectElement;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
 import com.exigen.le.smodel.TableDesc.ColumnDesc;
@@ -78,7 +81,7 @@ public class DBInitTest {
 		vparams[1] = new StringEval("X1");
 		ValueEval vresult = te.calculate("TT", vparams);
 		assertEquals("V1", ((StringEval)vresult).getStringValue());
-		
+		pe.dispose();
 		ThreadEvaluationContext.freeEvalContext();
 	}
 	
@@ -126,5 +129,16 @@ public class DBInitTest {
 			
 		}
 
-	
+	    // We should clear all created temp files manually because JUnit terminates
+	    // JVM incorrectly and finalization methods are not executed
+	    @After
+	    public void finalize() {
+	        try {
+	            ProjectLoader.reset();
+	            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            assertFalse(true);
+	        }
+	    }
 }
