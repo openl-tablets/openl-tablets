@@ -27,6 +27,7 @@ import com.exigen.le.evaluator.function.UDFFinderLE;
 import com.exigen.le.evaluator.table.TableLooker;
 import com.exigen.le.project.ElementFactory;
 import com.exigen.le.project.ProjectElement;
+import com.exigen.le.project.ProjectLoader;
 import com.exigen.le.smodel.Property;
 import com.exigen.le.smodel.ServiceModel;
 import com.exigen.le.smodel.TableDesc;
@@ -70,7 +71,7 @@ public class LiveExcelWorkbookFactory implements ElementFactory{
         
         if(POIXMLDocument.hasOOXMLHeader(inp)) {
         	
-        	File temp = File.createTempFile("poi", ".tmp");
+        	File temp = File.createTempFile("poi", ".tmp", ProjectLoader.getTempDir());
         	FileOutputStream fout = new FileOutputStream(temp);
         	IOUtils.copy(inp,fout);
         	inp.close();

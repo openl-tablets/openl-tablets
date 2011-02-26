@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -57,7 +56,7 @@ public class LETableFactory implements ElementFactory {
             return null; // no tables - no processing
         }
 
-        String tempDir =ProjectLoader.createTempDir();
+        String tempDir =ProjectLoader.getTempDir().getAbsolutePath();
 
         File dbDir = prepareDirectory(tempDir);
         String connectionURL;
