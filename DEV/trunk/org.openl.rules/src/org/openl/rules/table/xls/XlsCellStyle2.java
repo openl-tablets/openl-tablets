@@ -2,11 +2,9 @@ package org.openl.rules.table.xls;
 
 import java.awt.Color;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.poi.POIXMLDocumentPart;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -24,8 +22,6 @@ import org.openxmlformats.schemas.drawingml.x2006.main.ThemeDocument;
  */
 public class XlsCellStyle2 implements ICellStyle {
 
-    @SuppressWarnings("unchecked")
-    private static Hashtable<Integer, HSSFColor> oldIndexedColors = HSSFColor.getIndexHash();
     /**
      * Cache with themes of workbooks used to prevent odd parsing of
      * {@link ThemeDocument} for different cells inside one workbook.
@@ -94,49 +90,32 @@ public class XlsCellStyle2 implements ICellStyle {
             return null;
         }
 
-        byte[] rgb = color.getRgb();
+        byte[] rgb = color.getRgbWithTint();
 
-        // TODO Remove this when POI will fix getting
-        // rgb of indexed colors
-        if (rgb == null) {
-            // Try to find color among the indexed colors
-            Integer key = new Integer(color.getIndexed());
-            HSSFColor c = oldIndexedColors.get(key);
-
-            if (c != null) {
-                return c.getTriplet();
-            }
-        }
+        // TODO Remove this when POI will fix getting tints of brown and blue colors
+        // https://issues.apache.org/bugzilla/show_bug.cgi?id=50787
+        // https://issues.apache.org/bugzilla/show_bug.cgi?id=50784
 
         // The value to apply to RGB to make it lighter or darker
         double tint = color.getTint();
         int themeIndex = color.getTheme();
 
-        if (rgb != null && tint != 0 && themeIndex > 3) {
-            rgb = color.getRgbWithTint(); // theme color (rgb with applied tint)
-
-        } else if ((rgb == null && themeIndex >= 0 && themeIndex < 2)   // tints of black and white colors
-                || themeIndex >= 2 && themeIndex < 4) {  // tints of brown and blue colors
-            // TODO Remove this when POI will fix getting
-            // tints of black, white, brown and blue colors
+        if (rgb != null && themeIndex >= 2 && themeIndex < 4) {  // tints of brown and blue colors
             try {
                 return getThemeColorRgb(themeIndex, tint);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         if (rgb != null) {
             short[] result = new short[3];
             for (int i = 0; i < 3; i++) {
-                int j = rgb.length == 3 ? i : i + 1;
-                result[i] = (short)(rgb[j] & 0xFF);
+                result[i] = (short)(rgb[i] & 0xFF);
             }
-    
             return result;
         }
-        
+
         return null;
     }
 
@@ -160,18 +139,14 @@ public class XlsCellStyle2 implements ICellStyle {
     public short[] getFillBackgroundColor() {
         if (hasNoFill())
             return null;
-        return colorToArray(xlsStyle.getFillBackgroundXSSFColor());
+        XSSFColor color = xlsStyle.getFillBackgroundXSSFColor();
+        return colorToArray(color);
     }
 
     public short[] getFillForegroundColor() {
         if (hasNoFill())
             return null;
-        XSSFColor color;
-        try {
-            color = xlsStyle.getFillForegroundXSSFColor();
-        } catch (Exception e) {
-            return new short[] {255, 255, 255};
-        }
+        XSSFColor color = xlsStyle.getFillForegroundXSSFColor();
         return colorToArray(color);
     }
 
@@ -180,13 +155,7 @@ public class XlsCellStyle2 implements ICellStyle {
     }
 
     public short getFillForegroundColorIndex() {
-        short colorIndex;
-        try {
-            colorIndex = xlsStyle.getFillForegroundColor();
-        } catch (Exception e) {
-            colorIndex = 0;
-        }
-        return colorIndex;
+        return xlsStyle.getFillForegroundColor();
     }
 
     public int getHorizontalAlignment() {
