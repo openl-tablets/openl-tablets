@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.types.writers.BooleanTypeWriter;
@@ -87,7 +87,7 @@ public class ByteCodeGeneratorHelper {
         if (retClass != null) {
             return getConstantForVarInsn(retClass);
         } else {
-            return Constants.ALOAD;
+            return Opcodes.ALOAD;
         }
     }
 
@@ -127,7 +127,7 @@ public class ByteCodeGeneratorHelper {
         if (retClass != null) {
             return getConstantForReturn(retClass);
         } else {
-            return Constants.ARETURN;
+            return Opcodes.ARETURN;
         }
     }
     
@@ -145,9 +145,9 @@ public class ByteCodeGeneratorHelper {
         return 0;
     }
     
-    public static void invokeVirtual(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
+    public static void invokeVirtual(MethodVisitor methodVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
         String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);        
-        codeVisitor.visitMethodInsn(Constants.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder);
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder);
     }
     
     public static String getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
@@ -162,9 +162,9 @@ public class ByteCodeGeneratorHelper {
         return signatureBuilder.toString();
     }
     
-    public static void invokeStatic(CodeVisitor codeVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {        
+    public static void invokeStatic(MethodVisitor methodVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {        
         String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
-        codeVisitor.visitMethodInsn(Constants.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder);
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder);
     }
     
     public static int getTwoStackElementFieldsCount(Map<String, FieldDescription> fields) {

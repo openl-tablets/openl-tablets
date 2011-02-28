@@ -1,10 +1,9 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 
 /**
  * Writer that supports writing class declaration in byte code.
@@ -30,13 +29,12 @@ public class ClassDescriptionWriter implements BeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        String sourceFileName = JavaClassGeneratorHelper.getClassFileName((beanNameWithPackage));
         if (parentClass == null) {
-            classWriter.visit(Constants.V1_5, Constants.ACC_PUBLIC + Constants.ACC_SUPER, beanNameWithPackage,
-                ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, null, sourceFileName);
+            classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, beanNameWithPackage,
+                    null, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, null);
         } else {
-            classWriter.visit(Constants.V1_5, Constants.ACC_PUBLIC + Constants.ACC_SUPER, beanNameWithPackage, Type
-                    .getInternalName(parentClass), null, sourceFileName);
+            classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, beanNameWithPackage,
+                    null, Type.getInternalName(parentClass), null);
         }
     }
 }

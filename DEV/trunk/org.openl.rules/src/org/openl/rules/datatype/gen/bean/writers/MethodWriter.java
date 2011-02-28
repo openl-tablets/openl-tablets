@@ -3,8 +3,8 @@ package org.openl.rules.datatype.gen.bean.writers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
@@ -36,9 +36,9 @@ public abstract class MethodWriter implements BeanByteCodeWriter {
         return twoStackElementFieldsCount;
     }
     
-    protected void pushFieldToStack(CodeVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
-        codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-        codeVisitor.visitFieldInsn(Constants.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(getAllFields()
+    protected void pushFieldToStack(MethodVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
+        codeVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        codeVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(getAllFields()
                 .get(fieldName)));
     }
     

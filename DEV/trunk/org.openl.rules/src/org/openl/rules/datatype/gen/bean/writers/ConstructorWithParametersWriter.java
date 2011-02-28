@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -46,8 +46,8 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        CodeVisitor codeVisitor;
-        
+        MethodVisitor methodVisitor;
+
         Constructor<?> parentConstructorWithFields = null;
         if(parentClass != null){
             parentConstructorWithFields = JavaClassGeneratorHelper.getBeanConstructorWithAllFields(parentClass, parentFields.size());
@@ -55,23 +55,23 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
         int i = 1;
         int stackSizeForParentConstructorCall = 0;
         if(parentConstructorWithFields == null){
-            codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
                     beanFields, null), null, null);
-            codeVisitor.visitVarInsn(Constants.ALOAD, 0);
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             if (parentClass == null) {
-                codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
-            }else{
-                codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", "()V");
+                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
+            } else{
+                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", "()V");
             }
         }else{
-            codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
                     allFields, null), null, null);
-            codeVisitor.visitVarInsn(Constants.ALOAD, 0);            
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);            
 
             // push to stack all parameters for parent constructor
             for (Map.Entry<String, FieldDescription> field : parentFields.entrySet()) {
                 FieldDescription fieldType = field.getValue();
-                codeVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
+                methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
                 if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
                     i += 2;
                 } else {
@@ -81,7 +81,7 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
 
             // invoke parent constructor with fields
             stackSizeForParentConstructorCall = i;
-            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, Type.getInternalName(parentClass),
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(parentClass),
                     "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
         }
 
@@ -91,9 +91,9 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
             if (parentClass == null || parentFields.get(fieldName) == null) {
                 // there is no such field in parent class
                 FieldDescription fieldType = field.getValue();
-                codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-                codeVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
-                codeVisitor.visitFieldInsn(Constants.PUTFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+                methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+                methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
+                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
                 if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
                     i += 2;
                 } else {
@@ -101,12 +101,12 @@ public class ConstructorWithParametersWriter implements BeanByteCodeWriter {
                 }
             }
         }
-        codeVisitor.visitInsn(Constants.RETURN);
+        methodVisitor.visitInsn(Opcodes.RETURN);
         if (twoStackElementFieldsCount > 0) {
-            codeVisitor.visitMaxs(3 + stackSizeForParentConstructorCall, allFields.size() + 1
+            methodVisitor.visitMaxs(3 + stackSizeForParentConstructorCall, allFields.size() + 1
                     + twoStackElementFieldsCount);
         } else {
-            codeVisitor.visitMaxs(2 + stackSizeForParentConstructorCall, allFields.size() + 1);
+            methodVisitor.visitMaxs(2 + stackSizeForParentConstructorCall, allFields.size() + 1);
         }
         
     }

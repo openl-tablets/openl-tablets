@@ -7,7 +7,7 @@ import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.impl.component.ComponentOpenClass.GetOpenClass;
 import org.openl.binding.impl.component.ComponentOpenClass.ThisField;
@@ -27,8 +27,8 @@ import org.openl.types.java.OpenClassHelper;
  */
 public class RulesFactory {
 
-    private static final int PUBLIC_ABSTRACT_INTERFACE = Constants.ACC_PUBLIC + Constants.ACC_ABSTRACT + Constants.ACC_INTERFACE;
-    private static final int PUBLIC_ABSTRACT = Constants.ACC_PUBLIC + Constants.ACC_ABSTRACT;
+    private static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
+    private static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
     private static final String JAVA_LANG_OBJECT = "java/lang/Object";
 
     /**
@@ -43,12 +43,11 @@ public class RulesFactory {
      */
     public static Class<?> generateInterface(String className, RuleInfo[] rules, ClassLoader classLoader) throws Exception {
 
-        ClassWriter classWriter = new ClassWriter(false);
+        ClassWriter classWriter = new ClassWriter(0);
 
         String name = className.replace('.', '/');
-        String sourceFileName = getClassFileName(name);
 
-        classWriter.visit(Constants.V1_5, PUBLIC_ABSTRACT_INTERFACE, name, JAVA_LANG_OBJECT, null, sourceFileName);
+        classWriter.visit(Opcodes.V1_5, PUBLIC_ABSTRACT_INTERFACE, name, null, JAVA_LANG_OBJECT, null);
 
         for (RuleInfo ruleInfo : rules) {
 
@@ -194,14 +193,6 @@ public class RulesFactory {
         builder.append(Type.getType(returnType));
 
         return builder.toString();
-    }
-
-    private static String getClassFileName(String name) {
-
-        String[] path = name.split("/");
-        String className = path[path.length - 1];
-
-        return String.format("%s.java", className);
     }
 
 }

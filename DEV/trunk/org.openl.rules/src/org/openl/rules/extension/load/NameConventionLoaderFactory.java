@@ -3,8 +3,6 @@ package org.openl.rules.extension.load;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.lang.xls.XlsLoader;
 
 public class NameConventionLoaderFactory implements ILoaderFactory {
     private static final Log LOG = LogFactory.getLog(NameConventionLoaderFactory.class);

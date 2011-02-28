@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -34,38 +34,38 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
     
     public void write(ClassWriter classWriter) {
 
-        CodeVisitor codeVisitor;
+        MethodVisitor methodVisitor;
         // creates a MethodWriter for the (implicit) constructor
-        codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC, "<init>", "()V", null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
         // pushes the 'this' variable
-        codeVisitor.visitVarInsn(Constants.ALOAD, 0);
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         // invokes the super class constructor
         if (parentClass == null) {
-            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
         } else {
-            codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL,
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
                 Type.getInternalName(parentClass),
                 "<init>",
                 "()V");
         }
 
-        int stackVariable = writeDefaultFieldValues(codeVisitor);
+        int stackVariable = writeDefaultFieldValues(methodVisitor);
 
-        codeVisitor.visitInsn(Constants.RETURN);
+        methodVisitor.visitInsn(Opcodes.RETURN);
 
-        codeVisitor.visitMaxs(stackVariable, 1);
+        methodVisitor.visitMaxs(stackVariable, 1);
     }
     
-    private int writeDefaultFieldValues(CodeVisitor codeVisitor) {
+    private int writeDefaultFieldValues(MethodVisitor methodVisitor) {
         int result = 1; // the default stack element variable value (if there is no any default values)
         
         if (isAnyDefaultvalue()) {
-            result = processWritingDefaultValues(codeVisitor);
+            result = processWritingDefaultValues(methodVisitor);
         } 
         return result;
     }
     
-    private int processWritingDefaultValues(CodeVisitor codeVisitor) {
+    private int processWritingDefaultValues(MethodVisitor methodVisitor) {
         int stackVariable = 2; // if there is any default value, stack trace variable value will be 2.
         
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
@@ -73,26 +73,26 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
             Object defaultValue = fieldType.getDefaultValue();
             
             if (defaultValue != null) {
-                codeVisitor.visitVarInsn(Constants.ALOAD, 0);
+                methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 
                 if (isPrimitive(fieldType)) {
                     int stackVariableAfterPrimitive = stackVariable;
                     TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldType);
                     if (typeWriter != null) {
-                        stackVariableAfterPrimitive = typeWriter.writeFieldValue(codeVisitor, fieldType);
+                        stackVariableAfterPrimitive = typeWriter.writeFieldValue(methodVisitor, fieldType);
                     }
                     if (stackVariable < 5) {
                         stackVariable = stackVariableAfterPrimitive;
                     }                    
                 } else if  (isTypesEquals(String.class, fieldType)){
                     // write String fields
-                    codeVisitor.visitLdcInsn(defaultValue);
+                    methodVisitor.visitLdcInsn(defaultValue);
                 } else {
                     TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(Object.class);
-                    stackVariable = typeWriter.writeFieldValue(codeVisitor, fieldType);
+                    stackVariable = typeWriter.writeFieldValue(methodVisitor, fieldType);
                 }
                 String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldType);                
-                codeVisitor.visitFieldInsn(Constants.PUTFIELD, beanNameWithPackage, field.getKey(), fieldTypeName);
+                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, beanNameWithPackage, field.getKey(), fieldTypeName);
             }
         }
         return stackVariable;
