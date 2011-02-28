@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
@@ -48,25 +48,25 @@ public class GettersAndSettersWriter implements BeanByteCodeWriter {
      * @param field
      */
     private void generateSetter(String beanNameWithPackage, ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {
-        CodeVisitor codeVisitor;
+        MethodVisitor methodVisitor;
         String fieldName = field.getKey();
         FieldDescription fieldType = field.getValue();        
         String setterName = StringTool.getSetterName(field.getKey());
         
-        codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC,  setterName, String.format("(%s)V", 
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  setterName, String.format("(%s)V", 
             ByteCodeGeneratorHelper.getJavaType(fieldType)), null, null);
-        codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-        codeVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), 1);
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), 1);
         
-        codeVisitor.visitFieldInsn(Constants.PUTFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
-        codeVisitor.visitInsn(Constants.RETURN);
+        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+        methodVisitor.visitInsn(Opcodes.RETURN);
         
         // long and double types are the biggest ones, so they use a maximum of three stack  
         // elements and three local variables for setter method.
         if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
-            codeVisitor.visitMaxs(3, 3);
+            methodVisitor.visitMaxs(3, 3);
         } else {
-            codeVisitor.visitMaxs(2, 2);
+            methodVisitor.visitMaxs(2, 2);
         }
     }
     
@@ -78,23 +78,23 @@ public class GettersAndSettersWriter implements BeanByteCodeWriter {
      * @param field
      */
     private void generateGetter(String beanNameWithPackage, ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {
-        CodeVisitor codeVisitor;
+        MethodVisitor methodVisitor;
         String fieldName = field.getKey();
         FieldDescription fieldType = field.getValue();
         String getterName = StringTool.getGetterName(fieldName);
         
-        codeVisitor = classWriter.visitMethod(Constants.ACC_PUBLIC,  getterName, String.format("()%s",
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, String.format("()%s",
             ByteCodeGeneratorHelper.getJavaType(fieldType)), null, null);
-        codeVisitor.visitVarInsn(Constants.ALOAD, 0);
-        codeVisitor.visitFieldInsn(Constants.GETFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
-        codeVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType));
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType));
         
         // long and double types are the biggest ones, so they use a maximum of two stack  
         // elements and one local variable for getter method.
         if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
-            codeVisitor.visitMaxs(2, 1);
+            methodVisitor.visitMaxs(2, 1);
         } else {
-            codeVisitor.visitMaxs(1, 1);
+            methodVisitor.visitMaxs(1, 1);
         }
     }
 

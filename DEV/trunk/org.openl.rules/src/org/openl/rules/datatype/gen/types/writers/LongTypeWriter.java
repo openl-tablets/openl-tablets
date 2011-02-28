@@ -1,21 +1,21 @@
 package org.openl.rules.datatype.gen.types.writers;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public class LongTypeWriter implements TypeWriter {
 
     public int getConstantForVarInsn() {
-        return Constants.LLOAD;
+        return Opcodes.LLOAD;
     }
 
     public int getConstantForReturn() {
-        return Constants.LRETURN;
+        return Opcodes.LRETURN;
     }
  
-    public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
-        codeVisitor.visitLdcInsn(fieldType.getDefaultValue());
+    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
+        methodVisitor.visitLdcInsn(fieldType.getDefaultValue());
         return 3;
     }
 

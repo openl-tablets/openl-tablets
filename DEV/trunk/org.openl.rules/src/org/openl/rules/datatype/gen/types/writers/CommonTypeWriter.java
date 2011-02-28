@@ -1,7 +1,7 @@
 package org.openl.rules.datatype.gen.types.writers;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 /**
@@ -13,14 +13,14 @@ import org.openl.rules.datatype.gen.FieldDescription;
 public class CommonTypeWriter implements TypeWriter {
 
     public int getConstantForReturn() {
-        return Constants.IRETURN;
+        return Opcodes.IRETURN;
     }
 
     public int getConstantForVarInsn() {
-        return Constants.ILOAD;
+        return Opcodes.ILOAD;
     }
 
-    public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
+    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         throw new UnsupportedOperationException("This operation must be overloaded in childs");
     }
 }

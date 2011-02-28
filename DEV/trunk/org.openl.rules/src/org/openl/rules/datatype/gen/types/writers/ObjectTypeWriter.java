@@ -1,28 +1,28 @@
 package org.openl.rules.datatype.gen.types.writers;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public class ObjectTypeWriter implements TypeWriter {
 
     public int getConstantForVarInsn() {        
-        return Constants.ALOAD;
+        return Opcodes.ALOAD;
     }
 
     public int getConstantForReturn() {
-        return Constants.ARETURN;
+        return Opcodes.ARETURN;
     }
 
-    public int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType) {
+    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         // try to process object field with String constructor.
         Class<?> fieldClass = FieldDescription.getJavaClass(fieldType);
         String fieldinternalName = Type.getInternalName(fieldClass);
-        codeVisitor.visitTypeInsn(Constants.NEW, fieldinternalName); 
-        codeVisitor.visitInsn(Constants.DUP);
-        codeVisitor.visitLdcInsn(fieldType.getDefaultValueAsString());
-        codeVisitor.visitMethodInsn(Constants.INVOKESPECIAL, fieldinternalName, "<init>", 
+        methodVisitor.visitTypeInsn(Opcodes.NEW, fieldinternalName); 
+        methodVisitor.visitInsn(Opcodes.DUP);
+        methodVisitor.visitLdcInsn(fieldType.getDefaultValueAsString());
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, fieldinternalName, "<init>", 
             "(Ljava/lang/String;)V"); 
         return 5;
     }

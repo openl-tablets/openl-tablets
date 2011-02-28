@@ -1,6 +1,6 @@
 package org.openl.rules.datatype.gen.types.writers;
 
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public interface TypeWriter {
@@ -9,6 +9,6 @@ public interface TypeWriter {
     
     int getConstantForReturn();
 
-    int writeFieldValue(CodeVisitor codeVisitor, FieldDescription fieldType);
+    int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType);
 
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
@@ -29,7 +29,7 @@ public class PrivateFieldsWriter implements BeanByteCodeWriter {
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String,  FieldDescription> field : beanFields.entrySet()) {
           String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(field.getValue());          
-          classWriter.visitField(Constants.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
+          classWriter.visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
         }
     }
 

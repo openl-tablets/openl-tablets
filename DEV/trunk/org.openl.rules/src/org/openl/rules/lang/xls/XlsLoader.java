@@ -53,8 +53,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
 
-import com.sun.swing.internal.plaf.metal.resources.metal;
-
 /**
  * @author snshor
  * 
