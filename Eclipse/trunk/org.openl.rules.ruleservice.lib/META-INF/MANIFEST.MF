@@ -6,8 +6,8 @@ Bundle-Version: 5.7.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: 
- lib/asm-1.5.3.jar,
- lib/cglib-nodep-2.1_3.jar
+ lib/cglib-nodep-2.1_3.jar,
+ lib/asm-3.3.jar
 Export-Package: 
  net.sf.cglib.asm,
  net.sf.cglib.asm.attrs,
@@ -19,6 +19,7 @@ Export-Package:
  net.sf.cglib.transform.hook,
  net.sf.cglib.transform.impl,
  net.sf.cglib.util,
- org.objectweb.asm
+ org.objectweb.asm,
+ org.objectweb.asm.signature
 Require-Bundle: org.openl.rules;visibility:=reexport
 

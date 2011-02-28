@@ -110,6 +110,12 @@
         <groupId>org.jgrapht</groupId>
 		<artifactId>jgrapht-jdk1.5</artifactId>
     </dependency>
+
+    <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
