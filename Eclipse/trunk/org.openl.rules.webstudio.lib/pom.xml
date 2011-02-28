@@ -44,7 +44,7 @@
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
               <excludeGroupIds>org.openl,org.openl.rules,org.apache.poi</excludeGroupIds>
-              <excludeArtifactIds>junit,servlet-api,jsp-api,org.openl.lib</excludeArtifactIds>
+              <excludeArtifactIds>junit,servlet-api,jsp-api,org.openl.lib,joda-time</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
               <type>jar</type>
@@ -93,11 +93,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
     </dependency>
@@ -108,8 +103,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
     </dependency>
 
     <dependency>
@@ -147,40 +142,21 @@
       <artifactId>myfaces-api</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-    </dependency>
+    <!-- Hibernate -->
 
-    <!-- JPA(Hibernate) related -->
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-commons-annotations</artifactId>
+      <artifactId>hibernate-core</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-ehcache</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>ejb3-persistence</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
+      <artifactId>hibernate-validator</artifactId>
     </dependency>
 
     <dependency>
@@ -188,10 +164,7 @@
       <artifactId>dbunit</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
+    <!-- String -->
 
     <dependency>
       <groupId>org.springframework</groupId>
@@ -239,18 +212,8 @@
     </dependency>
 
     <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>edu.stanford.ejalbert</groupId>
       <artifactId>BrowserLauncher</artifactId>
-    </dependency>
-     
-    <dependency>
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
     </dependency>
 
     <dependency>
@@ -279,25 +242,30 @@
     </dependency>
 
     <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency>
-    
+
     <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-	  <artifactId>xstream</artifactId>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
     </dependency>
-        
+
+    <dependency>
+        <groupId>concurrent</groupId>
+        <artifactId>concurrent</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>javassist</groupId>
+        <artifactId>javassist</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
