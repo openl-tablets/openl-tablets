@@ -57,7 +57,7 @@ public class TreeProject extends TreeFolder {
 
             if (lock != null) {
                 if (userProject.isLockedByMe()) {
-                    return "Locked by you. Plese close this project.";
+                    return "Locked by you. Please close this project.";
                 } else {
                     return "Locked by " + lock.getLockedBy().getUserName();
                 }
