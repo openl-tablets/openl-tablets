@@ -60,7 +60,7 @@ public class DbUnitDatabasePopulator implements InitializingBean {
         }
     }
 
-    private DatabaseConnection createDbUnitConnection(Connection connection) {
+    private DatabaseConnection createDbUnitConnection(Connection connection) throws DatabaseUnitException {
         DatabaseConnection databaseConnection;
         if (!StringUtils.isEmpty(dbSchema)) {
             databaseConnection = new DatabaseConnection(connection, dbSchema);

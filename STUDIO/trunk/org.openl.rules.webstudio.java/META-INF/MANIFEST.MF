@@ -11,10 +11,10 @@ Require-Bundle: org.openl.rules.tomcat.lib;visibility:=reexport,
  org.openl.rules.workspace;visibility:=reexport,
  org.openl.commons.web;visibility:=reexport,
  org.openl.rules.security.standalone;visibility:=reexport,
- org.openl.rules.diff;visibility:=reexport,
  org.openl.rules.webstudio.lib;visibility:=reexport,
  org.openl.rules.tableeditor,
- org.openl.rules.project;visibility:=reexport
+ org.openl.rules.project;visibility:=reexport,
+ org.openl.rules.diff
 Export-Package: org.openl.rules.ui,
  org.openl.rules.webstudio.repository,
  org.openl.rules.webstudio.repository.dependency,
