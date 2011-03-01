@@ -257,10 +257,6 @@ public class XlsCellStyle2 implements ICellStyle {
             }
             color = new short[] {
                     (short) (255 - rgb[0] & 0xFF), (short) (255 - rgb[1] & 0xFF),(short)(255 - rgb[2] & 0xFF)};
-            if (tint == 0 &&
-                color[0] == 255 && color[1] == 255 && color[2] == 255) {
-                    color = new short[] {0, 0, 0}; //black
-            }
         }
 
         if (tint == 0) {
