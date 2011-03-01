@@ -38,7 +38,8 @@ public abstract class ArrayOpenClass extends AOpenClass {
     protected Map<String, IOpenField> fieldMap() {
         return fieldMap;
     }
-
+    
+    @Override
     public IOpenClass getComponentClass() {
         return componentClass;
     }

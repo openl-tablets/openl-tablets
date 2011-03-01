@@ -289,7 +289,7 @@ public class JavaOpenClass extends AOpenClass {
     public boolean isAbstract() {
         return Modifier.isAbstract(instanceClass.getModifiers());
     }
-
+    
     public boolean isAssignableFrom(Class<?> c) {
         return instanceClass.isAssignableFrom(c);
     }
@@ -353,6 +353,14 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public Object nullObject() {
+        return null;
+    }
+    
+    @Override
+    public IOpenClass getComponentClass() {        
+        if (isArray()) {
+            return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
+        }
         return null;
     }
 

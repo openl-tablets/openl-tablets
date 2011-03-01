@@ -61,28 +61,8 @@ public class IdentifierBinder extends ANodeBinder {
 
         try {
             String fieldName = ((IdentifierNode) node).getIdentifier();
-            IOpenField field = bindingContext.findFieldFor(target.getType(), fieldName, false);
-
-            if (field == null) {
-                String message = String.format("Field not found: '%s'", fieldName);
-                BindHelper.processError(message, node, bindingContext, false);
-
-                return new ErrorBoundNode(node);
-            }
-
-            if (target.isStaticTarget() != field.isStatic()) {
-
-                if (field.isStatic()) {
-                    BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
-                } else {
-                    BindHelper.processError("Access non-static field from a static object", node, bindingContext);
-
-                    return new ErrorBoundNode(node);
-                }
-            }
-
-            return new FieldBoundNode(node, field, target);
-
+            
+            return BindHelper.bindAsField(fieldName, node, bindingContext, target);
         } catch (Throwable t) {
             BindHelper.processError(node, t, bindingContext);
 

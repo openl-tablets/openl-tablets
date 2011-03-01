@@ -15,7 +15,7 @@ import org.openl.syntax.ISyntaxNode;
  */
 public abstract class ATargetBoundNode extends ABoundNode {
 
-    protected IBoundNode targetNode;
+    private IBoundNode targetNode;
 
     /**
      * @param syntaxNode

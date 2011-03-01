@@ -7,13 +7,11 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.syntax.impl.BinaryNode;
 
 /**
  * @author snshor
@@ -36,21 +34,36 @@ public class MethodNodeBinder extends ANodeBinder {
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
 
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        IOpenClass[] types = getTypes(children);
+        IOpenClass[] parameterTypes = getTypes(children);
 
         IMethodCaller methodCaller = bindingContext
-                                                   .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, types);
-
+                                                   .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+        
+        // can`t find method with given name and parameters
         if (methodCaller == null) {
+            
+            // try to bind given method if its single parameter is an array, considering that there is a method with 
+            // equal name but for component type of array (e.g. the given method is 'double[] calculate(Premium[] premium)' 
+            // try to bind it as 'double calculate(Premium premium)' and call several times on runtime).
+            //
+            IBoundNode arrayParametersMethod = null;
+            if (parameterTypes.length == 1 && parameterTypes[0].isArray()) {
+                arrayParametersMethod = bindArrayParametersMethod(methodName, parameterTypes[0], bindingContext, node, children);
+            }
+            if (arrayParametersMethod != null) {
+                return arrayParametersMethod;
+            }            
+            
             // try to bind method call Name(driver) as driver.name;
+            //
             if (childrenCount == 2) {
-                IBoundNode accessorChain = bindAsAccessorChain(node.getModule(), bindingContext, methodName, node.getChild(0));
+                IBoundNode accessorChain = new FieldAccessMethodBinder().bind(node, bindingContext);
                 if (accessorChain != null) {
                     return accessorChain;
                 }
             }
 
-            String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, types));
+            String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
             BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
@@ -59,32 +72,26 @@ public class MethodNodeBinder extends ANodeBinder {
         return new MethodBoundNode(node, children, methodCaller);
     }
     
-    /**
-     * 
-     * @param sourceCodeModule
-     * @param bindingContext
-     * @param methodName
-     * @param leftSide
-     * @return
-     */
-    private IBoundNode bindAsAccessorChain(IOpenSourceCodeModule sourceCodeModule, IBindingContext bindingContext, String methodName, ISyntaxNode leftSide) {
-        IdentifierNode rightNode = createIdentifierNode(sourceCodeModule, methodName);
+    private IBoundNode bindArrayParametersMethod(String methodName, IOpenClass parameterType, 
+            IBindingContext bindingContext, ISyntaxNode node, IBoundNode[] children) {
+        // gets the component type of an array parameter type.
+        //
+        IOpenClass componentType = parameterType.getComponentClass();
         
-        ISyntaxNode dotNode = new BinaryNode("chain.suffix.dot.identifier", null, leftSide, rightNode, sourceCodeModule);
-
-        return bindChildNode(dotNode, bindingContext);
-    }
-    
-    /**
-     * 
-     * @param sourceCodeModule
-     * @param methodName
-     * @return
-     */
-    private IdentifierNode createIdentifierNode(IOpenSourceCodeModule sourceCodeModule, String methodName) {
-        String identifier = String.format("%s%s", methodName.substring(0, 1).toLowerCase(), methodName.substring(1));
+        // find method with given name and component type parameter.
+        //
+        IMethodCaller singleParameterMethodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, new IOpenClass[]{componentType});
         
-        return new IdentifierNode("identifier", null, identifier, sourceCodeModule);        
+        // if can`t find, return null.
+        //
+        if (singleParameterMethodCaller == null) {
+            return null;
+        }
+        
+        // bound node that is going to call the single parameter method by several times on runtime and return an array 
+        // of results.
+        //
+        return new MultiCallMethodBoundNode(node, children, singleParameterMethodCaller);
     }
 
     @Override

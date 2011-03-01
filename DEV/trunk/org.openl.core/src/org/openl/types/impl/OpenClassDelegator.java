@@ -128,6 +128,10 @@ public class OpenClassDelegator implements IOpenClass {
     public boolean isArray() {
         return baseClass.isArray();
     }
+    
+    public IOpenClass getComponentClass() {        
+        return baseClass.getComponentClass();
+    }
 
     /**
      * @deprecated use {@link #getMethods()} instead.

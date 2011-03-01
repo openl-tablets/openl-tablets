@@ -9,6 +9,8 @@ import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 
 /**
+ * Binder for following lexical constructions: driver.name; name of the driver. 
+ * 
  * @author snshor
  */
 public class BExChainSuffixBinder extends ANodeBinder {
@@ -26,6 +28,7 @@ public class BExChainSuffixBinder extends ANodeBinder {
         }
 
         IBoundNode target = bindChildNode(node.getChild(targetInd), bindingContext);
+        
         IBoundNode result = bindTargetNode(node.getChild(chainInd), bindingContext, target);
 
         return result;
