@@ -102,9 +102,10 @@ public class XlsCellStyle2 implements ICellStyle {
 
         // If color from the theme palette
         if (setTheme
-                // color.getRgb() for fonts returns null for colors from the theme palette
+                // color.getRgb() for fonts and borders returns null for colors from the theme palette
                 // https://issues.apache.org/bugzilla/show_bug.cgi?id=50784
-                // TODO Remove when POI team will fix this issue
+                // https://issues.apache.org/bugzilla/show_bug.cgi?id=50846
+                // TODO Remove when POI team will fix these issues
                 && (rgb == null
                         // TODO Remove this when POI team will fix getting tints of brown and blue colors
                         // (3 and 4 columns from theme palette)
