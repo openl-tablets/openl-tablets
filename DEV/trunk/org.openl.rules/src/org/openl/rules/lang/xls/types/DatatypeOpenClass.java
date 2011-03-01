@@ -126,7 +126,14 @@ public class DatatypeOpenClass extends ADynamicClass {
         } 
         return instance;
     }
-
+    
+    @Override
+    public IOpenClass getComponentClass() {        
+        if (isArray()) {
+            return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
+        }
+        return null;
+    }
 
     /**
      * Constructor with all parameters initialization.

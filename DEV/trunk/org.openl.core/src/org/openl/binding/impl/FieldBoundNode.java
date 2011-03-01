@@ -31,7 +31,7 @@ public class FieldBoundNode extends ATargetBoundNode {
 
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
+        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
 
         boundField.set(target, value, env);
     }
@@ -47,7 +47,7 @@ public class FieldBoundNode extends ATargetBoundNode {
     //
     
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
+        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
 
         return boundField.get(target, env);
     }

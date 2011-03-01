@@ -273,6 +273,12 @@ public abstract class AOpenClass implements IOpenClass {
         }
         return false;
     }
+    
+    public IOpenClass getComponentClass() {
+        // Default implementation. Open classes that can be represented as arrays, should override this method.
+        //
+        return null;
+    }
 
     private void makeLowerCaseMaps() {
         uniqueLowerCaseFieldMap = new HashMap<String, IOpenField>();

@@ -36,7 +36,7 @@ public class MethodBoundNode extends ATargetBoundNode {
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
 
         try {
-            Object target = targetNode == null ? env.getThis() : targetNode.evaluate(env);
+            Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
             Object[] pars = evaluateChildren(env);
             
             return boundMethod.invoke(target, pars, env);
@@ -69,6 +69,10 @@ public class MethodBoundNode extends ATargetBoundNode {
     @Override
     public boolean isLiteralExpressionParent() {
         return boundMethod.getMethod().isStatic() && hasLiteralReturnType(boundMethod.getMethod().getType());
+    }
+    
+    protected IMethodCaller getMethodCaller() {
+        return boundMethod;
     }
 
     private boolean hasLiteralReturnType(IOpenClass type) {

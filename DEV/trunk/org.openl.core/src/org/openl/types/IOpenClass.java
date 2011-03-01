@@ -140,6 +140,18 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
     boolean isArray();
     
     /**
+     * Returns the <code>IOpenClass</code> representing the component type of an
+     * array.  If this class does not represent an array class this method
+     * returns null.
+     *
+     * @return the <code>IOpenClass</code> representing the component type of this
+     * class if this class is an array
+     * 
+     * @see {@link IOpenClass#isArray()}
+     */
+    IOpenClass getComponentClass();
+    
+    /**
      * @deprecated use {@link #getMethods()} instead.
      */
     Iterator<IOpenMethod> methods();
@@ -191,4 +203,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	 * @return map of internal types 
 	 */
 	Map<String, IOpenClass> getTypes();
+	
+	
 }

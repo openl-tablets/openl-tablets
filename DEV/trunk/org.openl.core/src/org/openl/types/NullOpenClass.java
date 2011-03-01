@@ -123,6 +123,10 @@ public class NullOpenClass implements IOpenClass {
     public boolean isArray() {
         return false;
     }
+    
+    public IOpenClass getComponentClass() {        
+        return null;
+    }
 
     public boolean isAssignableFrom(Class<?> c) {
         return true;
