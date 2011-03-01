@@ -90,14 +90,19 @@ public class XlsCellStyle2 implements ICellStyle {
             return null;
         }
 
-        byte[] rgb = color.getRgbWithTint();
+        byte[] rgb = null;
+        // The value to apply to RGB to make it lighter or darker
+        double tint = color.getTint();
+
+        if (tint != 0) {
+            rgb = color.getRgbWithTint();
+        } else {
+            rgb = color.getRgb();
+        }
 
         // TODO Remove this when POI will fix getting tints of brown and blue colors
         // https://issues.apache.org/bugzilla/show_bug.cgi?id=50787
         // https://issues.apache.org/bugzilla/show_bug.cgi?id=50784
-
-        // The value to apply to RGB to make it lighter or darker
-        double tint = color.getTint();
         int themeIndex = color.getTheme();
 
         if (rgb != null && themeIndex >= 2 && themeIndex < 4) {  // tints of brown and blue colors
