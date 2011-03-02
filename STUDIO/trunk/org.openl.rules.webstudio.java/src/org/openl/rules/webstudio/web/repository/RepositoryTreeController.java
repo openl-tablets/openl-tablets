@@ -145,7 +145,7 @@ public class RepositoryTreeController {
             repositoryTreeState.getSelectedProject().checkIn(major, minor);
             repositoryTreeState.refreshSelectedNode();
         } catch (ProjectException e) {
-            String msg = "Failed to check in project.";
+            String msg = e.getMessage();
             LOG.error(msg, e);
             FacesUtils.addErrorMessage(msg);
         }

@@ -34,6 +34,7 @@ import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -160,6 +161,7 @@ public class WebStudio {
     }
 
     public void executeOperation(String operation, HttpSession session) {
+        
         if ("checkIn".equals(operation)) {
             try {
                 RulesProject project = getCurrentProject(session);
@@ -169,6 +171,13 @@ public class WebStudio {
                 project.checkIn();
             } catch (Exception e) {
                 LOG.error("Can not check in!", e);
+                try {
+                    String redirectLink = String.format("%s/faces/main.xhtml?error=%s", FacesUtils.getContextPath(),
+                            e.getMessage());
+                    FacesUtils.redirect(redirectLink);
+                } catch (IOException e1) {
+                    LOG.error("Can`t redirect to with message page", e);
+                }
             }
         }
         if ("checkOut".equals(operation)) {
@@ -181,6 +190,13 @@ public class WebStudio {
                 reset(ReloadType.FORCED);
             } catch (Exception e) {
                 LOG.error("Can not check out!", e);
+                try {
+                    String redirectLink = String.format("%s/faces/main.xhtml?error=%s", FacesUtils.getContextPath(),
+                            e.getMessage());
+                    FacesUtils.redirect(redirectLink);
+                } catch (IOException e1) {
+                    LOG.error("Can`t redirect to with message page", e);
+                }
             }
         }
     }

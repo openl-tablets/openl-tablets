@@ -4,6 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
+
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -13,6 +20,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface ArtefactAPI{
     boolean isModified();
@@ -77,4 +85,23 @@ public interface ArtefactAPI{
 
     Map<String, Object> getProps();
     void setProps(Map<String, Object> props) throws PropertyException;
+    
+    UserTransaction createTransaction() throws RRepositoryException;
+    
+    static UserTransaction NO_TRANSACTION = new UserTransaction() {
+        public void setTransactionTimeout(int arg0) throws SystemException {
+        }
+        public void setRollbackOnly() throws IllegalStateException, SystemException {
+        }
+        public void rollback() throws IllegalStateException, SecurityException, SystemException {
+        }
+        public int getStatus() throws SystemException {
+            return 0;
+        }
+        public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
+                SecurityException, IllegalStateException, SystemException {
+        }
+        public void begin() throws NotSupportedException, SystemException {
+        }
+    };
 }

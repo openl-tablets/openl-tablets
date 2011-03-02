@@ -64,7 +64,7 @@ public class RulesProject extends UserWorkspaceProject {
         if (local != null) {
             local.delete(user);
         }
-        if (isCheckedOut()) {
+        if (isLockedByUser(user)) {
             unlock(user);
         }
         if (!isLocalOnly()) {

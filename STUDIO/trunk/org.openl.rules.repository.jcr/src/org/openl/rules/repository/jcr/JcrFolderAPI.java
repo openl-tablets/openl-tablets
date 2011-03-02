@@ -56,7 +56,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
             file.setContent(content);
             return file;
         } catch (RepositoryException e) {
-            throw new ProjectException("Failed to Create File.", e);
+            throw new ProjectException(String.format("Failed to Create File \"%s\". Reason: %s", name, e.getMessage()), e);
         }
     }
 
@@ -64,7 +64,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         try {
             return JcrFolderAPI.createFolder(node(), name, getArtefactPath().withSegment(name));
         } catch (RepositoryException e) {
-            throw new ProjectException("Failed to Create Sub Folder.", e);
+            throw new ProjectException(String.format("Failed to Create Sub Folder \"%s\". Reason: %s", name, e.getMessage()), e);
         }
     }
 

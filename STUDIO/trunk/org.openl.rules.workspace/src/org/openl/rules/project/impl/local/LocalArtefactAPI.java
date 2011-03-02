@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.UserTransaction;
+
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -18,6 +20,7 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -226,5 +229,9 @@ public class LocalArtefactAPI implements ArtefactAPI {
             return true;
         }
         return modified || creationDate != source.lastModified();
+    }
+
+    public UserTransaction createTransaction() throws RRepositoryException {
+        return NO_TRANSACTION;
     }
 }
