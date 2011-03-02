@@ -5,8 +5,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.RepositoryException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDependency;
@@ -18,8 +25,14 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.jcr.JackRabbitUserTransaction;
+import org.openl.rules.repository.jcr.JcrEntityAPI;
+import org.springframework.transaction.annotation.Transactional;
 
 public class AProject extends AProjectFolder {
+    private static Log LOG = LogFactory.getLog(AProject.class);
+    
     public AProject(FolderAPI api) {
         super(api, null);
     }
@@ -37,8 +50,7 @@ public class AProject extends AProjectFolder {
                 content = ((AProjectResource) getArtefact(ArtefactProperties.DEPENDENCIES_FILE)).getContent();
                 dependencies = ProjectDependencyHelper.deserialize(content);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.warn("Could not load dependencies", e);
             } finally {
                 IOUtils.closeQuietly(content);
             }
@@ -63,8 +75,7 @@ public class AProject extends AProjectFolder {
                             new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
                 }
             } catch (Exception e) {
-                // TODO
-                e.printStackTrace();
+                LOG.warn("Could not set dependencies", e);
             }
         }
     }
@@ -133,19 +144,60 @@ public class AProject extends AProjectFolder {
         }
     }
 
+    protected UserTransaction beginTransaction() throws ProjectException {
+        UserTransaction transaction = getAPI().createTransaction();
+        try {
+            transaction.begin();
+        } catch (Exception e) {
+            throw new ProjectException("Could not start tranaction.", e);
+        }
+        return transaction;
+    }
+
+    protected void rollbackTransaction(UserTransaction transaction) {
+        try {
+            transaction.rollback();
+        } catch (Exception e1) {
+            LOG.error("Could not roll back changes.", e1);
+        }
+    }
+
+    protected void finalizeTransaction(UserTransaction transaction) throws ProjectException {
+        try {
+            transaction.commit();
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw new ProjectException("Could not commit tranaction.", e);
+        }
+    }
+
     @Override
     public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         AProject project = (AProject) artefact;
-        setDependencies(project.getDependencies());
-        super.update(artefact, user, major, minor);
+        UserTransaction transaction = beginTransaction();
+        try {
+            setDependencies(project.getDependencies());
+            super.update(artefact, user, major, minor);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw new ProjectException("Failed to check-in project: " + e.getMessage(), e);
+        }
+        finalizeTransaction(transaction);
     }
-    
+
     @Override
     public void smartUpdate(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         if (artefact.isModified()) {
             AProject project = (AProject) artefact;
-            setDependencies(project.getDependencies());
-            super.smartUpdate(artefact, user, major, minor);
+            UserTransaction transaction = beginTransaction();
+            try {
+                setDependencies(project.getDependencies());
+                super.smartUpdate(artefact, user, major, minor);
+            } catch (Exception e) {
+                rollbackTransaction(transaction);
+                throw new ProjectException("Failed to check-in project: " + e.getMessage(), e);
+            }
+            finalizeTransaction(transaction);
         }
     }
     

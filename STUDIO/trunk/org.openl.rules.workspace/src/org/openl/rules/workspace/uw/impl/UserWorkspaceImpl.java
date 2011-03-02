@@ -329,8 +329,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public void uploadLocalProject(String name) throws ProjectException {
         createProject(name);
+        designTimeRepository.getProject(name).lock(user);
         designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user, 0, 0);
         AProject createdProject = getProject(name);
+        designTimeRepository.getProject(name).unlock(user);
         createdProject.checkOut(user);
     }
 }

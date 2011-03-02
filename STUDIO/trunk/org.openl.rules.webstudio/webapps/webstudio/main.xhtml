@@ -2,9 +2,16 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
 
-<html xmlns:c="http://java.sun.com/jstl/core">
+<html xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:h="http://java.sun.com/jsf/html">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <h:panelGroup rendered="#{not empty param.error}">
+        <script type="text/javascript"> 
+            alert('#{param.error}'); 
+        </script>  
+    </h:panelGroup>
 
     <head>
         <title>OpenL Web Studio</title>

@@ -14,6 +14,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -380,5 +381,14 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     public boolean isModified() {
         //FIXME always false
         return node().isModified();
+    }
+
+    public UserTransaction createTransaction() throws RRepositoryException {
+        try {
+            return new JackRabbitUserTransaction(node().getSession());
+        } catch (Exception e) {
+            LOG.warn("Failed to create jackrabbit transaction.", e);
+            return NO_TRANSACTION;
+        }
     }
 }
