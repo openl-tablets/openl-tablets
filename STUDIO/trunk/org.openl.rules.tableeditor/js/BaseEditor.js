@@ -30,9 +30,7 @@ var BaseEditor = Class.create({
 
             this.style = style;
 
-            // Save initial value
-            this.initialValue = initialValue ? initialValue
-                    : AjaxHelper.unescapeHTML(this.parentElement.innerHTML.replace(/<br>/ig, "\n")).strip();
+            this.initialValue = initialValue;
 
             this.editor_initialize(params);
             this.input.id = this.getId();

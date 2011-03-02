@@ -383,7 +383,7 @@ var TableEditor = Class.create({
         if (editorName == 'multiline') {
         	var input = this.editor.getInputElement();
             var inputHeight = input.getHeight();
-            input.style.height = (inputHeight + 15) + 'px';
+            input.style.height = (inputHeight + 20) + 'px';
         }
 
         var availableEditors = this.getAvailableEditors(editorName);
