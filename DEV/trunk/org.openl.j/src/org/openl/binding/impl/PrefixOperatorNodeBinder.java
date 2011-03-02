@@ -4,6 +4,7 @@
 
 package org.openl.binding.impl;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
@@ -55,8 +56,9 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
             return new ErrorBoundNode(node);
         }
 
-        if (!methodCaller.getMethod().getType().equals(types[0])) {
+        IOpenClass methodType = methodCaller.getMethod().getType();
 
+        if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils.primitiveToWrapper(types[0].getInstanceClass())) {
             BindHelper.processError("Prefix operator must return the same type as an argument", node, bindingContext);
 
             return new ErrorBoundNode(node);

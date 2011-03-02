@@ -18,7 +18,8 @@ public enum NumberOperations {
     MAX("max"),    
     MIN("min"),
     ROUND("round"),
-    POW("pow");
+    POW("pow"),
+    ABS("abs");
     
     private String description;
     

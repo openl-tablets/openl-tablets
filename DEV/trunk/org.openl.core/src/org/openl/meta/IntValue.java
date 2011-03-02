@@ -218,11 +218,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return intValue1.getValue() != intValue2.getValue();
     }
 
-    public static IntValue negative(IntValue dv) {
-        IntValue neg = new IntValue(-dv.getValue());
-        neg.setMetaInfo(dv.getMetaInfo());
-
-        return neg;
+    public static IntValue negative(IntValue value) {
+        return multiply(value, new IntValue(-1));
     }
 
     public static IntValue pow(IntValue intValue1, IntValue intValue2) {
@@ -317,6 +314,21 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         this.value = value;
     }
 
+    public static IntValue abs(IntValue value) {
+        // evaluate result
+        IntValue result = new IntValue(Math.abs(value.getValue()));
+        // create instance with information about last operation
+        return new IntValue(result, NumberOperations.ABS.toString(), new IntValue[] { value });
+    }
+    
+    public static IntValue inc(IntValue value) {
+        return add(value, new IntValue(1));
+    }
+    
+    public static IntValue dec(IntValue value) {
+        return subtract(value, new IntValue(1));
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof IntValue) {
@@ -329,6 +341,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     @Override
     public int hashCode() {
         return ((Integer) value).hashCode();
+    }
+
+    public static IntValue positive(IntValue value) {
+        return value;
     }
 
 }

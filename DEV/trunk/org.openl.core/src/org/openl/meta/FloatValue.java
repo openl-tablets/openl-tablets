@@ -209,13 +209,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return floatValue1.getValue() != floatValue2.getValue();
     }
 
-    public static FloatValue negative(FloatValue dv) {
-        FloatValue neg = new FloatValue(-dv.getValue());
-        neg.setMetaInfo(dv.getMetaInfo());
-
-        return neg;
+    public static FloatValue negative(FloatValue value) {
+        return multiply(value, new FloatValue(-1F));
     }
-
+    
     public static FloatValue pow(FloatValue floatValue1, FloatValue floatValue2) {
         return new FloatValue(new FloatValue((long)Math.pow(floatValue1.getValue(), floatValue2.getValue())), 
             NumberOperations.POW.toString(), new FloatValue[] { floatValue1, floatValue2 });
@@ -299,6 +296,21 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return Float.compare(value, o.floatValue());
     }
     
+    public static FloatValue abs(FloatValue value) {
+        // evaluate result
+        FloatValue result = new FloatValue(Math.abs(value.getValue()));
+        // create instance with information about last operation
+        return new FloatValue(result, NumberOperations.ABS.toString(), new FloatValue[] { value });
+    }
+    
+    public static FloatValue inc(FloatValue value) {
+        return add(value, new FloatValue(1F));
+    }
+    
+    public static FloatValue dec(FloatValue value) {
+        return subtract(value, new FloatValue(1F));
+    }
+    
     public float getValue() {        
         return value;
     }
@@ -319,6 +331,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     @Override
     public int hashCode() {
         return ((Float) value).hashCode();
+    }
+
+    public static FloatValue positive(FloatValue value) {
+        return value;
     }
 
 }
