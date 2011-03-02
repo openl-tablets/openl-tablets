@@ -20,7 +20,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-//import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -502,16 +502,13 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     public void setCellComment(int col, int row, ICellComment comment) {
-        // setCellComment method of POI 3.7 corrupts workbook
-        // TODO Uncomment when POI team will fix this issue
-
-        /*Comment poiComment = null;
+        Comment poiComment = null;
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
 
         if (comment != null) {
             poiComment = ((XlsCellComment) comment).getXlxComment();
         }
-        poiCell.setCellComment(poiComment);*/
+        poiCell.setCellComment(poiComment);
     }
 
     /**
