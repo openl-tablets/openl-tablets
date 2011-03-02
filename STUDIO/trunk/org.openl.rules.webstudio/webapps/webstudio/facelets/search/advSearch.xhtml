@@ -188,18 +188,26 @@
 
 <h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
 </h:form></td>
-<c:if test="#{advancedSearch.showSearches}"><td class="search"><h:form>
-    <h2><u>Saved Searches</u></h2>
-    <ul class="search">
-      <c:forEach items="#{advancedSearch.savedSearches}" var="ss" varStatus="status">
-        <li>
-          <h:commandLink value="#{ss.name}" action="#{advancedSearch.applySearch}">
-            <f:param name="index" value="#{status.index}"/>
-          </h:commandLink>
-        </li>
-      </c:forEach>
-    </ul>
-</h:form></td></c:if>
+
+<td style="vertical-align: top">
+    <h:form id="savedSearches">
+        <c:if test="#{advancedSearch.showSearches}">
+        <div class="searchResults">
+            <h2><u>Saved Searches</u></h2>
+            <ul>
+            <c:forEach items="#{advancedSearch.savedSearches}" var="ss" varStatus="status">
+                <li>
+                    <h:commandLink value="#{ss.name}" action="#{advancedSearch.applySearch}">
+                        <f:param name="index" value="#{status.index}"/>
+                    </h:commandLink>
+                </li>
+            </c:forEach>
+            </ul>
+        </div>
+        </c:if>
+    </h:form>
+</td>
+
 </tr></table>
 
 <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
@@ -211,8 +219,9 @@
 <c:if test="#{advancedSearchRequest.searching}">
     <h:form id="saveAdvSearchForm">
         <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
-        <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
-     </h:form>
+        <a4j:commandLink value="Save this search" action="#{advancedSearch.save}" reRender="savedSearches"
+            onclick="if (!inputSearchName()) return false;" oncomplete="top.main.leftFrame.location.reload(true);" />
+    </h:form>
 
     <c:forEach items="#{advancedSearchRequest.searchResults}" var="table">
         <br />

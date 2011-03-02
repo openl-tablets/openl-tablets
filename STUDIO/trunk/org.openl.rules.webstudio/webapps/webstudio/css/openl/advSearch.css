@@ -8,19 +8,21 @@ select.search-group {
   font-size: 120%;
 }
 
-td.search {
+.searchResults {
   background-color:#cbdd34;
   vertical-align:top;
   padding:5px;
+  font-family: arial, sans-serif;
+  font-size: 90%;
 }
 
-ul.search {
+.searchResults ul {
   list-style:none;
   padding:0;
   margin:0;
 }
 
-.search li {
+.searchResults ul li {
   margin:5px;
   list-style:none;
 }
@@ -35,11 +37,6 @@ th.search {
   font-family: arial, sans-serif;
   font-size: 90%;
   color: #8B4513;
-}
-
-td.search {
-  font-family: arial, sans-serif;
-  font-size: 90%;
 }
 
 input.search-empty {
