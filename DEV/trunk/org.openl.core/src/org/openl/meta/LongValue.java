@@ -213,11 +213,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return lv1.getValue() != lv2.getValue();
     }
 
-    public static LongValue negative(LongValue dv) {
-        LongValue neg = new LongValue(-dv.getValue());
-        neg.setMetaInfo(dv.getMetaInfo());
-
-        return neg;
+    public static LongValue negative(LongValue value) {
+        return multiply(value, new LongValue(-1));
     }
 
     public static LongValue pow(LongValue lv1, LongValue lv2) {
@@ -325,4 +322,24 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public int hashCode() {
         return ((Long) value).hashCode();
     }
+    
+    public static LongValue abs(LongValue value) {
+        // evaluate result
+        LongValue result = new LongValue(Math.abs(value.getValue()));
+        // create instance with information about last operation
+        return new LongValue(result, NumberOperations.ABS.toString(), new LongValue[] { value });
+    }
+    
+    public static LongValue inc(LongValue value) {
+        return add(value, new LongValue(1));
+    }
+    
+    public static LongValue dec(LongValue value) {
+        return subtract(value, new LongValue(1));
+    }
+    
+    public static LongValue positive(LongValue value) {
+        return value;
+    }
+
 }

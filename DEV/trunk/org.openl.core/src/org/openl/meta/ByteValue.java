@@ -211,6 +211,25 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             new ByteValue[] { byteValue1, byteValue2 });
     }
 
+    public static ByteValue abs(ByteValue value) {
+        // evaluate result
+        ByteValue result = new ByteValue((byte) Math.abs(value.getValue()));
+        // create instance with information about last operation
+        return new ByteValue(result, NumberOperations.ABS.toString(), new ByteValue[] { value });
+    }
+
+    public static ByteValue inc(ByteValue value) {
+        return add(value, new ByteValue((byte) 1));
+    }
+    
+    public static ByteValue positive(ByteValue value) {
+        return value;
+    }
+    
+    public static ByteValue dec(ByteValue value) {
+        return subtract(value, new ByteValue((byte) 1));
+    }
+
     public static ByteValue multiply(ByteValue byteValue1, ByteValue byteValue2) {
         return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() * byteValue2.getValue()), 
             NumberOperations.MULTIPLY.toString(), true);
@@ -220,11 +239,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return byteValue1.getValue() != byteValue2.getValue();
     }
 
-    public static ByteValue negative(ByteValue dv) {
-        ByteValue neg = new ByteValue((byte)-dv.getValue());
-        neg.setMetaInfo(dv.getMetaInfo());
-
-        return neg;
+    public static ByteValue negative(ByteValue value) {
+        return multiply(value, new ByteValue((byte) -1));
     }
 
     public static ByteValue pow(ByteValue byteValue1, ByteValue byteValue2) {

@@ -244,13 +244,10 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return dv1.getValue() != dv2.getValue();
     }
 
-    public static DoubleValue negative(DoubleValue dv) {
-        DoubleValue neg = new DoubleValue(-dv.getValue());
-        neg.setMetaInfo(dv.getMetaInfo());
-
-        return neg;
+    public static DoubleValue negative(DoubleValue value) {
+        return multiply(value, new DoubleValue(-1D));
     }
-
+    
     public static DoubleValue pow(DoubleValue dv1, DoubleValue dv2) {
         return new DoubleValue(new DoubleValue(Math.pow(dv1.getValue(), dv2.getValue())), "pow", new DoubleValue[] { dv1, dv2 });
     }
@@ -369,6 +366,21 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public void setValue(double value) {
         this.value = value;
     }
+    
+    public static DoubleValue abs(DoubleValue value) {
+        // evaluate result
+        DoubleValue result = new DoubleValue(Math.abs(value.getValue()));
+        // create instance with information about last operation
+        return new DoubleValue(result, NumberOperations.ABS.toString(), new DoubleValue[] { value });
+    }
+    
+    public static DoubleValue inc(DoubleValue value) {
+        return add(value, new DoubleValue(1D));
+    }
+    
+    public static DoubleValue dec(DoubleValue value) {
+        return subtract(value, new DoubleValue(1D));
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -384,4 +396,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public int hashCode() {
         return ((Double) value).hashCode();
     }
+    
+    public static DoubleValue positive(DoubleValue value) {
+        return value;
+    }
+
 }
