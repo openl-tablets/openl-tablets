@@ -364,7 +364,12 @@ public class TableBuilder {
             	ICell cell = table.getCell(i, j);
                 int cellWidth = cell.getWidth();
                 int cellHeight = cell.getHeight();
-                Object cellValue = cell.getObjectValue();
+                Object cellValue = null;
+                if (cell.getFormula() != null) {
+                    cellValue = "=" + cell.getFormula();
+                } else {
+                    cellValue = cell.getObjectValue();
+                }
                 ICellStyle style = cell.getStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
             }
