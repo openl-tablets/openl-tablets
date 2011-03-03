@@ -138,20 +138,20 @@ public class ProductionRepositoryConvertor {
     private void copyDeployments(RProductionRepository repository) {
         try {
             for (String deploymentName : repository.getDeploymentNames()) {
-                copyDeployment(repository.getDeployment(deploymentName));
+                copyDeployment(repository.getDeployment(deploymentName), repository);
             }
         } catch (RRepositoryException e) {
             e.printStackTrace();
         }
     }
 
-    private void copyDeployment(RProductionDeployment deployment) {
+    private void copyDeployment(RProductionDeployment deployment, RProductionRepository repository) {
         try {
             Node node = NodeUtil.createNode(checkPath(JcrProductionRepository.DEPLOY_ROOT), deployment.getName(),
                     JcrNT.NT_APROJECT, true);
             checkPath(JcrProductionRepository.DEPLOY_ROOT).save();
-            JcrFolderAPI deploymentFolder = new JcrFolderAPI(node, new ArtefactPathImpl(
-                    new String[] { deployment.getName() }));
+            JcrFolderAPI deploymentFolder = new JcrFolderAPI(node, repository.getTransactionManager(),
+                    new ArtefactPathImpl(new String[] { deployment.getName() }));
             copyEntity(deployment, deploymentFolder);
             for (RProject project : deployment.getProjects()) {
                 copyProject(project, deploymentFolder);
@@ -165,7 +165,8 @@ public class ProductionRepositoryConvertor {
         try {
             Node node = NodeUtil.createNode(deploymentFolder.node(), project.getName(), JcrNT.NT_APROJECT, true);
             deploymentFolder.node().save();
-            JcrFolderAPI jcrProject = new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { project.getName() }));
+            JcrFolderAPI jcrProject = new JcrFolderAPI(node, deploymentFolder.getTransactionManager(),
+                    new ArtefactPathImpl(new String[] { project.getName() }));
             copyFolder(project, jcrProject);
             CommonUser user = system;
             RVersion version = project.getActiveVersion();

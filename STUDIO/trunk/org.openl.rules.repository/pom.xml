@@ -21,9 +21,15 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.commons</artifactId>
     </dependency>
+
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta</artifactId>
     </dependency>
   </dependencies>
 

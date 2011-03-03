@@ -9,6 +9,7 @@ import javax.jcr.RepositoryException;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -29,24 +30,25 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
      * @return newly created instance
      * @throws RepositoryException if fails
      */
-    protected static JcrFileAPI createFile(Node parentNode, String nodeName, ArtefactPath path)
+    protected static JcrFileAPI createFile(JcrFolderAPI parent, String nodeName, ArtefactPath path)
             throws RepositoryException {
+        Node parentNode = parent.node();
         Node n = NodeUtil.createFileNode(parentNode, nodeName);
 
         parentNode.save();
         n.save();
 
-        return new JcrFileAPI(n, path, false);
+        return new JcrFileAPI(n, parent.getTransactionManager(), path, false);
     }
 
-    public JcrFileAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
-        super(node, path, oldVersion);
+    public JcrFileAPI(Node node, RTransactionManager transactionManager, ArtefactPath path, boolean oldVersion) throws RepositoryException {
+        super(node, transactionManager, path, oldVersion);
 
         // NodeUtil.checkNodeType(node, JcrNT.NT_FILE);
     }
 
-    public JcrFileAPI(Node node, ArtefactPath path) throws RepositoryException {
-        this(node, path, false);
+    public JcrFileAPI(Node node, RTransactionManager transactionManager, ArtefactPath path) throws RepositoryException {
+        this(node, transactionManager, path, false);
     }
 
     /** {@inheritDoc} */
@@ -62,7 +64,7 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     public JcrFileAPI getVersion(CommonVersion version) {
         try {
             Node frozen = NodeUtil.getNode4Version(node(), version);
-            return new JcrFileAPI(frozen, getArtefactPath(), true);
+            return new JcrFileAPI(frozen, getTransactionManager(), getArtefactPath(), true);
         } catch (RepositoryException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

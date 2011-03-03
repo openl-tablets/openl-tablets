@@ -4,6 +4,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.openl.rules.repository.RProductionRepository;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 
@@ -16,8 +17,8 @@ public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbit
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
-
-            return new JcrProductionRepository(repositoryName, session);
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
         }

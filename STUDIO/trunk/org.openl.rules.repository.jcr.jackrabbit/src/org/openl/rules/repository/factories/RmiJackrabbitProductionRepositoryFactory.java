@@ -1,6 +1,7 @@
 package org.openl.rules.repository.factories;
 
 import org.openl.rules.repository.RProductionRepository;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -16,8 +17,8 @@ public class RmiJackrabbitProductionRepositoryFactory extends RmiJackrabbitRepos
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
-
-            return new JcrProductionRepository(repositoryName, session);
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
         }

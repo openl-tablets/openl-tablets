@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
@@ -30,8 +31,8 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             }
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
-
-            return new JcrProductionRepository(repositoryName, session);
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
         }
@@ -71,8 +72,8 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
-
-            repositoryInstance = new JcrProductionRepository(repositoryName, session);
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
             //FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
             LOG.info("Converting production repository. Please, be patient.");

@@ -23,6 +23,7 @@ import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryListener;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -46,9 +47,9 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
 
     private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
 
-    public JcrRepository(String name, Session session, String defRulesPath, String defDeploymentsPath)
+    public JcrRepository(String name, Session session, RTransactionManager transactionManager, String defRulesPath, String defDeploymentsPath)
             throws RepositoryException {
-        super(name, session);
+        super(name, session, transactionManager);
 
         defRulesLocation = checkPath(defRulesPath);
         defDeploymentsLocation = checkPath(defDeploymentsPath);
@@ -167,15 +168,6 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
         return result;
     }
 
-    /**
-     * Gets internal JCR Session.
-     *
-     * @return JCR Session
-     */
-    protected Session getSession() {
-        return session;
-    }
-
     public boolean hasDeploymentProject(String name) throws RRepositoryException {
         try {
             return defDeploymentsLocation.hasNode(name);
@@ -204,7 +196,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
      */
     protected NodeIterator runQuery(String statement) throws RRepositoryException {
         try {
-            QueryManager qm = session.getWorkspace().getQueryManager();
+            QueryManager qm = getSession().getWorkspace().getQueryManager();
             Query query = qm.createQuery(statement, Query.XPATH);
 
             QueryResult qr = query.execute();
@@ -221,7 +213,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
                     JcrNT.NT_APROJECT, true);
             defDeploymentsLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name })); 
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name })); 
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create deployment project.", e);
         }
@@ -233,7 +225,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
                     JcrNT.NT_APROJECT, true);
             defRulesLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name })); 
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name })); 
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create rules project.", e);
         }
@@ -246,7 +238,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
             }
 
             Node n = defDeploymentsLocation.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
         }
@@ -265,7 +257,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
+                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
                 }
             } catch (RepositoryException e) {
                 LOG.debug("Failed to add deployment project.");
@@ -282,7 +274,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
             }
 
             Node n = defRulesLocation.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }
@@ -301,7 +293,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
+                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
                 }
             } catch (RepositoryException e) {
                 LOG.debug("Failed to add rules project.");
@@ -319,7 +311,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository, Eve
         while (ni.hasNext()) {
             Node n = ni.nextNode();
             try {
-                result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
+                result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
             } catch (RepositoryException e) {
                 LOG.debug("Failed to add rules project for deletion.");
             }
