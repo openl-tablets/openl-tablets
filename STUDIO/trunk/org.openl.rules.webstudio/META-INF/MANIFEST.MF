@@ -13,4 +13,5 @@ Require-Bundle: org.junit;visibility:=reexport,
  org.openl.conf.ant;visibility:=reexport,
  org.openl.rules.webstudio.java;visibility:=reexport,
  org.openl.j,
- org.openl.rules.tableeditor;visibility:=reexport
+ org.openl.rules.tableeditor;visibility:=reexport,
+ org.openl.rules.diff
