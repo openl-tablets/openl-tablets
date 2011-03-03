@@ -11,6 +11,7 @@ import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.RRepositoryListener;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -77,8 +78,8 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     private Node deployLocation;
     private List<RDeploymentListener> listeners = new ArrayList<RDeploymentListener>();
 
-    public JcrProductionRepository(String name, Session session) throws RepositoryException {
-        super(name, session);
+    public JcrProductionRepository(String name, Session session, RTransactionManager transactionManager) throws RepositoryException {
+        super(name, session, transactionManager);
 
         deployLocation = checkPath(DEPLOY_ROOT);
         if (deployLocation.isNew()) {
@@ -122,7 +123,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
     public Collection<ArtefactAPI> findNodes(SearchParams params) throws RRepositoryException {
         try {
-            Query query = session.getWorkspace().getQueryManager().createQuery(new JCR_SQL2QueryBuilder().buildQuery(params), Query.JCR_SQL2);
+            Query query = getSession().getWorkspace().getQueryManager().createQuery(new JCR_SQL2QueryBuilder().buildQuery(params), Query.JCR_SQL2);
             QueryResult queryResult = query.execute();
 
             NodeIterator nodeIterator = queryResult.getNodes();
@@ -132,11 +133,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 ArtefactPath path = new ArtefactPathImpl(new String[] { node.getName() });
                 String type = node.getPrimaryNodeType().getName();
                 if (type.equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, path));
+                    result.add(new JcrFolderAPI(node, getTransactionManager(), path));
                 } else if (type.equals(JcrNT.NT_FOLDER)) {
-                    result.add(new JcrFolderAPI(node, path));
+                    result.add(new JcrFolderAPI(node, getTransactionManager(), path));
                 } else if (type.equals(JcrNT.NT_FILE)) {
-                    result.add(new JcrFileAPI(node, path, false));
+                    result.add(new JcrFileAPI(node, getTransactionManager(), path, false));
                 }
             }
 
@@ -289,7 +290,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     @Override
     public void release() {
         try {
-            session.getWorkspace().getObservationManager().removeEventListener(this);
+            getSession().getWorkspace().getObservationManager().removeEventListener(this);
         } catch (RepositoryException e) {
             if (log.isDebugEnabled()) {
                 log.debug("release", e);
@@ -308,7 +309,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             deployLocation.save();
             node.checkin();
             repositoryNotify();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new  RRepositoryException("",e);
         }
@@ -338,7 +339,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
 
         try {
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to wrap JCR node", e);
         }
@@ -351,7 +352,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             while (iterator.hasNext()) {
                 Node node = iterator.nextNode();
                 if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { node.getName() })));
+                    result.add(new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { node.getName() })));
                 }
             }
         } catch (RepositoryException e) {

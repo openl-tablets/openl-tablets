@@ -4,14 +4,18 @@ import javax.jcr.Session;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-public class BaseJcrRepository {
-    protected final String name;
-    /** JCR Session */
-    protected final Session session;
+import org.openl.rules.repository.RTransactionManager;
 
-    public BaseJcrRepository(String name, Session session) {
+public class BaseJcrRepository {
+    private final String name;
+    /** JCR Session */
+    private final Session session;
+    private final RTransactionManager transactionManager;
+
+    public BaseJcrRepository(String name, Session session, RTransactionManager transactionManager) {
         this.name = name;
         this.session = session;
+        this.transactionManager = transactionManager;
     }
 
     protected Node checkPath(String aPath) throws RepositoryException {
@@ -42,6 +46,14 @@ public class BaseJcrRepository {
      */
     public String getName() {
         return name;
+    }
+
+    protected Session getSession() {
+        return session;
+    }
+
+    public RTransactionManager getTransactionManager() {
+        return transactionManager;
     }
 
     /**

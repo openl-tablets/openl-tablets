@@ -5,9 +5,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jcr.RepositoryException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -25,10 +22,6 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.jcr.JackRabbitUserTransaction;
-import org.openl.rules.repository.jcr.JcrEntityAPI;
-import org.springframework.transaction.annotation.Transactional;
 
 public class AProject extends AProjectFolder {
     private static Log LOG = LogFactory.getLog(AProject.class);

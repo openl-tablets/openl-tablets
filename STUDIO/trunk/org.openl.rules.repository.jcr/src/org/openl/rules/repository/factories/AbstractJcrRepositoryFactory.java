@@ -19,6 +19,7 @@ import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrRepository;
@@ -181,8 +182,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
 
-            JcrRepository jri = new JcrRepository(repositoryName, session, confRulesProjectsLocation.getValue(),
-                    confDeploymentProjectsLocation.getValue());
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            JcrRepository jri = new JcrRepository(repositoryName, session, transactionManager,
+                    confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
             return jri;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
@@ -226,4 +228,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
         checkOnStart();
     }
+    
+    public abstract RTransactionManager getTrasactionManager(Session session);
 }

@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +39,6 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.api.ArtefactAPI;
@@ -156,19 +154,20 @@ public class RepositoryConvertor {
     private void copyRulesProjects(RRepository repository) {
         try {
             for (RProject project : repository.getProjects()) {
-                copyProject(project);
+                copyProject(project, repository);
             }
         } catch (RRepositoryException e) {
             e.printStackTrace();
         }
     }
 
-    private void copyProject(RProject project) {
+    private void copyProject(RProject project, RRepository repository) {
         try {
             Node node = NodeUtil.createNode(checkPath(rulesProjectsLocation), project.getName(), JcrNT.NT_APROJECT,
                     true);
             checkPath(rulesProjectsLocation).save();
-            JcrFolderAPI jcrProject = new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { project.getName() }));
+            JcrFolderAPI jcrProject = new JcrFolderAPI(node, repository.getTransactionManager(), new ArtefactPathImpl(
+                    new String[] { project.getName() }));
             for (RVersion version : project.getVersionHistory()) {
                 if (version.getRevision() != 0) {
                     RProject oldProject = version.compareTo(project.getActiveVersion()) == 0 ? project : project
@@ -296,19 +295,20 @@ public class RepositoryConvertor {
     private void copyDDProjects(RRepository repository) {
         try {
             for (RDeploymentDescriptorProject project : repository.getDDProjects()) {
-                copyDDProject(project);
+                copyDDProject(project, repository);
             }
         } catch (RRepositoryException e) {
             e.printStackTrace();
         }
     }
 
-    private void copyDDProject(RDeploymentDescriptorProject project) {
+    private void copyDDProject(RDeploymentDescriptorProject project, RRepository repository) {
         try {
             Node node = NodeUtil.createNode(checkPath(deploymentProjectsLocation), project.getName(),
                     JcrNT.NT_APROJECT, true);
             checkPath(deploymentProjectsLocation).save();
-            JcrFolderAPI jcrDDproject = new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { project.getName() }));
+            JcrFolderAPI jcrDDproject = new JcrFolderAPI(node, repository.getTransactionManager(),
+                    new ArtefactPathImpl(new String[] { project.getName() }));
             for (RVersion version : project.getVersionHistory()) {
                 if (version.getRevision() != 0) {
                     RDeploymentDescriptorProject oldProject = project.getProjectVersion(version);

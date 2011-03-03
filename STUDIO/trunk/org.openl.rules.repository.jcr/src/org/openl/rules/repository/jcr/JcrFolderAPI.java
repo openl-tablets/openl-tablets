@@ -13,6 +13,7 @@ import javax.jcr.RepositoryException;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -32,27 +33,28 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
      * @return newly created folder
      * @throws RepositoryException if fails
      */
-    protected static JcrFolderAPI createFolder(Node parentNode, String nodeName, ArtefactPath path) throws RepositoryException {
+    protected static JcrFolderAPI createFolder(JcrFolderAPI parent, String nodeName, ArtefactPath path) throws RepositoryException {
+        Node parentNode = parent.node();
         Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_FOLDER, true);
         parentNode.save();
         n.save();
 
-        return new JcrFolderAPI(n, path, false);
+        return new JcrFolderAPI(n, parent.getTransactionManager(), path, false);
     }
 
-    public JcrFolderAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
-        super(node, path, oldVersion);
+    public JcrFolderAPI(Node node, RTransactionManager transactionManager, ArtefactPath path, boolean oldVersion) throws RepositoryException {
+        super(node, transactionManager, path, oldVersion);
 
 //        NodeUtil.checkNodeType(node, JcrNT.NT_FOLDER);
     }
 
-    public JcrFolderAPI(Node node, ArtefactPath path) throws RepositoryException {
-        this(node, path, false);
+    public JcrFolderAPI(Node node, RTransactionManager transactionManager, ArtefactPath path) throws RepositoryException {
+        this(node, transactionManager, path, false);
     }
 
     public JcrFileAPI addResource(String name, InputStream content) throws ProjectException {
         try {
-            JcrFileAPI file = JcrFileAPI.createFile(node(), name, getArtefactPath().withSegment(name));
+            JcrFileAPI file = JcrFileAPI.createFile(this, name, getArtefactPath().withSegment(name));
             file.setContent(content);
             return file;
         } catch (RepositoryException e) {
@@ -62,7 +64,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
 
     public JcrFolderAPI addFolder(String name) throws ProjectException {
         try {
-            return JcrFolderAPI.createFolder(node(), name, getArtefactPath().withSegment(name));
+            return JcrFolderAPI.createFolder(this, name, getArtefactPath().withSegment(name));
         } catch (RepositoryException e) {
             throw new ProjectException(String.format("Failed to Create Sub Folder \"%s\". Reason: %s", name, e.getMessage()), e);
         }
@@ -110,12 +112,12 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
                 }
                 if (isFolder) {
                     if (!isFiles) {
-                        list2add.add(new JcrFolderAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
+                        list2add.add(new JcrFolderAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion()));
                     }
                 } else if(!n.isNodeType(JcrNT.NT_LOCK)){
                     //FIXME
                     if (isFiles) {
-                        list2add.add(new JcrFileAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
+                        list2add.add(new JcrFileAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion()));
                     }
                 }
             }
@@ -137,9 +139,9 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
                 isFolder = n.isNodeType(JcrNT.NT_FOLDER);
             }
             if (isFolder) {
-                return new JcrFolderAPI(n, getArtefactPath().withSegment(name), isOldVersion());
+                return new JcrFolderAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion());
             } else {
-                return new JcrFileAPI(n, getArtefactPath().withSegment(name), isOldVersion());
+                return new JcrFileAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion());
             }
         } catch (RepositoryException e) {
             throw new ProjectException("Failed to list nodes.", e);
@@ -177,7 +179,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     public JcrFolderAPI getVersion(CommonVersion version) throws RRepositoryException{
         try {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
-            return new JcrFolderAPI(frozenNode, getArtefactPath(), true);
+            return new JcrFolderAPI(frozenNode, getTransactionManager(), getArtefactPath(), true);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get version for node.", e);
         }

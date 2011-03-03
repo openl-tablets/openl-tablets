@@ -11,6 +11,7 @@ import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
@@ -113,6 +114,6 @@ public class MockArtefact implements ArtefactAPI {
     }
 
     public UserTransaction createTransaction() throws RRepositoryException {
-        return NO_TRANSACTION;
+        return RTransactionManager.NO_TRANSACTION;
     }
 }

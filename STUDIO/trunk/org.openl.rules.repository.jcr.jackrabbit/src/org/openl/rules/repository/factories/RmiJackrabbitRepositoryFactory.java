@@ -16,7 +16,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
+public class RmiJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
     private final ConfigPropertyString confRmiUrl = new ConfigPropertyString("repository.jackrabbit.rmi.url",
             "//localhost:1099/jackrabbit.repository");
 

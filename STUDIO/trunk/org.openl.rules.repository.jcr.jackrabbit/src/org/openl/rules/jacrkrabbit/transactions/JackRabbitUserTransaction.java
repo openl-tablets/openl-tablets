@@ -4,7 +4,7 @@
  * $Id: JackRabbitUserTransaction.java,v 1.2 2007/03/06 21:45:55 costin Exp $
  * $Revision: 1.2 $
  */
-package org.openl.rules.repository.jcr;
+package org.openl.rules.jacrkrabbit.transactions;
 
 import javax.jcr.Session;
 import javax.transaction.NotSupportedException;

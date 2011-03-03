@@ -22,6 +22,7 @@ import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
@@ -34,7 +35,7 @@ import org.springframework.util.FileCopyUtils;
  * @author Aleh Bykhavets
  *
  */
-public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
+public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
     private static Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
@@ -188,7 +189,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
                 // FIXME: do not hardcode credential info
                 Session session = createSession("user", "pass");
 
-                JcrProductionRepository productionRepository = new JcrProductionRepository(repositoryName, session);
+                RTransactionManager transactionManager = getTrasactionManager(session);
+                JcrProductionRepository productionRepository = new JcrProductionRepository(repositoryName, session,
+                        transactionManager);
                 ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
                 log.info("Converting production repository. Please, be patient.");
                 repositoryConvertor.convert(productionRepository);

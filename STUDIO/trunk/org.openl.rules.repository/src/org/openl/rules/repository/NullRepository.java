@@ -131,4 +131,8 @@ public class NullRepository implements RRepository {
     public List<RRepositoryListener> getRepositoryListeners() {
         return null;
     }
+
+    public RTransactionManager getTransactionManager() {
+        return null;
+    }
 }

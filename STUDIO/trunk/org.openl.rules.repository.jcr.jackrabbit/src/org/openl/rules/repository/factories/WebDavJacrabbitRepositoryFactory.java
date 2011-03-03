@@ -13,7 +13,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * 
  * @author PUdalau
  */
-public class WebDavJacrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
+public class WebDavJacrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
     private final ConfigPropertyString confRmiUrl = new ConfigPropertyString("repository.jackrabbit.webdav.url",
             "http://localhost:8080/jcr/server/");
 

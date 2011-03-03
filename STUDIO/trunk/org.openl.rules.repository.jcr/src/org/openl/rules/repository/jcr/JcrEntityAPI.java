@@ -29,6 +29,7 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.repository.RLock;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.RVersion;
 
 import static org.openl.rules.repository.jcr.NodeUtil.isSame;
@@ -53,12 +54,14 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     private JcrVersion version;
     private ArtefactPath path;
+    private RTransactionManager transactionManager;
 
     // ------ protected methods ------
 
-    public JcrEntityAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
+    public JcrEntityAPI(Node node, RTransactionManager transactionManager, ArtefactPath path, boolean oldVersion) throws RepositoryException {
         super(node, path.segment(path.segmentCount() - 1), oldVersion);
         this.path = path;
+        this.transactionManager = transactionManager;
         version = new JcrVersion(node);
 
         properties = new HashMap<String, org.openl.rules.common.Property>();
@@ -364,7 +367,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     public JcrEntityAPI getVersion(CommonVersion version) throws RRepositoryException{
         try {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
-            return new JcrEntityAPI(frozenNode, getArtefactPath(), true);
+            return new JcrEntityAPI(frozenNode, getTransactionManager(), getArtefactPath(), true);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get version for node.", e);
         }
@@ -383,12 +386,11 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return node().isModified();
     }
 
+    public RTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
     public UserTransaction createTransaction() throws RRepositoryException {
-        try {
-            return new JackRabbitUserTransaction(node().getSession());
-        } catch (Exception e) {
-            LOG.warn("Failed to create jackrabbit transaction.", e);
-            return NO_TRANSACTION;
-        }
+        return getTransactionManager().getTransaction();
     }
 }
