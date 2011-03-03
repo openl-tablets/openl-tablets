@@ -21,6 +21,7 @@ public class ArrayMethodsTest {
         int[] intArrayTest(int[] b);
         String[] personsNames();
         String[] personNamesFromArray();
+        int[] test2MethodCalls();
     }
     
     @Before
@@ -64,6 +65,14 @@ public class ArrayMethodsTest {
         assertTrue(names.length == 2);
         assertEquals("Vasia", names[0]);
         assertEquals("Petia", names[1]);
+    }
+    
+    @Test
+    public void test2MethodsCall() {
+        int[] a = instance.test2MethodCalls();
+        assertTrue(a.length == 2);
+        assertEquals(7, a[0]);
+        assertEquals(9, a[1]);
     }
     
 
