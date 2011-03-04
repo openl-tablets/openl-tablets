@@ -58,18 +58,28 @@ public class MethodNodeBinder extends ANodeBinder {
             //
             if (childrenCount == 2) {
                 IBoundNode accessorChain = new FieldAccessMethodBinder().bind(node, bindingContext);
+                if (accessorChain instanceof ErrorBoundNode) {
+                    // Add more informative message for user
+                    //
+                    return cantFindMethodError(node, bindingContext, methodName, parameterTypes);
+                }
                 if (accessorChain != null) {
                     return accessorChain;
-                }
+                } 
             }
 
-            String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
-            BindHelper.processError(message, node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return cantFindMethodError(node, bindingContext, methodName, parameterTypes);
         }
 
         return new MethodBoundNode(node, children, methodCaller);
+    }
+
+    private IBoundNode cantFindMethodError(ISyntaxNode node, IBindingContext bindingContext, String methodName,
+            IOpenClass[] parameterTypes) {
+        String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
+        BindHelper.processError(message, node, bindingContext, false);
+
+        return new ErrorBoundNode(node);
     }
     
     private IBoundNode bindArrayParametersMethod(String methodName, IOpenClass parameterType, 

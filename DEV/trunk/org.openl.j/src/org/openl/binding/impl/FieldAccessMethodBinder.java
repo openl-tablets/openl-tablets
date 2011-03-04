@@ -44,6 +44,13 @@ public class FieldAccessMethodBinder extends ANodeBinder {
         } else {
             accessorChain = bindSingleArgument(fieldName, argumentNode, bindingContext);
         }
+        
+        if (accessorChain == null) {           
+            BindHelper.processError("Can`t bind as field access method", node, bindingContext, false);
+
+            return new ErrorBoundNode(node);
+        }
+        
         return accessorChain;
     }
 
@@ -62,6 +69,12 @@ public class FieldAccessMethodBinder extends ANodeBinder {
         
         IOpenField field = bindingContext.findFieldFor(argumentComponentType, fieldName, false);
         
+        if (field == null) {
+            // Appropriate error will be processed later.
+            //
+            return null;
+        }
+            
         return new MultiCallFieldAccessMethodBoundNode(argumentNode, containerField, field);
     }
 
