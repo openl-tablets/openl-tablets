@@ -471,11 +471,7 @@ TOKEN :
   >
 }
 
-
-TOKEN :
-{
-  < LABEL: <IDENTIFIER> <COLON> >
-}
+////TOKEN ://{//  < LABEL: <IDENTIFIER> <COLON> >//}
 
 
 
@@ -859,10 +855,7 @@ void PrimaryPrefix() :
 |
  LOOKAHEAD( function() ) function()
 
-|
-LOOKAHEAD(2) 
-
-FilterExpression() IdentifierSequence() 
+//|//LOOKAHEAD(2) ////FilterExpression() IdentifierSequence() 
 
   
 |
@@ -912,26 +905,7 @@ void IdentifierSequence() :
 }
 
 
-void FilterExpression() :
-{Token x1; int args = 1;}
-{
-	SimpleFilter() ("or" | "and") FilterExpression()
-	|
-	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  
-}
-
-void SimpleFilter() :
-{}
-{
-	Word("identifier.filter")
-}
-
-
-void SimpleNotFilter() :
-{}
-{
-	"not" Word("identifier.filter.not")
-}
+//void FilterExpression() ://{Token x1; int args = 1;}//{//	SimpleFilter() ("or" | "and") FilterExpression()//	|//	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  //}////void SimpleFilter() ://{}//{//	Word("identifier.filter")//}//////void SimpleNotFilter() ://{}//{//	"not" Word("identifier.filter.not")//}
 
 
 void Word(String type) :
