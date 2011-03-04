@@ -24,11 +24,22 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     static class Marker {
     }
 
-    List<SyntaxNodeException> parseErrors;
+    private IOpenSourceCodeModule module;
+    private List<SyntaxNodeException> parseErrors;
+    private Stack<Object> stack = new Stack<Object>();
 
-    IOpenSourceCodeModule module;
+    public IOpenSourceCodeModule getModule() {
+        return module;
+    }
 
-    Stack<Object> stack = new Stack<Object>();
+    public void setModule(IOpenSourceCodeModule module) {
+        this.module = module;
+    }
+
+    public SyntaxNodeException[] getSyntaxErrors() {
+        return parseErrors == null ? new SyntaxNodeException[0] : (SyntaxNodeException[]) parseErrors
+            .toArray(new SyntaxNodeException[parseErrors.size()]);
+    }
 
     public void addError(SyntaxNodeException exc) {
         if (parseErrors == null) {
@@ -37,29 +48,12 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         parseErrors.add(exc);
     }
 
-    public void bop(String type, TextInterval pos) {
-        ISyntaxNode right = pop();
-        ISyntaxNode left = pop();
-
-        push(new BinaryNode(type, pos, left, right, module));
+    public Object marker() {
+        Object marker = new Marker();
+        stack.push(marker);
+        return marker;
     }
-
-    public void emptyStatement(String type, TextInterval pos) {
-        push(new EmptyNode(type, pos, module));
-    }
-
-    /**
-     * @return
-     */
-    public IOpenSourceCodeModule getModule() {
-        return module;
-    }
-
-    public SyntaxNodeException[] getSyntaxErrors() {
-        return parseErrors == null ? new SyntaxNodeException[0] : (SyntaxNodeException[]) parseErrors
-                .toArray(new SyntaxNodeException[parseErrors.size()]);
-    }
-
+    
     public ISyntaxNode getTopnode() {
 
         // TODO exception?
@@ -78,12 +72,23 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
 
                 // grammar problem???
                 ISyntaxNode node = pop();
-                addError(SyntaxNodeExceptionUtils.createError( "More than one syntax node on stack:\nSource:\n"
-                        + node.getModule().getCode(), null, node));
+                addError(SyntaxNodeExceptionUtils.createError("More than one syntax node on stack:\nSource:\n" + node
+                    .getModule().getCode(), null, node));
                 return node;
                 // throw new RuntimeException("More than one syntax node on
                 // stack");
         }
+    }
+
+    public void bop(String type, TextInterval pos) {
+        ISyntaxNode right = pop();
+        ISyntaxNode left = pop();
+
+        push(new BinaryNode(type, pos, left, right, module));
+    }
+
+    public void emptyStatement(String type, TextInterval pos) {
+        push(new EmptyNode(type, pos, module));
     }
 
     public void identifier(String type, TextInterval pos, String image) {
@@ -94,10 +99,8 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         push(new LiteralNode(type, pos, image, module));
     }
 
-    public Object marker() {
-        Object marker = new Marker();
-        stack.push(marker);
-        return marker;
+    public void literal(String type, TextInterval pos, int args) {
+        push(new CompositeLiteralNode(type, pos, popN(args), module));
     }
 
     public void nop(String type, TextInterval pos, boolean[] args) {
@@ -112,22 +115,29 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         push(new NaryNode(type, pos, nodes, module));
     }
 
-    // //////////////////////////////////////////////////////////
-
     public void nop(String type, TextInterval pos, int args) {
         push(new NaryNode(type, pos, popN(args), module));
     }
 
-    public void literal(String type, TextInterval pos, int args) {
-        push(new CompositeLiteralNode(type, pos, popN(args), module));
-    }
-    
-    
     public void notImplemented(String type) {
         throw new RuntimeException(type + " has not been implemented yet");
     }
+    
+    public void uop(String type, TextInterval pos) {
+        ISyntaxNode left = pop();
 
-    ISyntaxNode pop() {
+        push(new UnaryNode(type, pos, left, module));
+    }
+    
+    private void push(ISyntaxNode sn) {
+        stack.push(sn);
+    }
+
+    public void toMarker(String type, TextInterval pos, Object marker) {
+        push(new NaryNode(type, pos, popToMarker(marker), module));
+    }
+
+    private ISyntaxNode pop() {
         Object x = stack.pop();
         if (x instanceof ISyntaxNode) {
             return (ISyntaxNode) x;
@@ -136,7 +146,6 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     }
 
     protected ISyntaxNode[] popN(int n) {
-
         ISyntaxNode[] nodes = new ISyntaxNode[n];
 
         for (int i = 0; i < n; ++i) {
@@ -157,27 +166,5 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
 
         throw new RuntimeException("Marker not found");
     };
-
-    void push(ISyntaxNode sn) {
-        // Log.debug("NODE: " + sn.getType());
-        stack.push(sn);
-    }
-
-    /**
-     * @param module
-     */
-    public void setModule(IOpenSourceCodeModule module) {
-        this.module = module;
-    }
-
-    public void toMarker(String type, TextInterval pos, Object marker) {
-        push(new NaryNode(type, pos, popToMarker(marker), module));
-    }
-
-    public void uop(String type, TextInterval pos) {
-        ISyntaxNode left = pop();
-
-        push(new UnaryNode(type, pos, left, module));
-    }
 
 }

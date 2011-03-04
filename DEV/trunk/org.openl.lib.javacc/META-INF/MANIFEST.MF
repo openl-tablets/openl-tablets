@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.lib.javacc
 Bundle-Version: 5.7.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Bundle-ClassPath: javacc-4.0/bin/lib/javacc.jar
+Bundle-ClassPath: javacc-5.0/bin/lib/javacc.jar
 Export-Package: org.javacc,
  org.javacc.jjdoc;uses:="org.javacc.parser",
  org.javacc.jjtree;uses:="org.javacc.parser",

@@ -17,7 +17,8 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.syntax.impl.BinaryNode;
-import org.openl.syntax.impl.LiteralNode;
+import org.openl.syntax.impl.NaryNode;
+import org.openl.syntax.impl.UnaryNode;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.text.ILocation;
@@ -100,16 +101,14 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testOperator(String src, String type) throws OpenConfigurationException {
-
+    public <T extends ISyntaxNode> T  _testOperator(String src, Class<T> nodeType) throws OpenConfigurationException {
+ 
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
 
-        BinaryNode bn = (BinaryNode) it.select(ASelector.selectClass(BinaryNode.class)).next();
-
-        Assert.assertEquals(type, bn.getType());
+        return (T) it.select(ASelector.selectClass(nodeType)).next();
     }
 
     @SuppressWarnings("unchecked")
@@ -195,14 +194,26 @@ public class ParserTest extends TestCase {
     }
 
     public void testOperator() throws OpenConfigurationException {
-        _testOperator("x+y", "op.binary.add");
-        _testOperator("x+3", "op.binary.add");
-        _testOperator("x-3", "op.binary.subtract");
-        _testOperator("x%3", "op.binary.rem");
-//        _testOperator("x or y", "op.binary.or");        
-//        _testOperator("x and y", "op.binary.and");        
-//        _testOperator("x is less than 3", "op.binary.rem");        
-//        _testOperator("x ? 1:3", "op.binary.lt");        
+        BinaryNode binaryNode = _testOperator("x+y", BinaryNode.class);
+        Assert.assertEquals("op.binary.add", binaryNode.getType());
+        
+        binaryNode = _testOperator("x-3", BinaryNode.class);
+        Assert.assertEquals("op.binary.subtract", binaryNode.getType());
+
+        binaryNode = _testOperator("x%3", BinaryNode.class);
+        Assert.assertEquals("op.binary.rem", binaryNode.getType());
+
+        binaryNode = _testOperator("x is less than 3", BinaryNode.class);
+        Assert.assertEquals("op.binary.lt", binaryNode.getType());
+
+        binaryNode = _testOperator("x or y", BinaryNode.class);
+        Assert.assertEquals("op.binary.or", binaryNode.getType());
+
+        binaryNode = _testOperator("x and y", BinaryNode.class);
+        Assert.assertEquals("op.binary.and", binaryNode.getType());
+
+        NaryNode naryNode = _testOperator("x?y: z", NaryNode.class);
+        Assert.assertEquals("op.ternary.qmark", naryNode.getChild(0).getType());
     }
 
     public void testParse() {
