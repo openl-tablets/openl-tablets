@@ -9,6 +9,7 @@ package org.openl.rules.method.table;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -17,6 +18,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -47,23 +50,30 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         ILogicalTable logicalTable = tsn.getTable();
         boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
         ILogicalTable bodyTable = logicalTable.getRows(tableHasProperties ? 2 : 1);
+        
+        if (bodyTable == null) {
+            String errorMessage = "Method table should contain body section";
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
+            tsn.addError(error);
+            BindHelper.processError(error);
+        } else {
+            int height = bodyTable.getHeight();
 
-        int height = bodyTable.getHeight();
+            IOpenSourceCodeModule[] cellSources = new IOpenSourceCodeModule[height];
 
-        IOpenSourceCodeModule[] cellSources = new IOpenSourceCodeModule[height];
+            for (int i = 0; i < height; i++) {
+                cellSources[i] = new GridCellSourceCodeModule(bodyTable.getRow(i).getSource(), bindingContext);
+            }
 
-        for (int i = 0; i < height; i++) {
-            cellSources[i] = new GridCellSourceCodeModule(bodyTable.getRow(i).getSource(), bindingContext);
-        }
+            IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
-        IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
-
-        OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
-        if (bindingContext.isExecutionMode()) {
-            getTableMethod().setMethodTableBoundNode(null);
-            getTableMethod().getMethodProperties().setModulePropertiesTable(null);
-            getTableMethod().getMethodProperties().setCategoryPropertiesTable(null);
-            getTableMethod().getMethodProperties().setPropertiesSection(null);
+            OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
+            if (bindingContext.isExecutionMode()) {
+                getTableMethod().setMethodTableBoundNode(null);
+                getTableMethod().getMethodProperties().setModulePropertiesTable(null);
+                getTableMethod().getMethodProperties().setCategoryPropertiesTable(null);
+                getTableMethod().getMethodProperties().setPropertiesSection(null);
+            }
         }
     }
 
