@@ -27,8 +27,6 @@ Export-Package: javax.annotation,
  org.apache.catalina.loader,
  org.apache.catalina.security,
  org.apache.catalina.startup,
- org.apache.commons.daemon,
- org.apache.commons.daemon.support,
  org.apache.juli,
  org.apache.juli.logging,
  org.apache.naming
