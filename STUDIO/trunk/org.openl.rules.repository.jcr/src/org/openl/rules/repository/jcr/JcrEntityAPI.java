@@ -292,6 +292,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     public void delete(CommonUser user) throws ProjectException {
         try {
+            if(isLocked()){
+                unlock(user);
+            }
             delete();
         } catch (Exception e) {
             throw new ProjectException("Failed to delete node.", e);
