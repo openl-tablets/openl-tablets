@@ -1,119 +1,196 @@
-/**
- * Created on Sep 8, 2005
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * $Id: JackRabbitUserTransaction.java,v 1.2 2007/03/06 21:45:55 costin Exp $
- * $Revision: 1.2 $
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.openl.rules.jacrkrabbit.transactions;
 
-import javax.jcr.Session;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
-import javax.transaction.xa.XAException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAException;
+import javax.transaction.UserTransaction;
+import javax.transaction.Status;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.jcr.Session;
 
 import org.apache.jackrabbit.api.XASession;
 import org.apache.jackrabbit.rmi.client.ClientXASession;
 
 /**
- * JackRabbit User transaction (based on the XA Resource returned by JackRabbit).
- * <p/>
- * Inspired from JackRabbit test suite.
- * 
- * Internal {@link javax.transaction.UserTransaction} implementation.
- * 
+ * Internal JackRabbit {@link javax.transaction.UserTransaction} implementation.
  */
 public class JackRabbitUserTransaction implements UserTransaction {
 
     /**
-     * Global transaction id counter.
-     * TODO: remove the static attribute 
+     * Global transaction id counter
      */
     private static byte counter = 0;
 
     /**
-     * XAResource
+     * The XAResources map
      */
-
-    private final XAResource xares;
-
-    /**
-     * Xid
-     */
-    private Xid xid;
+    private Map xaResources = new HashMap();
 
     /**
      * Status
      */
     private int status = Status.STATUS_NO_TRANSACTION;
 
+    private boolean distributedThreadAccess = false;
+    
     /**
      * Create a new instance of this class. Takes a session as parameter.
-     * 
-     * @param session
-     *            session. If session is not of type {@link XASession}, an
-     *            <code>IllegalArgumentException</code> is thrown
+     * @param session session. If session is not of type
+     * {@link XASession}, an <code>IllegalArgumentException</code>
+     * is thrown
      */
     public JackRabbitUserTransaction(Session session) {
+        this(session, false);
+    }
+
+    /**
+     * Create a new instance of this class. Takes a session as parameter.
+     * @param session session. If session is not of type
+     * {@link XASession}, an <code>IllegalArgumentException</code>
+     * is thrown
+     */
+    public JackRabbitUserTransaction(Session session, boolean distributedThreadAccess) {
         if (session instanceof XASession) {
-            xares = ((XASession) session).getXAResource();
+            counter++;
+            xaResources.put(((XASession) session).getXAResource(), new XidImpl(counter));
+            this.distributedThreadAccess = distributedThreadAccess; 
         } else if (session instanceof ClientXASession) {
-            xares = (ClientXASession) session;
+            counter++;
+            xaResources.put((ClientXASession) session, new XidImpl(counter));
+            this.distributedThreadAccess = distributedThreadAccess; 
         } else {
             throw new IllegalArgumentException("Session not of type XASession");
         }
     }
 
     /**
+     * Enlists the given Session to this UserTransaction
+     * @param session
+     */
+    public void enlistXAResource(Session session) {
+        xaResources.put(session, new XidImpl(counter));
+    }
+
+    /**
      * @see javax.transaction.UserTransaction#begin
      */
     public void begin() throws NotSupportedException, SystemException {
-        if (status != Status.STATUS_NO_TRANSACTION) {
-            throw new IllegalStateException("Transaction already active");
-        }
+//        if (status != Status.STATUS_NO_TRANSACTION) {
+//            throw new IllegalStateException("Transaction already active");
+//        }
 
         try {
-            xid = new XidImpl(counter++);
-            xares.start(xid, XAResource.TMNOFLAGS);
+            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                XAResource resource = (XAResource) it.next();
+                XidImpl xid = (XidImpl) xaResources.get(resource);
+                resource.start(xid, XAResource.TMNOFLAGS);
+            }
             status = Status.STATUS_ACTIVE;
 
         } catch (XAException e) {
 
-            throw new SystemException("Unable to begin transaction: " + "XA_ERR=" + e.errorCode);
+            throw new SystemException("Unable to begin transaction: " +
+                    "XA_ERR=" + e.errorCode);
         }
     }
 
     /**
      * @see javax.transaction.UserTransaction#commit
      */
-    public void commit() throws IllegalStateException, RollbackException, SecurityException, SystemException {
+    public void commit() throws HeuristicMixedException,
+            HeuristicRollbackException, IllegalStateException,
+            RollbackException, SecurityException, SystemException {
 
         if (status != Status.STATUS_ACTIVE) {
             throw new IllegalStateException("Transaction not active");
         }
 
         try {
-            xares.end(xid, XAResource.TMSUCCESS);
+            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                XAResource resource = (XAResource) it.next();
+                XidImpl xid = (XidImpl) xaResources.get(resource);
+                resource.end(xid, XAResource.TMSUCCESS);
+            }
 
             status = Status.STATUS_PREPARING;
-            xares.prepare(xid);
+            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                XAResource resource = (XAResource) it.next();
+                XidImpl xid = (XidImpl) xaResources.get(resource);
+                resource.prepare(xid);
+            }
             status = Status.STATUS_PREPARED;
 
             status = Status.STATUS_COMMITTING;
-            xares.commit(xid, false);
+            if (distributedThreadAccess) {
+                Thread distributedThread = new Thread() {
+                    public void run() {
+                        try {
+                            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                                XAResource resource = (XAResource) it.next();
+                                XidImpl xid = (XidImpl) xaResources.get(resource);
+                                resource.commit(xid, false);
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e.getMessage());
+                        }
+                    }
+                };
+                distributedThread.start();
+                distributedThread.join(1000);
+                if (distributedThread.isAlive()) {
+                    throw new SystemException(
+                            "Commit from different thread but same XID must not block");
+                }
+            } else {
+                for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                    XAResource resource = (XAResource) it.next();
+                    XidImpl xid = (XidImpl) xaResources.get(resource);
+                    resource.commit(xid, false);
+                }
+            }
+            
             status = Status.STATUS_COMMITTED;
 
         } catch (XAException e) {
 
-            if (e.errorCode >= XAException.XA_RBBASE && e.errorCode <= XAException.XA_RBEND) {
-                throw new RollbackException(e.toString());
+            if (e.errorCode >= XAException.XA_RBBASE &&
+                    e.errorCode <= XAException.XA_RBEND) {
+                RollbackException re = new RollbackException(
+                        "Transaction rolled back: XA_ERR=" + e.errorCode);
+                re.initCause(e.getCause());
+                throw re;
+            } else {
+                SystemException se = new SystemException(
+                        "Unable to commit transaction: XA_ERR=" + e.errorCode);
+                se.initCause(e.getCause());
+                throw se;
             }
-
-            throw new SystemException("Unable to commit transaction: " + "XA_ERR=" + e.errorCode);
+        } catch (InterruptedException e) {
+            throw new SystemException("Thread.join() interrupted");
         }
     }
 
@@ -127,23 +204,35 @@ public class JackRabbitUserTransaction implements UserTransaction {
     /**
      * @see javax.transaction.UserTransaction#rollback
      */
-    public void rollback() throws IllegalStateException, SecurityException, SystemException {
+    public void rollback() throws IllegalStateException, SecurityException,
+            SystemException {
 
-        if (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK) {
+        if (status != Status.STATUS_ACTIVE &&
+                status != Status.STATUS_MARKED_ROLLBACK) {
 
             throw new IllegalStateException("Transaction not active");
         }
 
         try {
-            xares.end(xid, XAResource.TMFAIL);
+            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                XAResource resource = (XAResource) it.next();
+                XidImpl xid = (XidImpl) xaResources.get(resource);
+                resource.end(xid, XAResource.TMFAIL);
+            }
 
             status = Status.STATUS_ROLLING_BACK;
-            xares.rollback(xid);
+            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                XAResource resource = (XAResource) it.next();
+                XidImpl xid = (XidImpl) xaResources.get(resource);
+                resource.rollback(xid);
+            }
             status = Status.STATUS_ROLLEDBACK;
 
         } catch (XAException e) {
-
-            throw new SystemException("Unable to rollback transaction: " + "XA_ERR=" + e.errorCode);
+            SystemException se = new SystemException(
+                    "Unable to rollback transaction: XA_ERR=" + e.errorCode);
+            se.initCause(e.getCause());
+            throw se;
         }
     }
 
@@ -161,7 +250,18 @@ public class JackRabbitUserTransaction implements UserTransaction {
      * @see javax.transaction.UserTransaction#setTransactionTimeout
      */
     public void setTransactionTimeout(int seconds) throws SystemException {
+        try {
+            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
+                ((XAResource) it.next()).setTransactionTimeout(seconds);
+            }
+        } catch (XAException e) {
+            SystemException se = new SystemException(
+                    "Unable to set the TransactionTiomeout: XA_ERR=" + e.errorCode);
+            se.initCause(e.getCause());
+            throw se;
+        }
     }
+
 
     /**
      * Internal {@link Xid} implementation.
@@ -172,11 +272,9 @@ public class JackRabbitUserTransaction implements UserTransaction {
         private final byte[] globalTxId;
 
         /**
-         * Create a new instance of this class. Takes a global transaction
-         * number as parameter
-         * 
-         * @param globalTxNumber
-         *            global transaction number
+         * Create a new instance of this class. Takes a global
+         * transaction number as parameter
+         * @param globalTxNumber global transaction number
          */
         public XidImpl(byte globalTxNumber) {
             this.globalTxId = new byte[] { globalTxNumber };
@@ -202,19 +300,5 @@ public class JackRabbitUserTransaction implements UserTransaction {
         public byte[] getGlobalTransactionId() {
             return globalTxId;
         }
-    }
-
-    /**
-     * @return Returns the counter.
-     */
-    public byte getCounter() {
-        return counter;
-    }
-
-    /**
-     * @param counter The counter to set.
-     */
-    public void setCounter(byte counter) {
-        JackRabbitUserTransaction.counter = counter;
     }
 }

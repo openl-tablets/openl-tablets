@@ -1,11 +1,6 @@
 package org.openl.rules.jacrkrabbit.transactions;
 
 import javax.jcr.Session;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
@@ -22,7 +17,10 @@ public class JackrabbitTransactionManager implements RTransactionManager {
 
     public UserTransaction getTransaction() {
         try {
-            return new JackRabbitUserTransaction(session);
+            //jackrabbit transaction does not work correctly. Strange NPE is appears.
+            //TODO: use jackrabbit transaction after : https://issues.apache.org/jira/browse/JCR-2581
+            //return new JackRabbitUserTransaction(session);
+            return NO_TRANSACTION;
         } catch (Exception e) {
             LOG.warn("Failed to create jackrabbit transaction.", e);
             return NO_TRANSACTION;

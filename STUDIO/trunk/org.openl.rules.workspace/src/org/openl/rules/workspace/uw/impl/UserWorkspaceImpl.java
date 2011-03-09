@@ -70,10 +70,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
         listeners.add(listener);
     }
 
-//    protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
-//        designTimeRepository.updateProject(localProject, user, major, minor);
-//    }
-
     public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
         designTimeRepository.copyDDProject(project, name, user);
         refresh();
@@ -94,16 +90,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refresh();
     }
 
-    public DeployID deploy(ADeploymentProject deploymentProject) throws DeploymentException,
-            RepositoryException {
+    public DeployID deploy(ADeploymentProject deploymentProject) throws DeploymentException, RepositoryException {
         Collection<ProjectDescriptor> projectDescriptors = deploymentProject.getProjectDescriptors();
         Collection<AProject> projects = new ArrayList<AProject>();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             projects.add(designTimeRepository.getProject(descriptor.getProjectName(), descriptor.getProjectVersion()));
         }
 
-        
-        //TODO DeployID id = RepositoryUtils.getDeployID(project);
+        // TODO DeployID id = RepositoryUtils.getDeployID(project);
         DeployID id = new DeployID(deploymentProject.getName() + "#" + deploymentProject.getVersion().getVersionName());
         deployer.deploy(deploymentProject, id, projects);
         return id;
@@ -135,8 +129,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         refreshDeploymentProjects();
 
-        ArrayList<ADeploymentProject> result = new ArrayList<ADeploymentProject>(userDProjects
-                .values());
+        ArrayList<ADeploymentProject> result = new ArrayList<ADeploymentProject>(userDProjects.values());
         Collections.sort(result, PROJECTS_COMPARATOR);
 
         return result;
@@ -207,16 +200,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return false;
     }
 
-//    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
-//        return localWorkspace.addProject(repositoryProject);
-//    }
-//
-//    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version)
-//            throws ProjectException {
-//        RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
-//        return localWorkspace.addProject(oldRP);
-//    }
-
     public void passivate() {
         localWorkspace.saveAll();
 
@@ -283,7 +266,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 userRulesProjects.put(name, uwp);
             } else if (uwp.isLocalOnly()) {
                 userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
-            }else{
+            } else {
                 uwp.refresh();
             }
         }
@@ -297,7 +280,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 RulesProject uwp = userRulesProjects.get(name);
                 if (uwp == null) {
-                    uwp = new RulesProject((LocalFolderAPI)lp.getAPI(), null, this);
+                    uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), null, this);
                     userRulesProjects.put(name, uwp);
                 } else {
                     userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), null, this));
@@ -328,11 +311,18 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void uploadLocalProject(String name) throws ProjectException {
-        createProject(name);
-        designTimeRepository.getProject(name).lock(user);
-        designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user, 0, 0);
-        AProject createdProject = getProject(name);
-        designTimeRepository.getProject(name).unlock(user);
-        createdProject.checkOut(user);
+        try {
+            createProject(name);
+            designTimeRepository.getProject(name).lock(user);
+            designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user, 0, 0);
+            AProject createdProject = getProject(name);
+            designTimeRepository.getProject(name).unlock(user);
+            createdProject.checkOut(user);
+        } catch (ProjectException e) {
+            if (designTimeRepository.hasProject(name)) {
+                designTimeRepository.getProject(name).erase(user);
+            }
+            throw e;
+        }
     }
 }
