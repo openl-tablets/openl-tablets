@@ -61,10 +61,13 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
-        AProjectResource createdResource = new AProjectResource(getAPI().addResource(name, content), getProject());
-        IOUtils.closeQuietly(content);
-        getArtefactsInternal().put(name, createdResource);
-        return createdResource;
+        try {
+            AProjectResource createdResource = new AProjectResource(getAPI().addResource(name, content), getProject());
+            getArtefactsInternal().put(name, createdResource);
+            return createdResource;
+        } finally {
+            IOUtils.closeQuietly(content);
+        }
     }
 
     public synchronized Collection<AProjectArtefact> getArtefacts() {
