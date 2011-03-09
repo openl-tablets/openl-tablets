@@ -201,9 +201,7 @@ public class PoiExcelHelper {
             newFont.setStrikeout(fromFont.getStrikeout());
             newFont.setTypeOffset(fromFont.getTypeOffset());
             newFont.setUnderline(fromFont.getUnderline());
-            // TODO Uncomment when POI team will fix issue with setting charset:
-            // https://issues.apache.org/bugzilla/show_bug.cgi?id=50847
-            //newFont.setCharSet(fromFont.getCharSet());
+            newFont.setCharSet(fromFont.getCharSet());
         }
         return newFont;
     }

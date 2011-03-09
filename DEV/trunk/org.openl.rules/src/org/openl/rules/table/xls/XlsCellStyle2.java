@@ -90,22 +90,15 @@ public class XlsCellStyle2 implements ICellStyle {
             return null;
         }
 
-        byte[] rgb = null;
+        byte[] rgb = color.getRgbWithTint();
         boolean setTheme = color.getCTColor().isSetTheme();
         int themeIndex = color.getTheme();
 
-        if (setTheme) {
-            rgb = color.getRgbWithTint();
-        } else {
-            rgb = color.getRgb();
-        }
-
         // If color from the theme palette
         if (setTheme
-                // color.getRgb() for fonts and borders returns null for colors from the theme palette
-                // https://issues.apache.org/bugzilla/show_bug.cgi?id=50784
+                // color.getRgb() for borders returns null for colors from the theme palette
                 // https://issues.apache.org/bugzilla/show_bug.cgi?id=50846
-                // TODO Remove when POI team will fix these issues
+                // TODO Remove when POI team will fix this issue
                 && (rgb == null
                         // TODO Remove this when POI team will fix getting tints of brown and blue colors
                         // (3 and 4 columns from theme palette)
@@ -118,6 +111,7 @@ public class XlsCellStyle2 implements ICellStyle {
             }
         }
 
+        // byte to short
         if (rgb != null) {
             short[] result = new short[3];
             for (int i = 0; i < 3; i++) {
