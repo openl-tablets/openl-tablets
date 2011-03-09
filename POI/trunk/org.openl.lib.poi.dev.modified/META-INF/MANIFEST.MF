@@ -24,6 +24,7 @@ Export-Package: com.exigen.poi.proba,
  org.apache.poi.ss.util,
  org.apache.poi.xssf.model,
  org.apache.poi.xssf.usermodel,
+ org.apache.poi.xssf.usermodel.extensions,
  org.openl.poi.functions
 
 
