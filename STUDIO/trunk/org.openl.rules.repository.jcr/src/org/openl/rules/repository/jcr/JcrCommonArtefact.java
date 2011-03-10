@@ -43,8 +43,10 @@ public class JcrCommonArtefact {
         try {
             Node n = node();
             Node parent = n.getParent();
+            NodeUtil.smartCheckout(n, true);
 
             n.remove();
+
             parent.save();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to Delete.", e);
