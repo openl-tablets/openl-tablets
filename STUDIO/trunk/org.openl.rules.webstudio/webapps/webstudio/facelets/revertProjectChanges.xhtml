@@ -10,9 +10,11 @@
     <ui:define name="header">
         <style>
             .column {
-                padding: 5px 21px;
+                padding: 5px 11px;
+                text-align: center;
             }
         </style>
+        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
     </ui:define>
 
     <ui:define name="page">
@@ -32,7 +34,7 @@
                 <rich:dataTable value="#{history}" var="historyItem" rowKeyVar="row"
                     onRowMouseOver="rowMouseOver(this)" onRowMouseOut="rowMouseOut(this)"
                     onRowClick="setVersionToRevert(#{historyItem.version}); rowMouseClick(this)"
-                    columnClasses="column">
+                    headerClass="column" columnClasses="column">
                     <rich:column>
                         <f:facet name="header">
                             <h:outputText value="#" />
@@ -45,12 +47,28 @@
                         </f:facet>
                         <h:outputText value="#{historyItem.modifiedOn}" />
                     </rich:column>
+                    <rich:columns value="#{revertProjectChangesBean.sources}" var="source">
+                        <f:facet name="header">
+                            <h:outputText value="#{source}" />
+                        </f:facet>
+                        <h:graphicImage value="webresource/images/ok.png"
+                            rendered="#{historyItem.sourceName == source}" />
+                    </rich:columns>
+                    <rich:column>
+                        <f:facet name="header">
+                            <h:outputText value="Compare" />
+                        </f:facet>
+                        <h:selectBooleanCheckbox
+                            onmousedown="return checkVersionToCompare(this, #{historyItem.version})" />
+                    </rich:column>
                 </rich:dataTable>
 
                 <br />
-                <input type="hidden" id="versionToRevert" name="version" value=""  />
-                <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
-                    disabled="true" />
+                <input type="hidden" id="versionToRevert" name="toRevert" value=""  />
+                <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
+                <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}" />
+                <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
+                    oncomplete="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
             </h:form>
         </h:panelGroup>
 
@@ -65,6 +83,13 @@
             var rowDefaultColor = '#{a4jSkin.tableBackgroundColor}';
             var rowSelectedColor = '#FBBE83';
             var selectedRow;
+
+            var versionsToCompare = [];
+
+            var revertBtn = #{rich:element('revertBtn')};
+            revertBtn.disabled = true;
+            var compareBtn = #{rich:element('compareBtn')};
+            compareBtn.disabled = true;
 
             function rowMouseOver(row) {
                 row.style.cursor = 'pointer';
@@ -88,8 +113,31 @@
             }
 
             function setVersionToRevert(version) {
-                document.getElementById('versionToRevert').value = version;
-                #{rich:element('revertBtn')}.disabled = false;
+                $('versionToRevert').value = version;
+                revertBtn.disabled = false;
+            }
+
+            function checkVersionToCompare(checkbox, version) {
+                // Check
+                if (!checkbox.checked) {
+                    if (versionsToCompare.length >= 2) {
+                        alert('Ooops, maximum number of projects to compare is 2');
+                        return false;
+                    }
+                    versionsToCompare.push(version);
+
+                // Uncheck
+                } else {
+                    versionsToCompare = versionsToCompare.without(version);
+                }
+
+                $('versionsToCompare').value = versionsToCompare.join();
+
+                if (versionsToCompare.length >= 2) {
+                    compareBtn.disabled = false;
+                } else {
+                    compareBtn.disabled = true;
+                }
             }
         </script>
 

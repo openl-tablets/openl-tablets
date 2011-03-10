@@ -7,6 +7,7 @@ public class ProjectHistoryItem {
 
     private long version;
     private String modifiedOn;
+    private String sourceName;
 
     public ProjectHistoryItem() {
     }
@@ -25,6 +26,14 @@ public class ProjectHistoryItem {
 
     public void setModifiedOn(String modifiedOn) {
         this.modifiedOn = modifiedOn;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
 }

@@ -1,20 +1,28 @@
 package org.openl.rules.webstudio.web;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.source.SourceHistoryManager;
 
 /**
  * @author Andrei Astrouski
  */
 public class RevertProjectChangesBean {
 
-    public static String DATE_MODIFIED_PATTERN = "MM.dd.yyyy 'at' hh:mm:ss a";
+    private static final Log LOG = LogFactory.getLog(RevertProjectChangesBean.class);
+
+    public static final String DATE_MODIFIED_PATTERN = "MM.dd.yyyy 'at' hh:mm:ss a";
 
     public RevertProjectChangesBean() {
     }
@@ -23,14 +31,14 @@ public class RevertProjectChangesBean {
         List<ProjectHistoryItem> history = new ArrayList<ProjectHistoryItem>();
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        long[] modifyVersions = model.getHistoryManager().getVersions();
-        for (long modifyVersion : modifyVersions) {
-            String modifiedOn = new SimpleDateFormat(DATE_MODIFIED_PATTERN).format(
-                    new Date(modifyVersion));
-
+        Map<Long, File> historyMap = model.getHistoryManager().getAll();
+        for (long modifiedOn : historyMap.keySet()) {
             ProjectHistoryItem historyItem = new ProjectHistoryItem();
-            historyItem.setVersion(modifyVersion);
-            historyItem.setModifiedOn(modifiedOn);
+            String modifiedOnStr = new SimpleDateFormat(DATE_MODIFIED_PATTERN).format(
+                    new Date(modifiedOn));
+            historyItem.setVersion(modifiedOn);
+            historyItem.setModifiedOn(modifiedOnStr);
+            historyItem.setSourceName(historyMap.get(modifiedOn).getName());
 
             history.add(historyItem);
         }
@@ -38,8 +46,20 @@ public class RevertProjectChangesBean {
         return history;
     }
 
+    public List<String> getSources() {
+        List<String> result = new ArrayList<String>();
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        List<File> sources = model.getSources();
+
+        for (File source : sources) {
+            result.add(source.getName());
+        }
+
+        return result;
+    }
+
     public String revert() {
-        String versionToRevertParam = FacesUtils.getRequestParameter("version");
+        String versionToRevertParam = FacesUtils.getRequestParameter("toRevert");
         long versionToRevert = Long.parseLong(versionToRevertParam);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
@@ -49,6 +69,37 @@ public class RevertProjectChangesBean {
             FacesUtils.addErrorMessage("Error when reverting project");
             return null;
         }
+    }
+
+    public String compare() {
+        List<File> filesToCompare = new ArrayList<File>();
+        
+        try {
+            String versionsToCompareParam = FacesUtils.getRequestParameter("toCompare");
+            String[] versionsToCompareStr = versionsToCompareParam.split(",");
+    
+            long[] versionsToCompare = new long[versionsToCompareStr.length];
+            for (int i = 0; i < versionsToCompareStr.length; i++) {
+                versionsToCompare[i] = Long.parseLong(versionsToCompareStr[i]);
+            }
+
+            ProjectModel model = WebStudioUtils.getProjectModel();
+            SourceHistoryManager<File> historyManager = model.getHistoryManager();
+            for (long versionToCompare : versionsToCompare) {
+                File fileToCompare = historyManager.get(versionToCompare);
+                filesToCompare.add(fileToCompare);
+            }
+
+            UploadExcelDiffController diffController =
+                (UploadExcelDiffController) FacesUtils.getBackingBean("uploadExcelDiffController");
+            diffController.compare(filesToCompare);
+
+        } catch (Exception e) {
+            LOG.error(e);
+            FacesUtils.addErrorMessage("Error when comparing projects");
+        }
+
+        return null;
     }
 
 }

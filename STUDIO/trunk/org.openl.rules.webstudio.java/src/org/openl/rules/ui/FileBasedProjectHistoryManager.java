@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
@@ -37,19 +39,26 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         storage.add(source);
     }
 
-    public long[] getVersions() {
+    public File get(long date) {
+        List<File> files = new ArrayList<File>(
+                storage.list(new AgeFileFilter(date)));
+        if (!files.isEmpty()) {
+            return files.get(files.size() - 1);
+        }
+        return null;
+    }
+
+    public Map<Long, File> getAll() {
         Collection<File> files = storage.list();
-        long[] versions = new long[files.size()];
-        int i = 0;
+        Map<Long, File> versions = new TreeMap<Long, File>();
         for (File file : files) {
-            versions[i] = file.lastModified();
-            i++;
+            versions.put(file.lastModified(), file);
         }
         return versions;
     }
 
     public boolean revert(long date) {
-        File fileToRevert = getFileByDate(date);
+        File fileToRevert = get(date);
         if (fileToRevert != null) {
             File currentSourceFile = projectModel.getSourceByName(fileToRevert.getName());
             try {
@@ -64,15 +73,6 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
             return true;
         }
         return false;
-    }
-
-    private File getFileByDate(long date) {
-        List<File> files = new ArrayList<File>(
-                storage.list(new AgeFileFilter(date)));
-        if (!files.isEmpty()) {
-            return files.get(files.size() - 1);
-        }
-        return null;
     }
 
 }
