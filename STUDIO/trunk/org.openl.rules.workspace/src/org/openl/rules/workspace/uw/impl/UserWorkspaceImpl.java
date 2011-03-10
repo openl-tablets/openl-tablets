@@ -264,7 +264,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
                 }
                 userRulesProjects.put(name, uwp);
-            } else if (uwp.isLocalOnly()) {
+            } else if (uwp.isLocalOnly() || (uwp.isRepositoryOnly() && lp!= null)) {
                 userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
             } else {
                 uwp.refresh();

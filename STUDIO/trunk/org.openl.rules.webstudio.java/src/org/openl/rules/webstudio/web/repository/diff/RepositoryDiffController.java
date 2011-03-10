@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.repository.diff;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -37,7 +37,7 @@ import javax.faces.model.SelectItem;
  * @author Andrey Naumenko
  */
 public class RepositoryDiffController extends AbstractDiffController {
-    //private static Log log = LogFactory.getLog(StructuredDiffController.class);
+    private static Log log = LogFactory.getLog(RepositoryDiffController.class);
     private DesignTimeRepository designTimeRepository;
     private RepositoryTreeState repositoryTreeState;
     private AProject projectUW; // User Workspace project
@@ -126,17 +126,24 @@ public class RepositoryDiffController extends AbstractDiffController {
             selectedVersionRepo = projectUW.getVersion().getVersionName();
             excelArtefactsUW = getExcelArtefacts(projectUW, "");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Failed to init Diff controller", e);
         }
     }
 
     public void initProjectRepo() {
         try {
-            projectRepo = designTimeRepository.getProject(projectUW.getName(),
-                    new CommonVersionImpl(selectedVersionRepo));
+            CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
+            try {
+                projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
+            } catch (Exception e) {
+                log.warn(
+                        String.format("Could not get project\"%s\" of version \"%s\"", projectUW.getName(),
+                                version.getVersionName()), e);
+                projectRepo = designTimeRepository.getProject(projectUW.getName());
+            }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Failed to retrieve repository project info for Diff controller", e);
         }
     }
 

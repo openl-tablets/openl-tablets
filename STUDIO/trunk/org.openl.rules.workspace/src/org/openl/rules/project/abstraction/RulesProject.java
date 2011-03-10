@@ -124,6 +124,10 @@ public class RulesProject extends UserWorkspaceProject {
         return repository == null;
     }
 
+    public boolean isRepositoryOnly() {
+        return local == null;
+    }
+
     public boolean isOpened() {
         return getAPI() == local;
     }
