@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.webstudio.web.repository.UiConst;
 
@@ -50,5 +51,10 @@ public class TreeFile extends AbstractTreeNode {
     @Override
     public String getId() {
         return AbstractTreeNode.FILE_PREFIX + super.getId();
+    }
+
+    @Override
+    protected Map<Object, AbstractTreeNode> getElements() {
+        return null;
     }
 }

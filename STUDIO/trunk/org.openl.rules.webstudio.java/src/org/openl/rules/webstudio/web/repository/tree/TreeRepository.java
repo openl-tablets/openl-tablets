@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.repository.UiConst;
+import org.openl.util.filter.IFilter;
 
 /**
  * Represents Repository in a tree. Repository is a root element.
@@ -14,8 +16,8 @@ public class TreeRepository extends TreeFolder {
 
     private String type;
 
-    public TreeRepository(String id, String name, String type) {
-        super(id, name);
+    public TreeRepository(String id, String name, IFilter<AProjectArtefact> filter, String type) {
+        super(id, name, filter);
         this.type = type;
     }
 

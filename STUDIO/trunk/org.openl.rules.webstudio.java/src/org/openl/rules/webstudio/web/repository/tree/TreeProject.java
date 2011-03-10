@@ -6,10 +6,12 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
+import org.openl.util.filter.IFilter;
 
 import java.util.Date;
 import java.util.List;
@@ -101,8 +103,8 @@ public class TreeProject extends TreeFolder {
         return status.toString();
     }
 
-    public TreeProject(String id, String name) {
-        super(id, name);
+    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter) {
+        super(id, name, filter);
     }
 
     public synchronized boolean addDependency(ProjectDependency dep) throws ProjectException {

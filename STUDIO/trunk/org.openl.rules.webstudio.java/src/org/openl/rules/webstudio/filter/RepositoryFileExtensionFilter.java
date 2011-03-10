@@ -3,14 +3,16 @@ package org.openl.rules.webstudio.filter;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.util.filter.BaseFilter;
+import org.openl.util.ASelector;
+import org.openl.util.filter.IFilter;
 import org.apache.commons.lang.StringUtils;
 
 /**
  * Filter for <code>ProjectResource</code>s based on their file extension.
  */
-public class RepositoryFileExtensionFilter extends BaseFilter {
+public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> implements IFilter<AProjectArtefact> {
     /**
      * Arrays of accepted exceptions.
      */
@@ -41,10 +43,9 @@ public class RepositoryFileExtensionFilter extends BaseFilter {
         }
     }
 
-    public boolean select(Object obj) {
-        AProjectResource res = (AProjectResource) obj;
+    public boolean select(AProjectArtefact artefact) {
         for (String ext : extensions) {
-            if (res.getName().endsWith(ext)) {
+            if (artefact.getName().endsWith(ext)) {
                 return true;
             }
         }

@@ -1,5 +1,6 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
@@ -11,6 +12,7 @@
           <span style="float: left; font-weight: bold; margin-top: 2px;"><h:outputText value="Repository Tree" /></span>
 
           <span style="float: right;">
+            <a4j:status startText="Loading..."/>
             <input type="button" class="button" value="Filter" onclick="showRepFilterDialog();" />
             <h:commandLink class="actionButton" title="Refresh" action="#{repositoryTreeController.refreshTree}">
               <h:graphicImage url="/webresource/images/refresh.gif" styleClass="actionImage"
