@@ -11,7 +11,7 @@ public class DependencyBean {
     private String upperVersion;
 
     public String delete() {
-        RepositoryTreeState treeState = (RepositoryTreeState) FacesUtils.getValueExpressionValue("#{repositoryTreeState}");
+        RepositoryTreeState treeState = (RepositoryTreeState) FacesUtils.getBackingBean("repositoryTreeState");
         if (treeState != null) {
             AbstractTreeNode selectedNode = treeState.getSelectedNode();
             if (selectedNode instanceof TreeProject) {

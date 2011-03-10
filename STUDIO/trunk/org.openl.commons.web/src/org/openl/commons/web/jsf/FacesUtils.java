@@ -86,6 +86,10 @@ public abstract class FacesUtils {
         return valueExpression.getValue(getELContext());
     }
 
+    public static Object getBackingBean(String beanName) {
+        return getValueExpressionValue("#{" + beanName + "}");
+    }
+
     public static Object getValueExpressionValue(UIComponent component, String componentParam) {
         ValueExpression valueExpression = component.getValueExpression(componentParam);
         if (valueExpression != null) {
