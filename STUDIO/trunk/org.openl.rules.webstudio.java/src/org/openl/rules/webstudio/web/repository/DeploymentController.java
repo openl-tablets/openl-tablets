@@ -239,6 +239,7 @@ public class DeploymentController {
                     if (!project.isCheckedOut()) {
                         project.openVersion(item.getVersion());
                     }
+                    repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(projectName));
                 } catch (ProjectException e) {
                     LOG.error("Failed to open project '" + projectName + "'!", e);
                 }
