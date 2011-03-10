@@ -25,8 +25,6 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
-import org.openl.rules.webstudio.web.repository.tree.TreeFile;
-import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
@@ -122,9 +120,7 @@ public class RepositoryTreeController {
                 AProjectFolder folder = (AProjectFolder) projectArtefact;
                 try {
                     AProjectFolder addedFolder = folder.addFolder(folderName);
-                    TreeFolder treeFolder = new TreeFolder(addedFolder.getName(),addedFolder.getName());
-                    treeFolder.setData(addedFolder);
-                    repositoryTreeState.getSelectedNode().add(treeFolder);
+                    repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                 } catch (ProjectException e) {
                     LOG.error("Failed to create folder '" + folderName + "'.", e);
                     errorMessage = e.getMessage();
@@ -431,7 +427,7 @@ public class RepositoryTreeController {
     }
 
     public String filter() {
-        IFilter<?> filter = null;
+        IFilter<AProjectArtefact> filter = null;
         if (StringUtils.isNotBlank(filterString)) {
             filter = new RepositoryFileExtensionFilter(filterString);
         }
@@ -1032,9 +1028,7 @@ public class RepositoryTreeController {
 
             AProjectResource addedFileResource = node.addResource(fileName, new FileInputStream(uploadedFile));
 
-            TreeFile treeFile = new TreeFile(addedFileResource.getName(),addedFileResource.getName());
-            treeFile.setData(addedFileResource);
-            repositoryTreeState.getSelectedNode().add(treeFile);
+            repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
             clearUploadedFiles();
         } catch (Exception e) {
             LOG.error("Error adding file to user workspace.", e);

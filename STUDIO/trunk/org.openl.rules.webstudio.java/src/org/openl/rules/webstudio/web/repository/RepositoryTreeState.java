@@ -14,7 +14,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
@@ -32,11 +31,9 @@ import org.richfaces.component.UITree;
 
 import org.richfaces.event.NodeSelectedEvent;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Used for holding information about rulesRepository tree.
@@ -45,6 +42,7 @@ import java.util.ArrayList;
  */
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private static final Log LOG = LogFactory.getLog(RepositoryTreeState.class);
+    private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
     /** Root node for RichFaces's tree. It is not displayed. */
     private TreeRepository root;
@@ -52,7 +50,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
-    private IFilter filter = AllFilter.INSTANCE;
+    private IFilter<AProjectArtefact> filter = ALL_FILTER;
     
     public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getTreeNode();
@@ -86,14 +84,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             LOG.debug("Starting buildTree()");
         }
 
-        root = new TreeRepository("", "", "root");
+        root = new TreeRepository("", "", filter, "root");
 
         String rpName = "Rules Projects";
-        rulesRepository = new TreeRepository(rpName, rpName, UiConst.TYPE_REPOSITORY);
+        rulesRepository = new TreeRepository(rpName, rpName, filter, UiConst.TYPE_REPOSITORY);
         rulesRepository.setData(null);
 
         String dpName = "Deployment Projects";
-        deploymentRepository = new TreeRepository(dpName, dpName, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+        deploymentRepository = new TreeRepository(dpName, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
         //Such keys are used for correct order of repositories.
@@ -102,7 +100,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
-        IFilter filter = this.filter;
+        IFilter<AProjectArtefact> filter = this.filter;
         for (AProject project : rulesProjects) {
             if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
                 addRulesProjectToTree(project);
@@ -138,7 +136,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return deploymentRepository;
     }
 
-    public IFilter getFilter() {
+    public IFilter<AProjectArtefact> getFilter() {
         return filter;
     }
 
@@ -186,11 +184,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void refreshNode(AbstractTreeNode node){
         node.refresh();
-        if (node.getData().isFolder()) {
-            node.removeChildren();
-            TreeFolder folder = (TreeFolder) node;
-            traverseFolder(folder, ((AProjectFolder) folder.getData()).getArtefacts(), filter);
-        }
     }
     
     public void deleteNode(AbstractTreeNode node){
@@ -209,19 +202,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void addRulesProjectToTree(AProject project) {
-        TreeProject prj = new TreeProject(project.getName(), project.getName());
+        TreeProject prj = new TreeProject(project.getName(), project.getName(), filter);
         prj.setData(project);
         rulesRepository.add(prj);
-        traverseFolder(prj, project.getArtefacts(), filter);
     }
 
     public void addNodeToTree(AbstractTreeNode parent, AProjectArtefact childArtefact) {
         String id = childArtefact.getName();
         if (childArtefact.isFolder()) {
-            TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName());
+            TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName(), filter);
             treeFolder.setData(childArtefact);
             parent.add(treeFolder);
-            traverseFolder(treeFolder, ((AProjectFolder) childArtefact).getArtefacts(), filter);
         } else {
             TreeFile treeFile = new TreeFile(id, childArtefact.getName());
             treeFile.setData(childArtefact);
@@ -266,8 +257,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         refreshNode(selectedNode);
     }
 
-    public void setFilter(IFilter filter) {
-        this.filter = filter != null ? filter : AllFilter.INSTANCE;
+    public void setFilter(IFilter<AProjectArtefact> filter) {
+        this.filter = filter != null ? filter : ALL_FILTER;
         root = null;
     }
 
@@ -284,24 +275,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         userWorkspace.getDesignTimeRepository().addListener(this);
     }
 
-    public void traverseFolder(TreeFolder folder, Collection<AProjectArtefact> artefacts, IFilter filter) {
-
-        Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
-        for (AProjectArtefact artefact : artefacts) {
-            if (!(filter.supports(artefact.getClass()) && !filter.select(artefact))) {
-                filteredArtefacts.add(artefact);
-            }
-        }
-
-        AProjectArtefact[] sortedArtefacts = new AProjectArtefact[filteredArtefacts.size()];
-        sortedArtefacts = filteredArtefacts.toArray(sortedArtefacts);
-
-        Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
-
-        for (AProjectArtefact artefact : sortedArtefacts) {
-            addNodeToTree(folder, artefact);
-        }
-    }
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
         String projectName = event.getProjectName();

@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -87,10 +86,6 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      * Reference on parent node. For upper level node(s) it is <code>null</code>
      */
     private TreeNode<AProjectArtefact> parent;
-    /**
-     * Collection of children. In LeafOnly mode it is left uninitialized.
-     */
-    private Map<Object, AbstractTreeNode> elements;
 
     /**
      * When <code>true</code> then the node cannot have children. Any
@@ -123,11 +118,9 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         this.id = id;
         this.name = name;
         this.isLeafOnly = isLeafOnly;
-
-        if (!isLeafOnly) {
-            elements = new TreeMap<Object, AbstractTreeNode>();
-        }
     }
+    
+    protected abstract Map<Object, AbstractTreeNode> getElements(); 
 
     /**
      * Short for <code>addChild(child.getId(), child)</code>.
@@ -152,7 +145,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     public void addChild(Object id, TreeNode<AProjectArtefact> child) {
         checkLeafOnly();
 
-        elements.put(id, (AbstractTreeNode) child);
+        getElements().put(id, (AbstractTreeNode) child);
         child.setParent(this);
     }
 
@@ -178,13 +171,13 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      * Clears children. Works recursively.
      */
     protected void clear() {
-        if (elements != null) {
+        if (getElements() != null) {
             // recursion
-            for (AbstractTreeNode child : elements.values()) {
+            for (AbstractTreeNode child : getElements().values()) {
                 child.clear();
             }
 
-            elements.clear();
+            getElements().clear();
         }
     }
 
@@ -194,22 +187,22 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     public AbstractTreeNode getChild(Object id) {
         checkLeafOnly();
 
-        if(elements.containsKey(id)){
-            return elements.get(id);
+        if(getElements().containsKey(id)){
+            return getElements().get(id);
         } else if (id instanceof String){
             String idAsString = (String)id;
-            if(elements.containsKey(FOLDER_PREFIX + idAsString)){
-                return elements.get(FOLDER_PREFIX + idAsString);
+            if(getElements().containsKey(FOLDER_PREFIX + idAsString)){
+                return getElements().get(FOLDER_PREFIX + idAsString);
             }
-            if(elements.containsKey(FILE_PREFIX + idAsString)){
-                return elements.get(FILE_PREFIX + idAsString);
+            if(getElements().containsKey(FILE_PREFIX + idAsString)){
+                return getElements().get(FILE_PREFIX + idAsString);
             }
         }
         return null;
     }
 
     public List<AbstractTreeNode> getChildNodes() {
-        List<AbstractTreeNode> list = new ArrayList<AbstractTreeNode>(elements.values());
+        List<AbstractTreeNode> list = new ArrayList<AbstractTreeNode>(getElements().values());
         // elements are sorted already
         // Collections.sort(list, CHILD_COMPARATOR);
 
@@ -228,7 +221,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
             result = EMPTY.entrySet().iterator();
             // work around limitation for TreeNode
         } else {
-            result = elements.entrySet().iterator();
+            result = getElements().entrySet().iterator();
         }
 
         return result;
@@ -332,6 +325,10 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         }
     }
 
+    protected boolean isLeafOnly() {
+        return isLeafOnly;
+    }
+
     /**
      * @see TreeNode#isLeaf()
      */
@@ -341,7 +338,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         if (isLeafOnly) {
             result = true;
         } else {
-            result = elements.isEmpty();
+            result = getElements().isEmpty();
         }
 
         return result;
@@ -355,12 +352,12 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     public void removeChild(Object id) {
         checkLeafOnly();
 
-        elements.remove(id);
+        getElements().remove(id);
     }
 
     public void removeChildren() {
         checkLeafOnly();
-        elements.clear();
+        getElements().clear();
     }
 
     public void setData(AProjectArtefact data) {

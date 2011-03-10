@@ -5,16 +5,14 @@ package org.openl.util.filter;
  *
  * @author Aliaksandr Antonik.
  */
-public class AllFilter extends BaseFilter {
-    public final static AllFilter INSTANCE = new AllFilter();
-
+public class AllFilter<T> extends BaseFilter<T> {
     /**
      * Returns <code>true</code> for any object, including <code>null</code>.
      *
      * @param obj object to check
      * @return true
      */
-    public boolean select(Object obj) {
+    public boolean select(T obj) {
         return true;
     }
 
