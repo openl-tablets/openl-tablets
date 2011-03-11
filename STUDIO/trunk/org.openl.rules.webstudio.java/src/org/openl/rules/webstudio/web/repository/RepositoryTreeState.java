@@ -287,7 +287,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                     LOG.error("Failed to add new project to the repository tree.", e);
                 }
             }
-        } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
+        } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)
+                && !userWorkspace.getLocalWorkspace().hasProject(projectName)) {
             deleteNode(rulesProject);
         } else {
             try {
