@@ -229,7 +229,11 @@ public final class OperationEvaluationContext {
 			default:
 				throw new IllegalStateException("Unexpected reference classification of '" + refStrPart1 + "'.");
 		}
-		return new LazyAreaEval(firstRow, firstCol, lastRow, lastCol, sre);
+        if (firstRow < 0 || firstCol < 0 || lastCol < firstCol || lastRow < firstRow) {
+            return ErrorEval.REF_INVALID;
+        } else {
+            return new LazyAreaEval(firstRow, firstCol, lastRow, lastCol, sre);
+        }
 	}
 
 	private static int parseRowRef(String refStrPart) {

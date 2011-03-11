@@ -43,7 +43,7 @@ public final class RowFunc implements Function0Arg, Function1Arg, ArrayMode {
             rnum = ((RefEval) arg0).getRow();
         } else {
             // anything else is not valid argument
-            return ErrorEval.VALUE_INVALID;
+            return new NumberEval(1);
         }
 
         return new NumberEval(rnum + 1);
