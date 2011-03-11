@@ -16,8 +16,9 @@
 
     <h:form id="smartRedeployForm">
       <div style="width:380px;height:180px;overflow:auto;">
+      <h:outputText value="There is no deployment projects containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty  smartRedeployController.items}"/>
       <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
-        cellspacing="0px" styleClass="standard" rowClasses="odd,even" >
+        cellspacing="0px" styleClass="standard" rowClasses="odd,even" rendered="#{not empty smartRedeployController.items}">
         <f:facet name="header">
           <rich:columnGroup>
             <rich:column>
