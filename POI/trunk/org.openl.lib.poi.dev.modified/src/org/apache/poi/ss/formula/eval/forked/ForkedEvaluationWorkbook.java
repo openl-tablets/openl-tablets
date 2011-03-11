@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
 import org.apache.poi.ss.formula.EvaluationSheet;
@@ -180,4 +181,24 @@ public final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 	}
 // end changes VIA
 
+
+    public EvaluationName getName(String name, int sheetIndex) {
+        return _masterBook.getName(name, sheetIndex);
+    }
+
+    public NameXPtg getNameXPtg(String name) {
+        return getNameXPtg(name);
+    }
+
+    public int getExternalSheetIndex(String sheetName) {
+        return _masterBook.getExternalSheetIndex(sheetName);
+    }
+
+    public int getExternalSheetIndex(String workbookName, String sheetName) {
+        return getExternalSheetIndex(workbookName, sheetName);
+    }
+
+    public SpreadsheetVersion getSpreadsheetVersion() {
+        return _masterBook.getSpreadsheetVersion();
+    }
 }

@@ -29,7 +29,7 @@ import org.apache.poi.ss.usermodel.Workbook;
  *
  * @author Josh Micich
  */
-public interface EvaluationWorkbook {
+public interface EvaluationWorkbook extends FormulaParsingWorkbook{
 	String getSheetName(int sheetIndex);
 	/**
 	 * @return -1 if the specified sheet is from a different book
