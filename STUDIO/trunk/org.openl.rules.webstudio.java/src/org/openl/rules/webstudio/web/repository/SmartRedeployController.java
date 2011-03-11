@@ -40,7 +40,9 @@ public class SmartRedeployController {
             return null;
         }
 
-        items = getItems4Project(project);
+        if (items == null) {
+            items = getItems4Project(project);
+        }
         return items;
     }
 
