@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-api-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-impl-2.1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.13.jar"/>

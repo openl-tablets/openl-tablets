@@ -127,15 +127,6 @@
         <artifactId>org.openl.commons</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
-
-
-
-      <!-- TODO: remove -->
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>1.8.2</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
