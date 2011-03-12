@@ -23,6 +23,12 @@
 
         <c:set var="history" value="#{revertProjectChangesBean.history}" />
 
+        <h:panelGroup rendered="#{empty history}">
+            <h:panelGrid>
+                <p class="info_box">Project has no changes</p>
+            </h:panelGrid>
+        </h:panelGroup>
+
         <h:panelGroup rendered="#{not empty history}">
             <h:panelGrid>
                 <h:messages globalOnly="true" errorClass="error_box" infoClass="info_box"
@@ -70,13 +76,6 @@
                 <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
                     oncomplete="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
             </h:form>
-        </h:panelGroup>
-
-        <h:panelGroup rendered="#{empty history}">
-            <h:panelGrid>
-                <p class="info_box">Project has no changes</p>
-            </h:panelGrid>
-        </h:panelGroup>
 
         <script type="text/javascript">
             var rowHoverColor = '#FAE5C1';
@@ -140,6 +139,8 @@
                 }
             }
         </script>
+
+        </h:panelGroup>
 
     </ui:define>
 </ui:composition>
