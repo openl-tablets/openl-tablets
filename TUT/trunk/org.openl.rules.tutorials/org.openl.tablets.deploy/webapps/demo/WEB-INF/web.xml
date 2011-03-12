@@ -8,21 +8,6 @@
     <param-value>.jsp</param-value>
   </context-param>
 
-  <context-param>
-    <param-name>log4jConfigLocation</param-name>
-    <param-value>/WEB-INF/conf/log4j.properties</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>log4jRefreshInterval</param-name>
-    <param-value>5000</param-value> <!-- every 5 seconds -->
-  </context-param>
-
-  <!-- Listeners, that does all the startup work (configuration, init). -->
-  <listener>
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-  </listener>
-
   <servlet>
     <servlet-name>FacesServlet</servlet-name>
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
