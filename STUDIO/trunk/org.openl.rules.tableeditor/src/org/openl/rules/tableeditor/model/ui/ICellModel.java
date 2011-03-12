@@ -34,8 +34,6 @@ public interface ICellModel {
 
     void setRowspan(int rowspan);
 
-    void toHtmlString(StringBuilder buf, TableModel model);
-
     /**
      * @return true if cell contains formula.
      */

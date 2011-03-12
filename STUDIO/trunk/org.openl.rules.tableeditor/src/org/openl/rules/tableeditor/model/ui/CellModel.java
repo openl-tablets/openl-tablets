@@ -298,14 +298,6 @@ public class CellModel implements ICellModel {
         this.width = width;
     }
 
-    /** @deprecated */
-    public void toHtmlString(StringBuilder buf, TableModel table) {
-        buf.append("<td");
-        atttributesToHtml(buf, table);
-        //FIXME: Should formulas be displayed?
-        buf.append('>').append(getContent(false)).append("</td>\n");
-    }
-
     public boolean hasFormula() {
         return hasFormula;
     }
