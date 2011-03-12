@@ -2,8 +2,8 @@
 
 	<property name="work.dir" value="/openl" />
 	<property name="rep.both" value="repositories/common-repository.zip" />
-	<property name="tomcat.dest.dir" value="tomcat-6.0" />
-	<property name="tomcat.dest.path" value="${work.dir}/tomcat-6.0" />
+	<property name="tomcat.dest.dir" value="tomcat" />
+	<property name="tomcat.dest.path" value="${work.dir}/tomcat" />
 	<property name="webapp.studio.name" value="webstudio" />
 	<property name="webapp.client.name" value="demo" />
 	<property name="webapp.ws.name" value="webservicesdeployer" />
