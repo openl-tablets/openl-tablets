@@ -989,26 +989,31 @@ public class ProjectModel {
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
-        
+
+        // Check single test name. If test name is not specified run all tests
+        // of current test table.
+        //
         if (testName == null) {
             IOpenMethod m = getMethod(elementUri);
             return convertTestResult(runMethod(m));
         }
 
         RanTestsResults testsRunner = getRunMethods(elementUri);
-
         int tid = Integer.parseInt(testID);
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+
         try {
+            // Run single test.
             Object res = testsRunner.run(testName, tid, target, env, 1);
-            return res;
+            // Return result of test as an array with single element.
+            //
+            return new Object[] { res };
         } catch (Throwable t) {
             Log.error("Error during Method run: ", t);
             return t;
         }
-
     }
 
     public Object runMethod(IOpenMethod method) {
