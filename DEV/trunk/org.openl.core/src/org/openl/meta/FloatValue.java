@@ -214,12 +214,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     public static FloatValue pow(FloatValue floatValue1, FloatValue floatValue2) {
-        return new FloatValue(new FloatValue((long)Math.pow(floatValue1.getValue(), floatValue2.getValue())), 
+        return new FloatValue(new FloatValue((float)Math.pow(floatValue1.getValue(), floatValue2.getValue())), 
             NumberOperations.POW.toString(), new FloatValue[] { floatValue1, floatValue2 });
     }
 
     public static FloatValue round(FloatValue floatValue1) {
-        return new FloatValue(new FloatValue((long)Math.round(floatValue1.getValue())), 
+        return new FloatValue(new FloatValue((float)Math.round(floatValue1.getValue())), 
             NumberOperations.ROUND.toString(), new FloatValue[] { floatValue1 });
     }
 
@@ -238,7 +238,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     public FloatValue(String valueString) {        
-        value = Long.parseLong(valueString);
+        value = Float.parseFloat(valueString);
     }
     
     public FloatValue(float value, String name) {
@@ -260,7 +260,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     /**Function constructor**/
     public FloatValue(FloatValue result, String functionName, FloatValue[] params) {
         super(result, functionName, params);
-        this.value = result.longValue();
+        this.value = result.floatValue();
     }
 
     @Override
