@@ -41,7 +41,7 @@ public class ObjectViewer {
                 if (col < firstColWidth) {
                     return null;
                 }
-                if (res.width() <= col - firstColWidth || res.height() <= row - firstRowHeight) {
+                if (res.getWidth() <= col - firstColWidth || res.getHeight() <= row - firstRowHeight) {
                     return null;
                 }
 

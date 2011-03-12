@@ -96,8 +96,13 @@ public class TableViewer {
 
         String formattedValue = cell.getFormattedValue();
         if (StringUtils.isNotBlank(formattedValue)) {
-            String htmlEscapedValue = StringEscapeUtils.escapeHtml(formattedValue);
-            cm.setContent(htmlEscapedValue);
+            String content = null;
+            if (!formattedValue.matches("<a href.*</a>")) { // Allow links
+                content = StringEscapeUtils.escapeHtml(formattedValue);
+            } else {
+                content = formattedValue;
+            }
+            cm.setContent(content);
             if (cell.getFormula() != null) {
                 cm.setFormula(cell.getFormula());
             }
