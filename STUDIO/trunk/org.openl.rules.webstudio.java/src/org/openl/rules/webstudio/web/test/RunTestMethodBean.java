@@ -8,6 +8,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -115,12 +116,11 @@ public class RunTestMethodBean {
         Object result = resultItems.getRowData();
         return TestResultsHelper.getSpreadsheetResult(result);
     }
-        
-    @SuppressWarnings("deprecation")
+
     public String getFormattedSpreadsheetResult() {
         SpreadsheetResult spreadsheetResult = getSpreadsheetResult();
         if (spreadsheetResult != null) {
-            return new ObjectViewer().displayResult(spreadsheetResult);
+            return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult);
         }
         return StringUtils.EMPTY;
     }

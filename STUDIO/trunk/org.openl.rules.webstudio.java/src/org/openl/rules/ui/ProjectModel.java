@@ -59,7 +59,6 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
-import org.openl.rules.tableeditor.model.ui.TableViewer;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnit;
@@ -1152,6 +1151,8 @@ public class ProjectModel {
         previousUsedMessages = OpenLMessages.getCurrentInstance();
     }
 
+    @Deprecated
+    // TODO Move to TableEditor component
     public String showTableWithSelection(String url, String view) {
         TableSyntaxNode tsn = findNode(url);
         if (tsn == null) {
@@ -1203,17 +1204,6 @@ public class ProjectModel {
         String tableView = getTableView(null);
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;
-    }
-
-    @Deprecated
-    public static String showTable(IGridTable gt, boolean showgrid) {
-        return showTable(gt, (IGridFilter[]) null, showgrid);
-    }
-
-    @Deprecated
-    public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
-        TableModel model = TableModel.initializeTableModel(gt, filters);
-        return TableViewer.showTable(model, showgrid);
     }
 
     public boolean isProjectCompiledSuccessfully() {
