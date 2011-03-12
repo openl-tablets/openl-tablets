@@ -318,7 +318,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 if (sheet instanceof XSSFSheet && sheet.getNumMergedRegions() == 0) {
                     // TODO remove this when in will be implemented in POI(see
                     // https://issues.apache.org/bugzilla/show_bug.cgi?id=49895)
-                    ((XSSFSheet) sheet).getCTWorksheet().unsetMergeCells();
+                    if (((XSSFSheet) sheet).getCTWorksheet().getMergeCells() != null) {
+                        ((XSSFSheet) sheet).getCTWorksheet().unsetMergeCells();
+                    }
                 }
                 return;
             }
