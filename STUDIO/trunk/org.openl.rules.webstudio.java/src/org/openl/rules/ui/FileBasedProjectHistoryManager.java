@@ -48,13 +48,22 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         return null;
     }
 
-    public Map<Long, File> getAll() {
-        Collection<File> files = storage.list();
+    public Map<Long, File> get(String[] names) {
+        Collection<File> files = null;
+        if (names != null && names.length > 0) {
+            files = storage.list(names);
+        } else {
+            files = storage.list();
+        }
         Map<Long, File> versions = new TreeMap<Long, File>();
         for (File file : files) {
             versions.put(file.lastModified(), file);
         }
         return versions;
+    }
+
+    public Map<Long, File> getAll() {
+        return get(null);
     }
 
     public boolean revert(long date) {

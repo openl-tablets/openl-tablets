@@ -1243,6 +1243,17 @@ public class ProjectModel {
         return sourceFiles;
     }
 
+    public String[] getModuleSourceNames() {
+        List<File> moduleSources = getSources();
+        String[] moduleSourceNames = new String[moduleSources.size()];
+        int i = 0;
+        for (File source : moduleSources) {
+            moduleSourceNames[i] = source.getName();
+            i++;
+        }
+        return moduleSourceNames;
+    }
+
     public File getSourceByName(String fileName) {
         List<File> sourceFiles = getSources();
 

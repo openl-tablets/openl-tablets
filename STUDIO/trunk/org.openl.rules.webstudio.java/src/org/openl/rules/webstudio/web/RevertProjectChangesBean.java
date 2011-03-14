@@ -31,7 +31,8 @@ public class RevertProjectChangesBean {
         List<ProjectHistoryItem> history = new ArrayList<ProjectHistoryItem>();
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        Map<Long, File> historyMap = model.getHistoryManager().getAll();
+        String[] sourceNames = getSources();
+        Map<Long, File> historyMap = model.getHistoryManager().get(sourceNames);
         for (long modifiedOn : historyMap.keySet()) {
             ProjectHistoryItem historyItem = new ProjectHistoryItem();
             String modifiedOnStr = new SimpleDateFormat(DATE_MODIFIED_PATTERN).format(
@@ -46,16 +47,9 @@ public class RevertProjectChangesBean {
         return history;
     }
 
-    public List<String> getSources() {
-        List<String> result = new ArrayList<String>();
+    public String[] getSources() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        List<File> sources = model.getSources();
-
-        for (File source : sources) {
-            result.add(source.getName());
-        }
-
-        return result;
+        return model.getModuleSourceNames();
     }
 
     public String revert() {
