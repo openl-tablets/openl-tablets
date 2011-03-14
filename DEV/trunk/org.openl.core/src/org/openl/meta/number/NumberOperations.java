@@ -15,11 +15,20 @@ public enum NumberOperations {
     REM("%"),
     
     COPY("COPY"),
-    MAX("max"),    
+    MAX("max"), 
+    MAX_IN_ARRAY("max in array"),
     MIN("min"),
+    MIN_IN_ARRAY("min in array"),
     ROUND("round"),
     POW("pow"),
-    ABS("abs");
+    ABS("abs"),
+    AVG("average"),
+    SUM("sum"), 
+    MEDIAN("median"), 
+    PRODUCT("product"), 
+    QUAOTIENT("quaotient"), 
+    MOD("mod"), 
+    SMALL("small");
     
     private String description;
     

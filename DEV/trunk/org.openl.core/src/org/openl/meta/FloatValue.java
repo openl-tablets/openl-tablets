@@ -1,7 +1,10 @@
 package org.openl.meta;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
@@ -233,6 +236,80 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             NumberOperations.SUBTRACT.toString(), false);
     }
     
+    // Math functions
+    
+    public static FloatValue max(FloatValue[] values) {
+        FloatValue result = (FloatValue) MathUtils.max(values);        
+        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+    }
+
+    public static FloatValue min(FloatValue[] values) {
+        FloatValue result = (FloatValue) MathUtils.min(values);
+        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+    }
+    
+    public static FloatValue avg(FloatValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = floatValueArrayToFloat(values);
+        float avg = MathUtils.avg(primitiveArray);
+        
+        return new FloatValue(new FloatValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static FloatValue sum(FloatValue[] values) {  
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = floatValueArrayToFloat(values);
+        float sum = MathUtils.sum(primitiveArray);
+        return new FloatValue(new FloatValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static FloatValue median(FloatValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = floatValueArrayToFloat(values);
+        float median = MathUtils.median(primitiveArray);
+        return new FloatValue(new FloatValue(median), NumberOperations.MEDIAN.toString(), values);
+    }
+    
+    public static DoubleValue product(FloatValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = floatValueArrayToFloat(values);
+        double product = MathUtils.product(primitiveArray);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static LongValue quaotient(FloatValue number, FloatValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null);
+        }
+        return null;
+    }
+    
+    public static FloatValue mod(FloatValue number, FloatValue divisor) {
+        if (number != null && divisor != null) {
+            FloatValue result = new FloatValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new FloatValue(result, NumberOperations.MOD.toString(), new FloatValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static FloatValue small(FloatValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = floatValueArrayToFloat(values);
+        float small = MathUtils.small(primitiveArray, position);
+        return new FloatValue((FloatValue) getAppropriateValue(values, new FloatValue(small)), NumberOperations.SMALL.toString(), values);
+    }
+    
     public FloatValue(float value) {
         this.value = value;
     }
@@ -335,6 +412,17 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     public static FloatValue positive(FloatValue value) {
         return value;
+    }
+    
+    private static float[] floatValueArrayToFloat(FloatValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            float[] primitiveArray = new float[values.length];
+            for (int i = 0; i < values.length; i++) {
+                primitiveArray[i] = values[i].getValue();
+            }
+            return primitiveArray;
+        }
+        return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
 
 }

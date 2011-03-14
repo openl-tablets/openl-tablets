@@ -19,7 +19,9 @@ public class NumberFunction<T extends NumberValue<T>> {
     
     public NumberFunction(String functionName, T[] params, T result) {
         this.functionName = functionName;
-        this.params = params.clone();
+        if (params != null) {
+            this.params = params.clone();
+        }        
         this.result = result;
     }
     

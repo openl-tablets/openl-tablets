@@ -2,9 +2,11 @@ package org.openl.meta;
 
 import java.math.BigDecimal;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
 public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
@@ -176,8 +178,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (bigDecimalValue1 == null && bigDecimalValue2 == null) {
             return null;
         }
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().divide(
-            bigDecimalValue2.getValue()), NumberOperations.DIVIDE.toString(), true);
+        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
+            MathUtils.divide(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
+            NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
@@ -287,6 +290,64 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().subtract(
             bigDecimalValue2.getValue()), NumberOperations.SUBTRACT.toString(), false);
+    }
+    
+// Math functions
+    
+    public static BigDecimalValue max(BigDecimalValue[] values) {
+        BigDecimalValue result = (BigDecimalValue) MathUtils.max(values);        
+        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+    }
+
+    public static BigDecimalValue min(BigDecimalValue[] values) {
+        BigDecimalValue result = (BigDecimalValue) MathUtils.min(values);
+        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+    }
+    
+    public static BigDecimalValue avg(BigDecimalValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        BigDecimal[] primitiveArray = unwrap(values);
+        BigDecimal avg = MathUtils.avg(primitiveArray);
+        
+        return new BigDecimalValue(new BigDecimalValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static BigDecimalValue sum(BigDecimalValue[] values) { 
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        BigDecimal[] primitiveArray = unwrap(values);
+        BigDecimal sum = MathUtils.sum(primitiveArray);
+        return new BigDecimalValue(new BigDecimalValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static BigDecimalValue product(BigDecimalValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        BigDecimal[] primitiveArray = unwrap(values);
+        BigDecimal product = MathUtils.product(primitiveArray);
+        
+        // we loose the parameters, but not the result of computation.
+        return new BigDecimalValue(new BigDecimalValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static LongValue quaotient(BigDecimalValue number, BigDecimalValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null);
+        }
+        return null;
+    }
+    
+    public static BigDecimalValue mod(BigDecimalValue number, BigDecimalValue divisor) {
+        if (number != null && divisor != null) {
+            BigDecimalValue result = new BigDecimalValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new BigDecimalValue(result, NumberOperations.MOD.toString(), new BigDecimalValue[]{number, divisor} );
+        }
+        return null;
     }
 
     public BigDecimalValue(BigDecimal value) {
@@ -409,6 +470,17 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     public static BigDecimalValue positive(BigDecimalValue value) {
         return value;
+    }
+    
+    private static BigDecimal[] unwrap(BigDecimalValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            BigDecimal[] primitiveArray = new BigDecimal[values.length];
+            for (int i = 0; i < values.length; i++) {
+                primitiveArray[i] = values[i].getValue();
+            }
+            return primitiveArray;
+        }
+        return new BigDecimal[0];
     }
 
 }

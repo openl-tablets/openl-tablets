@@ -1,7 +1,10 @@
 package org.openl.meta;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
@@ -240,6 +243,84 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return new ShortValue(shortValue1, shortValue2, (short) (shortValue1.getValue() - shortValue2.getValue()),
             NumberOperations.SUBTRACT.toString(), false);
     }
+    
+    // Math functions
+    
+    public static ShortValue max(ShortValue[] values) {
+        ShortValue result = (ShortValue) MathUtils.max(values);        
+        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(),
+            values);
+    }
+
+    public static ShortValue min(ShortValue[] values) {
+        ShortValue result = (ShortValue) MathUtils.min(values);
+        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), 
+            values);
+    }
+    
+    public static ShortValue avg(ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] shortArray = shortValueArrayToShort(values);
+        short avg = MathUtils.avg(shortArray);
+        
+        return new ShortValue(new ShortValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static ShortValue sum(ShortValue[] values) {    
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] shortArray = shortValueArrayToShort(values);
+        short sum = MathUtils.sum(shortArray);
+        return new ShortValue(new ShortValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static ShortValue median(ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] shortArray = shortValueArrayToShort(values);
+        short median = MathUtils.median(shortArray);
+        return new ShortValue(new ShortValue(median), NumberOperations.MEDIAN.toString(), values);
+    }
+    
+    public static DoubleValue product(ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] shortArray = shortValueArrayToShort(values);
+        double product = MathUtils.product(shortArray);
+        
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static ShortValue quaotient(ShortValue number, ShortValue divisor) {
+        if (number != null && divisor != null) {
+            ShortValue result = new ShortValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new ShortValue(result, NumberOperations.QUAOTIENT.toString(), new ShortValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static ShortValue mod(ShortValue number, ShortValue divisor) {
+        if (number != null && divisor != null) {
+            ShortValue result = new ShortValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new ShortValue(result, NumberOperations.MOD.toString(), new ShortValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static ShortValue small(ShortValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] shortArray = shortValueArrayToShort(values);
+        short small = MathUtils.small(shortArray, position);
+        return new ShortValue((ShortValue) getAppropriateValue(values, new ShortValue(small)), NumberOperations.SMALL.toString(), values);
+    }
 
     public ShortValue(short value) {
         this.value = value;
@@ -344,6 +425,17 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     public static ShortValue positive(ShortValue value) {
         return value;
+    }
+    
+    private static short[] shortValueArrayToShort(ShortValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            short[] shortArray = new short[values.length];
+            for (int i = 0; i < values.length; i++) {
+                shortArray[i] = values[i].getValue();
+            }
+            return shortArray;
+        }
+        return ArrayUtils.EMPTY_SHORT_ARRAY;
     }
 
 }

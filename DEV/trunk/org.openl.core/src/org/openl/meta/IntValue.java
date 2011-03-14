@@ -1,7 +1,10 @@
 package org.openl.meta;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 public class IntValue extends ExplanationNumberValue<IntValue> {
     
@@ -241,6 +244,82 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return new IntValue(intValue1, intValue2, intValue1.getValue() - intValue2.getValue(), 
             NumberOperations.SUBTRACT.toString(), false);
     }
+    
+    // Math functions
+    
+    public static IntValue max(IntValue[] values) {
+        IntValue result = (IntValue) MathUtils.max(values);        
+        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(),
+            values);
+    }
+
+    public static IntValue min(IntValue[] values) {
+        IntValue result = (IntValue) MathUtils.min(values);
+        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), 
+            values);
+    }
+    
+    public static IntValue avg(IntValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = intValueArrayToInt(values);
+        int avg = MathUtils.avg(primitiveArray);
+        
+        return new IntValue(new IntValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static IntValue sum(IntValue[] values) {    
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = intValueArrayToInt(values);
+        int sum = MathUtils.sum(primitiveArray);
+        return new IntValue(new IntValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static IntValue median(IntValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = intValueArrayToInt(values);
+        int median = MathUtils.median(primitiveArray);
+        return new IntValue(new IntValue(median), NumberOperations.MEDIAN.toString(), values);
+    }
+    
+    public static DoubleValue product(IntValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = intValueArrayToInt(values);
+        double product = MathUtils.product(primitiveArray);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static IntValue quaotient(IntValue number, IntValue divisor) {
+        if (number != null && divisor != null) {
+            IntValue result = new IntValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new IntValue(result, NumberOperations.QUAOTIENT.toString(), new IntValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static IntValue mod(IntValue number, IntValue divisor) {
+        if (number != null && divisor != null) {
+            IntValue result = new IntValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new IntValue(result, NumberOperations.MOD.toString(), new IntValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static IntValue small(IntValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = intValueArrayToInt(values);
+        int small = MathUtils.small(primitiveArray, position);
+        return new IntValue((IntValue) getAppropriateValue(values, new IntValue(small)), NumberOperations.SMALL.toString(), values);
+    }
 
     public IntValue(int value) {
         this.value = value;
@@ -345,6 +424,17 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
     public static IntValue positive(IntValue value) {
         return value;
+    }
+    
+    private static int[] intValueArrayToInt(IntValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            int[] intArray = new int[values.length];
+            for (int i = 0; i < values.length; i++) {
+                intArray[i] = values[i].getValue();
+            }
+            return intArray;
+        }
+        return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
 }

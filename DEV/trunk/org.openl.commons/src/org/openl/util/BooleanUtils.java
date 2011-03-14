@@ -74,5 +74,21 @@ public class BooleanUtils {
         }
         return false;
     }
+    
+    // logical AND
+    /**
+     * returns true if all elements are true
+     */
+    public static boolean and(boolean[] values) {
+        if (values == null) {
+            return false;
+        }
+        for (boolean value : values) {
+            if (!value) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }
