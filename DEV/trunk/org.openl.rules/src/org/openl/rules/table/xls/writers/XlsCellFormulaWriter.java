@@ -11,16 +11,30 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue(boolean writeMetaInfo) {
-        getCellToWrite().setCellFormula(getStringValue().replaceFirst("=", ""));
+        String formula = getStringValue();
+        try{
+            writeExcelFormula(formula.replaceFirst("=", ""));
+        }catch (Exception e) {
+            // if the setting of Excel formula have been failed then we have
+            // OpenL formula
+            //TODO make separate writers and editors for OpenL and Excel Formulas
+            writeOpenLFormula(formula);
+        }
+        if (writeMetaInfo) {
+            setMetaInfo(String.class);
+        }
+    }
+    
+    private void writeExcelFormula(String formula){
+        getCellToWrite().setCellFormula(formula);
 
         try {
             PoiExcelHelper.evaluateFormula((getCellToWrite()));
         } catch (Exception e) {
         }
-
-        if (writeMetaInfo) {
-            setMetaInfo(String.class);
-        }
     }
 
+    private void writeOpenLFormula(String formula){
+        getCellToWrite().setCellValue(formula);
+    }
 }
