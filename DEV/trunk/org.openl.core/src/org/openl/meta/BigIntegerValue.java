@@ -2,9 +2,12 @@ package org.openl.meta;
 
 import java.math.BigInteger;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
@@ -278,6 +281,74 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue()
             .subtract(bigIntValue2.getValue()), NumberOperations.SUBTRACT.toString(), false);
     }
+    
+    // Math functions
+    
+    public static BigIntegerValue max(BigIntegerValue[] values) {
+        BigIntegerValue result = (BigIntegerValue) MathUtils.max(values);        
+        return new BigIntegerValue((BigIntegerValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY.toString(), values);
+    }
+
+    public static BigIntegerValue min(BigIntegerValue[] values) {
+        BigIntegerValue result = (BigIntegerValue) MathUtils.min(values);
+        return new BigIntegerValue((BigIntegerValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY.toString(), values);
+    }
+    
+    public static BigIntegerValue avg(BigIntegerValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        BigInteger[] primitiveArray = unwrap(values);
+        BigInteger avg = MathUtils.avg(primitiveArray);
+        
+        return new BigIntegerValue(new BigIntegerValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static BigIntegerValue sum(BigIntegerValue[] values) {       
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        BigInteger[] primitiveArray = unwrap(values);
+        BigInteger sum = MathUtils.sum(primitiveArray);
+        return new BigIntegerValue(new BigIntegerValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    //TODO: to implement
+//    public static BigIntegerValue median(BigIntegerValue[] values) {
+//        if (ArrayUtils.isEmpty(values)) {
+//            return null;
+//        }
+//        BigInteger[] primitiveArray = unwrap(values);
+//        BigInteger median = MathUtils.median(primitiveArray);
+//        return new BigIntegerValue(new BigIntegerValue(median), NumberOperations.MEDIAN.toString(), values);
+//    }
+    
+    public static BigIntegerValue product(BigIntegerValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        BigInteger[] primitiveArray = unwrap(values);
+        BigInteger product = MathUtils.product(primitiveArray);
+        return new BigIntegerValue(new BigIntegerValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static LongValue quaotient(BigIntegerValue number, BigIntegerValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null );
+        }
+        return null;
+    }
+    
+    public static BigIntegerValue mod(BigIntegerValue number, BigIntegerValue divisor) {
+        if (number != null && divisor != null) {
+            BigIntegerValue result = new BigIntegerValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new BigIntegerValue(result, NumberOperations.MOD.toString(), new BigIntegerValue[]{number, divisor} );
+        }
+        return null;
+    }
 
     public BigIntegerValue(BigInteger value) {
         this.value = value;
@@ -399,6 +470,17 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     public static BigIntegerValue positive(BigIntegerValue value) {
         return value;
+    }
+    
+    private static BigInteger[] unwrap(BigIntegerValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            BigInteger[] unwrapArray = new BigInteger[values.length];
+            for (int i = 0; i < values.length; i++) {
+                unwrapArray[i] = values[i].value;
+            }
+            return unwrapArray;
+        }
+        return new BigInteger[0];
     }
 
 }

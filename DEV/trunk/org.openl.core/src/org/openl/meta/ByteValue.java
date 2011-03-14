@@ -1,7 +1,10 @@
 package org.openl.meta;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
@@ -262,6 +265,82 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() - byteValue2.getValue()), 
             NumberOperations.SUBTRACT.toString(), false);
     }
+    
+    // Math functions
+    
+    public static ByteValue max(ByteValue[] values) {
+        ByteValue result = (ByteValue) MathUtils.max(values);        
+        return new ByteValue((ByteValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+    }
+
+    public static ByteValue min(ByteValue[] values) {
+        ByteValue result = (ByteValue) MathUtils.min(values);
+        return new ByteValue((ByteValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+    }
+    
+    public static ByteValue avg(ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        byte[] primitiveArray = byteValueArrayToByte(values);
+        byte avg = MathUtils.avg(primitiveArray);
+        
+        return new ByteValue(new ByteValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static ByteValue sum(ByteValue[] values) { 
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        byte[] primitiveArray = byteValueArrayToByte(values);
+        byte sum = MathUtils.sum(primitiveArray);
+        return new ByteValue(new ByteValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static ByteValue median(ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        byte[] primitiveArray = byteValueArrayToByte(values);
+        byte median = MathUtils.median(primitiveArray);
+        return new ByteValue(new ByteValue(median), NumberOperations.MEDIAN.toString(), values);
+    }
+    
+    public static DoubleValue product(ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        byte[] primitiveArray = byteValueArrayToByte(values);
+        double product = MathUtils.product(primitiveArray);
+        
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static ByteValue quaotient(ByteValue number, ByteValue divisor) {
+        if (number != null && divisor != null) {
+            ByteValue result = new ByteValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new ByteValue(result, NumberOperations.QUAOTIENT.toString(), new ByteValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static ByteValue mod(ByteValue number, ByteValue divisor) {
+        if (number != null && divisor != null) {
+            ByteValue result = new ByteValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new ByteValue(result, NumberOperations.MOD.toString(), new ByteValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static ByteValue small(ByteValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        byte[] primitiveArray = byteValueArrayToByte(values);
+        byte small = MathUtils.small(primitiveArray, position);
+        return new ByteValue((ByteValue) getAppropriateValue(values, new ByteValue(small)), NumberOperations.SMALL.toString(), values);
+    }
 
     public ByteValue(byte value) {
         this.value = value;
@@ -348,5 +427,15 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public int hashCode() {
         return ((Byte) value).hashCode();
     }
-
+    
+    private static byte[] byteValueArrayToByte(ByteValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            byte[] primitiveArray = new byte[values.length];
+            for (int i = 0; i < values.length; i++) {
+                primitiveArray[i] = values[i].getValue();
+            }
+            return primitiveArray;
+        }
+        return ArrayUtils.EMPTY_BYTE_ARRAY;
+    }
 }

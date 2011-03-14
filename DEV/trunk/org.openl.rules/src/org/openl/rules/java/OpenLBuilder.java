@@ -13,6 +13,19 @@ import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {
+    
+    private static final String[] JAVA_LIBRARY_NAMES = new String[]{
+        "org.openl.rules.helpers.RulesUtils",
+        "java.lang.Math",
+        "org.openl.meta.ByteValue", // don`t change the order of elements!
+        "org.openl.meta.ShortValue", // as lower types can be casted to upper ones.
+        "org.openl.meta.IntValue",  // appropriate methods should be looking for from
+        "org.openl.meta.LongValue", // lower to upper hierarchy level.
+        "org.openl.meta.FloatValue",
+        "org.openl.meta.DoubleValue",
+        "org.openl.meta.BigIntegerValue",
+        "org.openl.meta.BigDecimalValue"};
+    
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
         OpenL.getInstance("org.openl.j", getUserEnvironmentContext());
@@ -30,18 +43,12 @@ public class OpenLBuilder extends AOpenLBuilder {
         
         NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
         library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-
-        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
-        javalib1.setClassName("org.openl.rules.helpers.RulesUtils");
-        library.addJavalib(javalib1);
-
-        JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration();
-        javalib2.setClassName("org.openl.meta.DoubleValue");
-        library.addJavalib(javalib2);
-
-        JavaLibraryConfiguration javalib3 = new JavaLibraryConfiguration();
-        javalib3.setClassName("java.lang.Math");
-        library.addJavalib(javalib3);
+        
+        for (String javaLibConfiguration : JAVA_LIBRARY_NAMES) {
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
+            javalib.setClassName(javaLibConfiguration);
+            library.addJavalib(javalib);
+        }        
 
         libraries.addConfiguredLibrary(library);
 

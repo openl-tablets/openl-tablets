@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 
 public class ArrayTool {
@@ -777,5 +778,18 @@ public class ArrayTool {
 		}
 
 		return newArray;
+	}
+	
+	public static boolean noNulls(Object[] values) {
+	    boolean result = false;
+	    if (ArrayUtils.isNotEmpty(values)) {
+	        for (Object value : values) {
+	            if (value == null) {
+	                return result;
+	            }
+	        }
+	        result = true;
+	    }
+	    return result;
 	}
 }

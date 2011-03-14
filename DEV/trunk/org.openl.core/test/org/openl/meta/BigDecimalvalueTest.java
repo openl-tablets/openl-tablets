@@ -1,5 +1,6 @@
 package org.openl.meta;
 
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -70,5 +71,135 @@ public class BigDecimalvalueTest {
         
         assertEquals(expectedResult, result);
     }
+    
+    @Test
+    public void testDivide() {
+        BigDecimalValue expectedResult = new BigDecimalValue("12.24552");
+        
+        BigDecimalValue result = BigDecimalValue.divide(new BigDecimalValue("96.4947"), new BigDecimalValue("7.88"));
+        
+        assertEquals(expectedResult, result);
+    }
+    
+    @Test
+    public void testMin() {
+        BigDecimalValue[] la = getTestArray();
+        assertEquals(new BigDecimalValue("5.23"), BigDecimalValue.min(la));
+        
+        BigDecimalValue[] nullArray = null;
+        try {
+            assertEquals(null, BigDecimalValue.min(nullArray));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+        
+        BigDecimalValue[] emptyArray = new BigDecimalValue[0];
+        try {
+            assertEquals(null, BigDecimalValue.min(emptyArray));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }        
+    }
 
+    private BigDecimalValue[] getTestArray() {
+        return new BigDecimalValue[]{new BigDecimalValue("10.24"), new BigDecimalValue("100.56"), 
+                new BigDecimalValue("5.23")};
+    }
+    
+    @Test
+    public void testMax() {
+        BigDecimalValue[] la = getTestArray();
+        assertEquals(new BigDecimalValue("100.56"), BigDecimalValue.max(la));
+        
+        BigDecimalValue[] nullArray = null;
+        try {
+            assertEquals(null, BigDecimalValue.max(nullArray));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+        
+        BigDecimalValue[] emptyArray = new BigDecimalValue[0];
+        try {
+            assertEquals(null, BigDecimalValue.max(emptyArray));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }        
+    }
+    
+    @Test
+    public void testAvg() {
+        BigDecimalValue[] la = getTestArray();
+        assertEquals(new BigDecimalValue("38.67667"), BigDecimalValue.avg(la));
+        
+        BigDecimalValue[] nullArray = null;
+        assertEquals(null, BigDecimalValue.avg(nullArray));
+                
+        BigDecimalValue[] emptyArray = new BigDecimalValue[0];
+        assertEquals(null, BigDecimalValue.avg(emptyArray));                
+    }
+    
+    @Test
+    public void testSum() {
+        BigDecimalValue[] la = getTestArray();
+        assertEquals(new BigDecimalValue("116.03"), BigDecimalValue.sum(la));
+        
+        BigDecimalValue[] nullArray = null;
+        assertEquals(null, BigDecimalValue.sum(nullArray));
+                
+        BigDecimalValue[] emptyArray = new BigDecimalValue[0];
+        assertEquals(null, BigDecimalValue.sum(emptyArray));                
+    }
+    
+    @Test
+    public void testProduct() {
+        BigDecimalValue[] la = getTestArray();
+        assertEquals(new BigDecimalValue("5385.510912"), BigDecimalValue.product(la));
+        
+        BigDecimalValue[] nullArray = null;
+        assertEquals(null, BigDecimalValue.product(nullArray));
+                
+        BigDecimalValue[] emptyArray = new BigDecimalValue[0];
+        assertEquals(null, BigDecimalValue.product(emptyArray));                
+    }
+    
+    @Test
+    public void testQuaotient() {        
+        assertEquals(new LongValue(5), BigDecimalValue.quaotient(new BigDecimalValue("26.77"), 
+            new BigDecimalValue("5.13")));
+        
+        BigDecimalValue nullObj = null;
+        assertEquals(null, BigDecimalValue.quaotient(nullObj, new BigDecimalValue("5")));
+        
+        assertEquals(null, BigDecimalValue.quaotient(new BigDecimalValue("5"), nullObj));
+        
+        try {
+            assertEquals(null, BigDecimalValue.quaotient(new BigDecimalValue("5"), new BigDecimalValue("0")));
+            fail();
+        } catch (ArithmeticException e) {
+            assertTrue(true);
+        }                
+    }
+    
+    @Test
+    public void testMod() {        
+        assertEquals(new BigDecimalValue("2.54"), BigDecimalValue.mod(new BigDecimalValue("55.24"), 
+            new BigDecimalValue("3.1")));
+        
+        BigDecimalValue nullObj = null;
+        assertEquals(null, BigDecimalValue.mod(nullObj, new BigDecimalValue("5")));
+        
+        assertEquals(null, BigDecimalValue.mod(new BigDecimalValue("5"), nullObj));
+        
+        try {
+            assertEquals(new BigDecimalValue("0"), BigDecimalValue.mod(new BigDecimalValue("5"), 
+                new BigDecimalValue("0")));
+            fail();
+        } catch (ArithmeticException e) {
+            assertTrue(true);
+        }                
+    }
 }

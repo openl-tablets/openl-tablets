@@ -1,7 +1,10 @@
 package org.openl.meta;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 public class LongValue extends ExplanationNumberValue<LongValue> {
    
@@ -236,6 +239,83 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return new LongValue(lv1, lv2, lv1.getValue() - lv2.getValue(), 
             NumberOperations.SUBTRACT.toString(), false);
     }
+    
+    // Math functions
+    
+    public static LongValue max(LongValue[] values) {
+        LongValue result = (LongValue) MathUtils.max(values);        
+        return new LongValue((LongValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), 
+            values);
+    }
+
+    public static LongValue min(LongValue[] values) {
+        LongValue result = (LongValue) MathUtils.min(values);
+        return new LongValue((LongValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), 
+            values);
+    }
+    
+    public static LongValue avg(LongValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        long[] primitiveArray = longValueArrayToLong(values);
+        long avg = MathUtils.avg(primitiveArray);
+        
+        return new LongValue(new LongValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static LongValue sum(LongValue[] values) {       
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        long[] primitiveArray = longValueArrayToLong(values);
+        long sum = MathUtils.sum(primitiveArray);
+        return new LongValue(new LongValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static LongValue median(LongValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        long[] primitiveArray = longValueArrayToLong(values);
+        long median = MathUtils.median(primitiveArray);
+        return new LongValue(new LongValue(median), NumberOperations.MEDIAN.toString(), values);
+    }
+    
+    public static DoubleValue product(LongValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        long[] primitiveArray = longValueArrayToLong(values);
+        double product = MathUtils.product(primitiveArray);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static LongValue quaotient(LongValue number, LongValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), new LongValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static LongValue mod(LongValue number, LongValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.MOD.toString(), new LongValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static LongValue small(LongValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        long[] primitiveArray = longValueArrayToLong(values);
+        long small = MathUtils.small(primitiveArray, position);
+        return new LongValue((LongValue) getAppropriateValue(values, new LongValue(small)), 
+            NumberOperations.SMALL.toString(), values);
+    }
 
     public LongValue(long value) {
         this.value = value;
@@ -340,6 +420,17 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     
     public static LongValue positive(LongValue value) {
         return value;
+    }
+    
+    private static long[] longValueArrayToLong(LongValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            long[] longArray = new long[values.length];
+            for (int i = 0; i < values.length; i++) {
+                longArray[i] = values[i].getValue();
+            }
+            return longArray;
+        }
+        return ArrayUtils.EMPTY_LONG_ARRAY;
     }
 
 }

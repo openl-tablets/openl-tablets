@@ -1,7 +1,10 @@
 package org.openl.meta;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.ArrayTool;
+import org.openl.util.math.MathUtils;
 
 
 public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
@@ -270,7 +273,83 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return dv1;
         }
         return new DoubleValue(dv1, dv2, dv1.getValue() - dv2.getValue(), "-", false);
-    }    
+    }   
+    
+    // Math functions
+    
+    public static DoubleValue max(DoubleValue[] values) {
+        DoubleValue result = (DoubleValue) MathUtils.max(values);        
+        return new DoubleValue((DoubleValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+    }
+
+    public static DoubleValue min(DoubleValue[] values) {
+        DoubleValue result = (DoubleValue) MathUtils.min(values);
+        return new DoubleValue((DoubleValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+    }
+    
+    public static DoubleValue avg(DoubleValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        double[] primitiveArray = unwrap(values);
+        double avg = MathUtils.avg(primitiveArray);
+        
+        return new DoubleValue(new DoubleValue(avg), NumberOperations.AVG.toString(), values);
+    }
+    
+    public static DoubleValue sum(DoubleValue[] values) { 
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        double[] primitiveArray = unwrap(values);
+        double sum = MathUtils.sum(primitiveArray);
+        return new DoubleValue(new DoubleValue(sum), NumberOperations.SUM.toString(), values);
+    }
+    
+    public static DoubleValue median(DoubleValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        double[] primitiveArray = unwrap(values);
+        double median = MathUtils.median(primitiveArray);
+        return new DoubleValue(new DoubleValue(median), NumberOperations.MEDIAN.toString(), values);
+    }
+    
+    public static DoubleValue product(DoubleValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        double[] primitiveArray = unwrap(values);
+        double product = MathUtils.product(primitiveArray);
+        
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+    }
+    
+    public static LongValue quaotient(DoubleValue number, DoubleValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null);
+        }
+        return null;
+    }
+    
+    public static DoubleValue mod(DoubleValue number, DoubleValue divisor) {
+        if (number != null && divisor != null) {
+            DoubleValue result = new DoubleValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new DoubleValue(result, NumberOperations.MOD.toString(), new DoubleValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static DoubleValue small(DoubleValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        double[] primitiveArray = unwrap(values);
+        double small = MathUtils.small(primitiveArray, position);
+        return new DoubleValue((DoubleValue) getAppropriateValue(values, new DoubleValue(small)), NumberOperations.SMALL.toString(), values);
+    }
     
     /**
      * @deprecated double value shouldn`t be empty.
@@ -399,6 +478,17 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     
     public static DoubleValue positive(DoubleValue value) {
         return value;
+    }
+    
+    private static double[] unwrap(DoubleValue[] values) {
+        if (ArrayTool.noNulls(values)) {
+            double[] primitiveArray = new double[values.length];
+            for (int i = 0; i < values.length; i++) {
+                primitiveArray[i] = values[i].getValue();
+            }
+            return primitiveArray;
+        }
+        return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
 
 }
