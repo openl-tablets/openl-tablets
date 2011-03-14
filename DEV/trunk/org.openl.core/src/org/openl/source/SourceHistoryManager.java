@@ -13,6 +13,8 @@ public interface SourceHistoryManager<T> {
 
     T get(long version);
 
+    Map<Long, T> get(String[] names);
+
     Map<Long, T> getAll();
 
 }
