@@ -13,11 +13,12 @@
 
           <span style="float: right;">
             <a4j:status startText="Loading..."/>
-            <input type="button" class="button" value="Filter" onclick="showRepFilterDialog();" />
+            <input id="filterButton" type="button" class="button" value="Filter" onclick="showRepFilterDialog();" />
             <h:commandLink class="actionButton" title="Refresh" action="#{repositoryTreeController.refreshTree}">
               <h:graphicImage url="/webresource/images/refresh.gif" styleClass="actionImage"
                   style="margin-left: 3px" alt="Refresh" />
             </h:commandLink>
+            <rich:toolTip for="filterButton" showDelay="500">Filter repository tree</rich:toolTip>
           </span>
         </rich:column>
       </rich:columnGroup>

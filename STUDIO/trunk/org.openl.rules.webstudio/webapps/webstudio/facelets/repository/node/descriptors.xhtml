@@ -69,9 +69,12 @@
     }
   </script>
 
-  <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-    <h:commandButton value="Add" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" onclick="#{artefact.checkedOut} &amp;&amp; showAddDeployEntry();return false;" />
-    <h:commandButton id="openSelectedProjectsBtn" value="Open Selected Projects" styleClass="disabledButton" onclick="return !isEmptySelection()" action="#{deploymentController.openSelectedProjects}" />
+  <h:panelGrid columns="4" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+    <h:commandButton id="addProjectsId" value="Add" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" onclick="#{artefact.checkedOut} &amp;&amp; showAddDeployEntry();return false;" />
+    <rich:toolTip for="addProjectsId" showDelay="500">Add projects</rich:toolTip>
+    
+    <h:commandButton id="openSelectedProjectsBtn" value="Open" styleClass="disabledButton" onclick="return !isEmptySelection()" action="#{deploymentController.openSelectedProjects}" />
+    <rich:toolTip for="openSelectedProjectsBtn" showDelay="500">Open selected projects</rich:toolTip>
   </h:panelGrid>
 
 </ui:composition>
