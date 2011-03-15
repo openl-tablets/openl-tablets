@@ -155,7 +155,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         IMethodSignature msign = testedMethod.getSignature();
         IOpenClass[] mpars = msign.getParameterTypes();
 
-        TestUnitsResults tres = new TestUnitsResults(this);
+        TestUnitsResults testUnitResults = new TestUnitsResults(this);
 
         int unitStart = unitId > -1 ? unitId : 0;
         int unitStop = unitId > -1 ? (unitStart + 1) : testInstances.length;
@@ -186,15 +186,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
                     env.setContext(oldContext);
                 }
 
-                tres.addTestUnit(currentTest, res, null);
+                testUnitResults.addTestUnit(currentTest, res, null);
             } catch (Throwable t) {
                 Log.error("Testing " + currentTest, t);
-                tres.addTestUnit(currentTest, null, t);
+                testUnitResults.addTestUnit(currentTest, null, t);
             }
 
         }
 
-        return tres;
+        return testUnitResults;
     }
 
     public boolean isRunmethod() {
