@@ -31,16 +31,28 @@ public class TestUnit {
 	}
 
 	private void initExpectedResult() {
-		if (exception != null) {
-			expectedResult = getFieldValue(TestMethodHelper.EXPECTED_ERROR);
-		} else {
-			expectedResult = getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);
+		if (containsException()) {		    
+		    Object expectedError = getFieldValue(TestMethodHelper.EXPECTED_ERROR);
+		    if (expectedError != null) { // check that it was expected to get an exception
+		        expectedResult = expectedError;
+		        return;
+		    }
 		}
+		expectedResult = getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);		
 	}
+	
+	/**
+	 * Check if the exception occured during the execution. 
+	 * 
+	 * @return true if an exception occured during the execution
+	 */
+    private boolean containsException() {
+        return exception != null;
+    }
 
 	private void initActualResult() {
 
-		if (exception != null) {
+		if (containsException()) {
 			actualResult = exception;
 			return;
 		} 
