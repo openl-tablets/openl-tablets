@@ -18,12 +18,12 @@
               <h:graphicImage url="/webresource/images/refresh.gif" styleClass="actionImage"
                   style="margin-left: 3px" alt="Refresh" />
             </h:commandLink>
-            <rich:toolTip for="filterButton" showDelay="500">Filter repository tree</rich:toolTip>
           </span>
         </rich:column>
       </rich:columnGroup>
     </f:facet>
   </rich:dataTable>
+  <rich:toolTip for="filterButton" showDelay="500">Filter repository tree</rich:toolTip>
 
   <rich:panel style="width:300px; height:505px; overflow:auto; clear:left;">
     <rich:tree switchType="ajax" ajaxSubmitSelection="true" nodeSelectListener="#{repositoryTreeState.processSelection}"
