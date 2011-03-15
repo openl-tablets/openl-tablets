@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.RulesFactory;
 
@@ -171,13 +170,11 @@ public class RulesServiceEnhancer {
 
         for (Method method : methods) {
 
-            if (ArrayUtils.contains(IRulesRuntimeContextProvider.class.getMethods(), method)) {
-                // Ignore methods what declared by IRulesRuntimeContextProvider
-                // class. Service user shouldn't use they directly.
-                //
+            // Check that method should be ignored or not.
+            if (isIgnored(method)) {
                 continue;
             }
-
+            
             String methodName = method.getName();
 
             Class<?>[] paramTypes = method.getParameterTypes();
@@ -193,6 +190,22 @@ public class RulesServiceEnhancer {
         return rules;
     }
 
+    /**
+     * TODO: replace with a configurable implementation
+     * 
+     * 
+     * Check that method should be ignored by enhancer. 
+     * 
+     * @param method method to check
+     * @return <code>true</code> if method should be ignored; <code>false</code>
+     *         - otherwise
+     */
+    private boolean isIgnored(Method method) {
+        // Ignore methods what are inherited from Object.class 
+        // Note that ignored inherited methods only.
+        return ArrayUtils.contains(Object.class.getMethods(), method);
+    }
+    
     /**
      * Gets methods map where keys are interface class methods and values -
      * original service class methods.
