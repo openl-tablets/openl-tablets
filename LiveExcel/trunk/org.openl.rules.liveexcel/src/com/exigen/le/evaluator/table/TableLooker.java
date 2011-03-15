@@ -6,9 +6,13 @@ package com.exigen.le.evaluator.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
@@ -127,7 +131,7 @@ public class TableLooker implements FreeRefFunction {
 				String refString =((StringEval) result).getStringValue().substring(REF_PREFIX.length());
 				answer =  evaluateRef(refString, ec);
 			} else {
-				answer = result; 
+				answer = tryToParse(result); 
 			}
 		} catch (Exception e) {
 			String msg = " Error looking table "+tableDesc.getName()+ " for parameters:\n";
@@ -135,7 +139,8 @@ public class TableLooker implements FreeRefFunction {
 				msg=msg+SMHelper.valueToString(params[i])+"\n";
 			}
 			LOG.error(msg,e);
-			throw new RuntimeException(msg,e);
+			answer = ErrorEval.NA;
+//			throw new RuntimeException(msg,e);
 		}
 		if(LOG.isTraceEnabled()){
 			String returned = " Table "+tableDesc.getName()+" returns value:";
@@ -144,6 +149,28 @@ public class TableLooker implements FreeRefFunction {
 		}
 		return answer;
 	}
+	
+
+    // TODO: remove this method and use original cell values(now tables returns
+    // String values only)
+    private ValueEval tryToParse(ValueEval result) {
+        try {
+            if (result instanceof StringEval) {
+                String stringValue = ((StringEval) result).getStringValue();
+                if (NumberUtils.isNumber(stringValue)) {
+                    return new NumberEval(Double.valueOf(stringValue));
+                }
+                Boolean booleanValue = BooleanUtils.toBooleanObject(stringValue);
+                if (booleanValue != null) {
+                    return BoolEval.valueOf(booleanValue);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            return result;// parsing exception
+        }
+    }
+
  // Resolve reference if it is used as table value	
  private ValueEval evaluateRef(String refString, OperationEvaluationContext ec ){
 		// refString is in format [<excel>]<sheet>!<cell>
