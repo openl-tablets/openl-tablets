@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LiveExcel Eclipse UI extension
+Bundle-SymbolicName: org.openl.rules.liveexcel.eclipse.ui; singleton:=true
+Bundle-Version: 0.3
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.openl.rules.liveexcel.lib,
+ org.eclipse.equinox.common,
+ org.eclipse.core.jobs
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-LazyStart: true
+Bundle-Vendor: OpenL

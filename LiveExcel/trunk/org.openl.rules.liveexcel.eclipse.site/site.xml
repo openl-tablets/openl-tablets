@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.openl.rules.liveexcel.eclipse.feature_0.3.0.jar" id="org.openl.rules.liveexcel.eclipse.feature" version="0.3">
+      <category name="LiveExcel"/>
+   </feature>
+   <category-def name="LiveExcel" label="LiveExcel"/>
+</site>

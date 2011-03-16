@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.rules.liveexcel.eclipse.feature"
+      label="LiveExcel"
+      version="0.3"
+      provider-name="OpenL">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.gnu.org/copyleft/lesser.html">
+      %license
+   </license>
+
+   <requires>
+      <import feature="org.openl.rules.eclipse.feature" version="5.7.5"/>
+   </requires>
+
+   <plugin
+         id="org.openl.rules.liveexcel"
+         download-size="0"
+         install-size="0"
+         version="0.3"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.liveexcel.extension"
+         download-size="0"
+         install-size="0"
+         version="0.3"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.liveexcel.eclipse.ui"
+         download-size="0"
+         install-size="0"
+         version="0.3"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.liveexcel.lib"
+         download-size="0"
+         install-size="0"
+         version="0.3"
+         unpack="true"/>
+</feature>
