@@ -8,6 +8,7 @@ import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -48,6 +49,7 @@ public class LiveExcelManifestExtender implements IObjectActionDelegate {
             Manifest parsedManifest = null;
             parsedManifest = new Manifest(manifestFile.getContents());
             addLEExtendionDependency(manifestFile, parsedManifest);
+            project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
         } catch (Exception e) {
             MessageDialog.openInformation(shell, "LiveExcel", "Failed to update project. Reason :" + e.getMessage());
         }
