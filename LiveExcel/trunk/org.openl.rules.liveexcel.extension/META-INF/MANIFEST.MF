@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: LiveExcel OpenL integration Plug-in
 Bundle-SymbolicName: org.openl.rules.liveexcel.extension
-Bundle-Version: 0.2
+Bundle-Version: 0.3
 Bundle-Vendor: OpenL
 Bundle-ClassPath: bin/,
  .
 Export-Package: org.openl.rules.liveexcel
-Require-Bundle: org.openl.rules.liveexcel,
- org.openl.rules
+Require-Bundle: org.openl.rules.liveexcel;visibility:=reexport,
+ org.openl.rules,
+ org.openl.rules.liveexcel.lib;visibility:=reexport
