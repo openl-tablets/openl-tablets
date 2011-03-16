@@ -180,7 +180,14 @@ public class RuleRowHelper {
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
         ICell theCell = table.getSource().getCell(0, 0);
-
+        
+        String src = theCell.getStringValue();        
+        if (paramType.getInstanceClass().equals(String.class)) {
+            // if param type is of type String, load as String
+            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
+        }
+        
+        // load value as native type
         if (theCell.hasNativeType()) {
             if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
                 Object res = loadNativeValue(theCell,
@@ -203,9 +210,7 @@ public class RuleRowHelper {
                 }
             }
         }
-
-        String src = theCell.getStringValue();
-
+        
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
     }
 
@@ -217,24 +222,29 @@ public class RuleRowHelper {
             ILogicalTable table) {
         Class<?> expectedType = paramType.getInstanceClass();
         double value = cell.getNativeNumber();
-        IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
+        IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, double.class);
         Object res = null;
         if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
             res = objectConvertor.convert(value, bindingContext);
-        }
-
-        else {
-            objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+        } else {
+            objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);            
             if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                Date dateValue = cell.getNativeDate();
-                res = objectConvertor.convert(dateValue, bindingContext);
-            } else if (((int) value) == value) {
-                objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
-                if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
-                    res = objectConvertor.convert((int) value, bindingContext);
+                res = objectConvertor.convert(value, bindingContext);
+            }
+            else {
+                objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+                if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                    Date dateValue = cell.getNativeDate();
+                    res = objectConvertor.convert(dateValue, bindingContext);
+                } else if (((int) value) == value) {
+                    objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
+                    if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
+                        res = objectConvertor.convert((int) value, bindingContext);
 
+                }
             }
         }
+         
         if (res != null && res instanceof IMetaHolder) {
             setMetaInfo((IMetaHolder) res, table, paramName, ruleName, bindingContext);
         }

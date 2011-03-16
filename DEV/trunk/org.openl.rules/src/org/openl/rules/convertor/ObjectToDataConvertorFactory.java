@@ -1,12 +1,15 @@
 package org.openl.rules.convertor;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.reflect.ConstructorUtils;
+import org.apache.commons.lang.reflect.MethodUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.IntRange;
@@ -64,7 +67,33 @@ public class ObjectToDataConvertorFactory {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
         }
+    }
+    
+    /**
+     * Contains static method as a private field for constructing new objects of appropriate type.
+     * 
+     * @author DLiauchuk
+     *
+     */
+    public static class StaticMethodConvertor implements IObjectToDataConvertor {
+        private Method staticMethod;
+        
+        public StaticMethodConvertor(Method staticMethod) {
+            if (!Modifier.isStatic(staticMethod.getModifiers())) {
+                throw new IllegalArgumentException("Income method should be static");
+            }
+            this.staticMethod = staticMethod;
+        }
 
+        public Object convert(Object data, IBindingContext bindingContext) {
+            try {
+                // first argument is null as field staticMethod represents only static method.
+                //
+                return staticMethod.invoke(null, data);
+            } catch (Exception e) {
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        }
     }
 
     public static class CopyConvertor implements IObjectToDataConvertor {
@@ -120,18 +149,29 @@ public class ObjectToDataConvertorFactory {
     };
 
     /**
-     * @return <code>null</code> if value is not convertable to expected type.
+     * @return NO_Convertor if value is not convertable to expected type.
      */
     public static synchronized IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
         IObjectToDataConvertor convertor = NO_Convertor;
         if (!convertors.containsKey(pair)) {
-            Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
-            if (ctr != null) {
-                convertor = new MatchedConstructorConvertor(ctr);
+            // at first try to find static initialization method, for some numeric classes(e.g. Integer, Double, etc)
+            // there are predefined cached values(see Integer.valueOf(int a)).
+            //
+            Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
+            if (method != null) {
+                convertor = new StaticMethodConvertor(method);
             } else {
-                convertor = NO_Convertor;
-            }
+                // try to find appropriate constructor.
+                //
+                Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
+                
+                if (ctr != null) {
+                    convertor = new MatchedConstructorConvertor(ctr);
+                } else {
+                    convertor = NO_Convertor;
+                }
+            }            
             convertors.put(pair, convertor);
         } else {
             convertor = convertors.get(pair);
