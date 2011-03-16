@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue;
 import org.openl.meta.number.NumberValue.ValueType;
-import org.openl.util.OpenIterator;
 
 /**
 * Explanation implementation for number values that are of type {@link ValueType#FORMULA}, see also
@@ -25,7 +24,7 @@ public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extend
     
     @Override
     public Iterator<T> getChildren() {
-        return OpenIterator.fromArray(formulaHolder.getArguments());
+        return formulaHolder.getArguments().iterator();
     }
     
     @Override
