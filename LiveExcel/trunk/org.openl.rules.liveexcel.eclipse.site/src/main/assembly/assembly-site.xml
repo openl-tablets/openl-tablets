@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id>site</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>.</directory>
+      <includes>
+        <include>site.xml</include>
+      </includes>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
+
+  <dependencySets>
+    <dependencySet>
+      <outputFileNameMapping>${artifact.artifactId}_${le.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>plugins</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <excludes>
+        <exclude>*sources*</exclude>
+        <exclude>*feature*</exclude>
+      </excludes>
+    </dependencySet>
+
+    <dependencySet>
+      <outputFileNameMapping>${artifact.artifactId}_${le.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>features</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <includes>
+        <include>*feature*</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>

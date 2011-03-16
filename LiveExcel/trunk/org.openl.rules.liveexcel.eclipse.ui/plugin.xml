@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            id="org.openl.rules.liveexcel.eclipse.ui.contribution1">
+         <menu
+               label="LiveExcel"
+               path="additions"
+               id="org.openl.rules.liveexcel.eclipse.ui.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Make LiveExcel avalable for this project"
+               class="org.openl.rules.liveexcel.eclipse.ui.popup.actions.LiveExcelManifestExtender"
+               menubarPath="org.openl.rules.liveexcel.eclipse.ui.menu1/group1"
+               enablesFor="1"
+               id="org.openl.rules.liveexcel.eclipse.ui.newAction">
+         </action>
+      </objectContribution>
+   </extension>
+
+</plugin>
