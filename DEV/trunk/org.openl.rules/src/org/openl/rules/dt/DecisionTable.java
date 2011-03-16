@@ -5,6 +5,9 @@
  */
 package org.openl.rules.dt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
@@ -24,6 +27,8 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -245,13 +250,28 @@ public class DecisionTable extends ExecutableRulesMethod {
             IMethodSignature signature) throws Exception {
         IConditionEvaluator[] evaluators = new IConditionEvaluator[conditionRows.length];
 
+        List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
+
         for (int i = 0; i < conditionRows.length; i++) {
-            evaluators[i] = conditionRows[i].prepareCondition(signature,
-                openl,
-                componentOpenClass,
-                bindingContextDelegator,
-                ruleRow);
+            try {
+                evaluators[i] = conditionRows[i].prepareCondition(signature,
+                    openl,
+                    componentOpenClass,
+                    bindingContextDelegator,
+                    ruleRow);
+            } catch (SyntaxNodeException e) {
+                errors.add(e);
+            } catch (CompositeSyntaxNodeException e) {
+                for (SyntaxNodeException syntaxNodeException : e.getErrors()) {
+                    errors.add(syntaxNodeException);
+                }
+            }
         }
+
+        if (!errors.isEmpty()) {
+            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
+        }
+
         return evaluators;
     }
 
