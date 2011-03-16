@@ -20,11 +20,19 @@
     <module>../org.openl.rules.liveexcel.lib</module>
     <module>../org.openl.rules.liveexcel</module>
     <module>../org.openl.rules.liveexcel.extension</module>
+    <module>../org.openl.rules.liveexcel.eclipse.ui</module>
+    <module>../org.openl.rules.liveexcel.eclipse.feature</module>
+    <module>../org.openl.rules.liveexcel.eclipse.site</module>
   </modules>
+
   <scm>
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</connection>
 <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</developerConnection>
   </scm>
+
+  <properties>
+    <le.version.eclipse>0.3.0</le.version.eclipse>
+  </properties>
 
   <repositories>
     <repository>
@@ -110,6 +118,21 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel.lib</artifactId>
+        <version>${version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.extension</artifactId>
+        <version>${version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.eclipse.ui</artifactId>
+        <version>${version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.eclipse.feature</artifactId>
         <version>${version}</version>
       </dependency>
       <dependency>

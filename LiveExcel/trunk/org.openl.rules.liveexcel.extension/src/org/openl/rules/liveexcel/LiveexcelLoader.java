@@ -63,8 +63,9 @@ public class LiveexcelLoader implements IExtensionLoader {
             try {
                 preprocessLiveExcelWorkbook(xlsLoader, src, sheetSource);
             } catch (Throwable t) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
-                        t, null, new GridCellSourceCodeModule(includeCell));
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
+                        "Failed to process LiveExcel include: " + include + ". Reason: " + t.getMessage(), t, null,
+                        new GridCellSourceCodeModule(includeCell));
                 xlsLoader.addError(error);
                 tsn.addError(error);
                 continue;
@@ -73,23 +74,19 @@ public class LiveexcelLoader implements IExtensionLoader {
     }
 
     private void preprocessLiveExcelWorkbook(XlsLoader xlsLoader, FileSourceCodeModule source,
-            XlsSheetSourceCodeModule sheetSource) {
+            XlsSheetSourceCodeModule sheetSource) throws Exception {
         String uri = source.getUri(0);
         if (xlsLoader.getPreprocessedWorkBooks().contains(uri)) {
             return;
         }
         xlsLoader.getPreprocessedWorkBooks().add(uri);
         LiveExcelWorkbook wb;
-        try {
-            File leProjectElementsFolder = source.getFile().getParentFile();
-            LiveExcel liveExcel = new LiveExcel(new ServiceModelJAXB(leProjectElementsFolder));
-            wb = LiveExcelWorkbookFactory.create(source.getByteStream());
-            XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source, wb);
-            xlsLoader.addExtensionNode(new LiveExcelIdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(),
-                    xlsWorkbookSourceCodeModule, liveExcel));
-        } catch (Exception e) {
-            throw new RuntimeException("Error processing file.", e);
-        }
+        File leProjectElementsFolder = source.getFile().getParentFile();
+        LiveExcel liveExcel = new LiveExcel(new ServiceModelJAXB(leProjectElementsFolder));
+        wb = LiveExcelWorkbookFactory.create(source.getByteStream());
+        XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source, wb);
+        xlsLoader.addExtensionNode(new LiveExcelIdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(),
+                xlsWorkbookSourceCodeModule, liveExcel));
     }
 
 }
