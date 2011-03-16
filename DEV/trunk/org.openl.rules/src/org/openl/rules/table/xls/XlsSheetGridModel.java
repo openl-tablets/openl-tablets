@@ -202,6 +202,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
         PoiExcelHelper.copyCellValue(cellFrom, cellTo);
         PoiExcelHelper.copyCellStyle(cellFrom, cellTo, sheet);
+        cellTo.removeCellComment();
         //PoiExcelHelper.copyCellComment(cellFrom, cellTo);
 
         setCellMetaInfo(colTo, rowTo, meta);
