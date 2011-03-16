@@ -23,7 +23,7 @@ public class Explanation {
 
         public Iterator<?> children(Object node) { // node.getType == NumberValueTypes.Formula
             if (node.getClass() == ExplanationNumberValue.class && ((ExplanationNumberValue<?>)node).getValueType().equals(ValueType.FORMULA)) {
-                return OpenIterator.fromArray(((ExplanationNumberValue<?>) node).getFormula().getArguments());
+                return ((ExplanationNumberValue<?>) node).getFormula().getArguments().iterator();
             } else if (node.getClass() == ExplanationNumberValue.class && 
                     ((ExplanationNumberValue<?>)node).getValueType().equals(ValueType.FUNCTION)) {
                 return OpenIterator.fromArray(((ExplanationNumberValue<?>) node).getFunction().getParams());
