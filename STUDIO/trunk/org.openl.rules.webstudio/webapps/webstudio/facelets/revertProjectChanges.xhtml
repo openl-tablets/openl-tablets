@@ -25,7 +25,7 @@
 
         <h:panelGroup rendered="#{empty history}">
             <h:panelGrid>
-                <p class="info_box">Project has no changes</p>
+                <p class="info_box">Module has no changes</p>
             </h:panelGrid>
         </h:panelGroup>
 
@@ -39,7 +39,7 @@
 
                 <rich:dataTable value="#{history}" var="historyItem" rowKeyVar="row"
                     onRowMouseOver="rowMouseOver(this)" onRowMouseOut="rowMouseOut(this)"
-                    onRowClick="setVersionToRevert(#{historyItem.version}); rowMouseClick(this)"
+                    onRowClick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
                     headerClass="column" columnClasses="column">
                     <rich:column>
                         <f:facet name="header">
@@ -51,7 +51,8 @@
                         <f:facet name="header">
                             <h:outputText value="Modified On" />
                         </f:facet>
-                        <h:outputText value="#{historyItem.modifiedOn}" />
+                        <h:outputText value="#{historyItem.disabled ? 'Initial' : historyItem.modifiedOn}"
+                            style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
                     </rich:column>
                     <rich:columns value="#{revertProjectChangesBean.sources}" var="source">
                         <f:facet name="header">
@@ -103,12 +104,14 @@
                 }
             }
 
-            function rowMouseClick(row) {
-                if (selectedRow) {
-                    selectedRow.style.backgroundColor = rowDefaultColor;
+            function rowMouseClick(row, disabled) {
+                if (!disabled) {
+                    if (selectedRow) {
+                        selectedRow.style.backgroundColor = rowDefaultColor;
+                    }
+                    row.style.backgroundColor = rowSelectedColor;
+                    selectedRow = row;
                 }
-                row.style.backgroundColor = rowSelectedColor;
-                selectedRow = row;
             }
 
             function setVersionToRevert(version) {

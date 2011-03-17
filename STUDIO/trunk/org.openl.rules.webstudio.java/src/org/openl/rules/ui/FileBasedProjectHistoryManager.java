@@ -11,6 +11,9 @@ import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
 import org.openl.util.Log;
@@ -48,6 +51,22 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         return null;
     }
 
+    public File getPrev(long date) {
+        File current = get(date);
+
+        List<IOFileFilter> filters = new ArrayList<IOFileFilter>();
+        filters.add(new AgeFileFilter(date));
+        filters.add(new NameFileFilter(current.getName()));
+
+        List<File> files = new ArrayList<File>(
+                storage.list(new AndFileFilter(filters)));
+        if (files.size() >= 2) {
+            return files.get(files.size() - 2);
+        }
+
+        return null;
+    }
+
     public SortedMap<Long, File> get(long... dates) {
         SortedMap<Long, File> sources = new TreeMap<Long, File>();
         for (long date : dates) {
@@ -75,7 +94,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     }
 
     public boolean revert(long date) {
-        File fileToRevert = get(date);
+        File fileToRevert = getPrev(date);
         if (fileToRevert != null) {
             File currentSourceFile = projectModel.getSourceByName(fileToRevert.getName());
             try {
