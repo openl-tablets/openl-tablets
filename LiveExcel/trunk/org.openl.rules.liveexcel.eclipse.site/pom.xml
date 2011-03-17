@@ -61,6 +61,10 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.liveexcel.eclipse.ui</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.liveexcel.eclipse.wizard</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

@@ -45,6 +45,7 @@ public class LiveExcel {
     private String logFile;
     private DataLogger logger;
     private boolean doLog;
+    private ServiceModel serviceModel;
 
     public LiveExcel(ServiceModelProvider serviceModelProvider) {
         this(new DummyFunctionSelector(), serviceModelProvider);
@@ -53,10 +54,7 @@ public class LiveExcel {
     public LiveExcel(FunctionSelector functionSelector, ServiceModelProvider serviceModelProvider) {
         this.serviceModelProvider = serviceModelProvider;
         this.functionSelector = functionSelector;
-        ThreadEvaluationContext.reset();
-        ThreadEvaluationContext.setProject(serviceModelProvider.getProjectLocation());
-        ThreadEvaluationContext.setServiceModel(serviceModelProvider.create());
-        ThreadEvaluationContext.setFunctionSelector(this.functionSelector);
+        serviceModel = serviceModelProvider.create();
     }
 
     private DataLogger getLogger() {
@@ -115,15 +113,19 @@ public class LiveExcel {
     }
 
     private void prepareEvaluationContext(Map<String, String> envProps) {
+        ThreadEvaluationContext.reset();
+        ThreadEvaluationContext.setProject(serviceModelProvider.getProjectLocation());
+        ThreadEvaluationContext.setServiceModel(serviceModel);
+        ThreadEvaluationContext.setFunctionSelector(this.functionSelector);
         if (envProps == null) {
-            prepareEvaluationContext();
+            ThreadEvaluationContext.buildEvalContext(UDFRegister.getInstance().getJavaUDF());
         } else {
             ThreadEvaluationContext.buildEvalContext(UDFRegister.getInstance().getJavaUDF(), envProps);
         }
     }
 
     private void prepareEvaluationContext() {
-        ThreadEvaluationContext.buildEvalContext(UDFRegister.getInstance().getJavaUDF());
+        prepareEvaluationContext(null);
     }
 
     private void logBeforeEvaluation(String functionName, List<Object> args) {

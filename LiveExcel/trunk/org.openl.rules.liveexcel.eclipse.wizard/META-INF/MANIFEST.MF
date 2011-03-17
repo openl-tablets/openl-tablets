@@ -6,5 +6,5 @@ Bundle-Version: 0.3
 Bundle-Vendor: OpenL
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.openl.eclipse.ui.wizard
-Bundle-Activator: org.openl.rules.eclipse.wizard.RulesWizardPlugin2
+Bundle-Activator: org.openl.rules.eclipse.wizard.LiveExcelWizardPlugin
 Bundle-ActivationPolicy: lazy
