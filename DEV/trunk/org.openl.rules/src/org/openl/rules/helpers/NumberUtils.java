@@ -3,25 +3,34 @@ package org.openl.rules.helpers;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
 
 public class NumberUtils {
 
 	public static boolean isFloatPointNumber(Object object) {
 
 		if (object != null) {
-			if (float.class.equals(object.getClass())
-					|| double.class.equals(object.getClass())
-					|| Float.class.equals(object.getClass())
-					|| Double.class.equals(object.getClass())
-					|| DoubleValue.class.isAssignableFrom(object.getClass())
-					|| BigDecimal.class.equals(object.getClass())) {
-				return true;
-			}
+			return isFloatPointType(object.getClass());
 		}
 
 		return false;
 	}
+
+    public static boolean isFloatPointType(Class<?> clazz) {
+        if (float.class.equals(clazz)
+        		|| double.class.equals(clazz)
+        		|| Float.class.equals(clazz)
+        		|| FloatValue.class.isAssignableFrom(clazz)
+        		|| Double.class.equals(clazz)
+        		|| DoubleValue.class.isAssignableFrom(clazz)
+        		|| BigDecimal.class.equals(clazz)
+        		|| BigDecimalValue.class.equals(clazz)) {
+        	return true;
+        }
+        return false;
+    }
 
 	public static Double convertToDouble(Object object) {
 
@@ -29,6 +38,10 @@ public class NumberUtils {
 				|| Float.class.equals(object.getClass())) {
 			return Double.valueOf(((Float) object).doubleValue());
 		}
+		
+		if (FloatValue.class.isAssignableFrom(object.getClass())) {
+            return Double.valueOf(((FloatValue) object).doubleValue());
+        }
 
 		if (double.class.equals(object.getClass())
 				|| Double.class.equals(object.getClass())) {
@@ -42,6 +55,10 @@ public class NumberUtils {
 		if (BigDecimal.class.equals(object.getClass())) {
 			return ((BigDecimal) object).doubleValue();
 		}
+		
+		if (BigDecimalValue.class.equals(object.getClass())) {
+            return ((BigDecimalValue) object).doubleValue();
+        }
 
 		return null;
 	}
@@ -64,4 +81,11 @@ public class NumberUtils {
 
 		return decimal.scale();
 	}
+	
+	public static int getScale(Number value) {
+
+        BigDecimal decimal = new BigDecimal(String.valueOf(value));
+
+        return decimal.scale();
+    }
 }
