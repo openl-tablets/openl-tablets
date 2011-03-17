@@ -1,9 +1,11 @@
 package org.openl.source;
 
-import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * @author Andrei Astrouski
+ * 
+ * TODO Refactor - add Source object to encapsulate source data 
  */
 public interface SourceHistoryManager<T> {
 
@@ -13,8 +15,10 @@ public interface SourceHistoryManager<T> {
 
     T get(long version);
 
-    Map<Long, T> get(String[] names);
+    SortedMap<Long, T> get(long... versions);
 
-    Map<Long, T> getAll();
+    SortedMap<Long, T> get(String... names);
+
+    SortedMap<Long, T> getAll();
 
 }
