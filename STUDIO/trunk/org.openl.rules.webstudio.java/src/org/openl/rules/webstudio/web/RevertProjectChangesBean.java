@@ -35,13 +35,26 @@ public class RevertProjectChangesBean {
 
         String[] sourceNames = getSources();
         Map<Long, File> historyMap = model.getHistoryManager().get(sourceNames);
+
+        List<String> used = new ArrayList<String>();
+        
         for (long modifiedOn : historyMap.keySet()) {
+            String sourceName = historyMap.get(modifiedOn).getName();
+
             ProjectHistoryItem historyItem = new ProjectHistoryItem();
             String modifiedOnStr = new SimpleDateFormat(DATE_MODIFIED_PATTERN).format(
                     new Date(modifiedOn));
             historyItem.setVersion(modifiedOn);
             historyItem.setModifiedOn(modifiedOnStr);
-            historyItem.setSourceName(historyMap.get(modifiedOn).getName());
+            historyItem.setSourceName(sourceName);
+
+            if (!used.contains(sourceName)) {
+                used.add(sourceName);
+                historyItem.setDisabled(true);
+                // Add initial file to top
+                history.add(0, historyItem);
+                continue;
+            }
 
             history.add(historyItem);
         }
@@ -85,7 +98,7 @@ public class RevertProjectChangesBean {
 
                 if (!file2Name.equals(file1Name)) {
                     // Try to get a previous version
-                    file1ToCompare = getPrevVersion(file2Name, source2Version);
+                    file1ToCompare = historyManager.getPrev(source2Version);
                     if (file1ToCompare == null) {
                         // Get initial source
                         sources = historyManager.get(file2Name);
@@ -116,29 +129,6 @@ public class RevertProjectChangesBean {
         }
 
         return versionsToCompare;
-    }
-
-    private File getPrevVersion(String sourceName, Long currentVersion) {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        SourceHistoryManager<File> historyManager = model.getHistoryManager();
-        Map<Long, File> sources = historyManager.get(sourceName);
-
-        Long prevVersion = null;
-        if (sources.size() >= 2) {
-            for (Map.Entry<Long, File> entry : sources.entrySet()) {
-                Long version = entry.getKey();
-                if (version.equals(currentVersion)) {
-                    break;
-                }
-                prevVersion = version;
-            }
-
-            if (prevVersion != null) {
-                return sources.get(prevVersion);
-            }    
-        }
-
-        return null;
     }
 
 }
