@@ -14,6 +14,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalArtefactAPI;
 import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -122,8 +123,12 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public void initProjectUW() {
         try {
-            projectUW = repositoryTreeState.getSelectedProject();
-            selectedVersionRepo = projectUW.getVersion().getVersionName();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            if (projectUW != selectedProject) {
+                projectUW = selectedProject;
+                selectedVersionRepo = projectUW.getVersion().getVersionName();
+                setDiffTree(null);
+            }
             excelArtefactsUW = getExcelArtefacts(projectUW, "");
         } catch (Exception e) {
             log.warn("Failed to init Diff controller", e);
