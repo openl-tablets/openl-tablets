@@ -22,6 +22,11 @@ public class NewProjectFromTemplateWizardCustomizer extends UtilBase implements
         this.propertyKeyPrefix = propertyKeyPrefix;
     }
 
+    public NewProjectFromTemplateWizardCustomizer(Bundle descriptor, String propertyKeyPrefix, String resourceBundleName) {
+        this(descriptor, propertyKeyPrefix);
+        setResourceBundleName(resourceBundleName);
+    }
+
     public String getPropertyKeyPrefix() {
         return propertyKeyPrefix;
     }

@@ -18,7 +18,7 @@
    </license>
 
    <requires>
-      <import feature="org.openl.rules.eclipse.feature" version="5.7.5"/>
+      <import feature="org.openl.rules.all.eclipse.feature" version="5.7.5"/>
    </requires>
 
    <plugin
@@ -44,6 +44,13 @@
 
    <plugin
          id="org.openl.rules.liveexcel.lib"
+         download-size="0"
+         install-size="0"
+         version="0.3"
+         unpack="true"/>
+
+   <plugin
+         id="org.openl.rules.liveexcel.eclipse.wizard"
          download-size="0"
          install-size="0"
          version="0.3"

@@ -10,16 +10,16 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class RulesWizardPlugin2 extends AbstractUIPlugin {
+public class LiveExcelWizardPlugin extends AbstractUIPlugin {
     // The shared instance.
-    private static RulesWizardPlugin2 plugin;
+    private static LiveExcelWizardPlugin plugin;
     // Resource bundle.
     private ResourceBundle resourceBundle;
 
     /**
      * Returns the shared instance.
      */
-    public static RulesWizardPlugin2 getDefault() {
+    public static LiveExcelWizardPlugin getDefault() {
         return plugin;
     }
 
@@ -28,7 +28,7 @@ public class RulesWizardPlugin2 extends AbstractUIPlugin {
      * found.
      */
     public static String getResourceString(String key) {
-        ResourceBundle bundle = RulesWizardPlugin2.getDefault().getResourceBundle();
+        ResourceBundle bundle = LiveExcelWizardPlugin.getDefault().getResourceBundle();
         try {
             return bundle.getString(key);
         } catch (MissingResourceException e) {
@@ -46,7 +46,7 @@ public class RulesWizardPlugin2 extends AbstractUIPlugin {
     /**
      * The constructor.
      */
-    public RulesWizardPlugin2() {
+    public LiveExcelWizardPlugin() {
         super();
         plugin = this;
         try {

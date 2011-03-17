@@ -9,7 +9,7 @@ import org.openl.eclipse.wizard.base.NewProjectFromTemplateWizardCustomizer;
 public class NewLEProjectWizard extends NewProjectFromTemplateWizard {
 
     public NewLEProjectWizard() {
-        super(new NewProjectFromTemplateWizardCustomizer(RulesWizardPlugin2.getDefault().getBundle(),
+        super(new NewProjectFromTemplateWizardCustomizer(LiveExcelWizardPlugin.getDefault().getBundle(),
                 "NewLEProjectWizard", "org.openl.rules.eclipse.wizard.Messages_LE") {
         });
     }

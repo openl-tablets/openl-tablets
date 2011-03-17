@@ -21,6 +21,7 @@
     <module>../org.openl.rules.liveexcel</module>
     <module>../org.openl.rules.liveexcel.extension</module>
     <module>../org.openl.rules.liveexcel.eclipse.ui</module>
+    <module>../org.openl.rules.liveexcel.eclipse.wizard</module>
     <module>../org.openl.rules.liveexcel.eclipse.feature</module>
     <module>../org.openl.rules.liveexcel.eclipse.site</module>
   </modules>
@@ -137,6 +138,11 @@
       </dependency>
       <dependency>
         <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.eclipse.wizard</artifactId>
+        <version>${version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.lib.poi.dev.modified</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
@@ -148,6 +154,11 @@
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
     </dependencies>
