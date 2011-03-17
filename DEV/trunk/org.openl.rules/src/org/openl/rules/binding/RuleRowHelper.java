@@ -181,9 +181,10 @@ public class RuleRowHelper {
 
         ICell theCell = table.getSource().getCell(0, 0);
         
-        String src = theCell.getStringValue();        
+                
         if (paramType.getInstanceClass().equals(String.class)) {
             // if param type is of type String, load as String
+            String src = theCell.getStringValue();
             return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
         }
         
@@ -211,6 +212,9 @@ public class RuleRowHelper {
             }
         }
         
+        // don`t move it up, as this call will convert native values such as numbers and dates to strings, it 
+        // has negative performance implication
+        String src = theCell.getStringValue();
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
     }
 
