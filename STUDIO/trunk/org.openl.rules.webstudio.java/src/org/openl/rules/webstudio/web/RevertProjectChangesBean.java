@@ -3,9 +3,11 @@ package org.openl.rules.webstudio.web;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,31 +68,74 @@ public class RevertProjectChangesBean {
     }
 
     public String compare() {
-        List<File> filesToCompare = new ArrayList<File>();
-        
         try {
-            String versionsToCompareParam = FacesUtils.getRequestParameter("toCompare");
-            String[] versionsToCompareStr = versionsToCompareParam.split(",");
-    
-            long[] versionsToCompare = new long[versionsToCompareStr.length];
-            for (int i = 0; i < versionsToCompareStr.length; i++) {
-                versionsToCompare[i] = Long.parseLong(versionsToCompareStr[i]);
-            }
+            long[] versionsToCompare = getVersionsToCompare();
 
             ProjectModel model = WebStudioUtils.getProjectModel();
             SourceHistoryManager<File> historyManager = model.getHistoryManager();
-            for (long versionToCompare : versionsToCompare) {
-                File fileToCompare = historyManager.get(versionToCompare);
-                filesToCompare.add(fileToCompare);
+            SortedMap<Long, File> sources = historyManager.get(versionsToCompare);
+
+            if (sources.size() == 2) {
+                Long source1Version = sources.firstKey();
+                Long source2Version = sources.lastKey();
+                File file1ToCompare = sources.get(source1Version);
+                File file2ToCompare = sources.get(source2Version);
+                String file1Name = file1ToCompare.getName();
+                String file2Name = file2ToCompare.getName();
+
+                if (!file2Name.equals(file1Name)) {
+                    // Try to get a previous version
+                    file1ToCompare = getPrevVersion(file2Name, source2Version);
+                    if (file1ToCompare == null) {
+                        // Get initial source
+                        sources = historyManager.get(file2Name);
+                        file1ToCompare = sources.get(sources.firstKey());
+                    }
+                }
+
+                UploadExcelDiffController diffController =
+                    (UploadExcelDiffController) FacesUtils.getBackingBean("uploadExcelDiffController");
+                diffController.compare(
+                        Arrays.asList(file1ToCompare, file2ToCompare));
             }
-
-            UploadExcelDiffController diffController =
-                (UploadExcelDiffController) FacesUtils.getBackingBean("uploadExcelDiffController");
-            diffController.compare(filesToCompare);
-
         } catch (Exception e) {
             LOG.error(e);
             FacesUtils.addErrorMessage("Error when comparing projects");
+        }
+
+        return null;
+    }
+
+    private long[] getVersionsToCompare() {
+        String versionsToCompareParam = FacesUtils.getRequestParameter("toCompare");
+        String[] versionsToCompareStr = versionsToCompareParam.split(",");
+
+        long[] versionsToCompare = new long[versionsToCompareStr.length];
+        for (int i = 0; i < versionsToCompareStr.length; i++) {
+            versionsToCompare[i] = Long.parseLong(versionsToCompareStr[i]);
+        }
+
+        return versionsToCompare;
+    }
+
+    private File getPrevVersion(String sourceName, Long currentVersion) {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        SourceHistoryManager<File> historyManager = model.getHistoryManager();
+        Map<Long, File> sources = historyManager.get(sourceName);
+
+        Long prevVersion = null;
+        if (sources.size() >= 2) {
+            for (Map.Entry<Long, File> entry : sources.entrySet()) {
+                Long version = entry.getKey();
+                if (version.equals(currentVersion)) {
+                    break;
+                }
+                prevVersion = version;
+            }
+
+            if (prevVersion != null) {
+                return sources.get(prevVersion);
+            }    
         }
 
         return null;

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
@@ -48,22 +48,30 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         return null;
     }
 
-    public Map<Long, File> get(String[] names) {
+    public SortedMap<Long, File> get(long... dates) {
+        SortedMap<Long, File> sources = new TreeMap<Long, File>();
+        for (long date : dates) {
+            sources.put(date, get(date));
+        }
+        return sources;
+    }
+
+    public SortedMap<Long, File> get(String... names) {
         Collection<File> files = null;
         if (names != null && names.length > 0) {
             files = storage.list(names);
         } else {
             files = storage.list();
         }
-        Map<Long, File> versions = new TreeMap<Long, File>();
+        SortedMap<Long, File> sources = new TreeMap<Long, File>();
         for (File file : files) {
-            versions.put(file.lastModified(), file);
+            sources.put(file.lastModified(), file);
         }
-        return versions;
+        return sources;
     }
 
-    public Map<Long, File> getAll() {
-        return get(null);
+    public SortedMap<Long, File> getAll() {
+        return get((String[]) null);
     }
 
     public boolean revert(long date) {
