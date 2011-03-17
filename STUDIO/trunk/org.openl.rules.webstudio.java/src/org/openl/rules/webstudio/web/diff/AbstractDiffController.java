@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
@@ -141,6 +143,10 @@ public abstract class AbstractDiffController {
                 continue;
                 // TODO implement XlsProjectionDiffer and you don't need that check
             }
+            
+            if (type.equals(XlsProjectionType.TABLE.name()) && !showEqualElements && !isEqualElements(d)) {
+                continue;// skip equal elements
+            }
 
             TreeNode<UiTreeData> n = new TreeNodeImpl<UiTreeData>();
             n.setData(ui);
@@ -149,7 +155,7 @@ public abstract class AbstractDiffController {
             // props
             Projection p1 = d.getElement(0).getProjection();
             Projection p2 = d.getElement(1).getProjection();
-            if (p1 != null && p2 != null && !d.getElement(1).isSelfEqual()) {
+            if (isEqualElements(d)) {
                 for(ProjectionProperty pp1 : p1.getProperties()) {
                     ProjectionProperty pp2 = p2.getProperty(pp1.getName());
 
@@ -176,7 +182,13 @@ public abstract class AbstractDiffController {
             rebuild(idGenerator, n, d);
         }
     }
-
+    
+    private boolean isEqualElements(DiffTreeNode d){
+        Projection p1 = d.getElement(0).getProjection();
+        Projection p2 = d.getElement(1).getProjection();
+        return p1 != null && p2 != null && !d.getElement(1).isSelfEqual();
+    }
+    
     public TreeNode<UiTreeData> getRichDiffTree() {
         return richDiffTree;
     }
