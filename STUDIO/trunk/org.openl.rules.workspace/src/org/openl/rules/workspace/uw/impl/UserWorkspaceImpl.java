@@ -76,8 +76,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void copyProject(AProject project, String name) throws ProjectException {
-        designTimeRepository.copyProject(project, name, user);
-        refresh();
+        try {
+            designTimeRepository.copyProject(project, name, user);
+        } catch (ProjectException e) {
+            if (designTimeRepository.hasProject(name)) {
+                designTimeRepository.getProject(name).erase(user);
+            }
+            throw e;
+        } finally {
+            refresh();
+        }
     }
 
     public void createDDProject(String name) throws RepositoryException {
