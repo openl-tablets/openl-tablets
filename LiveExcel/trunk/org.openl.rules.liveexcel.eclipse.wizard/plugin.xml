@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="LiveExcel"
+            id="org.openl.rules.wizard.liveexcel.category">
+      </category>
+      <wizard
+            category="org.openl.rules.wizard.liveexcel.category"
+            class="org.openl.rules.eclipse.wizard.NewLEProjectWizard"
+            icon="icons/full/ctool16/new_openl_rules_project_wizard.gif"
+            id="org.openl.rules.eclipse.wizard.NewLEProjectWizard"
+            name="LE Example"
+            project="true">
+      </wizard>
+   </extension>
+
+
+</plugin>

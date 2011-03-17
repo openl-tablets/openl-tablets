@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LiveExcel Wizard Plug-in
+Bundle-SymbolicName: org.openl.rules.liveexcel.eclipse.wizard;singleton:=true
+Bundle-Version: 0.3
+Bundle-Vendor: OpenL
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.openl.eclipse.ui.wizard
+Bundle-Activator: org.openl.rules.eclipse.wizard.RulesWizardPlugin2
+Bundle-ActivationPolicy: lazy
