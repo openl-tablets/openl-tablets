@@ -16,14 +16,14 @@ public class ExcelDiffController extends AbstractDiffController {
      */
     protected static final int MAX_FILES_COUNT = 2;
 
-    private List<File> filesToCompare = new ArrayList<File>();
+    private List<File> filesToCompare;
 
     public List<File> getFilesToCompare() {
         return filesToCompare;
     }
 
     public void setFilesToCompare(List<File> filesToCompare) {
-        this.filesToCompare = filesToCompare;
+        this.filesToCompare = new ArrayList<File>(filesToCompare);
     }
 
     public String compare() {
