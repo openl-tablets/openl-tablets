@@ -15,6 +15,8 @@ public interface SourceHistoryManager<T> {
 
     T get(long version);
 
+    T getPrev(long version);
+
     SortedMap<Long, T> get(long... versions);
 
     SortedMap<Long, T> get(String... names);
