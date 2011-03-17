@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DateFormatter;
 import org.openl.util.formatters.DefaultFormatter;
@@ -36,7 +37,7 @@ public class FormattersManager {
         IFormatter formatter = null;
         if (value != null) {
             Class<?> clazz = value.getClass();
-            formatter = getFormatter(clazz);
+            formatter = getFormatter(clazz, value);
             if (formatter instanceof DefaultFormatter) { // this is formatter used by default, we don`t like it, 
                                                             // so we try to format the value by other way.
                 formatter = new FormatterAdapter();
@@ -65,11 +66,14 @@ public class FormattersManager {
      * {@link DEFAULT_NUMBER_FORMAT} and {@link DEFAULT_DATE_FORMAT} accordingly.
      * @return formatter for a type.
      */
-    public static IFormatter getFormatter(Class<?> clazz, String format) {
+    public static IFormatter getFormatter(Class<?> clazz, Object value, String format) {
         IFormatter formatter = null;
 
         // Numeric
         if (ClassUtils.isAssignable(clazz, Number.class, true)) {
+            if (StringUtils.isBlank(format) && NumberUtils.isFloatPointType(clazz)) { 
+                format = getFormatForScale(value);
+            }
             String numberFormat = StringUtils.isNotBlank(format) ? format : DEFAULT_NUMBER_FORMAT;
             formatter = new NumberFormatter(numberFormat, Locale.US);
 
@@ -99,9 +103,34 @@ public class FormattersManager {
 
         return formatter;
     }
-
+    
+    /**
+     * Returns format pattern for appropriate value scale
+     * 
+     * @param value float point value which is gonna be formatted
+     * @return format pattern for appropriate value scale, <code>null</code>
+     * if value is <code>null</code>
+     */
+    private static String getFormatForScale(Object value) {
+        if (value != null) {
+            int scale = NumberUtils.getScale((Number)value);
+            
+            StringBuffer buf = new StringBuffer();
+            buf.append("#.");
+            for (int i = 0; i < scale; i++) {
+                buf.append("#");
+            }
+            return buf.toString();
+        }
+        return null;
+    }
+    
+    public static IFormatter getFormatter(Class<?> clazz, Object value) {
+        return getFormatter(clazz, value, null);
+    }
+    
     public static IFormatter getFormatter(Class<?> clazz) {
-        return getFormatter(clazz, null);
+        return getFormatter(clazz, null, null);
     }
 
 }
