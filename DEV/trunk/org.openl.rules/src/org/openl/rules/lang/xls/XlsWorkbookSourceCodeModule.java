@@ -180,12 +180,17 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         for (XlsWorkbookListener wl : listeners) {
             wl.beforeSave(this);
         }
+
         FileOutputStream fileOut = new FileOutputStream(fileName);
         workbook.write(fileOut);
         fileOut.close();
+
+        for (XlsWorkbookListener wl : listeners) {
+            wl.afterSave(this);
+        }
         //workbook = loadWorkbook(src, false);
     }
-    
+
     public IOpenSourceCodeModule getSource() {
         return src;
     }
