@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.liveexcel-pom</artifactId>
+    <version>0.3-SNAPSHOT</version>
+    <relativePath>../org.openl.rules.liveexcel-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.liveexcel.eclipse.wizard</artifactId>
+  <packaging>jar</packaging>
+  <name>LiveExcel - Eclipse - Eclipse UI Wizard</name>
+  <description>LiveExcel Eclipse wizards</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <excludeResources>true</excludeResources>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>plugin.xml</include>
+          <include>icons/</include>
+          <include>templates.build/</include>
+          <include>templates/</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <reporting>
+     <plugins>
+       <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>findbugs-maven-plugin</artifactId>
+         <configuration>
+            <timeout>6000000</timeout>
+            <excludeFilterFile>${basedir}/findbugs-exclude.xml</excludeFilterFile>
+         </configuration>
+        </plugin>
+      </plugins>
+  </reporting> 
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
