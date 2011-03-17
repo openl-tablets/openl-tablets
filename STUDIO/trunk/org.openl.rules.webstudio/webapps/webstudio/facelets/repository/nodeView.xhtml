@@ -9,10 +9,10 @@
   <h:panelGroup rendered="#{node.type == 'repository'}">
     <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
       <h:commandButton id="createId" styleClass="button" value="Create New Project" onclick="openNewProjectDialog();return false;" />
-      <rich:toolTip for="createId" showDelay="500">Create new project in repository</rich:toolTip>
+      <rich:toolTip for="createId" showDelay="500">Create new project</rich:toolTip>
       
       <h:commandButton id="uploadId" styleClass="button" value="Upload Project" onclick="openUploadProjectDialog();return false;" />
-      <rich:toolTip for="uploadId" showDelay="500">Upload existing project to repository</rich:toolTip>
+      <rich:toolTip for="uploadId" showDelay="500">Upload existing project or Excel file with rules to repository</rich:toolTip>
     </h:panelGrid>
 
     <rich:tabPanel style="height:500px;">
@@ -22,25 +22,25 @@
     </rich:tabPanel>
   </h:panelGroup>
   
-	<c:set var="deleteMessage" value="Remove the project from user's workspace and marks it for further deletion" />
+	<c:set var="deleteMessage" value="Mark project as deleted" />
 	<c:set var="addFolderMessage" value="Add a folder" />
 	<c:set var="uploadFileMessage" value="Upload a file" />
-	<c:set var="undeleteMessage" value="Revert deletion" />
+	<c:set var="undeleteMessage" value="Restore project" />
 	<c:set var="eraseMessage" value="Permanently erase the project from repository" />
 	<c:set var="openMessage" value="Open project for viewing in rules editor" />
     <c:set var="openVersionMessage" value="Open the specified project version for viewing in rules editor" />
-    <c:set var="closeMessage" value="Close the project" />
-    <c:set var="checkOutMessage" value="Make the project available for editing in rules editor" />
-    <c:set var="checkInMessage" value="Copy the project from workspace to repository as a new version" />
-    <c:set var="copyMessage" value="Creates a new project with identical content and different name in repository" />
+    <c:set var="closeMessage" value="Close project" />
+    <c:set var="checkOutMessage" value="Make project available for editing in rules editor and lock it from editing by other users" />
+    <c:set var="checkInMessage" value="Save project changes to repository as a new version and make it available for editing by other users" />
+    <c:set var="copyMessage" value="Create a new project with identical content and different name in repository" />
 	
   <h:panelGroup rendered="#{node.type == 'file'}">
     <h:panelGrid columns="4" cellpadding="4" cellspacing="0">
       <h:commandButton id="updateId" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Update" onclick="#{repositoryTreeState.canModify} &amp;&amp; openUpdateFileDialog();return false;" />
-      <rich:toolTip for="updateId" showDelay="500">Updates the file</rich:toolTip>
+      <rich:toolTip for="updateId" showDelay="500">Upload the updated file</rich:toolTip>
       
       <h:commandButton id="deleteFileId" styleClass="#{repositoryTreeState.canModify ? 'button':'disabledButton'}" value="Delete" onclick="#{repositoryTreeState.canModify} &amp;&amp; #{rich:component('modalDeleteNode')}.show();return false;" />
-      <rich:toolTip for="deleteFileId" showDelay="500">Deletes the file</rich:toolTip>
+      <rich:toolTip for="deleteFileId" showDelay="500">Delete the file</rich:toolTip>
     </h:panelGrid>
   </h:panelGroup>
 
@@ -108,10 +108,10 @@
         <rich:toolTip for="deleteId2" showDelay="500"><h:outputText value="#{deleteMessage}" /></rich:toolTip>
         
         <h:commandButton id="redeployId" styleClass="#{repositoryTreeState.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" onclick="#{repositoryTreeState.canRedeploy} &amp;&amp; openSmartRedeployDialog();return false;" />
-        <rich:toolTip for="redeployId" showDelay="500">Redeploy the deployment</rich:toolTip>
+        <rich:toolTip for="redeployId" showDelay="500">Redeploy selected deployments with the latest version of this project</rich:toolTip>
         
         <h:commandButton id="compareId" styleClass="#{repositoryTreeState.canCompare ? 'button':'disabledButton'}" value="Compare" onclick="#{repositoryTreeState.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;" />
-        <rich:toolTip for="compareId" showDelay="500">Compare files and sheets in Excel files between two project versions</rich:toolTip>
+        <rich:toolTip for="compareId" showDelay="500">Compare tables in Excel file between two project versions</rich:toolTip>
       </h:panelGrid>
       
       <h:panelGrid columns="6" cellpadding="4" cellspacing="0">
@@ -157,7 +157,7 @@
   <h:panelGroup rendered="#{node.type == 'drepository'}">
     <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
       <input id="createDeploymentId" type="button" class="button" value="Create New Deployment Project" onclick="openNewDeploymentProjectDialog();" />
-      <rich:toolTip for="createDeploymentId" showDelay="500">Create a deployment project</rich:toolTip>
+      <rich:toolTip for="createDeploymentId" showDelay="500">Create new deployment project</rich:toolTip>
     </h:panelGrid>
 
     <rich:tabPanel style="height:500px;">
@@ -179,7 +179,7 @@
     </h:panelGroup>
     <h:panelGrid columns="14" cellpadding="4" cellspacing="0" rendered="#{not artefact.deleted}">
       <h:commandButton id="deployId" styleClass="#{repositoryTreeState.canDeploy ? 'button':'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{repositoryTreeState.canDeploy}"/>
-      <rich:toolTip for="deployId" showDelay="500">Deploy project to production repository</rich:toolTip>
+      <rich:toolTip for="deployId" showDelay="500">Deploy into operations or staging</rich:toolTip>
       
       <h:commandButton id="openVersionId3" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
       <rich:toolTip for="openVersionId3" showDelay="500"><h:outputText value="#{openVersionMessage}" /></rich:toolTip>
