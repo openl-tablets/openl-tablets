@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Rules Mapping Library
 Bundle-SymbolicName: org.openl.rules.mapping.lib
-Bundle-Version: 5.7.5
+Bundle-Version: 5.7.6
 Bundle-Vendor: OpenL
 Export-Package: com.thoughtworks.xstream,
  com.thoughtworks.xstream.alias,
