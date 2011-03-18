@@ -33,6 +33,7 @@ public class TablesCalcTestXLS {
 	
 	@Test
 	public void testSimplestTable(){
+        ProjectLoader.reset();
 		int[] arg1Set = new int[]{1,2,3,4,5,6,};
 		String[] arg2Set = new String[]{"X1","X2","X3"};
 		
@@ -105,7 +106,7 @@ public class TablesCalcTestXLS {
     @After
     public void finalize() {
         try {
-            ProjectLoader.reset();
+            ProjectLoader.resetElementsCache();
             FileUtils.deleteDirectory(ProjectLoader.getTempDir());
         } catch (IOException e) {
             e.printStackTrace();

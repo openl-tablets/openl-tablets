@@ -26,6 +26,7 @@ public class VersionsExtrWorkbookTest extends TestCase {
 		String[] etalon = {"d","d"};
 		Collections context = buildContext();
 
+        ProjectLoader.reset();
 		LiveExcel le = new LiveExcel(new ServiceModelJAXB(new File("./test-resources/LERepository/Collections/d")));
 		le.getServiceModel();
 		le.printoutServiceModel(System.out);
@@ -101,7 +102,7 @@ public class VersionsExtrWorkbookTest extends TestCase {
     @After
     public void finalize() {
         try {
-            ProjectLoader.reset();
+            ProjectLoader.resetElementsCache();
             FileUtils.deleteDirectory(ProjectLoader.getTempDir());
         } catch (IOException e) {
             e.printStackTrace();

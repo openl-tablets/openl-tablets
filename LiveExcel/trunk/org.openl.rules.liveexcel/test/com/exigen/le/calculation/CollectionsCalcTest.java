@@ -379,7 +379,7 @@ public class CollectionsCalcTest {
 	    @After
 	    public void finalize() {
 	        try {
-	            ProjectLoader.reset();
+	            ProjectLoader.resetElementsCache();
 	            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
 	        } catch (IOException e) {
 	            e.printStackTrace();

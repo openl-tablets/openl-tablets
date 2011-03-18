@@ -38,6 +38,7 @@ public class PAYDCalcTest {
 		};
 
 
+		ProjectLoader.reset();
 		// Restore regular SM provider(from xml), which can be overriden by other tests
         LiveExcel le = new LiveExcel(new FunctionByDateSelector() ,new ServiceModelJAXB(new File("./test-resources/LERepository/PAYD/4")));
 	

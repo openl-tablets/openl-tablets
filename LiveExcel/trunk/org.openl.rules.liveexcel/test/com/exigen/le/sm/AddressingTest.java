@@ -24,6 +24,7 @@ public class AddressingTest extends TestCase{
 
 	@Test
 	public void testColumnIndex(){
+        ProjectLoader.reset();
 		String cellRef = "mySheet!AB124";
 		Cell cell = new Cell().init(cellRef);
 		String sheetName =cell.getSheetName();
@@ -104,7 +105,7 @@ public class AddressingTest extends TestCase{
     @After
     public void finalize() {
         try {
-            ProjectLoader.reset();
+            ProjectLoader.resetElementsCache();
             FileUtils.deleteDirectory(ProjectLoader.getTempDir());
         } catch (IOException e) {
             e.printStackTrace();
