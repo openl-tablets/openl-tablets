@@ -1,4 +1,4 @@
-set JAVA_OPTS=-server -Xincgc -XX:NewSize=128m -XX:MaxNewSize=128m -Xms512m -Xmx1024m -XX:MaxPermSize=256M -XX:PermSize=128M -X:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled
+set JAVA_OPTS=-server -Xincgc -XX:NewSize=128m -XX:MaxNewSize=128m -Xms512m -Xmx1024m -XX:MaxPermSize=256M -XX:PermSize=128M -XX:+CMSClassUnloadingEnabled
 
 REM Xincgc - Enable the incremental garbage collector. The incremental garbage collector, which is off by default, will eliminate occasional garbage-collection pauses during program execution. However, it can lead to a roughly 10% decrease in overall GC performance.
 
