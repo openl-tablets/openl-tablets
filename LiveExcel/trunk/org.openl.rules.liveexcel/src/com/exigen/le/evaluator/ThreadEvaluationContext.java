@@ -130,7 +130,7 @@ public class ThreadEvaluationContext {
         if (prj == null || !prj.equals(project.get())) {
             project.set(prj);
             freeEvalContext();
-            ProjectLoader.reset();
+            ProjectLoader.resetElementsCache();
         }
     }
 

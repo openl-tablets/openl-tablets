@@ -58,6 +58,7 @@ public class TablesCalcTest {
 		};
 
 
+        ProjectLoader.reset();
 		// Restore regular SM provider(from xml), which can be overriden by other tests
         ServiceModelJAXB provider = new ServiceModelJAXB(new File("./test-resources/LERepository/Tables/0/"));
         LiveExcel le = new LiveExcel(new FunctionByDateSelector(), provider);
@@ -106,7 +107,7 @@ public class TablesCalcTest {
     @After
     public void finalize() {
         try {
-            ProjectLoader.reset();
+            ProjectLoader.resetElementsCache();
             FileUtils.deleteDirectory(ProjectLoader.getTempDir());
         } catch (IOException e) {
             e.printStackTrace();

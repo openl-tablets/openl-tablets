@@ -32,6 +32,7 @@ public class MappingPropertyTest implements PropertyRetriever{
 	
 	@Test
 	public void mappedTest() throws Exception {
+        ProjectLoader.reset();
 		Driver driver = fillDriver();
 		Coverage coverage = fillCoverage();
 		Policy policy = fillPolicy();
@@ -483,7 +484,7 @@ public class MappingPropertyTest implements PropertyRetriever{
 	    @After
 	    public void finalize() {
 	        try {
-	            ProjectLoader.reset();
+	            ProjectLoader.resetElementsCache();
 	            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
 	        } catch (IOException e) {
 	            e.printStackTrace();

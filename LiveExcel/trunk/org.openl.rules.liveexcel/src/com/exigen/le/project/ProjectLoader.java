@@ -219,9 +219,12 @@ public class ProjectLoader {
             throw new RuntimeException(msg, e);
         }
     }
-
-    public static void reset() {
+    
+    public static void reset(){
         creators = initCreators();
+    }
+
+    public static void resetElementsCache() {
         for (ProjectElement element : elementsCache.get().getValues()) {
             element.dispose();
         }

@@ -37,6 +37,7 @@ public class DBInitTest {
 	
 	@Test
 	public void initTest() throws IOException, SQLException, ClassNotFoundException {
+        ProjectLoader.reset();
 		LETableFactory letf = new LETableFactory();
 		File zip = prepareImportZip();
 		FileInputStream fis = new FileInputStream(zip);
@@ -134,7 +135,7 @@ public class DBInitTest {
 	    @After
 	    public void finalize() {
 	        try {
-	            ProjectLoader.reset();
+	            ProjectLoader.resetElementsCache();
 	            FileUtils.deleteDirectory(ProjectLoader.getTempDir());
 	        } catch (IOException e) {
 	            e.printStackTrace();

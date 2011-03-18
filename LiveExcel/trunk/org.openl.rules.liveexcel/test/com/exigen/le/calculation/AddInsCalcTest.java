@@ -71,6 +71,7 @@ public class AddInsCalcTest {
 	
 	@Test
 	public void testNormsDistFunction(){
+	    ProjectLoader.reset();
 		ServiceModelJAXB serviceModelProvider = new ServiceModelJAXB(new File("./test-resources/LERepository/AddIns/"));
         LiveExcel le = new LiveExcel(new FunctionByDateSelector(), serviceModelProvider);
 		     
@@ -116,7 +117,7 @@ public class AddInsCalcTest {
     @After
     public void finalize() {
         try {
-            ProjectLoader.reset();
+            ProjectLoader.resetElementsCache();
             FileUtils.deleteDirectory(ProjectLoader.getTempDir());
         } catch (IOException e) {
             e.printStackTrace();
