@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+  <mapping>
+    <property name="object" ignore="true"/>
+    <property name="children" ignore="true"/>
+    <property name="leaf" ignore="true"/>
+    <property name="metaInfo" ignore="true"/>
+    <property name="name" ignore="true"/>
+    <property name="type" ignore="true"/>
+    <property name="format" ignore="true"/>
+ </mapping>
+</mappings>
