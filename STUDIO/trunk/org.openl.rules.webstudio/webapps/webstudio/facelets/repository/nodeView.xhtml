@@ -182,13 +182,13 @@
       <rich:toolTip for="deployId" showDelay="500">Deploy into operations or staging</rich:toolTip>
       
       <h:commandButton id="openVersionId3" styleClass="#{repositoryTreeState.canOpen ? 'button':'disabledButton'}" value="Open Version" onclick="#{repositoryTreeState.canOpen} &amp;&amp; openOpenVersionDialog();return false;" />
-      <rich:toolTip for="openVersionId3" showDelay="500"><h:outputText value="#{openVersionMessage}" /></rich:toolTip>
+      <rich:toolTip for="openVersionId3" showDelay="500"><h:outputText value="Open the specified project version" /></rich:toolTip>
       
       <h:commandButton id="closeId3" styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
       <rich:toolTip for="closeId3" showDelay="500"><h:outputText value="#{closeMessage}" /></rich:toolTip>
       
       <h:commandButton id="checkOutId3" styleClass="#{repositoryTreeState.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{repositoryTreeState.canCheckOut};" />
-      <rich:toolTip for="checkOutId3" showDelay="500"><h:outputText value="#{checkOutMessage}" /></rich:toolTip>
+      <rich:toolTip for="checkOutId3" showDelay="500"><h:outputText value="Make project available for editing and lock it from editing by other users" /></rich:toolTip>
       
       <h:commandButton id="checkInId2" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
       <rich:toolTip for="checkInId2" showDelay="500"><h:outputText value="#{checkInMessage}" /></rich:toolTip>
