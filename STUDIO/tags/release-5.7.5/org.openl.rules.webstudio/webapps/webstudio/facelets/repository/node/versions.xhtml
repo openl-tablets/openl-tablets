@@ -1,0 +1,40 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:dataTable value="#{node.versions}" var="version" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+    <f:facet name="header">
+      <rich:columnGroup>
+        <rich:column>
+          <h:outputText value="Version" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Created By" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Created At" />
+        </rich:column>
+      </rich:columnGroup>
+    </f:facet>
+    <rich:columnGroup>
+      <rich:column>
+        <h:outputText value="#{version.versionName}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{version.versionInfo.createdBy}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{version.versionInfo.createdAt}">
+        	<f:convertDateTime type="date" pattern="#{formatPatterns.datePattern}"/>
+        </h:outputText>
+      </rich:column>
+    </rich:columnGroup>
+  </rich:dataTable>
+
+  <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
+    <h:outputText value="No version history" />
+  </h:panelGroup>
+
+</ui:composition>
