@@ -77,9 +77,7 @@ visibility:hidden;
 
 <table>
 <tr><td>
-<img src="../images/excel-workbook.png"/>
-<a class="left" href="showLinks.jsp?uri=<%=StringTool.encodeURL(uri)%>" target="show_app_hidden" title="<%=uri%>">
-      &nbsp;<%=table.getName()%> : <%=text%></a>
+<span class="left"><%=table.getName()%> : <%=text%></span>
 
 </td>
 <%@include file="tableViewMenu.jspf"%>

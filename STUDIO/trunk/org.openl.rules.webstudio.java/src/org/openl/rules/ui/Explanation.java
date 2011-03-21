@@ -9,11 +9,9 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.tree.TreeIterator;
@@ -168,10 +166,6 @@ public class Explanation {
         IMetaInfo mi = explanationValue.getMetaInfo();
         String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
 
-        if (url != null) {
-            value = HTMLHelper.urlLink(makeUrl(url), "show", value, null);
-        }
-
         if (name == null) {
             name = "";
         } else if (url != null) {
@@ -206,24 +200,6 @@ public class Explanation {
         return makeBasicUrl() + "&expandID=" + id;
     }
 
-    protected String makeUrl(String url) {
-        if (url == null) {
-            return "#";
-        }
-
-        XlsUrlParser parser = new XlsUrlParser();
-        try {
-            parser.parse(url);
-        } catch (Exception e) {
-            throw RuntimeExceptionWrapper.wrap(e);
-        }
-
-        String ret = makeBasicUrl() + "&wbPath=" + parser.wbPath + "&wbName=" + parser.wbName + "&wsName="
-                + parser.wsName + "&range=" + parser.range;
-
-        return ret;
-    }
-    
     public void setExpandedValues(List<ExplanationNumberValue<?>> expandedValues) {
         this.expandedValues = expandedValues;
     }

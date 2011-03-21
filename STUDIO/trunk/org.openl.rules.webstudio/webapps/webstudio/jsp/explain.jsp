@@ -1,10 +1,8 @@
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.meta.*" %>
-<%@page import="org.openl.rules.webstudio.util.ExcelLauncher"%>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
-
 
 <%@page import="org.openl.meta.explanation.ExplanationNumberValue"%><html>
 <head>
@@ -99,18 +97,3 @@ if (header != null)
 
 </body>
 </html>
-
-<%
-	String excelScriptPath = pageContext.getServletContext().getRealPath("scripts/LaunchExcel.vbs");
-	
-	String wbName = request.getParameter("wbName");
-	if (wbName != null)
-		ExcelLauncher.launch(excelScriptPath,
-		request.getParameter("wbPath"),
-		wbName,
-		request.getParameter("wsName"),
-		request.getParameter("range")
-
-		);
-
-%>
