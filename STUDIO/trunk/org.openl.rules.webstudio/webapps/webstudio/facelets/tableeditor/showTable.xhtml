@@ -129,12 +129,12 @@
                             title="Test" alt="Test" />
                     </h:outputLink>
 
-                    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
+                    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors and showTableBean.testRunResults.notEmpty}">
                         <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
                             <f:param value="#{showTableBean.uri}" name="uri" />
                             <h:graphicImage url="/webresource/images/test.gif" alt="Run" title="Run" />
                         </h:outputLink>
-    
+    					
                         <c:set var="traceUrl"
                             value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=faces/facelets/trace/tree.xhtml&amp;relwidth=70&amp;mainjsp=faces/facelets/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
