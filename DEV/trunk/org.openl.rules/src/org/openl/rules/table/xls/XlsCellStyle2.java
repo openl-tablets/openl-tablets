@@ -94,16 +94,10 @@ public class XlsCellStyle2 implements ICellStyle {
         boolean setTheme = color.getCTColor().isSetTheme();
         int themeIndex = color.getTheme();
 
-        // If color from the theme palette
-        if (setTheme
-                // color.getRgb() for borders returns null for colors from the theme palette
-                // https://issues.apache.org/bugzilla/show_bug.cgi?id=50846
-                // TODO Remove when POI team will fix this issue
-                && (rgb == null
-                        // TODO Remove this when POI team will fix getting tints of brown and blue colors
-                        // (3 and 4 columns from theme palette)
-                        // https://issues.apache.org/bugzilla/show_bug.cgi?id=50787 
-                        || (themeIndex == 2 || themeIndex == 3))) {
+        // TODO Remove this when POI team will fix getting tints of brown and blue colors
+        // (3 and 4 columns from theme palette)
+        // https://issues.apache.org/bugzilla/show_bug.cgi?id=50787 
+        if (setTheme && (themeIndex == 2 || themeIndex == 3)) {
             try {
                 return getThemeColorRgb(themeIndex, color.getTint());
             } catch (Exception e) {
