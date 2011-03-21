@@ -1,0 +1,114 @@
+<project name="overallRelease" default="help" basedir=".">
+
+	<taskdef name="try" classname="ise.antelope.tasks.TryTask"/>
+
+	<import file="changeVersion.xml"/>
+
+	<property file="rules-mapping-release.properties"/>
+
+	<!-- BEGIN M2 PRESET -->
+ 	<property name="maven.commoncmd" value="" />
+
+    <condition property="maven.line" value="--offline ${maven.commoncmd}">
+        <istrue value="${offline}" />
+    </condition>
+    <property name="maven.line" value="${maven.commoncmd}" />
+
+    <condition property="maven.executable" value="mvn.bat">
+        <os family="windows" />
+    </condition>
+    <property name="maven.executable" value="mvn" />
+
+    <condition property="maven.executable.real" value="${m2.home}/bin/${maven.executable}">
+        <isset property="m2.home" />
+    </condition>
+    <property name="maven.executable.real" value="${maven.executable}"/>
+
+    <presetdef name="maven">
+        <exec failonerror="true" executable="${maven.executable.real}">
+            <arg line="${maven.line}" />
+        </exec>
+    </presetdef>
+    <!-- END M2 PRESET -->
+
+	<target name="commitModule">
+        <exec executable="svn">
+			<arg line="commit ${moduleFolder}"/>
+			<arg line="-m &quot;EPBDS Temporary changed versions for release.&quot;"/>
+			<arg line="--username ${svnLogin}"/>
+			<arg line="--password ${svnPassword}"/>
+		</exec>
+	</target>
+
+	<target name="changeVersionsBefore">
+        <antcall target="change">
+			<param name="projects_root" value="${moduleFolder}"/>
+			<param name="previous_version" value="${current_version}"/>
+			<param name="version" value="${release_version}"/>
+			<param name="version_for_poms" value="${rules_release_version}"/>
+		</antcall>
+		<antcall target="commitModule"/>
+	</target>
+
+	<target name="releaseModule">
+		<echo>Changing versions before the release</echo>
+		<antcall target="changeVersionsBefore"/>
+		<echo>release:prepare</echo>
+		
+        <try>
+			<maven dir="${moduleFolder}">
+				<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
+			</maven>
+		    <catch>
+				<exec executable="svn">
+					<arg line="update ${moduleFolder}"/>
+				</exec>
+				<maven dir="${moduleFolder}">
+					<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
+				</maven>
+		    </catch>
+		</try>
+
+		<echo>release:perform</echo>
+		<maven dir="${moduleFolder}">
+			<arg line="-B release:perform -Darguments=&quot;-P internal-deploy,gpg-sign -Dgpg.passphrase=${passphrase} &quot;" />
+		</maven>
+
+		<echo>Changing versions after the release</echo>
+		<antcall target="changeVersionsAfter"/>
+		<echo>Deploying artifacts to Sonatype maven repository</echo>
+		<antcall target="sonatypeDeploy"/> 
+
+	</target>
+
+	<target name="changeVersionsAfter">
+        <antcall target="change">
+			<param name="projects_root" value="${moduleFolder}"/>
+			<param name="previous_version" value="${release_version}"/>
+			<param name="version" value="${next_eclipse_version}"/>
+			<param name="version_for_poms" value="${rules_next_maven_version}"/>
+		</antcall>
+		<antcall target="commitModule"/>
+	</target>
+
+	<target name="sonatypeDeploy">
+		<!-- Revert changes that maven release plugin have done in phase "perform" -->
+		<exec executable="svn">
+			<arg line="revert ${moduleFolder}/target/checkout/ -R"/>
+		</exec>
+		<maven dir="${moduleFolder}/target/checkout/">
+			<arg line="clean deploy -P sonatype-deploy,gpg-sign -Dgpg.passphrase=${passphrase}" />
+		</maven>
+	</target>
+
+	<target name="releaseRulesMapping">
+		<antcall target="releaseModule">
+			<param name="moduleFolder" value="${root_folder}/${mapping_folder}"/>
+		</antcall>
+	</target>
+
+	<target name="release">
+		<antcall target="releaseRulesMapping"/>
+	</target>
+
+</project>

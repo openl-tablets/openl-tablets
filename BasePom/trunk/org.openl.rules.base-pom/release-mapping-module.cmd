@@ -1,0 +1,1 @@
+ant -f release-mapping-module.xml release
