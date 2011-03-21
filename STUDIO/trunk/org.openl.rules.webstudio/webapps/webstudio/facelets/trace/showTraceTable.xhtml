@@ -20,13 +20,6 @@
             <table>
                 <tr>
                     <td>
-                        <h:outputLink rendered="#{not empty showTraceTableBean.tracerUri and studio.model.editable}"
-                            value="#{contextPath}/jsp/showLinks.jsp"
-                            target="show_app_hidden">
-                            <f:param name="uri" value="#{showTraceTableBean.tracerUri}" />
-                            <h:graphicImage url="/webresource/images/excel.png"
-                                alt="Edit in Excel" title="Edit in Excel" />
-                        </h:outputLink>
                         <h:outputText value=" #{showTraceTableBean.tracerName}" />
                     </td>
                     <td>
