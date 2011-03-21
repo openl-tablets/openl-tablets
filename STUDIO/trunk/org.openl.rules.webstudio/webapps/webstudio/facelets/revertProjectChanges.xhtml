@@ -73,7 +73,8 @@
                 <br />
                 <input type="hidden" id="versionToRevert" name="toRevert" value=""  />
                 <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
-                <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}" />
+                <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
+                    onclick="if(!confirm('Do you really want to revert these changes?'))return false;" />
                 <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
                     oncomplete="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
             </h:form>
@@ -123,7 +124,7 @@
                 // Check
                 if (checkbox.checked) {
                     if (versionsToCompare.length >= 2) {
-                        alert('Ooops, maximum number of projects to compare is 2');
+                        alert('Ooops, maximum number of versions to compare is 2');
                         return false;
                     }
                     versionsToCompare.push(version);
