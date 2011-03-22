@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
@@ -13,21 +14,16 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     private short value;
 
     public static ShortValue add(ShortValue shortValue1, ShortValue shortValue2) {
+        validate(shortValue1, shortValue2, NumberOperations.ADD);
 
-        if (shortValue1 == null || shortValue1.getValue() == 0) {
-            return shortValue2;
-        }
-
-        if (shortValue2 == null || shortValue2.getValue() == 0) {
-            return shortValue1;
-        }
-
-        return new ShortValue(shortValue1, shortValue2, (short) (shortValue1.getValue() + shortValue2.getValue()),
+        return new ShortValue(shortValue1, shortValue2, Operators.add(shortValue1.getValue(), shortValue2.getValue()),
             NumberOperations.ADD.toString(), false);
     }
 
     public static ShortValue rem(ShortValue shortValue1, ShortValue shortValue2) {
-        return new ShortValue(shortValue1, shortValue2, (short) (shortValue1.getValue() % shortValue2.getValue()),
+        validate(shortValue1, shortValue2, NumberOperations.REM);
+        
+        return new ShortValue(shortValue1, shortValue2, Operators.rem(shortValue1.getValue(), shortValue2.getValue()),
             NumberOperations.REM.toString(), true);
     }
 
@@ -177,47 +173,67 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     public static ShortValue divide(ShortValue shortValue1, ShortValue shortValue2) {
-        return new ShortValue(shortValue1, shortValue2, (short) (shortValue1.getValue() / shortValue2.getValue()),
+        validate(shortValue1, shortValue2, NumberOperations.DIVIDE);
+        
+        return new ShortValue(shortValue1, shortValue2, Operators.divide(shortValue1.getValue(), shortValue2.getValue()),
             NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(ShortValue shortValue1, ShortValue shortValue2) {
-        return shortValue1.getValue() == shortValue2.getValue();
+        validate(shortValue1, shortValue2, NumberOperations.EQ);
+        
+        return Operators.eq(shortValue1.getValue(), shortValue2.getValue());
     }
 
     public static boolean ge(ShortValue shortValue1, ShortValue shortValue2) {
-        return shortValue1.getValue() >= shortValue2.getValue();
+        validate(shortValue1, shortValue2, NumberOperations.GE);
+        
+        return Operators.ge(shortValue1.getValue(), shortValue2.getValue());
     }
 
     public static boolean gt(ShortValue shortValue1, ShortValue shortValue2) {
-        return shortValue1.getValue() > shortValue2.getValue();
+        validate(shortValue1, shortValue2, NumberOperations.GT);
+        
+        return Operators.gt(shortValue1.getValue(), shortValue2.getValue());
     }
 
     public static boolean le(ShortValue shortValue1, ShortValue shortValue2) {
-        return shortValue1.getValue() <= shortValue2.getValue();
+        validate(shortValue1, shortValue2, NumberOperations.LE);
+        
+        return Operators.le(shortValue1.getValue(), shortValue2.getValue());
     }
 
     public static boolean lt(ShortValue shortValue1, ShortValue shortValue2) {
-        return shortValue1.getValue() < shortValue2.getValue();
+        validate(shortValue1, shortValue2, NumberOperations.LT);
+        
+        return Operators.lt(shortValue1.getValue(), shortValue2.getValue());
     }
 
     public static ShortValue max(ShortValue shortValue1, ShortValue shortValue2) {
+        validate(shortValue1, shortValue2, NumberOperations.MAX);
+        
         return new ShortValue(shortValue2.getValue() > shortValue1.getValue() ? shortValue2 : shortValue1,
             NumberOperations.MAX.toString(), new ShortValue[] { shortValue1, shortValue2 });
     }
 
     public static ShortValue min(ShortValue shortValue1, ShortValue shortValue2) {
+        validate(shortValue1, shortValue2, NumberOperations.MIN);
+        
         return new ShortValue(shortValue2.getValue() < shortValue1.getValue() ? shortValue2 : shortValue1,
             NumberOperations.MIN.toString(), new ShortValue[] { shortValue1, shortValue2 });
     }
 
     public static ShortValue multiply(ShortValue shortValue1, ShortValue shortValue2) {
-        return new ShortValue(shortValue1, shortValue2, (short) (shortValue1.getValue() * shortValue2.getValue()),
+        validate(shortValue1, shortValue2, NumberOperations.MULTIPLY);
+        
+        return new ShortValue(shortValue1, shortValue2, Operators.multiply(shortValue1.getValue(), shortValue2.getValue()),
             NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(ShortValue shortValue1, ShortValue shortValue2) {
-        return shortValue1.getValue() != shortValue2.getValue();
+        validate(shortValue1, shortValue2, NumberOperations.NE);
+        
+        return Operators.ne(shortValue1.getValue(),shortValue2.getValue());
     }
 
     public static ShortValue negative(ShortValue value) {
@@ -225,22 +241,23 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     public static ShortValue pow(ShortValue shortValue1, ShortValue shortValue2) {
-        return new ShortValue(new ShortValue((short) Math.pow(shortValue1.getValue(), shortValue2.getValue())),
+        validate(shortValue1, shortValue2, NumberOperations.POW);
+        
+        return new ShortValue(new ShortValue(Operators.pow(shortValue1.getValue(), shortValue2.getValue())),
             NumberOperations.POW.toString(), new ShortValue[] { shortValue1, shortValue2 });
     }
 
     public static ShortValue round(ShortValue shortValue1) {
+        validate(shortValue1, NumberOperations.ROUND);
+        
         return new ShortValue(new ShortValue((short) Math.round(shortValue1.getValue())), NumberOperations.ROUND
             .toString(), new ShortValue[] { shortValue1 });
     }
 
     public static ShortValue subtract(ShortValue shortValue1, ShortValue shortValue2) {
+        validate(shortValue1, shortValue2, NumberOperations.SUBTRACT);
 
-        if (shortValue2 == null || shortValue2.getValue() == 0) {
-            return shortValue1;
-        }
-
-        return new ShortValue(shortValue1, shortValue2, (short) (shortValue1.getValue() - shortValue2.getValue()),
+        return new ShortValue(shortValue1, shortValue2, Operators.subtract(shortValue1.getValue(), shortValue2.getValue()),
             NumberOperations.SUBTRACT.toString(), false);
     }
     

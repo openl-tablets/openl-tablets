@@ -13,6 +13,13 @@ public enum NumberOperations {
     SUBTRACT("-"),
     DIVIDE("/"),  
     REM("%"),
+    EQ("equal"),
+    GE("greater or equal"),
+    GT("greater"),
+    LE("less or equal"),
+    LT("less"),
+    NE("not equal"),
+    
     
     COPY("COPY"),
     MAX("max"), 

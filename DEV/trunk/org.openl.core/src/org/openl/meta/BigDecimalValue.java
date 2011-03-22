@@ -3,6 +3,7 @@ package org.openl.meta;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
@@ -16,22 +17,17 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     private BigDecimal value;
 
     public static BigDecimalValue add(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-
-        if (bigDecimalValue1 == null) {
-            return bigDecimalValue2;
-        }
-
-        if (bigDecimalValue2 == null) {
-            return bigDecimalValue1;
-        }
-
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().add(
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.ADD);
+        
+        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, Operators.add(bigDecimalValue1.getValue(),
             bigDecimalValue2.getValue()), NumberOperations.ADD.toString(), false);
     }
 
     public static BigDecimalValue rem(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().remainder(
-            bigDecimalValue2.getValue()), NumberOperations.REM.toString(), true);
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.REM);
+        
+        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
+            Operators.rem(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), NumberOperations.REM.toString(), true);
     }
 
     // ******* Autocasts *************
@@ -175,98 +171,79 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     public static BigDecimalValue divide(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null && bigDecimalValue2 == null) {
-            return null;
-        }
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.DIVIDE);
+        
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
-            MathUtils.divide(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
+            Operators.divide(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
             NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null || bigDecimalValue2 == null) {
-            return false;
-        }
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.EQ);
 
-        return MathUtils.eq(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
+        return bigDecimalValue1.equals(bigDecimalValue2);
     }
 
     public static boolean ge(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null || bigDecimalValue2 == null) {
-            return false;
-        }
-        return bigDecimalValue1.compareTo(bigDecimalValue2) >= 0;
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.GE);
+        
+        return Operators.ge(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
     }
 
     public static boolean gt(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null || bigDecimalValue2 == null) {
-            return false;
-        }
-        return bigDecimalValue1.compareTo(bigDecimalValue2) > 0;
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.GT);
+        
+        return Operators.gt(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
     }
 
     public static boolean le(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null || bigDecimalValue2 == null) {
-            return false;
-        }
-        return bigDecimalValue1.compareTo(bigDecimalValue2) <= 0;
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.LE);
+        
+        return Operators.le(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
     }
 
     public static boolean lt(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null || bigDecimalValue2 == null) {
-            return false;
-        }
-        return bigDecimalValue1.compareTo(bigDecimalValue2) < 0;
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.LT);
+        
+        return Operators.lt(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
     }
 
     public static BigDecimalValue max(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        BigDecimalValue maxValue = null;
-        if (bigDecimalValue1 == null && bigDecimalValue2 == null) {
-            return null;
-        }
-        if (bigDecimalValue1 != null) {
-            maxValue = bigDecimalValue1.compareTo(bigDecimalValue2) > 0 ? bigDecimalValue1 : bigDecimalValue2;
-        } else if (bigDecimalValue2 != null) {
-            maxValue = bigDecimalValue2.compareTo(bigDecimalValue1) > 0 ? bigDecimalValue2 : bigDecimalValue1;
-        }
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.MAX);
+        BigDecimalValue maxValue = null;        
+        
+        maxValue = bigDecimalValue1.compareTo(bigDecimalValue2) > 0 ? bigDecimalValue1 : bigDecimalValue2;
+        
         return new BigDecimalValue(maxValue, NumberOperations.MAX.toString(), new BigDecimalValue[] { bigDecimalValue1,
                 bigDecimalValue2 });
     }
 
     public static BigDecimalValue min(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.MIN);
+        
         BigDecimalValue minValue = null;
-        if (bigDecimalValue1 == null && bigDecimalValue2 == null) {
-            return null;
-        }
-        if (bigDecimalValue1 != null) {
-            minValue = bigDecimalValue1.compareTo(bigDecimalValue2) < 0 ? bigDecimalValue1 : bigDecimalValue2;
-        } else if (bigDecimalValue2 != null) {
-            minValue = bigDecimalValue2.compareTo(bigDecimalValue1) < 0 ? bigDecimalValue2 : bigDecimalValue1;
-        }
-        if (minValue != null) {
-            return new BigDecimalValue(minValue, NumberOperations.MIN.toString(), new BigDecimalValue[] {
-                    bigDecimalValue1, bigDecimalValue2 });
-        } else {
-            return null;
-        }
+        minValue = bigDecimalValue1.compareTo(bigDecimalValue2) < 0 ? bigDecimalValue1 : bigDecimalValue2;
+        
+        return new BigDecimalValue(minValue, NumberOperations.MIN.toString(), new BigDecimalValue[] { bigDecimalValue1,
+                bigDecimalValue2 });
+        
     }
 
     public static BigDecimalValue multiply(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null && bigDecimalValue2 == null) {
-            return null;
-        }
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().multiply(
-            bigDecimalValue2.getValue()), NumberOperations.MULTIPLY.toString(), true);
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.MULTIPLY);
+        
+        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
+            Operators.multiply(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
+            NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        return bigDecimalValue1.getValue() != bigDecimalValue2.getValue();
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.NE);
+        
+        return Operators.ne(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
     }
 
-    public static BigDecimalValue negative(BigDecimalValue bigIntValue) {
-        if (bigIntValue == null) {
-            return null;
-        }
+    public static BigDecimalValue negative(BigDecimalValue bigIntValue) {        
         BigDecimalValue neg = new BigDecimalValue(bigIntValue.getValue().negate());
         neg.setMetaInfo(bigIntValue.getMetaInfo());
 
@@ -274,34 +251,33 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     public static BigDecimalValue pow(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        if (bigDecimalValue1 == null && bigDecimalValue2 == null) {
-            return null;
-        }
-        return new BigDecimalValue(new BigDecimalValue(bigDecimalValue1.getValue().pow(
-            bigDecimalValue2.getValue().intValue())), NumberOperations.POW.toString(), new BigDecimalValue[] {
-                bigDecimalValue1, bigDecimalValue2 });
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.POW);
+        
+        return new BigDecimalValue(new BigDecimalValue(
+            Operators.pow(bigDecimalValue1.getValue(), bigDecimalValue2.getValue().intValue())), 
+            NumberOperations.POW.toString(), new BigDecimalValue[] { bigDecimalValue1, bigDecimalValue2 });
     }
 
     public static BigDecimalValue subtract(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
+        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.SUBTRACT);
 
-        if (bigDecimalValue2 == null) {
-            return bigDecimalValue1;
-        }
-
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, bigDecimalValue1.getValue().subtract(
-            bigDecimalValue2.getValue()), NumberOperations.SUBTRACT.toString(), false);
+        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
+            Operators.subtract(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
+            NumberOperations.SUBTRACT.toString(), false);
     }
     
 // Math functions
     
     public static BigDecimalValue max(BigDecimalValue[] values) {
         BigDecimalValue result = (BigDecimalValue) MathUtils.max(values);        
-        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY.toString(), values);
     }
 
     public static BigDecimalValue min(BigDecimalValue[] values) {
         BigDecimalValue result = (BigDecimalValue) MathUtils.min(values);
-        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY.toString(), values);
     }
     
     public static BigDecimalValue avg(BigDecimalValue[] values) {
@@ -457,7 +433,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public boolean equals(Object obj) {
         if (obj instanceof BigDecimalValue) {
             BigDecimalValue secondObj = (BigDecimalValue) obj;
-            return value.equals(secondObj.getValue());
+            return Operators.eq(value, secondObj.getValue());
         }
 
         return false;

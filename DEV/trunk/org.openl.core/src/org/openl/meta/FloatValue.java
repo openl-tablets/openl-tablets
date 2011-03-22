@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
@@ -13,21 +14,16 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     private float value;
     
     public static FloatValue add(FloatValue floatValue1, FloatValue floatValue2) {
-
-        if (floatValue1 == null || floatValue1.getValue() == 0) {
-            return floatValue2;
-        }
-
-        if (floatValue2 == null || floatValue2.getValue() == 0) {
-            return floatValue1;
-        }
-
-        return new FloatValue(floatValue1, floatValue2, floatValue1.getValue() + floatValue2.getValue(), 
+        validate(floatValue1, floatValue2, NumberOperations.ADD);
+        
+        return new FloatValue(floatValue1, floatValue2, Operators.add(floatValue1.getValue(), floatValue2.getValue()), 
             NumberOperations.ADD.toString(), false);
     }    
     
     public static FloatValue rem(FloatValue floatValue1, FloatValue floatValue2) {
-        return new FloatValue(floatValue1, floatValue2, floatValue1.getValue() % floatValue2.getValue(), 
+        validate(floatValue1, floatValue2, NumberOperations.REM);
+        
+        return new FloatValue(floatValue1, floatValue2, Operators.rem(floatValue1.getValue(), floatValue2.getValue()), 
             NumberOperations.REM.toString(), true);
     }
     
@@ -167,49 +163,69 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public static FloatValue divide(FloatValue floatValue1, FloatValue floatValue2) {
-        return new FloatValue(floatValue1, floatValue2, floatValue1.getValue() / floatValue2.getValue(), 
+        validate(floatValue1, floatValue2, NumberOperations.DIVIDE);
+        
+        return new FloatValue(floatValue1, floatValue2, Operators.divide(floatValue1.getValue(), floatValue2.getValue()), 
             NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(FloatValue floatValue1, FloatValue floatValue2) {
-        return floatValue1.getValue() == floatValue2.getValue();
+        validate(floatValue1, floatValue2, NumberOperations.EQ);
+        
+        return Operators.eq(floatValue1.getValue(), floatValue2.getValue());
     }
 
     public static boolean ge(FloatValue floatValue1, FloatValue floatValue2) {
-        return floatValue1.getValue() >= floatValue2.getValue();
+        validate(floatValue1, floatValue2, NumberOperations.GE);
+        
+        return Operators.ge(floatValue1.getValue(), floatValue2.getValue());
     }
 
     public static boolean gt(FloatValue floatValue1, FloatValue floatValue2) {
-        return floatValue1.getValue() > floatValue2.getValue();
+        validate(floatValue1, floatValue2, NumberOperations.GT);
+        
+        return Operators.gt(floatValue1.getValue(), floatValue2.getValue());
     }
 
     public static boolean le(FloatValue floatValue1, FloatValue floatValue2) {
-        return floatValue1.getValue() <= floatValue2.getValue();
+        validate(floatValue1, floatValue2, NumberOperations.LE);
+        
+        return Operators.le(floatValue1.getValue(), floatValue2.getValue());
     }
 
     public static boolean lt(FloatValue floatValue1, FloatValue floatValue2) {
-        return floatValue1.getValue() < floatValue2.getValue();
+        validate(floatValue1, floatValue2, NumberOperations.LT);
+        
+        return Operators.lt(floatValue1.getValue(), floatValue2.getValue());
     }
 
     public static FloatValue max(FloatValue floatValue1, FloatValue floatValue2) {
+        validate(floatValue1, floatValue2, NumberOperations.MAX);
+        
         return new FloatValue(floatValue2.getValue() > floatValue1.getValue() ? floatValue2 : floatValue1,
             NumberOperations.MAX.toString(),
             new FloatValue[] { floatValue1, floatValue2 });
     }
 
     public static FloatValue min(FloatValue floatValue1, FloatValue floatValue2) {
+        validate(floatValue1, floatValue2, NumberOperations.MIN);
+        
         return new FloatValue(floatValue2.getValue() < floatValue1.getValue() ? floatValue2 : floatValue1,
             NumberOperations.MIN.toString(),
             new FloatValue[] { floatValue1, floatValue2 });
     }
 
     public static FloatValue multiply(FloatValue floatValue1, FloatValue floatValue2) {
-        return new FloatValue(floatValue1, floatValue2, floatValue1.getValue() * floatValue2.getValue(), 
+        validate(floatValue1, floatValue2, NumberOperations.MULTIPLY);
+        
+        return new FloatValue(floatValue1, floatValue2, Operators.multiply(floatValue1.getValue(), floatValue2.getValue()), 
             NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(FloatValue floatValue1, FloatValue floatValue2) {
-        return floatValue1.getValue() != floatValue2.getValue();
+        validate(floatValue1, floatValue2, NumberOperations.NE);
+        
+        return Operators.ne(floatValue1.getValue(), floatValue2.getValue());
     }
 
     public static FloatValue negative(FloatValue value) {
@@ -217,22 +233,23 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     public static FloatValue pow(FloatValue floatValue1, FloatValue floatValue2) {
-        return new FloatValue(new FloatValue((float)Math.pow(floatValue1.getValue(), floatValue2.getValue())), 
+        validate(floatValue1, floatValue2, NumberOperations.POW);
+        
+        return new FloatValue(new FloatValue(Operators.pow(floatValue1.getValue(), floatValue2.getValue())), 
             NumberOperations.POW.toString(), new FloatValue[] { floatValue1, floatValue2 });
     }
 
     public static FloatValue round(FloatValue floatValue1) {
+        validate(floatValue1, NumberOperations.ROUND);
+        
         return new FloatValue(new FloatValue((float)Math.round(floatValue1.getValue())), 
             NumberOperations.ROUND.toString(), new FloatValue[] { floatValue1 });
     }
 
     public static FloatValue subtract(FloatValue floatValue1, FloatValue floatValue2) {
-
-        if (floatValue2 == null || floatValue2.getValue() == 0) {
-            return floatValue1;
-        }
-
-        return new FloatValue(floatValue1, floatValue2, floatValue1.getValue() - floatValue2.getValue(), 
+        validate(floatValue1, floatValue2, NumberOperations.SUBTRACT);
+        
+        return new FloatValue(floatValue1, floatValue2, Operators.subtract(floatValue1.getValue(), floatValue2.getValue()), 
             NumberOperations.SUBTRACT.toString(), false);
     }
     
@@ -347,7 +364,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     @Override
     public double doubleValue() {        
-        return value;
+        return (double) value;
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.openl.meta;
 import java.math.BigInteger;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
@@ -15,22 +16,17 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     private BigInteger value;
 
     public static BigIntegerValue add(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
+        validate(bigIntValue1, bigIntValue2, NumberOperations.ADD);
 
-        if (bigIntValue1 == null) {
-            return bigIntValue2;
-        }
-
-        if (bigIntValue2 == null) {
-            return bigIntValue1;
-        }
-
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue().add(bigIntValue2.getValue()),
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.add(bigIntValue1.getValue(), bigIntValue2.getValue()),
             NumberOperations.ADD.toString(), false);
     }
 
     public static BigIntegerValue rem(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue().remainder(
-            bigIntValue2.getValue()), NumberOperations.REM.toString(), true);
+        validate(bigIntValue1, bigIntValue2, NumberOperations.REM);
+        
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.rem(bigIntValue1.getValue(), bigIntValue2.getValue()), 
+            NumberOperations.REM.toString(), true);
     }
 
     // ******* Autocasts 8*************
@@ -167,96 +163,78 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     public static BigIntegerValue divide(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null && bigIntValue2 == null) {
-            return null;
-        }
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue().divide(bigIntValue2.getValue()),
+        validate(bigIntValue1, bigIntValue2, NumberOperations.DIVIDE);
+        
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.divide(bigIntValue1.getValue(), bigIntValue2.getValue()),
             NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null || bigIntValue2 == null) {
-            return false;
-        }
+        validate(bigIntValue1, bigIntValue2, NumberOperations.EQ);
+        
         return bigIntValue1.equals(bigIntValue2);
     }
 
     public static boolean ge(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null || bigIntValue2 == null) {
-            return false;
-        }
-        return bigIntValue1.compareTo(bigIntValue2) >= 0;
+        validate(bigIntValue1, bigIntValue2, NumberOperations.GE);
+        
+        return Operators.ge(bigIntValue1.getValue(), bigIntValue2.getValue());
     }
 
     public static boolean gt(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null || bigIntValue2 == null) {
-            return false;
-        }
-        return bigIntValue1.compareTo(bigIntValue2) > 0;
+        validate(bigIntValue1, bigIntValue2, NumberOperations.GT);
+        
+        return Operators.gt(bigIntValue1, bigIntValue2);
     }
 
     public static boolean le(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null || bigIntValue2 == null) {
-            return false;
-        }
-        return bigIntValue1.compareTo(bigIntValue2) <= 0;
+        validate(bigIntValue1, bigIntValue2, NumberOperations.LE);
+        
+        return Operators.le(bigIntValue1.getValue(), bigIntValue2.getValue());
     }
 
     public static boolean lt(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null || bigIntValue2 == null) {
-            return false;
-        }
-        return bigIntValue1.compareTo(bigIntValue2) < 0;
+        validate(bigIntValue1, bigIntValue2, NumberOperations.LT);
+        
+        return Operators.lt(bigIntValue1.getValue(), bigIntValue2.getValue());
     }
 
     public static BigIntegerValue max(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        BigIntegerValue maxValue = null;
-        if (bigIntValue1 == null && bigIntValue2 == null) {
-            return null;
-        }
-        if (bigIntValue1 != null) {
-            maxValue = bigIntValue1.compareTo(bigIntValue2) > 0 ? bigIntValue1 : bigIntValue2;
-        } else if (bigIntValue2 != null) {
-            maxValue = bigIntValue2.compareTo(bigIntValue1) > 0 ? bigIntValue2 : bigIntValue1;
-        }
+        validate(bigIntValue1, bigIntValue2, NumberOperations.MAX);
+        
+        BigIntegerValue maxValue = null;        
+        maxValue = bigIntValue1.compareTo(bigIntValue2) > 0 ? bigIntValue1 : bigIntValue2;
+        
         return new BigIntegerValue(maxValue, NumberOperations.MAX.toString(), new BigIntegerValue[] { bigIntValue1,
                 bigIntValue2 });
     }
 
     public static BigIntegerValue min(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
+        validate(bigIntValue1, bigIntValue2, NumberOperations.MIN);
         BigIntegerValue minValue = null;
-        if (bigIntValue1 == null && bigIntValue2 == null) {
-            return null;
-        }
-        if (bigIntValue1 != null) {
-            minValue = bigIntValue1.compareTo(bigIntValue2) < 0 ? bigIntValue1 : bigIntValue2;
-        } else if (bigIntValue2 != null) {
-            minValue = bigIntValue2.compareTo(bigIntValue1) < 0 ? bigIntValue2 : bigIntValue1;
-        }
-        if (minValue != null) {
-            return new BigIntegerValue(minValue, NumberOperations.MIN.toString(), new BigIntegerValue[] { bigIntValue1,
-                    bigIntValue2 });
-        } else {
-            return null;
-        }
+        
+        minValue = bigIntValue1.compareTo(bigIntValue2) < 0 ? bigIntValue1 : bigIntValue2;        
+        
+        return new BigIntegerValue(minValue, NumberOperations.MIN.toString(), new BigIntegerValue[] { bigIntValue1,
+                    bigIntValue2 });        
     }
 
     public static BigIntegerValue multiply(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null && bigIntValue2 == null) {
-            return null;
-        }
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue()
-            .multiply(bigIntValue2.getValue()), NumberOperations.MULTIPLY.toString(), true);
+        validate(bigIntValue1, bigIntValue2, NumberOperations.MULTIPLY);
+        
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, 
+            Operators.multiply(bigIntValue1.getValue(), bigIntValue2.getValue()), 
+            NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        return bigIntValue1.getValue() != bigIntValue2.getValue();
+        validate(bigIntValue1, bigIntValue2, NumberOperations.NE);
+        
+        return Operators.ne(bigIntValue1, bigIntValue2);
     }
 
     public static BigIntegerValue negative(BigIntegerValue bigIntValue) {
-        if (bigIntValue == null) {
-            return null;
-        }
+        
         BigIntegerValue neg = new BigIntegerValue(bigIntValue.getValue().negate());
         neg.setMetaInfo(bigIntValue.getMetaInfo());
 
@@ -264,22 +242,19 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     public static BigIntegerValue pow(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        if (bigIntValue1 == null && bigIntValue2 == null) {
-            return null;
-        }
+        validate(bigIntValue1, bigIntValue2, NumberOperations.POW);
+        
         return new BigIntegerValue(
-            new BigIntegerValue(bigIntValue1.getValue().pow(bigIntValue2.getValue().intValue())), NumberOperations.POW
+            new BigIntegerValue(Operators.pow(bigIntValue1.getValue(), bigIntValue2.getValue().intValue())), NumberOperations.POW
                 .toString(), new BigIntegerValue[] { bigIntValue1, bigIntValue2 });
     }
 
     public static BigIntegerValue subtract(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
+        validate(bigIntValue1, bigIntValue2, NumberOperations.SUBTRACT);
 
-        if (bigIntValue2 == null) {
-            return bigIntValue1;
-        }
-
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, bigIntValue1.getValue()
-            .subtract(bigIntValue2.getValue()), NumberOperations.SUBTRACT.toString(), false);
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, 
+            Operators.subtract(bigIntValue1.getValue(), bigIntValue2.getValue()), 
+            NumberOperations.SUBTRACT.toString(), false);
     }
     
     // Math functions
@@ -457,7 +432,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     public boolean equals(Object obj) {
         if (obj instanceof BigIntegerValue) {
             BigIntegerValue secondObj = (BigIntegerValue) obj;
-            return value.equals(secondObj.getValue());
+            return Operators.eq(value, secondObj.getValue());
         }
 
         return false;

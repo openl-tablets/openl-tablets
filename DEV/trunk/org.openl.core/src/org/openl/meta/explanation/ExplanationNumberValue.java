@@ -2,9 +2,11 @@ package org.openl.meta.explanation;
 
 import java.util.Iterator;
 
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberFunction;
+import org.openl.meta.number.NumberOperations;
 import org.openl.meta.number.NumberValue;
 import org.openl.util.tree.ITreeElement;
 
@@ -117,4 +119,30 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         }
         return null;
     }
+    
+    protected static OpenlNotCheckedException getTwoArgumentsException(NumberOperations operation) {
+        return new OpenlNotCheckedException(String.format("None of the arguments for '%s' operation can be null", 
+            operation.toString()));
+    }
+    
+    protected static OpenlNotCheckedException getOneArgumentException(NumberOperations operation) {
+        return new OpenlNotCheckedException(String.format("Argument couldn`t be null for '%s' operation", 
+            operation.toString()));
+    }
+    
+    protected static void validate(ExplanationNumberValue<?> value1, ExplanationNumberValue<?> value2, 
+            NumberOperations operation) {
+        if (value1 == null || value2 == null) {
+            throw getTwoArgumentsException(operation);
+        }
+    }
+    
+    protected static void validate(ExplanationNumberValue<?> value, NumberOperations operation) {
+        if (value == null) {
+            throw getOneArgumentException(operation);
+        }
+    }
+    
+    
+    
 }

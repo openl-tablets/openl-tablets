@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
@@ -13,21 +14,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     private int value;
     
     public static IntValue add(IntValue intValue1, IntValue intValue2) {
-
-        if (intValue1 == null || intValue1.getValue() == 0) {
-            return intValue2;
-        }
-
-        if (intValue2 == null || intValue2.getValue() == 0) {
-            return intValue1;
-        }
-
-        return new IntValue(intValue1, intValue2, intValue1.getValue() + intValue2.getValue(), 
+        validate(intValue1, intValue2, NumberOperations.ADD);
+        
+        return new IntValue(intValue1, intValue2, Operators.add(intValue1.getValue(), intValue2.getValue()), 
             NumberOperations.ADD.toString(), false);
     }    
     
     public static IntValue rem(IntValue intValue1, IntValue intValue2) {
-        return new IntValue(intValue1, intValue2, intValue1.getValue() % intValue2.getValue(), 
+        validate(intValue1, intValue2, NumberOperations.REM);
+        
+        return new IntValue(intValue1, intValue2, Operators.rem(intValue1.getValue(), intValue2.getValue()), 
             NumberOperations.REM.toString(), true);
     }
     
@@ -176,49 +172,69 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     public static IntValue divide(IntValue intValue1, IntValue intValue2) {
-        return new IntValue(intValue1, intValue2, intValue1.getValue() / intValue2.getValue(), 
+        validate(intValue1, intValue2, NumberOperations.DIVIDE);
+        
+        return new IntValue(intValue1, intValue2, Operators.divide(intValue1.getValue(), intValue2.getValue()), 
             NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(IntValue intValue1, IntValue intValue2) {
-        return intValue1.getValue() == intValue2.getValue();
+        validate(intValue1, intValue2, NumberOperations.EQ);
+        
+        return Operators.eq(intValue1.getValue(), intValue2.getValue());
     }
 
     public static boolean ge(IntValue intValue1, IntValue intValue2) {
-        return intValue1.getValue() >= intValue2.getValue();
+        validate(intValue1, intValue2, NumberOperations.GE);
+        
+        return Operators.ge(intValue1.getValue(), intValue2.getValue());
     }
 
     public static boolean gt(IntValue intValue1, IntValue intValue2) {
-        return intValue1.getValue() > intValue2.getValue();
+        validate(intValue1, intValue2, NumberOperations.GT);
+        
+        return Operators.gt(intValue1.getValue(), intValue2.getValue());
     }
 
     public static boolean le(IntValue intValue1, IntValue intValue2) {
-        return intValue1.getValue() <= intValue2.getValue();
+        validate(intValue1, intValue2, NumberOperations.LE);
+        
+        return Operators.le(intValue1.getValue(), intValue2.getValue());
     }
 
     public static boolean lt(IntValue intValue1, IntValue intValue2) {
-        return intValue1.getValue() < intValue2.getValue();
+        validate(intValue1, intValue2, NumberOperations.LT);
+        
+        return Operators.lt(intValue1.getValue(), intValue2.getValue());
     }
 
     public static IntValue max(IntValue intValue1, IntValue intValue2) {
+        validate(intValue1, intValue2, NumberOperations.MAX);
+        
         return new IntValue(intValue2.getValue() > intValue1.getValue() ? intValue2 : intValue1,
             NumberOperations.MAX.toString(),
             new IntValue[] { intValue1, intValue2 });
     }
 
     public static IntValue min(IntValue intValue1, IntValue intValue2) {
+        validate(intValue1, intValue2, NumberOperations.MIN);
+        
         return new IntValue(intValue2.getValue() < intValue1.getValue() ? intValue2 : intValue1,
             NumberOperations.MIN.toString(),
             new IntValue[] { intValue1, intValue2 });
     }
 
     public static IntValue multiply(IntValue intValue1, IntValue intValue2) {
-        return new IntValue(intValue1, intValue2, intValue1.getValue() * intValue2.getValue(), 
+        validate(intValue1, intValue2, NumberOperations.MULTIPLY);
+        
+        return new IntValue(intValue1, intValue2, Operators.multiply(intValue1.getValue(), intValue2.getValue()), 
             NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(IntValue intValue1, IntValue intValue2) {
-        return intValue1.getValue() != intValue2.getValue();
+        validate(intValue1, intValue2, NumberOperations.NE);
+        
+        return Operators.ne(intValue1.getValue(), intValue2.getValue());
     }
 
     public static IntValue negative(IntValue value) {
@@ -226,22 +242,23 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     public static IntValue pow(IntValue intValue1, IntValue intValue2) {
-        return new IntValue(new IntValue((int)Math.pow(intValue1.getValue(), intValue2.getValue())), 
+        validate(intValue1, intValue2, NumberOperations.POW);
+        
+        return new IntValue(new IntValue(Operators.pow(intValue1.getValue(), intValue2.getValue())), 
             NumberOperations.POW.toString(), new IntValue[] { intValue1, intValue2 });
     }
 
     public static IntValue round(IntValue intValue1) {
+        validate(intValue1, NumberOperations.ROUND);
+        
         return new IntValue(new IntValue((int)Math.round(intValue1.getValue())), 
             NumberOperations.ROUND.toString(), new IntValue[] { intValue1 });
     }
 
     public static IntValue subtract(IntValue intValue1, IntValue intValue2) {
+        validate(intValue1, intValue2, NumberOperations.SUBTRACT);
 
-        if (intValue2 == null || intValue2.getValue() == 0) {
-            return intValue1;
-        }
-
-        return new IntValue(intValue1, intValue2, intValue1.getValue() - intValue2.getValue(), 
+        return new IntValue(intValue1, intValue2, Operators.subtract(intValue1.getValue(), intValue2.getValue()), 
             NumberOperations.SUBTRACT.toString(), false);
     }
     
