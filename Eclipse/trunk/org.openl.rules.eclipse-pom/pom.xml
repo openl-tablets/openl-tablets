@@ -30,7 +30,6 @@
     <module>../org.openl.rules.repository.jcr.jackrabbit.lib</module>    
     <module>../org.openl.rules.ruleservice.lib</module>
     <module>../org.openl.rules.ruleservice.ws.lib</module>    
-	<!--module>../org.openl.rules.mapping.lib</module-->    
 
     <module>../org.openl.rules.eclipse.site</module>
     <module>../org.openl.eclipse.ui</module>
