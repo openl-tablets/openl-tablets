@@ -109,6 +109,11 @@
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
 		</antcall>
 	</target>
+	<target name="releasePOI">
+		<antcall target="releaseModule">
+			<param name="moduleFolder" value="${root_folder}/${poi_folder}"/>
+		</antcall>
+	</target>
 	<target name="releaseDEV">
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${dev_folder}"/>
