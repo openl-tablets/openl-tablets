@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Gen Plug-in
+Bundle-SymbolicName: org.openl.rules.gen
+Bundle-Version: 5.7.5
+Require-Bundle: org.openl.rules
