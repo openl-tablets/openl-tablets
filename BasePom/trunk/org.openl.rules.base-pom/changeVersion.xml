@@ -14,7 +14,7 @@
     <fileset
             id="all_manifest"
             dir="${projects_root}"
-            includes="*/META-INF/MANIFEST.MF"
+            includes="**/MANIFEST.MF"
             />
 
     <fileset
