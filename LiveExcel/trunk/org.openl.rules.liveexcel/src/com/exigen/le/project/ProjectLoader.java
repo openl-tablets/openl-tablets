@@ -222,6 +222,7 @@ public class ProjectLoader {
     
     public static void reset(){
         creators = initCreators();
+        resetElementsCache();
     }
 
     public static void resetElementsCache() {
