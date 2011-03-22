@@ -5,6 +5,8 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
+import org.openl.binding.impl.Operators;
+
 
 public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
@@ -13,21 +15,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     private byte value;
     
     public static ByteValue add(ByteValue byteValue1, ByteValue byteValue2) {
+        validate(byteValue1, byteValue2, NumberOperations.ADD);
 
-        if (byteValue1 == null || byteValue1.getValue() == 0) {
-            return byteValue2;
-        }
-
-        if (byteValue2 == null || byteValue2.getValue() == 0) {
-            return byteValue1;
-        }
-
-        return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() + byteValue2.getValue()), 
+        return new ByteValue(byteValue1, byteValue2, Operators.add(byteValue1.getValue(), byteValue2.getValue()), 
             NumberOperations.ADD.toString(), false);
     }
     
-    public static ByteValue rem(ByteValue byteValue1, ByteValue byteValue2) {
-        return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() % byteValue2.getValue()),
+    public static ByteValue rem(ByteValue byteValue1, ByteValue byteValue2) {        
+        validate(byteValue1, byteValue2, NumberOperations.REM);
+        
+        return new ByteValue(byteValue1, byteValue2, Operators.rem(byteValue1.getValue(), byteValue2.getValue()),
             NumberOperations.REM.toString(), true);
     }
     
@@ -162,7 +159,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     public static ByteValue copy(ByteValue value, String name) {
-
+        
         if (value.getName() == null) {
             value.setName(name);
 
@@ -178,45 +175,62 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     public static ByteValue divide(ByteValue byteValue1, ByteValue byteValue2) {
-        return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() / byteValue2.getValue()),
+        validate(byteValue1, byteValue2, NumberOperations.DIVIDE);
+        
+        return new ByteValue(byteValue1, byteValue2, Operators.divide(byteValue1.getValue(), byteValue2.getValue()),
             NumberOperations.DIVIDE.toString(), true);
     }
 
-    public static boolean eq(ByteValue byteValue1, ByteValue byteValue2) {
-        return byteValue1.getValue() == byteValue2.getValue();
+    public static boolean eq(ByteValue byteValue1, ByteValue byteValue2) {     
+        validate(byteValue1, byteValue2, NumberOperations.EQ);
+        
+        return byteValue1.equals(byteValue2);
     }
 
     public static boolean ge(ByteValue byteValue1, ByteValue byteValue2) {
-        return byteValue1.getValue() >= byteValue2.getValue();
+        validate(byteValue1, byteValue2, NumberOperations.GE);
+        
+        return Operators.ge(byteValue1.getValue(), byteValue2.getValue());
     }
 
     public static boolean gt(ByteValue byteValue1, ByteValue byteValue2) {
-        return byteValue1.getValue() > byteValue2.getValue();
+        validate(byteValue1, byteValue2, NumberOperations.GT);
+        
+        return Operators.gt(byteValue1.getValue(), byteValue2.getValue());
     }
 
     public static boolean le(ByteValue byteValue1, ByteValue byteValue2) {
-        return byteValue1.getValue() <= byteValue2.getValue();
+        validate(byteValue1, byteValue1, NumberOperations.LE);
+        
+        return Operators.le(byteValue1.getValue(), byteValue2.getValue());
     }
 
     public static boolean lt(ByteValue byteValue1, ByteValue byteValue2) {
-        return byteValue1.getValue() < byteValue2.getValue();
+        validate(byteValue1, byteValue1, NumberOperations.LT);
+        
+        return Operators.lt(byteValue1.getValue(), byteValue2.getValue());
     }
 
     public static ByteValue max(ByteValue byteValue1, ByteValue byteValue2) {
+        validate(byteValue1, byteValue2, NumberOperations.MAX);
+        
         return new ByteValue(byteValue2.getValue() > byteValue1.getValue() ? byteValue2 : byteValue1,
             NumberOperations.MAX.toString(),
             new ByteValue[] { byteValue1, byteValue2 });
     }
 
     public static ByteValue min(ByteValue byteValue1, ByteValue byteValue2) {
+        validate(byteValue1, byteValue2, NumberOperations.MIN);
+        
         return new ByteValue(byteValue2.getValue() < byteValue1.getValue() ? byteValue2 : byteValue1,
             NumberOperations.MIN.toString(),
             new ByteValue[] { byteValue1, byteValue2 });
     }
 
     public static ByteValue abs(ByteValue value) {
+        validate(value, NumberOperations.ABS);
         // evaluate result
-        ByteValue result = new ByteValue((byte) Math.abs(value.getValue()));
+        ByteValue result = new ByteValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
         return new ByteValue(result, NumberOperations.ABS.toString(), new ByteValue[] { value });
     }
@@ -234,12 +248,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     public static ByteValue multiply(ByteValue byteValue1, ByteValue byteValue2) {
-        return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() * byteValue2.getValue()), 
+        validate(byteValue1, byteValue2, NumberOperations.MULTIPLY);
+        
+        return new ByteValue(byteValue1, byteValue2, Operators.multiply(byteValue1.getValue(), byteValue2.getValue()), 
             NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(ByteValue byteValue1, ByteValue byteValue2) {
-        return byteValue1.getValue() != byteValue2.getValue();
+        validate(byteValue1, byteValue2, NumberOperations.NE);
+        
+        return Operators.ne(byteValue1.getValue(), byteValue2.getValue());
     }
 
     public static ByteValue negative(ByteValue value) {
@@ -247,22 +265,23 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     public static ByteValue pow(ByteValue byteValue1, ByteValue byteValue2) {
-        return new ByteValue(new ByteValue((byte)Math.pow(byteValue1.getValue(), byteValue2.getValue())), 
+        validate(byteValue1, byteValue2, NumberOperations.POW);
+        
+        return new ByteValue(new ByteValue(Operators.pow(byteValue1.getValue(), byteValue2.getValue())), 
             NumberOperations.POW.toString(), new ByteValue[] { byteValue1, byteValue2 });
     }
 
     public static ByteValue round(ByteValue byteValue1) {
+        validate(byteValue1, NumberOperations.ROUND);
+        
         return new ByteValue(new ByteValue((byte)Math.round(byteValue1.getValue())), 
             NumberOperations.ROUND.toString(), new ByteValue[] { byteValue1 });
     }
 
     public static ByteValue subtract(ByteValue byteValue1, ByteValue byteValue2) {
+        validate(byteValue1, byteValue2, NumberOperations.SUBTRACT);
 
-        if (byteValue2 == null || byteValue2.getValue() == 0) {
-            return byteValue1;
-        }
-
-        return new ByteValue(byteValue1, byteValue2, (byte)(byteValue1.getValue() - byteValue2.getValue()), 
+        return new ByteValue(byteValue1, byteValue2, Operators.subtract(byteValue1.getValue(), byteValue2.getValue()), 
             NumberOperations.SUBTRACT.toString(), false);
     }
     
@@ -270,12 +289,14 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     
     public static ByteValue max(ByteValue[] values) {
         ByteValue result = (ByteValue) MathUtils.max(values);        
-        return new ByteValue((ByteValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+        return new ByteValue((ByteValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY.toString(), values);
     }
 
     public static ByteValue min(ByteValue[] values) {
         ByteValue result = (ByteValue) MathUtils.min(values);
-        return new ByteValue((ByteValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+        return new ByteValue((ByteValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY.toString(), values);
     }
     
     public static ByteValue avg(ByteValue[] values) {
@@ -339,7 +360,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         byte[] primitiveArray = byteValueArrayToByte(values);
         byte small = MathUtils.small(primitiveArray, position);
-        return new ByteValue((ByteValue) getAppropriateValue(values, new ByteValue(small)), NumberOperations.SMALL.toString(), values);
+        return new ByteValue((ByteValue) getAppropriateValue(values, new ByteValue(small)), 
+            NumberOperations.SMALL.toString(), values);
     }
 
     public ByteValue(byte value) {
@@ -417,7 +439,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public boolean equals(Object obj) {
         if (obj instanceof ByteValue) {
             ByteValue secondObj = (ByteValue) obj;
-            return value == secondObj.byteValue();
+            return Operators.eq(value, secondObj.byteValue());
         }
 
         return false;

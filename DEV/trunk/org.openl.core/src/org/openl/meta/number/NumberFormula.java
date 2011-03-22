@@ -1,7 +1,6 @@
 package org.openl.meta.number;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -31,8 +30,7 @@ public class NumberFormula<T extends NumberValue<T>> {
     /**
      * 
      * @return array of two formula arguments.
-     */
-    @SuppressWarnings("unchecked")
+     */    
     public List<T> getArguments() {   
         List<T> list = new ArrayList<T>();
         list.add(v1);

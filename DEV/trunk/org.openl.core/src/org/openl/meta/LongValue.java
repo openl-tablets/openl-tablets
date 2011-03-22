@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
@@ -12,20 +13,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     private long value;
 
     public static LongValue add(LongValue lv1, LongValue lv2) {
-
-        if (lv1 == null || lv1.getValue() == 0) {
-            return lv2;
-        }
-
-        if (lv2 == null || lv2.getValue() == 0) {
-            return lv1;
-        }
-
-        return new LongValue(lv1, lv2, lv1.getValue() + lv2.getValue(), NumberOperations.ADD.toString(), false);
+        validate(lv1, lv2, NumberOperations.ADD);
+        
+        return new LongValue(lv1, lv2, Operators.add(lv1.getValue(), lv2.getValue()), 
+            NumberOperations.ADD.toString(), false);
     }
     
     public static LongValue rem(LongValue lv1, LongValue lv2) {
-        return new LongValue(lv1, lv2, lv1.getValue() % lv2.getValue(), 
+        validate(lv1, lv2, NumberOperations.REM);
+        
+        return new LongValue(lv1, lv2, Operators.rem(lv1.getValue(), lv2.getValue()), 
             NumberOperations.REM.toString(), true);
     }
     
@@ -173,47 +170,67 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     public static LongValue divide(LongValue lv1, LongValue lv2) {
-        return new LongValue(lv1, lv2, lv1.getValue() / lv2.getValue(), 
+        validate(lv1, lv2, NumberOperations.DIVIDE);
+        
+        return new LongValue(lv1, lv2, Operators.divide(lv1.getValue(), lv2.getValue()), 
             NumberOperations.DIVIDE.toString(), true);
     }
 
     public static boolean eq(LongValue lv1, LongValue lv2) {
-        return lv1.getValue() == lv2.getValue();
+        validate(lv1, lv2, NumberOperations.EQ);
+        
+        return Operators.eq(lv1.getValue(), lv2.getValue());
     }
 
     public static boolean ge(LongValue lv1, LongValue lv2) {
-        return lv1.getValue() >= lv2.getValue();
+        validate(lv1, lv2, NumberOperations.GE);
+        
+        return Operators.ge(lv1.getValue(), lv2.getValue());
     }
 
     public static boolean gt(LongValue lv1, LongValue lv2) {
-        return lv1.getValue() > lv2.getValue();
+        validate(lv1, lv2, NumberOperations.GT);
+        
+        return Operators.gt(lv1.getValue(), lv2.getValue());
     }
 
     public static boolean le(LongValue lv1, LongValue lv2) {
-        return lv1.getValue() <= lv2.getValue();
+        validate(lv1, lv2, NumberOperations.LE);
+        
+        return Operators.le(lv1.getValue(), lv2.getValue());
     }
 
     public static boolean lt(LongValue lv1, LongValue lv2) {
-        return lv1.getValue() < lv2.getValue();
+        validate(lv1, lv2, NumberOperations.LT);
+        
+        return Operators.lt(lv1.getValue(), lv2.getValue());
     }
 
     public static LongValue max(LongValue lv1, LongValue lv2) {
+        validate(lv1, lv2, NumberOperations.MAX);
+        
         return new LongValue(lv2.getValue() > lv1.getValue() ? lv2 : lv1, NumberOperations.MAX.toString(),
             new LongValue[] { lv1, lv2 });
     }
 
     public static LongValue min(LongValue lv1, LongValue lv2) {
+        validate(lv1, lv2, NumberOperations.MIN);
+        
         return new LongValue(lv2.getValue() < lv1.getValue() ? lv2 : lv1, NumberOperations.MIN.toString(),
             new LongValue[] { lv1, lv2 });
     }
 
     public static LongValue multiply(LongValue lv1, LongValue lv2) {
-        return new LongValue(lv1, lv2, lv1.getValue() * lv2.getValue(), 
+        validate(lv1, lv2, NumberOperations.MULTIPLY);
+        
+        return new LongValue(lv1, lv2, Operators.multiply(lv1.getValue(), lv2.getValue()), 
             NumberOperations.MULTIPLY.toString(), true);
     }
 
     public static boolean ne(LongValue lv1, LongValue lv2) {
-        return lv1.getValue() != lv2.getValue();
+        validate(lv1, lv2, NumberOperations.NE);
+        
+        return Operators.ne(lv1.getValue(), lv2.getValue());
     }
 
     public static LongValue negative(LongValue value) {
@@ -221,22 +238,23 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     public static LongValue pow(LongValue lv1, LongValue lv2) {
-        return new LongValue(new LongValue((long)Math.pow(lv1.getValue(), lv2.getValue())), 
+        validate(lv1, lv2, NumberOperations.POW);
+        
+        return new LongValue(new LongValue(Operators.pow(lv1.getValue(), lv2.getValue())), 
             NumberOperations.POW.toString(), new LongValue[] { lv1, lv2 });
     }
 
     public static LongValue round(LongValue lv1) {
+        validate(lv1, NumberOperations.ROUND);
+        
         return new LongValue(new LongValue((long)Math.round(lv1.getValue())), 
             NumberOperations.ROUND.toString(), new LongValue[] { lv1 });
     }
 
     public static LongValue subtract(LongValue lv1, LongValue lv2) {
-
-        if (lv2 == null || lv2.getValue() == 0) {
-            return lv1;
-        }
-
-        return new LongValue(lv1, lv2, lv1.getValue() - lv2.getValue(), 
+        validate(lv1, lv2, NumberOperations.SUBTRACT);
+        
+        return new LongValue(lv1, lv2, Operators.subtract(lv1.getValue(), lv2.getValue()), 
             NumberOperations.SUBTRACT.toString(), false);
     }
     

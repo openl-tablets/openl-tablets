@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.exception.OpenlNotCheckedException;
 
 public class LongValueTest {
     
@@ -24,13 +25,21 @@ public class LongValueTest {
         assertEquals(287, result.getValue());
         
         value2 = null;
-        result = LongValue.add(value1, value2);
-        assertEquals(187, result.getValue());
+        try {
+            result = LongValue.add(value1, value2);
+            assertNull(result);            
+        } catch (OpenlNotCheckedException e) {
+            assertTrue(true);
+        }
         
         value1 = null;
         value2 = null;
-        result = LongValue.add(value1, value2);
-        assertEquals(null, null);
+        try {
+            result = LongValue.add(value1, value2);
+            assertNull(result);
+        } catch (OpenlNotCheckedException e) {
+            assertTrue(true);
+        }
     }
     
     @Test

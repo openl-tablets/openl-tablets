@@ -69,6 +69,14 @@ public class Operators {
     public static double add(double x, double y) {
         return x + y;
     }
+    
+    public static BigInteger add(BigInteger x, BigInteger y) {
+        return x.add(y);
+    }
+    
+    public static BigDecimal add(BigDecimal x, BigDecimal y) {
+        return x.add(y);
+    }
 
     public static String add(int x, String y) {
         return x + y;
@@ -142,6 +150,14 @@ public class Operators {
     public static double subtract(double x, double y) {
         return x - y;
     }
+    
+    public static BigInteger subtract(BigInteger x, BigInteger y) {
+        return x.subtract(y);
+    }
+    
+    public static BigDecimal subtract(BigDecimal x, BigDecimal y) {
+        return x.subtract(y);
+    }
 
     public static boolean xor(boolean x, boolean y) {
         return x ^ y;
@@ -171,6 +187,14 @@ public class Operators {
     public static double multiply(double x, double y) {
         return x * y;
     }
+    
+    public static BigInteger multiply(BigInteger x, BigInteger y) {
+        return x.multiply(y);
+    }
+    
+    public static BigDecimal multiply(BigDecimal x, BigDecimal y) {
+        return x.multiply(y);
+    }
 
     // Divide
     public static byte divide(byte x, byte y) {
@@ -195,6 +219,14 @@ public class Operators {
 
     public static double divide(double x, double y) {
         return x / y;
+    }
+    
+    public static BigInteger divide(BigInteger x, BigInteger y) {
+        return x.divide(y);
+    }
+    
+    public static BigDecimal divide(BigDecimal x, BigDecimal y) {
+        return MathUtils.divide(x, y);
     }
 
     // Equals
@@ -405,9 +437,25 @@ public class Operators {
 
         return false;
     }
+    
+    public static boolean eq(BigInteger x, BigInteger y) {
+        return strict_eq(x, y);
+    }
+
+    public static boolean strict_eq(BigInteger x, BigInteger y) {
+        if (x == y) {
+            return true;
+        }
+
+        if (x != null && y != null) {
+            return x.compareTo(y) == 0;
+        }
+
+        return false;
+    }
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
-        return strict_eq(x, y);
+        return MathUtils.eq(x, y);
     }
 
     public static boolean strict_eq(BigDecimal x, BigDecimal y) {
@@ -584,6 +632,9 @@ public class Operators {
     }
 
     public static boolean ne(BigDecimal x, BigDecimal y) {
+        return !eq(x, y);
+    }
+    public static boolean ne(BigInteger x, BigInteger y) {
         return !eq(x, y);
     }
 
