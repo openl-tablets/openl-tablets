@@ -455,7 +455,7 @@ public class Operators {
     }
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
-        return MathUtils.eq(x, y);
+        return strict_eq(x, y);
     }
 
     public static boolean strict_eq(BigDecimal x, BigDecimal y) {
@@ -464,7 +464,7 @@ public class Operators {
         }
 
         if (x != null && y != null) {
-            return x.compareTo(y) == 0;
+            return MathUtils.eq(x, y);
         }
 
         return false;
