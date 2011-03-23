@@ -42,7 +42,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
     
     /** Formula constructor */
-    public ExplanationNumberValue(T dv1, T dv2, String operand, boolean isMultiplicative) {   
+    public ExplanationNumberValue(T dv1, T dv2, NumberOperations operand, boolean isMultiplicative) {   
         super(new NumberFormula<T>(dv1, dv2, operand, isMultiplicative));
         
         /** initialize explanation for formula value */ 
@@ -50,8 +50,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
     
     /** Function constructor */
-    public ExplanationNumberValue(T result, String functionName, T[] params) {        
-        super(new NumberFunction<T>(functionName, params, result));
+    public ExplanationNumberValue(T result, NumberOperations function, T[] params) {        
+        super(new NumberFunction<T>(function, params, result));
         
         /** initialize explanation for function value */
         this.explanation = new FunctionExplanationValue<T>(getFunction());

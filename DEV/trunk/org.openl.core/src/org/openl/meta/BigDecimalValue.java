@@ -20,14 +20,14 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.ADD);
         
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, Operators.add(bigDecimalValue1.getValue(),
-            bigDecimalValue2.getValue()), NumberOperations.ADD.toString(), false);
+            bigDecimalValue2.getValue()), NumberOperations.ADD, false);
     }
 
     public static BigDecimalValue rem(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
         validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.REM);
         
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
-            Operators.rem(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), NumberOperations.REM.toString(), true);
+            Operators.rem(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), NumberOperations.REM, true);
     }
 
     // ******* Autocasts *************
@@ -160,7 +160,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            BigDecimalValue lv = new BigDecimalValue(value, NumberOperations.COPY.toString(),
+            BigDecimalValue lv = new BigDecimalValue(value, NumberOperations.COPY,
                 new BigDecimalValue[] { value });
             lv.setName(name);
 
@@ -175,7 +175,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
             Operators.divide(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
@@ -214,7 +214,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         
         maxValue = bigDecimalValue1.compareTo(bigDecimalValue2) > 0 ? bigDecimalValue1 : bigDecimalValue2;
         
-        return new BigDecimalValue(maxValue, NumberOperations.MAX.toString(), new BigDecimalValue[] { bigDecimalValue1,
+        return new BigDecimalValue(maxValue, NumberOperations.MAX, new BigDecimalValue[] { bigDecimalValue1,
                 bigDecimalValue2 });
     }
 
@@ -224,7 +224,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         BigDecimalValue minValue = null;
         minValue = bigDecimalValue1.compareTo(bigDecimalValue2) < 0 ? bigDecimalValue1 : bigDecimalValue2;
         
-        return new BigDecimalValue(minValue, NumberOperations.MIN.toString(), new BigDecimalValue[] { bigDecimalValue1,
+        return new BigDecimalValue(minValue, NumberOperations.MIN, new BigDecimalValue[] { bigDecimalValue1,
                 bigDecimalValue2 });
         
     }
@@ -234,7 +234,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
             Operators.multiply(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
@@ -255,7 +255,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         
         return new BigDecimalValue(new BigDecimalValue(
             Operators.pow(bigDecimalValue1.getValue(), bigDecimalValue2.getValue().intValue())), 
-            NumberOperations.POW.toString(), new BigDecimalValue[] { bigDecimalValue1, bigDecimalValue2 });
+            NumberOperations.POW, new BigDecimalValue[] { bigDecimalValue1, bigDecimalValue2 });
     }
 
     public static BigDecimalValue subtract(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
@@ -263,7 +263,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
         return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
             Operators.subtract(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }
     
 // Math functions
@@ -271,13 +271,13 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public static BigDecimalValue max(BigDecimalValue[] values) {
         BigDecimalValue result = (BigDecimalValue) MathUtils.max(values);        
         return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), 
-            NumberOperations.MAX_IN_ARRAY.toString(), values);
+            NumberOperations.MAX_IN_ARRAY, values);
     }
 
     public static BigDecimalValue min(BigDecimalValue[] values) {
         BigDecimalValue result = (BigDecimalValue) MathUtils.min(values);
         return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY.toString(), values);
+            NumberOperations.MIN_IN_ARRAY, values);
     }
     
     public static BigDecimalValue avg(BigDecimalValue[] values) {
@@ -287,7 +287,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         BigDecimal[] primitiveArray = unwrap(values);
         BigDecimal avg = MathUtils.avg(primitiveArray);
         
-        return new BigDecimalValue(new BigDecimalValue(avg), NumberOperations.AVG.toString(), values);
+        return new BigDecimalValue(new BigDecimalValue(avg), NumberOperations.AVG, values);
     }
     
     public static BigDecimalValue sum(BigDecimalValue[] values) { 
@@ -296,7 +296,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         BigDecimal[] primitiveArray = unwrap(values);
         BigDecimal sum = MathUtils.sum(primitiveArray);
-        return new BigDecimalValue(new BigDecimalValue(sum), NumberOperations.SUM.toString(), values);
+        return new BigDecimalValue(new BigDecimalValue(sum), NumberOperations.SUM, values);
     }
     
     public static BigDecimalValue product(BigDecimalValue[] values) {
@@ -307,13 +307,13 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         BigDecimal product = MathUtils.product(primitiveArray);
         
         // we loose the parameters, but not the result of computation.
-        return new BigDecimalValue(new BigDecimalValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new BigDecimalValue(new BigDecimalValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static LongValue quaotient(BigDecimalValue number, BigDecimalValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null);
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;
     }
@@ -321,7 +321,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public static BigDecimalValue mod(BigDecimalValue number, BigDecimalValue divisor) {
         if (number != null && divisor != null) {
             BigDecimalValue result = new BigDecimalValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new BigDecimalValue(result, NumberOperations.MOD.toString(), new BigDecimalValue[]{number, divisor} );
+            return new BigDecimalValue(result, NumberOperations.MOD, new BigDecimalValue[]{number, divisor} );
         }
         return null;
     }
@@ -356,14 +356,14 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     /** Formula constructor **/
     public BigDecimalValue(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2, BigDecimal value,
-        String operand, boolean isMultiplicative) {
+        NumberOperations operand, boolean isMultiplicative) {
         super(bigDecimalValue1, bigDecimalValue2, operand, isMultiplicative);
         this.value = value;
     }
 
     /** Function constructor **/
-    public BigDecimalValue(BigDecimalValue result, String functionName, BigDecimalValue[] params) {
-        super(result, functionName, params);
+    public BigDecimalValue(BigDecimalValue result, NumberOperations function, BigDecimalValue[] params) {
+        super(result, function, params);
         this.value = result.getValue();
     }
 
@@ -410,7 +410,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         // evaluate result
         BigDecimalValue result = new BigDecimalValue(value.getValue().abs());
         // create instance with information about last operation
-        return new BigDecimalValue(result, NumberOperations.ABS.toString(), new BigDecimalValue[] { value });
+        return new BigDecimalValue(result, NumberOperations.ABS, new BigDecimalValue[] { value });
     }
 
     public static BigDecimalValue inc(BigDecimalValue value) {

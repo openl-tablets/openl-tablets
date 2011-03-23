@@ -17,14 +17,14 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         validate(shortValue1, shortValue2, NumberOperations.ADD);
 
         return new ShortValue(shortValue1, shortValue2, Operators.add(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.ADD.toString(), false);
+            NumberOperations.ADD, false);
     }
 
     public static ShortValue rem(ShortValue shortValue1, ShortValue shortValue2) {
         validate(shortValue1, shortValue2, NumberOperations.REM);
         
         return new ShortValue(shortValue1, shortValue2, Operators.rem(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.REM.toString(), true);
+            NumberOperations.REM, true);
     }
 
     // ******* Autocasts*************
@@ -163,7 +163,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            ShortValue lv = new ShortValue(value, NumberOperations.COPY.toString(), new ShortValue[] { value });
+            ShortValue lv = new ShortValue(value, NumberOperations.COPY, new ShortValue[] { value });
             lv.setName(name);
 
             return lv;
@@ -176,7 +176,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         validate(shortValue1, shortValue2, NumberOperations.DIVIDE);
         
         return new ShortValue(shortValue1, shortValue2, Operators.divide(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(ShortValue shortValue1, ShortValue shortValue2) {
@@ -213,21 +213,21 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         validate(shortValue1, shortValue2, NumberOperations.MAX);
         
         return new ShortValue(shortValue2.getValue() > shortValue1.getValue() ? shortValue2 : shortValue1,
-            NumberOperations.MAX.toString(), new ShortValue[] { shortValue1, shortValue2 });
+            NumberOperations.MAX, new ShortValue[] { shortValue1, shortValue2 });
     }
 
     public static ShortValue min(ShortValue shortValue1, ShortValue shortValue2) {
         validate(shortValue1, shortValue2, NumberOperations.MIN);
         
         return new ShortValue(shortValue2.getValue() < shortValue1.getValue() ? shortValue2 : shortValue1,
-            NumberOperations.MIN.toString(), new ShortValue[] { shortValue1, shortValue2 });
+            NumberOperations.MIN, new ShortValue[] { shortValue1, shortValue2 });
     }
 
     public static ShortValue multiply(ShortValue shortValue1, ShortValue shortValue2) {
         validate(shortValue1, shortValue2, NumberOperations.MULTIPLY);
         
         return new ShortValue(shortValue1, shortValue2, Operators.multiply(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(ShortValue shortValue1, ShortValue shortValue2) {
@@ -244,34 +244,34 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         validate(shortValue1, shortValue2, NumberOperations.POW);
         
         return new ShortValue(new ShortValue(Operators.pow(shortValue1.getValue(), shortValue2.getValue())),
-            NumberOperations.POW.toString(), new ShortValue[] { shortValue1, shortValue2 });
+            NumberOperations.POW, new ShortValue[] { shortValue1, shortValue2 });
     }
 
     public static ShortValue round(ShortValue shortValue1) {
         validate(shortValue1, NumberOperations.ROUND);
         
-        return new ShortValue(new ShortValue((short) Math.round(shortValue1.getValue())), NumberOperations.ROUND
-            .toString(), new ShortValue[] { shortValue1 });
+        return new ShortValue(new ShortValue((short) Math.round(shortValue1.getValue())), NumberOperations.ROUND, 
+            new ShortValue[] { shortValue1 });
     }
 
     public static ShortValue subtract(ShortValue shortValue1, ShortValue shortValue2) {
         validate(shortValue1, shortValue2, NumberOperations.SUBTRACT);
 
         return new ShortValue(shortValue1, shortValue2, Operators.subtract(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }
     
     // Math functions
     
     public static ShortValue max(ShortValue[] values) {
         ShortValue result = (ShortValue) MathUtils.max(values);        
-        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(),
+        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY,
             values);
     }
 
     public static ShortValue min(ShortValue[] values) {
         ShortValue result = (ShortValue) MathUtils.min(values);
-        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), 
+        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, 
             values);
     }
     
@@ -282,7 +282,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         short[] shortArray = shortValueArrayToShort(values);
         short avg = MathUtils.avg(shortArray);
         
-        return new ShortValue(new ShortValue(avg), NumberOperations.AVG.toString(), values);
+        return new ShortValue(new ShortValue(avg), NumberOperations.AVG, values);
     }
     
     public static ShortValue sum(ShortValue[] values) {    
@@ -291,7 +291,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         short[] shortArray = shortValueArrayToShort(values);
         short sum = MathUtils.sum(shortArray);
-        return new ShortValue(new ShortValue(sum), NumberOperations.SUM.toString(), values);
+        return new ShortValue(new ShortValue(sum), NumberOperations.SUM, values);
     }
     
     public static ShortValue median(ShortValue[] values) {
@@ -300,7 +300,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         short[] shortArray = shortValueArrayToShort(values);
         short median = MathUtils.median(shortArray);
-        return new ShortValue(new ShortValue(median), NumberOperations.MEDIAN.toString(), values);
+        return new ShortValue(new ShortValue(median), NumberOperations.MEDIAN, values);
     }
     
     public static DoubleValue product(ShortValue[] values) {
@@ -311,13 +311,13 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         double product = MathUtils.product(shortArray);
         
         // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static ShortValue quaotient(ShortValue number, ShortValue divisor) {
         if (number != null && divisor != null) {
             ShortValue result = new ShortValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new ShortValue(result, NumberOperations.QUAOTIENT.toString(), new ShortValue[]{number, divisor} );
+            return new ShortValue(result, NumberOperations.QUAOTIENT, new ShortValue[]{number, divisor} );
         }
         return null;
     }
@@ -325,7 +325,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static ShortValue mod(ShortValue number, ShortValue divisor) {
         if (number != null && divisor != null) {
             ShortValue result = new ShortValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new ShortValue(result, NumberOperations.MOD.toString(), new ShortValue[]{number, divisor} );
+            return new ShortValue(result, NumberOperations.MOD, new ShortValue[]{number, divisor} );
         }
         return null;
     }
@@ -336,7 +336,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         short[] shortArray = shortValueArrayToShort(values);
         short small = MathUtils.small(shortArray, position);
-        return new ShortValue((ShortValue) getAppropriateValue(values, new ShortValue(small)), NumberOperations.SMALL.toString(), values);
+        return new ShortValue((ShortValue) getAppropriateValue(values, new ShortValue(small)), NumberOperations.SMALL, 
+            values);
     }
 
     public ShortValue(short value) {
@@ -358,15 +359,15 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     /** Formula constructor **/
-    public ShortValue(ShortValue shortValue1, ShortValue shortValue2, short value, String operand,
+    public ShortValue(ShortValue shortValue1, ShortValue shortValue2, short value, NumberOperations operand,
         boolean isMultiplicative) {
         super(shortValue1, shortValue2, operand, isMultiplicative);
         this.value = value;
     }
 
     /** Function constructor **/
-    public ShortValue(ShortValue result, String functionName, ShortValue[] params) {
-        super(result, functionName, params);
+    public ShortValue(ShortValue result, NumberOperations function, ShortValue[] params) {
+        super(result, function, params);
         this.value = result.shortValue();
     }
 
@@ -427,9 +428,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     public static ShortValue abs(ShortValue value) {
         // evaluate result
-        ShortValue result = new ShortValue((short) Math.abs(value.getValue()));
+        ShortValue result = new ShortValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new ShortValue(result, NumberOperations.ABS.toString(), new ShortValue[] { value });
+        return new ShortValue(result, NumberOperations.ABS, new ShortValue[] { value });
     }
 
     public static ShortValue inc(ShortValue value) {

@@ -13,12 +13,12 @@ import java.util.List;
  */
 public class NumberFunction<T extends NumberValue<T>> {
     
-    private String functionName;
+    private NumberOperations function;
     private T result;
     private T[] params;
     
-    public NumberFunction(String functionName, T[] params, T result) {
-        this.functionName = functionName;
+    public NumberFunction(NumberOperations function, T[] params, T result) {
+        this.function = function;
         if (params != null) {
             this.params = params.clone();
         }        
@@ -48,7 +48,7 @@ public class NumberFunction<T extends NumberValue<T>> {
      * @return name of the function.
      */
     public String getFunctionName() {
-        return functionName;
+        return function.toString();
     }
     
     /**
@@ -67,8 +67,8 @@ public class NumberFunction<T extends NumberValue<T>> {
         return result;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;        
+    public void setFunction(NumberOperations function) {
+        this.function = function;        
     }
 
     public void setParams(T[] params) {

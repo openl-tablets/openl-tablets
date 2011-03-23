@@ -14,13 +14,13 @@ import java.util.List;
  */
 public class NumberFormula<T extends NumberValue<T>> {
     
-    private String operand;
+    private NumberOperations operand;
     
     private T v1, v2;
     
     private boolean isMultiplicative;
     
-    public NumberFormula(T v1, T v2, String operand, boolean isMultiplicative) {
+    public NumberFormula(T v1, T v2, NumberOperations operand, boolean isMultiplicative) {
         this.v1 = v1;
         this.v2 = v2;        
         this.operand = operand;
@@ -43,7 +43,7 @@ public class NumberFormula<T extends NumberValue<T>> {
      * @return the string representation of formula operand.
      */
     public String getOperand() {
-        return operand;        
+        return operand.toString();        
     }
     
     /**
@@ -74,7 +74,7 @@ public class NumberFormula<T extends NumberValue<T>> {
         this.isMultiplicative = isMultiplicative;        
     }
 
-    public void setOperand(String operand) {
+    public void setOperand(NumberOperations operand) {
         this.operand = operand;        
     }
 
