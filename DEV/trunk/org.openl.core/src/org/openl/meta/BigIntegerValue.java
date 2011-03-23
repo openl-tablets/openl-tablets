@@ -18,15 +18,17 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     public static BigIntegerValue add(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
         validate(bigIntValue1, bigIntValue2, NumberOperations.ADD);
 
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.add(bigIntValue1.getValue(), bigIntValue2.getValue()),
-            NumberOperations.ADD.toString(), false);
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.add(bigIntValue1.getValue(), 
+            bigIntValue2.getValue()),
+            NumberOperations.ADD, false);
     }
 
     public static BigIntegerValue rem(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
         validate(bigIntValue1, bigIntValue2, NumberOperations.REM);
         
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.rem(bigIntValue1.getValue(), bigIntValue2.getValue()), 
-            NumberOperations.REM.toString(), true);
+        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.rem(bigIntValue1.getValue(), 
+            bigIntValue2.getValue()), 
+            NumberOperations.REM, true);
     }
 
     // ******* Autocasts 8*************
@@ -152,7 +154,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            BigIntegerValue lv = new BigIntegerValue(value, NumberOperations.COPY.toString(),
+            BigIntegerValue lv = new BigIntegerValue(value, NumberOperations.COPY,
                 new BigIntegerValue[] { value });
             lv.setName(name);
 
@@ -166,7 +168,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         validate(bigIntValue1, bigIntValue2, NumberOperations.DIVIDE);
         
         return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.divide(bigIntValue1.getValue(), bigIntValue2.getValue()),
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
@@ -205,7 +207,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         BigIntegerValue maxValue = null;        
         maxValue = bigIntValue1.compareTo(bigIntValue2) > 0 ? bigIntValue1 : bigIntValue2;
         
-        return new BigIntegerValue(maxValue, NumberOperations.MAX.toString(), new BigIntegerValue[] { bigIntValue1,
+        return new BigIntegerValue(maxValue, NumberOperations.MAX, new BigIntegerValue[] { bigIntValue1,
                 bigIntValue2 });
     }
 
@@ -215,7 +217,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         
         minValue = bigIntValue1.compareTo(bigIntValue2) < 0 ? bigIntValue1 : bigIntValue2;        
         
-        return new BigIntegerValue(minValue, NumberOperations.MIN.toString(), new BigIntegerValue[] { bigIntValue1,
+        return new BigIntegerValue(minValue, NumberOperations.MIN, new BigIntegerValue[] { bigIntValue1,
                     bigIntValue2 });        
     }
 
@@ -224,7 +226,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         
         return new BigIntegerValue(bigIntValue1, bigIntValue2, 
             Operators.multiply(bigIntValue1.getValue(), bigIntValue2.getValue()), 
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
@@ -245,8 +247,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         validate(bigIntValue1, bigIntValue2, NumberOperations.POW);
         
         return new BigIntegerValue(
-            new BigIntegerValue(Operators.pow(bigIntValue1.getValue(), bigIntValue2.getValue().intValue())), NumberOperations.POW
-                .toString(), new BigIntegerValue[] { bigIntValue1, bigIntValue2 });
+            new BigIntegerValue(Operators.pow(bigIntValue1.getValue(), bigIntValue2.getValue().intValue())), 
+            NumberOperations.POW, new BigIntegerValue[] { bigIntValue1, bigIntValue2 });
     }
 
     public static BigIntegerValue subtract(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
@@ -254,7 +256,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
         return new BigIntegerValue(bigIntValue1, bigIntValue2, 
             Operators.subtract(bigIntValue1.getValue(), bigIntValue2.getValue()), 
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }
     
     // Math functions
@@ -262,13 +264,13 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     public static BigIntegerValue max(BigIntegerValue[] values) {
         BigIntegerValue result = (BigIntegerValue) MathUtils.max(values);        
         return new BigIntegerValue((BigIntegerValue) getAppropriateValue(values, result), 
-            NumberOperations.MAX_IN_ARRAY.toString(), values);
+            NumberOperations.MAX_IN_ARRAY, values);
     }
 
     public static BigIntegerValue min(BigIntegerValue[] values) {
         BigIntegerValue result = (BigIntegerValue) MathUtils.min(values);
         return new BigIntegerValue((BigIntegerValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY.toString(), values);
+            NumberOperations.MIN_IN_ARRAY, values);
     }
     
     public static BigIntegerValue avg(BigIntegerValue[] values) {
@@ -278,7 +280,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         BigInteger[] primitiveArray = unwrap(values);
         BigInteger avg = MathUtils.avg(primitiveArray);
         
-        return new BigIntegerValue(new BigIntegerValue(avg), NumberOperations.AVG.toString(), values);
+        return new BigIntegerValue(new BigIntegerValue(avg), NumberOperations.AVG, values);
     }
     
     public static BigIntegerValue sum(BigIntegerValue[] values) {       
@@ -287,7 +289,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         BigInteger[] primitiveArray = unwrap(values);
         BigInteger sum = MathUtils.sum(primitiveArray);
-        return new BigIntegerValue(new BigIntegerValue(sum), NumberOperations.SUM.toString(), values);
+        return new BigIntegerValue(new BigIntegerValue(sum), NumberOperations.SUM, values);
     }
     
     //TODO: to implement
@@ -306,13 +308,13 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         BigInteger[] primitiveArray = unwrap(values);
         BigInteger product = MathUtils.product(primitiveArray);
-        return new BigIntegerValue(new BigIntegerValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new BigIntegerValue(new BigIntegerValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static LongValue quaotient(BigIntegerValue number, BigIntegerValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null );
+            return new LongValue(result, NumberOperations.QUAOTIENT, null );
         }
         return null;
     }
@@ -320,7 +322,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     public static BigIntegerValue mod(BigIntegerValue number, BigIntegerValue divisor) {
         if (number != null && divisor != null) {
             BigIntegerValue result = new BigIntegerValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new BigIntegerValue(result, NumberOperations.MOD.toString(), new BigIntegerValue[]{number, divisor} );
+            return new BigIntegerValue(result, NumberOperations.MOD, new BigIntegerValue[]{number, divisor} );
         }
         return null;
     }
@@ -355,14 +357,14 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     /** Formula constructor **/
     public BigIntegerValue(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2, BigInteger value,
-        String operand, boolean isMultiplicative) {
+        NumberOperations operand, boolean isMultiplicative) {
         super(bigIntValue1, bigIntValue2, operand, isMultiplicative);
         this.value = value;
     }
 
     /** Function constructor **/
-    public BigIntegerValue(BigIntegerValue result, String functionName, BigIntegerValue[] params) {
-        super(result, functionName, params);
+    public BigIntegerValue(BigIntegerValue result, NumberOperations function, BigIntegerValue[] params) {
+        super(result, function, params);
         this.value = result.getValue();
     }
 
@@ -409,7 +411,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         // evaluate result
         BigIntegerValue result = new BigIntegerValue(value.getValue().abs());
         // create instance with information about last operation
-        return new BigIntegerValue(result, NumberOperations.ABS.toString(), new BigIntegerValue[] { value });
+        return new BigIntegerValue(result, NumberOperations.ABS, new BigIntegerValue[] { value });
     }
 
     public static BigIntegerValue inc(BigIntegerValue value) {

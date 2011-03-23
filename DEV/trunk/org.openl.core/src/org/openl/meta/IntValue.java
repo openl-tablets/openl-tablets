@@ -17,14 +17,14 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         validate(intValue1, intValue2, NumberOperations.ADD);
         
         return new IntValue(intValue1, intValue2, Operators.add(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.ADD.toString(), false);
+            NumberOperations.ADD, false);
     }    
     
     public static IntValue rem(IntValue intValue1, IntValue intValue2) {
         validate(intValue1, intValue2, NumberOperations.REM);
         
         return new IntValue(intValue1, intValue2, Operators.rem(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.REM.toString(), true);
+            NumberOperations.REM, true);
     }
     
     // ******* Autocasts*************
@@ -162,7 +162,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            IntValue lv = new IntValue(value, NumberOperations.COPY.toString(), new IntValue[] { value });
+            IntValue lv = new IntValue(value, NumberOperations.COPY, new IntValue[] { value });
             lv.setName(name);
 
             return lv;
@@ -175,7 +175,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         validate(intValue1, intValue2, NumberOperations.DIVIDE);
         
         return new IntValue(intValue1, intValue2, Operators.divide(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(IntValue intValue1, IntValue intValue2) {
@@ -212,7 +212,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         validate(intValue1, intValue2, NumberOperations.MAX);
         
         return new IntValue(intValue2.getValue() > intValue1.getValue() ? intValue2 : intValue1,
-            NumberOperations.MAX.toString(),
+            NumberOperations.MAX,
             new IntValue[] { intValue1, intValue2 });
     }
 
@@ -220,7 +220,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         validate(intValue1, intValue2, NumberOperations.MIN);
         
         return new IntValue(intValue2.getValue() < intValue1.getValue() ? intValue2 : intValue1,
-            NumberOperations.MIN.toString(),
+            NumberOperations.MIN,
             new IntValue[] { intValue1, intValue2 });
     }
 
@@ -228,7 +228,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         validate(intValue1, intValue2, NumberOperations.MULTIPLY);
         
         return new IntValue(intValue1, intValue2, Operators.multiply(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(IntValue intValue1, IntValue intValue2) {
@@ -245,34 +245,34 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         validate(intValue1, intValue2, NumberOperations.POW);
         
         return new IntValue(new IntValue(Operators.pow(intValue1.getValue(), intValue2.getValue())), 
-            NumberOperations.POW.toString(), new IntValue[] { intValue1, intValue2 });
+            NumberOperations.POW, new IntValue[] { intValue1, intValue2 });
     }
 
     public static IntValue round(IntValue intValue1) {
         validate(intValue1, NumberOperations.ROUND);
         
         return new IntValue(new IntValue((int)Math.round(intValue1.getValue())), 
-            NumberOperations.ROUND.toString(), new IntValue[] { intValue1 });
+            NumberOperations.ROUND, new IntValue[] { intValue1 });
     }
 
     public static IntValue subtract(IntValue intValue1, IntValue intValue2) {
         validate(intValue1, intValue2, NumberOperations.SUBTRACT);
 
         return new IntValue(intValue1, intValue2, Operators.subtract(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }
     
     // Math functions
     
     public static IntValue max(IntValue[] values) {
         IntValue result = (IntValue) MathUtils.max(values);        
-        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(),
+        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY,
             values);
     }
 
     public static IntValue min(IntValue[] values) {
         IntValue result = (IntValue) MathUtils.min(values);
-        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), 
+        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, 
             values);
     }
     
@@ -283,7 +283,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         int[] primitiveArray = intValueArrayToInt(values);
         int avg = MathUtils.avg(primitiveArray);
         
-        return new IntValue(new IntValue(avg), NumberOperations.AVG.toString(), values);
+        return new IntValue(new IntValue(avg), NumberOperations.AVG, values);
     }
     
     public static IntValue sum(IntValue[] values) {    
@@ -292,7 +292,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         int[] primitiveArray = intValueArrayToInt(values);
         int sum = MathUtils.sum(primitiveArray);
-        return new IntValue(new IntValue(sum), NumberOperations.SUM.toString(), values);
+        return new IntValue(new IntValue(sum), NumberOperations.SUM, values);
     }
     
     public static IntValue median(IntValue[] values) {
@@ -301,7 +301,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         int[] primitiveArray = intValueArrayToInt(values);
         int median = MathUtils.median(primitiveArray);
-        return new IntValue(new IntValue(median), NumberOperations.MEDIAN.toString(), values);
+        return new IntValue(new IntValue(median), NumberOperations.MEDIAN, values);
     }
     
     public static DoubleValue product(IntValue[] values) {
@@ -310,13 +310,13 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         int[] primitiveArray = intValueArrayToInt(values);
         double product = MathUtils.product(primitiveArray);
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static IntValue quaotient(IntValue number, IntValue divisor) {
         if (number != null && divisor != null) {
             IntValue result = new IntValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new IntValue(result, NumberOperations.QUAOTIENT.toString(), new IntValue[]{number, divisor} );
+            return new IntValue(result, NumberOperations.QUAOTIENT, new IntValue[]{number, divisor} );
         }
         return null;
     }
@@ -324,7 +324,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static IntValue mod(IntValue number, IntValue divisor) {
         if (number != null && divisor != null) {
             IntValue result = new IntValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new IntValue(result, NumberOperations.MOD.toString(), new IntValue[]{number, divisor} );
+            return new IntValue(result, NumberOperations.MOD, new IntValue[]{number, divisor} );
         }
         return null;
     }
@@ -335,7 +335,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         int[] primitiveArray = intValueArrayToInt(values);
         int small = MathUtils.small(primitiveArray, position);
-        return new IntValue((IntValue) getAppropriateValue(values, new IntValue(small)), NumberOperations.SMALL.toString(), values);
+        return new IntValue((IntValue) getAppropriateValue(values, new IntValue(small)), NumberOperations.SMALL, values);
     }
 
     public IntValue(int value) {
@@ -357,17 +357,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }    
 
     /**Formula constructor**/
-    public IntValue(IntValue intValue1, IntValue intValue2, int value, String operand, boolean isMultiplicative) {
+    public IntValue(IntValue intValue1, IntValue intValue2, int value, NumberOperations operand, boolean isMultiplicative) {
         super(intValue1, intValue2, operand, isMultiplicative);
         this.value = value;
     }
 
     /**Function constructor**/
-    public IntValue(IntValue result, String functionName, IntValue[] params) {
-        super(result, functionName, params);
+    public IntValue(IntValue result, NumberOperations function, IntValue[] params) {
+        super(result, function, params);
         this.value = result.intValue();
     }
-    
 
     @Override
     public IntValue copy(String name) {
@@ -412,9 +411,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
     public static IntValue abs(IntValue value) {
         // evaluate result
-        IntValue result = new IntValue(Math.abs(value.getValue()));
+        IntValue result = new IntValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new IntValue(result, NumberOperations.ABS.toString(), new IntValue[] { value });
+        return new IntValue(result, NumberOperations.ABS, new IntValue[] { value });
     }
     
     public static IntValue inc(IntValue value) {

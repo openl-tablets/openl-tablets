@@ -16,14 +16,14 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         validate(lv1, lv2, NumberOperations.ADD);
         
         return new LongValue(lv1, lv2, Operators.add(lv1.getValue(), lv2.getValue()), 
-            NumberOperations.ADD.toString(), false);
+            NumberOperations.ADD, false);
     }
     
     public static LongValue rem(LongValue lv1, LongValue lv2) {
         validate(lv1, lv2, NumberOperations.REM);
         
         return new LongValue(lv1, lv2, Operators.rem(lv1.getValue(), lv2.getValue()), 
-            NumberOperations.REM.toString(), true);
+            NumberOperations.REM, true);
     }
     
     // ******* Autocasts*************
@@ -160,7 +160,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            LongValue lv = new LongValue(value, NumberOperations.COPY.toString(), new LongValue[] { value });
+            LongValue lv = new LongValue(value, NumberOperations.COPY, new LongValue[] { value });
             lv.setName(name);
 
             return lv;
@@ -173,7 +173,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         validate(lv1, lv2, NumberOperations.DIVIDE);
         
         return new LongValue(lv1, lv2, Operators.divide(lv1.getValue(), lv2.getValue()), 
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(LongValue lv1, LongValue lv2) {
@@ -209,14 +209,14 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public static LongValue max(LongValue lv1, LongValue lv2) {
         validate(lv1, lv2, NumberOperations.MAX);
         
-        return new LongValue(lv2.getValue() > lv1.getValue() ? lv2 : lv1, NumberOperations.MAX.toString(),
+        return new LongValue(lv2.getValue() > lv1.getValue() ? lv2 : lv1, NumberOperations.MAX,
             new LongValue[] { lv1, lv2 });
     }
 
     public static LongValue min(LongValue lv1, LongValue lv2) {
         validate(lv1, lv2, NumberOperations.MIN);
         
-        return new LongValue(lv2.getValue() < lv1.getValue() ? lv2 : lv1, NumberOperations.MIN.toString(),
+        return new LongValue(lv2.getValue() < lv1.getValue() ? lv2 : lv1, NumberOperations.MIN,
             new LongValue[] { lv1, lv2 });
     }
 
@@ -224,7 +224,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         validate(lv1, lv2, NumberOperations.MULTIPLY);
         
         return new LongValue(lv1, lv2, Operators.multiply(lv1.getValue(), lv2.getValue()), 
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(LongValue lv1, LongValue lv2) {
@@ -241,34 +241,34 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         validate(lv1, lv2, NumberOperations.POW);
         
         return new LongValue(new LongValue(Operators.pow(lv1.getValue(), lv2.getValue())), 
-            NumberOperations.POW.toString(), new LongValue[] { lv1, lv2 });
+            NumberOperations.POW, new LongValue[] { lv1, lv2 });
     }
 
     public static LongValue round(LongValue lv1) {
         validate(lv1, NumberOperations.ROUND);
         
         return new LongValue(new LongValue((long)Math.round(lv1.getValue())), 
-            NumberOperations.ROUND.toString(), new LongValue[] { lv1 });
+            NumberOperations.ROUND, new LongValue[] { lv1 });
     }
 
     public static LongValue subtract(LongValue lv1, LongValue lv2) {
         validate(lv1, lv2, NumberOperations.SUBTRACT);
         
         return new LongValue(lv1, lv2, Operators.subtract(lv1.getValue(), lv2.getValue()), 
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }
     
     // Math functions
     
     public static LongValue max(LongValue[] values) {
         LongValue result = (LongValue) MathUtils.max(values);        
-        return new LongValue((LongValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), 
+        return new LongValue((LongValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY, 
             values);
     }
 
     public static LongValue min(LongValue[] values) {
         LongValue result = (LongValue) MathUtils.min(values);
-        return new LongValue((LongValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), 
+        return new LongValue((LongValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, 
             values);
     }
     
@@ -279,7 +279,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         long[] primitiveArray = longValueArrayToLong(values);
         long avg = MathUtils.avg(primitiveArray);
         
-        return new LongValue(new LongValue(avg), NumberOperations.AVG.toString(), values);
+        return new LongValue(new LongValue(avg), NumberOperations.AVG, values);
     }
     
     public static LongValue sum(LongValue[] values) {       
@@ -288,7 +288,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         long[] primitiveArray = longValueArrayToLong(values);
         long sum = MathUtils.sum(primitiveArray);
-        return new LongValue(new LongValue(sum), NumberOperations.SUM.toString(), values);
+        return new LongValue(new LongValue(sum), NumberOperations.SUM, values);
     }
     
     public static LongValue median(LongValue[] values) {
@@ -297,7 +297,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         long[] primitiveArray = longValueArrayToLong(values);
         long median = MathUtils.median(primitiveArray);
-        return new LongValue(new LongValue(median), NumberOperations.MEDIAN.toString(), values);
+        return new LongValue(new LongValue(median), NumberOperations.MEDIAN, values);
     }
     
     public static DoubleValue product(LongValue[] values) {
@@ -306,13 +306,13 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         long[] primitiveArray = longValueArrayToLong(values);
         double product = MathUtils.product(primitiveArray);
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static LongValue quaotient(LongValue number, LongValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), new LongValue[]{number, divisor} );
+            return new LongValue(result, NumberOperations.QUAOTIENT, new LongValue[]{number, divisor} );
         }
         return null;
     }
@@ -320,7 +320,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public static LongValue mod(LongValue number, LongValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.MOD.toString(), new LongValue[]{number, divisor} );
+            return new LongValue(result, NumberOperations.MOD, new LongValue[]{number, divisor} );
         }
         return null;
     }
@@ -332,7 +332,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         long[] primitiveArray = longValueArrayToLong(values);
         long small = MathUtils.small(primitiveArray, position);
         return new LongValue((LongValue) getAppropriateValue(values, new LongValue(small)), 
-            NumberOperations.SMALL.toString(), values);
+            NumberOperations.SMALL, values);
     }
 
     public LongValue(long value) {
@@ -354,14 +354,14 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }    
 
     /**Formula constructor**/
-    public LongValue(LongValue lv1, LongValue lv2, long value, String operand, boolean isMultiplicative) {
+    public LongValue(LongValue lv1, LongValue lv2, long value, NumberOperations operand, boolean isMultiplicative) {
         super(lv1, lv2, operand, isMultiplicative);
         this.value = value;
     }
 
     /**Function constructor**/
-    public LongValue(LongValue result, String functionName, LongValue[] params) {
-        super(result, functionName, params);
+    public LongValue(LongValue result, NumberOperations function, LongValue[] params) {
+        super(result, function, params);
         this.value = result.longValue();
     }
 
@@ -423,9 +423,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     
     public static LongValue abs(LongValue value) {
         // evaluate result
-        LongValue result = new LongValue(Math.abs(value.getValue()));
+        LongValue result = new LongValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new LongValue(result, NumberOperations.ABS.toString(), new LongValue[] { value });
+        return new LongValue(result, NumberOperations.ABS, new LongValue[] { value });
     }
     
     public static LongValue inc(LongValue value) {

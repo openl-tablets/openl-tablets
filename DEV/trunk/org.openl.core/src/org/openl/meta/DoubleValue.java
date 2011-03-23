@@ -57,7 +57,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static DoubleValue add(DoubleValue dv1, DoubleValue dv2) {
         validate(dv1, dv2, NumberOperations.ADD);
         
-        return new DoubleValue(dv1, dv2, Operators.add(dv1.getValue(), dv2.getValue()), NumberOperations.ADD.toString(), 
+        return new DoubleValue(dv1, dv2, Operators.add(dv1.getValue(), dv2.getValue()), NumberOperations.ADD, 
             false);
     }
     
@@ -65,7 +65,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         validate(dv1, dv2, NumberOperations.REM);
         
         return new DoubleValue(dv1, dv2, Operators.rem(dv1.getValue(), dv2.getValue()), 
-            NumberOperations.REM.toString(), true);
+            NumberOperations.REM, true);
     }
     
     // ******* Autocasts *************
@@ -193,7 +193,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            DoubleValue dv = new DoubleValue(value, "COPY", new DoubleValue[] { value });
+            DoubleValue dv = new DoubleValue(value, NumberOperations.COPY, new DoubleValue[] { value });
             dv.setName(name);
 
             return dv;
@@ -206,7 +206,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         validate(dv1, dv2, NumberOperations.DIVIDE);
         
         return new DoubleValue(dv1, dv2, Operators.divide(dv1.getValue(), dv2.getValue()), 
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(DoubleValue dv1, DoubleValue dv2) {
@@ -241,14 +241,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     public static DoubleValue max(DoubleValue dv1, DoubleValue dv2) {
         validate(dv1, dv2, NumberOperations.MAX);
-        return new DoubleValue(dv2.getValue() > dv1.getValue() ? dv2 : dv1, NumberOperations.MAX.toString(), new DoubleValue[] { dv1, dv2 });
+        return new DoubleValue(dv2.getValue() > dv1.getValue() ? dv2 : dv1, NumberOperations.MAX, new DoubleValue[] { dv1, dv2 });
     }
 
     public static DoubleValue min(DoubleValue dv1, DoubleValue dv2) {
         validate(dv1, dv2, NumberOperations.MIN);
         
         return new DoubleValue(dv2.getValue() < dv1.getValue() ? dv2 : dv1,
-            NumberOperations.MIN.toString(),
+            NumberOperations.MIN,
             new DoubleValue[] { dv1, dv2 });
     }
 
@@ -256,7 +256,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         validate(dv1, dv2, NumberOperations.MULTIPLY);
         
         return new DoubleValue(dv1, dv2, Operators.multiply(dv1.getValue(), dv2.getValue()), 
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(DoubleValue dv1, DoubleValue dv2) {
@@ -273,20 +273,20 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         validate(dv1, dv2, NumberOperations.POW);
         
         return new DoubleValue(new DoubleValue(Operators.pow(dv1.getValue(), dv2.getValue())), 
-            NumberOperations.POW.toString(), new DoubleValue[] { dv1, dv2 });
+            NumberOperations.POW, new DoubleValue[] { dv1, dv2 });
     }
 
     public static DoubleValue round(DoubleValue dv1) {
         validate(dv1, NumberOperations.ROUND);
         
-        return new DoubleValue(new DoubleValue(Math.round(dv1.getValue())), NumberOperations.ROUND.toString(), new DoubleValue[] { dv1 });
+        return new DoubleValue(new DoubleValue(Math.round(dv1.getValue())), NumberOperations.ROUND, new DoubleValue[] { dv1 });
     }
 
     public static DoubleValue round(DoubleValue d, DoubleValue p) {
         validate(d, p, NumberOperations.ROUND);
         
         return new DoubleValue(new DoubleValue(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue()),
-          NumberOperations.ROUND.toString(),
+          NumberOperations.ROUND,
           new DoubleValue[] { d, p });
     }
 
@@ -294,7 +294,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         validate(dv1, dv2, NumberOperations.SUBTRACT);
         
         return new DoubleValue(dv1, dv2, Operators.subtract(dv1.getValue(), dv2.getValue()), 
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }   
     
     // Math functions
@@ -302,13 +302,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static DoubleValue max(DoubleValue[] values) {
         DoubleValue result = (DoubleValue) MathUtils.max(values);        
         return new DoubleValue((DoubleValue) getAppropriateValue(values, result), 
-            NumberOperations.MAX_IN_ARRAY.toString(), values);
+            NumberOperations.MAX_IN_ARRAY, values);
     }
 
     public static DoubleValue min(DoubleValue[] values) {
         DoubleValue result = (DoubleValue) MathUtils.min(values);
         return new DoubleValue((DoubleValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY.toString(), values);
+            NumberOperations.MIN_IN_ARRAY, values);
     }
     
     public static DoubleValue avg(DoubleValue[] values) {
@@ -318,7 +318,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         double[] primitiveArray = unwrap(values);
         double avg = MathUtils.avg(primitiveArray);
         
-        return new DoubleValue(new DoubleValue(avg), NumberOperations.AVG.toString(), values);
+        return new DoubleValue(new DoubleValue(avg), NumberOperations.AVG, values);
     }
     
     public static DoubleValue sum(DoubleValue[] values) { 
@@ -327,7 +327,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         double[] primitiveArray = unwrap(values);
         double sum = MathUtils.sum(primitiveArray);
-        return new DoubleValue(new DoubleValue(sum), NumberOperations.SUM.toString(), values);
+        return new DoubleValue(new DoubleValue(sum), NumberOperations.SUM, values);
     }
     
     public static DoubleValue median(DoubleValue[] values) {
@@ -336,7 +336,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         double[] primitiveArray = unwrap(values);
         double median = MathUtils.median(primitiveArray);
-        return new DoubleValue(new DoubleValue(median), NumberOperations.MEDIAN.toString(), values);
+        return new DoubleValue(new DoubleValue(median), NumberOperations.MEDIAN, values);
     }
     
     public static DoubleValue product(DoubleValue[] values) {
@@ -347,13 +347,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         double product = MathUtils.product(primitiveArray);
         
         // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static LongValue quaotient(DoubleValue number, DoubleValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null);
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;
     }
@@ -361,7 +361,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static DoubleValue mod(DoubleValue number, DoubleValue divisor) {
         if (number != null && divisor != null) {
             DoubleValue result = new DoubleValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new DoubleValue(result, NumberOperations.MOD.toString(), new DoubleValue[]{number, divisor} );
+            return new DoubleValue(result, NumberOperations.MOD, new DoubleValue[]{number, divisor} );
         }
         return null;
     }
@@ -372,7 +372,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         double[] primitiveArray = unwrap(values);
         double small = MathUtils.small(primitiveArray, position);
-        return new DoubleValue((DoubleValue) getAppropriateValue(values, new DoubleValue(small)), NumberOperations.SMALL.toString(), values);
+        return new DoubleValue((DoubleValue) getAppropriateValue(values, new DoubleValue(small)), 
+            NumberOperations.SMALL, values);
     }
     
     /**
@@ -408,14 +409,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     /**Formula constructor**/
-    public DoubleValue(DoubleValue dv1, DoubleValue dv2, double value, String operand, boolean isMultiplicative) {
+    public DoubleValue(DoubleValue dv1, DoubleValue dv2, double value, NumberOperations operand, boolean isMultiplicative) {
         super(dv1, dv2, operand, isMultiplicative);
         this.value = value;
     }
     
     /**Function constructor**/
-    public DoubleValue(DoubleValue result, String functionName, DoubleValue[] params) {
-        super(result, functionName, params);
+    public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue[] params) {
+        super(result, function, params);
         this.value = result.doubleValue();
     }
 
@@ -472,9 +473,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     
     public static DoubleValue abs(DoubleValue value) {
         // evaluate result
-        DoubleValue result = new DoubleValue(Math.abs(value.getValue()));
+        DoubleValue result = new DoubleValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new DoubleValue(result, NumberOperations.ABS.toString(), new DoubleValue[] { value });
+        return new DoubleValue(result, NumberOperations.ABS, new DoubleValue[] { value });
     }
     
     public static DoubleValue inc(DoubleValue value) {

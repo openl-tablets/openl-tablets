@@ -17,14 +17,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         validate(floatValue1, floatValue2, NumberOperations.ADD);
         
         return new FloatValue(floatValue1, floatValue2, Operators.add(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.ADD.toString(), false);
+            NumberOperations.ADD, false);
     }    
     
     public static FloatValue rem(FloatValue floatValue1, FloatValue floatValue2) {
         validate(floatValue1, floatValue2, NumberOperations.REM);
         
         return new FloatValue(floatValue1, floatValue2, Operators.rem(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.REM.toString(), true);
+            NumberOperations.REM, true);
     }
     
     // ******* Autocasts*************
@@ -153,7 +153,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            FloatValue lv = new FloatValue(value, NumberOperations.COPY.toString(), new FloatValue[] { value });
+            FloatValue lv = new FloatValue(value, NumberOperations.COPY, new FloatValue[] { value });
             lv.setName(name);
 
             return lv;
@@ -166,7 +166,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         validate(floatValue1, floatValue2, NumberOperations.DIVIDE);
         
         return new FloatValue(floatValue1, floatValue2, Operators.divide(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.DIVIDE.toString(), true);
+            NumberOperations.DIVIDE, true);
     }
 
     public static boolean eq(FloatValue floatValue1, FloatValue floatValue2) {
@@ -203,7 +203,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         validate(floatValue1, floatValue2, NumberOperations.MAX);
         
         return new FloatValue(floatValue2.getValue() > floatValue1.getValue() ? floatValue2 : floatValue1,
-            NumberOperations.MAX.toString(),
+            NumberOperations.MAX,
             new FloatValue[] { floatValue1, floatValue2 });
     }
 
@@ -211,7 +211,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         validate(floatValue1, floatValue2, NumberOperations.MIN);
         
         return new FloatValue(floatValue2.getValue() < floatValue1.getValue() ? floatValue2 : floatValue1,
-            NumberOperations.MIN.toString(),
+            NumberOperations.MIN,
             new FloatValue[] { floatValue1, floatValue2 });
     }
 
@@ -219,7 +219,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         validate(floatValue1, floatValue2, NumberOperations.MULTIPLY);
         
         return new FloatValue(floatValue1, floatValue2, Operators.multiply(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.MULTIPLY.toString(), true);
+            NumberOperations.MULTIPLY, true);
     }
 
     public static boolean ne(FloatValue floatValue1, FloatValue floatValue2) {
@@ -236,33 +236,33 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         validate(floatValue1, floatValue2, NumberOperations.POW);
         
         return new FloatValue(new FloatValue(Operators.pow(floatValue1.getValue(), floatValue2.getValue())), 
-            NumberOperations.POW.toString(), new FloatValue[] { floatValue1, floatValue2 });
+            NumberOperations.POW, new FloatValue[] { floatValue1, floatValue2 });
     }
 
     public static FloatValue round(FloatValue floatValue1) {
         validate(floatValue1, NumberOperations.ROUND);
         
         return new FloatValue(new FloatValue((float)Math.round(floatValue1.getValue())), 
-            NumberOperations.ROUND.toString(), new FloatValue[] { floatValue1 });
+            NumberOperations.ROUND, new FloatValue[] { floatValue1 });
     }
 
     public static FloatValue subtract(FloatValue floatValue1, FloatValue floatValue2) {
         validate(floatValue1, floatValue2, NumberOperations.SUBTRACT);
         
         return new FloatValue(floatValue1, floatValue2, Operators.subtract(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.SUBTRACT.toString(), false);
+            NumberOperations.SUBTRACT, false);
     }
     
     // Math functions
     
     public static FloatValue max(FloatValue[] values) {
         FloatValue result = (FloatValue) MathUtils.max(values);        
-        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY.toString(), values);
+        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY, values);
     }
 
     public static FloatValue min(FloatValue[] values) {
         FloatValue result = (FloatValue) MathUtils.min(values);
-        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY.toString(), values);
+        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, values);
     }
     
     public static FloatValue avg(FloatValue[] values) {
@@ -272,7 +272,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         float[] primitiveArray = floatValueArrayToFloat(values);
         float avg = MathUtils.avg(primitiveArray);
         
-        return new FloatValue(new FloatValue(avg), NumberOperations.AVG.toString(), values);
+        return new FloatValue(new FloatValue(avg), NumberOperations.AVG, values);
     }
     
     public static FloatValue sum(FloatValue[] values) {  
@@ -281,7 +281,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         float[] primitiveArray = floatValueArrayToFloat(values);
         float sum = MathUtils.sum(primitiveArray);
-        return new FloatValue(new FloatValue(sum), NumberOperations.SUM.toString(), values);
+        return new FloatValue(new FloatValue(sum), NumberOperations.SUM, values);
     }
     
     public static FloatValue median(FloatValue[] values) {
@@ -290,7 +290,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         float[] primitiveArray = floatValueArrayToFloat(values);
         float median = MathUtils.median(primitiveArray);
-        return new FloatValue(new FloatValue(median), NumberOperations.MEDIAN.toString(), values);
+        return new FloatValue(new FloatValue(median), NumberOperations.MEDIAN, values);
     }
     
     public static DoubleValue product(FloatValue[] values) {
@@ -299,13 +299,13 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         float[] primitiveArray = floatValueArrayToFloat(values);
         double product = MathUtils.product(primitiveArray);
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT.toString(), null);
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
     
     public static LongValue quaotient(FloatValue number, FloatValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT.toString(), null);
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;
     }
@@ -313,7 +313,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static FloatValue mod(FloatValue number, FloatValue divisor) {
         if (number != null && divisor != null) {
             FloatValue result = new FloatValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new FloatValue(result, NumberOperations.MOD.toString(), new FloatValue[]{number, divisor} );
+            return new FloatValue(result, NumberOperations.MOD, new FloatValue[]{number, divisor} );
         }
         return null;
     }
@@ -324,7 +324,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         float[] primitiveArray = floatValueArrayToFloat(values);
         float small = MathUtils.small(primitiveArray, position);
-        return new FloatValue((FloatValue) getAppropriateValue(values, new FloatValue(small)), NumberOperations.SMALL.toString(), values);
+        return new FloatValue((FloatValue) getAppropriateValue(values, new FloatValue(small)), NumberOperations.SMALL, values);
     }
     
     public FloatValue(float value) {
@@ -346,14 +346,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }    
     
     /**Formula constructor**/
-    public FloatValue(FloatValue floatValue1, FloatValue floatValue2, float value, String operand, boolean isMultiplicative) {
+    public FloatValue(FloatValue floatValue1, FloatValue floatValue2, float value, NumberOperations operand, boolean isMultiplicative) {
         super(floatValue1, floatValue2, operand, isMultiplicative);
         this.value = value;
     }
     
     /**Function constructor**/
-    public FloatValue(FloatValue result, String functionName, FloatValue[] params) {
-        super(result, functionName, params);
+    public FloatValue(FloatValue result, NumberOperations function, FloatValue[] params) {
+        super(result, function, params);
         this.value = result.floatValue();
     }
 
@@ -392,9 +392,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     
     public static FloatValue abs(FloatValue value) {
         // evaluate result
-        FloatValue result = new FloatValue(Math.abs(value.getValue()));
+        FloatValue result = new FloatValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new FloatValue(result, NumberOperations.ABS.toString(), new FloatValue[] { value });
+        return new FloatValue(result, NumberOperations.ABS, new FloatValue[] { value });
     }
     
     public static FloatValue inc(FloatValue value) {
