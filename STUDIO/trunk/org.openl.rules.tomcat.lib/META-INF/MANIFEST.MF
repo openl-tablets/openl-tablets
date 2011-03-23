@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tomcat Plug-in
 Bundle-SymbolicName: org.openl.rules.tomcat.lib
-Bundle-Version: 5.7.6
+Bundle-Version: 5.7.5
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
 Bundle-ClassPath: apache-tomcat-7.0.8/lib/jsp-api.jar,
