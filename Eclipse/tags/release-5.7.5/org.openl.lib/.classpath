@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/asm-3.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jgrapht-jdk1.5-0.7.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="lib/joda-time-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.8.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-math-2.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

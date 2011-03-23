@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.eclipse-pom</artifactId>
+    <version>5.7.5</version>
+    <relativePath>../org.openl.rules.eclipse-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.repository.jcr.jackrabbit.lib</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - Webstudio - Jackrabbit libraries</name>
+  <description>Libraries for Jackrabbit JCR repository</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${project.build.directory}/../lib</directory>
+              <includes>
+                <include>**/*.jar</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/../lib</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <excludeGroupIds>org.apache.poi</excludeGroupIds>
+              <excludeArtifactIds>asm,commons-collections,commons-dbcp,commons-io,commons-pool,concurrent,derby,dom4j,geronimo-stax-api,junit,log4j,slf4j-api,xml-apis,xmlbeans</excludeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>${project.build.directory}/..</directory>
+        <includes>
+          <include>lib/**/*.jar</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr-rmi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-spi2dav</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr2spi</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
