@@ -41,6 +41,14 @@ var AjaxHelper = {
 
     unescapeHTML: function(html) {
         return html.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
+    },
+
+    isRightClick: function(e) {
+        if (e.which) { 
+            return e.which == 3;
+        } else if (e.button) {
+            return e.button == 2;
+        }
     }
 
 }

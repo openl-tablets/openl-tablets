@@ -1,6 +1,6 @@
 
 function openMenu(menuId, td, event) {
-    if (event.button == 2) { // mouse right click
+    if (AjaxHelper.isRightClick(event)) {
         td.oncontextmenu = function() { return false; };
         PopupMenu.sheduleShowMenu(menuId, event, 150);
     }
