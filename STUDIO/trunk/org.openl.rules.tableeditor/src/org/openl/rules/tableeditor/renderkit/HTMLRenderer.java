@@ -88,7 +88,18 @@ public class HTMLRenderer {
             .append(renderJS("js/TableEditor.js"))
             .append(renderJS("js/initTableEditor.js"))
             .append(renderJS("js/BaseEditor.js"))
-            .append(renderJS("js/BaseTextEditor.js"));
+            .append(renderJS("js/BaseTextEditor.js"))
+            .append(renderJS("js/validation.js"))
+            .append(renderJS("js/datepicker.packed.js"))
+            .append(renderJS("js/TextEditor.js"))
+            .append(renderJS("js/MultiLineEditor.js"))
+            .append(renderJS("js/NumericEditor.js"))
+            .append(renderJS("js/DropdownEditor.js"))
+            .append(renderJS("js/FormulaEditor.js"))
+            .append(renderJS("js/BooleanEditor.js"))
+            .append(renderJS("js/DateEditor.js"))
+            .append(renderJS("js/MultiselectEditor.js"))
+            .append(renderJS("js/ArrayEditor.js"));
         if (!inner) {
             result.append("<div id='").append(editor.getId()).append("' class='te_'>");
         }
@@ -195,17 +206,6 @@ public class HTMLRenderer {
 
         result.append(renderJSBody("var " + editorJsVar + ";"))
                 .append(renderEditorToolbar(editor.getId(), editorJsVar))
-                .append(renderJS("js/validation.js"))
-                .append(renderJS("js/datepicker.packed.js"))
-                .append(renderJS("js/TextEditor.js"))
-                .append(renderJS("js/MultiLineEditor.js"))
-                .append(renderJS("js/NumericEditor.js"))
-                .append(renderJS("js/DropdownEditor.js"))
-                .append(renderJS("js/FormulaEditor.js"))
-                .append(renderJS("js/BooleanEditor.js"))
-                .append(renderJS("js/DateEditor.js"))
-                .append(renderJS("js/MultiselectEditor.js"))
-                .append(renderJS("js/ArrayEditor.js"))
                 .append(renderJS("js/colorPicker.js"))
                 .append(renderJS("js/popup.js"));
         result.append(
