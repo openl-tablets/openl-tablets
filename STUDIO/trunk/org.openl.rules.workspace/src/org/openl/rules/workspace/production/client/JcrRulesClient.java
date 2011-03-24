@@ -1,25 +1,18 @@
 package org.openl.rules.workspace.production.client;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Collection;
 
-import org.apache.commons.io.IOUtils;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.RFile;
-import org.openl.rules.repository.RFolder;
-import org.openl.rules.repository.RProductionDeployment;
-import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
 /**
  * This class can extract rules projects deployed into production JCR based
@@ -29,25 +22,6 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 public class JcrRulesClient {
     public void addListener(RDeploymentListener l) throws RRepositoryException {
         ProductionRepositoryFactoryProxy.getRepositoryInstance().addListener(l);
-    }
-
-    private void download(FolderAPI folder, File location) throws RRepositoryException, IOException {
-        location.mkdirs();
-        for (ArtefactAPI artefact : folder.getArtefacts()) {
-            if(artefact.isFolder()){
-                download((FolderAPI)artefact, new File(location, artefact.getName()));
-            }else{
-                try {
-                    ResourceAPI resource = (ResourceAPI) artefact;
-                    FileOutputStream os = new FileOutputStream(new File(location, resource.getName()));
-                    IOUtils.copy(resource.getContent(), os);
-                    IOUtils.closeQuietly(os);
-                } catch (ProjectException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     /**
@@ -64,20 +38,31 @@ public class JcrRulesClient {
     public void fetchDeployment(DeployID deployID, File destFolder) throws Exception {
         destFolder.mkdirs();
         FolderHelper.clearFolder(destFolder);
+        //FIXME: avoid creating LocalWorkspace
+        AProject fetchedDeployment = new AProject(new LocalFolderAPI(destFolder, new ArtefactPathImpl(
+                destFolder.getName()), new LocalWorkspaceImpl(null, destFolder.getParentFile(), null, null)));
 
         FolderAPI rDeployment = ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentProject(
                 deployID.getName());
-
-        //FIXME
-        Collection<? extends ArtefactAPI> projects = rDeployment.getArtefacts();
-        for (ArtefactAPI project : projects) {
-            if(project.isFolder()){
-            File projectFolder = new File(destFolder, project.getName());
-            projectFolder.mkdirs();
-
-            download((FolderAPI)project, projectFolder);
-            }
+        final AProject deploymentProject = new AProject(rDeployment);
+        // TODO: solve problem with fetching deployment when it is not uploaded
+        // completely
+        if (deploymentProject.isLocked()) {
+            //waiting when our deployment will be unlocked.
+            Thread waiting = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        while (deploymentProject.isLocked()) {
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            });
+            waiting.start();
+            waiting.join();
         }
+
+        fetchedDeployment.update(deploymentProject, null, 0, 0);
     }
 
     /**
