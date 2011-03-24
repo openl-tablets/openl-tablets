@@ -389,7 +389,10 @@ var TableEditor = Class.create({
         var availableEditors = this.getAvailableEditors(editorName);
         if (availableEditors.size() > 0) {
             var switchEditorMenuHandler = function(e) {
-                if (Event.isRightClick(e)) {
+                // Uncomment after migration on Prototype 1.7
+                // Prototype 1.6.1 has issue with Chrome browser
+                // if (Event.isRightClick(e)) {
+                if (AjaxHelper.isRightClick(e)) {
                     if (self.switchEditorMenu) {
                         return true;
                     }
