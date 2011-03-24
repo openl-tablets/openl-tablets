@@ -3,13 +3,11 @@ package org.openl.rules.workspace.deploy.impl.jcr;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
-import org.openl.rules.common.ValueType;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -33,11 +31,11 @@ public class JcrProductionDeployer implements ProductionDeployer {
         this.user = user;
     }
 
-    private void copyProperties(ArtefactAPI newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
+    private void copyProperties(AProjectArtefact newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
         try {
-            newArtefact.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, artefact.getEffectiveDate());
-            newArtefact.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, artefact.getExpirationDate());
-            newArtefact.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, artefact.getLineOfBusiness());
+            newArtefact.setEffectiveDate(artefact.getEffectiveDate());
+            newArtefact.setExpirationDate(artefact.getExpirationDate());
+            newArtefact.setLineOfBusiness(artefact.getLineOfBusiness());
 
             newArtefact.setProps(artefact.getProps());
         } catch (PropertyException e) {
@@ -67,13 +65,15 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
                 FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
 
+                AProject deploymentPRJ = new AProject(deployment);
+                deploymentPRJ.lock(user);
                 for (AProject p : projects) {
-                    deployProject(deployment, p);
+                    deployProject(deploymentPRJ, p);
                 }
                 
-                copyProperties(deployment, deploymentProject);
+                copyProperties(deploymentPRJ, deploymentProject);
 
-                deployment.commit(user, 0, 0, 1);
+                deploymentPRJ.checkIn(user);
             }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
@@ -92,9 +92,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return deploy(deploymentProject, new DeployID(idKey), projects);
     }
     
-    private void deployProject(FolderAPI deployment, AProject project) throws RRepositoryException,
+    private void deployProject(AProject deployment, AProject project) throws RRepositoryException,
             ProjectException {
-        FolderAPI rProject = deployment.addFolder(project.getName());
+        FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
         AProject copiedProject = new AProject(rProject);
         copiedProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
     }
