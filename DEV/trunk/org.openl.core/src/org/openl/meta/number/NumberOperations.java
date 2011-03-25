@@ -8,24 +8,24 @@ package org.openl.meta.number;
  *
  */
 public enum NumberOperations {
-    ADD("+"),
-    MULTIPLY("*"),
-    SUBTRACT("-"),
-    DIVIDE("/"),  
-    REM("%"),
-    EQ("equal"),
-    GE("greater or equal"),
-    GT("greater"),
-    LE("less or equal"),
-    LT("less"),
-    NE("not equal"),
+//    ADD("+"),
+//    MULTIPLY("*"),
+//    SUBTRACT("-"),
+//    DIVIDE("/"),  
+//    REM("%"),
+//    EQ("equal"),
+//    GE("greater or equal"),
+//    GT("greater"),
+//    LE("less or equal"),
+//    LT("less"),
+//    NE("not equal"),
     
     
     COPY("COPY"),
     MAX("max"), 
-    MAX_IN_ARRAY("max in array"),
+    MAX_IN_ARRAY("max"),
     MIN("min"),
-    MIN_IN_ARRAY("min in array"),
+    MIN_IN_ARRAY("min"),
     ROUND("round"),
     POW("pow"),
     ABS("abs"),
@@ -35,6 +35,10 @@ public enum NumberOperations {
     PRODUCT("product"), 
     QUAOTIENT("quaotient"), 
     MOD("mod"), 
+    NEGATIVE("negative"),
+    INC("inc"),
+    POSITIVE("positive"),
+    DEC("dec"),
     SMALL("small");
     
     private String description;
@@ -46,6 +50,14 @@ public enum NumberOperations {
     @Override
     public String toString() {
         return description;
+    }
+    
+    public String getName() {
+        return name().toLowerCase();
+    }
+    
+    public String getFullName() {
+        return this.getClass().getSimpleName() + "." + name();
     }
 
 }

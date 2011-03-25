@@ -1,0 +1,108 @@
+package org.openl.codegen.tools;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.number.Formulas;
+import org.openl.meta.number.LogicalExpressions;
+import org.openl.meta.number.NumberOperations;
+import org.openl.meta.number.NumberValue;
+
+/**
+ * Generates common functions for children of {@link NumberValue}.
+ * 
+ * @author DLiauchuk
+ *
+ */
+public class GenFunctions extends GenRulesCode {
+    
+    /** key - the type for which methods need to be generated. value - inner so called primitive type of the wrapper class **/
+    private static final Map<Class<?>, Class<?>> types = new HashMap<Class<?>, Class<?>>();
+    
+    /** first array of functions with equal implementation**/
+    private static final NumberOperations[] MATH_FUNCTIONS1 = new NumberOperations[3];
+    
+    /** second array of functions with equal implementation**/
+    private static final NumberOperations[] MATH_FUNCTIONS2 = new NumberOperations[2];
+    
+    /** third array of functions with equal implementation**/
+    private static final NumberOperations[] MATH_FUNCTIONS3 = new NumberOperations[2];
+    
+    /** array of primitive java numeric types **/
+    private static final Class<?>[] primitiveNumericTypes = new Class<?>[] {byte.class, short.class, int.class, 
+        long.class, float.class, double.class};
+    
+    public static void main(String[] arg) throws Exception {
+        new GenFunctions().run();
+    }
+    
+    public void run() throws Exception {
+        init();
+        generateFunctions();
+    }
+    
+    private void init() {
+        MATH_FUNCTIONS1[0] = NumberOperations.AVG;
+        MATH_FUNCTIONS1[1] = NumberOperations.SUM;
+        MATH_FUNCTIONS1[2] = NumberOperations.MEDIAN;        
+        
+        MATH_FUNCTIONS2[0] = NumberOperations.MAX;
+        MATH_FUNCTIONS2[1] = NumberOperations.MIN;
+        
+        MATH_FUNCTIONS3[0] = NumberOperations.MAX_IN_ARRAY;
+        MATH_FUNCTIONS3[1] = NumberOperations.MIN_IN_ARRAY;
+        
+        
+        types.put(ByteValue.class, byte.class);
+        types.put(ShortValue.class, short.class);
+        types.put(IntValue.class, int.class);
+        types.put(LongValue.class, long.class);
+        types.put(FloatValue.class, float.class);
+        types.put(DoubleValue.class, double.class);
+        types.put(BigIntegerValue.class, BigInteger.class);
+        types.put(BigDecimalValue.class, BigDecimal.class);
+    }
+
+    private void generateFunctions() throws IOException {
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+        
+        // generate functions for each type
+        for (Class<?> clazz : types.keySet()) {
+            String sourceFilePath = CodeGenTools.getClassSourcePathInCoreModule(clazz);
+            variables.put("tool", new VelocityTool());
+            variables.put("formulas", Formulas.values());
+            variables.put("logicalExpressions", LogicalExpressions.values());
+            variables.put("mathFunctions1", MATH_FUNCTIONS1);
+            variables.put("mathFunctions2", MATH_FUNCTIONS2);
+            variables.put("mathFunctions3", MATH_FUNCTIONS3);
+            variables.put("copyFunction", NumberOperations.COPY);
+            variables.put("productFunction", NumberOperations.PRODUCT);
+            variables.put("modFunction", NumberOperations.MOD);
+            variables.put("smallFunction", NumberOperations.SMALL);
+            variables.put("powFunction", NumberOperations.POW);
+            variables.put("absFunction", NumberOperations.ABS);
+            variables.put("negativeFunction", NumberOperations.NEGATIVE);
+            variables.put("incFunction", NumberOperations.INC);
+            variables.put("positiveFunction", NumberOperations.POSITIVE);
+            variables.put("decFunction", NumberOperations.DEC);
+            variables.put("type", clazz);
+            variables.put("primitiveType", types.get(clazz));
+            variables.put("primitiveNumericTypes", primitiveNumericTypes);
+            processSourceCode(sourceFilePath, "NumberValueChildren-functions.vm", variables);            
+        }        
+        
+    }
+
+}
