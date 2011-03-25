@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalRepFilter" width="400" minWidth="200" height="100" minHeight="110">
+  <rich:modalPanel id="modalRepFilter" width="400" minWidth="200" height="130" minHeight="110">
     <f:facet name="header">
       <h:outputText value="Repository filter"/>
     </f:facet>
@@ -16,6 +16,9 @@
 
     <h:form id="filterForm">
       <h:inputText id="filter" value="#{repositoryTreeController.filterString}" />
+      <br />
+      <h:outputText value="Hide deleted projects : " />
+      <h:selectBooleanCheckbox id="hideDeleted" value="#{repositoryTreeController.hideDeleted}" />
 
       <br />
       <br />

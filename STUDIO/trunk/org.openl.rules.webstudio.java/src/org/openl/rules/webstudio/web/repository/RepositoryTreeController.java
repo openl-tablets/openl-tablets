@@ -78,6 +78,7 @@ public class RepositoryTreeController {
     private int minor;
 
     private String filterString;
+    private boolean hideDeleted;
 
     private PathFilter zipFilter;
     
@@ -312,6 +313,10 @@ public class RepositoryTreeController {
         try {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             project.delete(userWorkspace.getUser());
+            if(repositoryTreeState.isHideDeleted()){
+                AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                repositoryTreeState.deleteNode(projectInTree);
+            }
         } catch (ProjectException e) {
             LOG.error("Cannot delete deployment project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete deployment project.", e.getMessage());
@@ -341,7 +346,7 @@ public class RepositoryTreeController {
             String nodeType = repositoryTreeState.getSelectedNode().getType();
             boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)
                     || (UiConst.TYPE_PROJECT.equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
-            if (wasMarkedForDeletion) {
+            if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
                 repositoryTreeState.refreshSelectedNode();
             } else {
                 repositoryTreeState.deleteSelectedNodeFromTree();
@@ -364,6 +369,10 @@ public class RepositoryTreeController {
                 repositoryTreeState.deleteNode(projectInTree);
             } else {
                 project.delete(userWorkspace.getUser());
+                if(repositoryTreeState.isHideDeleted()){
+                    AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                    repositoryTreeState.deleteNode(projectInTree);
+                }
             }
         } catch (ProjectException e) {
             LOG.error("Cannot delete rules project '" + projectName + "'.", e);
@@ -426,12 +435,22 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public boolean isHideDeleted() {
+        hideDeleted = repositoryTreeState.isHideDeleted();
+        return hideDeleted;
+    }
+
+    public void setHideDeleted(boolean hideDeleted) {
+        this.hideDeleted = hideDeleted;
+    }
+
     public String filter() {
         IFilter<AProjectArtefact> filter = null;
         if (StringUtils.isNotBlank(filterString)) {
             filter = new RepositoryFileExtensionFilter(filterString);
         }
         repositoryTreeState.setFilter(filter);
+        repositoryTreeState.setHideDeleted(hideDeleted);
         return null;
     }
 
