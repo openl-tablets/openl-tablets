@@ -6,6 +6,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.Formulas;
+import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -13,52 +15,261 @@ import org.openl.util.math.MathUtils;
 public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     private static final long serialVersionUID = 1996508840075924034L;
+    
+    // <<< INSERT Functions >>>
+	private java.math.BigDecimal value;
 
-    private BigDecimal value;
+	public static org.openl.meta.BigDecimalValue add(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, Formulas.ADD.toString());
+		
+		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);		
+	}
+	public static org.openl.meta.BigDecimalValue multiply(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, Formulas.MULTIPLY.toString());
+		
+		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	public static org.openl.meta.BigDecimalValue subtract(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, Formulas.DIVIDE.toString());
+		
+		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	public static org.openl.meta.BigDecimalValue rem(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 
-    public static BigDecimalValue add(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.ADD);
+	public static boolean eq(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, LogicalExpressions.EQ.toString());
+		
+		return Operators.eq(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ge(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, LogicalExpressions.GE.toString());
+		
+		return Operators.ge(value1.getValue(), value2.getValue());		
+	}
+	public static boolean gt(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, LogicalExpressions.GT.toString());
+		
+		return Operators.gt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean le(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, LogicalExpressions.LE.toString());
+		
+		return Operators.le(value1.getValue(), value2.getValue());		
+	}
+	public static boolean lt(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, LogicalExpressions.LT.toString());
+		
+		return Operators.lt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ne(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, LogicalExpressions.NE.toString());
+		
+		return Operators.ne(value1.getValue(), value2.getValue());		
+	}
+
+	public static org.openl.meta.BigDecimalValue avg(org.openl.meta.BigDecimalValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		java.math.BigDecimal[] primitiveArray = unwrap(values);
+		java.math.BigDecimal avg = MathUtils.avg(primitiveArray);
+		return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg), NumberOperations.AVG, values);
+	}
+	public static org.openl.meta.BigDecimalValue sum(org.openl.meta.BigDecimalValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		java.math.BigDecimal[] primitiveArray = unwrap(values);
+		java.math.BigDecimal sum = MathUtils.sum(primitiveArray);
+		return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(sum), NumberOperations.SUM, values);
+	}
+	public static org.openl.meta.BigDecimalValue median(org.openl.meta.BigDecimalValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		java.math.BigDecimal[] primitiveArray = unwrap(values);
+		java.math.BigDecimal median = MathUtils.median(primitiveArray);
+		return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values);
+	}
+
+	public static org.openl.meta.BigDecimalValue max(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, NumberOperations.MAX.toString());
+		
+		return new org.openl.meta.BigDecimalValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MAX,
+            new org.openl.meta.BigDecimalValue[] { value1, value2 });
+	}
+	public static org.openl.meta.BigDecimalValue min(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, NumberOperations.MIN.toString());
+		
+		return new org.openl.meta.BigDecimalValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MIN,
+            new org.openl.meta.BigDecimalValue[] { value1, value2 });
+	}
+
+	public static org.openl.meta.BigDecimalValue max(org.openl.meta.BigDecimalValue[] values) {
+		org.openl.meta.BigDecimalValue result = (org.openl.meta.BigDecimalValue) MathUtils.max(values); 		
+		
+		return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY, values);
+	}
+	public static org.openl.meta.BigDecimalValue min(org.openl.meta.BigDecimalValue[] values) {
+		org.openl.meta.BigDecimalValue result = (org.openl.meta.BigDecimalValue) MathUtils.min(values); 		
+		
+		return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY, values);
+	}
+
+	public static org.openl.meta.BigDecimalValue copy(org.openl.meta.BigDecimalValue value, String name) {
+		if (value.getName() == null) {
+            value.setName(name);
+
+            return value;
+        } else if (!value.getName().equals(name)) {
+        	org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue (value, NumberOperations.COPY, 
+        		new org.openl.meta.BigDecimalValue[] { value });
+        	result.setName(name);
+
+            return result;
+        }
+        return value;
+	}
+	
+	// generated product function for big types
+	public static org.openl.meta.BigDecimalValue product(org.openl.meta.BigDecimalValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        java.math.BigDecimal[] primitiveArray = unwrap(values);
+        java.math.BigDecimal product = MathUtils.product(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(product), NumberOperations.PRODUCT, null);
+	}
+	
+	public static org.openl.meta.BigDecimalValue mod(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
+        if (number != null && divisor != null) {
+            org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.BigDecimalValue(result, NumberOperations.MOD, new org.openl.meta.BigDecimalValue[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static org.openl.meta.BigDecimalValue small(org.openl.meta.BigDecimalValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        java.math.BigDecimal[] primitiveArray = unwrap(values);
+        java.math.BigDecimal small = MathUtils.small(primitiveArray, position);
+        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(small)), 
+            NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.BigDecimalValue pow(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+        validate(value1, value2, NumberOperations.POW);
         
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, Operators.add(bigDecimalValue1.getValue(),
-            bigDecimalValue2.getValue()), NumberOperations.ADD, false);
+        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(Operators.pow(value1.getValue(), value2.getValue())), 
+            NumberOperations.POW, new org.openl.meta.BigDecimalValue[] { value1, value2 });
+    }
+    
+    public static org.openl.meta.BigDecimalValue abs(org.openl.meta.BigDecimalValue value) {
+        validate(value, NumberOperations.ABS);
+        // evaluate result
+        org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(Operators.abs(value.getValue()));
+        // create instance with information about last operation
+        return new org.openl.meta.BigDecimalValue(result, NumberOperations.ABS, new org.openl.meta.BigDecimalValue[] { value });
+    }
+    
+    public static org.openl.meta.BigDecimalValue negative(org.openl.meta.BigDecimalValue value) {
+        return multiply(value, new org.openl.meta.BigDecimalValue("-1"));
+    }
+    
+    public static org.openl.meta.BigDecimalValue inc(org.openl.meta.BigDecimalValue value) {
+        return add(value, new org.openl.meta.BigDecimalValue("1"));
+    }
+    
+    public static org.openl.meta.BigDecimalValue positive(org.openl.meta.BigDecimalValue value) {
+        return value;
+    }
+    
+    public static org.openl.meta.BigDecimalValue dec(org.openl.meta.BigDecimalValue value) {
+        return subtract(value, new org.openl.meta.BigDecimalValue("1"));
+    }
+    
+    // Autocasts
+    
+	public static org.openl.meta.BigDecimalValue autocast(byte x, org.openl.meta.BigDecimalValue y) {
+		return new org.openl.meta.BigDecimalValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigDecimalValue autocast(short x, org.openl.meta.BigDecimalValue y) {
+		return new org.openl.meta.BigDecimalValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigDecimalValue autocast(int x, org.openl.meta.BigDecimalValue y) {
+		return new org.openl.meta.BigDecimalValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigDecimalValue autocast(long x, org.openl.meta.BigDecimalValue y) {
+		return new org.openl.meta.BigDecimalValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigDecimalValue autocast(float x, org.openl.meta.BigDecimalValue y) {
+		return new org.openl.meta.BigDecimalValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigDecimalValue autocast(double x, org.openl.meta.BigDecimalValue y) {
+		return new org.openl.meta.BigDecimalValue(String.valueOf(x));
+	}		
+    
+    // Constructors
+    public BigDecimalValue(java.math.BigDecimal value) {
+        this.value = value;
+    }    
+
+    public BigDecimalValue(java.math.BigDecimal value, String name) {
+        super(name);
+        this.value = value;
     }
 
-    public static BigDecimalValue rem(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.REM);
-        
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
-            Operators.rem(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), NumberOperations.REM, true);
+    public BigDecimalValue(java.math.BigDecimal value, IMetaInfo metaInfo) {
+        super(metaInfo);
+        this.value = value;        
+    }    
+
+    /**Formula constructor**/
+    public BigDecimalValue(org.openl.meta.BigDecimalValue lv1, org.openl.meta.BigDecimalValue lv2, java.math.BigDecimal value, Formulas operand) {
+        super(lv1, lv2, operand);
+        this.value = value;
+    }    
+
+    @Override
+    public org.openl.meta.BigDecimalValue copy(String name) {
+        return copy(this, name);        
+    }    
+    
+    public String printValue() {        
+        return String.valueOf(value);
     }
+    
+    public java.math.BigDecimal getValue() {        
+        return value;
+    }
+    
+    public void setValue(java.math.BigDecimal value) {
+        this.value = value;
+    }
+    // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
-
-    public static BigDecimalValue autocast(byte x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf(x));
-    }
-
-    public static BigDecimalValue autocast(short x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf(x));
-    }
-
-    public static BigDecimalValue autocast(char x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf((int) x));
-    }
-
-    public static BigDecimalValue autocast(int x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf(x));
-    }
-
-    public static BigDecimalValue autocast(long x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf(x));
-    }
-
-    public static BigDecimalValue autocast(float x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf(x));
-    }
-
-    public static BigDecimalValue autocast(double x, BigDecimalValue y) {
-        return new BigDecimalValue(String.valueOf(x));
-    }
 
     public static BigDecimalValue autocast(BigDecimal x, BigDecimalValue y) {
         if (x == null) {
@@ -153,163 +364,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         return new BigIntegerValue(String.valueOf(x.longValue()));
     }
-
-    public static BigDecimalValue copy(BigDecimalValue value, String name) {
-        if (value.getName() == null) {
-            value.setName(name);
-
-            return value;
-        } else if (!value.getName().equals(name)) {
-            BigDecimalValue lv = new BigDecimalValue(value, NumberOperations.COPY,
-                new BigDecimalValue[] { value });
-            lv.setName(name);
-
-            return lv;
-        }
-
-        return value;
-    }
-
-    public static BigDecimalValue divide(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.DIVIDE);
-        
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
-            Operators.divide(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
-            NumberOperations.DIVIDE, true);
-    }
-
-    public static boolean eq(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.EQ);
-
-        return bigDecimalValue1.equals(bigDecimalValue2);
-    }
-
-    public static boolean ge(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.GE);
-        
-        return Operators.ge(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
-    }
-
-    public static boolean gt(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.GT);
-        
-        return Operators.gt(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
-    }
-
-    public static boolean le(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.LE);
-        
-        return Operators.le(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
-    }
-
-    public static boolean lt(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.LT);
-        
-        return Operators.lt(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
-    }
-
-    public static BigDecimalValue max(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.MAX);
-        BigDecimalValue maxValue = null;        
-        
-        maxValue = bigDecimalValue1.compareTo(bigDecimalValue2) > 0 ? bigDecimalValue1 : bigDecimalValue2;
-        
-        return new BigDecimalValue(maxValue, NumberOperations.MAX, new BigDecimalValue[] { bigDecimalValue1,
-                bigDecimalValue2 });
-    }
-
-    public static BigDecimalValue min(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.MIN);
-        
-        BigDecimalValue minValue = null;
-        minValue = bigDecimalValue1.compareTo(bigDecimalValue2) < 0 ? bigDecimalValue1 : bigDecimalValue2;
-        
-        return new BigDecimalValue(minValue, NumberOperations.MIN, new BigDecimalValue[] { bigDecimalValue1,
-                bigDecimalValue2 });
-        
-    }
-
-    public static BigDecimalValue multiply(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.MULTIPLY);
-        
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
-            Operators.multiply(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
-            NumberOperations.MULTIPLY, true);
-    }
-
-    public static boolean ne(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.NE);
-        
-        return Operators.ne(bigDecimalValue1.getValue(), bigDecimalValue2.getValue());
-    }
-
-    public static BigDecimalValue negative(BigDecimalValue bigIntValue) {        
-        BigDecimalValue neg = new BigDecimalValue(bigIntValue.getValue().negate());
-        neg.setMetaInfo(bigIntValue.getMetaInfo());
-
-        return neg;
-    }
-
-    public static BigDecimalValue pow(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.POW);
-        
-        return new BigDecimalValue(new BigDecimalValue(
-            Operators.pow(bigDecimalValue1.getValue(), bigDecimalValue2.getValue().intValue())), 
-            NumberOperations.POW, new BigDecimalValue[] { bigDecimalValue1, bigDecimalValue2 });
-    }
-
-    public static BigDecimalValue subtract(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2) {
-        validate(bigDecimalValue1, bigDecimalValue2, NumberOperations.SUBTRACT);
-
-        return new BigDecimalValue(bigDecimalValue1, bigDecimalValue2, 
-            Operators.subtract(bigDecimalValue1.getValue(), bigDecimalValue2.getValue()), 
-            NumberOperations.SUBTRACT, false);
-    }
     
-// Math functions
-    
-    public static BigDecimalValue max(BigDecimalValue[] values) {
-        BigDecimalValue result = (BigDecimalValue) MathUtils.max(values);        
-        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), 
-            NumberOperations.MAX_IN_ARRAY, values);
-    }
-
-    public static BigDecimalValue min(BigDecimalValue[] values) {
-        BigDecimalValue result = (BigDecimalValue) MathUtils.min(values);
-        return new BigDecimalValue((BigDecimalValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY, values);
-    }
-    
-    public static BigDecimalValue avg(BigDecimalValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        BigDecimal[] primitiveArray = unwrap(values);
-        BigDecimal avg = MathUtils.avg(primitiveArray);
-        
-        return new BigDecimalValue(new BigDecimalValue(avg), NumberOperations.AVG, values);
-    }
-    
-    public static BigDecimalValue sum(BigDecimalValue[] values) { 
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        BigDecimal[] primitiveArray = unwrap(values);
-        BigDecimal sum = MathUtils.sum(primitiveArray);
-        return new BigDecimalValue(new BigDecimalValue(sum), NumberOperations.SUM, values);
-    }
-    
-    public static BigDecimalValue product(BigDecimalValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        BigDecimal[] primitiveArray = unwrap(values);
-        BigDecimal product = MathUtils.product(primitiveArray);
-        
-        // we loose the parameters, but not the result of computation.
-        return new BigDecimalValue(new BigDecimalValue(product), NumberOperations.PRODUCT, null);
-    }
-    
+    // Math functions
     public static LongValue quaotient(BigDecimalValue number, BigDecimalValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
@@ -317,33 +373,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         return null;
     }
-    
-    public static BigDecimalValue mod(BigDecimalValue number, BigDecimalValue divisor) {
-        if (number != null && divisor != null) {
-            BigDecimalValue result = new BigDecimalValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new BigDecimalValue(result, NumberOperations.MOD, new BigDecimalValue[]{number, divisor} );
-        }
-        return null;
-    }
-
-    public BigDecimalValue(BigDecimal value) {
-        this.value = value;
-    }
 
     public BigDecimalValue(String valueString) {
         value = new BigDecimal(valueString);
     }
-
-    public BigDecimalValue(BigDecimal value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public BigDecimalValue(BigDecimal value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
+    
     public BigDecimalValue(String value, String name) {
         super(name);
         this.value = new BigDecimal(value);
@@ -352,25 +386,13 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public BigDecimalValue(String value, IMetaInfo metaInfo) {
         super(metaInfo);
         this.value = new BigDecimal(value);
-    }
-
-    /** Formula constructor **/
-    public BigDecimalValue(BigDecimalValue bigDecimalValue1, BigDecimalValue bigDecimalValue2, BigDecimal value,
-        NumberOperations operand, boolean isMultiplicative) {
-        super(bigDecimalValue1, bigDecimalValue2, operand, isMultiplicative);
-        this.value = value;
-    }
+    }    
 
     /** Function constructor **/
     public BigDecimalValue(BigDecimalValue result, NumberOperations function, BigDecimalValue[] params) {
         super(result, function, params);
         this.value = result.getValue();
-    }
-
-    @Override
-    public BigDecimalValue copy(String name) {
-        return copy(this, name);
-    }
+    }    
 
     @Override
     public double doubleValue() {
@@ -389,11 +411,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     @Override
     public long longValue() {
-        return value.intValue();
-    }
-
-    public String printValue() {
-        return value.toString();
+        return value.longValue();
     }
 
     public int compareTo(Number o) {
@@ -404,29 +422,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         } else {
             throw new OpenlNotCheckedException("Can`t compare BigDecimalValue with unknown type.");
         }
-    }
-
-    public static BigDecimalValue abs(BigDecimalValue value) {
-        // evaluate result
-        BigDecimalValue result = new BigDecimalValue(value.getValue().abs());
-        // create instance with information about last operation
-        return new BigDecimalValue(result, NumberOperations.ABS, new BigDecimalValue[] { value });
-    }
-
-    public static BigDecimalValue inc(BigDecimalValue value) {
-        return add(value, new BigDecimalValue(BigDecimal.ONE));
-    }
-
-    public static BigDecimalValue dec(BigDecimalValue value) {
-        return subtract(value, new BigDecimalValue(BigDecimal.ONE));
-    }
-
-    public BigDecimal getValue() {
-        return value;
-    }
-
-    public void setValue(BigDecimal value) {
-        this.value = value;
     }
 
     @Override
@@ -442,10 +437,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     @Override
     public int hashCode() {
         return value.hashCode();
-    }
-
-    public static BigDecimalValue positive(BigDecimalValue value) {
-        return value;
     }
     
     private static BigDecimal[] unwrap(BigDecimalValue[] values) {

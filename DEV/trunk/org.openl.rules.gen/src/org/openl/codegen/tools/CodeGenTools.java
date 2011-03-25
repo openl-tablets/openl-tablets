@@ -7,13 +7,21 @@ import org.openl.util.StringTool;
 
 public class CodeGenTools {
 
-    public static String getClassSourcePath(Class<?> clazz) {
-        return CodeGenConstants.SOURCE_LOC + StringTool.getFileNameOfJavaClass(clazz);
+    public static String getClassSourcePathInRulesModule(Class<?> clazz) {
+        return getClassSourcePath(CodeGenConstants.RULES_SOURCE_LOCATION, clazz);
+    }
+    
+    public static String getClassSourcePathInCoreModule(Class<?> clazz) {
+        return getClassSourcePath(CodeGenConstants.CORE_SOURCE_LOCATION, clazz);
+    }
+    
+    private static String getClassSourcePath(String modulePath, Class<?> clazz) {
+        return modulePath + StringTool.getFileNameOfJavaClass(clazz);
     }
     
     public static JavaOpenClass getJavaOpenClass(String name, boolean isArray) {
 
-        Class enumClass;
+        Class<?> enumClass;
 
         try {
             enumClass = Class.forName(name);

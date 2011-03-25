@@ -6,6 +6,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.Formulas;
+import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -13,45 +15,262 @@ import org.openl.util.math.MathUtils;
 public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     private static final long serialVersionUID = -3936317402079096501L;
-    private BigInteger value;
+    
+    // <<< INSERT Functions >>>
+	private java.math.BigInteger value;
 
-    public static BigIntegerValue add(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.ADD);
+	public static org.openl.meta.BigIntegerValue add(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, Formulas.ADD.toString());
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);		
+	}
+	public static org.openl.meta.BigIntegerValue multiply(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, Formulas.MULTIPLY.toString());
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	public static org.openl.meta.BigIntegerValue subtract(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	public static org.openl.meta.BigIntegerValue divide(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, Formulas.DIVIDE.toString());
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	public static org.openl.meta.BigIntegerValue rem(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.add(bigIntValue1.getValue(), 
-            bigIntValue2.getValue()),
-            NumberOperations.ADD, false);
+	public static boolean eq(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, LogicalExpressions.EQ.toString());
+		
+		return Operators.eq(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ge(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, LogicalExpressions.GE.toString());
+		
+		return Operators.ge(value1.getValue(), value2.getValue());		
+	}
+	public static boolean gt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, LogicalExpressions.GT.toString());
+		
+		return Operators.gt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean le(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, LogicalExpressions.LE.toString());
+		
+		return Operators.le(value1.getValue(), value2.getValue());		
+	}
+	public static boolean lt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, LogicalExpressions.LT.toString());
+		
+		return Operators.lt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ne(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, LogicalExpressions.NE.toString());
+		
+		return Operators.ne(value1.getValue(), value2.getValue());		
+	}
+
+	public static org.openl.meta.BigIntegerValue avg(org.openl.meta.BigIntegerValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		java.math.BigInteger[] primitiveArray = unwrap(values);
+		java.math.BigInteger avg = MathUtils.avg(primitiveArray);
+		return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(avg), NumberOperations.AVG, values);
+	}
+	public static org.openl.meta.BigIntegerValue sum(org.openl.meta.BigIntegerValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		java.math.BigInteger[] primitiveArray = unwrap(values);
+		java.math.BigInteger sum = MathUtils.sum(primitiveArray);
+		return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(sum), NumberOperations.SUM, values);
+	}
+	public static org.openl.meta.BigIntegerValue median(org.openl.meta.BigIntegerValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		java.math.BigInteger[] primitiveArray = unwrap(values);
+		java.math.BigInteger median = MathUtils.median(primitiveArray);
+		return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(median), NumberOperations.MEDIAN, values);
+	}
+
+	public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, NumberOperations.MAX.toString());
+		
+		return new org.openl.meta.BigIntegerValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MAX,
+            new org.openl.meta.BigIntegerValue[] { value1, value2 });
+	}
+	public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		validate(value1, value2, NumberOperations.MIN.toString());
+		
+		return new org.openl.meta.BigIntegerValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MIN,
+            new org.openl.meta.BigIntegerValue[] { value1, value2 });
+	}
+
+	public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue[] values) {
+		org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.max(values); 		
+		
+		return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY, values);
+	}
+	public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue[] values) {
+		org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.min(values); 		
+		
+		return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY, values);
+	}
+
+	public static org.openl.meta.BigIntegerValue copy(org.openl.meta.BigIntegerValue value, String name) {
+		if (value.getName() == null) {
+            value.setName(name);
+
+            return value;
+        } else if (!value.getName().equals(name)) {
+        	org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue (value, NumberOperations.COPY, 
+        		new org.openl.meta.BigIntegerValue[] { value });
+        	result.setName(name);
+
+            return result;
+        }
+        return value;
+	}
+	
+	// generated product function for big types
+	public static org.openl.meta.BigIntegerValue product(org.openl.meta.BigIntegerValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        java.math.BigInteger[] primitiveArray = unwrap(values);
+        java.math.BigInteger product = MathUtils.product(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(product), NumberOperations.PRODUCT, null);
+	}
+	
+	public static org.openl.meta.BigIntegerValue mod(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
+        if (number != null && divisor != null) {
+            org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.BigIntegerValue(result, NumberOperations.MOD, new org.openl.meta.BigIntegerValue[]{number, divisor} );
+        }
+        return null;
     }
-
-    public static BigIntegerValue rem(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.REM);
+    
+    public static org.openl.meta.BigIntegerValue small(org.openl.meta.BigIntegerValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        java.math.BigInteger[] primitiveArray = unwrap(values);
+        java.math.BigInteger small = MathUtils.small(primitiveArray, position);
+        return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, new org.openl.meta.BigIntegerValue(small)), 
+            NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.BigIntegerValue pow(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+        validate(value1, value2, NumberOperations.POW);
         
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.rem(bigIntValue1.getValue(), 
-            bigIntValue2.getValue()), 
-            NumberOperations.REM, true);
+        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(Operators.pow(value1.getValue(), value2.getValue())), 
+            NumberOperations.POW, new org.openl.meta.BigIntegerValue[] { value1, value2 });
+    }
+    
+    public static org.openl.meta.BigIntegerValue abs(org.openl.meta.BigIntegerValue value) {
+        validate(value, NumberOperations.ABS);
+        // evaluate result
+        org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(Operators.abs(value.getValue()));
+        // create instance with information about last operation
+        return new org.openl.meta.BigIntegerValue(result, NumberOperations.ABS, new org.openl.meta.BigIntegerValue[] { value });
+    }
+    
+    public static org.openl.meta.BigIntegerValue negative(org.openl.meta.BigIntegerValue value) {
+        return multiply(value, new org.openl.meta.BigIntegerValue("-1"));
+    }
+    
+    public static org.openl.meta.BigIntegerValue inc(org.openl.meta.BigIntegerValue value) {
+        return add(value, new org.openl.meta.BigIntegerValue("1"));
+    }
+    
+    public static org.openl.meta.BigIntegerValue positive(org.openl.meta.BigIntegerValue value) {
+        return value;
+    }
+    
+    public static org.openl.meta.BigIntegerValue dec(org.openl.meta.BigIntegerValue value) {
+        return subtract(value, new org.openl.meta.BigIntegerValue("1"));
+    }
+    
+    // Autocasts
+    
+	public static org.openl.meta.BigIntegerValue autocast(byte x, org.openl.meta.BigIntegerValue y) {
+		return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigIntegerValue autocast(short x, org.openl.meta.BigIntegerValue y) {
+		return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigIntegerValue autocast(int x, org.openl.meta.BigIntegerValue y) {
+		return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigIntegerValue autocast(long x, org.openl.meta.BigIntegerValue y) {
+		return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigIntegerValue autocast(float x, org.openl.meta.BigIntegerValue y) {
+		return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+	}		
+	public static org.openl.meta.BigIntegerValue autocast(double x, org.openl.meta.BigIntegerValue y) {
+		return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+	}		
+    
+    // Constructors
+    public BigIntegerValue(java.math.BigInteger value) {
+        this.value = value;
+    }    
+
+    public BigIntegerValue(java.math.BigInteger value, String name) {
+        super(name);
+        this.value = value;
     }
 
-    // ******* Autocasts 8*************
+    public BigIntegerValue(java.math.BigInteger value, IMetaInfo metaInfo) {
+        super(metaInfo);
+        this.value = value;        
+    }    
 
-    public static BigIntegerValue autocast(byte x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf(x));
-    }
+    /**Formula constructor**/
+    public BigIntegerValue(org.openl.meta.BigIntegerValue lv1, org.openl.meta.BigIntegerValue lv2, java.math.BigInteger value, Formulas operand) {
+        super(lv1, lv2, operand);
+        this.value = value;
+    }    
 
-    public static BigIntegerValue autocast(short x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf(x));
+    @Override
+    public org.openl.meta.BigIntegerValue copy(String name) {
+        return copy(this, name);        
+    }    
+    
+    public String printValue() {        
+        return String.valueOf(value);
     }
+    
+    public java.math.BigInteger getValue() {        
+        return value;
+    }
+    
+    public void setValue(java.math.BigInteger value) {
+        this.value = value;
+    }
+	
+    // <<< END INSERT Functions >>>        
 
-    public static BigIntegerValue autocast(char x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf((int) x));
-    }
-
-    public static BigIntegerValue autocast(int x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf(x));
-    }
-
-    public static BigIntegerValue autocast(long x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf(x));
-    }
+    // ******* Autocasts 8*************    
 
     public static BigIntegerValue autocast(BigInteger x, BigIntegerValue y) {
         if (x == null) {
@@ -147,169 +366,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         return new DoubleValue(x.doubleValue());
     }
-
-    public static BigIntegerValue copy(BigIntegerValue value, String name) {
-        if (value.getName() == null) {
-            value.setName(name);
-
-            return value;
-        } else if (!value.getName().equals(name)) {
-            BigIntegerValue lv = new BigIntegerValue(value, NumberOperations.COPY,
-                new BigIntegerValue[] { value });
-            lv.setName(name);
-
-            return lv;
-        }
-
-        return value;
-    }
-
-    public static BigIntegerValue divide(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.DIVIDE);
-        
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, Operators.divide(bigIntValue1.getValue(), bigIntValue2.getValue()),
-            NumberOperations.DIVIDE, true);
-    }
-
-    public static boolean eq(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.EQ);
-        
-        return bigIntValue1.equals(bigIntValue2);
-    }
-
-    public static boolean ge(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.GE);
-        
-        return Operators.ge(bigIntValue1.getValue(), bigIntValue2.getValue());
-    }
-
-    public static boolean gt(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.GT);
-        
-        return Operators.gt(bigIntValue1, bigIntValue2);
-    }
-
-    public static boolean le(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.LE);
-        
-        return Operators.le(bigIntValue1.getValue(), bigIntValue2.getValue());
-    }
-
-    public static boolean lt(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.LT);
-        
-        return Operators.lt(bigIntValue1.getValue(), bigIntValue2.getValue());
-    }
-
-    public static BigIntegerValue max(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.MAX);
-        
-        BigIntegerValue maxValue = null;        
-        maxValue = bigIntValue1.compareTo(bigIntValue2) > 0 ? bigIntValue1 : bigIntValue2;
-        
-        return new BigIntegerValue(maxValue, NumberOperations.MAX, new BigIntegerValue[] { bigIntValue1,
-                bigIntValue2 });
-    }
-
-    public static BigIntegerValue min(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.MIN);
-        BigIntegerValue minValue = null;
-        
-        minValue = bigIntValue1.compareTo(bigIntValue2) < 0 ? bigIntValue1 : bigIntValue2;        
-        
-        return new BigIntegerValue(minValue, NumberOperations.MIN, new BigIntegerValue[] { bigIntValue1,
-                    bigIntValue2 });        
-    }
-
-    public static BigIntegerValue multiply(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.MULTIPLY);
-        
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, 
-            Operators.multiply(bigIntValue1.getValue(), bigIntValue2.getValue()), 
-            NumberOperations.MULTIPLY, true);
-    }
-
-    public static boolean ne(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.NE);
-        
-        return Operators.ne(bigIntValue1, bigIntValue2);
-    }
-
-    public static BigIntegerValue negative(BigIntegerValue bigIntValue) {
-        
-        BigIntegerValue neg = new BigIntegerValue(bigIntValue.getValue().negate());
-        neg.setMetaInfo(bigIntValue.getMetaInfo());
-
-        return neg;
-    }
-
-    public static BigIntegerValue pow(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.POW);
-        
-        return new BigIntegerValue(
-            new BigIntegerValue(Operators.pow(bigIntValue1.getValue(), bigIntValue2.getValue().intValue())), 
-            NumberOperations.POW, new BigIntegerValue[] { bigIntValue1, bigIntValue2 });
-    }
-
-    public static BigIntegerValue subtract(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2) {
-        validate(bigIntValue1, bigIntValue2, NumberOperations.SUBTRACT);
-
-        return new BigIntegerValue(bigIntValue1, bigIntValue2, 
-            Operators.subtract(bigIntValue1.getValue(), bigIntValue2.getValue()), 
-            NumberOperations.SUBTRACT, false);
-    }
     
     // Math functions
-    
-    public static BigIntegerValue max(BigIntegerValue[] values) {
-        BigIntegerValue result = (BigIntegerValue) MathUtils.max(values);        
-        return new BigIntegerValue((BigIntegerValue) getAppropriateValue(values, result), 
-            NumberOperations.MAX_IN_ARRAY, values);
-    }
-
-    public static BigIntegerValue min(BigIntegerValue[] values) {
-        BigIntegerValue result = (BigIntegerValue) MathUtils.min(values);
-        return new BigIntegerValue((BigIntegerValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY, values);
-    }
-    
-    public static BigIntegerValue avg(BigIntegerValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        BigInteger[] primitiveArray = unwrap(values);
-        BigInteger avg = MathUtils.avg(primitiveArray);
-        
-        return new BigIntegerValue(new BigIntegerValue(avg), NumberOperations.AVG, values);
-    }
-    
-    public static BigIntegerValue sum(BigIntegerValue[] values) {       
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        BigInteger[] primitiveArray = unwrap(values);
-        BigInteger sum = MathUtils.sum(primitiveArray);
-        return new BigIntegerValue(new BigIntegerValue(sum), NumberOperations.SUM, values);
-    }
-    
-    //TODO: to implement
-//    public static BigIntegerValue median(BigIntegerValue[] values) {
-//        if (ArrayUtils.isEmpty(values)) {
-//            return null;
-//        }
-//        BigInteger[] primitiveArray = unwrap(values);
-//        BigInteger median = MathUtils.median(primitiveArray);
-//        return new BigIntegerValue(new BigIntegerValue(median), NumberOperations.MEDIAN.toString(), values);
-//    }
-    
-    public static BigIntegerValue product(BigIntegerValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        BigInteger[] primitiveArray = unwrap(values);
-        BigInteger product = MathUtils.product(primitiveArray);
-        return new BigIntegerValue(new BigIntegerValue(product), NumberOperations.PRODUCT, null);
-    }
     
     public static LongValue quaotient(BigIntegerValue number, BigIntegerValue divisor) {
         if (number != null && divisor != null) {
@@ -317,33 +375,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             return new LongValue(result, NumberOperations.QUAOTIENT, null );
         }
         return null;
-    }
-    
-    public static BigIntegerValue mod(BigIntegerValue number, BigIntegerValue divisor) {
-        if (number != null && divisor != null) {
-            BigIntegerValue result = new BigIntegerValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new BigIntegerValue(result, NumberOperations.MOD, new BigIntegerValue[]{number, divisor} );
-        }
-        return null;
-    }
-
-    public BigIntegerValue(BigInteger value) {
-        this.value = value;
-    }
+    }    
 
     public BigIntegerValue(String valueString) {
         value = new BigInteger(valueString);
-    }
-
-    public BigIntegerValue(BigInteger value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public BigIntegerValue(BigInteger value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
+    }    
 
     public BigIntegerValue(String value, String name) {
         super(name);
@@ -354,25 +390,13 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         super(metaInfo);
         this.value = new BigInteger(value);
     }
-
-    /** Formula constructor **/
-    public BigIntegerValue(BigIntegerValue bigIntValue1, BigIntegerValue bigIntValue2, BigInteger value,
-        NumberOperations operand, boolean isMultiplicative) {
-        super(bigIntValue1, bigIntValue2, operand, isMultiplicative);
-        this.value = value;
-    }
-
+    
     /** Function constructor **/
     public BigIntegerValue(BigIntegerValue result, NumberOperations function, BigIntegerValue[] params) {
         super(result, function, params);
         this.value = result.getValue();
     }
-
-    @Override
-    public BigIntegerValue copy(String name) {
-        return copy(this, name);
-    }
-
+    
     @Override
     public double doubleValue() {
         return value.doubleValue();
@@ -392,11 +416,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     public long longValue() {
         return value.longValue();
     }
-
-    public String printValue() {
-        return value.toString();
-    }
-
+    
     public int compareTo(Number o) {
         if (o == null) {
             return 1;
@@ -406,30 +426,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             throw new OpenlNotCheckedException("Can`t compare BigIntegerValue with unknown type.");
         }
     }
-
-    public static BigIntegerValue abs(BigIntegerValue value) {
-        // evaluate result
-        BigIntegerValue result = new BigIntegerValue(value.getValue().abs());
-        // create instance with information about last operation
-        return new BigIntegerValue(result, NumberOperations.ABS, new BigIntegerValue[] { value });
-    }
-
-    public static BigIntegerValue inc(BigIntegerValue value) {
-        return add(value, new BigIntegerValue(BigInteger.ONE));
-    }
-
-    public static BigIntegerValue dec(BigIntegerValue value) {
-        return subtract(value, new BigIntegerValue(BigInteger.ONE));
-    }
-
-    public BigInteger getValue() {
-        return value;
-    }
-
-    public void setValue(BigInteger value) {
-        this.value = value;
-    }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof BigIntegerValue) {
@@ -443,10 +440,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     @Override
     public int hashCode() {
         return value.hashCode();
-    }
-
-    public static BigIntegerValue positive(BigIntegerValue value) {
-        return value;
     }
     
     private static BigInteger[] unwrap(BigIntegerValue[] values) {

@@ -3,6 +3,8 @@ package org.openl.meta;
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.Formulas;
+import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -10,52 +12,261 @@ import org.openl.util.math.MathUtils;
 public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;
+    
+    // <<< INSERT Functions >>>
+	private short value;
 
-    private short value;
+	public static org.openl.meta.ShortValue add(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, Formulas.ADD.toString());
+		
+		return new org.openl.meta.ShortValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);		
+	}
+	public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, Formulas.MULTIPLY.toString());
+		
+		return new org.openl.meta.ShortValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		return new org.openl.meta.ShortValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, Formulas.DIVIDE.toString());
+		
+		return new org.openl.meta.ShortValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	public static org.openl.meta.ShortValue rem(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.ShortValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 
-    public static ShortValue add(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.ADD);
+	public static boolean eq(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, LogicalExpressions.EQ.toString());
+		
+		return Operators.eq(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ge(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, LogicalExpressions.GE.toString());
+		
+		return Operators.ge(value1.getValue(), value2.getValue());		
+	}
+	public static boolean gt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, LogicalExpressions.GT.toString());
+		
+		return Operators.gt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean le(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, LogicalExpressions.LE.toString());
+		
+		return Operators.le(value1.getValue(), value2.getValue());		
+	}
+	public static boolean lt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, LogicalExpressions.LT.toString());
+		
+		return Operators.lt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ne(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, LogicalExpressions.NE.toString());
+		
+		return Operators.ne(value1.getValue(), value2.getValue());		
+	}
 
-        return new ShortValue(shortValue1, shortValue2, Operators.add(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.ADD, false);
+	public static org.openl.meta.ShortValue avg(org.openl.meta.ShortValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		short[] primitiveArray = unwrap(values);
+		short avg = MathUtils.avg(primitiveArray);
+		return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(avg), NumberOperations.AVG, values);
+	}
+	public static org.openl.meta.ShortValue sum(org.openl.meta.ShortValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		short[] primitiveArray = unwrap(values);
+		short sum = MathUtils.sum(primitiveArray);
+		return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values);
+	}
+	public static org.openl.meta.ShortValue median(org.openl.meta.ShortValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		short[] primitiveArray = unwrap(values);
+		short median = MathUtils.median(primitiveArray);
+		return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(median), NumberOperations.MEDIAN, values);
+	}
+
+	public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, NumberOperations.MAX.toString());
+		
+		return new org.openl.meta.ShortValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MAX,
+            new org.openl.meta.ShortValue[] { value1, value2 });
+	}
+	public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, NumberOperations.MIN.toString());
+		
+		return new org.openl.meta.ShortValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MIN,
+            new org.openl.meta.ShortValue[] { value1, value2 });
+	}
+
+	public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue[] values) {
+		org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.max(values); 		
+		
+		return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY, values);
+	}
+	public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue[] values) {
+		org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.min(values); 		
+		
+		return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY, values);
+	}
+
+	public static org.openl.meta.ShortValue copy(org.openl.meta.ShortValue value, String name) {
+		if (value.getName() == null) {
+            value.setName(name);
+
+            return value;
+        } else if (!value.getName().equals(name)) {
+        	org.openl.meta.ShortValue result = new org.openl.meta.ShortValue (value, NumberOperations.COPY, 
+        		new org.openl.meta.ShortValue[] { value });
+        	result.setName(name);
+
+            return result;
+        }
+        return value;
+	}
+	
+	// generated product function for types that are wrappers over primitives
+	public static DoubleValue product(org.openl.meta.ShortValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] primitiveArray = unwrap(values);
+        double product = MathUtils.product(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+	}
+	
+	public static org.openl.meta.ShortValue mod(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
+        if (number != null && divisor != null) {
+            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.ShortValue(result, NumberOperations.MOD, new org.openl.meta.ShortValue[]{number, divisor} );
+        }
+        return null;
     }
-
-    public static ShortValue rem(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.REM);
+    
+    public static org.openl.meta.ShortValue small(org.openl.meta.ShortValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] primitiveArray = unwrap(values);
+        short small = MathUtils.small(primitiveArray, position);
+        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)), 
+            NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.ShortValue pow(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, NumberOperations.POW);
         
-        return new ShortValue(shortValue1, shortValue2, Operators.rem(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.REM, true);
+        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(Operators.pow(value1.getValue(), value2.getValue())), 
+            NumberOperations.POW, new org.openl.meta.ShortValue[] { value1, value2 });
+    }
+    
+    public static org.openl.meta.ShortValue abs(org.openl.meta.ShortValue value) {
+        validate(value, NumberOperations.ABS);
+        // evaluate result
+        org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(Operators.abs(value.getValue()));
+        // create instance with information about last operation
+        return new org.openl.meta.ShortValue(result, NumberOperations.ABS, new org.openl.meta.ShortValue[] { value });
+    }
+    
+    public static org.openl.meta.ShortValue negative(org.openl.meta.ShortValue value) {
+        return multiply(value, new org.openl.meta.ShortValue("-1"));
+    }
+    
+    public static org.openl.meta.ShortValue inc(org.openl.meta.ShortValue value) {
+        return add(value, new org.openl.meta.ShortValue("1"));
+    }
+    
+    public static org.openl.meta.ShortValue positive(org.openl.meta.ShortValue value) {
+        return value;
+    }
+    
+    public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
+        return subtract(value, new org.openl.meta.ShortValue("1"));
+    }
+    
+    // Autocasts
+    
+	public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
+		return new org.openl.meta.ShortValue((short) x);
+	}		
+	public static org.openl.meta.ShortValue autocast(short x, org.openl.meta.ShortValue y) {
+		return new org.openl.meta.ShortValue((short) x);
+	}		
+	public static org.openl.meta.ShortValue autocast(int x, org.openl.meta.ShortValue y) {
+		return new org.openl.meta.ShortValue((short) x);
+	}		
+	public static org.openl.meta.ShortValue autocast(long x, org.openl.meta.ShortValue y) {
+		return new org.openl.meta.ShortValue((short) x);
+	}		
+	public static org.openl.meta.ShortValue autocast(float x, org.openl.meta.ShortValue y) {
+		return new org.openl.meta.ShortValue((short) x);
+	}		
+	public static org.openl.meta.ShortValue autocast(double x, org.openl.meta.ShortValue y) {
+		return new org.openl.meta.ShortValue((short) x);
+	}		
+    
+    // Constructors
+    public ShortValue(short value) {
+        this.value = value;
+    }    
+
+    public ShortValue(short value, String name) {
+        super(name);
+        this.value = value;
     }
 
-    // ******* Autocasts*************
+    public ShortValue(short value, IMetaInfo metaInfo) {
+        super(metaInfo);
+        this.value = value;        
+    }    
 
-    public static ShortValue autocast(byte x, ShortValue y) {
-        return new ShortValue(x);
-    }
+    /**Formula constructor**/
+    public ShortValue(org.openl.meta.ShortValue lv1, org.openl.meta.ShortValue lv2, short value, Formulas operand) {
+        super(lv1, lv2, operand);
+        this.value = value;
+    }    
 
-    public static ShortValue autocast(short x, ShortValue y) {
-        return new ShortValue(x);
+    @Override
+    public org.openl.meta.ShortValue copy(String name) {
+        return copy(this, name);        
+    }    
+    
+    public String printValue() {        
+        return String.valueOf(value);
     }
-
-    public static ShortValue autocast(char x, ShortValue y) {
-        return new ShortValue((short) x);
+    
+    public short getValue() {        
+        return value;
     }
-
-    public static ShortValue autocast(int x, ShortValue y) {
-        return new ShortValue((short) x);
+    
+    public void setValue(short value) {
+        this.value = value;
     }
-
-    public static ShortValue autocast(long x, ShortValue y) {
-        return new ShortValue((short) x);
-    }
-
-    public static ShortValue autocast(float x, ShortValue y) {
-        return new ShortValue((short) x);
-    }
-
-    public static ShortValue autocast(double x, ShortValue y) {
-        return new ShortValue((short) x);
-    }
+    // <<< END INSERT Functions >>>
+    
+    // ******* Autocasts*************    
 
     public static ShortValue autocast(Short x, ShortValue y) {
         if (x == null) {
@@ -154,165 +365,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
         return new ByteValue(x.byteValue());
-    }
-
-    public static ShortValue copy(ShortValue value, String name) {
-
-        if (value.getName() == null) {
-            value.setName(name);
-
-            return value;
-        } else if (!value.getName().equals(name)) {
-            ShortValue lv = new ShortValue(value, NumberOperations.COPY, new ShortValue[] { value });
-            lv.setName(name);
-
-            return lv;
-        }
-
-        return value;
-    }
-
-    public static ShortValue divide(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.DIVIDE);
-        
-        return new ShortValue(shortValue1, shortValue2, Operators.divide(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.DIVIDE, true);
-    }
-
-    public static boolean eq(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.EQ);
-        
-        return Operators.eq(shortValue1.getValue(), shortValue2.getValue());
-    }
-
-    public static boolean ge(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.GE);
-        
-        return Operators.ge(shortValue1.getValue(), shortValue2.getValue());
-    }
-
-    public static boolean gt(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.GT);
-        
-        return Operators.gt(shortValue1.getValue(), shortValue2.getValue());
-    }
-
-    public static boolean le(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.LE);
-        
-        return Operators.le(shortValue1.getValue(), shortValue2.getValue());
-    }
-
-    public static boolean lt(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.LT);
-        
-        return Operators.lt(shortValue1.getValue(), shortValue2.getValue());
-    }
-
-    public static ShortValue max(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.MAX);
-        
-        return new ShortValue(shortValue2.getValue() > shortValue1.getValue() ? shortValue2 : shortValue1,
-            NumberOperations.MAX, new ShortValue[] { shortValue1, shortValue2 });
-    }
-
-    public static ShortValue min(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.MIN);
-        
-        return new ShortValue(shortValue2.getValue() < shortValue1.getValue() ? shortValue2 : shortValue1,
-            NumberOperations.MIN, new ShortValue[] { shortValue1, shortValue2 });
-    }
-
-    public static ShortValue multiply(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.MULTIPLY);
-        
-        return new ShortValue(shortValue1, shortValue2, Operators.multiply(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.MULTIPLY, true);
-    }
-
-    public static boolean ne(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.NE);
-        
-        return Operators.ne(shortValue1.getValue(),shortValue2.getValue());
-    }
-
-    public static ShortValue negative(ShortValue value) {
-        return multiply(value, new ShortValue((short) -1));
-    }
-
-    public static ShortValue pow(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.POW);
-        
-        return new ShortValue(new ShortValue(Operators.pow(shortValue1.getValue(), shortValue2.getValue())),
-            NumberOperations.POW, new ShortValue[] { shortValue1, shortValue2 });
-    }
-
-    public static ShortValue round(ShortValue shortValue1) {
-        validate(shortValue1, NumberOperations.ROUND);
-        
-        return new ShortValue(new ShortValue((short) Math.round(shortValue1.getValue())), NumberOperations.ROUND, 
-            new ShortValue[] { shortValue1 });
-    }
-
-    public static ShortValue subtract(ShortValue shortValue1, ShortValue shortValue2) {
-        validate(shortValue1, shortValue2, NumberOperations.SUBTRACT);
-
-        return new ShortValue(shortValue1, shortValue2, Operators.subtract(shortValue1.getValue(), shortValue2.getValue()),
-            NumberOperations.SUBTRACT, false);
-    }
+    }    
     
     // Math functions
-    
-    public static ShortValue max(ShortValue[] values) {
-        ShortValue result = (ShortValue) MathUtils.max(values);        
-        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    public static ShortValue min(ShortValue[] values) {
-        ShortValue result = (ShortValue) MathUtils.min(values);
-        return new ShortValue((ShortValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, 
-            values);
-    }
-    
-    public static ShortValue avg(ShortValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        short[] shortArray = shortValueArrayToShort(values);
-        short avg = MathUtils.avg(shortArray);
-        
-        return new ShortValue(new ShortValue(avg), NumberOperations.AVG, values);
-    }
-    
-    public static ShortValue sum(ShortValue[] values) {    
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        short[] shortArray = shortValueArrayToShort(values);
-        short sum = MathUtils.sum(shortArray);
-        return new ShortValue(new ShortValue(sum), NumberOperations.SUM, values);
-    }
-    
-    public static ShortValue median(ShortValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        short[] shortArray = shortValueArrayToShort(values);
-        short median = MathUtils.median(shortArray);
-        return new ShortValue(new ShortValue(median), NumberOperations.MEDIAN, values);
-    }
-    
-    public static DoubleValue product(ShortValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        short[] shortArray = shortValueArrayToShort(values);
-        double product = MathUtils.product(shortArray);
-        
-        // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-    }
     
     public static ShortValue quaotient(ShortValue number, ShortValue divisor) {
         if (number != null && divisor != null) {
@@ -321,97 +376,41 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return null;
     }
-    
-    public static ShortValue mod(ShortValue number, ShortValue divisor) {
-        if (number != null && divisor != null) {
-            ShortValue result = new ShortValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new ShortValue(result, NumberOperations.MOD, new ShortValue[]{number, divisor} );
-        }
-        return null;
-    }
-    
-    public static ShortValue small(ShortValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        short[] shortArray = shortValueArrayToShort(values);
-        short small = MathUtils.small(shortArray, position);
-        return new ShortValue((ShortValue) getAppropriateValue(values, new ShortValue(small)), NumberOperations.SMALL, 
-            values);
-    }
-
-    public ShortValue(short value) {
-        this.value = value;
-    }
 
     public ShortValue(String valueString) {
         value = Short.parseShort(valueString);
-    }
-
-    public ShortValue(short value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public ShortValue(short value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
-    /** Formula constructor **/
-    public ShortValue(ShortValue shortValue1, ShortValue shortValue2, short value, NumberOperations operand,
-        boolean isMultiplicative) {
-        super(shortValue1, shortValue2, operand, isMultiplicative);
-        this.value = value;
-    }
+    }    
 
     /** Function constructor **/
     public ShortValue(ShortValue result, NumberOperations function, ShortValue[] params) {
         super(result, function, params);
         this.value = result.shortValue();
+    }   
+    
+    @Override
+    public double doubleValue() {        
+        return (double) value;
     }
 
     @Override
-    public ShortValue copy(String name) {
-        return copy(this, name);
+    public float floatValue() {        
+        return (float) value;
     }
 
     @Override
-    public double doubleValue() {
-        return value;
+    public int intValue() {        
+        return (int) value;
     }
-
+    
     @Override
-    public float floatValue() {
-        return value;
-    }
-
-    @Override
-    public int intValue() {
-        return value;
-    }
-
-    @Override
-    public long longValue() {
-        return value;
-    }
-
-    public String printValue() {
-        return String.valueOf(value);
+    public long longValue() {        
+        return (long) value;
     }
 
     public int compareTo(Number o) {
         return value - o.shortValue();
     }
-
-    public short getValue() {
-        return value;
-    }
-
-    public void setValue(short value) {
-        this.value = value;
-    }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ShortValue) {
@@ -424,28 +423,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     @Override
     public int hashCode() {
         return ((Short) value).hashCode();
-    }
-
-    public static ShortValue abs(ShortValue value) {
-        // evaluate result
-        ShortValue result = new ShortValue(Operators.abs(value.getValue()));
-        // create instance with information about last operation
-        return new ShortValue(result, NumberOperations.ABS, new ShortValue[] { value });
-    }
-
-    public static ShortValue inc(ShortValue value) {
-        return add(value, new ShortValue((short) 1));
-    }
-
-    public static ShortValue dec(ShortValue value) {
-        return subtract(value, new ShortValue((short) 1));
-    }
-
-    public static ShortValue positive(ShortValue value) {
-        return value;
-    }
+    }    
     
-    private static short[] shortValueArrayToShort(ShortValue[] values) {
+    private static short[] unwrap(ShortValue[] values) {
         if (ArrayTool.noNulls(values)) {
             short[] shortArray = new short[values.length];
             for (int i = 0; i < values.length; i++) {

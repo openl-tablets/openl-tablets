@@ -3,6 +3,8 @@ package org.openl.meta;
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.Formulas;
+import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -11,51 +13,260 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     private static final long serialVersionUID = -8235832583740963916L;
     
-    private float value;
+    // <<< INSERT Functions >>>
+	private float value;
+
+	public static org.openl.meta.FloatValue add(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, Formulas.ADD.toString());
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);		
+	}
+	public static org.openl.meta.FloatValue multiply(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, Formulas.MULTIPLY.toString());
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	public static org.openl.meta.FloatValue subtract(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, Formulas.DIVIDE.toString());
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	public static org.openl.meta.FloatValue rem(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
+
+	public static boolean eq(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, LogicalExpressions.EQ.toString());
+		
+		return Operators.eq(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ge(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, LogicalExpressions.GE.toString());
+		
+		return Operators.ge(value1.getValue(), value2.getValue());		
+	}
+	public static boolean gt(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, LogicalExpressions.GT.toString());
+		
+		return Operators.gt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean le(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, LogicalExpressions.LE.toString());
+		
+		return Operators.le(value1.getValue(), value2.getValue());		
+	}
+	public static boolean lt(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, LogicalExpressions.LT.toString());
+		
+		return Operators.lt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ne(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, LogicalExpressions.NE.toString());
+		
+		return Operators.ne(value1.getValue(), value2.getValue());		
+	}
+
+	public static org.openl.meta.FloatValue avg(org.openl.meta.FloatValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		float[] primitiveArray = unwrap(values);
+		float avg = MathUtils.avg(primitiveArray);
+		return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values);
+	}
+	public static org.openl.meta.FloatValue sum(org.openl.meta.FloatValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		float[] primitiveArray = unwrap(values);
+		float sum = MathUtils.sum(primitiveArray);
+		return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values);
+	}
+	public static org.openl.meta.FloatValue median(org.openl.meta.FloatValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		float[] primitiveArray = unwrap(values);
+		float median = MathUtils.median(primitiveArray);
+		return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values);
+	}
+
+	public static org.openl.meta.FloatValue max(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, NumberOperations.MAX.toString());
+		
+		return new org.openl.meta.FloatValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MAX,
+            new org.openl.meta.FloatValue[] { value1, value2 });
+	}
+	public static org.openl.meta.FloatValue min(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, NumberOperations.MIN.toString());
+		
+		return new org.openl.meta.FloatValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MIN,
+            new org.openl.meta.FloatValue[] { value1, value2 });
+	}
+
+	public static org.openl.meta.FloatValue max(org.openl.meta.FloatValue[] values) {
+		org.openl.meta.FloatValue result = (org.openl.meta.FloatValue) MathUtils.max(values); 		
+		
+		return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY, values);
+	}
+	public static org.openl.meta.FloatValue min(org.openl.meta.FloatValue[] values) {
+		org.openl.meta.FloatValue result = (org.openl.meta.FloatValue) MathUtils.min(values); 		
+		
+		return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY, values);
+	}
+
+	public static org.openl.meta.FloatValue copy(org.openl.meta.FloatValue value, String name) {
+		if (value.getName() == null) {
+            value.setName(name);
+
+            return value;
+        } else if (!value.getName().equals(name)) {
+        	org.openl.meta.FloatValue result = new org.openl.meta.FloatValue (value, NumberOperations.COPY, 
+        		new org.openl.meta.FloatValue[] { value });
+        	result.setName(name);
+
+            return result;
+        }
+        return value;
+	}
+	
+	// generated product function for types that are wrappers over primitives
+	public static DoubleValue product(org.openl.meta.FloatValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = unwrap(values);
+        double product = MathUtils.product(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+	}
+	
+	public static org.openl.meta.FloatValue mod(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
+        if (number != null && divisor != null) {
+            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.FloatValue(result, NumberOperations.MOD, new org.openl.meta.FloatValue[]{number, divisor} );
+        }
+        return null;
+    }
     
-    public static FloatValue add(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.ADD);
+    public static org.openl.meta.FloatValue small(org.openl.meta.FloatValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = unwrap(values);
+        float small = MathUtils.small(primitiveArray, position);
+        return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)), 
+            NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.FloatValue pow(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+        validate(value1, value2, NumberOperations.POW);
         
-        return new FloatValue(floatValue1, floatValue2, Operators.add(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.ADD, false);
+        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue())), 
+            NumberOperations.POW, new org.openl.meta.FloatValue[] { value1, value2 });
+    }
+    
+    public static org.openl.meta.FloatValue abs(org.openl.meta.FloatValue value) {
+        validate(value, NumberOperations.ABS);
+        // evaluate result
+        org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(Operators.abs(value.getValue()));
+        // create instance with information about last operation
+        return new org.openl.meta.FloatValue(result, NumberOperations.ABS, new org.openl.meta.FloatValue[] { value });
+    }
+    
+    public static org.openl.meta.FloatValue negative(org.openl.meta.FloatValue value) {
+        return multiply(value, new org.openl.meta.FloatValue("-1"));
+    }
+    
+    public static org.openl.meta.FloatValue inc(org.openl.meta.FloatValue value) {
+        return add(value, new org.openl.meta.FloatValue("1"));
+    }
+    
+    public static org.openl.meta.FloatValue positive(org.openl.meta.FloatValue value) {
+        return value;
+    }
+    
+    public static org.openl.meta.FloatValue dec(org.openl.meta.FloatValue value) {
+        return subtract(value, new org.openl.meta.FloatValue("1"));
+    }
+    
+    // Autocasts
+    
+	public static org.openl.meta.FloatValue autocast(byte x, org.openl.meta.FloatValue y) {
+		return new org.openl.meta.FloatValue((float) x);
+	}		
+	public static org.openl.meta.FloatValue autocast(short x, org.openl.meta.FloatValue y) {
+		return new org.openl.meta.FloatValue((float) x);
+	}		
+	public static org.openl.meta.FloatValue autocast(int x, org.openl.meta.FloatValue y) {
+		return new org.openl.meta.FloatValue((float) x);
+	}		
+	public static org.openl.meta.FloatValue autocast(long x, org.openl.meta.FloatValue y) {
+		return new org.openl.meta.FloatValue((float) x);
+	}		
+	public static org.openl.meta.FloatValue autocast(float x, org.openl.meta.FloatValue y) {
+		return new org.openl.meta.FloatValue((float) x);
+	}		
+	public static org.openl.meta.FloatValue autocast(double x, org.openl.meta.FloatValue y) {
+		return new org.openl.meta.FloatValue((float) x);
+	}		
+    
+    // Constructors
+    public FloatValue(float value) {
+        this.value = value;
+    }    
+
+    public FloatValue(float value, String name) {
+        super(name);
+        this.value = value;
+    }
+
+    public FloatValue(float value, IMetaInfo metaInfo) {
+        super(metaInfo);
+        this.value = value;        
+    }    
+
+    /**Formula constructor**/
+    public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
+        super(lv1, lv2, operand);
+        this.value = value;
+    }    
+
+    @Override
+    public org.openl.meta.FloatValue copy(String name) {
+        return copy(this, name);        
     }    
     
-    public static FloatValue rem(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.REM);
-        
-        return new FloatValue(floatValue1, floatValue2, Operators.rem(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.REM, true);
+    public String printValue() {        
+        return String.valueOf(value);
     }
+    
+    public float getValue() {        
+        return value;
+    }
+    
+    public void setValue(float value) {
+        this.value = value;
+    }
+    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
-    
-    public static FloatValue autocast(byte x, FloatValue y) {
-        return new FloatValue(x);
-    }
-
-    public static FloatValue autocast(short x, FloatValue y) {
-        return new FloatValue(x);
-    }
-    
-    public static FloatValue autocast(char x, FloatValue y) {
-        return new FloatValue(x);    
-    }
-
-    public static FloatValue autocast(int x, FloatValue y) {
-        return new FloatValue(x);
-    }
-
-    public static FloatValue autocast(long x, FloatValue y) {
-        return new FloatValue(x);
-    }
-
-    public static FloatValue autocast(float x, FloatValue y) {
-        return new FloatValue(x);
-    }
-
-    public static FloatValue autocast(double x, FloatValue y) {
-        return new FloatValue((float)x);
-    }
 
     public static FloatValue autocast(Float x, FloatValue y) {
         if (x == null) {
@@ -145,162 +356,15 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         return new LongValue(x.longValue());
     }
-
-    public static FloatValue copy(FloatValue value, String name) {
-
-        if (value.getName() == null) {
-            value.setName(name);
-
-            return value;
-        } else if (!value.getName().equals(name)) {
-            FloatValue lv = new FloatValue(value, NumberOperations.COPY, new FloatValue[] { value });
-            lv.setName(name);
-
-            return lv;
-        }
-
-        return value;
-    }
-
-    public static FloatValue divide(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.DIVIDE);
-        
-        return new FloatValue(floatValue1, floatValue2, Operators.divide(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.DIVIDE, true);
-    }
-
-    public static boolean eq(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.EQ);
-        
-        return Operators.eq(floatValue1.getValue(), floatValue2.getValue());
-    }
-
-    public static boolean ge(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.GE);
-        
-        return Operators.ge(floatValue1.getValue(), floatValue2.getValue());
-    }
-
-    public static boolean gt(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.GT);
-        
-        return Operators.gt(floatValue1.getValue(), floatValue2.getValue());
-    }
-
-    public static boolean le(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.LE);
-        
-        return Operators.le(floatValue1.getValue(), floatValue2.getValue());
-    }
-
-    public static boolean lt(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.LT);
-        
-        return Operators.lt(floatValue1.getValue(), floatValue2.getValue());
-    }
-
-    public static FloatValue max(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.MAX);
-        
-        return new FloatValue(floatValue2.getValue() > floatValue1.getValue() ? floatValue2 : floatValue1,
-            NumberOperations.MAX,
-            new FloatValue[] { floatValue1, floatValue2 });
-    }
-
-    public static FloatValue min(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.MIN);
-        
-        return new FloatValue(floatValue2.getValue() < floatValue1.getValue() ? floatValue2 : floatValue1,
-            NumberOperations.MIN,
-            new FloatValue[] { floatValue1, floatValue2 });
-    }
-
-    public static FloatValue multiply(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.MULTIPLY);
-        
-        return new FloatValue(floatValue1, floatValue2, Operators.multiply(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.MULTIPLY, true);
-    }
-
-    public static boolean ne(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.NE);
-        
-        return Operators.ne(floatValue1.getValue(), floatValue2.getValue());
-    }
-
-    public static FloatValue negative(FloatValue value) {
-        return multiply(value, new FloatValue(-1F));
-    }
     
-    public static FloatValue pow(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.POW);
+    public static org.openl.meta.FloatValue round(org.openl.meta.FloatValue value) {
+        validate(value, NumberOperations.ROUND);
         
-        return new FloatValue(new FloatValue(Operators.pow(floatValue1.getValue(), floatValue2.getValue())), 
-            NumberOperations.POW, new FloatValue[] { floatValue1, floatValue2 });
-    }
-
-    public static FloatValue round(FloatValue floatValue1) {
-        validate(floatValue1, NumberOperations.ROUND);
-        
-        return new FloatValue(new FloatValue((float)Math.round(floatValue1.getValue())), 
-            NumberOperations.ROUND, new FloatValue[] { floatValue1 });
-    }
-
-    public static FloatValue subtract(FloatValue floatValue1, FloatValue floatValue2) {
-        validate(floatValue1, floatValue2, NumberOperations.SUBTRACT);
-        
-        return new FloatValue(floatValue1, floatValue2, Operators.subtract(floatValue1.getValue(), floatValue2.getValue()), 
-            NumberOperations.SUBTRACT, false);
+        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue((float) Math.round(value.getValue())), 
+            NumberOperations.ROUND, new org.openl.meta.FloatValue[] { value });
     }
     
     // Math functions
-    
-    public static FloatValue max(FloatValue[] values) {
-        FloatValue result = (FloatValue) MathUtils.max(values);        
-        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY, values);
-    }
-
-    public static FloatValue min(FloatValue[] values) {
-        FloatValue result = (FloatValue) MathUtils.min(values);
-        return new FloatValue((FloatValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, values);
-    }
-    
-    public static FloatValue avg(FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        float[] primitiveArray = floatValueArrayToFloat(values);
-        float avg = MathUtils.avg(primitiveArray);
-        
-        return new FloatValue(new FloatValue(avg), NumberOperations.AVG, values);
-    }
-    
-    public static FloatValue sum(FloatValue[] values) {  
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        float[] primitiveArray = floatValueArrayToFloat(values);
-        float sum = MathUtils.sum(primitiveArray);
-        return new FloatValue(new FloatValue(sum), NumberOperations.SUM, values);
-    }
-    
-    public static FloatValue median(FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        float[] primitiveArray = floatValueArrayToFloat(values);
-        float median = MathUtils.median(primitiveArray);
-        return new FloatValue(new FloatValue(median), NumberOperations.MEDIAN, values);
-    }
-    
-    public static DoubleValue product(FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        float[] primitiveArray = floatValueArrayToFloat(values);
-        double product = MathUtils.product(primitiveArray);
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-    }
     
     public static LongValue quaotient(FloatValue number, FloatValue divisor) {
         if (number != null && divisor != null) {
@@ -310,45 +374,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return null;
     }
     
-    public static FloatValue mod(FloatValue number, FloatValue divisor) {
-        if (number != null && divisor != null) {
-            FloatValue result = new FloatValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new FloatValue(result, NumberOperations.MOD, new FloatValue[]{number, divisor} );
-        }
-        return null;
-    }
-    
-    public static FloatValue small(FloatValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        float[] primitiveArray = floatValueArrayToFloat(values);
-        float small = MathUtils.small(primitiveArray, position);
-        return new FloatValue((FloatValue) getAppropriateValue(values, new FloatValue(small)), NumberOperations.SMALL, values);
-    }
-    
-    public FloatValue(float value) {
-        this.value = value;
-    }
-    
     public FloatValue(String valueString) {        
         value = Float.parseFloat(valueString);
-    }
-    
-    public FloatValue(float value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public FloatValue(float value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;        
-    }    
-    
-    /**Formula constructor**/
-    public FloatValue(FloatValue floatValue1, FloatValue floatValue2, float value, NumberOperations operand, boolean isMultiplicative) {
-        super(floatValue1, floatValue2, operand, isMultiplicative);
-        this.value = value;
     }
     
     /**Function constructor**/
@@ -356,12 +383,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         super(result, function, params);
         this.value = result.floatValue();
     }
-
-    @Override
-    public FloatValue copy(String name) {        
-        return copy(this, name);
-    }
-
+    
     @Override
     public double doubleValue() {        
         return (double) value;
@@ -374,44 +396,17 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     @Override
     public int intValue() {        
-        return (int)value;
+        return (int) value;
     }
-
+    
     @Override
-    public long longValue() {
-        return (long)value;
-    }
-
-    public String printValue() {
-        return String.valueOf(value);
+    public long longValue() {        
+        return (long) value;
     }
 
     public int compareTo(Number o) {        
         return Float.compare(value, o.floatValue());
-    }
-    
-    public static FloatValue abs(FloatValue value) {
-        // evaluate result
-        FloatValue result = new FloatValue(Operators.abs(value.getValue()));
-        // create instance with information about last operation
-        return new FloatValue(result, NumberOperations.ABS, new FloatValue[] { value });
-    }
-    
-    public static FloatValue inc(FloatValue value) {
-        return add(value, new FloatValue(1F));
-    }
-    
-    public static FloatValue dec(FloatValue value) {
-        return subtract(value, new FloatValue(1F));
-    }
-    
-    public float getValue() {        
-        return value;
-    }
-    
-    public void setValue(float value) {
-        this.value = value;
-    }
+    } 
 
     @Override
     public boolean equals(Object obj) {
@@ -426,12 +421,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public int hashCode() {
         return ((Float) value).hashCode();
     }
-
-    public static FloatValue positive(FloatValue value) {
-        return value;
-    }
     
-    private static float[] floatValueArrayToFloat(FloatValue[] values) {
+    private static float[] unwrap(FloatValue[] values) {
         if (ArrayTool.noNulls(values)) {
             float[] primitiveArray = new float[values.length];
             for (int i = 0; i < values.length; i++) {

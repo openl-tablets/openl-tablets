@@ -14,17 +14,14 @@ import java.util.List;
  */
 public class NumberFormula<T extends NumberValue<T>> {
     
-    private NumberOperations operand;
+    private Formulas operand;
     
     private T v1, v2;
     
-    private boolean isMultiplicative;
-    
-    public NumberFormula(T v1, T v2, NumberOperations operand, boolean isMultiplicative) {
+    public NumberFormula(T v1, T v2, Formulas operand) {
         this.v1 = v1;
         this.v2 = v2;        
-        this.operand = operand;
-        this.isMultiplicative = isMultiplicative;
+        this.operand = operand;        
     }
     
     /**
@@ -67,14 +64,10 @@ public class NumberFormula<T extends NumberValue<T>> {
      * @return true if formula is multiplicative.
      */
     public boolean isMultiplicative() {        
-        return isMultiplicative;
-    }
+        return operand.isMultiplicative();
+    }    
 
-    public void setMultiplicative(boolean isMultiplicative) {
-        this.isMultiplicative = isMultiplicative;        
-    }
-
-    public void setOperand(NumberOperations operand) {
+    public void setOperand(Formulas operand) {
         this.operand = operand;        
     }
 

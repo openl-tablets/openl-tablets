@@ -3,6 +3,8 @@ package org.openl.meta;
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.Formulas;
+import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -11,51 +13,260 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     
     private static final long serialVersionUID = -3821702883606493390L;    
     
-    private int value;
+    // <<< INSERT Functions >>>
+	private int value;
+
+	public static org.openl.meta.IntValue add(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, Formulas.ADD.toString());
+		
+		return new org.openl.meta.IntValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);		
+	}
+	public static org.openl.meta.IntValue multiply(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, Formulas.MULTIPLY.toString());
+		
+		return new org.openl.meta.IntValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	public static org.openl.meta.IntValue subtract(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		return new org.openl.meta.IntValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	public static org.openl.meta.IntValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, Formulas.DIVIDE.toString());
+		
+		return new org.openl.meta.IntValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	public static org.openl.meta.IntValue rem(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.IntValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
+
+	public static boolean eq(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, LogicalExpressions.EQ.toString());
+		
+		return Operators.eq(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ge(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, LogicalExpressions.GE.toString());
+		
+		return Operators.ge(value1.getValue(), value2.getValue());		
+	}
+	public static boolean gt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, LogicalExpressions.GT.toString());
+		
+		return Operators.gt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean le(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, LogicalExpressions.LE.toString());
+		
+		return Operators.le(value1.getValue(), value2.getValue());		
+	}
+	public static boolean lt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, LogicalExpressions.LT.toString());
+		
+		return Operators.lt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ne(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, LogicalExpressions.NE.toString());
+		
+		return Operators.ne(value1.getValue(), value2.getValue());		
+	}
+
+	public static org.openl.meta.IntValue avg(org.openl.meta.IntValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		int[] primitiveArray = unwrap(values);
+		int avg = MathUtils.avg(primitiveArray);
+		return new org.openl.meta.IntValue(new org.openl.meta.IntValue(avg), NumberOperations.AVG, values);
+	}
+	public static org.openl.meta.IntValue sum(org.openl.meta.IntValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		int[] primitiveArray = unwrap(values);
+		int sum = MathUtils.sum(primitiveArray);
+		return new org.openl.meta.IntValue(new org.openl.meta.IntValue(sum), NumberOperations.SUM, values);
+	}
+	public static org.openl.meta.IntValue median(org.openl.meta.IntValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		int[] primitiveArray = unwrap(values);
+		int median = MathUtils.median(primitiveArray);
+		return new org.openl.meta.IntValue(new org.openl.meta.IntValue(median), NumberOperations.MEDIAN, values);
+	}
+
+	public static org.openl.meta.IntValue max(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, NumberOperations.MAX.toString());
+		
+		return new org.openl.meta.IntValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MAX,
+            new org.openl.meta.IntValue[] { value1, value2 });
+	}
+	public static org.openl.meta.IntValue min(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, NumberOperations.MIN.toString());
+		
+		return new org.openl.meta.IntValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+            NumberOperations.MIN,
+            new org.openl.meta.IntValue[] { value1, value2 });
+	}
+
+	public static org.openl.meta.IntValue max(org.openl.meta.IntValue[] values) {
+		org.openl.meta.IntValue result = (org.openl.meta.IntValue) MathUtils.max(values); 		
+		
+		return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY, values);
+	}
+	public static org.openl.meta.IntValue min(org.openl.meta.IntValue[] values) {
+		org.openl.meta.IntValue result = (org.openl.meta.IntValue) MathUtils.min(values); 		
+		
+		return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY, values);
+	}
+
+	public static org.openl.meta.IntValue copy(org.openl.meta.IntValue value, String name) {
+		if (value.getName() == null) {
+            value.setName(name);
+
+            return value;
+        } else if (!value.getName().equals(name)) {
+        	org.openl.meta.IntValue result = new org.openl.meta.IntValue (value, NumberOperations.COPY, 
+        		new org.openl.meta.IntValue[] { value });
+        	result.setName(name);
+
+            return result;
+        }
+        return value;
+	}
+	
+	// generated product function for types that are wrappers over primitives
+	public static DoubleValue product(org.openl.meta.IntValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = unwrap(values);
+        double product = MathUtils.product(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+	}
+	
+	public static org.openl.meta.IntValue mod(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
+        if (number != null && divisor != null) {
+            org.openl.meta.IntValue result = new org.openl.meta.IntValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.IntValue(result, NumberOperations.MOD, new org.openl.meta.IntValue[]{number, divisor} );
+        }
+        return null;
+    }
     
-    public static IntValue add(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.ADD);
+    public static org.openl.meta.IntValue small(org.openl.meta.IntValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = unwrap(values);
+        int small = MathUtils.small(primitiveArray, position);
+        return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(small)), 
+            NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.IntValue pow(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+        validate(value1, value2, NumberOperations.POW);
         
-        return new IntValue(intValue1, intValue2, Operators.add(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.ADD, false);
+        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(Operators.pow(value1.getValue(), value2.getValue())), 
+            NumberOperations.POW, new org.openl.meta.IntValue[] { value1, value2 });
+    }
+    
+    public static org.openl.meta.IntValue abs(org.openl.meta.IntValue value) {
+        validate(value, NumberOperations.ABS);
+        // evaluate result
+        org.openl.meta.IntValue result = new org.openl.meta.IntValue(Operators.abs(value.getValue()));
+        // create instance with information about last operation
+        return new org.openl.meta.IntValue(result, NumberOperations.ABS, new org.openl.meta.IntValue[] { value });
+    }
+    
+    public static org.openl.meta.IntValue negative(org.openl.meta.IntValue value) {
+        return multiply(value, new org.openl.meta.IntValue("-1"));
+    }
+    
+    public static org.openl.meta.IntValue inc(org.openl.meta.IntValue value) {
+        return add(value, new org.openl.meta.IntValue("1"));
+    }
+    
+    public static org.openl.meta.IntValue positive(org.openl.meta.IntValue value) {
+        return value;
+    }
+    
+    public static org.openl.meta.IntValue dec(org.openl.meta.IntValue value) {
+        return subtract(value, new org.openl.meta.IntValue("1"));
+    }
+    
+    // Autocasts
+    
+	public static org.openl.meta.IntValue autocast(byte x, org.openl.meta.IntValue y) {
+		return new org.openl.meta.IntValue((int) x);
+	}		
+	public static org.openl.meta.IntValue autocast(short x, org.openl.meta.IntValue y) {
+		return new org.openl.meta.IntValue((int) x);
+	}		
+	public static org.openl.meta.IntValue autocast(int x, org.openl.meta.IntValue y) {
+		return new org.openl.meta.IntValue((int) x);
+	}		
+	public static org.openl.meta.IntValue autocast(long x, org.openl.meta.IntValue y) {
+		return new org.openl.meta.IntValue((int) x);
+	}		
+	public static org.openl.meta.IntValue autocast(float x, org.openl.meta.IntValue y) {
+		return new org.openl.meta.IntValue((int) x);
+	}		
+	public static org.openl.meta.IntValue autocast(double x, org.openl.meta.IntValue y) {
+		return new org.openl.meta.IntValue((int) x);
+	}		
+    
+    // Constructors
+    public IntValue(int value) {
+        this.value = value;
+    }    
+
+    public IntValue(int value, String name) {
+        super(name);
+        this.value = value;
+    }
+
+    public IntValue(int value, IMetaInfo metaInfo) {
+        super(metaInfo);
+        this.value = value;        
+    }    
+
+    /**Formula constructor**/
+    public IntValue(org.openl.meta.IntValue lv1, org.openl.meta.IntValue lv2, int value, Formulas operand) {
+        super(lv1, lv2, operand);
+        this.value = value;
+    }    
+
+    @Override
+    public org.openl.meta.IntValue copy(String name) {
+        return copy(this, name);        
     }    
     
-    public static IntValue rem(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.REM);
-        
-        return new IntValue(intValue1, intValue2, Operators.rem(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.REM, true);
+    public String printValue() {        
+        return String.valueOf(value);
     }
+    
+    public int getValue() {        
+        return value;
+    }
+    
+    public void setValue(int value) {
+        this.value = value;
+    }
+    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
-    
-    public static IntValue autocast(byte x, IntValue y) {
-        return new IntValue(x);
-    }
-
-    public static IntValue autocast(short x, IntValue y) {
-        return new IntValue(x);
-    }
-    
-    public static IntValue autocast(char x, IntValue y) {
-        return new IntValue(x);    
-    }
-
-    public static IntValue autocast(int x, IntValue y) {
-        return new IntValue(x);
-    }
-
-    public static IntValue autocast(long x, IntValue y) {
-        return new IntValue((int)x);
-    }
-
-    public static IntValue autocast(float x, IntValue y) {
-        return new IntValue((int)x);
-    }
-
-    public static IntValue autocast(double x, IntValue y) {
-        return new IntValue((int)x);
-    }
 
     public static IntValue autocast(Integer x, IntValue y) {
         if (x == null) {
@@ -153,165 +364,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return null;
         }
         return new ShortValue(x.shortValue());
-    }    
-
-    public static IntValue copy(IntValue value, String name) {
-
-        if (value.getName() == null) {
-            value.setName(name);
-
-            return value;
-        } else if (!value.getName().equals(name)) {
-            IntValue lv = new IntValue(value, NumberOperations.COPY, new IntValue[] { value });
-            lv.setName(name);
-
-            return lv;
-        }
-
-        return value;
-    }
-
-    public static IntValue divide(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.DIVIDE);
-        
-        return new IntValue(intValue1, intValue2, Operators.divide(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.DIVIDE, true);
-    }
-
-    public static boolean eq(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.EQ);
-        
-        return Operators.eq(intValue1.getValue(), intValue2.getValue());
-    }
-
-    public static boolean ge(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.GE);
-        
-        return Operators.ge(intValue1.getValue(), intValue2.getValue());
-    }
-
-    public static boolean gt(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.GT);
-        
-        return Operators.gt(intValue1.getValue(), intValue2.getValue());
-    }
-
-    public static boolean le(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.LE);
-        
-        return Operators.le(intValue1.getValue(), intValue2.getValue());
-    }
-
-    public static boolean lt(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.LT);
-        
-        return Operators.lt(intValue1.getValue(), intValue2.getValue());
-    }
-
-    public static IntValue max(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.MAX);
-        
-        return new IntValue(intValue2.getValue() > intValue1.getValue() ? intValue2 : intValue1,
-            NumberOperations.MAX,
-            new IntValue[] { intValue1, intValue2 });
-    }
-
-    public static IntValue min(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.MIN);
-        
-        return new IntValue(intValue2.getValue() < intValue1.getValue() ? intValue2 : intValue1,
-            NumberOperations.MIN,
-            new IntValue[] { intValue1, intValue2 });
-    }
-
-    public static IntValue multiply(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.MULTIPLY);
-        
-        return new IntValue(intValue1, intValue2, Operators.multiply(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.MULTIPLY, true);
-    }
-
-    public static boolean ne(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.NE);
-        
-        return Operators.ne(intValue1.getValue(), intValue2.getValue());
-    }
-
-    public static IntValue negative(IntValue value) {
-        return multiply(value, new IntValue(-1));
-    }
-
-    public static IntValue pow(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.POW);
-        
-        return new IntValue(new IntValue(Operators.pow(intValue1.getValue(), intValue2.getValue())), 
-            NumberOperations.POW, new IntValue[] { intValue1, intValue2 });
-    }
-
-    public static IntValue round(IntValue intValue1) {
-        validate(intValue1, NumberOperations.ROUND);
-        
-        return new IntValue(new IntValue((int)Math.round(intValue1.getValue())), 
-            NumberOperations.ROUND, new IntValue[] { intValue1 });
-    }
-
-    public static IntValue subtract(IntValue intValue1, IntValue intValue2) {
-        validate(intValue1, intValue2, NumberOperations.SUBTRACT);
-
-        return new IntValue(intValue1, intValue2, Operators.subtract(intValue1.getValue(), intValue2.getValue()), 
-            NumberOperations.SUBTRACT, false);
-    }
+    }        
     
     // Math functions
-    
-    public static IntValue max(IntValue[] values) {
-        IntValue result = (IntValue) MathUtils.max(values);        
-        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    public static IntValue min(IntValue[] values) {
-        IntValue result = (IntValue) MathUtils.min(values);
-        return new IntValue((IntValue) getAppropriateValue(values, result), NumberOperations.MIN_IN_ARRAY, 
-            values);
-    }
-    
-    public static IntValue avg(IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        int[] primitiveArray = intValueArrayToInt(values);
-        int avg = MathUtils.avg(primitiveArray);
-        
-        return new IntValue(new IntValue(avg), NumberOperations.AVG, values);
-    }
-    
-    public static IntValue sum(IntValue[] values) {    
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        int[] primitiveArray = intValueArrayToInt(values);
-        int sum = MathUtils.sum(primitiveArray);
-        return new IntValue(new IntValue(sum), NumberOperations.SUM, values);
-    }
-    
-    public static IntValue median(IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        int[] primitiveArray = intValueArrayToInt(values);
-        int median = MathUtils.median(primitiveArray);
-        return new IntValue(new IntValue(median), NumberOperations.MEDIAN, values);
-    }
-    
-    public static DoubleValue product(IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        int[] primitiveArray = intValueArrayToInt(values);
-        double product = MathUtils.product(primitiveArray);
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-    }
     
     public static IntValue quaotient(IntValue number, IntValue divisor) {
         if (number != null && divisor != null) {
@@ -320,46 +375,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         return null;
     }
-    
-    public static IntValue mod(IntValue number, IntValue divisor) {
-        if (number != null && divisor != null) {
-            IntValue result = new IntValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new IntValue(result, NumberOperations.MOD, new IntValue[]{number, divisor} );
-        }
-        return null;
-    }
-    
-    public static IntValue small(IntValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        int[] primitiveArray = intValueArrayToInt(values);
-        int small = MathUtils.small(primitiveArray, position);
-        return new IntValue((IntValue) getAppropriateValue(values, new IntValue(small)), NumberOperations.SMALL, values);
-    }
-
-    public IntValue(int value) {
-        this.value = value;
-    }
 
     public IntValue(String valueString) {        
         value = Integer.parseInt(valueString);
-    }
-
-    public IntValue(int value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public IntValue(int value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;        
-    }    
-
-    /**Formula constructor**/
-    public IntValue(IntValue intValue1, IntValue intValue2, int value, NumberOperations operand, boolean isMultiplicative) {
-        super(intValue1, intValue2, operand, isMultiplicative);
-        this.value = value;
     }
 
     /**Function constructor**/
@@ -367,61 +385,29 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         super(result, function, params);
         this.value = result.intValue();
     }
-
-    @Override
-    public IntValue copy(String name) {
-        return copy(this, name);
-    }
-
+    
     @Override
     public double doubleValue() {        
-        return (double)value;
+        return (double) value;
     }
 
     @Override
     public float floatValue() {        
-        return (float)value;
+        return (float )value;
     }
 
     @Override
     public int intValue() {        
         return value;
     }
-
+    
     @Override
     public long longValue() {        
-        return (long)value;
-    }
-
-    public String printValue() {        
-        return String.valueOf(value);
-    }
+        return (long) value;
+    }    
 
     public int compareTo(Number o) {        
         return value < o.intValue() ? -1 : (value == o.intValue() ? 0 : 1);
-    }
-    
-    public int getValue() {        
-        return value;
-    }
-    
-    public void setValue(int value) {
-        this.value = value;
-    }
-
-    public static IntValue abs(IntValue value) {
-        // evaluate result
-        IntValue result = new IntValue(Operators.abs(value.getValue()));
-        // create instance with information about last operation
-        return new IntValue(result, NumberOperations.ABS, new IntValue[] { value });
-    }
-    
-    public static IntValue inc(IntValue value) {
-        return add(value, new IntValue(1));
-    }
-    
-    public static IntValue dec(IntValue value) {
-        return subtract(value, new IntValue(1));
     }
     
     @Override
@@ -436,13 +422,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     @Override
     public int hashCode() {
         return ((Integer) value).hashCode();
-    }
-
-    public static IntValue positive(IntValue value) {
-        return value;
-    }
+    }   
     
-    private static int[] intValueArrayToInt(IntValue[] values) {
+    private static int[] unwrap(IntValue[] values) {
         if (ArrayTool.noNulls(values)) {
             int[] intArray = new int[values.length];
             for (int i = 0; i < values.length; i++) {

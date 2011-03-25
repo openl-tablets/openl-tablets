@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.rank.Median;
@@ -81,7 +82,40 @@ public class MathUtils {
 	    return number.divide(divisor, 5, RoundingMode.HALF_UP);
 	}
 	
-	// MAX
+	// MAX	
+	public static boolean max(byte value1, byte value2) {
+	    return value1 > value2;
+	}
+	
+	public static boolean max(short value1, short value2) {
+	    return value1 > value2;
+    }
+	
+	public static boolean max(int value1, int value2) {
+	    return value1 > value2;
+    }
+	
+	public static boolean max(long value1, long value2) {
+	    return value1 > value2;
+    }
+	
+	public static boolean max(float value1, float value2) {
+	    return value1 > value2;
+    }
+	
+	public static boolean max(double value1, double value2) {
+        return value1 > value2;
+    }
+	
+	public static boolean max(BigInteger value1, BigInteger value2) {
+        return value1.compareTo(value2) > 0;
+    }
+	
+	public static boolean max(BigDecimal value1, BigDecimal value2) {
+        return value1.compareTo(value2) > 0;
+    }
+	
+	// MAX IN ARRAY
     public static byte max(byte[] values) {
         return NumberUtils.max(values);
     }
@@ -145,7 +179,40 @@ public class MathUtils {
         return max;
     }
     
-    //MIN    
+    // MIN
+    public static boolean min(byte value1, byte value2) {
+        return value1 < value2;
+    }
+    
+    public static boolean min(short value1, short value2) {
+        return value1 < value2;
+    }
+    
+    public static boolean min(int value1, int value2) {
+        return value1 < value2;
+    }
+    
+    public static boolean min(long value1, long value2) {
+        return value1 < value2;
+    }
+    
+    public static boolean min(float value1, float value2) {
+        return value1 < value2;
+    }
+    
+    public static boolean min(double value1, double value2) {
+        return value1 < value2;
+    }
+    
+    public static boolean min(BigInteger value1, BigInteger value2) {
+        return value1.compareTo(value2) < 0;
+    }
+    
+    public static boolean min(BigDecimal value1, BigDecimal value2) {
+        return value1.compareTo(value2) < 0;
+    }
+    
+    //MIN IN ARRAY   
     public static byte min(byte[] values) {
         return NumberUtils.min(values);
     }
@@ -360,6 +427,16 @@ public class MathUtils {
     public static double median(double[] values) {        
         Median median = new Median();
         return median.evaluate(values, 0, values.length);
+    }
+    
+    public static BigInteger median(BigInteger[] values) {    
+        // TODO implement
+        throw new NotImplementedException("Method median for BigInteger is not implemented yet");
+    }
+    
+    public static BigDecimal median(BigDecimal[] values) {
+        // TODO implement
+        throw new NotImplementedException("Method median for BigDecimal is not implemented yet");
     }
     
     // PRODUCT
@@ -589,6 +666,26 @@ public class MathUtils {
     
     public static double small(double[] values, int position) {
         double result = 0;
+        int index = position - 1; 
+        if (values != null && values.length > index && index >= 0) {
+            Arrays.sort(values);
+            result = values[index];
+        }
+        return result;
+    }
+    
+    public static BigInteger small(BigInteger[] values, int position) {
+        BigInteger result = BigInteger.valueOf(0);
+        int index = position - 1; 
+        if (values != null && values.length > index && index >= 0) {
+            Arrays.sort(values);
+            result = values[index];
+        }
+        return result;
+    }
+    
+    public static BigDecimal small(BigDecimal[] values, int position) {
+        BigDecimal result = BigDecimal.valueOf(0);
         int index = position - 1; 
         if (values != null && values.length > index && index >= 0) {
             Arrays.sort(values);

@@ -69,7 +69,7 @@ public class GenRulesTypes {
     private void generateEnumeration(EnumerationDescriptor descriptor) throws Exception {
 
         String enumName = EnumHelper.getEnumName(descriptor.getEnumName());
-        String sourceFilePath = CodeGenConstants.SOURCE_LOC + CodeGenConstants.ENUMS_PACKAGE_PATH + enumName + ".java";
+        String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + CodeGenConstants.ENUMS_PACKAGE_PATH + enumName + ".java";
 
         Map<String, Object> variables = new HashMap<String, Object>();
 

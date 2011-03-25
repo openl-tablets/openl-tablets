@@ -952,7 +952,15 @@ public class Operators {
     public static double abs(double x) {
         return Math.abs(x);
     }
-
+    
+    public static BigInteger abs(BigInteger x) {
+        return x.abs();
+    }
+    
+    public static BigDecimal abs(BigDecimal x) {
+        return x.abs();
+    }
+    
     public static boolean and(boolean x, boolean y) {
         return x && y;
     }
@@ -1391,12 +1399,12 @@ public class Operators {
         return Math.pow(x, y);
     }
     
-    public static BigInteger pow(BigInteger x, int y) {
-        return x.pow(y);
+    public static BigInteger pow(BigInteger x, BigInteger y) {
+        return x.pow(y.intValue());
     }
     
-    public static BigDecimal pow(BigDecimal x, int y) {
-        return x.pow(y);
+    public static BigDecimal pow(BigDecimal x, BigDecimal y) {
+        return x.pow(y.intValue());
     }
 
     // Negative

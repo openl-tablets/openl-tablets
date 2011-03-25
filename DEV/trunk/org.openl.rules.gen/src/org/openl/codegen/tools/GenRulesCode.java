@@ -65,7 +65,7 @@ public class GenRulesCode {
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(DefaultPropertyDefinitions.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertyDefinitions.class);
 
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
@@ -90,7 +90,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(TableProperties.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(TableProperties.class);
         processSourceCode(sourceFilePath, "DefaultTableProperties-properties.vm", variables);
     }
 
@@ -100,7 +100,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(ITableProperties.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(ITableProperties.class);
         processSourceCode(sourceFilePath, "ITableProperties-properties.vm", variables);
     }
 
@@ -110,7 +110,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(DefaultRulesRuntimeContext.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultRulesRuntimeContext.class);
 
         processSourceCode(sourceFilePath, "DefaultRulesContext-properties.vm", variables);
     }
@@ -121,7 +121,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(IRulesRuntimeContext.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(IRulesRuntimeContext.class);
         processSourceCode(sourceFilePath, "IRulesContext-properties.vm", variables);
     }
 
@@ -133,7 +133,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("validatorsDefinitions", propertyValidatorsWrappers);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(RulesCompileContext.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(RulesCompileContext.class);
         processSourceCode(sourceFilePath, "RulesCompileContext-validators.vm", variables);
     }
 
@@ -146,7 +146,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(MatchingOpenMethodDispatcher.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcher.class);
         processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcher-selectCandidates.vm", variables);
     }
 
@@ -160,7 +160,7 @@ public class GenRulesCode {
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
         variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePath(DefaultPropertiesContextMatcher.class);
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertiesContextMatcher.class);
         processSourceCode(sourceFilePath, "DefaultPropertiesContextMatcher-constraints.vm", variables);
     }
 
@@ -198,7 +198,7 @@ public class GenRulesCode {
 
     }
 
-    private void processSourceCode(String sourceFilePath, final String templateName, final Map<String, Object> variables)
+    protected void processSourceCode(String sourceFilePath, final String templateName, final Map<String, Object> variables)
             throws IOException {
 
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
