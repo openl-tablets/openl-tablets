@@ -51,6 +51,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
+    private boolean hideDeleted;
     
     public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getTreeNode();
@@ -196,15 +197,19 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
     
     public void addDeploymentProjectToTree(ADeploymentProject project) {
-        TreeDProject prj = new TreeDProject(project.getName(), project.getName());
-        prj.setData(project);
-        deploymentRepository.add(prj);
+        if (!project.isDeleted() || !hideDeleted) {
+            TreeDProject prj = new TreeDProject(project.getName(), project.getName());
+            prj.setData(project);
+            deploymentRepository.add(prj);
+        }
     }
 
     public void addRulesProjectToTree(AProject project) {
-        TreeProject prj = new TreeProject(project.getName(), project.getName(), filter);
-        prj.setData(project);
-        rulesRepository.add(prj);
+        if (!project.isDeleted() || !hideDeleted) {
+            TreeProject prj = new TreeProject(project.getName(), project.getName(), filter);
+            prj.setData(project);
+            rulesRepository.add(prj);
+        }
     }
 
     public void addNodeToTree(AbstractTreeNode parent, AProjectArtefact childArtefact) {
@@ -319,8 +324,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         }
     }
     
-    
-    
+    public boolean isHideDeleted() {
+        return hideDeleted;
+    }
+
+    public void setHideDeleted(boolean hideDeleted) {
+        this.hideDeleted = hideDeleted;
+    }
+
     //for any project
     public boolean getCanCheckOut() {
         if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut() || getSelectedProject().isLocked()) {
