@@ -14,7 +14,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
