@@ -17,7 +17,7 @@
   <url>http://openl-tablets.sf.net/</url>
 
   <properties>
-    <war.name>${artifactId}-${version}</war.name>
+    <war.name>${project.artifactId}-${project.version}</war.name>
     <sonar.language>web</sonar.language>
     <sonar.web.sourceDirectory>webapps/webstudio</sonar.web.sourceDirectory>
     <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
