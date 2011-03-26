@@ -172,7 +172,7 @@
           <version>1.7</version>
           <configuration>
             <outDir>target/site/images</outDir>
-            <outFile>${pom.artifactId}.png</outFile>
+            <outFile>${project.artifactId}.png</outFile>
           </configuration>
         </plugin>
         <plugin>
@@ -234,11 +234,11 @@
           <archive>
             <manifestEntries>
               <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
-              <Bundle-Name>${name}</Bundle-Name>
-              <Bundle-SymbolicName>${artifactId}.source</Bundle-SymbolicName>
+              <Bundle-Name>${project.name}</Bundle-Name>
+              <Bundle-SymbolicName>${project.artifactId}.source</Bundle-SymbolicName>
               <Bundle-Vendor>OpenL</Bundle-Vendor>
               <Bundle-Version>${openl.version.eclipse}</Bundle-Version>
-              <Eclipse-SourceBundle>${artifactId};version="${openl.version.eclipse}";roots:="."</Eclipse-SourceBundle>
+              <Eclipse-SourceBundle>${project.artifactId};version="${openl.version.eclipse}";roots:="."</Eclipse-SourceBundle>
             </manifestEntries>
           </archive>
         </configuration>
@@ -1148,13 +1148,6 @@
         <version>3.2.0</version>
       </dependency>
 
-
-      <dependency>
-        <groupId>org.eclipse.ant</groupId>
-        <artifactId>org.eclipse.ant.core</artifactId>
-        <version>3.1.200</version>
-      </dependency>
-
       <dependency>
         <groupId>org.eclipse.core</groupId>
         <artifactId>org.eclipse.core.commands</artifactId>
@@ -1200,12 +1193,6 @@
 
       <dependency>
         <groupId>org.eclipse.equinox</groupId>
-        <artifactId>org.eclipse.equinox.registry</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.equinox</groupId>
         <artifactId>org.eclipse.equinox.common</artifactId>
         <version>3.3.0</version>
       </dependency>
@@ -1244,12 +1231,6 @@
         <groupId>org.eclipse.ui</groupId>
         <artifactId>org.eclipse.ui.editors</artifactId>
         <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.commands</artifactId>
-        <version>3.3.0</version>
       </dependency>
 
       <dependency>
