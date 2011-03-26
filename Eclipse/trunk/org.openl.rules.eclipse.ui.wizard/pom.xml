@@ -63,7 +63,7 @@
                 <artifactItem>
                   <groupId>org.openl.rules</groupId>
                   <artifactId>org.openl.rules.webstudio</artifactId>
-                  <version>${version}</version>
+                  <version>${project.version}</version>
                   <type>zip</type>
                   <classifier>template</classifier>
                   <outputDirectory>templates/org.openl.rules.webstudio</outputDirectory>
