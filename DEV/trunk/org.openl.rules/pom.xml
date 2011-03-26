@@ -65,7 +65,7 @@
               <goal>attached</goal>
             </goals>
             <configuration>
-              <finalName>core-${version}</finalName>
+              <finalName>core-${project.version}</finalName>
               <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
               <descriptors>
                 <descriptor>assembly/assembly-zip.xml</descriptor>
