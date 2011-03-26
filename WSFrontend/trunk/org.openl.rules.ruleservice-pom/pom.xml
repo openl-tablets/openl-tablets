@@ -6,6 +6,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
     <version>5.7.6-SNAPSHOT</version>
+    <relativePath></relativePath><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687-->
   </parent>
 
   <groupId>org.openl.rules</groupId>
@@ -29,7 +30,7 @@
 
   <repositories>
     <repository>
-      <id>local</id>
+      <id>local-wsfrontend-repo</id>
       <url>file://${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
     </repository>
 
@@ -41,7 +42,7 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>local</id>
+      <id>local-wsfrontend-plugin-repo</id>
       <url>file://${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
     </pluginRepository>
   </pluginRepositories>
@@ -111,7 +112,7 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice</artifactId>
-        <version>${version}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <!-- DEV -->

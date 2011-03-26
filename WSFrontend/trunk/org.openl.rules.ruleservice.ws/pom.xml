@@ -27,7 +27,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>webapps/ws</warSourceDirectory>
-          <warName>${war.name}-${version}</warName>
+          <warName>${war.name}-${project.version}</warName>
           <packagingExcludes>
             WEB-INF/lib/poi-2.5.1-*.jar,
             WEB-INF/lib/org.openl.lib-*.jar,
