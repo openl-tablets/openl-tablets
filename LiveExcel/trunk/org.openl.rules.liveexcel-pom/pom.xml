@@ -135,12 +135,12 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel.eclipse.wizard</artifactId>
-        <version>${version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.openl.rules</groupId>
