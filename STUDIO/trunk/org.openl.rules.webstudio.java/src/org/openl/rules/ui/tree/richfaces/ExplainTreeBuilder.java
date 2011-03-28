@@ -22,7 +22,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     protected String getUrl(ITreeElement<?> element) {
         ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) element;
         String url = explanationValue.getMetaInfo() == null ? null : explanationValue.getMetaInfo().getSourceUrl();
-        return FacesUtils.getContextPath() + "/jsp/showExplainTable.jsp?"
+        return FacesUtils.getContextPath() + "/faces/facelets/explain/showExplainTable.xhtml?"
             + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
             + "&text=" + getDisplayName(element, INamedThing.REGULAR);
     }

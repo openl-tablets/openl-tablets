@@ -10,6 +10,7 @@ import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
+import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
@@ -169,8 +170,8 @@ public class Explanation {
         if (name == null) {
             name = "";
         } else if (url != null) {
-            name = HTMLHelper.urlLink("showExplainTable.jsp?uri=" + StringTool.encodeURL(url) + "&text=" + name, "show",
-                    name, "mainFrame");
+            name = HTMLHelper.urlLink(WebContext.getContextPath()+ "/faces/facelets/explain/showExplainTable.xhtml?uri="
+                    + StringTool.encodeURL(url) + "&text=" + name, "show", name, "mainFrame");
         }
 
         return new String[] { value, name, htmlString(explanationValue) };
