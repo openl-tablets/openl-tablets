@@ -23,8 +23,8 @@
       <outputDirectory>plugins</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <excludes>
-        <exclude>*sources*</exclude>
-        <exclude>*feature*</exclude>
+        <exclude>*:*sources*</exclude>
+        <exclude>*:*feature*</exclude>
         <exclude>org.openl.rules.security.integration.ipb</exclude>
       </excludes>
     </dependencySet>
@@ -34,7 +34,7 @@
       <outputDirectory>features</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>*feature*</include>
+        <include>*:*feature*</include>
       </includes>
     </dependencySet>
 
@@ -43,7 +43,7 @@
       <outputDirectory>plugins</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>*sources*</include>
+        <include>*:*sources*</include>
       </includes>
     </dependencySet>
   </dependencySets>
