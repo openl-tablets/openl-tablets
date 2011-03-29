@@ -5,6 +5,7 @@ import org.openl.rules.ui.Explanation;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.tree.richfaces.TreeBuilder;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 
@@ -13,13 +14,11 @@ import org.richfaces.model.TreeNode;
  */
 public class ExplainTreeBean {
 
-    public static final String EXPLANATOR_NAME = "explanator";
-
     public ExplainTreeBean() {
     }
 
     public TreeNode<?> getTree() {
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam(EXPLANATOR_NAME);
+        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
         String rootID = FacesUtils.getRequestParameter("rootID");
         Explanation explanation = explanator.getExplanation(rootID);
         ITreeElement<?> tree = explanation.getExplainTree();
