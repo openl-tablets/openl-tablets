@@ -190,7 +190,6 @@ public class Explanation {
     }
 
     protected String makeBasicUrl() {
-        // return "explain.jsp?rootID=" + explanator.getUniqueId(root)
         return "?rootID=" + explanator.getUniqueId(root) + "&header=" + header
         // + "&pname=" + pname
                 // + "&period=" + period

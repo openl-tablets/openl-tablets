@@ -219,6 +219,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>explainBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.explain.ExplainBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>rulesDependenciesBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.RulesDependenciesBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
