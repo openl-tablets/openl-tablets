@@ -51,7 +51,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
-    private boolean hideDeleted;
+    private boolean hideDeleted = true;
     
     public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getTreeNode();
