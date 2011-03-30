@@ -179,7 +179,7 @@ public abstract class WizardBase extends BaseWizardBean {
     }
 
     protected String makeUrlForNewTable() {
-        StringBuffer buffer = new StringBuffer(FacesUtils.getContextPath() + "/openTable.jsp");
+        StringBuffer buffer = new StringBuffer(FacesUtils.getContextPath() + "/faces/openTable.xhtml");
         buffer.append("?uri=" + StringTool.encodeURL(newTableUri));
         return buffer.toString();
     }

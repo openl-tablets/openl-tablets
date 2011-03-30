@@ -43,7 +43,7 @@
       <AbsolutePoint location="382,130" />
     </AutomaticBendpoints>
   </JSFFlowNavigationCase>
-  <JSFFlowNavigationCase id=",/openTable.jsp,mainPage,&lt;empty&gt;" routingType="0">
+  <JSFFlowNavigationCase id=",/openTable.jsp,mainPage,&lt;empty&gt;" routingType="1">
     <AutomaticBendpoints>
       <AbsolutePoint location="180,148" />
       <AbsolutePoint location="-7,148" />
