@@ -29,7 +29,7 @@ public class DatatypePackageGenerationTest extends BaseOpenlBuilderHelper {
     private boolean hasErrorInPackageName(TableSyntaxNode tsn) {
         if (tsn.hasErrors()) {
             for (SyntaxNodeException exception : tsn.getErrors()) {
-                if (exception.getMessage().equals("Incorrect value for property \"datatypePackage\"")) {
+                if (exception.getMessage().matches("Incorrect value .+ for property \"Datatype Package\"")) {
                     return true;
                 }
             }
