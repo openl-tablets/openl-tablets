@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 public class DatatypePackageGenerationTest extends BaseOpenlBuilderHelper {
 
@@ -23,6 +25,24 @@ public class DatatypePackageGenerationTest extends BaseOpenlBuilderHelper {
            fail();
         }
     }
-
     
+    private boolean hasErrorInPackageName(TableSyntaxNode tsn) {
+        if (tsn.hasErrors()) {
+            for (SyntaxNodeException exception : tsn.getErrors()) {
+                if (exception.getMessage().equals("Incorrect value for property \"datatypePackage\"")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Test
+    public void testPackageNames() {
+        assertTrue(hasErrorInPackageName(findTable("Datatype DotEnded")));
+        assertTrue(hasErrorInPackageName(findTable("Datatype WithSpecialSymbols")));
+        assertTrue(hasErrorInPackageName(findTable("Datatype WithSpecialSymbols2")));
+        assertTrue(hasErrorInPackageName(findTable("Datatype StartsWithDigit")));
+        assertFalse(hasErrorInPackageName(findTable("Datatype Driver")));
+    }
 }

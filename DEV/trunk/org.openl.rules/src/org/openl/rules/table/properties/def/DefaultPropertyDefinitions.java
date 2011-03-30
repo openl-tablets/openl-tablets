@@ -349,7 +349,7 @@ public class DefaultPropertyDefinitions
 		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[23] = new TablePropertyDefinition();
 		definitions[23].setBusinessSearch(false);
-		definitions[23].setConstraints(new org.openl.rules.table.constraints.Constraints("Worksheet, Workbook, Module"));
+		definitions[23].setConstraints(new org.openl.rules.table.constraints.Constraints("regexp:([a-z_]{1}[a-z0-9_]*(\\.[a-z_]{1}[a-z0-9_]*)*)"));
 		definitions[23].setDefaultValue("org.openl.generated.beans");
 		definitions[23].setDescription("Defines the name of the package for datatype generation");
 		definitions[23].setDimensional(false);

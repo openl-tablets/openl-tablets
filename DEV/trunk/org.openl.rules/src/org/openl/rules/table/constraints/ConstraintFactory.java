@@ -18,6 +18,8 @@ public class ConstraintFactory {
             constraint = new UniqueActiveTableConstraint(value);
         } else if (value.matches(DataEnumConstraint.CONSTRAINT_MATCH)) {
             constraint = new DataEnumConstraint(value);
+        } else if (value.matches(RegexpValueConstraint.CONSTRAINT_MATCH)) {
+            constraint = new RegexpValueConstraint(value);
         }
         // to be continued...
         return constraint;
