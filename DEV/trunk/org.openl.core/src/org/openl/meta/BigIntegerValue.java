@@ -149,6 +149,15 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return value;
 	}
 	
+	// QUAOTIENT
+	public static LongValue quaotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+        }
+        return null;
+    }
+	
 	// generated product function for big types
 	public static org.openl.meta.BigIntegerValue product(org.openl.meta.BigIntegerValue[] values) {
 		if (ArrayUtils.isEmpty(values)) {
@@ -268,7 +277,14 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         this.value = value;
     }
 	
-    // <<< END INSERT Functions >>>        
+	
+	
+
+
+	
+	 
+      
+            // <<< END INSERT Functions >>>        
 
     // ******* Autocasts 8*************    
 
@@ -365,17 +381,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             return null;
         }
         return new DoubleValue(x.doubleValue());
-    }
-    
-    // Math functions
-    
-    public static LongValue quaotient(BigIntegerValue number, BigIntegerValue divisor) {
-        if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null );
-        }
-        return null;
-    }    
+    }   
 
     public BigIntegerValue(String valueString) {
         value = new BigInteger(valueString);

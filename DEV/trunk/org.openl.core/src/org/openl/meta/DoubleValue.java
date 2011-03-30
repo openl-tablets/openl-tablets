@@ -186,6 +186,15 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return value;
 	}
 	
+	// QUAOTIENT
+	public static LongValue quaotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+        }
+        return null;
+    }
+	
 	// generated product function for types that are wrappers over primitives
 	public static DoubleValue product(org.openl.meta.DoubleValue[] values) {
 		if (ArrayUtils.isEmpty(values)) {
@@ -304,7 +313,15 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public void setValue(double value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>    
+	
+	
+	
+
+
+	
+	 
+      
+            // <<< END INSERT Functions >>>    
     
     // ******* Autocasts *************
 
@@ -410,15 +427,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue((double) Math.round(value.getValue())), 
             NumberOperations.ROUND, new org.openl.meta.DoubleValue[] { value });
     }
-    
-    public static LongValue quaotient(DoubleValue number, DoubleValue divisor) {
-        if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
-        }
-        return null;
-    }
-    
+        
     /**
      * @deprecated double value shouldn`t be empty.
      */

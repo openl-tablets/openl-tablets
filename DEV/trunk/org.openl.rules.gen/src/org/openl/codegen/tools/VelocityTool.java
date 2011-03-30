@@ -1,5 +1,6 @@
 package org.openl.codegen.tools;
 
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.validation.ActivePropertyValidator;
 
 /**
@@ -37,5 +38,13 @@ public class VelocityTool {
             .append(name.substring(1));
         
         return builder.toString();
+    }
+    
+    public boolean isNotPrimitiveDouble(Class<?> clazz) {
+        return !double.class.equals(clazz);
+    }
+    
+    public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
+        return NumberUtils.getNumericPrimitive(wrapperClass);
     }
 }

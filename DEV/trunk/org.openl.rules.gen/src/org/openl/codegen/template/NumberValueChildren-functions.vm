@@ -62,6 +62,15 @@
         return value;
 	}
 	
+	// QUAOTIENT
+	public static LongValue ${quaotientFunction.Name}($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+        }
+        return null;
+    }
+	
 #if (${primitiveType.isPrimitive()}) 
 	// generated product function for types that are wrappers over primitives
 	public static DoubleValue ${productFunction.Name}($tool.getTypeName($type)[] values) {

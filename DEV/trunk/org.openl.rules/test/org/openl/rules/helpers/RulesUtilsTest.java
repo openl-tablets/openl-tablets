@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.ByteValue;
+import org.openl.meta.LongValue;
 import org.openl.meta.number.NumberValue;
 import org.openl.rules.TestHelper;
 
@@ -27,7 +28,7 @@ public class RulesUtilsTest {
     public interface TestInterf {
         String testMaxByte(byte[] obj);
         BigInteger testSum(BigInteger[] values);
-        ByteValue testQuaotient(ByteValue number, ByteValue divisor);
+        LongValue testQuaotient(ByteValue number, ByteValue divisor);
         ByteValue testMin(ByteValue[] values);
         BigDecimalValue testAvg(BigDecimalValue[] values);
     }
@@ -56,7 +57,7 @@ public class RulesUtilsTest {
     
     @Test
     public void testByteValueQuaotient() {
-        assertEquals(new ByteValue((byte) 2), instance.testQuaotient(new ByteValue((byte) 25), new ByteValue((byte) 12)));
+        assertEquals(new LongValue(2), instance.testQuaotient(new ByteValue((byte) 25), new ByteValue((byte) 12)));
     }
     
     @Test

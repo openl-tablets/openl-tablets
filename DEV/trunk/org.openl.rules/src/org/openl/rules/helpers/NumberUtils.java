@@ -88,4 +88,22 @@ public class NumberUtils {
 
         return decimal.scale();
     }
+	
+	public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
+        if (Byte.class.equals(wrapperClass)) {
+            return byte.class;
+        } else if (Short.class.equals(wrapperClass)) {
+            return short.class;
+        } else if (Integer.class.equals(wrapperClass)) {
+            return int.class;
+        } else if (Long.class.equals(wrapperClass)) {
+            return long.class;
+        } else if (Float.class.equals(wrapperClass)) {
+            return float.class;
+        } else if (Double.class.equals(wrapperClass)) {
+            return double.class;
+        }
+        return null;
+    }
+    
 }
