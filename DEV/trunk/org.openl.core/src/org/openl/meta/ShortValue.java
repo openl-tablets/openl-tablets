@@ -146,6 +146,15 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return value;
 	}
 	
+	// QUAOTIENT
+	public static LongValue quaotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+        }
+        return null;
+    }
+	
 	// generated product function for types that are wrappers over primitives
 	public static DoubleValue product(org.openl.meta.ShortValue[] values) {
 		if (ArrayUtils.isEmpty(values)) {
@@ -264,7 +273,15 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public void setValue(short value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+	
+	
+	
+
+
+	
+	 
+      
+            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 
@@ -365,16 +382,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
         return new ByteValue(x.byteValue());
-    }    
-    
-    // Math functions
-    
-    public static ShortValue quaotient(ShortValue number, ShortValue divisor) {
-        if (number != null && divisor != null) {
-            ShortValue result = new ShortValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new ShortValue(result, NumberOperations.QUAOTIENT, new ShortValue[]{number, divisor} );
-        }
-        return null;
     }
 
     public ShortValue(String valueString) {

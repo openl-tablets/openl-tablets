@@ -149,6 +149,15 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return value;
 	}
 	
+	// QUAOTIENT
+	public static LongValue quaotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+        }
+        return null;
+    }
+	
 	// generated product function for big types
 	public static org.openl.meta.BigDecimalValue product(org.openl.meta.BigDecimalValue[] values) {
 		if (ArrayUtils.isEmpty(values)) {
@@ -267,7 +276,15 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public void setValue(java.math.BigDecimal value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+	
+	
+	
+
+
+	
+	 
+      
+            // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 
@@ -363,15 +380,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
             return null;
         }
         return new BigIntegerValue(String.valueOf(x.longValue()));
-    }
-    
-    // Math functions
-    public static LongValue quaotient(BigDecimalValue number, BigDecimalValue divisor) {
-        if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
-        }
-        return null;
     }
 
     public BigDecimalValue(String valueString) {

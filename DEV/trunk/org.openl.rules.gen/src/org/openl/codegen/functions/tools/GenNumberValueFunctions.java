@@ -1,4 +1,4 @@
-package org.openl.codegen.tools;
+package org.openl.codegen.functions.tools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -6,6 +6,9 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.codegen.tools.CodeGenTools;
+import org.openl.codegen.tools.GenRulesCode;
+import org.openl.codegen.tools.VelocityTool;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -25,7 +28,7 @@ import org.openl.meta.number.NumberValue;
  * @author DLiauchuk
  *
  */
-public class GenFunctions extends GenRulesCode {
+public class GenNumberValueFunctions extends GenRulesCode {
     
     /** key - the type for which methods need to be generated. value - inner so called primitive type of the wrapper class **/
     private static final Map<Class<?>, Class<?>> types = new HashMap<Class<?>, Class<?>>();
@@ -40,11 +43,16 @@ public class GenFunctions extends GenRulesCode {
     private static final NumberOperations[] MATH_FUNCTIONS3 = new NumberOperations[2];
     
     /** array of primitive java numeric types **/
-    private static final Class<?>[] primitiveNumericTypes = new Class<?>[] {byte.class, short.class, int.class, 
+    protected static final Class<?>[] primitiveNumericTypes = new Class<?>[] {byte.class, short.class, int.class, 
         long.class, float.class, double.class};
     
+    protected static final Class<?>[] wrapperNumericTypes = new Class<?>[] {Byte.class, Short.class, Integer.class, 
+        Long.class, Float.class, Double.class};
+    
+    protected static final Class<?>[] BIG_NUMERIC_TYPES = new Class<?>[] {BigInteger.class, BigDecimal.class};
+    
     public static void main(String[] arg) throws Exception {
-        new GenFunctions().run();
+        new GenNumberValueFunctions().run();
     }
     
     public void run() throws Exception {
@@ -97,6 +105,7 @@ public class GenFunctions extends GenRulesCode {
             variables.put("incFunction", NumberOperations.INC);
             variables.put("positiveFunction", NumberOperations.POSITIVE);
             variables.put("decFunction", NumberOperations.DEC);
+            variables.put("quaotientFunction", NumberOperations.QUAOTIENT);
             variables.put("type", clazz);
             variables.put("primitiveType", types.get(clazz));
             variables.put("primitiveNumericTypes", primitiveNumericTypes);

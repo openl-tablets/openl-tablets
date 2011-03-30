@@ -90,5 +90,17 @@ public class BooleanUtils {
         }
         return true;
     }
+    
+    public static boolean and(Boolean[] values) {
+        if (values == null) {
+            return false;
+        }
+        for (Boolean value : values) {
+            if (!value) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

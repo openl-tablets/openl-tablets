@@ -1,6 +1,7 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -792,4 +793,39 @@ public class ArrayTool {
 	    }
 	    return result;
 	}
+	
+	public static byte[] sort(byte[] values) {
+        Arrays.sort(values);
+        return values;
+    }
+	
+    public static short[] sort(short[] values) {
+        Arrays.sort(values);
+        return values;
+    }
+    
+    public static int[] sort(int[] values) {
+        Arrays.sort(values);
+        return values;
+    }
+    
+    public static long[] sort(long[] values) {
+        Arrays.sort(values);
+        return values;
+    }
+    
+    public static float[] sort(float[] values) {
+        Arrays.sort(values);
+        return values;
+    }
+    
+    public static double[] sort(double[] values) {
+        Arrays.sort(values);
+        return values;
+    }
+    
+    public static Object[] sort(Object[] values) {
+        Arrays.sort(values);
+        return values;
+    }
 }

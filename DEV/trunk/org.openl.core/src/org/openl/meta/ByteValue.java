@@ -147,6 +147,15 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return value;
 	}
 	
+	// QUAOTIENT
+	public static LongValue quaotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+        }
+        return null;
+    }
+	
 	// generated product function for types that are wrappers over primitives
 	public static DoubleValue product(org.openl.meta.ByteValue[] values) {
 		if (ArrayUtils.isEmpty(values)) {
@@ -265,7 +274,15 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public void setValue(byte value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+	
+	
+	
+
+
+	
+	 
+      
+            // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
     
@@ -367,17 +384,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
 
         return x.byteValue();
-    }
-    
-    
-    // Math functions
-    
-    public static ByteValue quaotient(ByteValue number, ByteValue divisor) {
-        if (number != null && divisor != null) {
-            ByteValue result = new ByteValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new ByteValue(result, NumberOperations.QUAOTIENT, new ByteValue[]{number, divisor} );
-        }
-        return null;
     }
 
     public ByteValue(String valueString) {        
