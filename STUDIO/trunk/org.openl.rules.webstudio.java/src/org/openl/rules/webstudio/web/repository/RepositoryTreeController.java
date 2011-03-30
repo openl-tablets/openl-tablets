@@ -314,7 +314,7 @@ public class RepositoryTreeController {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             project.delete(userWorkspace.getUser());
             if(repositoryTreeState.isHideDeleted()){
-                AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                AbstractTreeNode projectInTree = repositoryTreeState.getDeploymentRepository().getChild(project.getName());
                 repositoryTreeState.deleteNode(projectInTree);
             }
         } catch (ProjectException e) {
