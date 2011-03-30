@@ -1,7 +1,7 @@
 package org.openl.codegen.tools;
 
+import org.apache.commons.beanutils.ConstructorUtils;
 import org.openl.rules.helpers.NumberUtils;
-import org.openl.rules.validation.ActivePropertyValidator;
 
 /**
  * Class used by Velocity engine as external tools.
@@ -22,11 +22,23 @@ public class VelocityTool {
     }
     
     public boolean hasConstructorWithoutParams(Class<?> clazz) {
-        
-        if (clazz.equals(ActivePropertyValidator.class)) {
+        if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] {}) != null) {
             return true;
         }
-        
+        return false;
+    }
+
+    public boolean hasConstructorWithPropertyName(Class<?> clazz) {
+        if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] { String.class }) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean hasConstructorWithConstraintForProperty(Class<?> clazz) {
+        if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] { String.class, String.class }) != null) {
+            return true;
+        }
         return false;
     }
     
