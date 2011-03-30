@@ -22,12 +22,10 @@ public class WebTool {
 
     private static final Log LOG = LogFactory.getLog(WebTool.class);
 
-    @SuppressWarnings("unchecked")
     public static String listRequestParams(ServletRequest request) {
         return listRequestParams(request.getParameterMap(), null);
     }
 
-    @SuppressWarnings("unchecked")
     public static String listRequestParams(ServletRequest request, String[] exceptParams) {
         return listRequestParams(request.getParameterMap(), exceptParams);
     }

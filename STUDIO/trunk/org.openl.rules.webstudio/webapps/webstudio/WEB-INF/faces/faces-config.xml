@@ -31,6 +31,12 @@
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
+  <managed-bean>
+    <managed-bean-name>treeViewBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.TreeViewBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
   <!-- repository config -->
   <managed-bean>
     <managed-bean-name>rulesUserSession</managed-bean-name>
