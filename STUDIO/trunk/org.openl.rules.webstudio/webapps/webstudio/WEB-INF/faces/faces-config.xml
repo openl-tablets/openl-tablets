@@ -32,6 +32,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>openTableBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.OpenTableBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>treeViewBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.TreeViewBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
@@ -395,7 +401,7 @@
   <navigation-rule>
     <navigation-case>
       <from-outcome>mainPage</from-outcome>
-      <to-view-id>/openTable.jsp</to-view-id>
+      <to-view-id>/openTable.xhtml</to-view-id>
       <redirect/>
     </navigation-case>
       <navigation-case>
