@@ -925,20 +925,20 @@ public class RulesUtils {
     }
     
     // logical AND
-    public static boolean and(boolean[] values) {
+    public static boolean allTrue(boolean[] values) {
         return org.openl.util.BooleanUtils.and(values);
     }
     
-    public static boolean and(Boolean[] values) {
+    public static boolean allTrue(Boolean[] values) {
         return org.openl.util.BooleanUtils.and(values);
     }
     
     // logical OR
-    public static boolean or(boolean[] values) {
+    public static boolean xor(boolean[] values) {
         return BooleanUtils.xor(values);
     }
     
-    public static boolean or(Boolean[] values) {
+    public static boolean xor(Boolean[] values) {
         return BooleanUtils.xor(values);
     }
     
