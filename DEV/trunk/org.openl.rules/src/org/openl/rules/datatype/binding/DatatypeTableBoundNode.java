@@ -140,7 +140,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         Class<?> beanClass = beanGenerator.generateAndLoadBeanClass(); 
         
         if (beanClass == null) {
-            String errorMessage = String.format("Cant generate bean for datatype '%s'", datatypeName);
+            String errorMessage = String.format("Can't generate bean for datatype '%s'", datatypeName);
             throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
         }
         
