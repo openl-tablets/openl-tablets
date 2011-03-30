@@ -5,6 +5,7 @@ import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
@@ -12,7 +13,8 @@ import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
 
 /**
- * Validator for string properties that have to correspond to some regexp pattern
+ * Validator for string properties that have to correspond to some regexp
+ * pattern
  * 
  * @author PUdalau
  */
@@ -30,13 +32,14 @@ public class RegexpPropertyValidator extends TablesValidator {
         ValidationResult validationResult = null;
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
-                String datatypePackage = (String) tsn.getTableProperties().getPropertyValue(propertyName);
-                if (datatypePackage == null || !datatypePackage.matches(constraintsStr)) {
+                String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
+                if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     if (validationResult == null) {
                         validationResult = new ValidationResult(ValidationStatus.FAIL);
                     }
                     SyntaxNodeException exception = new SyntaxNodeException(String.format(
-                            "Incorrect value for property \"%s\"", propertyName), null, tsn);
+                            "Incorrect value \"%s\" for property \"%s\"", propertyValue,
+                            TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), null, tsn);
                     tsn.addError(exception);
                     ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                 }
