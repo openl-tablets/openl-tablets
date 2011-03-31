@@ -6,8 +6,11 @@
 	</description>
 
 	<taskdef name="try" classname="ise.antelope.tasks.TryTask"/>
+    <taskdef name="if" classname="ise.antelope.tasks.IfTask"/>
 
 	<import file="changeVersion.xml"/>
+	<import file="release-mapping-module.xml"/>
+	<import file="release-liveexcel-module.xml"/>
 
 	<property file="OpenLRelease.properties"/>
 
@@ -79,8 +82,6 @@
 		</maven>
 		<echo>Changing versions after the release</echo>
 		<antcall target="changeVersionsAfter"/>
-		<echo>Deploying artifacts to Sonatype maven repository</echo>
-		<antcall target="sonatypeDeploy"/>
 	</target>
 	
 	<target name="changeVersionsAfter">
@@ -93,7 +94,7 @@
 		<antcall target="commitModule"/>
 	</target>
 	
-	<target name="sonatypeDeploy">
+	<target name="sonatypeDeployForModule">
 		<!-- Revert changes that maven release plugin have done in phase "perform" -->
 		<exec executable="svn">
 			<arg line="revert ${moduleFolder}/target/checkout/ -R"/>
@@ -139,6 +140,7 @@
 			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
 		</antcall>
 	</target>
+	<!-- TODO: auto archetype deploying-->
 	<target name="changeVersionInArchetypePom">
 		<antcall target="changeVersionsBefore">
 			<param name="moduleFolder" value="${root_folder}/${util_folder}"/>
@@ -147,33 +149,68 @@
 	
 	<target name="releaseOpenL">
 		<antcall target="releaseBasePom"/>
+  		<antcall target="releasePOI"/>
 		<antcall target="releaseDEV"/>
 		<antcall target="releaseSTUDIO"/>
 		<antcall target="releaseFrontEnd"/>
 		<antcall target="releaseTUT"/>
 		<antcall target="releaseSITE"/>
-		<antcall target="changeVersionInArchetypePom"/>
+   		<if>
+   			<bool>
+   				<ispropertytrue property="releaseArchetype"/>
+   			</bool>
+	   		<antcall target="changeVersionInArchetypePom"/>
+   		</if>
+   		<if>
+  			<bool>
+   				<ispropertytrue property="releaseRulesMapper"/>
+   			</bool>
+    		<antcall target="releaseRulesMapping"/>
+   		</if>
+   		<if>
+   			<bool>
+   				<ispropertytrue property="releaseLiveExcel"/>
+   			</bool>
+    		<antcall target="releaseLiveExcel"/>
+   		</if>
 	</target>
 	
-	<target name="LiveExcelRelease">
-		<antcall target="change">
-			<param name="projects_root" value="${root_folder}/${liveexcel_folder}"/>
-			<param name="previous_version" value="${le_current_version}"/>
-			<param name="version" value="${le_release_version}"/>
-			<param name="version_for_poms" value="${le_release_version}"/>
+	<target name="overallSonatypeDeploy">
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
 		</antcall>
-		<antcall target="fullCommit"/>
-		<antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}/${liveexcel_folder}"/>
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${poi_folder}"/>
 		</antcall>
-		<antcall target="change">
-			<param name="projects_root" value="${root_folder}/${liveexcel_folder}"/>
-			<param name="previous_version" value="${le_release_version}"/>
-			<param name="version" value="${le_next_eclipse_version}"/>
-			<param name="version_for_poms" value="${le_next_maven_version}"/>
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${dev_folder}"/>
 		</antcall>
-		<antcall target="fullCommit"/>
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${studio_folder}"/>
+		</antcall>
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${wsfrontend_folder}"/>
+		</antcall>
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${tut_folder}"/>
+		</antcall>
+		<antcall target="sonatypeDeployForModule">
+			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
+		</antcall>
+   		<if>
+  			<bool>
+   				<ispropertytrue property="releaseRulesMapper"/>
+   			</bool>
+    		<antcall target="sonatypeDeployForMapping"/>
+   		</if>
+   		<if>
+   			<bool>
+   				<ispropertytrue property="releaseLiveExcel"/>
+   			</bool>
+    		<antcall target="sonatypeDeployForLiveExcel"/>
+   		</if>
 	</target>
+
     <target name="help">
         <echo>
         	Run this script with predefined properties in release.properties file with target "fullRelease":

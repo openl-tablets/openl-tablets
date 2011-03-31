@@ -49,12 +49,11 @@
 		</antcall>
 		<antcall target="commitModule"/>
 	</target>
-
+	
 	<target name="releaseModule">
 		<echo>Changing versions before the release</echo>
 		<antcall target="changeVersionsBefore"/>
 		<echo>release:prepare</echo>
-		
         <try>
 			<maven dir="${moduleFolder}">
 				<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
@@ -91,19 +90,19 @@
 		<antcall target="commitModule"/>
 	</target>
 
-	<target name="sonatypeDeployForMapping">
+	<target name="sonatypeDeployForLiveExcel">
 		<!-- Revert changes that maven release plugin have done in phase "perform" -->
 		<exec executable="svn">
-			<arg line="revert ${root_folder}/${mapping_folder}/target/checkout/ -R"/>
+			<arg line="revert ${root_folder}/${liveexcel_folder}/target/checkout/ -R"/>
 		</exec>
-		<maven dir="${root_folder}/${mapping_folder}/target/checkout/">
+		<maven dir="${root_folder}/${liveexcel_folder}/target/checkout/">
 			<arg line="clean deploy -P sonatype-deploy,gpg-sign -Dgpg.passphrase=${passphrase}" />
 		</maven>
 	</target>
 
-	<target name="releaseRulesMapping">
+	<target name="releaseLiveExcel">
 		<antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}/${mapping_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${liveexcel_folder}"/>
 		</antcall>
 	</target>
 
