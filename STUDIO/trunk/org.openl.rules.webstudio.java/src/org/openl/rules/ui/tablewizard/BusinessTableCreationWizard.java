@@ -67,7 +67,9 @@ public abstract class BusinessTableCreationWizard extends WizardBase {
         List<SelectItem> categoryList = new ArrayList<SelectItem>();
         Set<String> categories = getAllCategories();
         for (String categoryName : categories) {
-            categoryList.add(new SelectItem(categoryName));
+            categoryList.add(new SelectItem(
+                    // Replace new line by space
+                    categoryName.replaceAll("[\r\n]", " ")));
         }
         return categoryList;
     }
