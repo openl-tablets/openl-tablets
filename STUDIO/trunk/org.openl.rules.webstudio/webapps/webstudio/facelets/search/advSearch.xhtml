@@ -236,7 +236,7 @@
 
         <h:panelGroup rendered="#{advancedSearch.projectEditable}">
             <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
-            <h:outputLink value="#{contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
+            <h:outputLink value="#{contextPath}/action/launch" target="show_app_hidden">
                 <f:param name="uri" value="#{table.uri}" />
                 <h:outputText value="View Table in Excel" />
             </h:outputLink>

@@ -186,6 +186,16 @@
     <servlet-name>DownloadServlet</servlet-name>
     <url-pattern>/action/download</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>LaunchFileServlet</servlet-name>
+    <servlet-class>org.openl.rules.webstudio.web.servlet.LaunchFileServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>LaunchFileServlet</servlet-name>
+    <url-pattern>/action/launch</url-pattern>
+  </servlet-mapping>
 
   <welcome-file-list>
     <welcome-file>faces/index.xhtml</welcome-file>

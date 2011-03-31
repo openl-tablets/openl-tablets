@@ -100,7 +100,7 @@
                 </h:commandLink>
 
                 <h:outputLink rendered="#{showTableBean.editable}"
-                    value="#{contextPath}/jsp/showLinks.jsp"
+                    value="#{contextPath}/action/launch"
                     target="show_app_hidden">
                     <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage
@@ -267,7 +267,7 @@
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
-        <form target="show_app_hidden" name="editInExcelForm" method="post" action="#{contextPath}/jsp/showLinks.jsp">
+        <form target="show_app_hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
             <input type="hidden" name="uri" value="" />
         </form>
 
