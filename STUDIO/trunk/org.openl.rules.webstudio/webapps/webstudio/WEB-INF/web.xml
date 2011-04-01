@@ -84,6 +84,12 @@
     <param-value>5000</param-value> <!-- every 5 seconds -->
   </context-param>
 
+  <!-- Disable the built-in JBoss AS JSF -->
+  <context-param>
+    <param-name>org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
   <filter>
     <filter-name>WebResourceFilter</filter-name>
     <filter-class>org.openl.rules.webstudio.filter.WebResourceFilter</filter-class>

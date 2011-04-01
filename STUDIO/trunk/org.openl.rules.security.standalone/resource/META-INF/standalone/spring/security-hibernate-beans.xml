@@ -67,6 +67,10 @@
           <prop key="hibernate.statement_cache.size">100</prop>
           <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
           <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+
+          <!-- Fix incompatibility of hibernate libs in JBoss AS -->
+          <prop key="hibernate.validator.apply_to_ddl">false</prop>
+          <prop key="hibernate.validator.autoregister_listeners">false</prop>
         </props>
       </property>
     </bean>
