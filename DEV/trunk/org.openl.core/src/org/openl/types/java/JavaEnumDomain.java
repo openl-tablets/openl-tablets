@@ -39,4 +39,8 @@ public class JavaEnumDomain extends FixedSizeDomain<Object> {
         return enumClass.getInstanceClass().getEnumConstants()[index];
     }
 
+    public JavaOpenEnum getEnumClass() {
+        return enumClass;
+    }
+
 }

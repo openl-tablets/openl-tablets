@@ -16,6 +16,7 @@ import org.openl.types.IParameterDeclaration;
  *
  */
 public class ParameterDeclaration implements IParameterDeclaration {
+
     private IOpenClass type;
     private String name;
     private int direction;
@@ -62,6 +63,11 @@ public class ParameterDeclaration implements IParameterDeclaration {
         int hashCode = new HashCodeBuilder().append(name).append(type)
             .append(direction).toHashCode();
         return hashCode;
+    }
+
+    @Override
+    public String toString() {
+        return type + " " +name;
     }
 
 }
