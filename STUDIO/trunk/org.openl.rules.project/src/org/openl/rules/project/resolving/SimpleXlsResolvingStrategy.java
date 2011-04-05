@@ -2,9 +2,12 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
@@ -19,6 +22,8 @@ import org.openl.util.FileTypeHelper;
  * @author PUdalau
  */
 public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
+
+    private static final Log LOG = LogFactory.getLog(SimpleXlsResolvingStrategy.class);
 
     public boolean isRulesProject(File folder) {
         if (!folder.isDirectory()) {
@@ -35,25 +40,34 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
     public ProjectDescriptor resolveProject(File folder) {
         ProjectDescriptor project = createDescriptor(folder);
-        List<Module> modules = new ArrayList<Module>();
+        Map<String, Module> modules = new HashMap<String, Module>();
         for (File f : folder.listFiles()) {
             if (!f.isHidden()
                     && FileTypeHelper.isExcelFile(f.getName())) {
-                modules.add(createModule(project, f));
+                
+                String name = FilenameUtils.removeExtension(f.getName());
+                if (!modules.containsKey(name)) {
+                    PathEntry rootPath = new PathEntry(f.getAbsolutePath());
+                    Module module = createModule(project, rootPath, name);
+                    modules.put(name, module);
+                } else {
+                    LOG.error("A module with this name already exists: " + name);
+                }
             }
         }
-        project.setModules(modules);
+        project.setModules(
+                new ArrayList<Module>(modules.values()));
         return project;
     }
 
-    private Module createModule(ProjectDescriptor project, File xlsFile) {
+    private Module createModule(ProjectDescriptor project, PathEntry rootPath, String name) {
         Module module = new Module();
         module.setProject(project);
-        module.setRulesRootPath(new PathEntry(xlsFile.getAbsolutePath()));
+        module.setRulesRootPath(rootPath);
         module.setType(ModuleType.API);
         //FIXME: classname just for webstudio
-        module.setClassname(FilenameUtils.removeExtension(xlsFile.getName()));
-        module.setName(FilenameUtils.removeExtension(xlsFile.getName()));
+        module.setClassname(name);
+        module.setName(name);
         return module;
     }
 
