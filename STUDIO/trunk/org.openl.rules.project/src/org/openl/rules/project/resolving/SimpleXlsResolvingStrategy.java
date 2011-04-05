@@ -2,8 +2,8 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -40,7 +40,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
     public ProjectDescriptor resolveProject(File folder) {
         ProjectDescriptor project = createDescriptor(folder);
-        Map<String, Module> modules = new HashMap<String, Module>();
+        Map<String, Module> modules = new TreeMap<String, Module>();
         for (File f : folder.listFiles()) {
             if (!f.isHidden()
                     && FileTypeHelper.isExcelFile(f.getName())) {
