@@ -137,14 +137,19 @@ public class RuleRowHelper {
 
         if (typeCode.endsWith("[]")) {
 
-            String baseCode = typeCode.substring(0, typeCode.length() - 2);
+            int dims = 0;
+            String baseCode = typeCode;
+            while (baseCode.endsWith("[]")) {
+                baseCode = baseCode.substring(0, baseCode.length() - 2);
+                dims++;
+            }
             IOpenClass baseType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, baseCode);
 
             if (baseType == null) {
                 return null;
             }
 
-            return baseType.getAggregateInfo().getIndexedAggregateType(baseType, 1);
+            return baseType.getAggregateInfo().getIndexedAggregateType(baseType, dims);
         }
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
@@ -362,13 +367,12 @@ public class RuleRowHelper {
     }
 
     public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {
-
-        String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
-
-        if (stringValue != null) {
-            return stringValue.contains(ARRAY_ELEMENTS_SEPARATOR);
+        if (!isFormula(valuesTable)) {
+            String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
+            if (stringValue != null) {
+                return stringValue.contains(ARRAY_ELEMENTS_SEPARATOR);
+            }
         }
-
         return false;
     }
 

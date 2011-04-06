@@ -139,7 +139,7 @@ public abstract class ANodeBinder implements INodeBinder {
                 continue;
             }
 
-            children[i] = bindChildNode(childNode, bindingContext);
+            children[i] = bindTypeNode(childNode, bindingContext, type);
         }
 
         return children;
