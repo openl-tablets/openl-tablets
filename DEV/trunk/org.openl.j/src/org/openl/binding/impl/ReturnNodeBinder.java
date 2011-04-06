@@ -31,7 +31,7 @@ public class ReturnNodeBinder extends ANodeBinder {
                 bindingContext.setReturnType(returnType = chNode.getType());
             }
 
-            exprNode = bindType(node.getChild(0), bindingContext, returnType);
+            exprNode = bindTypeNode(node.getChild(0), bindingContext, returnType);
 
         } else if (bindingContext.getReturnType() != JavaOpenClass.VOID) {
 

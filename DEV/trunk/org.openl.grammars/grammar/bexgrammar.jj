@@ -1037,7 +1037,7 @@ void function() :
 {
   x1=<IDENTIFIER> {funcname = token.image;}
   "("
-  [ Expression() {args++;} ( "," Expression() {args++;})* ]
+  [ VariableInitializer() {args++;} ( "," VariableInitializer() {args++;})* ]
   x2=")"
   {
   	syntaxBuilder.identifier("funcname", pos(x1), funcname);
@@ -1086,6 +1086,7 @@ void ArrayDimsAndInits() :
   ( LOOKAHEAD(2) x1="[" x2="]" {syntaxBuilder.uop("array.index.empty", pos(x1, x2));} )*
 |
   ( TypeDimension() )+ ArrayInitializer()
+  {syntaxBuilder.bop("new.array.initialized", null);}
 }
 
 
@@ -1569,7 +1570,7 @@ void ReturnStatement() :
   Token x;
 }
 {
-  x = "return" [ Expression() {++args;} ] ";"
+  x = "return" [ VariableInitializer() {++args;} ] ";"
   {syntaxBuilder.nop("control.return", pos(x), args);}
 }
 

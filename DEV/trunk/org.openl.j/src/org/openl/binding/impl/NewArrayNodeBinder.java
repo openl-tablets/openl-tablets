@@ -40,6 +40,13 @@ public class NewArrayNodeBinder extends ANodeBinder {
         ISyntaxNode indexChild = node.getChild(0);
         int dimension = 0;
 
+        if(isArrayWithInitialization(node)){
+            indexChild = indexChild.getChild(0);
+            while (indexChild.getType().equals("type.index")) {
+                dimension++;
+                indexChild = indexChild.getChild(0);
+            }
+        }
         while (indexChild.getType().equals("array.index.empty")) {
             dimension++;
             indexChild = indexChild.getChild(0);
@@ -74,7 +81,14 @@ public class NewArrayNodeBinder extends ANodeBinder {
         IAggregateInfo info = componentType.getAggregateInfo();
         IOpenClass arrayType = info.getIndexedAggregateType(componentType, dimension + exprsize);
 
-        return new ArrayBoundNode(node, exprAry, dimension, arrayType, componentType);
+        if (isArrayWithInitialization(node)) {
+            return bindTypeNode(node.getChild(0).getChild(1), bindingContext, arrayType);
+        } else {
+            return new ArrayBoundNode(node, exprAry, dimension, arrayType, componentType);
+        }
     }
 
+    private boolean isArrayWithInitialization(ISyntaxNode node) {
+        return node.getChild(0).getType().equals("new.array.initialized");
+    }
 }
