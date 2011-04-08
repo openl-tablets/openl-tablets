@@ -14,5 +14,4 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.openl.rules.webstudio.util.StartTomcat"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;openl.webstudio.home=${workspace_loc}&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.openl.rules.webstudio"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256M -Xmx1024M"/>
 </launchConfiguration>
