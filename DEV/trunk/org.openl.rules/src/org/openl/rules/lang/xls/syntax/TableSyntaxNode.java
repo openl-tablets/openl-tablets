@@ -33,10 +33,8 @@ import org.openl.types.IOpenMember;
 public class TableSyntaxNode extends NaryNode implements IIndexElement {
 
     private ILogicalTable table;
-    // String header;
 
     private HeaderSyntaxNode headerNode;
-    // PropertySyntaxNode propertyNode;
     
     private ITableProperties tableProperties;
 
@@ -83,11 +81,6 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public boolean hasErrors() {
         return CollectionUtils.isNotEmpty(errors);
     }
-
-    // public IIndexElement getParent()
-    // {
-    // return (XlsSheetSourceCodeModule)getModule();
-    // }
 
     public GridLocation getGridLocation() {
         return (GridLocation) getLocation();
