@@ -8,22 +8,6 @@ public interface OpenLException {
     String getMessage();
     Throwable getCause();
     
-//    /**
-//     * Gets original error message.
-//     * 
-//     * @return error message
-//     */
-//    String getOriginalMessage();
-//
-//    /**
-//     * Gets original cause of error.
-//     * It can be <code>null</code> if cause is not java exception or java error.
-//     * 
-//     * @return {@link Throwable} object if cause of error is java exception or
-//     *         java error; <code>null</code> - otherwise
-//     */
-//    Throwable getOriginalCause();
-
     /**
      * Gets error cause location.
      * 

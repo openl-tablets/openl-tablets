@@ -1,8 +1,13 @@
 package org.openl.message;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLExceptionUtils;
+import org.openl.main.SourceCodeURLConstants;
+import org.openl.main.SourceCodeURLTool;
 
 /**
  * Class defines error OpenL message abstraction. <code>OpenLErrorMessage</code> encapsulates {@link IOpenLError} object
@@ -28,6 +33,27 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     public OpenLException getError() {
         return error;
+    }
+
+    @Override
+    public String toString() {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+
+        printWriter.println(super.toString());
+        
+        if (getError() != null) {
+            String url = SourceCodeURLTool.makeSourceLocationURL(getError().getLocation(),
+                getError().getSourceModule(), "");
+
+            if (!StringUtils.isEmpty(url)) {
+                printWriter.print(SourceCodeURLConstants.AT_PREFIX + url);
+            }
+        }
+        
+        printWriter.close();
+
+        return stringWriter.toString();
     }
 
 }
