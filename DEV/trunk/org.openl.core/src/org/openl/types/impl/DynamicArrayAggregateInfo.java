@@ -15,6 +15,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
+import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -123,8 +124,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     }
 
     public Iterator<Object> getIterator(Object aggregate) {
-        // TODO Auto-generated method stub
-        return null;
+        return OpenIterator.fromArrayObj(aggregate);
     }
 
     public boolean isAggregate(IOpenClass type) {

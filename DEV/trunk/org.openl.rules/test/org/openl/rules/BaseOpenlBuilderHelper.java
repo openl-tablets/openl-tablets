@@ -97,7 +97,7 @@ public abstract class BaseOpenlBuilderHelper {
         IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
         IOpenMethod testMethod = __class.getMatchingMethod(methodName, params);
         
-        Assert.assertNotNull(String.format("Method with name %s exists", methodName), testMethod);        
+        Assert.assertNotNull(String.format("Method with name \"%s\" does not exists", methodName), testMethod);        
         
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
         Object __myInstance = __class.newInstance(environment);

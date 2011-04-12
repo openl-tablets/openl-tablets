@@ -1093,14 +1093,28 @@ void ArrayDimsAndInits() :
 void IndexOperator() :
 {Token x1,x2;}
 {
-  x1="["
+LOOKAHEAD(2)
+  ( x1="["
     Expression()
   x2="]"
   {
     syntaxBuilder.uop("op.index", pos(x1, x2));
     
-  }
-
+  })
+|
+  ( (x1="[!@" | x1="[select first having ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("selectfirst.index", pos(x1, x2));
+    
+  })
+|
+  ( (x1="[@" | x1="[select all having ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("selectall.index", pos(x1, x2));
+    
+  })
 }
 
 void AbsExpression() :
