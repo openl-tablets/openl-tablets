@@ -62,6 +62,8 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "op.new.object", org.openl.binding.impl.NewNodeBinder.class.getName(), 
                 "op.new.array", org.openl.binding.impl.NewArrayNodeBinder.class.getName(), 
                 "op.index", org.openl.binding.impl.IndexNodeBinder.class.getName(), 
+                "selectfirst.index", org.openl.binding.impl.SelectFirstIndexNodeBinder.class.getName(), 
+                "selectall.index", org.openl.binding.impl.SelectAllIndexNodeBinder.class.getName(), 
                 "op.ternary.qmark", org.openl.binding.impl.QMarkNodeBinder.class.getName(), 
                 "type.cast", org.openl.binding.impl.TypeCastBinder.class.getName(),
                 "local.var.declaration", org.openl.binding.impl.LocalVarBinder.class.getName(),
