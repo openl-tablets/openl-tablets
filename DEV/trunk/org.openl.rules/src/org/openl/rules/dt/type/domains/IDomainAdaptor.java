@@ -19,4 +19,6 @@ public interface IDomainAdaptor {
 
     Object getValue(int index);
 
+    IDomainAdaptor merge(IDomainAdaptor adaptor);
+
 }

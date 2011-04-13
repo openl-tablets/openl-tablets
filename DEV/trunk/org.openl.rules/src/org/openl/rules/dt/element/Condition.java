@@ -61,9 +61,9 @@ public class Condition extends FunctionalRow implements ICondition {
      * The algorithm for Condition Expression parsing will work like this:
      * <p>
      * 1) Compile CE as <code>void</code> expression with all the Condition
-     * Parameters(CP). Report errors anad return, if any
+     * Parameters(CP). Report errors and return, if any
      * <p>
-     * 2) Check if the expression depends on any of the parameters, if it does,
+     * 2) Check if the expression depends on any of the condition parameters, if it does,
      * it is not intended to be optimized (at least not in this version). In
      * this case it has to have <code>boolean</code> type.
      * <p>

@@ -245,7 +245,6 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    @SuppressWarnings("unchecked")
     private static IRangeAdaptor getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
         if (ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true)) {
             if (org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass())) {
@@ -363,9 +362,11 @@ public class DecisionTableOptimizedAlgorithm {
                 // memory optimization: clear condition values because this
                 // values will be used in index(only if it condition is not used
                 // )
-                if (!isDependecyOnConditionExists(table.getConditionRows()[i])) {
-                    table.getConditionRows()[i].clearParamValues();
-                }
+                
+//TODO    snshor: We must move this clean up somewhere else!!! This information is needed for gap/overlap validation  
+//                if (!isDependecyOnConditionExists(table.getConditionRows()[i])) {
+//                    table.getConditionRows()[i].clearParamVVVValues();
+//                }
             } else {
                 break;
             }
@@ -498,6 +499,7 @@ public class DecisionTableOptimizedAlgorithm {
             } else {
 
                 Object[] values = new Object[params[i].length];
+                indexedParams[i] = values;
 
                 for (int j = 0; j < values.length; j++) {
 
@@ -507,9 +509,7 @@ public class DecisionTableOptimizedAlgorithm {
                         throw SyntaxNodeExceptionUtils.createError("Can not index conditions with formulas",
                             table.getSyntaxNode());
                     }
-
                     values[j] = value;
-                    indexedParams[i] = values;
                 }
             }
         }
