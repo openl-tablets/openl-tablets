@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.exception.OpenLRuntimeException;
@@ -18,15 +19,17 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dt.type.IRangeAdaptor;
+import org.openl.rules.helpers.IntRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.types.IParameterDeclaration;
 import org.openl.util.IntervalMap;
 import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
  */
-public class RangeIndexedEvaluator implements IConditionEvaluator {
+public class RangeIndexedEvaluator extends AConditionEvaluator implements  IConditionEvaluator {
 
     private IRangeAdaptor<Object, Object> adaptor;
 
@@ -36,10 +39,19 @@ public class RangeIndexedEvaluator implements IConditionEvaluator {
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
 
+        
+        
+        IParameterDeclaration[] cparams  = condition.getParams();
+        
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
-        String name = condition.getParams()[1].getName();
-        String code = String.format("%1$s<=(%2$s) && (%2$s) < %1$s", name, conditionSource.getCode());
-
+        
+        
+        
+        String code = cparams.length == 2 ? 
+           String.format("%1$s<=(%2$s) && (%2$s) < %3$s", cparams[0].getName(), conditionSource.getCode(), cparams[1].getName())
+                                            : 
+           String.format("%1$s.contains(%2$s)", cparams[0].getName(), conditionSource.getCode());
+                                                
         return new StringSourceCodeModule(code, conditionSource.getUri(0));
     }
 
@@ -158,6 +170,47 @@ public class RangeIndexedEvaluator implements IConditionEvaluator {
         }
 
         return newList;
+    }
+
+
+    public IDomain<Integer> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+        return null;
+    }
+
+    protected IDomain<Integer> indexedDomain(ICondition condition) throws DomainCanNotBeDefined {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        
+        Object[][] params = condition.getParamValues();
+        for (int i = 0; i < params.length; i++) {
+            Object[] pi= params[i];
+            if (pi == null)
+                continue;
+            
+            Comparable<?> vFrom = null;
+            Comparable<?> vTo = null;
+
+            if (adaptor == null) {
+                vFrom = (Comparable<?>) pi[0];
+                vTo = (Comparable<?>) pi[1];
+            } else {
+                vFrom = adaptor.getMin(pi[0]);
+                vTo = adaptor.getMax(pi[0]);
+            }
+            
+            if (!(vFrom instanceof Integer))
+            {
+                throw new DomainCanNotBeDefined("Domain Can not be converted to Integer", null);
+            }    
+            
+            min = Math.min(min, (Integer)vFrom);
+            max = Math.max(max, (Integer)vTo - 1);
+            
+        }
+        
+        
+        
+        return new IntRange(min, max);
     }
 
 }

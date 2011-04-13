@@ -44,4 +44,15 @@ public class DateRangeDomainAdaptor implements IDomainAdaptor {
     public String toString() {
         return "[" + getMin() + ";" + getMax() + "]";
     }
+
+    public IDomainAdaptor merge(IDomainAdaptor adaptor) {
+        DateRangeDomainAdaptor a = (DateRangeDomainAdaptor)adaptor;
+        
+        Date min = domain.getMin().before(a.domain.getMin()) ? domain.getMin() : a.domain.getMin();
+        Date max = domain.getMax().after(a.domain.getMax()) ? domain.getMax() : a.domain.getMax();
+        
+        
+        
+        return new DateRangeDomainAdaptor(new DateRangeDomain(min, max));
+    }
 }

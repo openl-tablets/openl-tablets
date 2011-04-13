@@ -3,10 +3,14 @@
  */
 package org.openl.rules.dt.algorithm.evaluator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.openl.domain.EnumDomain;
+import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -22,7 +26,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class EqualsIndexedEvaluator implements IConditionEvaluator {
+public class EqualsIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
   
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
@@ -85,4 +89,31 @@ public class EqualsIndexedEvaluator implements IConditionEvaluator {
         return index;
 
     }
+
+
+
+    protected IDomain<Object> indexedDomain(ICondition condition) {
+        Object[][] params = condition.getParamValues();
+        int len = params.length;
+        ArrayList<Object> list = new ArrayList<Object>(len);
+        HashSet<Object> set = new HashSet<Object>(len);
+        
+        for (int i = 0; i < params.length; i++) {
+            Object[] pp = params[i];
+            if (pp == null)
+                continue;
+            Object key = pp[0];
+            if (key == null)
+                continue;
+            if (!set.add(key))
+                continue;
+            list.add(key);
+        }
+        
+        EnumDomain<Object> ed = new EnumDomain<Object>(list.toArray()); 
+        
+        return ed;
+    }
+    
+    
 }

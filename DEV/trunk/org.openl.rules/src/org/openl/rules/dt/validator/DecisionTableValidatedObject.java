@@ -3,6 +3,7 @@
  */
 package org.openl.rules.dt.validator;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -122,19 +123,42 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (instanceClass.isEnum()) {
             return JavaOpenClass.INT;
         }
+        
+        if (instanceClass.isArray())
+            return  JavaOpenClass.getOpenClass(int[].class);
+        
 
         return null;
     }
         
     public Object transformLocalParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
+        
+        if (value != null && value.getClass().isArray())
+        {
+            int[] res = new int[Array.getLength(value)];
+            for (int i = 0; i < res.length; i++) {
+                res[i] = (Integer)transformSingleLocalParameterValue(name, condition, Array.get(value, i), dtan); 
+            }
+            
+            return res;
+        }   
+        else return transformSingleLocalParameterValue(name, condition, value, dtan);
+    } 
+        
+  public Object transformSingleLocalParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
+        
         Object result = value;
         if (value instanceof IntRange) {
             IntRange intr = (IntRange) value;
-            result = new CtrIntRange(intr.getMin(), intr.getMax());
+            return new CtrIntRange(intr.getMin(), intr.getMax());
         }
         
         // at first search domains in those that were defined by user.
-        IDomainAdaptor domainAdaptor = getDomains().get(name);
+        String uniquePname = DecisionTableValidator.getUniqueConditionParamName(condition, name);
+        IDomainAdaptor domainAdaptor = getDomains().get(uniquePname);
+        if (domainAdaptor == null)
+            domainAdaptor = getDomains().get(name);
+        
         if (domainAdaptor != null) {
             result = new Integer(domainAdaptor.getIndex(value));
         } else { // then search domains from its type.

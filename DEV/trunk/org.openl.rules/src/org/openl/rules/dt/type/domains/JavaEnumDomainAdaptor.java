@@ -35,4 +35,15 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
         return domain.getValue(index);
     }
 
+    public IDomainAdaptor merge(IDomainAdaptor adaptor) {
+        JavaEnumDomainAdaptor a = (JavaEnumDomainAdaptor)adaptor;
+        
+        if (domain.getEnumClass() != a.domain.getEnumClass())
+            throw new RuntimeException("Wrong use of JavaEnumDomain for " + domain.getEnumClass().getName());
+        
+        return this;
+    }
+
+    
+    
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntArrayIterator;
@@ -159,6 +160,16 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         }
 
         return new EqualsIndex(emptyBuilder.makeNode("Empty"), nodeMap);
+    }
+
+    public IDomain getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public IDomain getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
