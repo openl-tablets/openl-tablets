@@ -39,27 +39,10 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/core</outputDirectory>
-              <includeGroupIds>org.openl,org.openl.rules</includeGroupIds>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>assembly-jar</id>
+            <id>assembly-zip</id>
             <phase>package</phase>
             <goals>
               <goal>attached</goal>

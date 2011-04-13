@@ -7,12 +7,25 @@
     <format>zip</format>
   </formats>
 
-  <fileSets>
-    <fileSet>
-      <directory>target/core</directory>
+  <dependencySets>
+    <dependencySet>
+      <outputFileNameMapping>${artifact.artifactId}_${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputDirectory>libs</outputDirectory>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <excludes>
+        <exclude>org.openl*:*</exclude>
+      </excludes>
+    </dependencySet>
+
+    <dependencySet>
+      <outputFileNameMapping>${artifact.artifactId}_${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
       <outputDirectory></outputDirectory>
-    </fileSet>
-  </fileSets>
+      <includes>
+        <include>org.openl*:*</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
   <files>
     <file>
       <source>target/${project.build.finalName}.jar</source>
