@@ -64,10 +64,10 @@ public class HTMLRenderer {
     }
 
     public String render(TableEditor editor) {
-        return render(editor, false, null, null, null);
+        return render(editor, null, null, null);
     }
 
-    public String render(TableEditor editor, boolean inner, String cellToEdit,
+    public String render(TableEditor editor, String cellToEdit,
             List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
         result.append("<div>")
@@ -86,7 +86,6 @@ public class HTMLRenderer {
             .append(renderJS("js/ScriptLoader.js"))
             .append(renderJS("js/AjaxHelper.js"))
             .append(renderJS("js/TableEditor.js"))
-            .append(renderJS("js/initTableEditor.js"))
             .append(renderJS("js/BaseEditor.js"))
             .append(renderJS("js/BaseTextEditor.js"))
             .append(renderJS("js/validation.js"))
@@ -99,19 +98,48 @@ public class HTMLRenderer {
             .append(renderJS("js/BooleanEditor.js"))
             .append(renderJS("js/DateEditor.js"))
             .append(renderJS("js/MultiselectEditor.js"))
-            .append(renderJS("js/ArrayEditor.js"));
-        if (!inner) {
-            result.append("<div id='").append(editor.getId()).append("' class='te_'>");
-        }
+            .append(renderJS("js/ArrayEditor.js"))
+            .append(renderJS("js/popup/popupmenu.js"));
+
+        result.append("<div id='").append(editor.getId()).append("' class='te_'>");
+
         String mode = editor.getMode();
-        if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(editor, actionLinks, errorCell));
-        } else if (mode.equals(Constants.MODE_EDIT)) {
+
+        if (Constants.MODE_EDIT.equals(mode)) {
             result.append(renderEditor(editor, cellToEdit, errorCell));
+        } else {
+            result.append(renderViewer(editor, actionLinks, errorCell));
         }
-        if (!inner) {
-            result.append("</div>");
+
+        result.append("</div>");
+
+        if (editor.getTable() != null) {
+            IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
+            IGridTable table = editor.getTable().getGridTable(editor.getView());
+            int numRows = getMaxNumRowsToDisplay(table);
+            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows);
+            if (tableModel != null) {
+                String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
+                TableRenderer tableRenderer = new TableRenderer(tableModel);
+                String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
+                result.append("<div id=\"").append(tableId).append("\">");
+                result.append(tableRenderer.renderWithMenu(editor, menuId, errorCell));
+                result.append("</div>");
+
+                String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
+
+                String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
+                String afterSave = getEditorJSAction(editor.getOnAfterSave());
+                String saveFailure = getEditorJSAction(editor.getOnSaveFailure());
+
+                String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",saveFailure:" + saveFailure + "}";
+
+                result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
+                        + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ","
+                        + (Constants.MODE_EDIT.equals(mode) ? 1 : 0) + "," + editor.isEditable() + ");"));
+            }
         }
+
         result.append("</div>");
         return result.toString();
     }
@@ -119,9 +147,9 @@ public class HTMLRenderer {
     protected String renderActionMenu(String menuId, boolean editable, List<ActionLink> actionLinks) {
         StringBuilder result = new StringBuilder();
 
-        String editLink = "<tr><td><a href=\"javascript:triggerEdit('"
-                + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','" + WebUtil.internalPath("ajax/edit")
-                + "')\">Edit</a></td></tr>";
+        String editorJsVar = Constants.TABLE_EDITOR_PREFIX + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "");
+
+        String editLink = "<tr><td><a href=\"javascript:" + editorJsVar + ".toEditMode();\">Edit</a></td></tr>";
         String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
                 + (editable ? editLink : "");
         String menuEnd = "</table>" + "</div>";
@@ -191,28 +219,18 @@ public class HTMLRenderer {
         return jsCode;
     }
 
-    protected String renderEditor(TableEditor editor, String cellToEdit, String errorCell) {
+    public String renderEditor(TableEditor editor, String cellToEdit, String errorCell) {
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
-        
-        String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
-        String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
-        
-        String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
-        String afterSave = getEditorJSAction(editor.getOnAfterSave());
-        String saveFailure = getEditorJSAction(editor.getOnSaveFailure());
-        
-        String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",saveFailure:" + saveFailure + "}";
 
-        result.append(renderJSBody("var " + editorJsVar + ";"))
+        String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
+
+        result
                 .append(renderEditorToolbar(editor.getId(), editorJsVar))
                 .append(renderJS("js/colorPicker.js"))
                 .append(renderJS("js/popup.js"));
         result.append(
                 renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT, editor.isCollapseProps()));
-        result.append("<div id=\"").append(tableId).append("\"></div>");
-        result.append(renderJSBody(editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
-                + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ");"));
 
         return result.toString();
     }
@@ -339,9 +357,8 @@ public class HTMLRenderer {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
                 tableRenderer.setCellIdPrefix(editor.getId() + Constants.ID_POSTFIX_CELL);
                 if (editor.isEditable() || (actionLinks != null && !actionLinks.isEmpty())) {
-                    result.append(renderJS("js/popup/popupmenu.js"))
-                        .append(renderJS("js/tableEditorMenu.js"))
-                        .append(tableRenderer.renderWithMenu(editor, menuId, errorCell))
+                    result//.append(renderJS("js/popup/popupmenu.js"))
+                        //.append(renderJS("js/tableEditorMenu.js"))
                         .append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
                 } else {
                     result.append(tableRenderer.render(editor.isShowFormulas()));
@@ -387,7 +404,7 @@ public class HTMLRenderer {
                 && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
                 && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString())) {
             ITableProperties props = table.getProperties();
-            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode, collapseProps,
+            return new PropertyRenderer(editorId, props, mode, collapseProps,
                     tableType).renderProperties();
         }
         return "";
@@ -408,10 +425,10 @@ public class HTMLRenderer {
         }
 
         public String render(boolean showFormulas) {
-            return render(null, false, showFormulas, null);
+            return render(null, showFormulas, null, "");
         }
 
-        public String render(String extraTDText, boolean embedCellURI, boolean showFormulas, String errorCell) {
+        public String render(String extraTDText, boolean showFormulas, String errorCell, String editorId) {
             String tdPrefix = "<td";
             if (extraTDText != null) {
                 tdPrefix += " ";
@@ -452,23 +469,19 @@ public class HTMLRenderer {
                     }
 
                     StringBuilder id = new StringBuilder();
-                    id.append(prefix).append(String.valueOf(row + 1)).append(":").append(col + 1);
+                    id.append(editorId).append(prefix).append(String.valueOf(row + 1)).append(":").append(col + 1);
 
                     s.append(" id=\"").append(id).append("\"");
                     if (cell.getComment() != null) {
                         s.append(" class=\"te_comment\"");
                     }
                     s.append(">");
-                    if (embedCellURI) {
-                        s.append(createHiddenField("uri", cellUri));
-                    }
                     String cellContent = cell.getContent(showFormulas);
                     if (cellContent != null) {
                         cellContent.replaceAll("", "");
                     }
                     s.append(cellContent).append("</td>\n");
                     if (cell.getComment() != null) {
-                        //s.append(createHiddenField("comment", cell.getComment()));
                         s.append("<script type=\"text/javascript\">")
                             .append("new Tooltip('" + id + "','" + StringEscapeUtils.escapeJavaScript(
                                     cell.getComment().replaceAll("\\n", "<br/>"))
@@ -491,22 +504,10 @@ public class HTMLRenderer {
             return s.toString();
         }
 
-        private String createHiddenField(String name, String value) {
-            StringBuilder field = new StringBuilder();
-            field.append("<input type=\"hidden\" name=\"").append(name)
-                 .append("\" value=\"").append(value).append("\"></input>");
-            return field.toString();
-        }
-
         public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
             menuId = menuId == null ? "" : menuId;
             String eventHandlers = "onmousedown=\"openMenu('" + menuId + "',this,event)\"";
-            if (editor.isEditable()) {
-                eventHandlers += " ondblclick=\"triggerEdit('"
-                    + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','"
-                    + WebUtil.internalPath("ajax/edit") + "', this)\"";
-            }
-            return render(eventHandlers, true, editor.isShowFormulas(), errorCell);
+            return render(eventHandlers, editor.isShowFormulas(), errorCell, editor.getId());
         }
 
         public void setCellIdPrefix(String prefix) {
@@ -530,15 +531,17 @@ public class HTMLRenderer {
 
         private ITableProperties props;
 
+        private String editorId;
         private String propsId;
 
         private boolean collapsed;
         
         private String tableType;
 
-        public PropertyRenderer(String propsId, ITableProperties props, String view, boolean collapsed,
+        public PropertyRenderer(String editorId, ITableProperties props, String view, boolean collapsed,
                 String tableType) {
-            this.propsId = propsId == null ? "" : propsId;
+            this.editorId = editorId == null ? "" : editorId;
+            this.propsId = editorId + Constants.ID_POSTFIX_PROPS;
             this.props = props;
             this.mode = view;
             this.tableType = tableType;
@@ -616,6 +619,21 @@ public class HTMLRenderer {
             if (!collapsed) {
                 result.append(renderJSBody("$('" + propsId + "').show()"));
             }
+
+            if (mode.equals("edit")) {
+                String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editorId;
+                result.append(renderJSBody("var propIdSelector = 'id^=\"_" + propsId + "_prop-\"';"
+                        + "$$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {"
+                        + "elem.observe('focus', function(e) {"
+                        + "this.addClassName('te_props_prop_focused');"
+                        + "});"
+                        + "elem.observe('blur', function(e) {"
+                        + "this.removeClassName('te_props_prop_focused');"
+                        + editorJsVar + ".handlePropBlur(e);"
+                        + "});"
+                        + "});"));
+            }
+
             return result.toString();
         }
 

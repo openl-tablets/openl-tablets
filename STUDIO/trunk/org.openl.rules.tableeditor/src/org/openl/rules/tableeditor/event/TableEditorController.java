@@ -17,7 +17,6 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -48,8 +47,11 @@ public class TableEditorController extends BaseTableEditorController implements 
         String errorCell = getRequestParam(Constants.REQUEST_PARAM_ERROR_CELL);
         TableEditorModel editorModel = getEditorModel(editorId);
         TableEditor editor = editorModel.getTableEditor();
-        editor.setMode("edit");
-        return new HTMLRenderer().render(editor, true, cellToEdit, null, errorCell);
+        if (editor.isEditable()) {
+            editor.setMode("edit");
+            return new HTMLRenderer().renderEditor(editor, cellToEdit, errorCell);
+        }
+        return StringUtils.EMPTY;
     }
 
     public String insertRowBefore() {
@@ -163,15 +165,6 @@ public class TableEditorController extends BaseTableEditorController implements 
         TableEditorModel editorModel = getEditorModel(getEditorId());
         int numberOfNonShownRows = editorModel.getNumberOfNonShownRows();
         return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
-    }
-
-    public String load() {
-        String editorId = getEditorId();
-        String response = render(editorId);
-        IGridTable gridTable = getGridTable(editorId);
-        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCell(gridTable.getGridColumn(0, 0),
-                gridTable.getGridRow(0, 0)).getUri(), getEditorModel(editorId)));
-        return response;
     }
 
     public String removeRow() {
@@ -603,51 +596,6 @@ public class TableEditorController extends BaseTableEditorController implements 
 
         public void setParams(Object params) {
             this.params = params;
-        }
-
-    }
-
-    public static class LoadResponse {
-        private String tableHTML;
-        private String topLeftCell;
-        private TableEditorModel model;
-
-        public LoadResponse(String tableHTML, String topLeftCell, TableEditorModel model) {
-            this.tableHTML = tableHTML;
-            this.topLeftCell = topLeftCell;
-            this.model = model;
-        }
-
-        public String getTableHTML() {
-            return tableHTML;
-        }
-
-        public String getTopLeftCell() {
-            return topLeftCell;
-        }
-
-        public boolean isHasRedo() {
-            return model != null && model.hasRedo();
-        }
-
-        public boolean isHasUndo() {
-            return model != null && model.hasUndo();
-        }
-
-        // required for POJO->JSON mapping
-        public void setHasRedo(boolean hasRedo) {
-        }
-
-        // required for POJO->JSON mapping
-        public void setHasUndo(boolean hasUndo) {
-        }
-
-        public void setTableHTML(String tableHTML) {
-            this.tableHTML = tableHTML;
-        }
-
-        public void setTopLeftCell(String topLeftCell) {
-            this.topLeftCell = topLeftCell;
         }
 
     }

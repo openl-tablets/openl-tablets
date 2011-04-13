@@ -8,7 +8,14 @@
 
 var TableEditor = Class.create({
 
+    Modes: {
+        VIEW: 0,
+        EDIT: 1
+    },
+
     editorId: -1,
+    mode: null,
+    editable: null,
     tableContainer: null,
     currentElement: null,
     editorName: null,
@@ -21,7 +28,6 @@ var TableEditor = Class.create({
     decorator: null,
     rows: 0,
     columns: 0,
-    table: null,
     modFuncSuccess: null,
     editCell: null,
     cellIdPrefix: null,
@@ -35,14 +41,16 @@ var TableEditor = Class.create({
     fontColorPicker: null,
 
     // Constructor
-    initialize : function(editorId, url, editCell, actions) {
+    initialize : function(editorId, url, editCell, actions, mode, editable) {
+        this.mode = mode ? mode : this.Modes.VIEW;
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
         this.propIdPrefix = "_" + this.editorId + "_props_prop-";
         this.tableContainer = $(editorId + "_table");
-        this.tableContainer.style.cursor = 'default';
         this.inheritedPropStyleClass = 'te_props_prop_inherited';
         this.actions = actions;
+
+        this.editable = editable === false ? false : true;
 
         // Suppress text selection BEGIN
         this.tableContainer.onselectstart = function() { // IE
@@ -59,104 +67,32 @@ var TableEditor = Class.create({
 
         var self = this;
 
-        // Handle Properties Editor events START
-        var propIdSelector = 'id^="' + this.propIdPrefix + '"';
-        $$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {
-            elem.observe("focus", function(e) {
-                this.addClassName('te_props_prop_focused');
-            });
-            elem.observe("blur", function(e) {
-                this.removeClassName('te_props_prop_focused');
-                self.handlePropBlur(e);
-            });
-        });
-        // Handle Properties Editor events END
-
-        // Handle Table Editor events START
-        Event.observe(document, "click", function(e) {
-            var elt = Event.element(e);
-            if (self.currentElement
-                    && self.currentElement != elt) {
-                self.currentElement.blur();
-            }
-            self.handleClick(e);
-        });
-
+        if (this.mode == this.Modes.EDIT) {
+            this.initEditMode();
+        }
+        
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
         });
-
-        Event.observe(document, "keydown", function(e) {
-            self.handleKeyDown(e);
-        });
-
-        if (Prototype.Browser.IE || Prototype.Browser.Opera) {
-            document.onkeypress = function(e) {
-                self.handleKeyPress(e || window.event)
-            }
-        } else {
-            Event.observe(document, "keypress", function(e) {
-                self.handleKeyPress(e);
-            });
-        }
-        // Handle Table Editor events END
-
-        this.modFuncSuccess = function(response) {
-            response = eval(response.responseText);
-            if (response.status) alert(response.status);
-            else {
-                if (response.response) {
-                    this.renderTable(response.response);
-                    this.selectElement();
-                }
-                this.processCallbacks(response, "do");
-            }
-        }.bindAsEventListener(this);
     },
 
-    /**
-     * Load data from specific url.
-     */
-    loadData : function(url) {
-        if (!url) url = this.buildUrl(TableEditor.Operations.LOAD);
-        var self = this;
-        new Ajax.Request(url, {
-            method      : "get",
-            encoding    : "utf-8",
-            contentType : "text/javascript",
-            parameters : {
-                editorId: this.editorId
-            },
-            onSuccess   : function(data) {
-                data = eval(data.responseText);
-                self.renderTable(data.tableHTML.strip());
-                self.processCallbacks(data, "do");
-
-                if (self.editCell) {
-                    var s = TableEditor.parseXlsCell(self.editCell);
-                    var t = TableEditor.parseXlsCell(data.topLeftCell);
-                    if (s && t) {
-                        s[0] -= t[0]-1; s[1] -= t[1]-1;
-                        var cell = self.$cell(s);
-                        if (cell) self.editBeginRequest(cell, null, true);
-                    }
-                }
-            },
-            onFailure: AjaxHelper.handleError
-        });
+    startEditing: function() {
+        if (this.editCell && this.editCell.indexOf(":") > 0) {
+            var cellPos = this.editCell.split(":");
+            var cell = this.$cell(cellPos);
+            if (cell) this.editBeginRequest(cell, null, true);
+        }
     },
 
     /**
      * Renders table.
      */
     renderTable : function(data) {
-        this.decorator = new Decorator('te_selected');
-
         this.tableContainer.innerHTML = data.stripScripts();
         new ScriptLoader().evalScripts(data);
-        this.table = $(this.tableContainer.childNodes[0]);
+        var table = $(this.tableContainer.childNodes[0]);
 
-        this.computeTableInfo(this.table);
+        this.computeTableInfo(table);
     },
 
     /**
@@ -265,11 +201,118 @@ var TableEditor = Class.create({
      * Handles mouse double click on table.
      */
     handleDoubleClick: function(event) {
-        var cell = Event.findElement(event, "TD");
-        // Save value of current editor and close it
-        this.setCellValue();
-        this.editBeginRequest(cell);
-        Event.stop(event);
+        var cell = Event.findElement(event, "td");
+        if (cell) {
+            switch (this.mode) {
+                case this.Modes.EDIT: {
+                    // Save value of current editor and close it
+                    this.setCellValue();
+                    this.editBeginRequest(cell);
+                    Event.stop(event);
+                    break;
+                }
+
+                case this.Modes.VIEW:
+                default: {
+                    if (this.editable) {
+                        this.toEditMode(cell);
+                    }
+                    break;
+                }
+            }
+        }
+    },
+
+    toEditMode: function(cellToEdit) {
+        var self = this;
+
+        if (!cellToEdit) {
+            cellToEdit = $(PopupMenu.lastTarget);
+        }
+
+        var cellPos;
+        if (cellToEdit) {
+            cellPos = cellToEdit.id.split(this.cellIdPrefix)[1];
+        }
+
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
+            method: "get",
+            encoding: "utf-8",
+            contentType: "text/javascript",
+            parameters: {
+                cell: cellPos,
+                editorId: self.editorId
+            },
+            onSuccess: function(data) {
+                $(self.editorId).innerHTML = data.responseText.stripScripts();
+                new ScriptLoader().evalScripts(data.responseText);
+
+                self.mode = self.Modes.EDIT;
+                self.initEditMode();
+
+                self.editCell = cellPos;
+                self.startEditing();
+            },
+            onFailure: AjaxHelper.handleError
+        });
+    },
+
+    initEditMode: function() {
+        var self = this;
+
+        initToolbar(self.editorId);
+
+        this.decorator = new Decorator('te_selected');
+
+        // Handle Table Editor events START
+        Event.observe(document, "click", function(e) {
+            var elt = Event.element(e);
+            if (self.currentElement
+                    && self.currentElement != elt) {
+                self.currentElement.blur();
+            }
+            self.handleClick(e);
+        });
+
+        Event.observe(document, "keydown", function(e) {
+            self.handleKeyDown(e);
+        });
+
+        if (Prototype.Browser.IE || Prototype.Browser.Opera) {
+            document.onkeypress = function(e) {
+                self.handleKeyPress(e || window.event)
+            }
+        } else {
+            Event.observe(document, "keypress", function(e) {
+                self.handleKeyPress(e);
+            });
+        }
+        // Handle Table Editor events END
+
+        // Handle Properties Editor events START
+        /*var propIdSelector = 'id^="' + this.propIdPrefix + '"';
+        $$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {
+            elem.observe("focus", function(e) {
+                this.addClassName('te_props_prop_focused');
+            });
+            elem.observe("blur", function(e) {
+                this.removeClassName('te_props_prop_focused');
+                self.handlePropBlur(e);
+            });
+        });*/
+        // Handle Properties Editor events END
+
+        this.modFuncSuccess = function(response) {
+            response = eval(response.responseText);
+            if (response.status) alert(response.status);
+            else {
+                if (response.response) {
+                    this.renderTable(response.response);
+                    this.selectElement();
+                }
+                this.processCallbacks(response, "do");
+            }
+        }.bindAsEventListener(this);
     },
 
     handlePropBlur: function(event) {
@@ -571,7 +614,6 @@ var TableEditor = Class.create({
         }
         this.decorator.undecorate(this.currentElement);
         this.decorator.decorate(this.currentElement = elt);
-
         if (!wasSelected != !this.hasSelection()) this.isSelectedUpdated(!wasSelected);
     },
 
@@ -1045,7 +1087,7 @@ var TableEditor = Class.create({
 TableEditor.Editors = $H();
 
 TableEditor.Operations = {
-    LOAD : "load",
+    EDIT : "edit",
     GET_CELL_EDITOR : "getCellEditor",
     GET_CELL_VALUE : "getCellValue",
     SET_CELL_VALUE : "setCellValue",
@@ -1070,21 +1112,6 @@ TableEditor.Operations = {
 // Standalone functions
 
 TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
-
-/**
- * Returns array [row, column] from string like 'B20' - excel style cell coordinates.   
- */
-TableEditor.parseXlsCell = function (s) {
-    var m = s.match(/^([A-Z]+)(\d+)$/)
-    if (m) {
-        var h = m[1];
-        var col = 0;
-        var Acode = "A".charCodeAt(0) - 1;
-        for (var i = 0; i < h.length; ++i) col = 26 * col + h.charCodeAt(i) - Acode;
-        return [Number(m[2]), col];
-    }
-    return null;
-}
 
 /**
  *  Responsible for visual display of 'selected' element.
@@ -1114,3 +1141,127 @@ var Decorator = Class.create({
         }
     }
 });
+
+
+//TableEditor Menu
+
+// @Deprecated
+function openMenu(menuId, td, event) {
+    if (AjaxHelper.isRightClick(event)) {
+        td.oncontextmenu = function() { return false; };
+        PopupMenu.sheduleShowMenu(menuId, event, 150);
+    }
+}
+
+// @Deprecated
+function closeMenu(td) {
+    PopupMenu.cancelShowMenu();
+}
+
+
+// TableEditor Toolbar
+
+// @Deprecated
+var save_item = "_save_all";
+var undo_item = "_undo";
+var redo_item = "_redo";
+var indent_items = ["_decrease_indent", "_increase_indent"];
+var align_items = ["_align_left", "_align_center", "_align_right"];
+var addremove_items = ["_insert_row_before", "_remove_row", "_insert_column_before", "_remove_column"];
+var font_items = ["_font_bold", "_font_italic", "_font_underline"];
+var color_items = ["_fill_color", "_font_color"];
+var other_items = ["_help"];
+
+var itemClass = "te_toolbar_item";
+var disabledClass = "te_toolbar_item_disabled";
+var overClass = "te_toolbar_item_over";
+
+// @Deprecated
+function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
+    var tableEditor = new TableEditor(editorId, url, cellToEdit, actions, mode, editable);
+
+    tableEditor.undoStateUpdated = function(hasItems) {
+        [save_item, undo_item].each(function(item) {
+            processItem(getItemId(editorId, item), hasItems);
+        });
+        if (hasItems) {
+            window.onbeforeunload = function() {
+                return "Your changes have not been saved.";
+            };
+        } else { // remove handler if Save/Undo items are disabled
+            window.onbeforeunload = function() {};
+        }
+    };
+
+    tableEditor.redoStateUpdated = function(hasItems) {
+        processItem(getItemId(editorId, redo_item), hasItems);
+    };
+
+    tableEditor.isSelectedUpdated = function(selected) {
+        [indent_items, align_items, font_items, color_items,
+            addremove_items, other_items].flatten().each(function(item) {
+            processItem(getItemId(editorId, item), selected);
+        });
+    };
+
+    tableEditor.startEditing();
+
+    return tableEditor;
+}
+
+// @Deprecated
+function initToolbar(editorId) {
+    $$("." + itemClass).each(function(item) {
+        processItem(item, false);
+        item.onmouseover = function() {
+            this.addClassName(overClass);
+        };
+        item.onmouseout = function() {
+            this.removeClassName(overClass);
+        };
+    });
+}
+
+// @Deprecated
+function processItem(item, enable) {
+    if (enable) {
+        enableToolbarItem(item);
+    } else {
+        disableToolbarItem(item);
+    }
+}
+
+// @Deprecated
+function getItemId(editorId, itemId) {
+    if (editorId && itemId) {
+        return editorId + itemId;
+    }
+}
+
+// @Deprecated
+function enableToolbarItem(img) {
+    if (!isToolbarItemDisabled(img = $(img))) return;
+    img.removeClassName(disabledClass);
+
+    if (img._mouseover) img.onmouseover = img._mouseover;
+    if (img._mouseout) img.onmouseout = img._mouseout;
+    if (img._onclick) img.onclick = img._onclick;
+    img._onmouseover = img._onmouseout = img._onclick = '';
+}
+
+// @Deprecated
+function disableToolbarItem(img) {
+    if (isToolbarItemDisabled(img = $(img))) return;
+    img.addClassName(disabledClass);
+
+    img._mouseover = img.onmouseover;
+    img._mouseout = img.onmouseout;
+    img._onclick = img.onclick;
+    img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;
+}
+
+// @Deprecated
+function isToolbarItemDisabled(img) {
+    return img.hasClassName(disabledClass)
+        && img._onclick;
+}

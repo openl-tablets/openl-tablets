@@ -7,8 +7,6 @@ package org.openl.rules.tableeditor.event;
  */
 public interface ITableEditorController {
 
-    String load() throws Exception;
-
     String insertRowBefore() throws Exception;
 
     String insertColumnBefore() throws Exception;

@@ -34,7 +34,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
         if (tableEditor.isEditable()) {
             initEditorModel(externalContext, tableEditor);
         }
-        writer.write(new HTMLRenderer().render(tableEditor, false, cellToEdit, actionLinks, errorCell));
+        writer.write(new HTMLRenderer().render(tableEditor, cellToEdit, actionLinks, errorCell));
     }
 
     private List<ActionLink> getActionLinks(UIComponent component) {

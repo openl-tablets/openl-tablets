@@ -231,7 +231,7 @@
             }
 
             function editInExcel(f) {
-                f.uri.value = $(PopupMenu.lastTarget).down("input[name='uri']").value;
+                f.uri.value = "#{showTableBean.uri}";
                 f.submit();
             }
 
