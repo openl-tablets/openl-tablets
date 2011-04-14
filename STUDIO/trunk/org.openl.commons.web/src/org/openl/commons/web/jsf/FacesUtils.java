@@ -18,6 +18,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Various generic helpful methods to simplify common operations with JSF.
  *
@@ -134,7 +136,14 @@ public abstract class FacesUtils {
      *         otherwise.
      */
     public static String getRequestParameter(String parameterName) {
-        return (String) getRequestParameterMap().get(parameterName);
+        String param = (String) getRequestParameterMap().get(parameterName);
+
+        if (StringUtils.isNotBlank(param)) {
+            try {
+                param = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+            } catch (Exception e) {}
+        }
+        return param;
     }
 
     public static Map<String, String> getRequestParameterMap() {
