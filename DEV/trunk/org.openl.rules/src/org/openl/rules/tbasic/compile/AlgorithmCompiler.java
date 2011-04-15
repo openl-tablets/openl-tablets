@@ -104,7 +104,7 @@ public class AlgorithmCompiler {
         methodContext.registerGroupOfLabels(internalLablesOfMethod);
     }
 
-    private IBindingContext createBindingContext() {
+    private IBindingContext getAlgorithmBindingContext() {
         if (thisContext == null) {
             thisContext = new ComponentBindingContext(context, thisTargetClass);
         }
@@ -205,7 +205,7 @@ public class AlgorithmCompiler {
         IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
-        IBindingContext cxt = createBindingContext();
+        IBindingContext cxt = getAlgorithmBindingContext();
         IOpenClass filedType = OpenLManager.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(),
                 signature, thisTargetClass, cxt).getMethod().getType();
         return filedType;
@@ -232,8 +232,18 @@ public class AlgorithmCompiler {
     public IMethodCaller makeMethod(IOpenSourceCodeModule src, String methodName) {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
-        IBindingContext cxt = createBindingContext();
-        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
+        IBindingContext cxt = getAlgorithmBindingContext();
+        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);    
+    }
+    
+    public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
+        OpenL openl = context.getOpenL();      
+        IMethodSignature signature = header.getSignature();
+        // create method header for newly created method
+        OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
+        
+        IBindingContext cxt = getAlgorithmBindingContext();
+        return OpenLManager.makeMethod(openl, src, header, cxt);
     }
 
     private void postprocess(Algorithm algorithm) {

@@ -62,7 +62,9 @@ public class LabelManager {
         }
     }
 
-    private static String LABEL_INSTRUCTION_PREFIX = "gen_label_";
+    private static final String RETURN_PREFIX = "RETURN";
+
+    private static final String LABEL_INSTRUCTION_PREFIX = "gen_label_";
 
     private Map<LabelType, String> currentLabels;
     private boolean isLoopOperationSet;
@@ -188,6 +190,15 @@ public class LabelManager {
         currentLabels = new HashMap<LabelType, String>();
         this.isLoopOperationSet = isLoopOperationSet;
 
+    }
+    
+    /**
+     * Checks if the label instructions represents are return instruction.
+     * @param labelInstruction
+     * @return true if label instruction is a return one.
+     */
+    public boolean isReturnInstruction(String labelInstruction) {
+        return labelInstruction.startsWith(RETURN_PREFIX);        
     }
 
 }

@@ -58,7 +58,7 @@ public class AlgorithmFunctionCompiler {
      */
     public void compile() throws Exception {
         compileContext.getOperations().addAll(
-                new AlgoritmNodesCompiler(compiler.getLabelManager(), compileContext, compiler)
+                new AlgoritmNodesCompiler(getReturnType(), compileContext, compiler)
                         .compileNodes(functionBody));
         analyzeReturnCorrectness();
     }
