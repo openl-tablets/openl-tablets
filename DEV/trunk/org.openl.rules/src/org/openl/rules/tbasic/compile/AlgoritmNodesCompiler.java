@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
@@ -11,6 +12,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
 
 /**
  * The <code>AlgoritmNodesCompiler</code> class compiles sequence of nodes
@@ -21,19 +23,24 @@ public class AlgoritmNodesCompiler {
     private LabelManager labelManager;
     private CompileContext currentCompileContext;
     private AlgorithmCompiler compiler;
+    
+    /** return type for some contexts that are represented as functions**/
+    private IOpenClass returnType;
 
     /**
      * Create an instance of <code>AlgoritmNodesCompiler</code>.
      *
-     * @param labelManager Label Manager that controls the labels.
+     * @param returnType Return type for some contexts that are represented as functions
      * @param currentCompileContext Context of compilation of nodes.
      * @param compiler Main algorithm compiler
      */
-    public AlgoritmNodesCompiler(LabelManager labelManager, CompileContext currentCompileContext,
-            AlgorithmCompiler compiler) {
-        this.labelManager = labelManager;
+    public AlgoritmNodesCompiler(IOpenClass returnType, CompileContext currentCompileContext,
+            AlgorithmCompiler compiler) {        
+        /**Label Manager that controls the labels.**/
+        this.labelManager = compiler.getLabelManager();
         this.currentCompileContext = currentCompileContext;
         this.compiler = compiler;
+        this.returnType = returnType;
     }
 
     /**
@@ -161,9 +168,18 @@ public class AlgoritmNodesCompiler {
                         operationParam);
                 String methodName = operationParam.replace('.', '_') + "_row_"
                         + executionNode.getAlgorithmRow().getRowNumber();
-                return compiler.makeMethod(src, methodName);
-            }
+                
+                // return statements for the whole Algorithm(TBasic) should be casted to the return type of 
+                // whole Algorithm rule
+                if (labelManager.isReturnInstruction(operationParam)) {
+                    /** create method and cast its value to the appropriate return type*/
+                    return compiler.makeMethodWithCast(src, methodName, returnType);
+                } else {
+                    return compiler.makeMethod(src, methodName);
+                }
+            }        
         } else {
+        
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
             throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't convert parameter %s to type %s",
@@ -174,9 +190,7 @@ public class AlgoritmNodesCompiler {
     private RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
             throws Exception {
         try {
-            Class<?> clazz = Class.forName("org.openl.rules.tbasic.runtime.operations."
-                    + conversionStep.getOperationType() + "Operation");
-            Constructor<?> constructor = clazz.getConstructors()[0];
+            Constructor<?> constructor = getOperationConstructor(conversionStep.getOperationType());
 
             Object[] params = new Object[constructor.getParameterTypes().length];
 
@@ -210,6 +224,12 @@ public class AlgoritmNodesCompiler {
             // throw new BoundError(e, errorSource);
             throw e;
         }
+    }
+
+    private Constructor<?> getOperationConstructor(String operationType) throws ClassNotFoundException {
+        Class<?> clazz = Class.forName("org.openl.rules.tbasic.runtime.operations."
+                + operationType + "Operation");
+        return clazz.getConstructors()[0];
     }
 
     private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile, String fieldName)
@@ -284,4 +304,5 @@ public class AlgoritmNodesCompiler {
 
         return emittedOperations;
     }
+    
 }
