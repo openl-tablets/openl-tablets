@@ -54,8 +54,18 @@
                             <f:selectItems value="#{headerBean.modules}" />
                         </h:selectOneMenu>
                     </h:panelGroup>
-                    <h:outputText value="No OpenL Projects in the Workspace" style="font-size:16px; color:red"
-                        rendered="#{empty headerBean.modules}" />
+
+                    <h:panelGroup rendered="#{empty headerBean.modules}">
+                        <h:outputText value="No OpenL Projects in the Workspace" style="color:red; font-weight: bold" />
+                        <br />
+                        <c:if test="#{not headerBean.repositoryFailed}">
+                            Please go to the 
+                            <a target="_top" href="#{contextPath}/faces/facelets/repository/main.xhtml"
+                                title="Rules Repository"><h:outputText value="Repository" /></a>
+                            to create (upload) a new project
+                        </c:if>
+                    </h:panelGroup>
+
                 </h:form>
             </td>
             <td style="text-align: right;">
