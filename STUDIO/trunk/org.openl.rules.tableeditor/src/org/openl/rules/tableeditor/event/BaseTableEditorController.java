@@ -41,7 +41,6 @@ public class BaseTableEditorController {
         TableModel tableModel = initializeTableModel(editorId);
         TableEditorModel editorModel = getEditorModel(editorId);
         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(tableModel);
-        tableRenderer.setCellIdPrefix(editorId + "_cell-");
-        return tableRenderer.render(editorModel.isShowFormulas());
+        return tableRenderer.render(null, editorModel.isShowFormulas(), null, editorId);
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -118,12 +119,19 @@ public class HTMLRenderer {
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
             TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows);
+
             if (tableModel != null) {
                 String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
+
                 String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
                 result.append("<div id=\"").append(tableId).append("\">");
-                result.append(tableRenderer.renderWithMenu(editor, menuId, errorCell));
+                if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
+                    result.append(tableRenderer.renderWithMenu(editor, menuId, errorCell));
+                } else {
+                    result.append(
+                            tableRenderer.render(null, editor.isShowFormulas(), null, editor.getId()));
+                }
                 result.append("</div>");
 
                 String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
@@ -344,25 +352,12 @@ public class HTMLRenderer {
     protected String renderViewer(TableEditor editor, List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
         if (editor.getTable() != null) {
-            result.append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_VIEW, editor
-                    .isCollapseProps()));
-        }
-        if (editor.getTable() != null) {
-            IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
-            IGridTable table = editor.getTable().getGridTable(editor.getView());
-            int numRows = getMaxNumRowsToDisplay(table);
-            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows);
-            if (tableModel != null) {
-                String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
-                TableRenderer tableRenderer = new TableRenderer(tableModel);
-                tableRenderer.setCellIdPrefix(editor.getId() + Constants.ID_POSTFIX_CELL);
-                if (editor.isEditable() || (actionLinks != null && !actionLinks.isEmpty())) {
-                    result//.append(renderJS("js/popup/popupmenu.js"))
-                        //.append(renderJS("js/tableEditorMenu.js"))
-                        .append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
-                } else {
-                    result.append(tableRenderer.render(editor.isShowFormulas()));
-                }
+            result.append(renderPropsEditor(
+                    editor.getId(), editor.getTable(), Constants.MODE_VIEW, editor.isCollapseProps()));
+
+            String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
+            if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
+                result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
             }
         }
         return result.toString();
@@ -418,7 +413,6 @@ public class HTMLRenderer {
     public static class TableRenderer {
 
         private final TableModel tableModel;
-        private String cellIdPrefix;
 
         public TableRenderer(TableModel tableModel) {
             this.tableModel = tableModel;
@@ -434,7 +428,6 @@ public class HTMLRenderer {
                 tdPrefix += " ";
                 tdPrefix += extraTDText;
             }
-            final String prefix = cellIdPrefix != null ? cellIdPrefix : Constants.ID_POSTFIX_CELL;
 
             IGridTable table = tableModel.getGridTable();
 
@@ -468,10 +461,11 @@ public class HTMLRenderer {
                         ((CellModel) (cell)).atttributesToHtml(s, tableModel, selectErrorCell);
                     }
 
-                    StringBuilder id = new StringBuilder();
-                    id.append(editorId).append(prefix).append(String.valueOf(row + 1)).append(":").append(col + 1);
+                    StringBuilder cellId = new StringBuilder();
+                    cellId.append(editorId).append(Constants.ID_POSTFIX_CELL)
+                        .append(String.valueOf(row + 1)).append(":").append(col + 1);
 
-                    s.append(" id=\"").append(id).append("\"");
+                    s.append(" id=\"").append(cellId).append("\"");
                     if (cell.getComment() != null) {
                         s.append(" class=\"te_comment\"");
                     }
@@ -483,7 +477,7 @@ public class HTMLRenderer {
                     s.append(cellContent).append("</td>\n");
                     if (cell.getComment() != null) {
                         s.append("<script type=\"text/javascript\">")
-                            .append("new Tooltip('" + id + "','" + StringEscapeUtils.escapeJavaScript(
+                            .append("new Tooltip('" + cellId + "','" + StringEscapeUtils.escapeJavaScript(
                                     cell.getComment().replaceAll("\\n", "<br/>"))
                                     + "', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
                             .append("</script>");
@@ -508,10 +502,6 @@ public class HTMLRenderer {
             menuId = menuId == null ? "" : menuId;
             String eventHandlers = "onmousedown=\"openMenu('" + menuId + "',this,event)\"";
             return render(eventHandlers, editor.isShowFormulas(), errorCell, editor.getId());
-        }
-
-        public void setCellIdPrefix(String prefix) {
-            cellIdPrefix = prefix;
         }
     }
 
