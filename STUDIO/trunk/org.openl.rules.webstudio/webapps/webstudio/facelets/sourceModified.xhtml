@@ -5,6 +5,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:c="http://java.sun.com/jstl/core">
 
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="sourceModified" value="#{sessionScope.studio.model.sourceModified}" />
 
     <script type="text/javascript">
