@@ -362,7 +362,8 @@ public class WebStudio {
      * @throws Exception
      */
     public void setCurrentModule(Module module) throws Exception {
-        if (!currentModule.getName().equals(module.getName())) {
+        if (currentModule == null
+                || !currentModule.getName().equals(module.getName())) {
             model.setModuleInfo(module);
         }
         currentModule = module;
