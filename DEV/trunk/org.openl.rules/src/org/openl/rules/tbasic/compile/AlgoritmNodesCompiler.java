@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
@@ -161,8 +160,8 @@ public class AlgoritmNodesCompiler {
             if (operationParam == null) {
                 return null;
             } else {
-                IOpenSourceCodeModule src = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam)
-                        .asSourceCodeModule();
+                StringValue cellContent = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam);
+                IOpenSourceCodeModule src = cellContent.getMetaInfo().getSource();
 
                 AlgorithmTreeNode executionNode = AlgorithmCompilerTool.extractOperationNode(nodesToCompile,
                         operationParam);

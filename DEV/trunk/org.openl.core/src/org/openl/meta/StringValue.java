@@ -1,10 +1,13 @@
 package org.openl.meta;
 
+import java.net.URL;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    private IMetaInfo metaInfo;
+    private ValueMetaInfo metaInfo;
     private String value;
 
     public StringValue(String value) {
@@ -50,7 +53,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         return false;
     }
 
-    public IMetaInfo getMetaInfo() {
+    public ValueMetaInfo getMetaInfo() {
         return metaInfo;
     }
 
@@ -72,6 +75,20 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     public void setMetaInfo(IMetaInfo metaInfo) {
+        if(metaInfo instanceof ValueMetaInfo){
+            setMetaInfo((ValueMetaInfo)metaInfo);
+        }else{
+            try {
+                ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
+                        metaInfo.getDisplayName(IMetaInfo.LONG), new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
+                setMetaInfo(valueMetaInfo);
+            } catch (Exception e) {
+                setMetaInfo((ValueMetaInfo)null);
+            }
+        }
+    }
+
+    public void setMetaInfo(ValueMetaInfo metaInfo) {
         this.metaInfo = metaInfo;
     }
 

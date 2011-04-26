@@ -60,6 +60,10 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return startPosition;
     }
 
+    public IOpenSourceCodeModule getBaseModule() {
+        return baseModule;
+    }
+
     public int getTabSize() {
         return baseModule.getTabSize();
     }

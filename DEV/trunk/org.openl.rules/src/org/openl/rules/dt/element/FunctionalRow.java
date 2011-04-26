@@ -14,7 +14,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -344,7 +344,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return newParams;
     }
         
-    private ILogicalTable getValueCell(int column) {
+    public ILogicalTable getValueCell(int column) {
         return decisionTable.getSubtable(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
@@ -375,7 +375,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, declaringClass);
 
-        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContextDelegator);
+        return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContextDelegator);
     }
 
 	protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext) {
@@ -430,7 +430,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
             try {
                 OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
-                CompositeMethod method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
+                CompositeMethod method = OpenLCellExpressionsCompiler.makeMethod(openl, methodSource, methodHeader, bindingContext);
 
                 IOpenClass type = method.getBodyType();
                 

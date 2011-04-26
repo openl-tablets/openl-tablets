@@ -62,4 +62,7 @@ public class ValueMetaInfo implements IMetaInfo {
         this.source = source;
     }
 
+    public IOpenSourceCodeModule getSource() {
+        return source;
+    }
 }

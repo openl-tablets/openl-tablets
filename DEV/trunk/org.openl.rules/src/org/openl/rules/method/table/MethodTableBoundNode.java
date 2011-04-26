@@ -11,7 +11,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -67,7 +67,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
             IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
-            OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
+            OpenLCellExpressionsCompiler.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
             if (bindingContext.isExecutionMode()) {
                 getTableMethod().setMethodTableBoundNode(null);
                 getTableMethod().getMethodProperties().setModulePropertiesTable(null);

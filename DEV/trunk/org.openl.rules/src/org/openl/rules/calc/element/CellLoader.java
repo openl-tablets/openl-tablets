@@ -2,7 +2,7 @@ package org.openl.rules.calc.element;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.convertor.IString2DataConvertor;
@@ -44,7 +44,7 @@ public class CellLoader {
 
                 IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
 
-                return OpenLManager.makeMethod(bindingContext.getOpenL(), srcCode, header, bindingContext);
+                return OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode, header, bindingContext);
             }
         }
 

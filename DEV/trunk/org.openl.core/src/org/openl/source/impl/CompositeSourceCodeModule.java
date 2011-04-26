@@ -31,6 +31,10 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
         makeCode(separator);
     }
+    
+    public IOpenSourceCodeModule[] getModules() {
+        return modules;
+    }
 
     private void makeCode(String separator) {
         StringBuffer buf = new StringBuffer(100);

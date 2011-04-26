@@ -7,7 +7,7 @@ package org.openl.rules;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
@@ -52,11 +52,11 @@ public class OpenlToolAdaptor {
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
-        return OpenLManager.makeMethod(openl, src, header, bindingContext);
+        return OpenLCellExpressionsCompiler.makeMethod(openl, src, header, bindingContext);
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2) {
-        return OpenLManager.makeMethod(openl, src, h2, bindingContext);
+        return OpenLCellExpressionsCompiler.makeMethod(openl, src, h2, bindingContext);
     }
 
 }

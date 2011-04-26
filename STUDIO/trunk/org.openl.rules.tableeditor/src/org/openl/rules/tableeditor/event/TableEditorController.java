@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -124,8 +125,9 @@ public class TableEditorController extends BaseTableEditorController implements 
 
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
+        } else if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
+            value = cell.getStringValue();
         }
-
         return value;
     }
 

@@ -14,6 +14,7 @@ import java.util.Map;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 
@@ -55,6 +56,10 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
             getUri();
             this.table = null;
         }
+    }
+    
+    public ICell getCell(){
+        return table.getCell(column, row);
     }
 
     public InputStream getByteStream() {
