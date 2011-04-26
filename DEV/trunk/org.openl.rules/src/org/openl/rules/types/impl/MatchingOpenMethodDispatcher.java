@@ -157,7 +157,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
     }
 
-    private TableSyntaxNode getDispatcherTable() {
+    public TableSyntaxNode getDispatcherTable() {
         TableSyntaxNode[] tables = getTableSyntaxNodes();
         for (TableSyntaxNode tsn : tables) {
             if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {

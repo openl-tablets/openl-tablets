@@ -2,6 +2,8 @@ package org.openl.rules.tableeditor.model.ui;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
@@ -9,6 +11,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.Log;
+import org.openl.util.StringTool;
 
 public class TableViewer {
 
@@ -84,9 +87,8 @@ public class TableViewer {
         this.grid = grid;
         this.reg = reg;
     }
-
+    
     CellModel buildCell(ICell cell, CellModel cm) {
-
         cm.setColspan(getColSpan(cell));
         cm.setRowspan(getRowSpan(cell));
 
@@ -95,7 +97,9 @@ public class TableViewer {
         }
 
         String formattedValue = cell.getFormattedValue();
-        if (StringUtils.isNotBlank(formattedValue)) {
+        if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
+            cm.setContent(createFormulaCellWithLinks(cell, formattedValue));
+        } else if (StringUtils.isNotBlank(formattedValue)) {
             String content = null;
             if (!formattedValue.matches("<a href.*</a>")) { // Allow links
                 content = StringEscapeUtils.escapeHtml(formattedValue);
@@ -113,6 +117,29 @@ public class TableViewer {
 
         setStyle(cell, cm);
         return cm;
+    }
+
+    private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
+        int nextSymbolIndex = 0;
+        StringBuffer buff = new StringBuffer();
+        for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
+            int pstart = methodUsage.getStart();
+            int pend = methodUsage.getEnd();
+            String tableUri = methodUsage.getTableUri();
+            if (tableUri != null) {
+                //add link to used table with signature in tooltip
+                String encodedURL = StringTool.encodeURL(tableUri);
+                buff.append(formattedValue.substring(nextSymbolIndex, pstart))
+                        .append("<span class=\"title\"><a href=\"?uri=").append(encodedURL).append("\">")
+                        .append(formattedValue.substring(pstart, pend + 1)).append("</a><em>")
+                        .append(methodUsage.getMethodSignature()).append("</em></span>");
+            } else {
+                buff.append(formattedValue.substring(pstart, pend + 1));
+            }
+            nextSymbolIndex = pend + 1;
+        }
+        buff.append(formattedValue.substring(nextSymbolIndex));
+        return buff.toString();
     }
 
     public TableModel buildModel(IGridTable gt) {

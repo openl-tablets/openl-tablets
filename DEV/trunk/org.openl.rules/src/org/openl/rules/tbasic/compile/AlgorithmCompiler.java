@@ -11,7 +11,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -206,7 +206,7 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
-        IOpenClass filedType = OpenLManager.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(),
+        IOpenClass filedType = OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(),
                 signature, thisTargetClass, cxt).getMethod().getType();
         return filedType;
     }
@@ -233,7 +233,7 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);    
+        return OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
     
     public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
@@ -243,7 +243,7 @@ public class AlgorithmCompiler {
         OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
         
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLManager.makeMethod(openl, src, header, cxt);
+        return OpenLCellExpressionsCompiler.makeMethod(openl, src, header, cxt);
     }
 
     private void postprocess(Algorithm algorithm) {

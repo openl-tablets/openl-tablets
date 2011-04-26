@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaHolder;
@@ -390,6 +391,12 @@ public class RuleRowHelper {
 
     public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
+        ICell cell = logicalCell.getSource().getCell(0, 0);
+        cell.setMetaInfo(meta);
+    }
+
+    public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue, List<MethodUsage> usedMethods) {
+        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue, usedMethods);
         ICell cell = logicalCell.getSource().getCell(0, 0);
         cell.setMetaInfo(meta);
     }
