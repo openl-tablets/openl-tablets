@@ -226,4 +226,14 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return result;
     }
 
+    
+    
+    public boolean isOverrideAscending() {
+        //1. if return type is void, return false
+        if (decisionTable.getMethod().getType() == JavaOpenClass.VOID)
+            return false;
+        
+        return true;
+    }
+
 }

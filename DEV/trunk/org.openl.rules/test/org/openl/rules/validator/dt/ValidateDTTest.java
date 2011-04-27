@@ -4,7 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -27,7 +26,7 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         System.out.println("Hello1:" + vv);
 
-        Assert.assertEquals(1, ((DesionTableValidationResult)vv).getOverlappings().length);
+        Assert.assertEquals(11, ((DesionTableValidationResult)vv).getOverlappings().length);
         Assert.assertEquals(0, ((DesionTableValidationResult)vv).getUncovered().length);
     }
 
@@ -42,7 +41,7 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         System.out.println("Hello2:" + vv);
 
-        Assert.assertEquals(1, ((DesionTableValidationResult)vv).getOverlappings().length);
+        Assert.assertEquals(5, ((DesionTableValidationResult)vv).getOverlappings().length);
         Assert.assertEquals(1, ((DesionTableValidationResult)vv).getUncovered().length);
         
     }

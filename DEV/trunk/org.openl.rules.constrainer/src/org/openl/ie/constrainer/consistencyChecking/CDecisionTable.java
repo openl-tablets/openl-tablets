@@ -57,4 +57,17 @@ public interface CDecisionTable {
      * @return all variables.
      */
     public IntExpArray getVars();
+    
+    
+    /**
+     * 
+     * @return true if the direction of the override logic is going in ascending direction.
+     * Rule A overrides Rule B if for any input that (A == true) => (B == true). The direction is ascending if
+     * the index of A < the index of B. This is the case when the DT has RET column and will return on the first match. 
+     * In case if there is no RET column in DT, the direction of the override will change to the opposite
+     *   
+     */
+    
+    public boolean isOverrideAscending();
+    
 }

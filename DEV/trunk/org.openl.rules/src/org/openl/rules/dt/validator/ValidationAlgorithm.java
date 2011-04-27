@@ -66,7 +66,8 @@ public class ValidationAlgorithm {
 
             IntBoolExp[][] expressions = makeExpressions(analyzer, methodsForConditionValidation);
 
-            CDecisionTableImpl cdt = new CDecisionTableImpl(expressions, vars);
+            CDecisionTableImpl cdt = new CDecisionTableImpl(expressions, vars, decisionTableToValidate.isOverrideAscending());
+//            System.out.println(" **** Checking " + decisionTable);
             DTCheckerImpl tableChecker = new DTCheckerImpl(cdt);
 
             List<Uncovered> completeness = tableChecker.checkCompleteness();
