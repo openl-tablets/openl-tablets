@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -44,6 +43,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
     
     public DesignTimeRepositoryImpl() {
+    }
+    
+    private RRepository getRepo(){
+        if(rulesRepository == null){
+            init();
+        }
+        return rulesRepository;
+    }
+
+    private void init() {
         try {
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
@@ -94,7 +103,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     public void createDDProject(String name) throws RepositoryException {
         try {
-            rulesRepository.createDeploymentProject(name);
+            getRepo().createDeploymentProject(name);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create deployment project ''{0}''!", e, name);
         }
@@ -102,7 +111,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     public void createProject(String name) throws RepositoryException {
         try {
-            rulesRepository.createRulesProject(name);
+            getRepo().createRulesProject(name);
         } catch (Exception e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         }
@@ -118,7 +127,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     public ADeploymentProject getDDProject(String name) throws RepositoryException {
         try {
-            return wrapDDProject(rulesRepository.getDeploymentProject(name));
+            return wrapDDProject(getRepo().getDeploymentProject(name));
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''!", e, name);
         }
@@ -126,7 +135,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
         try {
-            FolderAPI ralDeploymentProject = rulesRepository.getDeploymentProject(name);
+            FolderAPI ralDeploymentProject = getRepo().getDeploymentProject(name);
             if(ralDeploymentProject.getVersions().get(ralDeploymentProject.getVersions().size()-1).compareTo(version) == 0){
                 return wrapDDProject(ralDeploymentProject);
             }
@@ -141,7 +150,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
 
         try {
-            for (FolderAPI ralDeploymentProject : rulesRepository.getDeploymentProjects()) {
+            for (FolderAPI ralDeploymentProject : getRepo().getDeploymentProjects()) {
                 ADeploymentProject dtrDeploymentProject = wrapDDProject(ralDeploymentProject);
                 result.add(dtrDeploymentProject);
             }
@@ -163,7 +172,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
 
         try {
-            FolderAPI ralProject = rulesRepository.getRulesProject(name);
+            FolderAPI ralProject = getRepo().getRulesProject(name);
             return wrapProject(ralProject, true);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''!", e, name);
@@ -172,7 +181,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     public AProject getProject(String name, CommonVersion version) throws RepositoryException {
         try {
-            FolderAPI ralProject = rulesRepository.getRulesProject(name);
+            FolderAPI ralProject = getRepo().getRulesProject(name);
             if (ralProject.getVersions().get(ralProject.getVersions().size() - 1).compareTo(version) == 0) {
                 return wrapProject(ralProject, true);
             }
@@ -188,7 +197,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         List<AProject> result = new LinkedList<AProject>();
 
         try {
-            for (FolderAPI ralProject : rulesRepository.getRulesProjects()) {
+            for (FolderAPI ralProject : getRepo().getRulesProjects()) {
                 String name = ralProject.getName();
                 AProject cached = projects.get(name);
 
@@ -210,7 +219,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     public boolean hasDDProject(String name) {
         try {
-            return rulesRepository.hasDeploymentProject(name);
+            return getRepo().hasDeploymentProject(name);
         } catch (RRepositoryException e) {
             String msg = MsgHelper.format("Failed to check deployment project ''{0}'' in the repository!", name);
             log.error(msg, e);
@@ -223,7 +232,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         boolean inCache = (cached != null);
 
         try {
-            boolean inRAL = rulesRepository.hasProject(name);
+            boolean inRAL = getRepo().hasProject(name);
             if (inRAL != inCache) {
                 if (!inRAL) {
                     // ???
