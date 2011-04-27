@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openl.OpenL;
 import org.openl.domain.IDomain;
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.element.ICondition;
@@ -53,7 +54,12 @@ public class GapOverlapValidator extends TablesValidator {
                     DesionTableValidationResult dtValidResult = validate(openClass, decisionTable);
                     if (dtValidResult != null && dtValidResult.hasProblems()) {
                         decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
-                        addError(decisionTable.getSyntaxNode(), dtValidResult.toString());
+                        if (dtValidResult.hasErrors())
+                            addError(decisionTable.getSyntaxNode(), dtValidResult.toString());
+                        else
+                            addWarning(decisionTable.getSyntaxNode(), dtValidResult.toString());
+                           
+                            
                     }
                 }
             }
@@ -159,6 +165,16 @@ public class GapOverlapValidator extends TablesValidator {
         ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(error));
     }
 
+    private void addWarning(TableSyntaxNode sourceNode, String message) {
+        if (validationResult == null) {
+            validationResult = new ValidationResult(ValidationStatus.FAIL);
+        }
+//        SyntaxNodeException error = new SyntaxNodeException(message, null, sourceNode);
+//        sourceNode.addError(error);
+        ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(message, sourceNode));
+    }
+    
+    
     private static boolean isValidatableMethod(ExecutableRulesMethod executableMethod) {
         return executableMethod.getMethodProperties() != null && "on".equals(executableMethod.getMethodProperties()
             .getPropertyValueAsString("validateDT"));
