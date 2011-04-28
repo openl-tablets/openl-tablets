@@ -122,7 +122,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio</artifactId>
-      <classifier>jar</classifier>
     </dependency>
 
     <dependency>
@@ -164,7 +163,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-      <classifier>jar</classifier>
     </dependency>
 
     <!-- Eclipse -->
