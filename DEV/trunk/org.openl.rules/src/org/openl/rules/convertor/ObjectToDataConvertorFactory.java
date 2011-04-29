@@ -1,8 +1,11 @@
 package org.openl.rules.convertor;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,7 +14,14 @@ import java.util.Map;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.openl.binding.IBindingContext;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
 import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -100,7 +110,34 @@ public class ObjectToDataConvertorFactory {
         public Object convert(Object data, IBindingContext bindingContext) {
             return data;
         }
-
+    }
+    
+    /**
+     * Convertor that looks for the instance method 'getValue' for conversion to the
+     * appropriate type.
+     * 
+     * @author DLiauchuk
+     *
+     */
+    public static class GetValueConvertor implements IObjectToDataConvertor {
+        public Object convert(Object data, IBindingContext bindingContext) {
+            if (data != null) {
+                Method getValueMethod = null;
+                try {
+                    getValueMethod = data.getClass().getMethod("getValue", new Class<?>[0]);
+                } catch (Exception e) {
+                    throw RuntimeExceptionWrapper.wrap(e);
+                } 
+                Object value = null;
+                try {
+                    value = getValueMethod.invoke(data, new Object[0]);
+                } catch (Exception e) {
+                    throw RuntimeExceptionWrapper.wrap(e);
+                } 
+                return value;                
+            }
+            return data;
+        }
     }
 
     private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<ClassCastPair, IObjectToDataConvertor>();
@@ -135,6 +172,19 @@ public class ObjectToDataConvertorFactory {
                 }
 
             });
+            
+            /** convertors from Openl types with meta info to common java types*/
+            convertors.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(LongValue.class, Long.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(FloatValue.class, Float.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(DoubleValue.class, Double.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(BigIntegerValue.class, BigInteger.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(BigDecimalValue.class, BigDecimal.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(org.openl.meta.StringValue.class, String.class), new GetValueConvertor());
+            
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
