@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.helpers.ITableAdaptor;
+import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 
@@ -139,4 +141,51 @@ public class SpreadsheetResult implements Serializable {
         }
         return null;        
     }
+    
+    
+    public ITableAdaptor makeTableAdaptor()
+    {
+        ITableAdaptor asTableAdaptor = new ITableAdaptor() {
+            
+            public int width(int row) {
+                return getWidth() + 1;
+            }
+            
+            public int maxWidth() {
+                return getWidth() + 1;
+            }
+            
+            public int height() {
+                return getHeight() + 1;
+            }
+            
+            public Object get(int col, int row) {
+                if (col == 0 && row == 0)
+                        return "-X-";
+                if (col == 0)
+                    return getRowName(row-1);
+                if (row == 0)
+                    return getColumnName(col-1);
+                
+                return getValue(row-1, col-1);
+            }
+        };
+        
+        return asTableAdaptor;
+    }
+    
+    public String printAsTable()
+    {
+        
+        String res = new  TablePrinter(makeTableAdaptor(), null, " | ").print();
+        return res;
+    }
+
+    @Override
+    public String toString() {
+        return printAsTable();
+    }
+    
+    
+    
 }
