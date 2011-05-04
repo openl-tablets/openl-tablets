@@ -8,11 +8,11 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ResultAccessor {
+public class ClassHelper {
 
     private Object target;
 
-    public ResultAccessor(Object target) {
+    public ClassHelper(Object target) {
         this.target = target;
     }
 
