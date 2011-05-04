@@ -8,6 +8,7 @@ import org.apache.cxf.service.model.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.util.ClassHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -25,6 +26,7 @@ public class ClientServiceTest {
     private static final String SERVICE_BINDING = "PremiumServiceImplServiceSoapBinding";
     private static final String OPERATION_NAME = "calculateComputerPremium";
 
+    @Autowired
     private Client client;
 
     @Test
@@ -49,7 +51,7 @@ public class ClientServiceTest {
         BindingMessageInfo input = operation.getInput();
         MessagePartInfo messagePart = input.getMessageParts().get(0);
         Class<?> messagePartTypeClass = messagePart.getTypeClass();
-        Object calculateComputerPremium = buildCalculateComputerPremium(messagePartTypeClass);
+        Object calculateComputerPremium = buildCalculateComputerPremium(messagePartTypeClass.newInstance());
         Object[] invokeResult = client.invoke(operation, calculateComputerPremium);
         System.out.println("result: " + invokeResult[0]);
     }

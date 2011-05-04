@@ -8,6 +8,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.openl.rules.mapping.Mapper;
+import org.openl.util.Foo;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.Type;
@@ -19,6 +20,9 @@ public class ClientService <T> {
     private Mapper mapper;
     private Client client;
     private Class<T> resultType;
+
+    public ClientService() {
+    }
 
     public ClientService(Class<T>  resultType) {
         this.resultType = resultType;
@@ -55,15 +59,18 @@ public class ClientService <T> {
         return mapper.map(outputParams[0], resultType);
     }
 
-    public Type getGenericParam() {
-        return this.getClass().getGenericSuperclass();
-    }
-
     public void setMapper(Mapper mapper) {
         this.mapper = mapper;
     }
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public static void main(String[] args) {
+//        String resultClass = "com.exigen.hldsa.rate.ws.service.RatingResponse";
+        ClientService<Foo> clientService = new ClientService<Foo>(Foo.class);
+//        clientService.invoke("calculateComputerPremium", )
+
     }
 }

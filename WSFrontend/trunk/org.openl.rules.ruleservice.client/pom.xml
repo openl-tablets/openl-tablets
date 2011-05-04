@@ -77,13 +77,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.core</artifactId>
-            <version>${openl.version}</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
