@@ -37,4 +37,8 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 		moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, domainOpenClass);
 	}
 
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        //nothing to remove
+    }
+
 }

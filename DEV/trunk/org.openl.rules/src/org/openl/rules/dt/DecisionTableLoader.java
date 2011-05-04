@@ -90,7 +90,6 @@ public class DecisionTableLoader {
     private void loadTableStructure(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
-        decisionTable.setTableSyntaxNode(tableSyntaxNode);
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         
         if (tableBody == null) {

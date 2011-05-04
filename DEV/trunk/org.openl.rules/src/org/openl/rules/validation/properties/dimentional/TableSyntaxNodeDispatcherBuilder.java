@@ -107,7 +107,7 @@ public class TableSyntaxNodeDispatcherBuilder {
                 sheetGridModel.getTables()[0]).build();
         
         // build Openl decision table
-        DecisionTable decisionTable = initDTOpenlBuilder().build();
+        DecisionTable decisionTable = initDTOpenlBuilder().build(tsn, openl, moduleOpenClass);
         
         loadCreatedTable(decisionTable, tsn);
         addCellMetaInfo(decisionTable, tsn);

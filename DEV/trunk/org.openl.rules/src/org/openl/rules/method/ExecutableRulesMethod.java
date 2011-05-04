@@ -2,6 +2,7 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
+import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IMemberMetaInfo;
@@ -11,10 +12,23 @@ import org.openl.types.impl.ExecutableMethod;
 public abstract class ExecutableRulesMethod extends ExecutableMethod {
     
     private ITableProperties properties;
+    // FIXME: it should be AMethodBasedNode but currently it will be
+    // ATableBoundNode due to TestSuiteMethod instance of
+    // ExecutableRulesMethod(but test table is firstly data table)
+    private ATableBoundNode boundNode;
     
-    public ExecutableRulesMethod(IOpenMethodHeader header) {
-        super(header);        
+    public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
+        super(header);
+        this.boundNode = boundNode;
     }    
+
+    public void setBoundNode(ATableBoundNode node) {
+        this.boundNode = node;
+    }
+
+    public ATableBoundNode getBoundNode() {
+        return boundNode;
+    }
 
     public Map<String, Object> getProperties() {
         if (getMethodProperties() != null) {
@@ -41,6 +55,10 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
      * Overridden to get access to {@link TableSyntaxNode} from current implenmentation.
      */
     public TableSyntaxNode getSyntaxNode() {        
+        if (boundNode != null) {
+            return boundNode.getTableSyntaxNode();
+        } 
+        
         return null;
     }
 }

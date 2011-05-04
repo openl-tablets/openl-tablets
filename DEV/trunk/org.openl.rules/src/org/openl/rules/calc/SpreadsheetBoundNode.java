@@ -9,9 +9,9 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -26,7 +26,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     @Override
-    protected IOpenMethod createMethodShell() {
+    protected ExecutableRulesMethod createMethodShell() {
         return new Spreadsheet(getHeader(), this);
     }
 
@@ -54,12 +54,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
 
         builder.build(tableBody);
-        if (bindingContext.isExecutionMode()) {
-            getSpreadsheet().setBoundNode(null);
-            getSpreadsheet().getMethodProperties().setModulePropertiesTable(null);
-            getSpreadsheet().getMethodProperties().setCategoryPropertiesTable(null);
-            getSpreadsheet().getMethodProperties().setPropertiesSection(null);
-        }
     }
 
     public Spreadsheet getSpreadsheet() {

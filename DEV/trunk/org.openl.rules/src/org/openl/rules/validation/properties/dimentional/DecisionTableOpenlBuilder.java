@@ -2,7 +2,12 @@ package org.openl.rules.validation.properties.dimentional;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openl.OpenL;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableBoundNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.MethodSignature;
@@ -21,11 +26,13 @@ public class DecisionTableOpenlBuilder {
         this.incomeParams = new HashMap<String, IOpenClass>(incomeParams);
     }
     
-    public DecisionTable build() {        
-        IMethodSignature signature = new MethodSignature(incomeParams.values().toArray(new IOpenClass[incomeParams.size()]), 
-            incomeParams.keySet().toArray(new String[incomeParams.size()]));
+    public DecisionTable build(TableSyntaxNode tsn, OpenL openl, ModuleOpenClass moduleOpenClass) {
+        IMethodSignature signature = new MethodSignature(incomeParams.values().toArray(
+                new IOpenClass[incomeParams.size()]), incomeParams.keySet().toArray(new String[incomeParams.size()]));
         IOpenClass declaringClass = null; // can be null.
-          
-        return new DecisionTable(new OpenMethodHeader(tableName, returnType, signature, declaringClass));
+
+        OpenMethodHeader header = new OpenMethodHeader(tableName, returnType, signature, declaringClass);
+        DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn, openl, header, moduleOpenClass);
+        return new DecisionTable(header, boundNode);
     }
 }

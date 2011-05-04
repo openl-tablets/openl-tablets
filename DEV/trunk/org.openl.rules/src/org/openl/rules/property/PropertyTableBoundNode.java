@@ -61,5 +61,9 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     public String getTableName() {
         return tableName;        
     }
+
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        //nothing to remove
+    }
     
 }

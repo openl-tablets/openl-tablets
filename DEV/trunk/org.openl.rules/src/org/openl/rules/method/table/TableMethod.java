@@ -4,7 +4,6 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
@@ -19,10 +18,6 @@ import org.openl.vm.IRuntimeEnv;
 @Executable
 public class TableMethod extends ExecutableRulesMethod {
     
-    /**
-     * Table syntax node that defines method table.
-     */
-    private MethodTableBoundNode methodTableBoundNode;
     private CompositeMethod method;    
     
     /**
@@ -41,19 +36,14 @@ public class TableMethod extends ExecutableRulesMethod {
     public TableMethod(IOpenMethodHeader header,
             IBoundMethodNode methodBodyBoundNode,
             MethodTableBoundNode methodTableBoundNode) {
-        super(header);
+        super(header, methodTableBoundNode);
         method = new CompositeMethod(header, methodBodyBoundNode);
 
-        this.methodTableBoundNode = methodTableBoundNode;
         initProperties(getSyntaxNode().getTableProperties());
     }
 
     public MethodTableBoundNode getMethodTableBoundNode() {
-        return methodTableBoundNode;
-    }
-
-    public void setMethodTableBoundNode(MethodTableBoundNode methodTableBoundNode) {
-        this.methodTableBoundNode = methodTableBoundNode;
+        return (MethodTableBoundNode)getBoundNode();
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -73,11 +63,7 @@ public class TableMethod extends ExecutableRulesMethod {
     }
 
     public String getSourceUrl() {
-        return methodTableBoundNode.getTableSyntaxNode().getUri();
-    }
-
-    public TableSyntaxNode getSyntaxNode() {
-        return methodTableBoundNode.getTableSyntaxNode();
+        return getSyntaxNode().getUri();
     }
 
     public CompositeMethod getCompositeMethod() {        

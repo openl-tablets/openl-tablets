@@ -32,7 +32,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     private Map<String, RuntimeOperation> labels;
 
     public AlgorithmSubroutineMethod(IOpenMethodHeader header) {
-        super(header);
+        super(header, null);
     }
 
     public IGridRegion getGridRegion() {

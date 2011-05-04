@@ -8,7 +8,6 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
@@ -16,8 +15,6 @@ import org.openl.vm.IRuntimeEnv;
 
 @Executable
 public class Spreadsheet extends ExecutableRulesMethod {    
-
-    private SpreadsheetBoundNode node;
 
     protected IResultBuilder resultBuilder;
 
@@ -33,17 +30,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private Invokable invoker;
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
-        super(header);
-        this.node = boundNode;   
+        super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
-    }
-
-    public void setBoundNode(SpreadsheetBoundNode node) {
-        this.node = node;
-    }
-
-    public SpreadsheetBoundNode getBoundNode() {
-        return node;
     }
 
     public SpreadsheetCell[][] getCells() {
@@ -52,7 +40,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
-        node.updateDependency(bindingDependencies);
+        getBoundNode().updateDependency(bindingDependencies);
 
         return bindingDependencies;        
     }
@@ -62,19 +50,11 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public String getSourceUrl() {
-        return ((TableSyntaxNode) node.getSyntaxNode()).getUri();
+        return getSyntaxNode().getUri();
     }
 
     public SpreadsheetOpenClass getSpreadsheetType() {
         return spreadsheetType;
-    }
-
-    public TableSyntaxNode getSyntaxNode() {
-        if (node != null) {
-            return node.getTableSyntaxNode();
-        } 
-        
-        return null;
     }
 
     public int getHeight() {

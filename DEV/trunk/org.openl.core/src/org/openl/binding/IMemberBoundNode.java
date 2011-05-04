@@ -19,4 +19,5 @@ public interface IMemberBoundNode {
 
     void finalizeBind(IBindingContext cxt) throws Exception;
 
+    void removeDebugInformation(IBindingContext cxt) throws Exception;
 }

@@ -535,6 +535,10 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
+        if (moduleContext.isExecutionMode()) {
+            removeDebugInformation(children, tableSyntaxNodes, moduleContext);
+        }
+
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
 
@@ -558,6 +562,31 @@ public class XlsBinder implements IOpenBinder {
 
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, moduleContext);
+        }
+    }
+
+    private void removeDebugInformation(IMemberBoundNode[] boundNodes, TableSyntaxNode[] tableSyntaxNodes,
+            RulesModuleBindingContext moduleContext) {
+        for (int i = 0; i < boundNodes.length; i++) {
+            if (boundNodes[i] != null) {
+                try {
+                    boundNodes[i].removeDebugInformation(moduleContext);
+
+                } catch (SyntaxNodeException error) {
+                    processError(error, tableSyntaxNodes[i], moduleContext);
+
+                } catch (CompositeSyntaxNodeException ex) {
+
+                    for (SyntaxNodeException error : ex.getErrors()) {
+                        processError(error, tableSyntaxNodes[i], moduleContext);
+                    }
+
+                } catch (Throwable t) {
+
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNodes[i]);
+                    processError(error, tableSyntaxNodes[i], moduleContext);
+                }
+            }
         }
     }
 

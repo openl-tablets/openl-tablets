@@ -14,6 +14,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -21,7 +22,6 @@ import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 /**
@@ -39,7 +39,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
     }
 
     @Override
-    protected IOpenMethod createMethodShell() {
+    protected ExecutableRulesMethod createMethodShell() {
         return new TableMethod(getHeader(), null, this);
     }
 
@@ -68,12 +68,6 @@ public class MethodTableBoundNode extends AMethodBasedNode {
             IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
             OpenLCellExpressionsCompiler.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
-            if (bindingContext.isExecutionMode()) {
-                getTableMethod().setMethodTableBoundNode(null);
-                getTableMethod().getMethodProperties().setModulePropertiesTable(null);
-                getTableMethod().getMethodProperties().setCategoryPropertiesTable(null);
-                getTableMethod().getMethodProperties().setPropertiesSection(null);
-            }
         }
     }
 

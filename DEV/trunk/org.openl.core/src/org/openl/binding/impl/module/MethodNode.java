@@ -130,4 +130,8 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
         return false;
     }
 
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        //nothing to remove
+    }
+
 }

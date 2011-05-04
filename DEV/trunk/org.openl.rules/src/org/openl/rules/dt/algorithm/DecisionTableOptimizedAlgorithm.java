@@ -359,20 +359,10 @@ public class DecisionTableOptimizedAlgorithm {
                 Object[][] values = table.getConditionRows()[i].getParamValues();
                 Object[][] precalculatedParams = prepareIndexedParams(values);
                 params.add(precalculatedParams);
-                // memory optimization: clear condition values because this
-                // values will be used in index(only if it condition is not used
-                // )
-                
-//TODO    snshor: We must move this clean up somewhere else!!! This information is needed for gap/overlap validation  
-//                if (!isDependecyOnConditionExists(table.getConditionRows()[i])) {
-//                    table.getConditionRows()[i].clearParamVVVValues();
-//                }
             } else {
                 break;
             }
         }
-        // we do not need dependencies after clearing conditions
-        dependencies = null;
 
         if (params.size() == 0) {
             return;
@@ -382,6 +372,26 @@ public class DecisionTableOptimizedAlgorithm {
         indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length - 1).intIterator());
 
         indexNodes(indexRoot, params, 1);
+    }
+
+    /**
+     * Clears condition's param values.
+     * 
+     * Memory optimization: clear condition values because this values will be
+     * used in index(only if it condition is not used).
+     */
+    public void removeParamValuesForIndexedConditions() {
+        for (int i = 0; i < evaluators.length; i++) {
+            if (evaluators[i].isIndexed()) {
+                if (!isDependecyOnConditionExists(table.getConditionRows()[i])) {
+                    table.getConditionRows()[i].clearParamValues();
+                }
+            } else {
+                break;
+            }
+        }
+        // we do not need dependencies after clearing conditions
+        dependencies = null;
     }
     
     private boolean isDependecyOnConditionExists(ICondition condition){
