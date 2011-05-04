@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="config-context.xml"/>
+
+	<bean id="jaxWsDynamicClientFactoryFactory"
+          class="org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory"
+          factory-method="newInstance"/>
+
+    <bean id="client" class="org.apache.cxf.endpoint.Client"
+          factory-bean="jaxWsDynamicClientFactoryFactory"
+          factory-method="createClient">
+        <constructor-arg value="${wsdlUrl}"/>
+    </bean>
+
+</beans>
