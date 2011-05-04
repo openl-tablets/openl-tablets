@@ -1,8 +1,5 @@
 package org.openl.util;
 
-import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -40,18 +37,5 @@ public class ClassHelper {
     public Object invokeMethod(String methodName, Object parameterValues, Class parameterTypes) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = target.getClass().getMethod(methodName, parameterTypes);
         return method.invoke(target, parameterValues);
-    }
-
-    public Object getFieldValue(String fieldName) throws IllegalAccessException, NoSuchFieldException {
-        Field field = target.getClass().getField(fieldName);
-        return field.get(target);
-    }
-
-    public void setValue(String setterName, Object value) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        invokeMethod(makeSetter(setterName), value);
-    }
-
-    private String makeSetter(String fieldName) {
-        return "set" + StringUtils.capitalize(fieldName);
     }
 }
