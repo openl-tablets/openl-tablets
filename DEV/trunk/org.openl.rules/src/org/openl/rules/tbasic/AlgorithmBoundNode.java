@@ -10,11 +10,11 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.tbasic.runtime.operations.OpenLEvaluationOperation;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -25,7 +25,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     }
 
     @Override
-    protected IOpenMethod createMethodShell() {
+    protected ExecutableRulesMethod createMethodShell() {
         return Algorithm.createAlgorithm(getHeader(), this);
     }
 
@@ -36,12 +36,6 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
         builder.build(tableBody);
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
-        if (cxt.isExecutionMode()) {
-            getAlgorithm().setNode(null);
-            getAlgorithm().getMethodProperties().setModulePropertiesTable(null);
-            getAlgorithm().getMethodProperties().setCategoryPropertiesTable(null);
-            getAlgorithm().getMethodProperties().setPropertiesSection(null);
-        }
     }
 
     public Algorithm getAlgorithm() {

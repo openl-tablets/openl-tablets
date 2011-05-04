@@ -6,7 +6,6 @@ import java.util.Map;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -22,8 +21,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 @Executable
 public class Algorithm extends AlgorithmFunction {    
-
-    private AlgorithmBoundNode node;
 
     /***************************************************************************
      * Compile artifacts
@@ -43,25 +40,12 @@ public class Algorithm extends AlgorithmFunction {
     }
 
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
-        super(header);
-        this.node = node;
+        super(header, node);
         initProperties(getSyntaxNode().getTableProperties());
     }
     
-    public AlgorithmBoundNode getNode() {
-        return node;
-    }
-
-    public void setNode(AlgorithmBoundNode node) {
-        this.node = node;
-    }
-
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
-    }
-
-    public TableSyntaxNode getSyntaxNode() {
-        return node.getTableSyntaxNode();
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -100,7 +84,7 @@ public class Algorithm extends AlgorithmFunction {
     
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
-        node.updateDependency(bindingDependencies);
+        getBoundNode().updateDependency(bindingDependencies);
 
         return bindingDependencies;        
     }

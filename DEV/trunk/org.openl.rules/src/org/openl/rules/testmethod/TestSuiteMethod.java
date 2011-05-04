@@ -22,24 +22,19 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     private String tableName;
     private IOpenMethod testedMethod;
-    private TestMethodBoundNode boundNode;
     private IOpenClass methodBasedClass;
     
     public TestSuiteMethod(String tableName, IOpenMethod testedMethod, TestMethodBoundNode boundNode) {
-        super(TestMethodHelper.makeHeader(tableName, testedMethod));
+        super(TestMethodHelper.makeHeader(tableName, testedMethod), boundNode);
     
         this.tableName = tableName;
         this.testedMethod = testedMethod;
-        this.boundNode = boundNode;
         initProperties(getSyntaxNode().getTableProperties());
     }
-
+    
+    @Override
     public TestMethodBoundNode getBoundNode() {
-        return boundNode;
-    }
-
-    public void setBoundNode(TestMethodBoundNode boundNode) {
-        this.boundNode = boundNode;
+        return (TestMethodBoundNode)super.getBoundNode();
     }
 
     public String[] unitName() {
@@ -61,13 +56,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     private void updateDependency(BindingDependencies bindingDependencies) {
         IOpenMethod testedMethod = getTestedMethod();
         if (testedMethod instanceof ExecutableRulesMethod || testedMethod instanceof OpenMethodDispatcher) {
-            bindingDependencies.addMethodDependency(testedMethod, boundNode);
+            bindingDependencies.addMethodDependency(testedMethod, getBoundNode());
         }        
     }
 
     public int getNumberOfTests() {
 
-        Object testArray = boundNode.getField().getData();
+        Object testArray = getBoundNode().getField().getData();
         DynamicObject[] dd = (DynamicObject[]) testArray;
         
         return dd.length;
@@ -77,13 +72,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return getSyntaxNode().getUri();
     }
 
-    public TableSyntaxNode getSyntaxNode() {
-        return boundNode.getTableSyntaxNode();
-    }
-
     public String[] getTestDescriptions() {
         
-        Object testArray = boundNode.getField().getData();
+        Object testArray = getBoundNode().getField().getData();
 
         DynamicObject[] dd = (DynamicObject[]) testArray;
 
@@ -111,9 +102,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     public String getColumnDisplayName(String columnTechnicalName) {
-        int columnIndex = boundNode.getTable().getColumnIndex(columnTechnicalName);
+        int columnIndex = getBoundNode().getTable().getColumnIndex(columnTechnicalName);
         if (columnIndex >= 0) {
-            return boundNode.getTable().getColumnDisplay(columnIndex);
+            return getBoundNode().getTable().getColumnDisplay(columnIndex);
         } else {
             return null;
         }
@@ -147,7 +138,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     public Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env,
             int ntimes, int unitId) {
 
-        Object testArray = boundNode.getField().get(target, env);
+        Object testArray = getBoundNode().getField().get(target, env);
 
         DynamicObject[] testInstances = (DynamicObject[]) testArray;
 
@@ -213,7 +204,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
      */
     public boolean isRunmethodTestable() {
         // gets the data from rows that have test parameters.
-        Object testArray = boundNode.getField().getData();
+        Object testArray = getBoundNode().getField().getData();
 
         DynamicObject[] testArrayDynamicObj = (DynamicObject[]) testArray;
 
@@ -233,7 +224,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     public Object run(int tid, Object target, IRuntimeEnv env, int ntimes) {
 
-        Object testArray = boundNode.getField().get(target, env);
+        Object testArray = getBoundNode().getField().get(target, env);
 
         DynamicObject[] dd = (DynamicObject[]) testArray;
 

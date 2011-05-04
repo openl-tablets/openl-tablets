@@ -6,7 +6,6 @@ import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
@@ -15,8 +14,6 @@ import org.openl.vm.IRuntimeEnv;
 
 @Executable
 public class ColumnMatch extends ExecutableRulesMethod {
-    private ColumnMatchBoundNode boundNode;
-
     private List<TableColumn> columns;
     private List<TableRow> rows;
 
@@ -32,21 +29,12 @@ public class ColumnMatch extends ExecutableRulesMethod {
     private int[] columnScores;    
 
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
-        super(header);
-        this.boundNode = node;      
+        super(header, node);
         initProperties(getSyntaxNode().getTableProperties());
     }
     
-    public ColumnMatchBoundNode getBoundNode() {
-        return boundNode;
-    }
-
-    public void setBoundNode(ColumnMatchBoundNode boundNode) {
-        this.boundNode = boundNode;
-    }
-
     public IOpenSourceCodeModule getAlgorithm() {
-        return boundNode.getAlgorithm();
+        return ((ColumnMatchBoundNode)getBoundNode()).getAlgorithm();
     }
 
     public MatchNode getCheckTree() {
@@ -63,7 +51,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
 
     public BindingDependencies getDependencies() {
         BindingDependencies dependencies = new RulesBindingDependencies();
-        boundNode.updateDependency(dependencies);
+        getBoundNode().updateDependency(dependencies);
         return dependencies;
     }
 
@@ -77,10 +65,6 @@ public class ColumnMatch extends ExecutableRulesMethod {
 
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
-    }
-
-    public TableSyntaxNode getSyntaxNode() {
-        return boundNode.getTableSyntaxNode();
     }
 
     public MatchNode getTotalScore() {

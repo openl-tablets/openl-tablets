@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.binding;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -8,9 +9,9 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
@@ -18,7 +19,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     private OpenL openl;
     private IOpenMethodHeader header;
-    private IOpenMethod method;
+    private ExecutableRulesMethod method;
     private ModuleOpenClass module;
 
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
@@ -36,7 +37,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         return header;
     }
 
-    public IOpenMethod getMethod() {
+    public ExecutableRulesMethod getMethod() {
         return method;
     }
 
@@ -70,6 +71,14 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         getTableSyntaxNode().setMember(method);
     }
 
-    protected abstract IOpenMethod createMethodShell();
+    protected abstract ExecutableRulesMethod createMethodShell();
 
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        if (cxt.isExecutionMode()) {
+            getMethod().setBoundNode(null);
+            getMethod().getMethodProperties().setModulePropertiesTable(null);
+            getMethod().getMethodProperties().setCategoryPropertiesTable(null);
+            getMethod().getMethodProperties().setPropertiesSection(null);
+        }
+    }
 }

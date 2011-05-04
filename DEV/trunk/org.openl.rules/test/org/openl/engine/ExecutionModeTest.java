@@ -59,7 +59,7 @@ public class ExecutionModeTest {
         IOpenMethod method = moduleOpenClass.getMatchingMethod("modification", new IOpenClass[] { JavaOpenClass.INT });
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         assertEquals(120, method.invoke(moduleOpenClass.newInstance(env), new Object[] { 5 }, env));
-        assertNull(((Algorithm) method).getNode());
+        assertNull(((Algorithm) method).getBoundNode());
     }
 
     @Test

@@ -8,9 +8,9 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode {
@@ -24,7 +24,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     @Override
-    protected IOpenMethod createMethodShell() {
+    protected ExecutableRulesMethod createMethodShell() {
         return new ColumnMatch(getHeader(), this);
     }
 
@@ -33,12 +33,6 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
-        if (cxt.isExecutionMode()) {
-            getColumnMatch().setBoundNode(null);
-            getColumnMatch().getMethodProperties().setModulePropertiesTable(null);
-            getColumnMatch().getMethodProperties().setCategoryPropertiesTable(null);
-            getColumnMatch().getMethodProperties().setPropertiesSection(null);
-        }
     }
 
     public IOpenSourceCodeModule getAlgorithm() {

@@ -24,7 +24,7 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -54,7 +54,6 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     private int columns;
 
-    private TableSyntaxNode tableSyntaxNode;
     private DecisionTableOptimizedAlgorithm algorithm;    
     
     /**
@@ -62,8 +61,8 @@ public class DecisionTable extends ExecutableRulesMethod {
      */
     private Invokable invoker;
 
-    public DecisionTable(IOpenMethodHeader header) {
-        super(header);
+    public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
+        super(header, boundNode);
     }
 
     public IAction[] getActionRows() {
@@ -87,7 +86,7 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     public ILogicalTable getDisplayTable() {
-        ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
+        ILogicalTable table = getSyntaxNode().getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
         return table.getColumn(0);
     }
@@ -114,7 +113,7 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     public ILogicalTable getRuleTable(int col) {
-        ILogicalTable table = tableSyntaxNode.getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
+        ILogicalTable table = getSyntaxNode().getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
 
         return table.getColumn(col + 1);
     }
@@ -134,11 +133,7 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     public String getSourceUrl() {
-        return tableSyntaxNode.getUri();
-    }
-
-    public TableSyntaxNode getSyntaxNode() {
-        return tableSyntaxNode;
+        return getSyntaxNode().getUri();
     }
 
     public void setActionRows(IAction[] actionRows) {
@@ -157,10 +152,6 @@ public class DecisionTable extends ExecutableRulesMethod {
         this.ruleRow = ruleRow;
     }
 
-    public void setTableSyntaxNode(TableSyntaxNode tsn) {
-        tableSyntaxNode = tsn;
-    }
-
     public void bindTable(ICondition[] conditionRows,
             IAction[] actionRows,
             RuleRow ruleRow,
@@ -172,7 +163,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;        
         
-        initProperties(tableSyntaxNode.getTableProperties());
+        initProperties(getSyntaxNode().getTableProperties());
         if (!cxtd.isExecutionMode()) {
             this.ruleRow = ruleRow;
         }

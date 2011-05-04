@@ -105,5 +105,9 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
     public boolean isLiteralExpressionParent() {
         return true;
     }
+
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        //nothing to remove
+    }
     
 }

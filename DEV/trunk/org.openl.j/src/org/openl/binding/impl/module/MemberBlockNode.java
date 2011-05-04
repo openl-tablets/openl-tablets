@@ -29,4 +29,10 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
     public void finalizeBind(IBindingContext cxt) throws Exception {
     }
 
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        for (int i = 0; i < children.length; i++) {
+            ((IMemberBoundNode) children[i]).removeDebugInformation(cxt);
+        }
+    }
+
 }

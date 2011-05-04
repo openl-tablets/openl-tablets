@@ -387,4 +387,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        //nothing to remove
+    }
+
 }
