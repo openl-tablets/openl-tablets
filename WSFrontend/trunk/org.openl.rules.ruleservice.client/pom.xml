@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.ruleservice.client</artifactId>
+    <name>OpenL - RuleService - RuleService - Client</name>
+    <description>OpenL Rules Client</description>
+    <url>http://openl-tablets.sf.net/</url>
+    <version>5.7.6-SNAPSHOT</version>
+
+    <properties>
+        <cxf.version>2.4.0</cxf.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.cxf</groupId>-->
+                <!--<artifactId>cxf-codegen-plugin</artifactId>-->
+                <!--<version>${cxf.version}</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>generate-sources</id>-->
+                        <!--<phase>generate-sources</phase>-->
+                        <!--<configuration>-->
+                            <!--<sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>-->
+                            <!--<wsdlOptions>-->
+                                <!--<wsdlOption>-->
+                                    <!--<wsdl>${basedir}/src/main/resources/com.exigen.hldsa.rate.gen.Rating.xml</wsdl>-->
+                                <!--</wsdlOption>-->
+                            <!--</wsdlOptions>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>wsdl2java</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
