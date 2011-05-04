@@ -5,48 +5,57 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.service.model.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openl.util.ClassHelper;
-import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public class Main {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "/beans-context.xml")
+public class ClientServiceTest {
 
-    private static AbstractXmlApplicationContext context = new ClassPathXmlApplicationContext("beans-context.xml");
+    //TODO: the remote service should be replaced to local
+    private static final String NAMESPACEURI = "http://service.ws.rate.hldsa.exigen.com/";
+    private static final String SERVICE_BINDING = "PremiumServiceImplServiceSoapBinding";
+    private static final String OPERATION_NAME = "calculateComputerPremium";
 
-    public static void main(String[] args) throws Exception {
+    private Client client;
+
+    @Test
+    public void test() throws Exception {
         cxfClient();
     }
 
-	private static void cxfClient() throws Exception {
-        Client client = (Client) context.getBean("client");
+
+	private void cxfClient() throws Exception {
         secondWay(client);
         oneWay(client);
 	}
 
-    private static void secondWay(Client client) throws Exception, InstantiationException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
+    private static void secondWay(Client client) throws Exception, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
         ClientImpl clientImpl = (ClientImpl) client;
         Endpoint endpoint = clientImpl.getEndpoint();
         ServiceInfo serviceInfo = endpoint.getService().getServiceInfos().get(0);
-        QName bindingName = new QName("http://service.ws.rate.hldsa.exigen.com/", "PremiumServiceImplServiceSoapBinding");
+        QName bindingName = new QName(NAMESPACEURI, SERVICE_BINDING);
         BindingInfo binding = serviceInfo.getBinding(bindingName);
-        QName bindingOperationName = new QName("http://service.ws.rate.hldsa.exigen.com/", "calculateComputerPremium");
+        QName bindingOperationName = new QName(NAMESPACEURI, OPERATION_NAME);
         BindingOperationInfo operation = binding.getOperation(bindingOperationName);
         BindingMessageInfo input = operation.getInput();
         MessagePartInfo messagePart = input.getMessageParts().get(0);
         Class<?> messagePartTypeClass = messagePart.getTypeClass();
-        Object calculateComputerPremium = buildCalculateComputerPremium(newInstance("com.exigen.hldsa.rate.ws.service.CalculateComputerPremium"));
-//        Object calculateComputerPremium = buildCalculateComputerPremium(messagePartTypeClass.newInstance());
+        Object calculateComputerPremium = buildCalculateComputerPremium(messagePartTypeClass);
         Object[] invokeResult = client.invoke(operation, calculateComputerPremium);
         System.out.println("result: " + invokeResult[0]);
     }
 
     private static void oneWay(Client client) throws Exception {
-        BindingOperationInfo calculateComputerPremium = client.getEndpoint().getEndpointInfo().getBinding().getOperation(new QName(client.getEndpoint().getService().getName().getNamespaceURI(), "calculateComputerPremium"));
+        BindingOperationInfo calculateComputerPremium = client.getEndpoint().getEndpointInfo().getBinding().getOperation(new QName(client.getEndpoint().getService().getName().getNamespaceURI(), OPERATION_NAME));
         Object[] res = client.invoke(calculateComputerPremium, buildCalculateComputerPremium(newInstance("com.exigen.hldsa.rate.ws.service.CalculateComputerPremium")));
         System.out.println("result: " + res[0]);
     }
@@ -111,6 +120,4 @@ public class Main {
         productAccessor.invokeMethod("setVersionITC", 111, int.class);
         return product;
     }
-
 }
-
