@@ -81,11 +81,11 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            wrapperClass = Class.forName(getModule().getClassname(), false, getClassLoader());
+            wrapperClass = getWrapperClass();
             try {
                 // Before returning wrapper class, need to compile the project to ensure
                 // that all datatypes will be acessible from strategy classLoader.
-                compile(wrapperClass, false);
+                compile(wrapperClass, true);
             } catch (Exception e) {
                 String errorMessage = String.format("Cannot compile %s module", getModule().getName());
                 throw new OpenlNotCheckedException(errorMessage, e);
@@ -94,6 +94,10 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
         return wrapperClass;
+    }
+    
+    private Class<?> getWrapperClass() throws ClassNotFoundException {
+        return Class.forName(getModule().getClassname(), false, getClassLoader());
     }
     
     public Object wrapperNewInstance(Class<?> wrapperClass) throws Exception {
@@ -134,7 +138,7 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
     protected CompiledOpenClass compile(boolean useExisting) throws InstantiationException,
             IllegalAccessException {
         try {
-            return compile(getServiceClass(), useExisting);
+            return compile(getWrapperClass(), useExisting);
         } catch (ClassNotFoundException e) {
             String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
             LOG.error(errorMessage, e);
