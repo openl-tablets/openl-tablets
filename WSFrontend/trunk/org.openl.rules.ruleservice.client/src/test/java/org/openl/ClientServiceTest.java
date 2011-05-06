@@ -1,6 +1,5 @@
 package org.openl;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
@@ -12,9 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.lang.reflect.InvocationTargetException;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -68,7 +70,7 @@ public class ClientServiceTest {
         return calculateComputerPremium;
     }
 
-    private static Object buildCalculateComputerPremium(Object calculateComputerPremium) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+    private static Object buildCalculateComputerPremium(Object calculateComputerPremium) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, DatatypeConfigurationException {
         ClassHelper accessor = new ClassHelper(calculateComputerPremium);
         accessor.invokeMethod("setArg0", buildProduct());
         List computers = (List) accessor.invokeMethod("getArg1s");;
@@ -78,11 +80,11 @@ public class ClientServiceTest {
         return calculateComputerPremium;
     }
 
-    private static Object buildComputer() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+    private static Object buildComputer() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, DatatypeConfigurationException {
         Object computer = newInstance("com.exigen.hldsa.rate.ws.service.Computer");
         ClassHelper computerAccessor = new ClassHelper(computer);
         computerAccessor.invokeMethod("setAgreedValue", false);
-        XMLGregorianCalendarImpl rateEffectiveDate = new XMLGregorianCalendarImpl();
+        XMLGregorianCalendar rateEffectiveDate = DatatypeFactory.newInstance().newXMLGregorianCalendar();
         rateEffectiveDate.setYear(2011);
         rateEffectiveDate.setMonth(5);
         rateEffectiveDate.setDay(4);
@@ -94,7 +96,7 @@ public class ClientServiceTest {
         return computer;
     }
 
-    private static Object buildPolicy() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+    private static Object buildPolicy() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, DatatypeConfigurationException {
         Object policy = newInstance("com.exigen.hldsa.rate.ws.service.Policy");
         ClassHelper policyAccessor = new ClassHelper(policy);
         policyAccessor.invokeMethod("setCarHire", 0, int.class);
@@ -102,7 +104,7 @@ public class ClientServiceTest {
         policyAccessor.invokeMethod("setDebitOrderRejectNum", 0, int.class);
         policyAccessor.invokeMethod("setExcludeTheft", true, boolean.class);
         policyAccessor.invokeMethod("setInflationBuster", true, boolean.class);
-        XMLGregorianCalendarImpl quoteDate = new XMLGregorianCalendarImpl();
+        XMLGregorianCalendar quoteDate = DatatypeFactory.newInstance().newXMLGregorianCalendar();
         quoteDate.setYear(2011);
         quoteDate.setMonth(5);
         quoteDate.setDay(4);
