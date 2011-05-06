@@ -5,7 +5,7 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <import resource="config-context.xml"/>
-    <import resource="mapping-context.xml"/>
+    <!--<import resource="mapping-context.xml"/>-->
 
 	<bean id="jaxWsDynamicClientFactoryFactory"
           class="org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory"
@@ -18,7 +18,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean>
 
     <bean id="clientService" class="org.openl.ClientService">
-        <property name="mapper" ref="mapper"/>
+        <!--<property name="mapper" ref="mapper"/>-->
         <property name="client" ref="client"/>
     </bean>
 

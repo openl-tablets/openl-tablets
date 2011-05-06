@@ -73,4 +73,8 @@ public class ClientService <T> {
 //        clientService.invoke("calculateComputerPremium", )
 
     }
+
+    public void test() {
+
+    }
 }
