@@ -124,9 +124,75 @@ public class MethodSearch {
             case 1:
                 return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
             default:
-                throw new AmbiguousMethodException(name, params, matchingMethods);
+                return findMostSpecificMethod(name, params, matchingMethods, casts);
         }
 
+    }
+
+    /**
+     * Choosing the most specific method according to:
+     * 
+     * @see <a href=
+     *      "http://java.sun.com/docs/books/jls/second_edition/html/expressions.doc.html#18428"
+     *      >java documentation </a >
+     * 
+     * 
+     * @param name The name of the method.
+     * @param params Argument types of the method.
+     * @param matchingMethods All matching methods for this argument types.
+     * @param casts OpenL cast factory.
+     * 
+     * @return The most specific method from matching methods collection.
+     * 
+     * @throws AmbiguousMethodException Exception will be thrown if most
+     *             specific method can not be determined.
+     */
+    public static IOpenMethod findMostSpecificMethod(String name, IOpenClass[] params,
+            List<IOpenMethod> matchingMethods, ICastFactory casts) throws AmbiguousMethodException {
+        Iterator<IOpenMethod> iterator = matchingMethods.iterator();
+        IOpenMethod res = iterator.next();
+        while (iterator.hasNext()) {
+            IOpenMethod next = iterator.next();
+            if (!isMoreSpecificMethod(res, next, casts)) {
+                if (isMoreSpecificMethod(next, res, casts)) {
+                    res = next;
+                } else {
+                    throw new AmbiguousMethodException(name, params, matchingMethods);
+                }
+            }
+        }
+        return res;
+    }
+
+    private static boolean isMoreSpecificMethod(IOpenMethod first, IOpenMethod second, ICastFactory casts) {
+        if (first.getSignature().getNumberOfParameters() != second.getSignature().getNumberOfParameters()) {
+            return false;
+        }
+        boolean differenceInArgTypes = false;
+        // more specific arg types
+        for (int i = 0; i < first.getSignature().getNumberOfParameters(); i++) {
+            IOpenClass firstArgType = first.getSignature().getParameterType(i);
+            IOpenClass secondArgType = second.getSignature().getParameterType(i);
+            if (!firstArgType.equals(secondArgType)) {
+                differenceInArgTypes = true;
+                if (casts.getCast(firstArgType, secondArgType) == null) {
+                    return false;
+                }
+            }
+        }
+        if (!differenceInArgTypes) {
+            // more specific declaring class
+            IOpenClass firstDeclaringClass = first.getDeclaringClass();
+            IOpenClass secondDeclaringClass = second.getDeclaringClass();
+            if(!firstDeclaringClass.equals(secondDeclaringClass)){
+                if(secondDeclaringClass.isAssignableFrom(firstDeclaringClass)){
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /*
