@@ -181,8 +181,12 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IOpenCast getCast(IBoundNode node, IOpenClass to, IBindingContext bindingContext)
-        throws TypeCastException {
+            throws TypeCastException {
+        return getCast(node, to, bindingContext, true);
+    }
 
+    public static IOpenCast getCast(IBoundNode node, IOpenClass to, IBindingContext bindingContext, boolean implicitOnly)
+            throws TypeCastException {
         IOpenClass from = node.getType();
 
         if (from == null) {
@@ -195,7 +199,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
         IOpenCast cast = bindingContext.getCast(from, to);
 
-        if (cast == null || !cast.isImplicit()) {
+        if (cast == null || (implicitOnly && !cast.isImplicit())) {
             throw new TypeCastException(node.getSyntaxNode(), from, to);
         }
 
