@@ -12,11 +12,22 @@ public class TypesCastTest extends TestCase {
     private static final String FILE_NAME = "org/openl/binding/CastTest.xls";
 
     public interface ITest {
+        float[] testExplicitCastsForLiterals();
         DoubleValue testAutoCast(double value);
         boolean operatorTest1();
         boolean operatorTest2();
         boolean operatorTest3();
         boolean operatorTest4();
+    }
+    
+    public void testExplicitCastsForLiterals(){
+        URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+
+        ITest instance = (ITest) engineFactory.makeInstance();
+        float[] result = instance.testExplicitCastsForLiterals();
+
+        assertEquals(4, result.length);
     }
 
     public void testAutoCast() {
