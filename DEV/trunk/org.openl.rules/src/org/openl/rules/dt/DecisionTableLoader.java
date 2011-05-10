@@ -102,7 +102,7 @@ public class DecisionTableLoader {
         try {
             tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody);
         } catch (OpenLCompilationException e) {
-            throw new SyntaxNodeException("Cannot create header for simle Decision Tbale", e, tableSyntaxNode);
+            throw new SyntaxNodeException("Cannot create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
         }
 
         ILogicalTable toParse = tableBody;
