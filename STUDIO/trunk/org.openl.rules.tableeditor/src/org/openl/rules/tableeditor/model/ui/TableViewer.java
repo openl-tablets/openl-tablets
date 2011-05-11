@@ -18,6 +18,8 @@ public class TableViewer {
     private IGrid grid;
 
     private IGridRegion reg;
+    
+    private String showLinksBase;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -82,10 +84,11 @@ public class TableViewer {
      * @param grid
      * @param reg
      */
-    public TableViewer(IGrid grid, IGridRegion reg) {
+    public TableViewer(IGrid grid, IGridRegion reg, String showLinksBase) {
         super();
         this.grid = grid;
         this.reg = reg;
+        this.showLinksBase = showLinksBase;
     }
     
     CellModel buildCell(ICell cell, CellModel cm) {
@@ -128,11 +131,15 @@ public class TableViewer {
             String tableUri = methodUsage.getTableUri();
             if (tableUri != null) {
                 //add link to used table with signature in tooltip
-                String encodedURL = StringTool.encodeURL(tableUri);
-                buff.append(formattedValue.substring(nextSymbolIndex, pstart))
-                        .append("<span class=\"title\"><a href=\"?uri=").append(encodedURL).append("\">")
-                        .append(formattedValue.substring(pstart, pend + 1)).append("</a><em>")
-                        .append(methodUsage.getMethodSignature()).append("</em></span>");
+                buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
+                if (isShowLinks()) {
+                    String encodedURL = StringTool.encodeURL(tableUri);
+                    buff.append("<a href=\"" +showLinksBase+"?uri=").append(encodedURL).append("\">")
+                            .append(formattedValue.substring(pstart, pend + 1)).append("</a>");
+                } else {
+                    buff.append(formattedValue.substring(pstart, pend + 1));
+                }
+                buff.append("<em>").append(methodUsage.getMethodSignature()).append("</em></span>");
             } else {
                 buff.append(formattedValue.substring(pstart, pend + 1));
             }
@@ -140,6 +147,10 @@ public class TableViewer {
         }
         buff.append(formattedValue.substring(nextSymbolIndex));
         return buff.toString();
+    }
+
+    private boolean isShowLinks() {
+        return showLinksBase != null;
     }
 
     public TableModel buildModel(IGridTable gt) {

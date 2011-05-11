@@ -31,6 +31,7 @@ public class TableEditor {
     private String onAfterSave;
     private String onSaveFailure;
     private String excludeScripts;
+    private String showLinksBase;
 
     public TableEditor() {
     }
@@ -47,6 +48,7 @@ public class TableEditor {
         }
         mode = (String) attributes.get(Constants.ATTRIBUTE_MODE);
         view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
+        showLinksBase = (String) attributes.get(Constants.ATTRIBUTE_SHOW_LINKS_BASE);
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
@@ -179,5 +181,16 @@ public class TableEditor {
         this.onSaveFailure = onSaveFailure;
     }
 
+    public String getShowLinksBase() {
+        return showLinksBase;
+    }
+
+    public void setShowLinksBase(String showLinksBase) {
+        this.showLinksBase = showLinksBase;
+    }
+    
+    public boolean isShowLinks(){
+        return showLinksBase != null;
+    }
 }
 
