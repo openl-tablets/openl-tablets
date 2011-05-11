@@ -66,15 +66,4 @@ public class ClientService <T> {
     public void setClient(Client client) {
         this.client = client;
     }
-
-    public static void main(String[] args) {
-//        String resultClass = "com.exigen.hldsa.rate.ws.service.RatingResponse";
-        ClientService<Foo> clientService = new ClientService<Foo>(Foo.class);
-//        clientService.invoke("calculateComputerPremium", )
-
-    }
-
-    public void test() {
-
-    }
 }
