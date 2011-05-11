@@ -118,7 +118,7 @@ public class HTMLRenderer {
             IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
-            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows);
+            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getShowLinksBase());
 
             if (tableModel != null) {
                 String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;

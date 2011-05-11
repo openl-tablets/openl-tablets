@@ -31,29 +31,6 @@
             }
         </script>
         <style>
-            .title{
-                position:relative;
-                z-index:1;
-                zoom:1;
-                color:#06F;
-            }
-            .title em {display:none;}
-            .title:hover em {
-                display:block;
-                position:absolute;
-                z-index:1;
-                background-color:#000;
-                -webkit-border-radius:5px;
-                -moz-border-radius:5px;
-                border-radius:5px;
-                white-space: nowrap;
-                line-height:normal;
-                color:#FFF;
-                text-decoration:none;
-                padding:3px 5px;
-                bottom:22px;
-                left:0;
-            }
             form {
                 margin: 0px;
             }
@@ -295,6 +272,7 @@
         </form>
 
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
+            showLinksBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
             beforeSaveAction="#{showTableBean.beforeSaveAction}"
