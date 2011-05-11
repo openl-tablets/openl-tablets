@@ -68,6 +68,16 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
             <version>${openl.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -119,18 +129,24 @@
             <version>2.1.7</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.neethi</groupId>
-            <artifactId>neethi</artifactId>
-            <version>2.0.4</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>xerces</groupId>-->
+        <!--<artifactId>xercesImpl</artifactId>-->
+        <!--<version>2.9.1</version>-->
+        <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.9.1</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>net.sf.saxon</groupId>-->
+        <!--<artifactId>saxon</artifactId>-->
+        <!--<version>8.7</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>com.sun.org.apache</groupId>-->
+            <!--<artifactId>jaxp-ri</artifactId>-->
+            <!--<version>1.4</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -180,17 +196,23 @@
             <version>2.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.3.04</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>xml-apis</groupId>-->
+            <!--<artifactId>xml-apis</artifactId>-->
+            <!--<version>1.3.04</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xerces</artifactId>
-            <version>2.4.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>javax.xml</groupId>-->
+            <!--<artifactId>jaxp-api</artifactId>-->
+            <!--<version>1.4.2</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+        <!--<groupId>xerces</groupId>-->
+        <!--<artifactId>xerces</artifactId>-->
+        <!--<version>2.4.0</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>junit</groupId>
