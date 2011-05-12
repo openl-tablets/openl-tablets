@@ -3,6 +3,8 @@ package org.openl.rules.lang.xls.syntax;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.IGridTable;
@@ -88,6 +90,28 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     public boolean isVersionable() {
         return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());        
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 31).append(getUri()).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+
+        TableSyntaxNodeAdapter table = (TableSyntaxNodeAdapter) obj;
+
+        return new EqualsBuilder().append(getUri(), table.getUri()).isEquals();
     }
 
 }
