@@ -32,6 +32,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tests.results.Test;
@@ -85,36 +86,40 @@ public class ShowTableBean {
         }
 
         final ProjectModel model = studio.getModel();
-        
-        
+
         table = model.getTable(uri);
-        
+
         if (table == null) {
             try {
                 String infoLink = 
                     String.format("%s/faces/facelets/tableeditor/showMessage.xhtml?summary=%s", 
                         FacesUtils.getContextPath(), INFO_MESSAGE);
-                
+
                 FacesUtils.redirect(infoLink);
             } catch (IOException e) {                
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {
             runnable = model.isRunnable(uri); 
-            
+
             if (runnable) {
                 targetTables = model.getTargetTables(uri);
             }
-            
+
             initProblems();
-
             initTests(model);        
-
             initParams();
+
+            storeTable();
         }
-        
     }
-    
+
+    private void storeTable() {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        RecentlyVisitedTables recentlyVisitedTables = model.getRecentlyVisitedTables();
+        recentlyVisitedTables.add(table);
+    }
+
     @SuppressWarnings("unchecked")
     private void initParams() {
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());

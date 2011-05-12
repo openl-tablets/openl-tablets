@@ -65,6 +65,7 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -118,6 +119,8 @@ public class ProjectModel {
     private DependencyRulesGraph dependencyGraph;
 
     private SourceHistoryManager<File> historyManager;
+
+    private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
@@ -1236,6 +1239,10 @@ public class ProjectModel {
             historyManager = new FileBasedProjectHistoryManager(this, storagePath);
         }
         return historyManager;
+    }
+
+    public RecentlyVisitedTables getRecentlyVisitedTables() {
+        return recentlyVisitedTables;
     }
 
 }

@@ -50,10 +50,20 @@ var Popup = Class.create({
     },
 
     hide: function() {
-        if (this.popup) {
-            document.body.removeChild(this.popup);
-            this.popup = null;
+        this.hide(0);
+    },
+
+    hide: function(timeout) {
+        var self = this;
+        if (!timeout || timeout < 0) {
+            timeout = 0;
         }
+        window.setTimeout(function() {
+            if (self.popup) {
+                document.body.removeChild(self.popup);
+                self.popup = null;
+            }
+        }, timeout);
     },
 
     has: function(element) {
@@ -61,6 +71,14 @@ var Popup = Class.create({
     		return false;
     	}
         return element.descendantOf(this.popup); 
+    },
+
+    bind: function(event, handler) {
+        Event.observe(this.popup, event, handler);
+    },
+
+    unbind: function(event, handler) {
+        Event.stopObserving(this.popup, event, handler);
     }
 
 });

@@ -365,6 +365,7 @@ public class WebStudio {
         if (currentModule == null
                 || !currentModule.getName().equals(module.getName())) {
             model.setModuleInfo(module);
+            model.getRecentlyVisitedTables().clear();
         }
         currentModule = module;
         for (StudioListener listener : listeners) {

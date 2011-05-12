@@ -12,6 +12,7 @@ import javax.servlet.ServletRequest;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.openl.commons.web.util.WebTool;
+import org.openl.util.StringTool;
 
 /**
  * JSF functions.
@@ -91,4 +92,9 @@ public class JSFFunctions {
     public static Number toNumber(String string) {
         return NumberUtils.createNumber(string);
     }
+
+    public static String encodeURL(String url) {
+        return StringTool.encodeURL(url);
+    }
+
 }
