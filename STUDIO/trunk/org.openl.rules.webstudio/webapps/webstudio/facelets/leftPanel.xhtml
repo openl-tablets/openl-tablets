@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <style type="text/css">
+            html, body, #leftPanel {
+                height: 100%;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="page">
+
+        <rich:tabPanel id="leftPanel" switchType="ajax">
+            <rich:tab label="Navigator" title="Module Navigator">
+                <ui:include src="/facelets/tree.xhtml" />
+            </rich:tab>
+            <rich:tab label="History" title="Recently Visited Tables">
+                <ui:include src="/facelets/recentlyVisitedTables.xhtml" />
+            </rich:tab>
+        </rich:tabPanel>
+
+    </ui:define>
+
+</ui:composition>
