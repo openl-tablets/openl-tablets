@@ -28,6 +28,10 @@
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
                 <h:outputLink value="#{contextPath}/faces/openTable.xhtml?uri=#{encodedTableUri}">
                     <h:outputText value="#{table.name}" />
+                    <h:panelGroup rendered="#{empty table.name}">
+                        <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
+                        <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
+                    </h:panelGroup>
                 </h:outputLink>
             </h:column>
         </h:dataTable>
