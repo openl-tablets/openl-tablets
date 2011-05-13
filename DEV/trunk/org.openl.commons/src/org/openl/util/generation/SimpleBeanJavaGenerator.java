@@ -1,7 +1,9 @@
 package org.openl.util.generation;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,19 +14,57 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class SimpleBeanJavaGenerator {
+    
+    private static final Log LOG = LogFactory.getLog(SimpleBeanJavaGenerator.class);
+    
+    private static final String SET = "set";
+    private static final String GET = "get";
+    private static final String TO_STRING = "toString";
+    private static final String HASH_CODE = "hashCode";
+    private static final String EQUALS = "equals";
     
     private String datatypeName;
     private Class<?> datatypeClass;
     private Map<String, Class<?>> datatypeDeclaredFields;
     private Map<String, Class<?>> datatypeAllFields;
     
+    private static Map<Class<?>, TypeInitializationWriter> initializationWriters;
+    
+    static {
+        initializationWriters = new HashMap<Class<?>, TypeInitializationWriter>();
+        
+        initializationWriters.put(byte.class, new CommonInitializationWriter());
+        initializationWriters.put(short.class, new CommonInitializationWriter());
+        initializationWriters.put(int.class, new CommonInitializationWriter());
+        initializationWriters.put(long.class, new CommonInitializationWriter());
+        initializationWriters.put(float.class, new CommonInitializationWriter());
+        initializationWriters.put(double.class, new CommonInitializationWriter());
+        initializationWriters.put(boolean.class, new CommonInitializationWriter());
+        
+        initializationWriters.put(Byte.class, new CommonInitializationWriter());
+        initializationWriters.put(Short.class, new CommonInitializationWriter());
+        initializationWriters.put(Integer.class, new CommonInitializationWriter());
+        initializationWriters.put(Long.class, new CommonInitializationWriter());
+        initializationWriters.put(Float.class, new CommonInitializationWriter());
+        initializationWriters.put(Double.class, new CommonInitializationWriter());
+        initializationWriters.put(Boolean.class, new CommonInitializationWriter());
+        
+        initializationWriters.put(Number.class, new NumberInitializationWriter());
+        
+        initializationWriters.put(String.class, new StringInitializationWriter());
+        initializationWriters.put(char.class, new CharInitializationWriter());
+        initializationWriters.put(Character.class, new CharInitializationWriter());
+    }
+    
     public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> declaredFields, Map<String, Class<?>> allFields) {
         this.datatypeName = datatypeClass.getName();
         this.datatypeClass = datatypeClass;
         this.datatypeDeclaredFields = prepareFieldNames(declaredFields);
-        this.datatypeAllFields = prepareFieldNames(allFields);
+        this.datatypeAllFields = prepareFieldNames(allFields);        
     }
     
     public LinkedHashMap<String, Class<?>> prepareFieldNames(Map<String, Class<?>> fields){
@@ -62,15 +102,15 @@ public class SimpleBeanJavaGenerator {
     private void addMethods(StringBuffer buf) {
         addConstructors(buf);
         for (Method method : datatypeClass.getDeclaredMethods()) {
-            if (method.getName().startsWith("get")) {
+            if (method.getName().startsWith(GET)) {
                 addGetter(buf, method);
-            } else if (method.getName().startsWith("set")) {
+            } else if (method.getName().startsWith(SET)) {
                 addSetter(buf, method);
-            } else if (method.getName().equals("equals")) {
+            } else if (method.getName().equals(EQUALS)) {
                 buf.append(JavaClassGeneratorHelper.getEqualsMethod(datatypeClass.getSimpleName(), datatypeAllFields));
-            } else if (method.getName().startsWith("hashCode")) {
+            } else if (method.getName().startsWith(HASH_CODE)) {
                 buf.append(JavaClassGeneratorHelper.getHashCodeMethod(datatypeAllFields));
-            } else if (method.getName().equals("toString")) {
+            } else if (method.getName().equals(TO_STRING)) {
                 buf.append(JavaClassGeneratorHelper.getToStringMethod(datatypeClass.getSimpleName(), datatypeAllFields));
             }
         }
@@ -111,12 +151,12 @@ public class SimpleBeanJavaGenerator {
     
     private void addSetter(StringBuffer buf, Method method) {
         String fieldName = getFieldName(method.getName());
-        buf.append(JavaClassGeneratorHelper.getPublicSetterMethod(filterTypeName(method.getParameterTypes()[0]), fieldName));
+        buf.append(JavaClassGeneratorHelper.getPublicSetterMethod(JavaClassGeneratorHelper.filterTypeName(method.getParameterTypes()[0]), fieldName));
     }
 
     private void addGetter(StringBuffer buf, Method method) {
         String fieldName = getFieldName(method.getName());
-        buf.append(JavaClassGeneratorHelper.getPublicGetterMethod(filterTypeName(method.getReturnType()), fieldName));
+        buf.append(JavaClassGeneratorHelper.getPublicGetterMethod(JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName));
     }
 
     private String getFieldName(String methodName) {
@@ -124,12 +164,64 @@ public class SimpleBeanJavaGenerator {
     }
 
     private void addFieldsDeclaration(StringBuffer buf) {
-        for (Method method : datatypeClass.getDeclaredMethods()) {
-            if (method.getName().startsWith("get")) {
-                buf.append(JavaClassGeneratorHelper.getProtectedFieldDeclaration(filterTypeName(method.getReturnType()), getFieldName(method.getName())));
-            } 
+        Object datatypeInstance = null;
+        try {
+            datatypeInstance = datatypeClass.newInstance();
+        } catch (Exception e) {
+            LOG.error(e);
+        } 
+        
+        for (Field field : datatypeClass.getDeclaredFields()) {
+            Class<?> fieldType = field.getType();
+            Object fieldValue = getFieldValue(datatypeInstance, field.getName());
+            
+            // field value contains default value
+            //
+            if (fieldValue != null) {    
+                // get the appropriate initialization writer for the type of field.
+                //
+                TypeInitializationWriter writer = getFieldValueWriter(fieldType);
+                if (writer == null) {
+                    // error message if can`t process value of given type.
+                    //
+                    String errorMessage = String.format("Can`t write value for %s field of type %s", fieldValue, 
+                        fieldType.getName());
+                    LOG.error(errorMessage);
+                } else {
+                    // write value initialization to bean class
+                    String valueInitialzation = writer.getInitialization(fieldValue);
+                    buf.append(JavaClassGeneratorHelper.getProtectedFieldInitialzation(
+                        JavaClassGeneratorHelper.filterTypeName(fieldType), field.getName(), valueInitialzation));
+                }
+            } else {
+                // write field declaration
+                buf.append(JavaClassGeneratorHelper.getProtectedFieldDeclaration(
+                    JavaClassGeneratorHelper.filterTypeName(fieldType), field.getName()));
+            }
         }
         buf.append("\n");
+    }
+    
+    private TypeInitializationWriter getFieldValueWriter(Class<?> fieldValueClass) {
+        TypeInitializationWriter writer = initializationWriters.get(fieldValueClass);
+        if (writer == null) {
+            if (ClassUtils.isAssignable(fieldValueClass, Number.class)) {
+                writer = initializationWriters.get(Number.class);
+            } 
+        } 
+        return writer;
+    }   
+
+    private Object getFieldValue(Object datatypeInstance, String fieldName) {
+        Object fieldValue = null;
+        try {
+            Field field = datatypeClass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            fieldValue = field.get(datatypeInstance);            
+        } catch (Exception e) {                    
+            LOG.error(e);
+        } 
+        return fieldValue;
     }
 
     private void addClassDeclaration(StringBuffer buf, String className, String superClass) {        
@@ -155,19 +247,19 @@ public class SimpleBeanJavaGenerator {
         Set<String> importsSet = new HashSet<String>();
         
         for (Method method : datatypeClass.getDeclaredMethods()) {
-            if (method.getName().startsWith("get")) {
+            if (method.getName().startsWith(GET)) {
                 Class<?> methodReturnType = method.getReturnType();
                 if (!methodReturnType.isPrimitive() && !(methodReturnType.isArray() && methodReturnType.getComponentType().isPrimitive())) {
                     importsSet.add(filterTypeNameForImport(methodReturnType));
                 }
             } 
-            if (method.getName().equals("equals")) {
+            if (method.getName().equals(EQUALS)) {
                 importsSet.add(filterTypeNameForImport(EqualsBuilder.class));
             }
-            if (method.getName().startsWith("hashCode")) {
+            if (method.getName().startsWith(HASH_CODE)) {
                 importsSet.add(filterTypeNameForImport(HashCodeBuilder.class));
             }
-            if (method.getName().startsWith("toString")) {
+            if (method.getName().startsWith(TO_STRING)) {
                 importsSet.add(filterTypeNameForImport(ArrayUtils.class));
             }
         }
@@ -188,23 +280,14 @@ public class SimpleBeanJavaGenerator {
     }
 
     private String filterTypeNameForImport(Class<?> type) {
-        String typeName = filterTypeName(type);
+        String typeName = JavaClassGeneratorHelper.filterTypeName(type);
         int index = typeName.indexOf("[");
         if (index > 0 ) {
             return typeName.substring(0, index);
         } else {
             return typeName;
-        }
-                
-    }
-
-    private String filterTypeName(Class<?> type) {
-        if (!type.isPrimitive() && !(type.isArray() && type.getComponentType().isPrimitive())) {
-            return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
-        } else {
-            return ClassUtils.getShortClassName(type);
-        }
-    }
+        }       
+    }    
 
     private void addComment(StringBuffer buf) {
         buf.append(JavaClassGeneratorHelper.getCommentText("This class has been generated. Do not change it."));

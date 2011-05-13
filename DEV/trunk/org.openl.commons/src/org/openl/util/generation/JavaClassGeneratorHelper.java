@@ -11,6 +11,16 @@ import org.openl.util.StringTool;
 
 public class JavaClassGeneratorHelper {
     
+    private JavaClassGeneratorHelper(){}
+    
+    public static String filterTypeName(Class<?> type) {
+        if (!type.isPrimitive() && !(type.isArray() && type.getComponentType().isPrimitive())) {
+            return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
+        } else {
+            return ClassUtils.getShortClassName(type);
+        }
+    }
+    
     public static String getPackageText(String packageStr) {
         if (packageStr != null) {
             return String.format("package %s;\n\n", packageStr);            
@@ -69,6 +79,10 @@ public class JavaClassGeneratorHelper {
     
     public static String getProtectedFieldDeclaration(String fieldType, String fieldName) {
         return String.format("  protected %s %s;\n\n", fieldType, fieldName);
+    }
+    
+    public static String getProtectedFieldInitialzation(String fieldType, String fieldName, String fieldValue) {
+        return String.format("  protected %s %s = %s;\n\n", fieldType, fieldName, fieldValue);
     }
     
     public static String getDefaultConstructor(String simpleClassName) {
