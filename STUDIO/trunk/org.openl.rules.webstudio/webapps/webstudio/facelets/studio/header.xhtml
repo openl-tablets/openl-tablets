@@ -22,6 +22,11 @@
         .moduleItem {
             padding-left: 10px;
         }
+        .toolbar {
+            border: 1px dotted rgb(150,150,150);
+            border-bottom: 0px;
+            padding: 4px 8px 1px 8px;
+        }
     </style>
 
     <f:verbatim>
@@ -77,7 +82,7 @@
                     <authz:authentication operation="username"/>
                 </span>
                 <table style="display: inline;" cellspacing="0" cellpadding="2">
-                  <tr><td style="border: 1px solid rgb(150,150,150); padding: 4px 3px 1px;">
+                  <tr><td class="toolbar">
                   <a href="#{contextPath}/faces/main.xhtml?mode=business" title="Business View" target="main"><img
                       alt="Business View"
                       src="#{contextPath}/webresource/images/business-view.png" /></a>

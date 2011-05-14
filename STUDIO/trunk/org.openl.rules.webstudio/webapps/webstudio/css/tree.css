@@ -1,11 +1,12 @@
 body {
-    margin-left: 10px;
+    margin-left: 4px;
     background: #eceef8;
 }
 
 .treeMenu {
-    width: 95%;
-    border: 1px solid gray;
+    width: 100%;
+    border-top: 1px dotted rgb(150,150,150);
+    border-bottom: 1px dotted rgb(150,150,150);
 }
 
 .treeMenu a {
