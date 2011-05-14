@@ -233,12 +233,10 @@ public class HTMLRenderer {
 
         String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
 
-        result
-                .append(renderEditorToolbar(editor.getId(), editorJsVar))
-                .append(renderJS("js/colorPicker.js"))
-                .append(renderJS("js/popup.js"));
-        result.append(
-                renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT, editor.isCollapseProps()));
+        result.append(renderEditorToolbar(editor.getId(), editorJsVar))
+            .append(renderJS("js/colorPicker.js"))
+            .append(renderJS("js/popup.js"));
+        result.append(renderPropsEditor(editor, Constants.MODE_EDIT));
 
         return result.toString();
     }
@@ -352,8 +350,7 @@ public class HTMLRenderer {
     protected String renderViewer(TableEditor editor, List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
         if (editor.getTable() != null) {
-            result.append(renderPropsEditor(
-                    editor.getId(), editor.getTable(), Constants.MODE_VIEW, editor.isCollapseProps()));
+            result.append(renderPropsEditor(editor, Constants.MODE_VIEW));
 
             String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
             if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
@@ -393,14 +390,13 @@ public class HTMLRenderer {
         return numRows;
     }
 
-    protected String renderPropsEditor(String editorId, IOpenLTable table, String mode, boolean collapseProps) {
+    protected String renderPropsEditor(TableEditor editor, String mode) {
+        final IOpenLTable table = editor.getTable();
         final String tableType = table.getType();
         if (tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
                 && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
                 && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString())) {
-            ITableProperties props = table.getProperties();
-            return new PropertyRenderer(editorId, props, mode, collapseProps,
-                    tableType).renderProperties();
+            return new PropertyRenderer(editor, mode).renderProperties();
         }
         return "";
     }
@@ -517,6 +513,8 @@ public class HTMLRenderer {
 
         private StringBuilder result;
 
+        private TableEditor tableEditor;
+
         private String mode;
 
         private ITableProperties props;
@@ -524,21 +522,20 @@ public class HTMLRenderer {
         private String editorId;
         private String propsId;
 
-        private boolean collapsed;
-        
         private String tableType;
 
-        public PropertyRenderer(String editorId, ITableProperties props, String view, boolean collapsed,
-                String tableType) {
-            this.editorId = editorId == null ? "" : editorId;
+        public PropertyRenderer(TableEditor tableEditor, String view) {
+            this.tableEditor = tableEditor;
+            this.editorId =  StringUtils.defaultString(tableEditor.getId());
             this.propsId = editorId + Constants.ID_POSTFIX_PROPS;
-            this.props = props;
+            IOpenLTable table = tableEditor.getTable();
+            this.props = table.getProperties();
             this.mode = view;
-            this.tableType = tableType;
-            this.listProperties = initPropertiesList();
+            this.tableType = table.getType();
+
             this.result = new StringBuilder();
-            this.collapsed = collapsed;
-            
+
+            this.listProperties = initPropertiesList();
         }
 
         private List<TableProperty> initPropertiesList() {
@@ -606,7 +603,7 @@ public class HTMLRenderer {
             result.append("<table cellspacing='1' cellpadding='1'>");
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
-            if (!collapsed) {
+            if (!tableEditor.isCollapseProps()) {
                 result.append(renderJSBody("$('" + propsId + "').show()"));
             }
 
@@ -719,16 +716,20 @@ public class HTMLRenderer {
         private String getProprtiesTablePageUrl(TableProperty prop, String mode) {
             String url = null;
             ILogicalTable propertiesTable = null;
-            if (prop.isModuleLevelProperty()) {
-                propertiesTable = props.getModulePropertiesTable();
-            } else if (prop.isCategoryLevelProperty()) {
-                propertiesTable = props.getCategoryPropertiesTable();
-            }
-            if (propertiesTable != null) {
-                String tableUri = propertiesTable.getSource().getUri();
-                url = "?uri=" + StringTool.encodeURL(tableUri);
-                if ("edit".equals(mode)) {
-                    url += "&mode=edit";
+            
+            String linkBase = tableEditor.getShowLinksBase();
+            if (StringUtils.isNotBlank(linkBase)) {
+                if (prop.isModuleLevelProperty()) {
+                    propertiesTable = props.getModulePropertiesTable();
+                } else if (prop.isCategoryLevelProperty()) {
+                    propertiesTable = props.getCategoryPropertiesTable();
+                }
+                if (propertiesTable != null) {
+                    String tableUri = propertiesTable.getSource().getUri();
+                    url = linkBase + "?uri=" + StringTool.encodeURL(tableUri);
+                    if ("edit".equals(mode)) {
+                        url += "&mode=edit";
+                    }
                 }
             }
             return url;
