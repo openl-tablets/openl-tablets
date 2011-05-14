@@ -134,7 +134,7 @@ public class TableViewer {
                 buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
                 if (isShowLinks()) {
                     String encodedURL = StringTool.encodeURL(tableUri);
-                    buff.append("<a href=\"" +showLinksBase+"?uri=").append(encodedURL).append("\">")
+                    buff.append("<a href=\"" + showLinksBase + "?uri=").append(encodedURL).append("\">")
                             .append(formattedValue.substring(pstart, pend + 1)).append("</a>");
                 } else {
                     buff.append(formattedValue.substring(pstart, pend + 1));
