@@ -48,10 +48,7 @@ public class HTMLRenderer {
     public static final String NL = "\n";
 
     public static final int ALL_ROWS = -1;
-    public static final int MIN_NUM_ROWS = 10;
-    public static final int MAX_NUM_ROWS = 70;
-    public static final int MIN_NUM_COLS_TO_REDUCE_ROWS = 20;
-    public static final int REDUCE_ROWS = 5;
+    public static final int MAX_NUM_CELLS = 1500;
 
     @SuppressWarnings("unchecked")
     protected Set getResourcesWritten() {
@@ -366,28 +363,19 @@ public class HTMLRenderer {
      * @return number of rows to display or -1 for all rows
      */
     public static int getMaxNumRowsToDisplay(IGridTable table) {
-        int numRows;
-
         IGridRegion region = table.getRegion();
         int cols = IGridRegion.Tool.width(region);
         int rows = IGridRegion.Tool.height(region);
 
-        int rowsToReduce = cols / MIN_NUM_COLS_TO_REDUCE_ROWS * REDUCE_ROWS;
-        if (rowsToReduce == 0) {
-            if (rows > MAX_NUM_ROWS) {
-                numRows = MAX_NUM_ROWS;
-            } else {
-                numRows = ALL_ROWS;
-            }
-        } else if (rowsToReduce >= rows || rows < MIN_NUM_ROWS) {
-            numRows = ALL_ROWS;
-        } else if (rowsToReduce >= MAX_NUM_ROWS - MIN_NUM_ROWS) {
-            numRows = MIN_NUM_ROWS;
-        } else {
-            numRows = MAX_NUM_ROWS - rowsToReduce;
+        int numCells = rows * cols;
+
+        if (numCells > MAX_NUM_CELLS) {
+            int extraCells = numCells - MAX_NUM_CELLS;
+            int extraRows = extraCells / cols;
+            return rows - extraRows;
         }
 
-        return numRows;
+        return ALL_ROWS;
     }
 
     protected String renderPropsEditor(TableEditor editor, String mode) {
