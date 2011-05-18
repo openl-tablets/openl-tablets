@@ -11,6 +11,10 @@
             html, body, #leftPanel {
                 height: 100%;
             }
+            .rich-tabpanel-content {
+                padding: 0px;
+                height: 100%;
+            }
         </style>
     </ui:define>
 
@@ -24,6 +28,8 @@
                 <ui:include src="/facelets/recentlyVisitedTables.xhtml" />
             </rich:tab>
         </rich:tabPanel>
+
+        <rich:modalPanel id="saveWindow" style="display: none;" />
 
     </ui:define>
 

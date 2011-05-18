@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+
+    <style>
+        html, body {
+            overflow: hidden;
+        }
+        #toolbar {
+            padding: 4px 3px 0px 3px;
+        }
+        #workspace {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding: 5px 3px 2px 3px;
+        }
+    </style>
+
+    <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+
+    <div>
+        <div id="toolbar">
+            <ui:insert name="toolbar" />
+        </div>
+    
+        <div id="workspace">
+            <ui:insert name="workspace" />
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function setViewDimensions() {
+            var viewport = document.viewport.getDimensions();
+            var width = viewport.width;
+            var height = viewport.height;
+
+            $('workspace').style.width = width - 16 + 'px';
+            $('workspace').style.height = height - 61 + 'px';
+        }
+
+        setViewDimensions();
+
+        window.onresize = function(e) {
+            setViewDimensions();
+        }
+    </script>
+
+</ui:composition>
