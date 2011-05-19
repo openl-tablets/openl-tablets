@@ -71,12 +71,14 @@ public class HTMLRenderer {
         result.append("<div>")
             .append(renderCSS("css/common.css"))
             .append(renderCSS("css/menu.css"))
-            .append(renderCSS("css/toolbar.css"))
-            .append(renderCSS("css/datepicker.css"))
-            .append(renderCSS("css/multiselect.css"))
-            .append(renderCSS("css/tooltip.css"))
-            .append(renderCSS("css/colorPicker.css"))
-            .append(renderCSS("css/popup.css"));
+            .append(renderCSS("css/tooltip.css"));
+        if (editor.isEditable()) {
+            result.append(renderCSS("css/toolbar.css"))
+                .append(renderCSS("css/datepicker.css"))
+                .append(renderCSS("css/multiselect.css"))
+                .append(renderCSS("css/colorPicker.css"))
+                .append(renderCSS("css/popup.css"));
+        }
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
         }
@@ -84,20 +86,22 @@ public class HTMLRenderer {
             .append(renderJS("js/ScriptLoader.js"))
             .append(renderJS("js/AjaxHelper.js"))
             .append(renderJS("js/TableEditor.js"))
-            .append(renderJS("js/BaseEditor.js"))
-            .append(renderJS("js/BaseTextEditor.js"))
-            .append(renderJS("js/validation.js"))
-            .append(renderJS("js/datepicker.packed.js"))
-            .append(renderJS("js/TextEditor.js"))
-            .append(renderJS("js/MultiLineEditor.js"))
-            .append(renderJS("js/NumericEditor.js"))
-            .append(renderJS("js/DropdownEditor.js"))
-            .append(renderJS("js/FormulaEditor.js"))
-            .append(renderJS("js/BooleanEditor.js"))
-            .append(renderJS("js/DateEditor.js"))
-            .append(renderJS("js/MultiselectEditor.js"))
-            .append(renderJS("js/ArrayEditor.js"))
             .append(renderJS("js/popup/popupmenu.js"));
+            if (editor.isEditable()) {
+                result.append(renderJS("js/BaseEditor.js"))
+                    .append(renderJS("js/BaseTextEditor.js"))
+                    .append(renderJS("js/validation.js"))
+                    .append(renderJS("js/datepicker.packed.js"))
+                    .append(renderJS("js/TextEditor.js"))
+                    .append(renderJS("js/MultiLineEditor.js"))
+                    .append(renderJS("js/NumericEditor.js"))
+                    .append(renderJS("js/DropdownEditor.js"))
+                    .append(renderJS("js/FormulaEditor.js"))
+                    .append(renderJS("js/BooleanEditor.js"))
+                    .append(renderJS("js/DateEditor.js"))
+                    .append(renderJS("js/MultiselectEditor.js"))
+                    .append(renderJS("js/ArrayEditor.js"));
+            }
 
         result.append("<div id='").append(editor.getId()).append("' class='te_'>");
 

@@ -54,7 +54,8 @@
       <tr>
         <td valign="top">
 
-      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="tableEditor1,tableEditor2,newTree">
+      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="tableEditor1,tableEditor2,newTree"
+        prependId="false">
         <input type="hidden" name="id" value=""  />
         <table width="100%">
           <tr>
@@ -78,8 +79,7 @@
       nodeFace="any"
       ajaxSubmitSelection="true"
       nodeSelectListener="#{uploadExcelDiffController.processSelection}"
-      reRender="tableEditor1,tableEditor2"
-    >
+      reRender="tableEditor1,tableEditor2">
       <rich:treeNode type="any" icon="#{item.icon}" iconLeaf="#{item.icon}">
         <h:outputText value="#{item.name}" />
       </rich:treeNode>
