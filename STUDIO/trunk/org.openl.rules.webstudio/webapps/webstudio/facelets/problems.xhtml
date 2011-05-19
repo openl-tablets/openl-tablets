@@ -4,8 +4,10 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/view.xhtml">
 
+    <ui:define name="workspace">
         <a4j:loadStyle src="resource:///css/tree.css" />
 
         <!-- Tree BEGIN -->
@@ -29,5 +31,6 @@
             </rich:treeNode>
         </rich:tree>
         <!-- Tree END -->
+    </ui:define>
 
 </ui:composition>

@@ -35,14 +35,16 @@
                 margin: 0px;
             }
             .editToolbar {
-                border: 1px solid rgb(150,150,150);
-                padding: 1px 5px 0px 0px;
+                border-top: 1px dotted rgb(140,140,140);
+                border-bottom: 1px dotted rgb(140,140,140);
+                padding: 3px 5px 1px 0px;
+                width: 100%;
             }
             .editToolbar a {
-                margin-left: 5px;
+                margin-left: 7px;
             }
             .editToolbar .toolbarDelimeter {
-                border-right: 1px solid rgb(150,150,150);
+                border-right: 1px dotted rgb(140,140,140);
                 padding-left: 5px;
             }
             .editToolbar .newTestLink {
@@ -81,7 +83,8 @@
         </h:panelGroup>
 
         <h:form>
-            <table class="editToolbar"><tr><td>
+            <div class="editToolbar">
+                <table><tr><td>
                 <h:outputLink rendered="#{showTableBean.editable}"
                     value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
                     <f:param name="uri" value="#{showTableBean.uri}" />
@@ -199,6 +202,7 @@
             </h:panelGroup>
             </tr>
             </table>
+            </div>
         </h:form>
 
         <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
