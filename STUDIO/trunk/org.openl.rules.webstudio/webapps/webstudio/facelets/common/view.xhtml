@@ -40,7 +40,7 @@
             var height = viewport.height;
 
             $('workspace').style.width = width - 16 + 'px';
-            $('workspace').style.height = height - 61 + 'px';
+            $('workspace').style.height = height - $('toolbar').offsetHeight - 30 + 'px';
         }
 
         setViewDimensions();
