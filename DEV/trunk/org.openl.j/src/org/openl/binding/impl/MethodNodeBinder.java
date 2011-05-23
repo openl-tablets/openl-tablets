@@ -42,14 +42,8 @@ public class MethodNodeBinder extends ANodeBinder {
         // can`t find method with given name and parameters
         if (methodCaller == null) {
             
-            // try to bind given method if its single parameter is an array, considering that there is a method with 
-            // equal name but for component type of array (e.g. the given method is 'double[] calculate(Premium[] premium)' 
-            // try to bind it as 'double calculate(Premium premium)' and call several times on runtime).
-            //
-            IBoundNode arrayParametersMethod = null;
-            if (parameterTypes.length == 1 && parameterTypes[0].isArray()) {
-                arrayParametersMethod = bindArrayParametersMethod(methodName, parameterTypes[0], bindingContext, node, children);
-            }
+            IBoundNode arrayParametersMethod = new ArrayArgumentsMethodBinder(methodName, parameterTypes, children).bind(node, bindingContext);
+            
             if (arrayParametersMethod != null) {
                 return arrayParametersMethod;
             }            
@@ -80,28 +74,6 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);
-    }
-    
-    private IBoundNode bindArrayParametersMethod(String methodName, IOpenClass parameterType, 
-            IBindingContext bindingContext, ISyntaxNode node, IBoundNode[] children) {
-        // gets the component type of an array parameter type.
-        //
-        IOpenClass componentType = parameterType.getComponentClass();
-        
-        // find method with given name and component type parameter.
-        //
-        IMethodCaller singleParameterMethodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, new IOpenClass[]{componentType});
-        
-        // if can`t find, return null.
-        //
-        if (singleParameterMethodCaller == null) {
-            return null;
-        }
-        
-        // bound node that is going to call the single parameter method by several times on runtime and return an array 
-        // of results.
-        //
-        return new MultiCallMethodBoundNode(node, children, singleParameterMethodCaller);
     }
 
     @Override

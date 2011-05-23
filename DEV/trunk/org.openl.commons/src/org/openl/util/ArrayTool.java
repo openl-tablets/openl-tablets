@@ -487,6 +487,11 @@ public class ArrayTool {
 		}
 		return newArray;
 	}
+	
+	public static Object replace(int index, Object oldArray, Object newValue) {
+	    Object newArray = removeValue(index, oldArray);
+	    return insertValue(index, newArray, newValue);
+	}
 
 	public static Object resize(Object oldArray, int newSize) {
 		int oldSize = Array.getLength(oldArray);

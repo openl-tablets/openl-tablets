@@ -20,32 +20,59 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
     
     private IOpenClass returnType;
     
+    /** the index of the argument in the method signature that is an array**/
+    private int arrayArgumentIndex;
+    
     /**
      * 
      * @param syntaxNode will be represents like <code>'calculate(parameter)'</code>
      * @param children its gonna be only one children, that represents the parameter in method call.
      * @param singleParameterMethod method for single(not array) parameter in signature
+     * @param arrayArgumentIndex the index of the argument in method signature that is an array
      */
-    public MultiCallMethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] children, IMethodCaller singleParameterMethod) {
+    public MultiCallMethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] children, IMethodCaller singleParameterMethod, int arrayArgumentIndex) {
         super(syntaxNode, children, singleParameterMethod);
+        this.arrayArgumentIndex = arrayArgumentIndex;
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
-        Object[] pars = evaluateChildren(env);
+        Object[] methodParameters = evaluateChildren(env);
         
-        // consider that params will have only one element. And it is an array
-        Object functionParam = pars[0];
-        int paramsLenght = Array.getLength(functionParam);        
+        // gets the values of array parameters
+        Object arrayParameters = methodParameters[arrayArgumentIndex];
+        int paramsLenght = Array.getLength(arrayParameters);        
         
         // create an array of results        
         Object results = Array.newInstance(super.getType().getInstanceClass(), paramsLenght);
         
         // populate the results array by invoking method for single parameter
-        for (int i = 0; i < paramsLenght; i++) {
-            Array.set(results , i, getMethodCaller().invoke(target, new Object[]{Array.get(functionParam, i)}, env));            
+        for (int callIndex = 0; callIndex < paramsLenght; callIndex++) {
+            Array.set(results , callIndex, getMethodCaller().invoke(target, 
+                initParametersForSingleCall(methodParameters, arrayParameters, callIndex), env));            
         }
         return results;
+    }
+    
+    private Object[] initParametersForSingleCall(Object[] allParameters, Object arrayParameters, int callIndex) {
+        // create an array of parameters that will be used for current call
+        //
+        Object[] callParameters = (Object[]) Array.newInstance(Object.class, allParameters.length);
+        
+        // populate call parameters with values from original method parameters
+        //
+        for (int i = 0; i < allParameters.length; i++) {            
+            if (i == arrayArgumentIndex) {
+                // for this call number use the appropriate value from the array parameter
+                //
+                Array.set(callParameters, i, Array.get(arrayParameters, callIndex));
+            } else {
+                // use the original parameter.
+                //
+                Array.set(callParameters, i, allParameters[i]);
+            }
+        }
+        return callParameters;
     }
 
     public IOpenClass getType() {
