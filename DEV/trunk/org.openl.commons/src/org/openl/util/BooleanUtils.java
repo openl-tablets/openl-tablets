@@ -105,6 +105,12 @@ public class BooleanUtils {
     
     // Exclusive or
     public static boolean xor(boolean[] values) {
+        if(values == null) {
+            throw new IllegalArgumentException("The Array must not be null");
+        }            
+        if(values.length == 0) {
+            throw new IllegalArgumentException("Array is empty");
+        }            
         boolean result = values[0];
         for (int i = 1; i < values.length; i++) {
             result = result ^ values[i];
@@ -113,6 +119,12 @@ public class BooleanUtils {
     }
     
     public static boolean xor(Boolean[] values) {
+        if(values == null) {
+            throw new IllegalArgumentException("The Array must not be null");
+        }            
+        if(values.length == 0) {
+            throw new IllegalArgumentException("Array is empty");
+        } 
         Boolean result = values[0];
         for (int i = 1; i < values.length; i++) {
             result = result ^ values[i];
