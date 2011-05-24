@@ -942,4 +942,13 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.xor(values);
     }
     
+    // or
+    public static boolean or(boolean[] values) {        
+        return org.openl.util.BooleanUtils.or(values);
+    }
+    
+    public static boolean or(Boolean[] values) {        
+        return org.openl.util.BooleanUtils.or(values);
+    }
+    
 }
