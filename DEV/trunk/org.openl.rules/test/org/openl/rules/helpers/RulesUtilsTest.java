@@ -74,5 +74,39 @@ public class RulesUtilsTest {
                 
     }
     
+    @Test
+    public void testXOR3arguments() {
+        assertFalse(callXor(false, false, false));
+        
+        assertTrue(callXor(true, false, false));
+        
+        assertTrue(callXor(false, true, false));
+        
+        assertFalse(callXor(true, true, false));
+
+        assertTrue(callXor(false, false, true));
+                
+        assertFalse(callXor(true, false, true));
+        
+        assertFalse(callXor(false, true, true));
+                
+        assertTrue(callXor(true, true, true));
+    }
+    
+    @Test
+    public void testXOR2arguments() {
+        assertFalse(callXor(false, false));
+
+        assertTrue(callXor(false, true));
+
+        assertTrue(callXor(true, false));
+
+        assertFalse(callXor(true, true));
+    }
+    
+    private boolean callXor(boolean... values) {
+        return RulesUtils.xor(values);
+    }
+    
 }
     

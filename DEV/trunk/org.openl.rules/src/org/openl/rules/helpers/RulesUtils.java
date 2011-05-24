@@ -933,13 +933,13 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.and(values);
     }
     
-    // logical OR
-    public static boolean xor(boolean[] values) {
-        return BooleanUtils.xor(values);
+    // Exclusive or
+    public static boolean xor(boolean[] values) {        
+        return org.openl.util.BooleanUtils.xor(values);
     }
     
-    public static boolean xor(Boolean[] values) {
-        return BooleanUtils.xor(values);
+    public static boolean xor(Boolean[] values) {        
+        return org.openl.util.BooleanUtils.xor(values);
     }
     
 }
