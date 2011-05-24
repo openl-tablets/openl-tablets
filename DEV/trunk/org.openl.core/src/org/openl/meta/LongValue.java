@@ -146,10 +146,10 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return value;
 	}
 	
-	// QUAOTIENT
-	public static LongValue quaotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
+	// QUOTIENT
+	public static LongValue quotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;

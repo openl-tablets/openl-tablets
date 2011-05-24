@@ -149,10 +149,10 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return value;
 	}
 	
-	// QUAOTIENT
-	public static LongValue quaotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
+	// QUOTIENT
+	public static LongValue quotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;

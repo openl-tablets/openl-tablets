@@ -187,9 +187,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	}
 	
 	// QUAOTIENT
-	public static LongValue quaotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
+	public static LongValue quotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;

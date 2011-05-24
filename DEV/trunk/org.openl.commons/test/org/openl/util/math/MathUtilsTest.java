@@ -75,18 +75,18 @@ public class MathUtilsTest {
     
     @Test
     public void testQuaotientDouble() {
-        assertEquals(1, MathUtils.quaotient(3.22, 1.75));
+        assertEquals(1, MathUtils.quotient(3.22, 1.75));
     }
     
     @Test
     public void testQuaotientBigDecimal() {
-        assertEquals(1, MathUtils.quaotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(1.75)));
+        assertEquals(1, MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(1.75)));
         
         BigDecimal nullObj = null;
-        assertEquals(0, MathUtils.quaotient(nullObj, nullObj));
+        assertEquals(0, MathUtils.quotient(nullObj, nullObj));
         
         try {
-            assertEquals(0, MathUtils.quaotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0)));
+            assertEquals(0, MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0)));
             fail();
         } catch (ArithmeticException e) {
             assertTrue(true);

@@ -365,61 +365,61 @@ public class RulesUtils {
     } 
     
 
-	// QUAOTIENT
-	public static long quaotient(java.lang.Byte number, java.lang.Byte divisor) {
-        return MathUtils.quaotient(number, divisor);
+	// QUOTIENT
+	public static long quotient(java.lang.Byte number, java.lang.Byte divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.lang.Short number, java.lang.Short divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.lang.Short number, java.lang.Short divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.lang.Integer number, java.lang.Integer divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.lang.Integer number, java.lang.Integer divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.lang.Long number, java.lang.Long divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.lang.Long number, java.lang.Long divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.lang.Float number, java.lang.Float divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.lang.Float number, java.lang.Float divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.lang.Double number, java.lang.Double divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.lang.Double number, java.lang.Double divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.math.BigInteger number, java.math.BigInteger divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.math.BigInteger number, java.math.BigInteger divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(java.math.BigDecimal number, java.math.BigDecimal divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(java.math.BigDecimal number, java.math.BigDecimal divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(byte number, byte divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(byte number, byte divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(short number, short divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(short number, short divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(int number, int divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(int number, int divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(long number, long divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(long number, long divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(float number, float divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(float number, float divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
-	public static long quaotient(double number, double divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient(double number, double divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
 

@@ -147,10 +147,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return value;
 	}
 	
-	// QUAOTIENT
-	public static LongValue quaotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
+	// QUOTIENT
+	public static LongValue quotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;

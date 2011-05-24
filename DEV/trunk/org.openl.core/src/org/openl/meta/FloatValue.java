@@ -147,9 +147,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	}
 	
 	// QUAOTIENT
-	public static LongValue quaotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
+	public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;

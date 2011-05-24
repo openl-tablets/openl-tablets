@@ -152,15 +152,15 @@ public class LongValueTest {
     
     @Test
     public void testQuaotient() {        
-        assertEquals(new LongValue(5), LongValue.quaotient(new LongValue(26), new LongValue(5)));
+        assertEquals(new LongValue(5), LongValue.quotient(new LongValue(26), new LongValue(5)));
         
         LongValue nullObj = null;
-        assertEquals(null, LongValue.quaotient(nullObj, new LongValue(5)));
+        assertEquals(null, LongValue.quotient(nullObj, new LongValue(5)));
         
-        assertEquals(null, LongValue.quaotient(new LongValue(5), nullObj));
+        assertEquals(null, LongValue.quotient(new LongValue(5), nullObj));
         
         try {
-            assertEquals(new LongValue(0), LongValue.quaotient(new LongValue(5), new LongValue(0)));
+            assertEquals(new LongValue(0), LongValue.quotient(new LongValue(5), new LongValue(0)));
             fail();
         } catch (ArithmeticException e) {
             assertTrue(true);
