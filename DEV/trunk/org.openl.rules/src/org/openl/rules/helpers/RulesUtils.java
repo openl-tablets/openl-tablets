@@ -943,11 +943,11 @@ public class RulesUtils {
     }
     
     // or
-    public static boolean or(boolean[] values) {        
+    public static boolean anyTrue(boolean[] values) {        
         return org.openl.util.BooleanUtils.or(values);
     }
     
-    public static boolean or(Boolean[] values) {        
+    public static boolean anyTrue(Boolean[] values) {        
         return org.openl.util.BooleanUtils.or(values);
     }
     

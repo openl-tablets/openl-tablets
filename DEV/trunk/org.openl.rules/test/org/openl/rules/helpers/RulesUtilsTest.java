@@ -31,6 +31,7 @@ public class RulesUtilsTest {
         LongValue testQuaotient(ByteValue number, ByteValue divisor);
         ByteValue testMin(ByteValue[] values);
         BigDecimalValue testAvg(BigDecimalValue[] values);
+        boolean checkOr();
     }
     
     @Before
@@ -72,6 +73,11 @@ public class RulesUtilsTest {
             instance.testAvg(new BigDecimalValue[]{
                     new BigDecimalValue("10"), new BigDecimalValue("15"), new BigDecimalValue("13")})); 
                 
+    }
+    
+    @Test
+    public void testOrCallingFromRules() {
+        assertTrue(instance.checkOr());
     }
     
     @Test
@@ -139,7 +145,7 @@ public class RulesUtilsTest {
     }
     
     private boolean callOr(boolean... values) {
-        return RulesUtils.or(values);
+        return RulesUtils.anyTrue(values);
     }
     
 }
