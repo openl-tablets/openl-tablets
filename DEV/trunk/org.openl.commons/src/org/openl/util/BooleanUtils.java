@@ -131,5 +131,34 @@ public class BooleanUtils {
         }
         return result;
     }
+    
+    // or function
+    public static boolean or(boolean[] values) {
+        if(values == null) {
+            throw new IllegalArgumentException("The Array must not be null");
+        }            
+        if(values.length == 0) {
+            throw new IllegalArgumentException("Array is empty");
+        }            
+        boolean result = values[0];
+        for (int i = 1; i < values.length; i++) {
+            result = result || values[i];
+        }
+        return result;
+    }
+    
+    public static boolean or(Boolean[] values) {
+        if(values == null) {
+            throw new IllegalArgumentException("The Array must not be null");
+        }            
+        if(values.length == 0) {
+            throw new IllegalArgumentException("Array is empty");
+        } 
+        Boolean result = values[0];
+        for (int i = 1; i < values.length; i++) {
+            result = result || values[i];
+        }
+        return result;
+    }
 
 }

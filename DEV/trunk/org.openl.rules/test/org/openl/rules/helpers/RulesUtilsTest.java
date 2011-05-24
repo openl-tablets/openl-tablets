@@ -104,8 +104,42 @@ public class RulesUtilsTest {
         assertFalse(callXor(true, true));
     }
     
+    @Test
+    public void testOR2arguments() {
+        assertFalse(callOr(false, false));
+
+        assertTrue(callOr(false, true));
+
+        assertTrue(callOr(true, false));
+
+        assertTrue(callOr(true, true));
+    }
+    
+    @Test
+    public void testOR3arguments() {
+        assertFalse(callOr(false, false, false));
+        
+        assertTrue(callOr(true, false, false));
+        
+        assertTrue(callOr(false, true, false));
+        
+        assertTrue(callOr(true, true, false));
+
+        assertTrue(callOr(false, false, true));
+                
+        assertTrue(callOr(true, false, true));
+        
+        assertTrue(callOr(false, true, true));
+                
+        assertTrue(callOr(true, true, true));
+    }
+    
     private boolean callXor(boolean... values) {
         return RulesUtils.xor(values);
+    }
+    
+    private boolean callOr(boolean... values) {
+        return RulesUtils.or(values);
     }
     
 }
