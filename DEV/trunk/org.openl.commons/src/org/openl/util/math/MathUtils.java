@@ -715,55 +715,55 @@ public class MathUtils {
 	
 	// MOD is implemented as in Excel.
 	public static byte mod(byte number, byte divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        byte intPart = (byte) quaotient;
-        if (quaotient < 0) {            
+        byte intPart = (byte) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return (byte) (number - intPart * divisor);
     }
 	public static short mod(short number, short divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        short intPart = (short) quaotient;
-        if (quaotient < 0) {            
+        short intPart = (short) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return (short) (number - intPart * divisor);
     }
 	public static int mod(int number, int divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        int intPart = (int) quaotient;
-        if (quaotient < 0) {            
+        int intPart = (int) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return (int) (number - intPart * divisor);
     }
 	public static long mod(long number, long divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        long intPart = (long) quaotient;
-        if (quaotient < 0) {            
+        long intPart = (long) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return (long) (number - intPart * divisor);
     }
 	public static float mod(float number, float divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        float intPart = (float) quaotient;
-        if (quaotient < 0) {            
+        float intPart = (float) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return (float) (number - intPart * divisor);
     }
 	public static double mod(double number, double divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        double intPart = (double) quaotient;
-        if (quaotient < 0) {            
+        double intPart = (double) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return (double) (number - intPart * divisor);
@@ -808,61 +808,61 @@ public class MathUtils {
     }
 	
 	// QUAOTIENT
-	public static long quaotient(byte number, byte divisor) {
+	public static long quotient(byte number, byte divisor) {
         return (long) (number / divisor);
     }
-	public static long quaotient(short number, short divisor) {
+	public static long quotient(short number, short divisor) {
         return (long) (number / divisor);
     }
-	public static long quaotient(int number, int divisor) {
+	public static long quotient(int number, int divisor) {
         return (long) (number / divisor);
     }
-	public static long quaotient(long number, long divisor) {
+	public static long quotient(long number, long divisor) {
         return (long) (number / divisor);
     }
-	public static long quaotient(float number, float divisor) {
+	public static long quotient(float number, float divisor) {
         return (long) (number / divisor);
     }
-	public static long quaotient(double number, double divisor) {
+	public static long quotient(double number, double divisor) {
         return (long) (number / divisor);
     }
 
 	// QUAOTIENT for wrapper types
-	public static long quaotient(java.lang.Byte number, java.lang.Byte divisor) {
+	public static long quotient(java.lang.Byte number, java.lang.Byte divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient((byte) number, (byte) divisor);
+        return quotient((byte) number, (byte) divisor);
     }
- 	public static long quaotient(java.lang.Short number, java.lang.Short divisor) {
+ 	public static long quotient(java.lang.Short number, java.lang.Short divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient((short) number, (short) divisor);
+        return quotient((short) number, (short) divisor);
     }
- 	public static long quaotient(java.lang.Integer number, java.lang.Integer divisor) {
+ 	public static long quotient(java.lang.Integer number, java.lang.Integer divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient((int) number, (int) divisor);
+        return quotient((int) number, (int) divisor);
     }
- 	public static long quaotient(java.lang.Long number, java.lang.Long divisor) {
+ 	public static long quotient(java.lang.Long number, java.lang.Long divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient((long) number, (long) divisor);
+        return quotient((long) number, (long) divisor);
     }
- 	public static long quaotient(java.lang.Float number, java.lang.Float divisor) {
+ 	public static long quotient(java.lang.Float number, java.lang.Float divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient((float) number, (float) divisor);
+        return quotient((float) number, (float) divisor);
     }
- 	public static long quaotient(java.lang.Double number, java.lang.Double divisor) {
+ 	public static long quotient(java.lang.Double number, java.lang.Double divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient((double) number, (double) divisor);
+        return quotient((double) number, (double) divisor);
     }
   
  	// SORT
@@ -1195,14 +1195,14 @@ public class MathUtils {
     }
     
     // QUAOTIENT for big types
-    public static long quaotient(BigInteger number, BigInteger divisor) {
+    public static long quotient(BigInteger number, BigInteger divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
         return number.divide(divisor).longValue();
     }
     
-    public static long quaotient(BigDecimal number, BigDecimal divisor) {
+    public static long quotient(BigDecimal number, BigDecimal divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
@@ -1214,10 +1214,10 @@ public class MathUtils {
         if (number == null || divisor == null) {
             return BigInteger.valueOf(0);
         }
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        long intPart = quaotient;
-        if (quaotient < 0) {            
+        long intPart = quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return number.subtract(BigInteger.valueOf(intPart).multiply(divisor));
@@ -1227,10 +1227,10 @@ public class MathUtils {
         if (number == null || divisor == null) {
             return BigDecimal.valueOf(0);
         }
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        long intPart = quaotient;
-        if (quaotient < 0) {            
+        long intPart = quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return number.subtract(BigDecimal.valueOf(intPart).multiply(divisor));

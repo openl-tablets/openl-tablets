@@ -150,9 +150,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	}
 	
 	// QUAOTIENT
-	public static LongValue quaotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
+	public static LongValue quotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
+            LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUAOTIENT, null);
         }
         return null;

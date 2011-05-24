@@ -168,16 +168,16 @@ public class BigDecimalvalueTest {
     
     @Test
     public void testQuaotient() {        
-        assertEquals(new LongValue(5), BigDecimalValue.quaotient(new BigDecimalValue("26.77"), 
+        assertEquals(new LongValue(5), BigDecimalValue.quotient(new BigDecimalValue("26.77"), 
             new BigDecimalValue("5.13")));
         
         BigDecimalValue nullObj = null;
-        assertEquals(null, BigDecimalValue.quaotient(nullObj, new BigDecimalValue("5")));
+        assertEquals(null, BigDecimalValue.quotient(nullObj, new BigDecimalValue("5")));
         
-        assertEquals(null, BigDecimalValue.quaotient(new BigDecimalValue("5"), nullObj));
+        assertEquals(null, BigDecimalValue.quotient(new BigDecimalValue("5"), nullObj));
         
         try {
-            assertEquals(null, BigDecimalValue.quaotient(new BigDecimalValue("5"), new BigDecimalValue("0")));
+            assertEquals(null, BigDecimalValue.quotient(new BigDecimalValue("5"), new BigDecimalValue("0")));
             fail();
         } catch (ArithmeticException e) {
             assertTrue(true);
