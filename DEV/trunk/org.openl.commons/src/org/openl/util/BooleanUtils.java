@@ -102,5 +102,22 @@ public class BooleanUtils {
         }
         return true;
     }
+    
+    // Exclusive or
+    public static boolean xor(boolean[] values) {
+        boolean result = values[0];
+        for (int i = 1; i < values.length; i++) {
+            result = result ^ values[i];
+        }
+        return result;
+    }
+    
+    public static boolean xor(Boolean[] values) {
+        Boolean result = values[0];
+        for (int i = 1; i < values.length; i++) {
+            result = result ^ values[i];
+        }
+        return result;
+    }
 
 }
