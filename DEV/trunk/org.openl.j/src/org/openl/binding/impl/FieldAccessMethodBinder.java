@@ -1,10 +1,12 @@
 package org.openl.binding.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.IdentifierNode;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
@@ -16,21 +18,20 @@ import org.openl.types.IOpenField;
  *
  */
 public class FieldAccessMethodBinder extends ANodeBinder {
+    
+    private String methodName;    
+    private IBoundNode[] children;
+    
+    private Log LOG = LogFactory.getLog(FieldAccessMethodBinder.class);
+    
+    public FieldAccessMethodBinder(String methodName, IBoundNode[] children) {
+        this.methodName = methodName;        
+        this.children = children.clone();
+    }
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         
         int childrenCount = node.getNumberOfChildren();
-                
-        if (childrenCount != 2) {
-            // only to children are possible, the function itself and the parameter.
-            //
-            BindHelper.processError("Field access method node should have 2 subnodes", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
-        }
-
-        ISyntaxNode methodNode = node.getChild(childrenCount - 1);
-        String methodName = ((IdentifierNode) methodNode).getIdentifier();
         
         ISyntaxNode argumentNode = node.getChild(0);
         IOpenClass argumentType = getArgumentType(node, bindingContext, childrenCount);
@@ -45,10 +46,8 @@ public class FieldAccessMethodBinder extends ANodeBinder {
             accessorChain = bindSingleArgument(fieldName, argumentNode, bindingContext);
         }
         
-        if (accessorChain == null) {           
-            BindHelper.processError("Can`t bind as field access method", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+        if (accessorChain == null) {          
+            LOG.warn(String.format("Can`t bind as field access method the method with name %s", methodName));
         }
         
         return accessorChain;
@@ -57,7 +56,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
     private IOpenClass getArgumentType(ISyntaxNode node, IBindingContext bindingContext, int childrenCount) 
             throws SyntaxNodeException {        
         // only one child, as there are 2 nodes, one of them is the function itself.
-        IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+        //
         IOpenClass[] types = getTypes(children);
         return types[0];        
     }
@@ -83,8 +82,13 @@ public class FieldAccessMethodBinder extends ANodeBinder {
         //
         IBoundNode target = bindChildNode(argumentNode, bindingContext);
         
-        // bind the access to field.
-        return BindHelper.bindAsField(fieldName, argumentNode.getParent(), bindingContext, target);
+        IOpenField field = bindingContext.findFieldFor(target.getType(), fieldName, false);
+        
+        if (field != null) {
+            return new FieldBoundNode(argumentNode.getParent(), field, target);
+        }
+        return null;
+        
     }
 
     private String getAsFieldName(String methodName) {

@@ -39,27 +39,35 @@ public class MethodNodeBinder extends ANodeBinder {
         IMethodCaller methodCaller = bindingContext
                                                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
         
-        // can`t find method with given name and parameters
-        if (methodCaller == null) {
+        // can`t find directly the method with given name and parameters. so, try to bind it some additional ways
+        //
+        if (methodCaller == null) {   
             
+            // try to bind method with one of the array arguments, as the method without array argument
+            // (but the component type of it on the same place). and call it several times on runtime for collecting results.
+            //
             IBoundNode arrayParametersMethod = new ArrayArgumentsMethodBinder(methodName, parameterTypes, children).bind(node, bindingContext);
             
             if (arrayParametersMethod != null) {
                 return arrayParametersMethod;
-            }            
+            }   
             
             // try to bind method call Name(driver) as driver.name;
             //
             if (childrenCount == 2) {
-                IBoundNode accessorChain = new FieldAccessMethodBinder().bind(node, bindingContext);
-                if (accessorChain instanceof ErrorBoundNode) {
-                    // Add more informative message for user
-                    //
-                    return cantFindMethodError(node, bindingContext, methodName, parameterTypes);
-                }
-                if (accessorChain != null) {
+                IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children).bind(node, bindingContext);
+                if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
                     return accessorChain;
                 } 
+            }
+            
+            // try to bind method call as method with variable length of arguments
+            //
+            if (parameterTypes.length >= 1) {
+                IBoundNode varArgsMethod = new VariableLengthArgumentsMethodBinder(methodName, parameterTypes, children).bind(node, bindingContext);            
+                if (varArgsMethod != null) {
+                    return varArgsMethod;
+                }
             }
 
             return cantFindMethodError(node, bindingContext, methodName, parameterTypes);
