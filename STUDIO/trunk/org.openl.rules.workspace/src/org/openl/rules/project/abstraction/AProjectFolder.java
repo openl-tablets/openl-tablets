@@ -182,6 +182,10 @@ public class AProjectFolder extends AProjectArtefact {
         return artefacts;
     }
 
+    protected void setArtefactsInternal(Map<String, AProjectArtefact> artefacts) {
+        this.artefacts = artefacts;
+    }
+
     @Override
     public void refresh() {
         super.refresh();
