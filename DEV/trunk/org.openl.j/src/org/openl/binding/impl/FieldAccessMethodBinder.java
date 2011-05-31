@@ -22,7 +22,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
     private String methodName;    
     private IBoundNode[] children;
     
-    private Log LOG = LogFactory.getLog(FieldAccessMethodBinder.class);
+    private static final Log LOG = LogFactory.getLog(FieldAccessMethodBinder.class);
     
     public FieldAccessMethodBinder(String methodName, IBoundNode[] children) {
         this.methodName = methodName;        
@@ -31,10 +31,8 @@ public class FieldAccessMethodBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         
-        int childrenCount = node.getNumberOfChildren();
-        
         ISyntaxNode argumentNode = node.getChild(0);
-        IOpenClass argumentType = getArgumentType(node, bindingContext, childrenCount);
+        IOpenClass argumentType = getArgumentType();
         
         String fieldName = getAsFieldName(methodName);
         
@@ -53,8 +51,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
         return accessorChain;
     }
 
-    private IOpenClass getArgumentType(ISyntaxNode node, IBindingContext bindingContext, int childrenCount) 
-            throws SyntaxNodeException {        
+    private IOpenClass getArgumentType() {        
         // only one child, as there are 2 nodes, one of them is the function itself.
         //
         IOpenClass[] types = getTypes(children);

@@ -16,7 +16,8 @@ public class VariableArgumentsMethodBoundNode extends MethodBoundNode {
     private Class<?> componentVarArgClass;
 
     public VariableArgumentsMethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] children, 
-            IMethodCaller methodWithLastArrayArgument, int indexOfLastEqualArgumentType, Class<?> componentVarArgClass) {
+            IMethodCaller methodWithLastArrayArgument, int indexOfLastEqualArgumentType, 
+            Class<?> componentVarArgClass) {
         super(syntaxNode, children, methodWithLastArrayArgument);
         this.indexOfFirstVarArg = indexOfLastEqualArgumentType;
         this.componentVarArgClass = componentVarArgClass;

@@ -37,43 +37,52 @@ public class MethodNodeBinder extends ANodeBinder {
         IOpenClass[] parameterTypes = getTypes(children);
 
         IMethodCaller methodCaller = bindingContext
-                                                   .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+            .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
         
         // can`t find directly the method with given name and parameters. so, try to bind it some additional ways
         //
-        if (methodCaller == null) {   
-            
-            // try to bind method with one of the array arguments, as the method without array argument
-            // (but the component type of it on the same place). and call it several times on runtime for collecting results.
-            //
-            IBoundNode arrayParametersMethod = new ArrayArgumentsMethodBinder(methodName, parameterTypes, children).bind(node, bindingContext);
-            
-            if (arrayParametersMethod != null) {
-                return arrayParametersMethod;
-            }   
-            
-            // try to bind method call Name(driver) as driver.name;
-            //
-            if (childrenCount == 2) {
-                IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children).bind(node, bindingContext);
-                if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
-                    return accessorChain;
-                } 
-            }
-            
-            // try to bind method call as method with variable length of arguments
-            //
-            if (parameterTypes.length >= 1) {
-                IBoundNode varArgsMethod = new VariableLengthArgumentsMethodBinder(methodName, parameterTypes, children).bind(node, bindingContext);            
-                if (varArgsMethod != null) {
-                    return varArgsMethod;
-                }
-            }
-
-            return cantFindMethodError(node, bindingContext, methodName, parameterTypes);
+        if (methodCaller == null) { 
+            return bindWithAdditionalBinders(node, bindingContext, methodName, parameterTypes, children, childrenCount);
         }
 
         return new MethodBoundNode(node, children, methodCaller);
+    }
+    
+    private IBoundNode bindWithAdditionalBinders(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
+            IOpenClass[] argumentTypes, IBoundNode[] children, int childrenCount) throws Exception {
+        
+        // Try to bind method, that contains one of the arguments as array type. For this try to find method without 
+        // array argument (but the component type of it on the same place). And call it several times on runtime 
+        // for collecting results.
+        //
+        IBoundNode arrayParametersMethod = new ArrayArgumentsMethodBinder(methodName, argumentTypes, children)
+            .bind(methodNode, bindingContext);
+        
+        if (arrayParametersMethod != null) {
+            return arrayParametersMethod;
+        }   
+        
+        // Try to bind method call Name(driver) as driver.name;
+        //
+        if (childrenCount == 2) {
+            IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children)
+                .bind(methodNode, bindingContext);
+            if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
+                return accessorChain;
+            } 
+        }
+        
+        // Try to bind method call as method with variable length of arguments
+        //
+        if (argumentTypes.length >= 1) {
+            IBoundNode varArgsMethod = new VariableLengthArgumentsMethodBinder(methodName, argumentTypes, children)
+                .bind(methodNode, bindingContext);            
+            if (varArgsMethod != null) {
+                return varArgsMethod;
+            }
+        }
+
+        return cantFindMethodError(methodNode, bindingContext, methodName, argumentTypes);
     }
 
     private IBoundNode cantFindMethodError(ISyntaxNode node, IBindingContext bindingContext, String methodName,
