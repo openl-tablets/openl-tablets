@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
-import org.openl.dependency.DependencyManager;
+import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.project.model.Module;
@@ -37,14 +37,14 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;
     private Collection<Module> modules;
-    private DependencyManager dependencyManager;
+    private IDependencyManager dependencyManager;
 
     public MultiProjectEngineFactory(Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
         this.modules = modules;
     }
 
-    public void setDependencyManager(DependencyManager dependencyManager) {
+    public void setDependencyManager(IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
     }
 

@@ -14,17 +14,17 @@ public class RuleService {
         return null;
     }
     
-    public OpenLService deploy(ServiceDescription serviceDescription){
+    public OpenLService deploy(ServiceDescription serviceDescription) throws ServiceDeployException {
         //TODO
         return null;
     }
     
-    public OpenLService redeploy(ServiceDescription serviceDescription){
+    public OpenLService redeploy(ServiceDescription serviceDescription) throws ServiceDeployException {
         //TODO
         return null;
     }
 
-    public OpenLService undeploy(String serviceName){
+    public OpenLService undeploy(String serviceName) throws ServiceDeployException {
         //TODO
         return null;
     }
