@@ -23,16 +23,21 @@ public class ProductionRepositoryFactoryProxy {
             "repository.factory", null);
 
     private static RRepositoryFactory repFactory;
-
-    public static synchronized RProductionRepository getRepositoryInstance() throws RRepositoryException {
+    private static Object flag = new Object();
+    
+    public static RProductionRepository getRepositoryInstance() throws RRepositoryException {
         if (repFactory == null) {
-            initFactory();
+        	synchronized (flag) {
+        		if (repFactory == null){
+        			initFactory();	
+        		}
+			}
         }
 
         return (RProductionRepository) repFactory.getRepositoryInstance();
     }
 
-    private static synchronized void initFactory() throws RRepositoryException {
+    private static void initFactory() throws RRepositoryException {
         ConfigSet confSet = SysConfigManager.getConfigManager().locate(PROP_FILE);
         confSet.updateProperty(confRepositoryFactoryClass);
 
@@ -52,15 +57,21 @@ public class ProductionRepositoryFactoryProxy {
         }
     }
 
-    public static synchronized void release() throws RRepositoryException {
-        if (repFactory != null) {
-            repFactory.release();
-            repFactory = null;
-        }
+    public static void release() throws RRepositoryException {
+    	if (repFactory != null) {
+			synchronized (flag) {
+		        if (repFactory != null) {
+		            repFactory.release();
+		            repFactory = null;
+		        }
+			}
+    	}
     }
 
-    public static synchronized void reset() throws RRepositoryException {
-        release();
-        initFactory();
+    public static void reset() throws RRepositoryException {
+    	synchronized (flag) {
+            release();
+            initFactory();
+		}
     }
 }
