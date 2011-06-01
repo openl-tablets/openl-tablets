@@ -7,7 +7,7 @@ public class ServiceManager implements DataSourceListener{
     private RuleService ruleService;
     private IServiceConfigurer serviceConfigurer; 
 
-    public void onDeploymentAdded(String deploymentName) {
+    public void onDeploymentAdded() {
         // TODO Auto-generated method stub
     }
     

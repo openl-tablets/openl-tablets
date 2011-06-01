@@ -3,15 +3,14 @@ package org.openl.ruleservice.loader;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 
 
 public interface IDataSource {
-    List<Deployment> getDeployments();
-    Deployment getDeployemnt(String name, CommonVersion deploymentVersion);
-    List<AProject> getProjectsForDeployment(String name, CommonVersion deploymentVersion);
+    List<Deployment> getDeployments() throws DataSourceException;
+    Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) throws DataSourceException;
     
-    void addListener(DataSourceListener listener);
-    void removeListener(DataSourceListener listener);
+    List<DataSourceListener> getListeners() throws DataSourceException;
+    void addListener(DataSourceListener dataSourceListener) throws DataSourceException;
+    void removeListener(DataSourceListener dataSourceListener) throws DataSourceException;
 }

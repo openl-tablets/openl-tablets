@@ -3,7 +3,6 @@ package org.openl.ruleservice.loader;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.RulesProjectResolver;
@@ -19,15 +18,13 @@ public class RulesLoader implements IRulesLoader {
     }
 
     public List<Deployment> getDeployments() {
-        return dataSource.getDeployments();
+        //return dataSource.getDeployments();
+    	return null;
     }
 
-    public Deployment getDeployemnt(String name, CommonVersion deploymentVersion) {
-        return dataSource.getDeployemnt(name, deploymentVersion);
-    }
-
-    public List<AProject> getProjectsForDeployment(String name, CommonVersion deploymentVersion) {
-        return dataSource.getProjectsForDeployment(name, deploymentVersion);
+    public Deployment getDeployemnt(String deploymentName, CommonVersion deploymentVersion) {
+        //return dataSource.getDeployment(deploymentName, deploymentVersion);
+    	return null;
     }
 
     public List<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
