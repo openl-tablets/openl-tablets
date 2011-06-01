@@ -389,17 +389,15 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         return result;
     }
 
-
     public void addRepositoryListener(RRepositoryListener listener) {
-        // TODO Auto-generated method stub
+    	throw new UnsupportedOperationException();
     }
 
     public void removeRepositoryListener(RRepositoryListener listener) {
-        // TODO Auto-generated method stub
+    	throw new UnsupportedOperationException();
     }
 
     public List<RRepositoryListener> getRepositoryListeners() {
-        // TODO Auto-generated method stub
-        return null;
+    	throw new UnsupportedOperationException();
     }
 }
