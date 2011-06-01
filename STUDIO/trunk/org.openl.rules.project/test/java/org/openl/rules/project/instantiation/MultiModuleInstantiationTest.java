@@ -4,7 +4,9 @@ import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -12,6 +14,8 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 
@@ -70,11 +74,25 @@ public class MultiModuleInstantiationTest {
         assertEquals(new DoubleValue(400), result);
     }
 
+    private List<Module> listModulesInFolder(File folder){
+        List<Module> modules = new ArrayList<Module>();
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        projectResolver.setWorkspace(folder.getAbsolutePath());
+        List<ProjectDescriptor> projects = projectResolver.listOpenLProjects();
+        for (ProjectDescriptor project : projects) {
+            for (Module module : project.getModules()) {
+                modules.add(module);
+            }
+        }
+        return modules;
+    }
+    
     @Test 
     public void test2() throws Exception {
 
         File root = new File("test/resources/multi-module-support/test2");
-        MultiProjectEngineFactoryInstantiationStrategy strategy = new MultiProjectEngineFactoryInstantiationStrategy(root);
+        
+        MultiModuleInstantiationStrategy strategy = new MultiModuleInstantiationStrategy(listModulesInFolder(root), true, null);
 
         Class<?> serviceClass = strategy.getServiceClass();
         Object instance = strategy.instantiate(ReloadType.NO);
