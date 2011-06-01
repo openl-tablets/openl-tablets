@@ -3,6 +3,7 @@ package org.openl.ruleservice;
 import java.util.List;
 
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.model.Module;
 
 public class OpenLService {
@@ -11,14 +12,17 @@ public class OpenLService {
     private List<Module> modules;
     private String serviceClassName;
     private RulesInstantiationStrategy instantiationStrategy;
+    private RulesServiceEnhancer enhancer;
     private Class<?> serviceClass;
     private Object serviceBean;
+    private boolean provideRuntimeContext;    
 
-    public OpenLService(String name, String url, List<Module> modules, String serviceClassName) {
+    public OpenLService(String name, String url, List<Module> modules, String serviceClassName, boolean provideRuntimeContext) {
         this.name = name;
         this.url = url;
         this.modules = modules;
         this.serviceClassName = serviceClassName;
+        this.provideRuntimeContext = provideRuntimeContext;
     }
 
     public String getName() {
@@ -37,12 +41,24 @@ public class OpenLService {
         return serviceClassName;
     }
 
+    public boolean isProvideRuntimeContext() {
+        return provideRuntimeContext;
+    }
+
     public RulesInstantiationStrategy getInstantiationStrategy() {
         return instantiationStrategy;
     }
 
     public void setInstantiationStrategy(RulesInstantiationStrategy instantiationStrategy) {
         this.instantiationStrategy = instantiationStrategy;
+    }
+
+    public RulesServiceEnhancer getEnhancer() {
+        return enhancer;
+    }
+
+    public void setEnhancer(RulesServiceEnhancer enhancer) {
+        this.enhancer = enhancer;
     }
 
     public Class<?> getServiceClass() {

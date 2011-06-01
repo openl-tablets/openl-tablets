@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.ruleservice.OpenLService;
 import org.openl.ruleservice.ServiceDeployException;
 
@@ -25,17 +26,37 @@ public class RulesPublisher implements IRulesPublisher {
         RulesInstantiationStrategy instantiationStrategy = instantiationFactory.getStrategy(service.getModules(),
                 dependencyManager);
         service.setInstantiationStrategy(instantiationStrategy);
-        Object serviceBean = instantiationStrategy.instantiate(ReloadType.NO);
-        service.setServiceBean(serviceBean);
-        resolveInerface(service, instantiationStrategy);
+        if (service.isProvideRuntimeContext()) {
+            RulesServiceEnhancer enhancer = new RulesServiceEnhancer(instantiationStrategy);
+            service.setEnhancer(enhancer);
+        }
+        instantiateServiceBean(service);
+        resolveInerface(service);
     }
 
-    private void resolveInerface(OpenLService service, RulesInstantiationStrategy instantiationStrategy)
-            throws ClassNotFoundException {
+    @SuppressWarnings("deprecation")
+    private void instantiateServiceBean(OpenLService service) throws Exception {
+        Object serviceBean = null;
+        if (service.isProvideRuntimeContext()) {
+            serviceBean = service.getEnhancer().instantiate(ReloadType.NO);
+        } else {
+            serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
+        }
+        service.setServiceBean(serviceBean);
+
+    }
+
+    private void resolveInerface(OpenLService service) throws Exception {
         String serviceClassName = service.getServiceClassName();
+        Class<?> generatedServiceClass = null;// created by engine factory
+        if (service.isProvideRuntimeContext()) {
+            generatedServiceClass = service.getEnhancer().getServiceClass();
+        } else {
+            generatedServiceClass = service.getInstantiationStrategy().getServiceClass();
+        }
         Class<?> serviceClass = null;
         if (serviceClassName != null) {
-            ClassLoader serviceClassLoader = instantiationStrategy.getServiceClass().getClassLoader();
+            ClassLoader serviceClassLoader = generatedServiceClass.getClassLoader();
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
             } catch (ClassNotFoundException e) {
@@ -44,7 +65,7 @@ public class RulesPublisher implements IRulesPublisher {
             }
         }
         if (serviceClass == null) {
-            serviceClass = instantiationStrategy.getServiceClass();
+            serviceClass = generatedServiceClass;
         }
         service.setServiceClass(serviceClass);
     }
