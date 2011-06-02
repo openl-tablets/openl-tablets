@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RDeploymentListener;
@@ -25,7 +26,17 @@ public class JcrDataSource implements IDataSource {
 					.getRepositoryInstance().getDeploymentProjects();
 			List<Deployment> ret = new ArrayList<Deployment>();
 			for (FolderAPI deploymentProject : deploymentProjects) {
-				ret.add(new Deployment(deploymentProject));
+				String deploymentName = deploymentProject.getName();
+				int separatorPosition = deploymentName.lastIndexOf(SEPARATOR);
+
+				if (separatorPosition < 0) {
+					ret.add(new Deployment(deploymentProject));
+				} else {
+					String name = deploymentName.substring(0, separatorPosition);
+					String version = deploymentName.substring(separatorPosition + 1);
+					CommonVersion commonVersion = new CommonVersionImpl(version);
+					ret.add(new Deployment(deploymentProject, name, commonVersion));
+				}
 			}
 			return ret;
 		} catch (RRepositoryException e) {
