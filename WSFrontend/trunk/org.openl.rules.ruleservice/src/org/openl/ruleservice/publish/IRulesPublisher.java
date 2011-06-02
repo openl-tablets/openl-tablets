@@ -10,6 +10,8 @@ public interface IRulesPublisher {
 
     List<OpenLService> getRunningServices();
 
+    OpenLService findServiceByName(String name);
+
     OpenLService deploy(OpenLService service) throws ServiceDeployException;
 
     OpenLService redeploy(OpenLService runningService, OpenLService newService) throws ServiceDeployException;

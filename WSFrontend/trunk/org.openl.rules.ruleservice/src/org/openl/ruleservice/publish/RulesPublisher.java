@@ -22,6 +22,10 @@ public class RulesPublisher implements IRulesPublisher {
         return deploymentAdmin.getRunningServices();
     }
 
+    public OpenLService findServiceByName(String name) {
+        return deploymentAdmin.findServiceByName(name);
+    }
+
     protected void initService(OpenLService service) throws Exception {
         RulesInstantiationStrategy instantiationStrategy = instantiationFactory.getStrategy(service.getModules(),
                 dependencyManager);

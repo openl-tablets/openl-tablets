@@ -15,4 +15,8 @@ Require-Bundle: org.junit;visibility:=reexport,
 Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.loader,
  org.openl.rules.ruleservice.publish,
- org.openl.rules.ruleservice.simple
+ org.openl.rules.ruleservice.simple,
+ org.openl.ruleservice,
+ org.openl.ruleservice.loader,
+ org.openl.ruleservice.management,
+ org.openl.ruleservice.publish

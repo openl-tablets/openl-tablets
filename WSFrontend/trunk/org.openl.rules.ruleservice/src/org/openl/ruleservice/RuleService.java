@@ -2,34 +2,39 @@ package org.openl.ruleservice;
 
 import java.util.List;
 
+import org.openl.rules.project.model.Module;
 import org.openl.ruleservice.loader.IRulesLoader;
 import org.openl.ruleservice.publish.IRulesPublisher;
 
 public class RuleService {
     private IRulesLoader loader;
     private IRulesPublisher publisher;
-    
+
     protected OpenLService createService(ServiceDescription serviceDescription) {
-        //TODO
-        return null;
+        List<Module> modules = loader.getModulesForService(serviceDescription);
+        OpenLService newService = new OpenLService(serviceDescription.getName(), serviceDescription.getUrl(), modules,
+                serviceDescription.getServiceClassName(), serviceDescription.isProvideRuntimeContext());
+        return newService;
     }
-    
+
     public OpenLService deploy(ServiceDescription serviceDescription) throws ServiceDeployException {
-        //TODO
-        return null;
+        return publisher.deploy(createService(serviceDescription));
     }
-    
+
     public OpenLService redeploy(ServiceDescription serviceDescription) throws ServiceDeployException {
-        //TODO
-        return null;
+        OpenLService runningService = findServiceByName(serviceDescription.getName());
+        return publisher.redeploy(runningService, createService(serviceDescription));
     }
 
     public OpenLService undeploy(String serviceName) throws ServiceDeployException {
-        //TODO
-        return null;
+        return publisher.undeploy(serviceName);
     }
-    
-    public List<OpenLService> getRunningServices(){
+
+    public List<OpenLService> getRunningServices() {
         return publisher.getRunningServices();
+    }
+
+    public OpenLService findServiceByName(String name) {
+        return publisher.findServiceByName(name);
     }
 }
