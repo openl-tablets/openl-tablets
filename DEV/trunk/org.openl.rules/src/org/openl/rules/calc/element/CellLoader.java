@@ -8,6 +8,7 @@ import org.openl.meta.IMetaInfo;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenMethodHeader;
@@ -43,8 +44,16 @@ public class CellLoader {
                 }
 
                 IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-
-                return OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode, header, bindingContext);
+                Object method = null;
+                try {
+                    method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode, 
+                        header, bindingContext);
+                    return method;
+                } catch (CompositeSyntaxNodeException e) {
+                    // catch the error of making method and wrap it to SyntaxNodeException.
+                    //
+                    throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);                    
+                }
             }
         }
 
