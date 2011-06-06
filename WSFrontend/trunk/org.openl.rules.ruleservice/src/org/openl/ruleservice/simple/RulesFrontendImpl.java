@@ -15,23 +15,31 @@ public class RulesFrontendImpl implements RulesFrontend {
 
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
 
-    
-    public void registerService(OpenLService service){
+    public void registerService(OpenLService service) {
         runningServices.put(service.getName(), service);
     }
-    
-    public void unregisterService(String serviceName){
+
+    public void unregisterService(String serviceName) {
         runningServices.remove(serviceName);
     }
-    
+
+    private void checkMethodDeclarationInServiceClass(String serviceName, String methodName, Class<?>[] inputParamsTypes) {
+        OpenLService service = runningServices.get(serviceName);
+        Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceClass(), methodName,
+                inputParamsTypes);
+        if (serviceMethod == null) {
+            throw new RuntimeException("There are no such method declared in service class.");
+        }
+    }
+
     public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params) {
         Object result = null;
 
         OpenLService service = runningServices.get(serviceName);
         if (service != null) {
             try {
-                Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceClass(), ruleName,
-                        inputParamsTypes);
+                Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
+                        ruleName, inputParamsTypes);
                 result = serviceMethod.invoke(service.getServiceBean(), params);
             } catch (Exception e) {
                 LOG.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
@@ -56,7 +64,7 @@ public class RulesFrontendImpl implements RulesFrontend {
         OpenLService service = runningServices.get(serviceName);
         if (service != null) {
             try {
-                Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceClass(),
+                Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
                         StringTool.getGetterName(fieldName), new Class<?>[] {});
                 result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
             } catch (Exception e) {
