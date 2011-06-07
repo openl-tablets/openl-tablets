@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
@@ -16,11 +18,13 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrDataSource implements IDataSource {
+	private static Log log = LogFactory.getLog(JcrDataSource.class);
+	
 	private static final String SEPARATOR = "#";
 
 	private Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
 
-	public List<Deployment> getDeployments() throws DataSourceException {
+	public List<Deployment> getDeployments() {
 		try {
 			List<FolderAPI> deploymentProjects = ProductionRepositoryFactoryProxy
 					.getRepositoryInstance().getDeploymentProjects();
@@ -32,10 +36,13 @@ public class JcrDataSource implements IDataSource {
 				if (separatorPosition < 0) {
 					ret.add(new Deployment(deploymentProject));
 				} else {
-					String name = deploymentName.substring(0, separatorPosition);
-					String version = deploymentName.substring(separatorPosition + 1);
+					String name = deploymentName
+							.substring(0, separatorPosition);
+					String version = deploymentName
+							.substring(separatorPosition + 1);
 					CommonVersion commonVersion = new CommonVersionImpl(version);
-					ret.add(new Deployment(deploymentProject, name, commonVersion));
+					ret.add(new Deployment(deploymentProject, name,
+							commonVersion));
 				}
 			}
 			return ret;
@@ -45,7 +52,7 @@ public class JcrDataSource implements IDataSource {
 	}
 
 	public Deployment getDeployment(String deploymentName,
-			CommonVersion deploymentVersion) throws DataSourceException {
+			CommonVersion deploymentVersion) {
 		if (deploymentName == null)
 			throw new IllegalArgumentException();
 		try {
@@ -62,7 +69,7 @@ public class JcrDataSource implements IDataSource {
 		}
 	}
 
-	public List<DataSourceListener> getListeners() throws DataSourceException {
+	public List<DataSourceListener> getListeners() {
 		List<DataSourceListener> tmp = null;
 		synchronized (listeners) {
 			Set<DataSourceListener> _listeners = listeners.keySet();
@@ -71,8 +78,7 @@ public class JcrDataSource implements IDataSource {
 		return Collections.unmodifiableList(tmp);
 	}
 
-	public void addListener(DataSourceListener dataSourceListener)
-			throws DataSourceException {
+	public void addListener(DataSourceListener dataSourceListener) {
 		if (dataSourceListener == null)
 			throw new IllegalArgumentException();
 		synchronized (listeners) {
@@ -84,6 +90,7 @@ public class JcrDataSource implements IDataSource {
 					ProductionRepositoryFactoryProxy.getRepositoryInstance()
 							.addListener(rDeploymentListener);
 					listeners.put(dataSourceListener, rDeploymentListener);
+					log.info(dataSourceListener.getClass().toString() + " listener is registered in JCRDataSource");
 				} catch (RRepositoryException e) {
 					throw new DataSourceException(e);
 				}
@@ -91,8 +98,7 @@ public class JcrDataSource implements IDataSource {
 		}
 	}
 
-	public void removeListener(DataSourceListener dataSourceListener)
-			throws DataSourceException {
+	public void removeListener(DataSourceListener dataSourceListener) {
 		if (dataSourceListener == null)
 			throw new IllegalArgumentException();
 		synchronized (listeners) {
@@ -102,6 +108,7 @@ public class JcrDataSource implements IDataSource {
 					ProductionRepositoryFactoryProxy.getRepositoryInstance()
 							.removeListener(listener);
 					listeners.remove(dataSourceListener);
+					log.info(dataSourceListener.getClass().toString() + " listener is unregistered from JCRDataSource");
 				} catch (RRepositoryException e) {
 					throw new DataSourceException(e);
 				}
@@ -128,4 +135,5 @@ public class JcrDataSource implements IDataSource {
 			dataSourceListener.onDeploymentAdded();
 		}
 	}
+
 }

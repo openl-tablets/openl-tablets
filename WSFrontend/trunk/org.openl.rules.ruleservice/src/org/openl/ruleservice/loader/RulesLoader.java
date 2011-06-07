@@ -1,41 +1,114 @@
 package org.openl.ruleservice.loader;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.ruleservice.ServiceDescription;
+import org.openl.ruleservice.ServiceDescription.ModuleConfiguration;
 
 public class RulesLoader implements IRulesLoader {
-    private IDataSource dataSource;
-    private RulesProjectResolver projectResolver;
-    //TODO private local workspace
+	private IDataSource dataSource;
+	private RulesProjectResolver projectResolver;
+	private LocalTemporaryDeploymentsStorage storage;
 
-    public IDataSource getDataSource() {
-        return dataSource;
-    }
+	public RulesLoader(IDataSource dataSource,
+			LocalTemporaryDeploymentsStorage storage,
+			RulesProjectResolver projectResolver) {
+		if (dataSource == null || storage == null || projectResolver == null)
+			throw new IllegalArgumentException();
+		this.dataSource = dataSource;
+		this.storage = storage;
+		this.projectResolver = projectResolver;
+	}
 
-    public List<Deployment> getDeployments() {
-        //return dataSource.getDeployments();
-    	return null;
-    }
+	public IDataSource getDataSource() {
+		return dataSource;
+	}
 
-    public Deployment getDeployemnt(String deploymentName, CommonVersion deploymentVersion) {
-        //return dataSource.getDeployment(deploymentName, deploymentVersion);
-    	return null;
-    }
+	public RulesProjectResolver getProjectResolver() {
+		return projectResolver;
+	}
 
-    public List<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
-            String projectName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	public List<Deployment> getDeployments() {
+		return getDataSource().getDeployments();
+	}
 
-    public List<Module> getModulesForService(ServiceDescription serviceDescription) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	public Deployment getDeployment(String deploymentName,
+			CommonVersion deploymentVersion) {
+		Deployment deployment = getDataSource().getDeployment(deploymentName,
+				deploymentVersion);
+		if (storage.containsDeployment(deployment)) {
+			return storage.getDeployment(deployment);
+		}
+		return deployment;
+	}
+
+	public List<Module> resolveModulesForProject(String deploymentName,
+			CommonVersion deploymentVersion, String projectName) {
+		if (deploymentName == null || deploymentVersion == null
+				|| projectName == null)
+			throw new IllegalArgumentException();
+		Deployment deployment = getDataSource().getDeployment(deploymentName,
+				deploymentVersion);
+		deployment = storage.getDeployment(deployment);
+		Collection<AProject> projects = deployment.getProjects();
+		for (AProject project : projects) {
+			if (projectName.equals(project.getName())) {
+				String artefactPath = storage.getDirectoryToLoadDeploymentsIn()
+						 + project.getArtefactPath().getStringValue();
+				File projectFolder = new File(artefactPath);
+				ResolvingStrategy resolvingStrategy = projectResolver
+						.isRulesProject(projectFolder);
+				if (resolvingStrategy != null) {
+					ProjectDescriptor projectDescriptor = resolvingStrategy
+							.resolveProject(projectFolder);
+					return Collections.unmodifiableList(projectDescriptor
+							.getModules());
+				} else {
+					return Collections.emptyList();
+				}
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	public List<Module> getModulesForService(
+			ServiceDescription serviceDescription) {
+		List<Module> ret = new ArrayList<Module>();
+		List<ModuleConfiguration> modulesToLoad = serviceDescription
+				.getModulesToLoad();
+		for (ModuleConfiguration moduleConfiguration : modulesToLoad) {
+			String deploymentName = moduleConfiguration.getDeploymentName();
+			CommonVersion commonVersion = moduleConfiguration
+					.getDeploymentVersion();
+			Deployment deployment = getDataSource().getDeployment(
+					deploymentName, commonVersion);
+			deployment = storage.getDeployment(deployment);
+			Collection<AProject> projects = deployment.getProjects();
+			for (AProject project : projects) {
+				String artefactPath = storage.getDirectoryToLoadDeploymentsIn()
+				 + project.getArtefactPath().getStringValue();
+				File projectFolder = new File(artefactPath);
+				ResolvingStrategy resolvingStrategy = projectResolver
+						.isRulesProject(projectFolder);
+				if (resolvingStrategy != null) {
+					ProjectDescriptor projectDescriptor = resolvingStrategy
+							.resolveProject(projectFolder);
+					ret.addAll(projectDescriptor.getModules());
+				}
+			}
+		}
+		return ret;
+	}
 
 }
