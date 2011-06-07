@@ -95,6 +95,9 @@ public class BooleanUtils {
         if (values == null) {
             return false;
         }
+        if (ArrayTool.contains(values, null)) {
+            return false;
+        }
         for (Boolean value : values) {
             if (!value) {
                 return false;
@@ -124,7 +127,10 @@ public class BooleanUtils {
         }            
         if(values.length == 0) {
             throw new IllegalArgumentException("Array is empty");
-        } 
+        }         
+        if (ArrayTool.contains(values, null)) {
+            throw new IllegalArgumentException("Array shouldn`t contain null objects");
+        }
         Boolean result = values[0];
         for (int i = 1; i < values.length; i++) {
             result = result ^ values[i];
@@ -154,6 +160,9 @@ public class BooleanUtils {
         if(values.length == 0) {
             throw new IllegalArgumentException("Array is empty");
         } 
+        if (ArrayTool.contains(values, null)) {
+            throw new IllegalArgumentException("Array shouldn`t contain null objects");
+        }        
         Boolean result = values[0];
         for (int i = 1; i < values.length; i++) {
             result = result || values[i];
