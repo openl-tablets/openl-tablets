@@ -12,7 +12,7 @@ public interface IRulesLoader {
 
 	List<Deployment> getDeployments();
 
-	Deployment getDeployemnt(String deploymentName,
+	Deployment getDeployment(String deploymentName,
 			CommonVersion deploymentVersion);
 
 	List<Module> resolveModulesForProject(String deploymentName,

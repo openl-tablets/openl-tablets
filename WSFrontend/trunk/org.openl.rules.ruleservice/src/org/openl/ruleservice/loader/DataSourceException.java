@@ -6,7 +6,7 @@ package org.openl.ruleservice.loader;
  *
  */
 
-public class DataSourceException extends Exception{
+public class DataSourceException extends RuntimeException{
 
 	private static final long serialVersionUID = 6818824565990021295L;
 
