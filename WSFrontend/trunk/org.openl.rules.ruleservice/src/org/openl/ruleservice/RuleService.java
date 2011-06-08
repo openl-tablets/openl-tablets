@@ -37,4 +37,20 @@ public class RuleService {
     public OpenLService findServiceByName(String name) {
         return publisher.findServiceByName(name);
     }
+
+    public IRulesLoader getLoader() {
+        return loader;
+    }
+
+    public void setLoader(IRulesLoader loader) {
+        this.loader = loader;
+    }
+
+    public IRulesPublisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(IRulesPublisher publisher) {
+        this.publisher = publisher;
+    }
 }
