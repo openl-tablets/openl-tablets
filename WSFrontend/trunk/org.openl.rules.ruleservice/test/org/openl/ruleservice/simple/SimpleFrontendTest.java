@@ -104,7 +104,7 @@ public class SimpleFrontendTest {
                     dependencyManager);
             Class<?> moduleServiceClass = instantiationStrategy.getServiceClass();
             for (Method method : moduleServiceClass.getMethods()) {
-                assertNotNull(MethodUtils.getMatchingAccessibleMethod(moduleServiceClass, method.getName(),
+                assertNotNull(MethodUtils.getMatchingAccessibleMethod(multiModuleServiceClass, method.getName(),
                         method.getParameterTypes()));
             }
         }
