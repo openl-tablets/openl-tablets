@@ -26,6 +26,15 @@
         </includes>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </testResource>
+    </testResources>
 
     <testSourceDirectory>test</testSourceDirectory>
   </build>
