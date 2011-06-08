@@ -69,6 +69,14 @@ public class ServiceDescription {
         private String projectName;
         private String moduleName;
 
+        public ModuleConfiguration(String deploymentName, CommonVersion deploymentVersion, String projectName,
+                String moduleName) {
+            this.deploymentName = deploymentName;
+            this.deploymentVersion = deploymentVersion;
+            this.projectName = projectName;
+            this.moduleName = moduleName;
+        }
+
         public String getDeploymentName() {
             return deploymentName;
         }
