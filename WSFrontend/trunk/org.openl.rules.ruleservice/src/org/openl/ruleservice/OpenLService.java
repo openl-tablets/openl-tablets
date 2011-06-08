@@ -15,9 +15,10 @@ public class OpenLService {
     private RulesServiceEnhancer enhancer;
     private Class<?> serviceClass;
     private Object serviceBean;
-    private boolean provideRuntimeContext;    
+    private boolean provideRuntimeContext;
 
-    public OpenLService(String name, String url, List<Module> modules, String serviceClassName, boolean provideRuntimeContext) {
+    public OpenLService(String name, String url, List<Module> modules, String serviceClassName,
+            boolean provideRuntimeContext) {
         this.name = name;
         this.url = url;
         this.modules = modules;
