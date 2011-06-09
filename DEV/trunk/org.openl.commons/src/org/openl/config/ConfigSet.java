@@ -12,10 +12,10 @@ public class ConfigSet {
 
     private static final Log LOG = LogFactory.getLog(ConfigSet.class);
 
-    private Map<String, String> properties;
+    private Map<String, Object> properties;
 
     public ConfigSet() {
-        properties = new HashMap<String, String>();
+        properties = new HashMap<String, Object>();
     }
 
     public void addProperties(Properties props) {
@@ -25,6 +25,12 @@ public class ConfigSet {
             String value = props.getProperty(key);
 
             addProperty(key, value);
+        }
+    }
+
+    public void addProperties(Map<String, Object> props) {
+        if (props != null) {
+            properties.putAll(props);
         }
     }
 
@@ -49,16 +55,17 @@ public class ConfigSet {
     }
 
     public void updateProperty(ConfigProperty<?> prop) {
-        String textValue = properties.get(prop.getName());
+        Object objectValue = properties.get(prop.getName());
 
-        if (textValue == null) {
+        if (objectValue == null) {
             return;
         }
 
         try {
-            prop.setTextValue(textValue);
+            prop.setTextValue(objectValue.toString());
         } catch (Exception e) {
-            LOG.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + textValue + "'!", e);
+            LOG.error("Failed to update ConfigProperty '" + prop.getName()
+                    + "' with value '" + objectValue.toString() + "'!", e);
         }
     }
 }
