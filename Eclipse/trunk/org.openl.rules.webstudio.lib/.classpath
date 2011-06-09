@@ -39,19 +39,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/serializer-2.7.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j12-1.5.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-aop-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-asm-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-beans-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-context-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-core-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-expression-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-jdbc-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-orm-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-config-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-core-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-web-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-tx-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/standard-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/validation-api-1.0.0.GA.jar"/>
@@ -70,5 +60,18 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ehcache-1.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javassist-3.12.0.GA.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdom-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rome-0.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-aop-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-asm-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-beans-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-context-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-core-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-expression-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-jdbc-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-orm-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-tx-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.1.0.M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

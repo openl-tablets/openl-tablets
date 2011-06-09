@@ -108,6 +108,11 @@
     </dependency>
 
     <dependency>
+        <groupId>commons-configuration</groupId>
+        <artifactId>commons-configuration</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.sun.facelets</groupId>
       <artifactId>jsf-facelets</artifactId>
     </dependency>
