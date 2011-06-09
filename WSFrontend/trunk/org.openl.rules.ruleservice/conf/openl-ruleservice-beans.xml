@@ -15,4 +15,13 @@
 		<property name="loader" ref="ruleLoader"></property>
 		<property name="publisher" ref="rulesPublisher"></property>
 	</bean>
+
+	<bean id="serviceConfigurer" class="org.openl.ruleservice.management.LastVersionProjectsServceConfigurer">
+		<property name="provideRuntimeContext" value="true"/>
+	</bean>
+
+	<bean id="serviceManager" class="org.openl.ruleservice.management.ServiceManager">
+		<property name="serviceConfigurer" ref="serviceConfigurer"/>
+		<property name="ruleService" ref="ruleService"/>
+	</bean>
 </beans>
