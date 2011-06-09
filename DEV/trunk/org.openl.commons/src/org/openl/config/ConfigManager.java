@@ -9,6 +9,7 @@ import java.io.IOException;
 
 /**
  * @author Aleh Bykhavets
+ * @deprecated
  */
 public class ConfigManager {
 
