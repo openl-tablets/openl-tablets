@@ -125,4 +125,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
     void addListener(DesignTimeRepositoryListener listener);
     void removeListener(DesignTimeRepositoryListener listener);
     List<DesignTimeRepositoryListener> getListeners();
+
+    boolean isFailed();
+
 }

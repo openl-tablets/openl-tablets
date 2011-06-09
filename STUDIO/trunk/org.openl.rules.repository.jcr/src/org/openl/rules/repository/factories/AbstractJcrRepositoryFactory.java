@@ -40,10 +40,10 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     /** Default path where new project should be created */
-    protected final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString("repository.rules.path",
-            "/rules");
+    protected final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString(
+            "design-repository.rules.path", "/rules");
     protected final ConfigPropertyString confDeploymentProjectsLocation = new ConfigPropertyString(
-            "repository.deployments.path", "/deployments");
+            "design-repository.deployments.path", "/deployments");
 
     private Repository repository;
     protected String repositoryName;

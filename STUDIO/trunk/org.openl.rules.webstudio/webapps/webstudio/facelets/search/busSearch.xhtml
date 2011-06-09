@@ -45,7 +45,7 @@
             </h:column>
             <h:column>
 	            <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
-                   timeZone="#{formatPatterns.defaultTimeZone}" rendered="#{prop.dateType}" />
+                   rendered="#{prop.dateType}" />
 
                 <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
                     value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enumType}">

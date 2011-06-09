@@ -47,7 +47,7 @@
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.createdAt}">
-        	<f:convertDateTime type="date" pattern="#{formatPatterns.datePattern}"/>
+        	<f:convertDateTime type="date" pattern="#{systemConfig['webstudio.datePattern']}" />
         </h:outputText>
       </rich:column>
       <rich:column style="text-align:center">

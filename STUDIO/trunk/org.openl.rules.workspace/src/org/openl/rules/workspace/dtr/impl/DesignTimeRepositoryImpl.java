@@ -5,9 +5,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.config.ConfigSet;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -39,21 +41,34 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     private RRepository rulesRepository;
     /** Project Cache */
     private HashMap<String, AProject> projects;
-    
+
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
-    
+
+    private Map<String, Object> config;
+
     public DesignTimeRepositoryImpl() {
     }
-    
-    private RRepository getRepo(){
-        if(rulesRepository == null){
+
+    private RRepository getRepo() {
+        if (rulesRepository == null) {
             init();
         }
         return rulesRepository;
     }
 
+    public boolean isFailed() {
+        if (rulesRepository == null) {
+            init();
+        }
+        return RulesRepositoryFactory.isFailed();
+    }
+
     private void init() {
         try {
+            ConfigSet configSet = new ConfigSet();
+            configSet.addProperties(config);
+            RulesRepositoryFactory.setConfig(configSet);
+
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
             e.printStackTrace();
@@ -82,7 +97,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
         try {
             log.debug("Opening temporary write session...");
-            writeRep = RulesRepositoryFactory.getRepositoryInstance();
+            writeRep = getRepo();
             log.debug("Wrapping temporary write project...");
             AProject newProject = wrapProject(writeRep.createRulesProject(name), false);
 
@@ -268,7 +283,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
         try {
             log.debug("Opening temporary write session...");
-            writeRep = RulesRepositoryFactory.getRepositoryInstance();
+            writeRep = getRepo();
             log.debug("Wrapping temporary write project...");
             AProject project4Write = wrapProject(writeRep.getRulesProject(name), false);
 
@@ -330,4 +345,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             listener.onDeploymentProjectModified(repositoryEvent);
         }
     }
+
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
+    }
+
 }

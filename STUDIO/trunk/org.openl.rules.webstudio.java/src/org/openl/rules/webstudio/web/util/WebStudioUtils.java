@@ -2,13 +2,16 @@ package org.openl.rules.webstudio.web.util;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -17,6 +20,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author Aliaksandr Antonik
  */
 public abstract class WebStudioUtils {
+
+    private static final Log LOG = LogFactory.getLog(WebStudioUtils.class);
 
     private static final String STUDIO_ATTR = "studio";
 
@@ -63,7 +68,9 @@ public abstract class WebStudioUtils {
     }
 
     public static boolean isRepositoryFailed() {
-        return RulesRepositoryFactory.isFailed();
+        UserWorkspace userWorkspace = getUserWorkspace(FacesUtils.getSession());
+        DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
+        return designTimeRepository.isFailed();
     }
 
     public static boolean isStudioReady() {
@@ -77,6 +84,17 @@ public abstract class WebStudioUtils {
             return webStudio.getModel();
         }
         return null;
+    }
+
+    public static UserWorkspace getUserWorkspace(HttpSession session) {
+        UserWorkspace userWorkspace = null;
+        try {
+            RulesUserSession rulesUserSession = getRulesUserSession(session, true);
+            userWorkspace = rulesUserSession.getUserWorkspace();
+        } catch (Exception e) {
+            LOG.error("Failed to get user workspace", e);
+        }
+        return userWorkspace;
     }
 
 }

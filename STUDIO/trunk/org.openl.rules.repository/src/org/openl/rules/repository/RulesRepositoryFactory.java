@@ -18,17 +18,19 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class RulesRepositoryFactory {
     private static final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
 
-    public static final String PROP_FILE = "rules-repository.properties";
+    public static final String DEFAULT_PROP_FILE = "rules-repository.properties";
 
     public static final String MSG_FAILED = "Failed to initialize RulesRepositoryFactory!";
 
     /** default value is <code>null</code> -- fail first */
     private static final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
-            "repository.factory", null);
+            "design-repository.factory", null);
 
     private static RRepositoryFactory repFactory;
 
     private static boolean isFailed;
+
+    private static ConfigSet config;
 
     public static synchronized RRepository getRepositoryInstance() throws RRepositoryException {
         if (repFactory == null) {
@@ -43,12 +45,14 @@ public class RulesRepositoryFactory {
     }
 
     private static void initFactory() throws RRepositoryException {
-        ConfigSet confSet = SysConfigManager.getConfigManager().locate(PROP_FILE);
-        if (confSet == null) {
+        if (config == null) {
+            config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
+        }
+        if (config == null) {
             throw new RRepositoryException(MSG_FAILED, new NullPointerException());
         }
 
-        confSet.updateProperty(confRepositoryFactoryClass);
+        config.updateProperty(confRepositoryFactoryClass);
 
         String className = confRepositoryFactoryClass.getValue();
         try {
@@ -56,7 +60,7 @@ public class RulesRepositoryFactory {
             Object obj = c.newInstance();
             repFactory = (RRepositoryFactory) obj;
             // initialize
-            repFactory.initialize(confSet);
+            repFactory.initialize(config);
         } catch (Exception e) {
             isFailed = true;
             log.error(MSG_FAILED, e);
@@ -85,6 +89,14 @@ public class RulesRepositoryFactory {
             repFactory.release();
             repFactory = null;
         }
+    }
+
+    public static ConfigSet getConfig() {
+        return config;
+    }
+
+    public static void setConfig(ConfigSet config) {
+        RulesRepositoryFactory.config = config;
     }
 
 }

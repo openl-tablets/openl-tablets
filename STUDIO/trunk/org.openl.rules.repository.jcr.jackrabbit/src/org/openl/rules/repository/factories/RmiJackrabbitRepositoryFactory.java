@@ -17,8 +17,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class RmiJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
-    private final ConfigPropertyString confRmiUrl = new ConfigPropertyString("repository.jackrabbit.rmi.url",
-            "//localhost:1099/jackrabbit.repository");
+    private ConfigPropertyString confRmiUrl = new ConfigPropertyString(
+            "repository.jackrabbit.rmi.url", "//localhost:1099/jackrabbit.repository");
 
     /** {@inheritDoc} */
     @Override
@@ -47,4 +47,13 @@ public class RmiJackrabbitRepositoryFactory extends AbstractJackrabbitRepository
         throw new RepositoryException("Cannot initialize node types via RMI."
                 + "\nPlease, add OpenL node types definition manually or via command line tool.");
     }
+
+    public ConfigPropertyString getConfRmiUrl() {
+        return confRmiUrl;
+    }
+
+    public void setConfRmiUrl(ConfigPropertyString confRmiUrl) {
+        this.confRmiUrl = confRmiUrl;
+    }
+
 }

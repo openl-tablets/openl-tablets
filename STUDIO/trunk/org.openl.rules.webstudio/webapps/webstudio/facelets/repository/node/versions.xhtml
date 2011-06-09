@@ -27,7 +27,7 @@
       </rich:column>
       <rich:column>
         <h:outputText value="#{version.versionInfo.createdAt}">
-        	<f:convertDateTime type="date" pattern="#{formatPatterns.datePattern}"/>
+        	<f:convertDateTime type="date" pattern="#{systemConfig['webstudio.datePattern']}"/>
         </h:outputText>
       </rich:column>
     </rich:columnGroup>

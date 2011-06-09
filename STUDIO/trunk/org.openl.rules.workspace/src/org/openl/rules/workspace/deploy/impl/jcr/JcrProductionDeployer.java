@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
+import org.openl.config.ConfigSet;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
@@ -16,6 +17,7 @@ import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Implementation of <code>ProductionDeployer</code> that uses <i>JCR</i> as
@@ -26,6 +28,8 @@ public class JcrProductionDeployer implements ProductionDeployer {
      * The user.
      */
     private final WorkspaceUser user;
+
+    private Map<String, Object> config;
 
     public JcrProductionDeployer(WorkspaceUser user) {
         this.user = user;
@@ -57,6 +61,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         boolean alreadyDeployed = false;
         try {
+            if (ProductionRepositoryFactoryProxy.getConfig() == null) {
+                ConfigSet configSet = new ConfigSet();
+                configSet.addProperties(config);
+                ProductionRepositoryFactoryProxy.setConfig(configSet);
+            }
+
             RProductionRepository rRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
 
             if (rRepository.hasDeploymentProject(id.getName())) {
@@ -111,4 +121,13 @@ public class JcrProductionDeployer implements ProductionDeployer {
         name.append(System.currentTimeMillis());
         return name.toString();
     }
+
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
+    }
+
 }
