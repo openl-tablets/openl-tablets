@@ -20,6 +20,14 @@ public class RulesLoader implements IRulesLoader {
     private RulesProjectResolver projectResolver;
     private LocalTemporaryDeploymentsStorage storage;
 
+    /**
+     * Construct a new RulesLoader for bean usage.
+     * <p>Note: The dataSource, storage and projectResolver have to be set before using the instance.
+     * @see #setDataSource, #setProjectResolver 
+     */
+    public RulesLoader() {
+    }
+    
     public RulesLoader(IDataSource dataSource, LocalTemporaryDeploymentsStorage storage,
             RulesProjectResolver projectResolver) {
         if (dataSource == null || storage == null || projectResolver == null)
@@ -32,13 +40,29 @@ public class RulesLoader implements IRulesLoader {
     public IDataSource getDataSource() {
         return dataSource;
     }
+    
+    public void setDataSource(IDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public RulesProjectResolver getProjectResolver() {
         return projectResolver;
     }
+    
+    public void setProjectResolver(RulesProjectResolver projectResolver) {
+        this.projectResolver = projectResolver;
+    }
 
     public List<Deployment> getDeployments() {
         return getDataSource().getDeployments();
+    }
+    
+    public LocalTemporaryDeploymentsStorage getStorage() {
+        return storage;
+    }
+    
+    public void setStorage(LocalTemporaryDeploymentsStorage storage) {
+        this.storage = storage;
     }
 
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
