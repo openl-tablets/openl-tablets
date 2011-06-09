@@ -12,7 +12,7 @@
 	</bean>
 
 	<!--  -->
-	<bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>
+	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
 	
 	<!--  -->
 	<bean id="instantiationFactory" class="org.openl.ruleservice.publish.RulesInstantiationFactory"/>
@@ -21,7 +21,7 @@
 	and calls DeploymentAdmin to expose corresponding web service -->
 	<bean id="rulesPublisher" class="org.openl.ruleservice.publish.RulesPublisher">
 		<property name="deploymentAdmin" ref="deploymentAdmin"/>
-		<property name="dependencyManager" ref="dependencyManager"/>
+		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
 		<property name="instantiationFactory" ref="instantiationFactory"/> 
 	</bean>
 </beans>

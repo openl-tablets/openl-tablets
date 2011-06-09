@@ -25,6 +25,13 @@
           <include>**/*.xml</include>
         </includes>
       </resource>
+      <resource>
+        <directory>conf</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
     </resources>
     <testResources>
       <testResource>
