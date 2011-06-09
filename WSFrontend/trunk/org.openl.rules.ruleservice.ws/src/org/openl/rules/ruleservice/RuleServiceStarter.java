@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice;
 
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.ruleservice.management.ServiceManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -10,8 +11,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class RuleServiceStarter {
     public static void main(String[] args) throws RRepositoryException {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("openl-ws.xml");
-        RuleService ruleService = (RuleService) applicationContext.getBean("ruleService");
-        PeriodicalExecutor executor = new PeriodicalExecutor(ruleService);
+        final ServiceManager serviceManager = (ServiceManager) applicationContext.getBean("serviceManager");
+        PeriodicalExecutor executor = new PeriodicalExecutor(new Runnable() {
+            public void run() {
+                serviceManager.start();
+            }
+        });
         executor.execute();
     }
 }
