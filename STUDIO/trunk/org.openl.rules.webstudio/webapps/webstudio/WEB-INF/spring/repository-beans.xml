@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
        default-autowire="no">
 
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
-    <property name="workspacesRoot" value="@{webstudio.workspacesRoot}" />
-    <property name="autoLogin" value="@{security.autoLogin}" />
+    <property name="workspacesRoot" value="#{systemConfig['webstudio.workspacesRoot']}" />
+    <property name="autoLogin" value="#{systemConfig['security.autoLogin']}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>
 
-  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"/>
+  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl">
+    <property name="config" value="#{systemConfig}" />
+  </bean>
 
   <bean id="productionDeployerManager" class="org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl" />
 
@@ -47,6 +49,7 @@
   <bean id="jcrProductionDeployerTarget" class="org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer"
     lazy-init="true">
     <constructor-arg ref="workspaceUser"></constructor-arg>
+    <property name="config" value="#{systemConfig}" />
   </bean>
 
   <bean id="jcrProductionDeployer" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -62,7 +65,7 @@
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="deployer">
       <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-        <property name="testValue" value="@{webstudio.deployer}" />
+        <property name="testValue" value="#{systemConfig['webstudio.deployer']}" />
         <property name="casesMap">
           <map>
             <entry key="production" value-ref="jcrProductionDeployer" />

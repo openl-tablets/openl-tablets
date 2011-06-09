@@ -39,12 +39,12 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     private static Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
-    private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
-            "repository.jackrabbit.local.home", "../local-repository");
-    private final ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("repository.jcr.nodetypes",
-            DEFAULT_NODETYPE_FILE);
-    private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("repository.name",
-            "Local Jackrabbit");
+    private ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
+            "repository.local.home", "../local-repository");
+    private ConfigPropertyString confNodeTypeFile = new ConfigPropertyString(
+            "repository.jcr.nodetypes", DEFAULT_NODETYPE_FILE);
+    private ConfigPropertyString confRepositoryName = new ConfigPropertyString(
+            "repository.name", "Local Jackrabbit");
 
     /** Jackrabbit local repository */
     protected TransientRepository repository;
@@ -273,4 +273,29 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             repository = null;
         }
     }
+
+    public ConfigPropertyString getConfRepositoryHome() {
+        return confRepositoryHome;
+    }
+
+    public void setConfRepositoryHome(ConfigPropertyString confRepositoryHome) {
+        this.confRepositoryHome = confRepositoryHome;
+    }
+
+    public ConfigPropertyString getConfNodeTypeFile() {
+        return confNodeTypeFile;
+    }
+
+    public void setConfNodeTypeFile(ConfigPropertyString confNodeTypeFile) {
+        this.confNodeTypeFile = confNodeTypeFile;
+    }
+
+    public ConfigPropertyString getConfRepositoryName() {
+        return confRepositoryName;
+    }
+
+    public void setConfRepositoryName(ConfigPropertyString confRepositoryName) {
+        this.confRepositoryName = confRepositoryName;
+    }
+
 }

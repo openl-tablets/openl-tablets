@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
        default-autowire="no">
 
   <bean id="openlDataSource"
     class="org.apache.commons.dbcp.BasicDataSource">
-      <property name="driverClassName" value="@{security.standalone.db.driver}"/>
-      <property name="url" value="@{security.standalone.db.url}"/>
-      <property name="username" value="@{security.standalone.db.user}"/>
-      <property name="password" value="@{security.standalone.db.password}"/>
+      <property name="driverClassName" value="${security.standalone.db.driver}"/>
+      <property name="url" value="${security.standalone.db.url}"/>
+      <property name="username" value="${security.standalone.db.user}"/>
+      <property name="password" value="${security.standalone.db.password}"/>
 
       <!-- The maximum number of active connections that can be allocated from
            this pool at the same time, or zero for no limit. -->
@@ -31,7 +31,7 @@
     <bean id="dataBase" class="org.openl.rules.security.common.spring.db.HsqlServerBean">
       <property name="enabled">
         <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-          <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
+          <property name="testValue" value="${security.standalone.db.hibernate.dialect}"/>
           <property name="defaultObject" value="false"/>
           <property name="casesMap">
             <map>
@@ -54,12 +54,12 @@
       <property name="configLocation" value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
       <property name="hibernateProperties">
         <props>
-          <prop key="hibernate.dialect">@{security.standalone.db.hibernate.dialect}</prop>
-          <prop key="hibernate.show_sql">@{security.standalone.db.hibernate.show_sql}</prop>
-          <prop key="hibernate.format_sql">@{security.standalone.db.hibernate.format_sql}</prop>
-          <prop key="hibernate.use_sql_comments">@{security.standalone.db.hibernate.use_sql_comments}</prop>
-          <prop key="hibernate.jdbc.batch_size">@{security.standalone.db.hibernate.batch_size}</prop>
-          <prop key="hibernate.hbm2ddl.auto">@{security.standalone.db.hibernate.hbm2ddl.auto}</prop>
+          <prop key="hibernate.dialect">${security.standalone.db.hibernate.dialect}</prop>
+          <prop key="hibernate.show_sql">${security.standalone.db.hibernate.show_sql}</prop>
+          <prop key="hibernate.format_sql">${security.standalone.db.hibernate.format_sql}</prop>
+          <prop key="hibernate.use_sql_comments">${security.standalone.db.hibernate.use_sql_comments}</prop>
+          <prop key="hibernate.jdbc.batch_size">${security.standalone.db.hibernate.batch_size}</prop>
+          <prop key="hibernate.hbm2ddl.auto">${security.standalone.db.hibernate.hbm2ddl.auto}</prop>
 
           <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
           <prop key="hibernate.cache.use_query_cache">true</prop>
@@ -82,13 +82,13 @@
     <bean id="databasePopulator" class="org.openl.rules.security.common.spring.db.DbUnitDatabasePopulator"
           depends-on="openlSessionFactory">
       <property name="dataSource" ref="openlDataSource"/>
-      <property name="enabled" value="@{security.standalone.db.populateDatabase}"/>
+      <property name="enabled" value="${security.standalone.db.populateDatabase}"/>
       <property name="ordered" value="false"/>
       <!-- for DBMS that support multiple schemata like Oracle -->
-      <property name="dbSchema" value="@{security.standalone.db.schema}"/>
+      <property name="dbSchema" value="${security.standalone.db.schema}"/>
       <property name="dataTypeFactory">
         <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-          <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
+          <property name="testValue" value="${security.standalone.db.hibernate.dialect}"/>
           <property name="defaultObject">
             <bean class="org.dbunit.dataset.datatype.DefaultDataTypeFactory"/>
           </property>
@@ -103,7 +103,7 @@
       </property>
       <property name="databaseOperation">
         <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-          <property name="testValue" value="@{security.standalone.db.hibernate.dialect}"/>
+          <property name="testValue" value="${security.standalone.db.hibernate.dialect}"/>
           <property name="defaultObject" ref="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"/>
           <property name="casesMap">
             <map>

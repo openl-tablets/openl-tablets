@@ -20,8 +20,6 @@ import static org.openl.rules.webstudio.web.util.WebStudioUtils.getWebStudio;
  */
 public class HeaderBean {
 
-    private boolean hideLogout;
-
     public List<SelectItem> getModules() {
         WebStudio studio = getWebStudio();
         List<ProjectDescriptor> projects = studio.getAllProjects();
@@ -42,10 +40,6 @@ public class HeaderBean {
             return studio.getModuleId(currentModule);
         }
         return "";
-    }
-
-    public boolean isHideLogout() {
-        return hideLogout;
     }
 
     public boolean isLocalRequest() {
@@ -74,10 +68,6 @@ public class HeaderBean {
     public boolean isCollapseProperties() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         return webStudio == null || webStudio.isCollapseProperties();
-    }
-
-    public void setHideLogout(boolean hideLogout) {
-        this.hideLogout = hideLogout;
     }
 
 }

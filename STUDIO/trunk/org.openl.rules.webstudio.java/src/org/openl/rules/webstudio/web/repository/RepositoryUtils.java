@@ -47,11 +47,15 @@ public class RepositoryUtils {
         return new DeployID(sb.toString());
     }
 
+    /**
+     * @deprecated
+     */
     public static RulesUserSession getRulesUserSession() {
         return (RulesUserSession) FacesUtils.getSessionParam(Constants.RULES_USER_SESSION);
     }
 
     /**
+     * @deprecated
      * @return user's workspace or <code>null</code>
      */
     public static UserWorkspace getWorkspace() {

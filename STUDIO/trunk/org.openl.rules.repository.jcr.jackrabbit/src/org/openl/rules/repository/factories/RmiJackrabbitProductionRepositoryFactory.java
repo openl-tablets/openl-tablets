@@ -1,5 +1,6 @@
 package org.openl.rules.repository.factories;
 
+import org.openl.config.ConfigPropertyString;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
@@ -9,6 +10,14 @@ import javax.jcr.Session;
 import javax.jcr.RepositoryException;
 
 public class RmiJackrabbitProductionRepositoryFactory extends RmiJackrabbitRepositoryFactory {
+
+    private ConfigPropertyString confRmiUrl = new ConfigPropertyString(
+            "production-repository.jackrabbit.rmi.url", "//localhost:1099/jackrabbit.repository");
+
+    public RmiJackrabbitProductionRepositoryFactory() {
+        setConfRmiUrl(confRmiUrl);
+    }
+
     /**
      * {@inheritDoc}
      */

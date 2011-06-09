@@ -183,7 +183,7 @@
                       src="#{contextPath}/webresource/images/forced_refresh.png" alt="Refresh Project(s)"/></a>
                   <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/guide/html/#{versionProperties['openl.version']}/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                      title="Help"><img src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
-                  <c:if test="#{not headerBean.hideLogout}">
+                  <c:if test="#{not systemConfig['webstudio.hideLogout']}">
                     <f:verbatim>&amp;nbsp;</f:verbatim>
                     <a target="main" href='#{contextPath}/security_logout' title="Log out"
                         onclick="return confirm('Are you sure you want to Log out?')"><img

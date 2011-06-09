@@ -8,22 +8,22 @@
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputLabel for="#{prefix}effectiveDate" value="Effective date" />
 
-    <rich:calendar id="#{prefix}effectiveDate" value="#{repositoryTreeController.effectiveDate}" popup="true" enableManualInput="true"
-      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+    <rich:calendar id="#{prefix}effectiveDate" value="#{repositoryTreeController.effectiveDate}" enableManualInput="true"
+      datePattern="#{systemConfig['webstudio.datePattern']}"
+      rendered="#{artefact.project.checkedOut}">
     </rich:calendar>
 
     <h:outputText value="#{repositoryTreeController.effectiveDate}" rendered="#{!artefact.project.checkedOut}">
-      <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+      <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
     </h:outputText>
 
     <h:outputLabel for="#{prefix}expirationDate" value="Expiration date" />
-    <rich:calendar id="#{prefix}expirationDate" value="#{repositoryTreeController.expirationDate}" popup="true" enableManualInput="true"
-      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+    <rich:calendar id="#{prefix}expirationDate" value="#{repositoryTreeController.expirationDate}" enableManualInput="true"
+      datePattern="#{systemConfig['webstudio.datePattern']}"
+      rendered="#{artefact.project.checkedOut}">
     </rich:calendar>
     <h:outputText value="#{repositoryTreeController.expirationDate}" rendered="#{!artefact.project.checkedOut}">
-      <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+      <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
     </h:outputText>
 
     <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
@@ -68,60 +68,60 @@
     <h:outputLabel for="#{prefix}attribute6" value="#{repositoryTreeController.propUINames['attribute6']}"
         rendered="#{not empty repositoryTreeController.propUINames['attribute6']}" />
     <h:panelGroup rendered="#{not empty repositoryTreeController.propUINames['attribute6']}">
-        <rich:calendar id="#{prefix}attribute6" value="#{repositoryTreeController.attribute6}" popup="true" enableManualInput="true"
-          jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-          rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+        <rich:calendar id="#{prefix}attribute6" value="#{repositoryTreeController.attribute6}" enableManualInput="true"
+          datePattern="#{systemConfig['webstudio.datePattern']}"
+          rendered="#{artefact.project.checkedOut}">
         </rich:calendar>
         <h:outputText value="#{repositoryTreeController.attribute6}" rendered="#{!artefact.project.checkedOut}">
-          <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+          <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
         </h:outputText>
     </h:panelGroup>
     
     <h:outputLabel for="#{prefix}attribute7" value="#{repositoryTreeController.propUINames['attribute7']}"
         rendered="#{not empty repositoryTreeController.propUINames['attribute7']}" />
     <h:panelGroup rendered="#{not empty repositoryTreeController.propUINames['attribute7']}">
-        <rich:calendar id="#{prefix}attribute7" value="#{repositoryTreeController.attribute7}" popup="true" enableManualInput="true"
-          jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-          rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+        <rich:calendar id="#{prefix}attribute7" value="#{repositoryTreeController.attribute7}" enableManualInput="true"
+          datePattern="#{systemConfig['webstudio.datePattern']}"
+          rendered="#{artefact.project.checkedOut}">
         </rich:calendar>
         <h:outputText value="#{repositoryTreeController.attribute7}" rendered="#{!artefact.project.checkedOut}">
-          <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+          <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
         </h:outputText>
     </h:panelGroup>
     
     <h:outputLabel for="#{prefix}attribute8" value="#{repositoryTreeController.propUINames['attribute8']}"
         rendered="#{not empty repositoryTreeController.propUINames['attribute8']}" />
     <h:panelGroup rendered="#{not empty repositoryTreeController.propUINames['attribute8']}">
-        <rich:calendar id="#{prefix}attribute8" value="#{repositoryTreeController.attribute8}" popup="true" enableManualInput="true"
-          jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-          rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+        <rich:calendar id="#{prefix}attribute8" value="#{repositoryTreeController.attribute8}" enableManualInput="true"
+          datePattern="#{systemConfig['webstudio.datePattern']}"
+          rendered="#{artefact.project.checkedOut}">
         </rich:calendar>
         <h:outputText value="#{repositoryTreeController.attribute8}" rendered="#{!artefact.project.checkedOut}">
-          <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+          <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
         </h:outputText>
     </h:panelGroup>
     
     <h:outputLabel for="#{prefix}attribute9" value="#{repositoryTreeController.propUINames['attribute9']}"
         rendered="#{not empty repositoryTreeController.propUINames['attribute9']}" />
     <h:panelGroup rendered="#{not empty repositoryTreeController.propUINames['attribute9']}">
-        <rich:calendar id="#{prefix}attribute9" value="#{repositoryTreeController.attribute9}" popup="true" enableManualInput="true"
-          jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-          rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+        <rich:calendar id="#{prefix}attribute9" value="#{repositoryTreeController.attribute9}" enableManualInput="true"
+          datePattern="#{systemConfig['webstudio.datePattern']}"
+          rendered="#{artefact.project.checkedOut}">
         </rich:calendar>
         <h:outputText value="#{repositoryTreeController.attribute9}" rendered="#{!artefact.project.checkedOut}">
-          <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+          <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
         </h:outputText>
     </h:panelGroup>
     
     <h:outputLabel for="#{prefix}attribute10" value="#{repositoryTreeController.propUINames['attribute10']}"
         rendered="#{not empty repositoryTreeController.propUINames['attribute10']}" />
     <h:panelGroup rendered="#{not empty repositoryTreeController.propUINames['attribute10']}">
-        <rich:calendar id="#{prefix}attribute10" value="#{repositoryTreeController.attribute10}" popup="true" enableManualInput="true"
-          jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-          rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTTimeZone}">
+        <rich:calendar id="#{prefix}attribute10" value="#{repositoryTreeController.attribute10}" enableManualInput="true"
+          datePattern="#{systemConfig['webstudio.datePattern']}"
+          rendered="#{artefact.project.checkedOut}">
         </rich:calendar>
         <h:outputText value="#{repositoryTreeController.attribute10}" rendered="#{!artefact.project.checkedOut}">
-          <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.GMTTimeZone}" />
+          <f:convertDateTime pattern="#{systemConfig['webstudio.datePattern']}" />
         </h:outputText>
     </h:panelGroup>
     
@@ -164,6 +164,6 @@
             rendered="#{artefact.project.checkedOut}"/>
         <h:outputText value="#{repositoryTreeController.attribute15}" rendered="#{!artefact.project.checkedOut}"/>
     </h:panelGroup>
-    
+
   </h:panelGrid>
 </ui:composition>

@@ -17,12 +17,15 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class ProductionRepositoryFactoryProxy {
     private static final Log log = LogFactory.getLog(ProductionRepositoryFactoryProxy.class);
 
-    public static final String PROP_FILE = "rules-production.properties";
+    public static final String DEFAULT_PROP_FILE = "rules-production.properties";
     /** default value is <code>null</code> -- fail first */
     private static final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
-            "repository.factory", null);
+            "production-repository.factory", null);
 
     private static RRepositoryFactory repFactory;
+
+    private static ConfigSet config;
+
     private static Object flag = new Object();
     
     public static RProductionRepository getRepositoryInstance() throws RRepositoryException {
@@ -38,18 +41,20 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     private static void initFactory() throws RRepositoryException {
-        ConfigSet confSet = SysConfigManager.getConfigManager().locate(PROP_FILE);
-        confSet.updateProperty(confRepositoryFactoryClass);
+        if (config == null) {
+            config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
+        }
+        config.updateProperty(confRepositoryFactoryClass);
 
         String className = confRepositoryFactoryClass.getValue();
         // TODO: check that className is not null otherwise throw meaningful
         // exception
         try {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             Object obj = c.newInstance();
             repFactory = (RRepositoryFactory) obj;
             // initialize
-            repFactory.initialize(confSet);
+            repFactory.initialize(config);
         } catch (Exception e) {
             String msg = "Failed to initialize ProductionRepositoryFactory!";
             log.error(msg, e);
@@ -74,4 +79,19 @@ public class ProductionRepositoryFactoryProxy {
             initFactory();
 		}
     }
+
+    /**
+     * @deprecated
+     */
+    public static ConfigSet getConfig() {
+        return config;
+    }
+
+    /**
+     * @deprecated
+     */
+    public static void setConfig(ConfigSet config) {
+        ProductionRepositoryFactoryProxy.config = config;
+    }
+
 }

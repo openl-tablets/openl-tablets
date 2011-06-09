@@ -4,6 +4,7 @@
  */
 package org.openl.rules.ui;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -11,7 +12,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ResolvingRulesProjectDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
@@ -28,11 +28,12 @@ import org.openl.rules.ui.view.BusinessViewMode3;
 import org.openl.rules.ui.view.DeveloperByFileViewMode;
 import org.openl.rules.ui.view.DeveloperByTypeViewMode;
 import org.openl.rules.ui.view.WebStudioViewMode;
+import org.openl.rules.webstudio.ConfigManager;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -84,19 +85,25 @@ public class WebStudio {
 
     private int businessModeIdx = 0;
     private int developerModeIdx = 0;
-    
+
     private RulesProjectDependencyManager dependencyManager;
+
+    private ConfigManager systemConfigManager;
 
     public WebStudio(HttpSession session) {
         boolean initialized = false;
+
+        systemConfigManager = WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
+            .getBean(ConfigManager.class);
+
         try {
             initialized = init(session);
         } catch (Exception e) {
         }
 
         if (!initialized) {
-            workspacePath = System.getProperty("openl.webstudio.home") == null ? ".." : System
-                    .getProperty("openl.webstudio.home");
+            workspacePath = StringUtils.defaultString(
+                    systemConfigManager.getStringProperty("openl.webstudio.home"), "..");
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
         }
@@ -119,18 +126,13 @@ public class WebStudio {
         
     }
 
+    public ConfigManager getSystemConfigManager() {
+        return systemConfigManager;
+    }
+
     public boolean init(HttpSession session) {
-        UserWorkspace userWorkspace;
-        try {
-            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
-            userWorkspace = rulesUserSession.getUserWorkspace();
-        } catch (WorkspaceException e) {
-            LOG.error("Failed to get user workspace", e);
-            return false;
-        } catch (ProjectException e) {
-            LOG.error("Failed to get user workspace", e);
-            return false;
-        }
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+
         if (userWorkspace == null) {
             return false;
         }
@@ -139,6 +141,7 @@ public class WebStudio {
 
         projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         projectResolver.setWorkspace(workspacePath);
+
         return true;
     }
 
