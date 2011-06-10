@@ -71,7 +71,7 @@
 
                   <td align="left">
                     <input type="submit" class="button" id="loginSubmit" value="Login"/>
-                    <c:if test="#{security.autoLogin &amp;&amp; jsffn:isLocalRequest()}">
+                    <c:if test="#{systemConfig['security.autoLogin'] &amp;&amp; jsffn:isLocalRequest()}">
                       <input type="button" class="button" id="loginAsLocal" value="Login as local" onclick="window.location.href='#{contextPath}'"/>
                     </c:if>
                   </td>
