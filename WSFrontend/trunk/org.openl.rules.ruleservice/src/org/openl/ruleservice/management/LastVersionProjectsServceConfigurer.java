@@ -26,11 +26,14 @@ public class LastVersionProjectsServceConfigurer implements IServiceConfigurer {
     public List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader) {
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         for (Deployment deployment : loader.getDeployments()) {
-            if (latestDeployments.containsKey(deployment.getName())) {
-                if (latestDeployments.get(deployment.getName()).getCommonVersion()
+            String deploymentName = deployment.getName();
+            if (latestDeployments.containsKey(deploymentName)) {
+                if (latestDeployments.get(deploymentName).getCommonVersion()
                         .compareTo(deployment.getCommonVersion()) < 0) {
-                    latestDeployments.put(deployment.getName(), deployment);
+                    latestDeployments.put(deploymentName, deployment);
                 }
+            }else{
+                latestDeployments.put(deploymentName, deployment);
             }
         }
         return createServiceDescriptions(latestDeployments.values(), loader);
@@ -48,8 +51,9 @@ public class LastVersionProjectsServceConfigurer implements IServiceConfigurer {
                     moduleConfigurations.add(new ModuleConfiguration(deployment.getDeploymentName(), deployment
                             .getCommonVersion(), project.getName(), module.getName()));
                 }
+                serviceDescriptions.add(
                 new ServiceDescription(deployment.getDeploymentName(), deployment.getDeploymentName() + "/"
-                        + project.getName(), null, provideRuntimeContext, moduleConfigurations);
+                        + project.getName(), null, provideRuntimeContext, moduleConfigurations));
             }
         }
         return serviceDescriptions;

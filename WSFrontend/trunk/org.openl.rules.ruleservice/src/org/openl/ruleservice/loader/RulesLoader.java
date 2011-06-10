@@ -79,11 +79,11 @@ public class RulesLoader implements IRulesLoader {
         if (deploymentName == null || deploymentVersion == null || projectName == null)
             throw new IllegalArgumentException();
         Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-        deployment = storage.getDeployment(deploymentName, deploymentVersion);
-        if (deployment == null) {
-            deployment = storage.loadDeployment(deployment);
+        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
+        if (localDeployment == null) {
+            localDeployment = storage.loadDeployment(deployment);
         }
-        AProject project = deployment.getProject(projectName);
+        AProject project = localDeployment.getProject(projectName);
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
         ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
@@ -102,11 +102,11 @@ public class RulesLoader implements IRulesLoader {
             String deploymentName = moduleConfiguration.getDeploymentName();
             CommonVersion commonVersion = moduleConfiguration.getDeploymentVersion();
             Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
-            deployment = storage.getDeployment(deploymentName, commonVersion);
-            if (deployment == null) {
-                deployment = storage.loadDeployment(deployment);
+            Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
+            if (localDeployment == null) {
+                localDeployment = storage.loadDeployment(deployment);
             }
-            AProject project = deployment.getProject(moduleConfiguration.getProjectName());
+            AProject project = localDeployment.getProject(moduleConfiguration.getProjectName());
             String artefactPath = storage.getDirectoryToLoadDeploymentsIn()
                     + project.getArtefactPath().getStringValue();
             File projectFolder = new File(artefactPath);

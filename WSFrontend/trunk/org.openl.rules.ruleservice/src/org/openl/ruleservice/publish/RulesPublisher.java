@@ -35,7 +35,7 @@ public class RulesPublisher implements IRulesPublisher {
             service.setEnhancer(enhancer);
         }
         instantiateServiceBean(service);
-        resolveInerface(service);
+        resolveInterface(service);
     }
 
     @SuppressWarnings("deprecation")
@@ -50,7 +50,7 @@ public class RulesPublisher implements IRulesPublisher {
 
     }
 
-    private void resolveInerface(OpenLService service) throws Exception {
+    private void resolveInterface(OpenLService service) throws Exception {
         String serviceClassName = service.getServiceClassName();
         Class<?> generatedServiceClass = null;// created by engine factory
         if (service.isProvideRuntimeContext()) {
