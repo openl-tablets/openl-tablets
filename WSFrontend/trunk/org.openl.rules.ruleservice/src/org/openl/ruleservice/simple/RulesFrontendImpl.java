@@ -23,14 +23,14 @@ public class RulesFrontendImpl implements RulesFrontend {
         runningServices.remove(serviceName);
     }
 
-    private void checkMethodDeclarationInServiceClass(String serviceName, String methodName, Class<?>[] inputParamsTypes) {
+    /*private void checkMethodDeclarationInServiceClass(String serviceName, String methodName, Class<?>[] inputParamsTypes) {
         OpenLService service = runningServices.get(serviceName);
         Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceClass(), methodName,
                 inputParamsTypes);
         if (serviceMethod == null) {
             throw new RuntimeException("There are no such method declared in service class.");
         }
-    }
+    }*/
 
     public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params) {
         Object result = null;

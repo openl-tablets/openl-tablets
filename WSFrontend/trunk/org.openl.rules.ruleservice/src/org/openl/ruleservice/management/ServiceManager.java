@@ -22,6 +22,22 @@ public class ServiceManager implements DataSourceListener {
     private static final Log LOG = LogFactory.getLog(ServiceManager.class);
     private RuleService ruleService;
     private IServiceConfigurer serviceConfigurer;
+    
+    public RuleService getRuleService() {
+        return ruleService;
+    }
+    
+    public void setRuleService(RuleService ruleService) {
+        this.ruleService = ruleService;
+    }
+    
+    public IServiceConfigurer getServiceConfigurer() {
+        return serviceConfigurer;
+    }
+    
+    public void setServiceConfigurer(IServiceConfigurer serviceConfigurer) {
+        this.serviceConfigurer = serviceConfigurer;
+    }
 
     /**
      * Determine services to be deployed on start.
