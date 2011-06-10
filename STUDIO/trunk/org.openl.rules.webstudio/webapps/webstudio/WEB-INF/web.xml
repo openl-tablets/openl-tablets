@@ -15,15 +15,20 @@
     <param-value>
       /WEB-INF/spring/*-beans.xml <!-- always present -->
 
-      <!--+++++++++++++ IPB security +++++++++++++-->
+      <!-- Security -->
+
+      <!-- Standalone security -->
+      classpath:META-INF/standalone/spring/security-*-beans.xml <!-- Security Standalone project -->
+      /WEB-INF/spring/security/security-beans.xml
+      /WEB-INF/spring/security/security-standalone-beans.xml
+
+      <!-- No actual security -->
+      <!--/WEB-INF/spring/security/security-beans.xml-->
+      <!--/WEB-INF/spring/security/security-none-beans.xml-->
+
+      <!-- IPB security -->
       <!--classpath*:META-INF/spring/*-beans.xml-->
       <!--classpath:META-INF/integration/ipb-security/spring/security-*-beans.xml-->
-
-      <!--+++++++++++ Standalone security +++++++++++++-->
-      classpath:META-INF/standalone/spring/security-*-beans.xml
-
-      <!--+++++++++++++ No actual security +++++++++++++-->
-      <!--classpath:META-INF/none/spring/security-*-beans.xml-->
     </param-value>
   </context-param>
 
