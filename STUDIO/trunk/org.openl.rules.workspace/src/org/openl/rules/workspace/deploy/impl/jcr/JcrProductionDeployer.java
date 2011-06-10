@@ -61,7 +61,8 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         boolean alreadyDeployed = false;
         try {
-            if (ProductionRepositoryFactoryProxy.getConfig() == null) {
+            if (ProductionRepositoryFactoryProxy.getConfig() == null
+                    && config != null) {
                 ConfigSet configSet = new ConfigSet();
                 configSet.addProperties(config);
                 ProductionRepositoryFactoryProxy.setConfig(configSet);
