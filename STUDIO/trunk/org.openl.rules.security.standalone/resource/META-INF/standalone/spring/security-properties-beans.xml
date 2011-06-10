@@ -34,8 +34,6 @@
           Does database need to be filled at application startup
         -->
         <prop key="security.standalone.db.populateDatabase">true</prop>
-
-        <prop key="security.autoLogin">true</prop>
       </props>
     </property>
   </bean>
