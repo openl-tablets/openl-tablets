@@ -34,7 +34,7 @@ public class RuntimeExceptionWrapper {
     private static String getErrorMessage(Throwable error) {
         String message;
         message = error.getMessage();
-        if (StringUtils.isBlank(message)) {
+        if (StringUtils.isBlank(message) && error.getCause() != null) {
             message = error.getCause().getMessage();
         }
         return message;
