@@ -183,18 +183,58 @@ public class DecisionTableHelper {
     
     private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable,
             DecisionTable decisionTable, int numberOfHcondition) throws OpenLCompilationException {
-        int numberOfConditions = decisionTable.getSignature().getNumberOfParameters();
+        int columnsForConditions = 0;
+        
+        // number of physical columns for conditions(including merged)
+        //
+        columnsForConditions = writeConditions(grid, originalTable, decisionTable, numberOfHcondition);
+        
+        // write return
+        //
+        writeReturn(grid, originalTable, decisionTable, columnsForConditions);
+    }
+
+    private static void writeReturn(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
+            int columnsForConditions) throws OpenLCompilationException {
+        // if the physical number of columns for conditions is equals or more than whole width of the table,
+        // means there is no return column.
+        //
+        if(columnsForConditions >= originalTable.getWidth()){
+            throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
+        }
+        // write return column
+        //
+        grid.setCellValue(columnsForConditions, 0, String.format("%s1", DecisionTableColumnHeaders.RETURN.getHeaderKey()));
+        int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
+        if (mergedColumnsCounts > 1) {
+            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                grid.addMergedRegion(new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
+            }
+        }
+    }
+
+    private static int writeConditions(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
+            int numberOfHcondition) throws OpenLCompilationException {
+        int numberOfConditions = getNumberOfConditions(decisionTable);
         int column = 0;
         for (int i = 0; i < numberOfConditions; i++) {
             if(column > originalTable.getWidth()){
                 throw new OpenLCompilationException("Wrong table structure: Columns count is less than parameters count");
             }
-            //write headers
+            // write headers
+            //
             if (i < numberOfConditions - numberOfHcondition) {
-                grid.setCellValue(column, 0, "C" + (i + 1));
+                // write simple condition
+                //
+                grid.setCellValue(column, 0, String.format("%s%s", DecisionTableColumnHeaders.CONDITION.getHeaderKey(),
+                    (i + 1)));
             } else {
-                grid.setCellValue(column, 0, "HC" + (i + 1));
+                // write horizontal condition
+                //
+                grid.setCellValue(column, 0, String.format("%s%s", 
+                    DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey(), (i + 1)));
             }
+            
             grid.setCellValue(column, 1, decisionTable.getSignature().getParameterName(i));
             
             //merge columns
@@ -206,16 +246,14 @@ public class DecisionTableHelper {
             }
             column += mergedColumnsCounts;
         }
-        if(column > originalTable.getWidth()){
-            throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
-        }
-        grid.setCellValue(column, 0, "RET1");
-        int mergedColumnsCounts = originalTable.getColumnWidth(numberOfConditions);
-        if (mergedColumnsCounts > 1) {
-            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
-            }
-        }
+        return column;
+    }
+
+    private static int getNumberOfConditions(DecisionTable decisionTable) {
+        // number of conditions is counted by the number of income parameters
+        //
+        int numberOfConditions = decisionTable.getSignature().getNumberOfParameters();
+        return numberOfConditions;
     }
     /**
      * Creates not-existing virtual grid.
