@@ -10,7 +10,7 @@ import org.openl.ruleservice.OpenLService;
 import org.openl.ruleservice.RuleService;
 import org.openl.ruleservice.ServiceDeployException;
 import org.openl.ruleservice.ServiceDescription;
-import org.openl.ruleservice.loader.DataSourceListener;
+import org.openl.ruleservice.loader.IDataSourceListener;
 
 /**
  * Handles data source modifications and controls all services
@@ -18,7 +18,7 @@ import org.openl.ruleservice.loader.DataSourceListener;
  * @author PUdalau
  * 
  */
-public class ServiceManager implements DataSourceListener {
+public class ServiceManager implements IDataSourceListener {
     private static final Log LOG = LogFactory.getLog(ServiceManager.class);
     private RuleService ruleService;
     private IServiceConfigurer serviceConfigurer;

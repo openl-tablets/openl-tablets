@@ -15,6 +15,14 @@ import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.ruleservice.ServiceDescription;
 import org.openl.ruleservice.ServiceDescription.ModuleConfiguration;
 
+/**
+ * Wrapper on data source that gives access to data source and resolves the
+ * OpenL projects/modules inside the projects. Contains own storage for all
+ * projects that is used in services.
+ * 
+ * @author MKamalov
+ * 
+ */
 public class RulesLoader implements IRulesLoader {
     private IDataSource dataSource;
     private RulesProjectResolver projectResolver;
@@ -22,12 +30,21 @@ public class RulesLoader implements IRulesLoader {
 
     /**
      * Construct a new RulesLoader for bean usage.
-     * <p>Note: The dataSource, storage and projectResolver have to be set before using the instance.
-     * @see #setDataSource, #setProjectResolver 
+     * <p>
+     * Note: The dataSource, storage and projectResolver have to be set before
+     * using the instance.
+     * </p>
+     * 
+     * @see #setDataSource, #setProjectResolver
      */
     public RulesLoader() {
     }
-    
+
+    /**
+     * Construct a new RulesLoader for bean usage.
+     * 
+     * @see #setDataSource, #setProjectResolver
+     */
     public RulesLoader(IDataSource dataSource, LocalTemporaryDeploymentsStorage storage,
             RulesProjectResolver projectResolver) {
         if (dataSource == null || storage == null || projectResolver == null)
@@ -37,35 +54,57 @@ public class RulesLoader implements IRulesLoader {
         this.projectResolver = projectResolver;
     }
 
+    /** {@inheritDoc} */
     public IDataSource getDataSource() {
         return dataSource;
     }
-    
+
+    /**
+     * Sets data source
+     */
     public void setDataSource(IDataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Gets rules project resolver.
+     */
     public RulesProjectResolver getProjectResolver() {
         return projectResolver;
     }
-    
+
+    /**
+     * Sets rules project resolver. Spring bean configuration property.
+     * 
+     * @param projectResolver
+     */
     public void setProjectResolver(RulesProjectResolver projectResolver) {
         this.projectResolver = projectResolver;
     }
 
-    public List<Deployment> getDeployments() {
-        return getDataSource().getDeployments();
-    }
-    
+    /**
+     * Gets storage.
+     */
     public LocalTemporaryDeploymentsStorage getStorage() {
         return storage;
     }
-    
+
+    /**
+     * Sets storage. Spring bean configuration property.
+     */
     public void setStorage(LocalTemporaryDeploymentsStorage storage) {
         this.storage = storage;
     }
 
+    /** {@inheritDoc} */
+    public List<Deployment> getDeployments() {
+        return getDataSource().getDeployments();
+    }
+
+    /** {@inheritDoc} */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
+        if (deploymentName == null || deploymentVersion == null)
+            throw new IllegalArgumentException();
         Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
@@ -74,6 +113,7 @@ public class RulesLoader implements IRulesLoader {
         return localDeployment;
     }
 
+    /** {@inheritDoc} */
     public List<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
             String projectName) {
         if (deploymentName == null || deploymentVersion == null || projectName == null)
@@ -95,6 +135,7 @@ public class RulesLoader implements IRulesLoader {
         }
     }
 
+    /** {@inheritDoc} */
     public List<Module> getModulesForService(ServiceDescription serviceDescription) {
         List<Module> ret = new ArrayList<Module>();
         List<ModuleConfiguration> modulesToLoad = serviceDescription.getModulesToLoad();

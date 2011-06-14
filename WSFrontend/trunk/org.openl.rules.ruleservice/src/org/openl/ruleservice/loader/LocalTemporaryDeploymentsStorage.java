@@ -16,8 +16,7 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
 /**
- * Local temporary storage on file system for deployments. Reads properties from
- * <i>rules-production.properties</i> file. Clears all data on first
+ * Local temporary file system storage for deployments. Clears all data on first
  * initialization.
  * 
  * @author MKamalov
@@ -40,27 +39,48 @@ public class LocalTemporaryDeploymentsStorage {
     private FileFilter localWorkspaceFileFilter;
 
     private Map<String, Deployment> cacheForGetDeployment = new HashMap<String, Deployment>();
-
+    
+    /**
+     * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
+     */
     public LocalTemporaryDeploymentsStorage() {
     }
 
+    /**
+     * Construct a new LocalTemporaryDeploymentsStorage for bean usage. 
+     * @see #setLocalWorkspaceFileFilter, #setLocalWorkspaceFolderFilter 
+     */
     public LocalTemporaryDeploymentsStorage(FileFilter localWorkspaceFolderFilter, FileFilter localWorkspaceFileFilter) {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
-
+    
+    /**
+     * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean configuration property
+     * @param localWorkspaceFileFilter
+     */
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
-
+    
+    /**
+     * Gets localWorkspaceFileFilter
+     */
     public FileFilter getLocalWorkspaceFileFilter() {
         return localWorkspaceFileFilter;
     }
-
+    
+    /**
+     * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean configuration property
+     * @param localWorkspaceFolderFilter
+     */
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
     }
 
+    /**
+     * Gets localWorkspaceFolderFilter
+     */
     public FileFilter getLocalWorkspaceFolderFilter() {
         return localWorkspaceFolderFilter;
     }
@@ -76,13 +96,17 @@ public class LocalTemporaryDeploymentsStorage {
     public String getDirectoryToLoadDeploymentsIn() {
         return directoryToLoadDeploymentsIn;
     }
-
+    
+    /**
+     * Sets a path to local temporary storage. Spring bean configuration property
+     * @param directoryToLoadDeploymentsIn
+     */
     public void setDirectoryToLoadDeploymentsIn(String directoryToLoadDeploymentsIn) {
         this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
     }
 
     /**
-     * Generate folder name for given deployment
+     * Generates folder name for deployment by given deployment name and common verison
      * 
      * @param deployment
      * @return folder name
@@ -116,10 +140,10 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets deployment from local file system
+     * Gets deployment from storage. If deployment doesn't exists in storage returns null.
      * 
      * @param deployment
-     * @return loaded deployment
+     * @return deployment from storage or null if doens't exists
      */
     public Deployment getDeployment(String deploymentName, CommonVersion version) {
         if (deploymentName == null || version == null)
@@ -142,7 +166,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Load deployment to local file system from repository
+     * Loads deployment to local file system from repository
      * 
      * @param deployment
      * @return loaded deployment
@@ -194,7 +218,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Clear local temporary storage
+     * Clear storage
      */
     public void clear() {
         synchronized (flag) {
