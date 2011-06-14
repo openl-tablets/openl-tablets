@@ -51,10 +51,15 @@
     public static $type small($type[] values, int position) {
         $type result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 #end   
@@ -63,10 +68,15 @@
 	 public static $tool.getTypeName($type) small($tool.getTypeName($type)[] values, int position) {
         $tool.getTypeName($type) result = ${tool.getTypeName($type)}.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 #end 
@@ -188,10 +198,10 @@
 	// MOD is implemented as in Excel.
 #foreach ($type in $primitiveTypes)
 	public static $type mod($type number, $type divisor) {        
-        long quaotient = quaotient(number, divisor);
+        long quotient = quotient(number, divisor);
         
-        $type intPart = ($type) quaotient;
-        if (quaotient < 0) {            
+        $type intPart = ($type) quotient;
+        if (quotient < 0) {            
             intPart--;
         } 
         return ($type) (number - intPart * divisor);
@@ -210,18 +220,18 @@
 	
 	// QUAOTIENT
 #foreach ($type in $primitiveTypes)	
-	public static long quaotient($type number, $type divisor) {
+	public static long quotient($type number, $type divisor) {
         return (long) (number / divisor);
     }
 #end
 
 	// QUAOTIENT for wrapper types
 #foreach ($type in $wrapperTypes)
-	public static long quaotient($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+	public static long quotient($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
         if (number == null || divisor == null) {
             return 0;
         }        
-        return quaotient(($tool.getNumericPrimitive($type)) number, ($tool.getNumericPrimitive($type)) divisor);
+        return quotient(($tool.getNumericPrimitive($type)) number, ($tool.getNumericPrimitive($type)) divisor);
     }
  #end
  

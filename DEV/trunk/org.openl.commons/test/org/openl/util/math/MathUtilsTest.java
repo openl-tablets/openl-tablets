@@ -126,12 +126,30 @@ public class MathUtilsTest {
         assertEquals(10, MathUtils.small(intMas, 2));
         assertEquals(13, MathUtils.small(intMas, 3));
         assertEquals(44, MathUtils.small(intMas, 5));
+        try {
+            assertEquals(0, MathUtils.small(intMas, 6));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("There is no index '5' in the given array", e.getMessage());
+        }
+        
         
         intMas = null;
-        assertEquals(0, MathUtils.small(intMas, 5));
+        try {
+            assertEquals(0, MathUtils.small(intMas, 5));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("The array cannot be null", e.getMessage());
+        }
+        
         
         intMas = new int[1];
-        assertEquals(0, MathUtils.small(intMas, 5));        
+        try {
+            assertEquals(0, MathUtils.small(intMas, 5));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("There is no index '4' in the given array", e.getMessage());
+        }
     }
     
     @Test 

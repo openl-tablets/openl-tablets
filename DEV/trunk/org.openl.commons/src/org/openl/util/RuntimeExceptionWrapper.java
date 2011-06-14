@@ -6,6 +6,7 @@
 
 package org.openl.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.NestableRuntimeException;
 
 /**
@@ -22,7 +23,21 @@ public class RuntimeExceptionWrapper {
         if (cause instanceof RuntimeException) {
             return (RuntimeException) cause;
         }
-        return new NestableRuntimeException(cause.getMessage(), cause);
+        return new NestableRuntimeException(getErrorMessage(cause), cause);
+    }
+    
+    /**
+     * Gets the error message from the given exception. If it is empty, gets the message from its cause.
+     * @param error error
+     * @return the message from the error, or from its cause.
+     */
+    private static String getErrorMessage(Throwable error) {
+        String message;
+        message = error.getMessage();
+        if (StringUtils.isBlank(message)) {
+            message = error.getCause().getMessage();
+        }
+        return message;
     }
 
 }

@@ -187,110 +187,170 @@ public class MathUtils {
     public static byte small(byte[] values, int position) {
         byte result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
     public static short small(short[] values, int position) {
         short result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
     public static int small(int[] values, int position) {
         int result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
     public static long small(long[] values, int position) {
         long result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
     public static float small(float[] values, int position) {
         float result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
     public static double small(double[] values, int position) {
         double result = 0;
         int index = position - 1; // arrays are 0-based
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 
 	 public static java.lang.Byte small(java.lang.Byte[] values, int position) {
         java.lang.Byte result = java.lang.Byte.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 	 public static java.lang.Short small(java.lang.Short[] values, int position) {
         java.lang.Short result = java.lang.Short.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 	 public static java.lang.Integer small(java.lang.Integer[] values, int position) {
         java.lang.Integer result = java.lang.Integer.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 	 public static java.lang.Long small(java.lang.Long[] values, int position) {
         java.lang.Long result = java.lang.Long.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 	 public static java.lang.Float small(java.lang.Float[] values, int position) {
         java.lang.Float result = java.lang.Float.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 	 public static java.lang.Double small(java.lang.Double[] values, int position) {
         java.lang.Double result = java.lang.Double.valueOf("0");
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
 
@@ -916,7 +976,7 @@ public class MathUtils {
 		Arrays.sort(values);
         return values;
     }
-       	// <<< END INSERT Functions >>> 
+         	// <<< END INSERT Functions >>> 
 
 	public static boolean eq(float x, float y) {
 		return Math.abs(x - y) <= Math.ulp(x);
