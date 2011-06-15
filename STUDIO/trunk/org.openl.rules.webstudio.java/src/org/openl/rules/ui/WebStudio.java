@@ -89,6 +89,7 @@ public class WebStudio {
     private RulesProjectDependencyManager dependencyManager;
 
     private ConfigManager systemConfigManager;
+    private boolean needRestart = false;
 
     public WebStudio(HttpSession session) {
         boolean initialized = false;
@@ -459,6 +460,14 @@ public class WebStudio {
 
     public IDependencyManager getDependencyManager() {
         return dependencyManager;
+    }
+
+    public void setNeedRestart(boolean needRestart) {
+        this.needRestart = needRestart;
+    }
+
+    public boolean isNeedRestart() {
+        return needRestart;
     }
 
 }
