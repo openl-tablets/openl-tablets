@@ -56,8 +56,9 @@ public class JcrDataSource implements IDataSource {
     
     /** {@inheritDoc} */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null || deploymentVersion == null)
+        if (deploymentName == null || deploymentVersion == null){
             throw new IllegalArgumentException();
+        }
         try {
             StringBuilder sb = new StringBuilder(deploymentName);
             sb.append(SEPARATOR);
@@ -82,8 +83,9 @@ public class JcrDataSource implements IDataSource {
     
     /** {@inheritDoc} */
     public void addListener(IDataSourceListener dataSourceListener) {
-        if (dataSourceListener == null)
+        if (dataSourceListener == null){
             throw new IllegalArgumentException();
+        }
         synchronized (listeners) {
             RDeploymentListener rDeploymentListener = listeners.get(dataSourceListener);
             if (rDeploymentListener == null) {
@@ -101,8 +103,9 @@ public class JcrDataSource implements IDataSource {
 
     /** {@inheritDoc} */
     public void removeListener(IDataSourceListener dataSourceListener) {
-        if (dataSourceListener == null)
+        if (dataSourceListener == null){
             throw new IllegalArgumentException();
+        }
         synchronized (listeners) {
             RDeploymentListener listener = listeners.get(dataSourceListener);
             if (listener != null) {
@@ -116,7 +119,25 @@ public class JcrDataSource implements IDataSource {
             }
         }
     }
-
+    
+    /** {@inheritDoc} */
+    public void removeAllListeners() {
+        synchronized (listeners) {
+            for (IDataSourceListener dataSourceListener : listeners.keySet()){
+                RDeploymentListener listener = listeners.get(dataSourceListener);
+                if (listener != null) {
+                    try {
+                        ProductionRepositoryFactoryProxy.getRepositoryInstance().removeListener(listener);
+                        listeners.remove(dataSourceListener);
+                        log.info(dataSourceListener.getClass().toString() + " listener is unregistered from JCRDataSource");
+                    } catch (RRepositoryException e) {
+                        throw new DataSourceException(e);
+                    }
+                }
+            }
+        }
+    }
+    
     private RDeploymentListener buildRDeploymentListener(IDataSourceListener dataSourceListener) {
         return new DataSourceListenerWrapper(dataSourceListener);
     }
@@ -125,8 +146,9 @@ public class JcrDataSource implements IDataSource {
         private IDataSourceListener dataSourceListener;
 
         public DataSourceListenerWrapper(IDataSourceListener dataSourceListener) {
-            if (dataSourceListener == null)
+            if (dataSourceListener == null){
                 throw new IllegalArgumentException();
+            }
             this.dataSourceListener = dataSourceListener;
         }
 
@@ -134,5 +156,4 @@ public class JcrDataSource implements IDataSource {
             dataSourceListener.onDeploymentAdded();
         }
     }
-
 }
