@@ -47,8 +47,9 @@ public class RulesLoader implements IRulesLoader {
      */
     public RulesLoader(IDataSource dataSource, LocalTemporaryDeploymentsStorage storage,
             RulesProjectResolver projectResolver) {
-        if (dataSource == null || storage == null || projectResolver == null)
+        if (dataSource == null || storage == null || projectResolver == null){
             throw new IllegalArgumentException();
+        }
         this.dataSource = dataSource;
         this.storage = storage;
         this.projectResolver = projectResolver;

@@ -42,4 +42,9 @@ public interface IDataSource {
 	 * @param dataSourceListener
 	 */
 	void removeListener(IDataSourceListener dataSourceListener);
+	
+	/**
+	 * Removes all listeners from data source
+	 */
+	void removeAllListeners();
 }

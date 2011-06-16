@@ -146,8 +146,9 @@ public class LocalTemporaryDeploymentsStorage {
      * @return deployment from storage or null if doens't exists
      */
     public Deployment getDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null || version == null)
+        if (deploymentName == null || version == null){
             throw new IllegalArgumentException();
+        }
         if (containsDeployment(deploymentName, version)) {
             Deployment deployment = cacheForGetDeployment.get(getDeploymentFolderName(deploymentName, version));
             if (deployment != null) {
@@ -172,8 +173,9 @@ public class LocalTemporaryDeploymentsStorage {
      * @return loaded deployment
      */
     public Deployment loadDeployment(Deployment deployment) {
-        if (deployment == null)
+        if (deployment == null){
             throw new IllegalArgumentException();
+        }
         File deploymentFolder = getDeploymentFolder(deployment.getDeploymentName(), deployment.getCommonVersion());
         LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, new ArtefactPathImpl(
                 deploymentFolder.getName()), new LocalWorkspaceImpl(null, deploymentFolder.getParentFile(),
@@ -201,8 +203,9 @@ public class LocalTemporaryDeploymentsStorage {
      *         deleted; false otherwise
      */
     public boolean removeDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null || version == null)
+        if (deploymentName == null || version == null){
             throw new IllegalArgumentException();
+        }
         cacheForGetDeployment.remove(getDeploymentFolderName(deploymentName, version));
         return FolderHelper.clearFolder(getDeploymentFolder(deploymentName, version));
     }
