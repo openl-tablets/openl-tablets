@@ -25,7 +25,7 @@ public interface IRulesLoader {
 
     /**
      * 
-     * @return list of deployments
+     * @return list of deployments. 
      */
     List<Deployment> getDeployments();
 

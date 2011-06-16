@@ -19,7 +19,7 @@ import org.openl.rules.ruleservice.loader.IRulesLoader;
  * 
  * @author PUdalau
  */
-public class LastVersionProjectsServceConfigurer implements IServiceConfigurer {
+public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer {
 
     private boolean provideRuntimeContext;
 
