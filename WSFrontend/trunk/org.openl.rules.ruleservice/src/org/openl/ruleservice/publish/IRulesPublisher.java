@@ -6,6 +6,7 @@ import org.openl.ruleservice.OpenLService;
 import org.openl.ruleservice.ServiceDeployException;
 
 public interface IRulesPublisher {
+    
     IDeploymentAdmin getDeploymentAdmin();
 
     List<OpenLService> getRunningServices();

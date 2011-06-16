@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--  -->
-	<bean id="frontend" class="org.openl.ruleservice.simple.RulesFrontendImpl"/>
+	<bean id="frontend" class="org.openl.ruleservice.simple.RulesFrontend"/>
 
 	<!-- Exposes web services. -->	
 	<bean id="deploymentAdmin" class="org.openl.ruleservice.simple.JavaClassDeploymentAdmin">

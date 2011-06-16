@@ -29,14 +29,14 @@ import org.openl.ruleservice.publish.RulesPublisher;
 
 public class SimpleFrontendTest {
     private RulesPublisher publisher;
-    private RulesFrontend frontend;
+    private IRulesFrontend frontend;
     private RulesProjectResolver resolver;
 
     @Before
     public void init() throws ServiceDeployException {
         if (frontend == null) {
             resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-            frontend = new RulesFrontendImpl();
+            frontend = new RulesFrontend();
             JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
             deploymentAdmin.setFrontend(frontend);
             publisher = new RulesPublisher();

@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.ruleservice.management.ServiceManager;
-import org.openl.ruleservice.simple.RulesFrontend;
+import org.openl.ruleservice.simple.IRulesFrontend;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -29,7 +29,7 @@ public class ServiceManagerTest implements ApplicationContextAware{
        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
        assertNotNull(serviceManager);
        serviceManager.start();
-       RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+       IRulesFrontend frontend = applicationContext.getBean("frontend", IRulesFrontend.class);
        assertNotNull(frontend);                                         
        Object object = frontend.execute("org.openl.tablets.tutorial4", "vehicleEligibilityScore", new Object[]{new DefaultRulesRuntimeContext(),"Provisional"});
        System.out.println(object instanceof org.openl.meta.DoubleValue);
