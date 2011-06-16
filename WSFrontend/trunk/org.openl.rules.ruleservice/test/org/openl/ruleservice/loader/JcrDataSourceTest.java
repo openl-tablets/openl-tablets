@@ -11,6 +11,8 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 
+import static org.openl.ruleservice.Constants.*;
+
 public class JcrDataSourceTest {
     
     private static IDataSource dataSource;
@@ -33,10 +35,10 @@ public class JcrDataSourceTest {
 
 	@Test
     public void testGetDeployment() {
-	    CommonVersion commonVersion = new CommonVersionImpl("0.0.1");
-	    Deployment deployment = dataSource.getDeployment("org.openl.tablets.tutorial4", commonVersion);
+	    CommonVersion commonVersion = new CommonVersionImpl(VERSION);
+	    Deployment deployment = dataSource.getDeployment(DEPLOYMENT_NAME, commonVersion);
         assertNotNull(deployment);
-        assertEquals("org.openl.tablets.tutorial4", deployment.getDeploymentName());
-        assertEquals("0.0.1", deployment.getCommonVersion().getVersionName());
+        assertEquals(DEPLOYMENT_NAME, deployment.getDeploymentName());
+        assertEquals(VERSION, deployment.getCommonVersion().getVersionName());
     }
 }
