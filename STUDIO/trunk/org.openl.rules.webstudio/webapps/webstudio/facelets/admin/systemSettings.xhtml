@@ -73,7 +73,7 @@
           </ul>
           <div class="panel-container">
             <div id="common">
-                <h:panelGrid columns="2">
+                <h:panelGrid id="commonProps" columns="2">
                     <h:outputText value="Workspaces Directory:" />
                     <h:inputText value="#{systemSettingsBean.workspacesRoot}" style="width: 181px" />
                     <h:outputText value="Date Pattern:" />
@@ -81,7 +81,7 @@
                 </h:panelGrid>
             </div>
             <div id="security">
-                <h:panelGrid columns="2">
+                <h:panelGrid id="securityProps" columns="2">
                     <h:outputText value="Auto Login:" />
                     <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
                     <h:outputText value="Hide Logout link:" />
@@ -90,11 +90,14 @@
             </div>
             <div id="repository">
             </div>
-
           </div>
         </div>
 
-        <a4j:commandButton value="Apply Changes" action="#{systemSettingsBean.applyChanges}" />
+        <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
+            ajaxSingle="true" reRender="commonProps,securityProps"
+            onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
+        <h:outputText value=" " />
+        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" />
 
         </h:form>
 
