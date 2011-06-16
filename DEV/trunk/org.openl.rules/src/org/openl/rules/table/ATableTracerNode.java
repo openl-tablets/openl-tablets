@@ -115,6 +115,10 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return error != null;
     }
     
+    public Object[] getParameters() {
+        return params.clone();
+    }
+    
     private String getFormattedValue(Object value) {
         IFormatter formatter = FormattersManager.getFormatter(value);
         String strValue = null;

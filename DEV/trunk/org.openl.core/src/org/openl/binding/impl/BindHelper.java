@@ -36,6 +36,15 @@ public class BindHelper {
         bindingContext.addError(error);
         processError(error);
     }
+    
+    public static void processError(Throwable error, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+        processError(error, syntaxNode, bindingContext, true);
+    }
+    
+    public static void processError(Throwable error, ISyntaxNode syntaxNode, IBindingContext bindingContext, boolean storeGlobal) {
+        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(error, syntaxNode);
+        processSyntaxNodeException(syntaxNodeException, storeGlobal, bindingContext);
+    }
 
     public static void processError(String message, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         processError(message, syntaxNode, bindingContext, true);
@@ -44,6 +53,11 @@ public class BindHelper {
     public static void processError(String message, ISyntaxNode syntaxNode, IBindingContext bindingContext,
             boolean storeGlobal) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
+        processSyntaxNodeException(error, storeGlobal, bindingContext);
+    }
+
+    private static void processSyntaxNodeException(SyntaxNodeException error, boolean storeGlobal,
+            IBindingContext bindingContext) {
         bindingContext.addError(error);
         if (storeGlobal) {
             processError(error);
@@ -133,4 +147,6 @@ public class BindHelper {
             return new ErrorBoundNode(node);
         }
     }
+
+    
 }
