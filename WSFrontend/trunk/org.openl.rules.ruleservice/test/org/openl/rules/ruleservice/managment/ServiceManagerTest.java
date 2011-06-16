@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.managment;
 
 import static org.junit.Assert.*;
 
