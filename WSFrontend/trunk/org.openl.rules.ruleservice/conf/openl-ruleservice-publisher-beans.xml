@@ -4,10 +4,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--  -->
-	<bean id="frontend" class="org.openl.ruleservice.simple.RulesFrontend"/>
+	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontend"/>
 
 	<!-- Exposes web services. -->	
-	<bean id="deploymentAdmin" class="org.openl.ruleservice.simple.JavaClassDeploymentAdmin">
+	<bean id="deploymentAdmin" class="org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin">
 		<property name="frontend" ref="frontend"></property>
 	</bean>
 
@@ -15,11 +15,11 @@
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
 	
 	<!--  -->
-	<bean id="instantiationFactory" class="org.openl.ruleservice.publish.RulesInstantiationFactory"/>
+	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>
 	
 	<!-- Initializes OpenL Engine instances according to web services configuration description 
 	and calls DeploymentAdmin to expose corresponding web service -->
-	<bean id="rulesPublisher" class="org.openl.ruleservice.publish.RulesPublisher">
+	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
 		<property name="deploymentAdmin" ref="deploymentAdmin"/>
 		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
 		<property name="instantiationFactory" ref="instantiationFactory"/> 
