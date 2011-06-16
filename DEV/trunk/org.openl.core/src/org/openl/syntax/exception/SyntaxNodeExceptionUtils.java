@@ -7,6 +7,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.formatter.ExceptionMessageFormatter;
 import org.openl.syntax.exception.formatter.IndexOutOfBoundsExceptionFormatter;
+import org.openl.syntax.exception.formatter.NullPointerExceptionFormatter;
 import org.openl.util.text.ILocation;
 
 public class SyntaxNodeExceptionUtils {
@@ -15,6 +16,7 @@ public class SyntaxNodeExceptionUtils {
     
     static {
         formatters.put(ArrayIndexOutOfBoundsException.class, new IndexOutOfBoundsExceptionFormatter());
+        formatters.put(NullPointerException.class, new NullPointerExceptionFormatter());
     }
     
     private SyntaxNodeExceptionUtils() {
