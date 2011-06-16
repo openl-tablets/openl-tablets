@@ -102,11 +102,17 @@ public class ConfigManager {
             if (propValue != null) {
                 if (!propValue.equals(value.toString())) {
                     getConfigurationToSave().setProperty(key, value);
+                } else {
+                    removeProperty(key);
                 }
             } else {
                 getConfigurationToSave().addProperty(key, value);
             }
         }
+    }
+
+    public void removeProperty(String key) {
+        getConfigurationToSave().clearProperty(key);
     }
 
     private FileConfiguration getConfigurationToSave() {
@@ -117,14 +123,23 @@ public class ConfigManager {
     }
 
     public boolean save() {
-        if (configurationToSave != null && !configurationToSave.isEmpty()) {
+        if (configurationToSave != null) {
             try {
-                getConfigurationToSave().save();
+                configurationToSave.save();
                 return true;
             } catch (Exception e) {
                 LOG.error("Error when saving configuration: " + configurationToSave.getBasePath(), e);
             }
         }
+        return false;
+    }
+
+    public boolean restoreDefaults() {
+        if (configurationToSave != null && !configurationToSave.isEmpty()) {
+            configurationToSave.clear();
+            return save();
+        }
+
         return false;
     }
 

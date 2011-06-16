@@ -57,4 +57,11 @@ public class SystemSettingsBean {
         }
     }
 
+    public void restoreDefaults() {
+        boolean restored = configManager.restoreDefaults();
+        if (restored) {
+            WebStudioUtils.getWebStudio().setNeedRestart(true);
+        }
+    }
+
 }
