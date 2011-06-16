@@ -74,17 +74,17 @@
           <div class="panel-container">
             <div id="common">
                 <h:panelGrid columns="2">
-                    <h:outputText value="Workspaces Directory" />
+                    <h:outputText value="Workspaces Directory:" />
                     <h:inputText value="#{systemSettingsBean.workspacesRoot}" style="width: 181px" />
-                    <h:outputText value="Date Pattern" />
+                    <h:outputText value="Date Pattern:" />
                     <h:inputText value="#{systemSettingsBean.datePattern}" />
                 </h:panelGrid>
             </div>
             <div id="security">
                 <h:panelGrid columns="2">
-                    <h:outputText value="Auto Login" />
+                    <h:outputText value="Auto Login:" />
                     <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
-                    <h:outputText value="Hide Logout link" />
+                    <h:outputText value="Hide Logout link:" />
                     <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}" />
                 </h:panelGrid>
             </div>
