@@ -157,8 +157,6 @@ public class StartTomcat {
         }
         System.setProperty("openl.webstudio.home", webstudioHome.getCanonicalPath());
 
-        System.out.println("OpenL Tablets WebStudio home: " + System.getProperty("openl.webstudio.home"));
-
         String chome = System.getProperty("catalina.home");
 
         if (chome == null) {

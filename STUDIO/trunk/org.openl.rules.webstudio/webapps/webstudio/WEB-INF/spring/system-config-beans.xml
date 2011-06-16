@@ -10,7 +10,7 @@
 
     <bean id="configManager" class="org.openl.rules.webstudio.ConfigManager">
         <constructor-arg name="useSystemProperties" value="true" />
-        <constructor-arg name="propsLocation" value="${home.dir:/openl}/system.properties" />
+        <constructor-arg name="propsLocation" value="${webstudio.home}/system.properties" />
         <constructor-arg name="defaultPropsLocation" value="${webapp.root}/WEB-INF/conf/system.properties" />
     </bean>
     <bean id="systemConfig" class="java.util.HashMap">

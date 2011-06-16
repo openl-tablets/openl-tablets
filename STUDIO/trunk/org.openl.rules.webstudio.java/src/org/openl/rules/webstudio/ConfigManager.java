@@ -79,10 +79,6 @@ public class ConfigManager {
         return createFileConfiguration(configLocation, false);
     }
 
-    public Object getProperty(String key) {
-        return configuration.getProperty(key);
-    }
-
     public String getStringProperty(String key) {
         return configuration.getString(key);
     }
@@ -95,7 +91,7 @@ public class ConfigManager {
         Map<String, Object> properties = new HashMap<String, Object>();
         for (Iterator<?> iterator = configuration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
-            properties.put(key, getProperty(key));
+            properties.put(key, getStringProperty(key));
         }
         return properties;
     }
