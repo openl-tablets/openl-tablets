@@ -60,7 +60,7 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         try {
             Server wsServer = svrFactory.create();
             runningServices.put(service, wsServer);
-            LOG.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", service.getName(),
+            LOG.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
                     serviceAddress));
         } catch (Throwable t) {
             throw new ServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
