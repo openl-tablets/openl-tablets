@@ -11,14 +11,14 @@ import org.openl.ruleservice.publish.IDeploymentAdmin;
 
 public class JavaClassDeploymentAdmin implements IDeploymentAdmin {
 
-    private RulesFrontend frontend;
+    private IRulesFrontend frontend;
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
 
-    public RulesFrontend getFrontend() {
+    public IRulesFrontend getFrontend() {
         return frontend;
     }
 
-    public void setFrontend(RulesFrontend frontend) {
+    public void setFrontend(IRulesFrontend frontend) {
         this.frontend = frontend;
     }
 
