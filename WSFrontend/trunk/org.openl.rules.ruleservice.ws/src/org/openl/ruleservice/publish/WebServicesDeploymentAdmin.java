@@ -9,8 +9,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.openl.ruleservice.OpenLService;
-import org.openl.ruleservice.ServiceDeployException;
+import org.openl.rules.ruleservice.OpenLService;
+import org.openl.rules.ruleservice.ServiceDeployException;
+import org.openl.rules.ruleservice.publish.IDeploymentAdmin;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
