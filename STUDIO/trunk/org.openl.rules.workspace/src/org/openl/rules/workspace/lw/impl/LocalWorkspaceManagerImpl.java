@@ -24,6 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener, InitializingBean {
     private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
 
+    private String localWorkspace;
     private String workspacesRoot = "/tmp/rules-workspaces/";
     private boolean autoLogin = false;
     private FileFilter localWorkspaceFolderFilter;
@@ -41,13 +42,9 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     protected LocalWorkspaceImpl createEclipseWorkspace(WorkspaceUser user) throws WorkspaceException {
-        String eclipseWorkspacePath = System.getProperty("openl.webstudio.home");
-        if (eclipseWorkspacePath == null) {
-            eclipseWorkspacePath = "..";
-        }
         log.debug(MsgHelper.format("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(),
-                eclipseWorkspacePath));
-        return new LocalWorkspaceImpl(user, new File(eclipseWorkspacePath), localWorkspaceFolderFilter,
+                localWorkspace));
+        return new LocalWorkspaceImpl(user, new File(localWorkspace), localWorkspaceFolderFilter,
                 localWorkspaceFileFilter);
     }
 
@@ -86,6 +83,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
+    }
+
+    public void setLocalWorkspace(String localWorkspace) {
+        this.localWorkspace = localWorkspace;
     }
 
     public void setWorkspacesRoot(String workspacesRoot) {

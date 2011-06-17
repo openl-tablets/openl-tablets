@@ -137,26 +137,6 @@ public class StartTomcat {
             throw new Exception("\n Apache Tomcat bootstrap.jar must be in classpath.");
         }
 
-        String whome = System.getProperty("openl.webstudio.home");
-
-        if (whome == null) {
-            whome = getProperty(args, "openl.webstudio.home");
-        }
-        if (whome == null) {
-            whome = "..";
-        }
-
-        File webstudioHome = new File(whome);
-
-        if (!webstudioHome.exists()) {
-            throw new Exception(
-                    MessageFormat
-                            .format(
-                                    "\nYou did not set up correctly openl.webstudio.home variable. It was \"{0}\".\n Please refer to OpenL Tablets document 'Web Programming and OpenL Tablets'. Chapter - Web Develoment Setup",
-                                    whome));
-        }
-        System.setProperty("openl.webstudio.home", webstudioHome.getCanonicalPath());
-
         String chome = System.getProperty("catalina.home");
 
         if (chome == null) {

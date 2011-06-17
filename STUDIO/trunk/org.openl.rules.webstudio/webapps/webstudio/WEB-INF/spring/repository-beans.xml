@@ -5,6 +5,7 @@
        default-autowire="no">
 
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
+    <property name="localWorkspace" value="#{systemConfig['webstudio.localWorkspace']}" />
     <property name="workspacesRoot" value="#{systemConfig['webstudio.workspacesRoot']}" />
     <property name="autoLogin" value="#{systemConfig['security.autoLogin']}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />

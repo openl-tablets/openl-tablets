@@ -4,7 +4,6 @@
  */
 package org.openl.rules.ui;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -103,8 +102,7 @@ public class WebStudio {
         }
 
         if (!initialized) {
-            workspacePath = StringUtils.defaultString(
-                    systemConfigManager.getStringProperty("openl.webstudio.home"), "..");
+            workspacePath = systemConfigManager.getStringProperty("webstudio.localWorkspace");
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
         }
