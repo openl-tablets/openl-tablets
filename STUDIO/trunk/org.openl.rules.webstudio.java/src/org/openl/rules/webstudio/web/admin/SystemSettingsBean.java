@@ -11,6 +11,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 public class SystemSettingsBean {
 
     private static final String WORKSPACES_ROOT = "webstudio.workspacesRoot";
+    private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String DATE_PATTERN = "webstudio.datePattern";
 
     private static final String AUTO_LOGIN = "security.autoLogin";
@@ -48,6 +49,14 @@ public class SystemSettingsBean {
 
     public void setHideLogout(boolean hideLogout) {
         configManager.setProperty(HIDE_LOGOUT, hideLogout);
+    }
+
+    public String getProjectHistoryHome() {
+        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
+    }
+
+    public void setProjectHistoryHome(String projectHistoryHome) {
+        configManager.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public void applyChanges() {
