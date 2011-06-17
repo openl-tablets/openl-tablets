@@ -1234,8 +1234,8 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String storagePath = studio.getWorkspacePath() + File.separator + HISTORY_FOLDER_NAME
-                + File.separator + getProject().getName();
+            String projecthistoryHome = studio.getSystemConfigManager().getStringProperty("project.history.home");
+            String storagePath = projecthistoryHome + File.separator + getProject().getName();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath);
         }
         return historyManager;

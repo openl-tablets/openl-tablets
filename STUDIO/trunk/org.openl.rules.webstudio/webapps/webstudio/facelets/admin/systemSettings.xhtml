@@ -21,6 +21,7 @@
             #tab-container .panel-container { padding-top: 15px; padding-left: 123px; }
 
             .restartMessage { position: absolute; top: 7px; right: 20px }
+            .pathInput { width: 181px; }
         </style>
 
         <script type="text/javascript">
@@ -75,7 +76,9 @@
             <div id="common">
                 <h:panelGrid id="commonProps" columns="2">
                     <h:outputText value="Workspaces Directory:" />
-                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" style="width: 181px" />
+                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput" />
+                    <h:outputText value="Project History Directory:" />
+                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput" />
                     <h:outputText value="Date Pattern:" />
                     <h:inputText value="#{systemSettingsBean.datePattern}" />
                 </h:panelGrid>
