@@ -57,7 +57,8 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.openl.rules.webstudio.util.StartTomcat"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;catalina.base=${eclipse_home}/plugins/org.openl.rules.webstudio_5.0.5/&quot; &quot;catalina.home=${eclipse_home}/plugins/org.openl.rules.tomcat.lib_5.7.6/apache-tomcat-7.0.8&quot; &quot;openl.webstudio.home=${workspace_loc}&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;catalina.base=${eclipse_home}/plugins/org.openl.rules.webstudio_5.0.5/&quot; &quot;catalina.home=${eclipse_home}/plugins/org.openl.rules.tomcat.lib_5.7.6/apache-tomcat-7.0.8&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dwebstudio.localWorkspace=${workspace_loc}"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="@project.name@"/>
 </launchConfiguration>
 
