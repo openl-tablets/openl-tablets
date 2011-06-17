@@ -159,7 +159,9 @@ public class DecisionTableHelper {
     }
     
     public static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith(DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character.isDigit(headerStr.charAt(2));
+        return headerStr.startsWith(
+            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
+            Character.isDigit(headerStr.charAt(2));
     }
     
     /**
@@ -175,7 +177,9 @@ public class DecisionTableHelper {
             int numberOfHcondition) throws OpenLCompilationException {
         IWritableGrid virtualGrid = createVirtualGrid();
         writeVirtualHeadersForSimpleDecisionTable(virtualGrid, originalTable, decisionTable, numberOfHcondition);
-        GridTable virtualGridTable = new GridTable(0, 0, IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, virtualGrid);
+        GridTable virtualGridTable = 
+            new GridTable(0, 0, IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, 
+                originalTable.getSource().getWidth() - 1, virtualGrid);
         IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
         return LogicalTableHelper.logicalTable(new GridTable(0, 0, originalTable.getSource().getHeight()
                 + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, grid));
@@ -199,16 +203,18 @@ public class DecisionTableHelper {
         // if the physical number of columns for conditions is equals or more than whole width of the table,
         // means there is no return column.
         //
-        if(columnsForConditions >= originalTable.getWidth()){
+        if (columnsForConditions >= originalTable.getWidth()) {
             throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
         }
         // write return column
         //
-        grid.setCellValue(columnsForConditions, 0, String.format("%s1", DecisionTableColumnHeaders.RETURN.getHeaderKey()));
+        grid.setCellValue(columnsForConditions, 0, 
+            String.format("%s1", DecisionTableColumnHeaders.RETURN.getHeaderKey()));
         int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
         if (mergedColumnsCounts > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                grid.addMergedRegion(new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
+                grid.addMergedRegion(
+                    new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
             }
         }
     }
@@ -219,7 +225,8 @@ public class DecisionTableHelper {
         int column = 0;
         for (int i = 0; i < numberOfConditions; i++) {
             if(column > originalTable.getWidth()){
-                throw new OpenLCompilationException("Wrong table structure: Columns count is less than parameters count");
+                String message = "Wrong table structure: Columns count is less than parameters count";
+                throw new OpenLCompilationException(message);
             }
             // write headers
             //
@@ -252,8 +259,7 @@ public class DecisionTableHelper {
     private static int getNumberOfConditions(DecisionTable decisionTable) {
         // number of conditions is counted by the number of income parameters
         //
-        int numberOfConditions = decisionTable.getSignature().getNumberOfParameters();
-        return numberOfConditions;
+        return decisionTable.getSignature().getNumberOfParameters();        
     }
     /**
      * Creates not-existing virtual grid.
