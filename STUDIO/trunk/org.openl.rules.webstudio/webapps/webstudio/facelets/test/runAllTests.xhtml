@@ -102,6 +102,7 @@
                             <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
                                 <ui:include src="/facelets/messages.xhtml">
                                     <ui:param name="messages" value="#{runAllTestsBean.errors}" />
+                                    <ui:param name="editable" value="#{studio.model.editable}" />
                                 </ui:include>
                             </h:panelGroup>
                         </td>

@@ -72,15 +72,4 @@ public class MessagesBean {
         return uriParser.cell;
     }
 
-    public boolean isEditable() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-
-        if (currentProject != null) {
-            return currentProject.isCheckedOut() || currentProject.isLocalOnly();
-        }
-
-        return false;
-    }
-
 }
