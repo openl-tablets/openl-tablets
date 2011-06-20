@@ -4,12 +4,14 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
+    xmlns:c="http://java.sun.com/jstl/core"
     template="/facelets/common/view.xhtml">
 
     <ui:define name="toolbar">
         <link href="webresource/css/tree.css" rel="stylesheet" type="text/css"/>
 
-        <h:panelGroup rendered="#{treeBean.projectExists}">
+        <c:set var="project" value="#{studio.currentProject}" />
+        <h:panelGroup rendered="#{project != null}">
             <table class="treeMenu">
                 <tr>
                     <td>
@@ -26,11 +28,11 @@
                             title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
                             src="webresource/images/test_ok.gif" /></h:outputLink>
                         <h:outputLink value="#{contextPath}/faces/main.xhtml?operation=checkIn" styleClass="actionButton"
-                            target="main" title="Check in Project" rendered="#{treeBean.projectCheckedOut}"><img
+                            target="main" title="Check in Project" rendered="#{project.checkedOut}"><img
                             src="webresource/images/repository/checkin.gif" /></h:outputLink>
                         <h:outputLink value="#{contextPath}/faces/main.xhtml?operation=checkOut" styleClass="actionButton"
                             target="main" title="Check out Project"
-                            rendered="#{!treeBean.projectLocalOnly and !treeBean.projectLocked}"><img
+                            rendered="#{!project.localOnly and !project.locked}"><img
                             src="webresource/images/repository/checkout.gif" /></h:outputLink>
                     </td>
                 </tr>
