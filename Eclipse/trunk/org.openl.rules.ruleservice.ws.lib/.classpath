@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/annox-0.5.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxb-impl-2.1.13.jar" sourcepath="D:/eclipse-SDK-3.6.1-win32/workspace/cxf/jaxb-impl-2.1.13-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-runtime-3.2.jar"/>
@@ -47,7 +49,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/geronimo-ws-metadata_2.0_spec-1.1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/isorelax-20030108.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-api-2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jaxb-impl-2.1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-xjc-2.2.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty-continuation-7.2.2.v20101205.jar"/>
