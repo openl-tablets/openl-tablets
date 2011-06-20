@@ -48,6 +48,7 @@
             <h:panelGroup rendered="#{not empty errors}">
                 <ui:include src="/facelets/messages.xhtml">
                     <ui:param name="messages" value="#{errors}" />
+                    <ui:param name="editable" value="#{studio.model.editable}" />
                 </ui:include>
             </h:panelGroup>
             <br />
