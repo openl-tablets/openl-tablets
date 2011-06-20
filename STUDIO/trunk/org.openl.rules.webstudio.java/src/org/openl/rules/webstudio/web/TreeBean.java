@@ -7,8 +7,6 @@ import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
@@ -57,30 +55,6 @@ public class TreeBean {
             }
         }
         return subModes;
-    }
-
-    public boolean isProjectExists() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        AProject currentProject = studio.getCurrentProject();
-        return currentProject != null;
-    }
-
-    public boolean isProjectCheckedOut() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-        return currentProject.isCheckedOut();
-    }
-
-    public boolean isProjectLocalOnly() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-        return currentProject.isLocalOnly();
-    }
-
-    public boolean isProjectLocked() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        AProject currentProject = studio.getCurrentProject();
-        return currentProject.isLocked();
     }
 
     public boolean isProjectHasTests() {

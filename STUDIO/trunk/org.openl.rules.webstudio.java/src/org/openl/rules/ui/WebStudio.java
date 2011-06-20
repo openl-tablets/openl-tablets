@@ -225,6 +225,9 @@ public class WebStudio {
         return benchmarks.toArray(new BenchmarkInfo[0]);
     }
 
+    /**
+     * TODO Hold current project in session
+     * */
     public RulesProject getCurrentProject(HttpSession session) {
         if (currentModule != null) {
             try {

@@ -5,11 +5,8 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -42,27 +39,8 @@ public class HeaderBean {
         return "";
     }
 
-    public boolean isLocalRequest() {
-        return WebTool.isLocalRequest(FacesUtils.getRequest());
-    }
-
-    public boolean isProjectCompiledSuccessfully() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.isProjectCompiledSuccessfully();
-    }
-
     public boolean isRepositoryFailed() {
         return WebStudioUtils.isRepositoryFailed();
-    }
-
-    public boolean isShowFormulas() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio == null || webStudio.isShowFormulas();
-    }
-    
-    public boolean isCollapseProperties() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio == null || webStudio.isCollapseProperties();
     }
 
 }
