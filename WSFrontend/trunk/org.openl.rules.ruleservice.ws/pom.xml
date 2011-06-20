@@ -35,6 +35,11 @@
             WEB-INF/lib/org.openl.rules.webstudio.lib-*.jar,
             WEB-INF/lib/org.openl.rules.ruleservice.ws.lib-*.jar
           </packagingExcludes>
+          <webResources>
+            <resource>
+              <directory>conf</directory>
+            </resource>
+          </webResources>
         </configuration>
       </plugin>
 
@@ -65,16 +70,22 @@
 
     <resources>
       <resource>
-        <directory>src</directory>
-        <includes>
-          <include>**/*.aegis.xml</include>
-        </includes>
+        <directory>binding-conf/aegis</directory>
+      </resource>
+      <resource>
+        <directory>binding-conf/jaxb</directory>
       </resource>
     </resources>
 
     <testResources>
       <testResource>
+        <directory>conf</directory>
+      </testResource>
+      <testResource>
         <directory>test</directory>
+      </testResource>
+      <testResource>
+        <directory>test-resources</directory>
       </testResource>
     </testResources>
   </build>
@@ -112,6 +123,18 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jvnet.annox</groupId>
+      <artifactId>annox</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${org.springframework.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
