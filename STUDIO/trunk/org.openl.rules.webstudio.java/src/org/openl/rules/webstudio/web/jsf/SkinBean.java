@@ -1,17 +1,14 @@
 package org.openl.rules.webstudio.web.jsf;
 
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.openl.commons.web.jsf.FacesUtils;
 
 /**
  * The container of current skin.
  *
- * @author "Andrey Naumenko"
+ * @author Andrey Naumenko
  */
 public class SkinBean {
     private static final String[] skinsArray = { "DEFAULT", "blueSky", "classic", "deepMarine", "emeraldTown",
@@ -24,8 +21,7 @@ public class SkinBean {
 
     public String getSkin() {
         if (skin == null) {
-            Cookie[] cookies = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                    .getRequest()).getCookies();
+            Cookie[] cookies = FacesUtils.getCookies();
 
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
@@ -52,8 +48,7 @@ public class SkinBean {
         if (skin != null && !skin.equals(this.skin)) {
             Cookie skinCookie = new Cookie(SKIN_COOKIE, skin);
             skinCookie.setMaxAge(60 * 60 * 24 * 365); // store it for a year
-            ((HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse())
-                    .addCookie(skinCookie);
+            FacesUtils.addCookie(skinCookie);
         }
 
         this.skin = skin;

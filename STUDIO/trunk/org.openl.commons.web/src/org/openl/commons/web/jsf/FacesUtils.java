@@ -15,6 +15,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -176,6 +178,14 @@ public abstract class FacesUtils {
 
     public static String getContextPath() {
         return getExternalContext().getRequestContextPath();
+    }
+
+    public static Cookie[] getCookies() {
+        return ((HttpServletRequest) getRequest()).getCookies();
+    }
+
+    public static void addCookie(Cookie cookie) {
+        ((HttpServletResponse) getResponse()).addCookie(cookie);
     }
 
     public static void redirect(String page) throws IOException {
