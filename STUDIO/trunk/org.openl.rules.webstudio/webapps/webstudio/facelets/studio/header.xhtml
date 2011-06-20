@@ -109,7 +109,7 @@
                   </c:if>
                   <f:verbatim>&amp;nbsp;</f:verbatim>
 
-                  <h:panelGroup rendered="#{not empty headerBean.modules and headerBean.projectEditable}">
+                  <h:panelGroup rendered="#{not empty headerBean.modules and studio.model.editable}">
                   <a href="#{contextPath}/faces/facelets/revertProjectChanges.xhtml" title="Revert Module Changes"
                       target="mainFrame"><img alt="Revert Project Changes"
                       src="#{contextPath}/webresource/images/revert.png" /></a>
@@ -153,7 +153,7 @@
                   <a href="#{contextPath}/faces/main.xhtml?reload=reload&amp;selectedModule=#{headerBean.selectedModule}"
                       title="Refresh Project(s)" target="main"><img src="#{contextPath}/webresource/images/refresh.gif"
                       alt="Refresh Project(s)"/></a>
-                  <h:panelGroup rendered="#{headerBean.projectEditable}">
+                  <h:panelGroup rendered="#{studio.model.editable}">
                       <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                       <h:commandLink target="mainFrame" action="#{tableCreatorWizardManager.start}"
                           title="Create new table"><img src="#{contextPath}/webresource/images/newtable.gif"

@@ -29,11 +29,6 @@ public class SearchResultsBean {
         return searchResult[0];
     }
 
-    public boolean isProjectEditable() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio != null && webStudio.getModel().isEditable();
-    }
-
     public boolean isCanViewTable() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
