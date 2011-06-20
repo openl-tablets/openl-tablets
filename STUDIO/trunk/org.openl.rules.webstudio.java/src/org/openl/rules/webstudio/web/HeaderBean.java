@@ -46,11 +46,6 @@ public class HeaderBean {
         return WebTool.isLocalRequest(FacesUtils.getRequest());
     }
 
-    public boolean isProjectEditable() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio != null && webStudio.getModel().isEditable();
-    }
-
     public boolean isProjectCompiledSuccessfully() {
         ProjectModel model = WebStudioUtils.getProjectModel();
         return model.isProjectCompiledSuccessfully();

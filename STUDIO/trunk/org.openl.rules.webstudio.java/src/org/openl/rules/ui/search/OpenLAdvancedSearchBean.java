@@ -179,11 +179,6 @@ public class OpenLAdvancedSearchBean {
         return savedSearches != null && savedSearches.length > 0;
     }
 
-    public boolean isProjectEditable() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio != null && webStudio.getModel().isEditable();
-    }
-
     public String save() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         if (webStudio != null) {
