@@ -169,6 +169,11 @@ public class DesionTableValidationResult implements IValidationResult {
                 validationResultDetails.append(ovl.toString()).append("\r\n");
         }
         
+        for (DecisionTableOverlapping ovl : getOverlappingOverrides()) {
+            if (++cnt <= maxCounter)
+                validationResultDetails.append(ovl.toString()).append("\r\n");
+        }
+        
         if (cnt > maxCounter)
             validationResultDetails.append(String.format("  %d more ...", (cnt-maxCounter)));
         
