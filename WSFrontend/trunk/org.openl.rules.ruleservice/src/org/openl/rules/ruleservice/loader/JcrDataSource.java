@@ -56,8 +56,11 @@ public class JcrDataSource implements IDataSource {
     
     /** {@inheritDoc} */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null || deploymentVersion == null){
-            throw new IllegalArgumentException();
+        if (deploymentName == null){
+            throw new IllegalArgumentException("deploymentName argument can't be null");
+        }
+        if (deploymentVersion == null){
+            throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
         try {
             StringBuilder sb = new StringBuilder(deploymentName);
@@ -84,7 +87,7 @@ public class JcrDataSource implements IDataSource {
     /** {@inheritDoc} */
     public void addListener(IDataSourceListener dataSourceListener) {
         if (dataSourceListener == null){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
             RDeploymentListener rDeploymentListener = listeners.get(dataSourceListener);
@@ -104,7 +107,7 @@ public class JcrDataSource implements IDataSource {
     /** {@inheritDoc} */
     public void removeListener(IDataSourceListener dataSourceListener) {
         if (dataSourceListener == null){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
             RDeploymentListener listener = listeners.get(dataSourceListener);

@@ -1,26 +1,23 @@
-package org.openl.rules.ruleservice.loader;
-
-import org.openl.rules.ruleservice.RuleServiceException;
-
+package org.openl.rules.ruleservice;
 /**
- * Main data source exception for wrapping data source exceptions
- * 
+ * Main rule service exception. All exceptions in rule service project should extend this exception.
+ *  
  * @author MKamalov
- * 
+ *
  */
-public class DataSourceException extends RuleServiceException {
+public class RuleServiceException extends RuntimeException{
 
-    private static final long serialVersionUID = 6818824565990021295L;
+    private static final long serialVersionUID = -5355895091110317542L;
 
     /**
-     * Constructs a new DataSourceException
+     * Constructs a new RuleServiceException
      */
-    public DataSourceException() {
+    public RuleServiceException() {
         super();
     }
 
     /**
-     * Constructs a new DataSourceException with the specified detail message
+     * Constructs a new RuleServiceException with the specified detail message
      * and cause.
      * 
      * @param message the detail message (which is saved for later retrieval by
@@ -30,29 +27,29 @@ public class DataSourceException extends RuleServiceException {
      *            permitted, and indicates that the cause is nonexistent or
      *            unknown.)
      */
-    public DataSourceException(String message, Throwable cause) {
+    public RuleServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructs a new DataSourceException with the specified detail message
+     * Constructs a new RuleServiceException with the specified detail message
      * 
      * @param message the detail message (which is saved for later retrieval by
      *            the {@link #getMessage()} method).
      */
-    public DataSourceException(String message) {
+    public RuleServiceException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new DataSourceException with a cause.
+     * Constructs a new RuleServiceException with a cause.
      * 
      * @param cause the cause (which is saved for later retrieval by the
      *            {@link #getCause()} method). (A <tt>null</tt> value is
      *            permitted, and indicates that the cause is nonexistent or
      *            unknown.)
      */
-    public DataSourceException(Throwable cause) {
+    public RuleServiceException(Throwable cause) {
         super(cause);
     }
 }

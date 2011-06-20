@@ -11,6 +11,9 @@ import org.openl.rules.project.model.Module;
 public class RulesInstantiationFactory implements IRulesInstantiationFactory {
 
     public RulesInstantiationStrategy getStrategy(List<Module> modules, IDependencyManager dependencyManager) {
+        if (modules == null)
+            throw new IllegalArgumentException("modules argument can't be null");
+
         switch (modules.size()) {
             case 0:
                 throw new RuntimeException("There are no modules to instantiate.");

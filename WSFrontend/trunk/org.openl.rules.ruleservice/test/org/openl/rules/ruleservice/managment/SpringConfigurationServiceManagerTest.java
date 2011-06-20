@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:openl-ruleservice-beans.xml"})
-public class ServiceManagerTest implements ApplicationContextAware{
+public class SpringConfigurationServiceManagerTest implements ApplicationContextAware{
     
     private ApplicationContext applicationContext;
     

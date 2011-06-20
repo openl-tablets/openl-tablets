@@ -12,6 +12,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.ruleservice.RuleServiceException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
@@ -102,6 +103,8 @@ public class LocalTemporaryDeploymentsStorage {
      * @param directoryToLoadDeploymentsIn
      */
     public void setDirectoryToLoadDeploymentsIn(String directoryToLoadDeploymentsIn) {
+        if (directoryToLoadDeploymentsIn == null)
+            throw new IllegalArgumentException("directoryToLoadDeploymentsIn argument can't be null");
         this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
     }
 
@@ -146,8 +149,11 @@ public class LocalTemporaryDeploymentsStorage {
      * @return deployment from storage or null if doens't exists
      */
     public Deployment getDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null || version == null){
-            throw new IllegalArgumentException();
+        if (deploymentName == null){
+            throw new IllegalArgumentException("deploymentName argument can't be null");
+        }
+        if (version == null){
+            throw new IllegalArgumentException("version argument can't be null");
         }
         if (containsDeployment(deploymentName, version)) {
             Deployment deployment = cacheForGetDeployment.get(getDeploymentFolderName(deploymentName, version));
@@ -174,7 +180,7 @@ public class LocalTemporaryDeploymentsStorage {
      */
     public Deployment loadDeployment(Deployment deployment) {
         if (deployment == null){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("deployment argument can't be null");
         }
         File deploymentFolder = getDeploymentFolder(deployment.getDeploymentName(), deployment.getCommonVersion());
         LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, new ArtefactPathImpl(
@@ -186,8 +192,7 @@ public class LocalTemporaryDeploymentsStorage {
                     .getCommonVersion().getMinor());
             loadedDeployment.refresh();
         } catch (ProjectException e) {
-            // FIXME
-            throw new RuntimeException(e);
+            throw new RuleServiceException(e);
         }
 
         cacheForGetDeployment.remove(getDeploymentFolderName(deployment.getDeploymentName(),
@@ -203,8 +208,11 @@ public class LocalTemporaryDeploymentsStorage {
      *         deleted; false otherwise
      */
     public boolean removeDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null || version == null){
-            throw new IllegalArgumentException();
+        if (deploymentName == null){
+            throw new IllegalArgumentException("deploymentName argument can't be null");
+        }
+        if (version == null){
+            throw new IllegalArgumentException("version argument can't be null");
         }
         cacheForGetDeployment.remove(getDeploymentFolderName(deploymentName, version));
         return FolderHelper.clearFolder(getDeploymentFolder(deploymentName, version));
@@ -217,6 +225,12 @@ public class LocalTemporaryDeploymentsStorage {
      * @return true if and only if the deployment exists; false otherwise
      */
     public boolean containsDeployment(String deploymentName, CommonVersion version) {
+        if (deploymentName == null){
+            throw new IllegalArgumentException("deploymentName argument can't be null");
+        }
+        if (version == null){
+            throw new IllegalArgumentException("version argument can't be null");
+        }
         return getDeploymentFolder(deploymentName, version).exists();
     }
 

@@ -11,7 +11,7 @@ public interface IRulesPublisher {
 
     List<OpenLService> getRunningServices();
 
-    OpenLService findServiceByName(String name);
+    OpenLService findServiceByName(String serviceName);
 
     OpenLService deploy(OpenLService service) throws ServiceDeployException;
 

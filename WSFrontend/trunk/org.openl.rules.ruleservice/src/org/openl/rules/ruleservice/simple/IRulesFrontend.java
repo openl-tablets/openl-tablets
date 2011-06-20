@@ -1,7 +1,14 @@
 package org.openl.rules.ruleservice.simple;
 
+import java.util.List;
+
 import org.openl.rules.ruleservice.OpenLService;
 
+/**
+ * The instance of this interface is not thread safe.
+ * @author MKamalov
+ *
+ */
 public interface IRulesFrontend {
 
     /**
@@ -36,6 +43,13 @@ public interface IRulesFrontend {
      */
     Object getValues(String serviceName, String fieldName);
 
+    /**
+     * Registers service to use it in calculations.
+     * 
+     * @param service Service to register.
+     */
+    List<OpenLService> getServices();
+    
     /**
      * Registers service to use it in calculations.
      * 
