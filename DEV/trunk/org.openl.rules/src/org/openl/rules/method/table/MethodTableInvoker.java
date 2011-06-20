@@ -53,7 +53,7 @@ public class MethodTableInvoker extends RulesMethodInvoker {
     }
 
     public boolean canInvoke() {        
-        return getInvokableMethod().getCompositeMethod() != null;
+        return getInvokableMethod().getCompositeMethod().getMethodBodyBoundNode() != null;
     }
    
 }
