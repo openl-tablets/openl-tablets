@@ -22,20 +22,25 @@ public class ServiceManager implements IDataSourceListener {
     private static final Log LOG = LogFactory.getLog(ServiceManager.class);
     private RuleService ruleService;
     private IServiceConfigurer serviceConfigurer;
-    
+
     public RuleService getRuleService() {
         return ruleService;
     }
-    
+
     public void setRuleService(RuleService ruleService) {
+        if (ruleService == null)
+            throw new IllegalArgumentException("ruleService can't be null");
         this.ruleService = ruleService;
     }
-    
+
     public IServiceConfigurer getServiceConfigurer() {
         return serviceConfigurer;
     }
-    
+
     public void setServiceConfigurer(IServiceConfigurer serviceConfigurer) {
+        if (serviceConfigurer == null)
+            throw new IllegalArgumentException("serviceConfigurer can't be null");
+
         this.serviceConfigurer = serviceConfigurer;
     }
 

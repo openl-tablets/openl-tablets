@@ -59,13 +59,25 @@ public class LocalTemporaryDeploymentsStorageTest {
     }
 
     @Test
+    public void testLoadDeployment() {
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        assertNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        storage.loadDeployment(deployment);
+        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+    }
+
+    @Test
     public void testGetDeployment() {
         LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
         assertNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
         assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        assertNotNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        Deployment deployment1 = storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion());
+        assertNotNull(deployment1);
+        Deployment deployment2 = storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion());
+        assertTrue(deployment1 == deployment2);
     }
 
 }

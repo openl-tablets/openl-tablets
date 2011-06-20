@@ -23,16 +23,18 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
 
     private boolean provideRuntimeContext;
 
+    /** {@inheritDoc} */
     public List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader) {
+        if (loader == null)
+            throw new IllegalArgumentException("loader argument can't be null");
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         for (Deployment deployment : loader.getDeployments()) {
             String deploymentName = deployment.getName();
             if (latestDeployments.containsKey(deploymentName)) {
-                if (latestDeployments.get(deploymentName).getCommonVersion()
-                        .compareTo(deployment.getCommonVersion()) < 0) {
+                if (latestDeployments.get(deploymentName).getCommonVersion().compareTo(deployment.getCommonVersion()) < 0) {
                     latestDeployments.put(deploymentName, deployment);
                 }
-            }else{
+            } else {
                 latestDeployments.put(deploymentName, deployment);
             }
         }
@@ -51,9 +53,9 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
                     moduleConfigurations.add(new ModuleConfiguration(deployment.getDeploymentName(), deployment
                             .getCommonVersion(), project.getName(), module.getName()));
                 }
-                serviceDescriptions.add(
-                new ServiceDescription(deployment.getDeploymentName(), deployment.getDeploymentName() + "/"
-                        + project.getName(), null, provideRuntimeContext, moduleConfigurations));
+                serviceDescriptions.add(new ServiceDescription(deployment.getDeploymentName(), deployment
+                        .getDeploymentName() + "/" + project.getName(), null, provideRuntimeContext,
+                        moduleConfigurations));
             }
         }
         return serviceDescriptions;
