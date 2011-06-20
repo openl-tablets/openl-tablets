@@ -6,11 +6,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletRequest;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.util.StringTool;
 
@@ -70,8 +68,7 @@ public class JSFFunctions {
     }
 
     public static boolean isLocalRequest() {
-        return WebTool.isLocalRequest((ServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                .getRequest());
+        return WebTool.isLocalRequest(FacesUtils.getRequest());
     }
 
     /**

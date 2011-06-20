@@ -1,6 +1,6 @@
 package org.openl.rules.tableeditor.util;
 
-import javax.faces.context.FacesContext;
+import org.openl.commons.web.jsf.FacesUtils;
 
 public class WebUtil {
 
@@ -8,8 +8,7 @@ public class WebUtil {
     }
 
     public static final String internalPath(String path) {
-        return FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath()
-                + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
+        return FacesUtils.getContextPath() + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
     }
 
 }
