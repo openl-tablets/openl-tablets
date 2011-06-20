@@ -14,19 +14,14 @@
             #tab-container { border: 1px solid rgb(195,195,195); border-width: 1px 0; height: 300px; background: #F7F7F7; margin: 13px 3px; }
             #tab-container ul { height: 300px; list-style: none; margin: 0; padding: 0; background: #DDDDDD; float: left; border-right: 1px solid rgb(190,190,190); }
             #tab-container ul li { width: 100px; margin: 0; padding: 0; text-align: center; }
-            #tab-container ul li a { display: block; padding: 15px 0; outline: none; text-decoration: none; color: rgb(31,31,31); }
+            #tab-container ul li a { display: block; padding: 15px 0; outline: none; text-decoration: none; color: black; }
             #tab-container ul li a span { display: block; }
             #tab-container ul li.selected-tab { background: #F7F7F7; font-weight: bold; position: relative; left: 1px; border: 1px solid rgb(195,195,195); border-left: 0; border-right: 1px dashed rgb(225,225,225);  box-shadow: -2px 1px 2px rgb(210,210,210); }
             #tab-container ul li:first-child.selected-tab { border-top: 0; }
-            #tab-container .panel-container { padding: 1px 0 0 100px; }
+            #tab-container .panel-container { padding-top: 15px; padding-left: 123px; }
 
-            .propsPage { margin: 15px 23px; }
-            .propsPage .propsSection { margin-bottom: 35px; }
-            .propsPage .propsSection h3 { margin: 5px 0px; font-size: 110%; font-weight: bold; border-bottom: 1px solid #EBCF89; color: #F59B00; padding-bottom: 3px; }
-            .propsPage .propsSection div { margin-left: 11px; }
-
-            .restartMessage { position: absolute; top: 7px; right: 20px; }
-            .pathInput { width: 191px; }
+            .restartMessage { position: absolute; top: 7px; right: 20px }
+            .pathInput { width: 181px; }
         </style>
 
         <script type="text/javascript">
@@ -55,82 +50,50 @@
         </a4j:outputPanel>
 
         <div id="tab-container">
-            <ul>
-                <li>
-                    <a href="#common">
-                        <h:graphicImage url="/webresource/images/admin/systemSettings/common.png" alt="Common" />
-                        <span>Common</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#security">
-                        <h:graphicImage url="/webresource/images/admin/systemSettings/security.png" alt="Security" />
-                        <span>Security</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#repository">
-                        <h:graphicImage url="/webresource/images/admin/systemSettings/repository.png" alt="Repository" />
-                        <span>Repository</span>
-                    </a>
-                </li>
-    
-                <br style="clear:both;" />
-            </ul>
-            <div class="panel-container">
-                <div id="common">
-                    <h:panelGrid id="commonProps" columns="2">
-                        <h:outputText value="Workspaces Directory:" />
-                        <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput" />
-                        <h:outputText value="Project History Directory:" />
-                        <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput" />
-                        <h:outputText value="Date Pattern:" />
-                        <h:inputText value="#{systemSettingsBean.datePattern}" />
-                    </h:panelGrid>
-                </div>
-                <div id="security">
-                    <h:panelGrid id="securityProps" columns="2">
-                        <h:outputText value="Auto Login:" />
-                        <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
-                        <h:outputText value="Hide Logout link:" />
-                        <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}" />
-                    </h:panelGrid>
-                </div>
-                <div id="repository">
-                    <div class="propsPage">
-                        <div class="propsSection">
-                            <h3>Design Repository</h3>
-                            <div>
-                                <h:panelGrid columns="2">
-                                    <h:outputText value="Auto Login:" />
-                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
-                                    <h:outputText value="Workspaces Directory:" />
-                                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput" />
-                                    <h:outputText value="Project History Directory:" />
-                                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput" />
-                                    <h:outputText value="Date Pattern:" />
-                                    <h:inputText value="#{systemSettingsBean.datePattern}" />
-                                </h:panelGrid>
-                            </div>
-                        </div>
-                        <div class="propsSection">
-                            <h3>Production Repository</h3>
-                            <div>
-                                <h:panelGrid columns="2">
-                                    <h:outputText value="Auto Login:" />
-                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
-                                    <h:outputText value="Workspaces Directory:" />
-                                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput" />
-                                    <h:outputText value="Project History Directory:" />
-                                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput" />
-                                    <h:outputText value="Date Pattern:" />
-                                    <h:inputText value="#{systemSettingsBean.datePattern}" />
-                                </h:panelGrid>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <ul>
+            <li>
+                <a href="#common">
+                    <h:graphicImage url="/webresource/images/admin/systemSettings/common.png" alt="Common" />
+                    <span>Common</span>
+                </a>
+            </li>
+            <li>
+                <a href="#security">
+                    <h:graphicImage url="/webresource/images/admin/systemSettings/security.png" alt="Security" />
+                    <span>Security</span>
+                </a>
+            </li>
+            <li>
+                <a href="#repository">
+                    <h:graphicImage url="/webresource/images/admin/systemSettings/repository.png" alt="Repository" />
+                    <span>Repository</span>
+                </a>
+            </li>
+
+            <br style="clear:both;" />
+          </ul>
+          <div class="panel-container">
+            <div id="common">
+                <h:panelGrid id="commonProps" columns="2">
+                    <h:outputText value="Workspaces Directory:" />
+                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput" />
+                    <h:outputText value="Project History Directory:" />
+                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput" />
+                    <h:outputText value="Date Pattern:" />
+                    <h:inputText value="#{systemSettingsBean.datePattern}" />
+                </h:panelGrid>
             </div>
+            <div id="security">
+                <h:panelGrid id="securityProps" columns="2">
+                    <h:outputText value="Auto Login:" />
+                    <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
+                    <h:outputText value="Hide Logout link:" />
+                    <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}" />
+                </h:panelGrid>
+            </div>
+            <div id="repository">
+            </div>
+          </div>
         </div>
 
         <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
