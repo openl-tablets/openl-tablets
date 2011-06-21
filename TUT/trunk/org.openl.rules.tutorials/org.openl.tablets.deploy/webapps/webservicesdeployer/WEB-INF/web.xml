@@ -17,7 +17,7 @@
       Applied by ContextLoaderListener.
     </description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>openl-ws.xml</param-value>
+    <param-value>openl-ruleservice-beans.xml</param-value>
   </context-param>
 
   <listener>
