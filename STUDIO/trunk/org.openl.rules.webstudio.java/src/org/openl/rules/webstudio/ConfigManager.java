@@ -29,8 +29,10 @@ public class ConfigManager {
     private String propsLocation;
     private String defaultPropsLocation;
 
+    private Configuration systemConfiguration;
     private FileConfiguration configurationToSave;
-    private CompositeConfiguration configuration;
+    private FileConfiguration defaultConfiguration;
+    private CompositeConfiguration compositeConfiguration;
 
     public ConfigManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation) {
@@ -42,20 +44,21 @@ public class ConfigManager {
     }
 
     private void init() {
-        configuration = new CompositeConfiguration();
+        compositeConfiguration = new CompositeConfiguration();
 
         if (useSystemProperties) {
-            configuration.addConfiguration(new SystemConfiguration());
+            systemConfiguration = new SystemConfiguration();
+            compositeConfiguration.addConfiguration(systemConfiguration);
         }
 
         configurationToSave = createFileConfiguration(propsLocation);
         if (configurationToSave != null) {
-            configuration.addConfiguration(configurationToSave);
+            compositeConfiguration.addConfiguration(configurationToSave);
         }
 
-        Configuration defaultConfiguration = createFileConfiguration(defaultPropsLocation);
+        defaultConfiguration = createFileConfiguration(defaultPropsLocation);
         if (defaultConfiguration != null) {
-            configuration.addConfiguration(defaultConfiguration);
+            compositeConfiguration.addConfiguration(defaultConfiguration);
         }
     }
 
@@ -80,16 +83,16 @@ public class ConfigManager {
     }
 
     public String getStringProperty(String key) {
-        return configuration.getString(key);
+        return compositeConfiguration.getString(key);
     }
 
     public boolean getBooleanProperty(String key) {
-        return configuration.getBoolean(key);
+        return compositeConfiguration.getBoolean(key);
     }
 
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<String, Object>();
-        for (Iterator<?> iterator = configuration.getKeys(); iterator.hasNext();) {
+        for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
             properties.put(key, getStringProperty(key));
         }
@@ -98,15 +101,11 @@ public class ConfigManager {
 
     public void setProperty(String key, Object value) {
         if (key != null && value != null) {
-            String propValue = configuration.getString(key);
-            if (propValue != null) {
-                if (!propValue.equals(value.toString())) {
+            String defaultValue = compositeConfiguration.getString(key);
+            if (defaultValue != null) {
+                if (!defaultValue.equals(value.toString())) {
                     getConfigurationToSave().setProperty(key, value);
-                } else {
-                    removeProperty(key);
                 }
-            } else {
-                getConfigurationToSave().addProperty(key, value);
             }
         }
     }

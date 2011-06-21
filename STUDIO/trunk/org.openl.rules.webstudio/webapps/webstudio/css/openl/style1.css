@@ -1,6 +1,6 @@
 body {
     font-size: 70%;
-    color: #000000;
+    color: #171717;
     background-color: #f1f1f1;
     margin: 0px;
 }
@@ -13,13 +13,18 @@ table,input,textarea {
     font-size: 100%;
 }
 
-input[type='text'], textarea, select {
+input[type='text'], input[type='password'], textarea, select {
     border-width: 1px !important;
     border-style: solid !important;
-    border-left-color: rgb(130,130,130) !important;
-    border-top-color: rgb(130,130,130) !important;
+    border-left-color: rgb(150,150,150) !important;
+    border-top-color: rgb(150,150,150) !important;
     border-right-color: rgb(230,230,230) !important;
     border-bottom-color: rgb(230,230,230) !important;
+    border-radius: 1px;
+}
+
+input[type='text'], input[type='password'], textarea {
+    padding: 2px 3px;
 }
 
 img {
@@ -32,6 +37,18 @@ img {
     border: 1px solid;
     border-color: #5C8ADB #8EBCFF;
     border-radius: 1px;
+    -webkit-animation: info_box_anm 1s;
+    -moz-animation: info_box_anm 1s;
+}
+
+@-webkit-keyframes info_box_anm {
+    from { background-color: #EDF2FC; }
+    to { background-color: #D8E3F8; }
+}
+
+@-moz-keyframes info_box_anm {
+    from { background-color: #EDF2FC; }
+    to { background-color: #D8E3F8; }
 }
 
 .warning_box {
@@ -40,6 +57,18 @@ img {
     border: 1px solid;
     border-color: #DFA660 #EFCAA3;
     border-radius: 1px;
+    -webkit-animation: warning_box_anm 1s;
+    -moz-animation: warning_box_anm 1s;
+}
+
+@-webkit-keyframes warning_box_anm {
+    from { background-color: #FFFAD6; }
+    to { background-color: #FFF4AD; }
+}
+
+@-moz-keyframes warning_box_anm {
+    from { background-color: #FFFAD6; }
+    to { background-color: #FFF4AD; }
 }
 
 .error_box {
@@ -48,6 +77,18 @@ img {
     border: 1px solid;
     border-color: #DC6E6E #FFAFAF;
     border-radius: 1px;
+    -webkit-animation: error_box_anm 1s;
+    -moz-animation: error_box_anm 1s;
+}
+
+@-webkit-keyframes error_box_anm {
+    from { background-color: #FFF7F5; }
+    to { background-color: #FFE7E1; }
+}
+
+@-moz-keyframes error_box_anm {
+    from { background-color: #FFF7F5; }
+    to { background-color: #FFE7E1; }
 }
 
 .data_cell {
