@@ -146,11 +146,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return value;
 	}
 	
-	// QUOTIENT
+	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -182,6 +182,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         long small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, new org.openl.meta.LongValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.LongValue big(org.openl.meta.LongValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        long[] primitiveArray = unwrap(values);
+        long big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, new org.openl.meta.LongValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.LongValue pow(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
@@ -281,7 +291,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>    
+                            // <<< END INSERT Functions >>>    
     
     // ******* Autocasts*************
 

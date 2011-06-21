@@ -146,11 +146,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return value;
 	}
 	
-	// QUOTIENT
+	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -182,6 +182,16 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         short small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.ShortValue big(org.openl.meta.ShortValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        short[] primitiveArray = unwrap(values);
+        short big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.ShortValue pow(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
@@ -281,7 +291,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>
+                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 

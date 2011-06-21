@@ -99,13 +99,14 @@ public class GenNumberValueFunctions extends GenRulesCode {
             variables.put("productFunction", NumberOperations.PRODUCT);
             variables.put("modFunction", NumberOperations.MOD);
             variables.put("smallFunction", NumberOperations.SMALL);
+            variables.put("bigFunction", NumberOperations.BIG);
             variables.put("powFunction", NumberOperations.POW);
             variables.put("absFunction", NumberOperations.ABS);
             variables.put("negativeFunction", NumberOperations.NEGATIVE);
             variables.put("incFunction", NumberOperations.INC);
             variables.put("positiveFunction", NumberOperations.POSITIVE);
             variables.put("decFunction", NumberOperations.DEC);
-            variables.put("quaotientFunction", NumberOperations.QUAOTIENT);
+            variables.put("quaotientFunction", NumberOperations.QUOTIENT);
             variables.put("type", clazz);
             variables.put("primitiveType", types.get(clazz));
             variables.put("primitiveNumericTypes", primitiveNumericTypes);

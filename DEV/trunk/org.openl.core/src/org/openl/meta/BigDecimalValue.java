@@ -153,7 +153,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	public static LongValue quotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -185,6 +185,16 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         java.math.BigDecimal small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.BigDecimalValue big(org.openl.meta.BigDecimalValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        java.math.BigDecimal[] primitiveArray = unwrap(values);
+        java.math.BigDecimal big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.BigDecimalValue pow(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
@@ -284,7 +294,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>
+                            // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 

@@ -65,8 +65,8 @@
 	// QUAOTIENT
 	public static LongValue ${quaotientFunction.Name}($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
         if (number != null && divisor != null) {
-            LongValue result = new LongValue(MathUtils.quaotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            LongValue result = new LongValue(MathUtils.${quaotientFunction.Name}(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -108,9 +108,19 @@
             return null;
         }
         $tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
-        $tool.getTypeName($primitiveType) small = MathUtils.small(primitiveArray, position);
+        $tool.getTypeName($primitiveType) small = MathUtils.${smallFunction.Name}(primitiveArray, position);
         return new $tool.getTypeName($type)(($tool.getTypeName($type)) getAppropriateValue(values, new $tool.getTypeName($type)(small)), 
             ${smallFunction.FullName}, values);
+    }
+    
+    public static $tool.getTypeName($type) ${bigFunction.Name}($tool.getTypeName($type)[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        $tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
+        $tool.getTypeName($primitiveType) big = MathUtils.${bigFunction.Name}(primitiveArray, position);
+        return new $tool.getTypeName($type)(($tool.getTypeName($type)) getAppropriateValue(values, new $tool.getTypeName($type)(big)), 
+            ${bigFunction.FullName}, values);
     }
     
     public static $tool.getTypeName($type) ${powFunction.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {

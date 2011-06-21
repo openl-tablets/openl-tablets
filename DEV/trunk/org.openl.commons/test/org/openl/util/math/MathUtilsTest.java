@@ -130,7 +130,7 @@ public class MathUtilsTest {
             assertEquals(0, MathUtils.small(intMas, 6));
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no index '5' in the given array", e.getMessage());
+            assertEquals("There is no position '6' in the given array", e.getMessage());
         }
         
         
@@ -148,7 +148,75 @@ public class MathUtilsTest {
             assertEquals(0, MathUtils.small(intMas, 5));
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no index '4' in the given array", e.getMessage());
+            assertEquals("There is no position '5' in the given array", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testBigForInt() {
+        int[] mas = new int[]{10, 45, 4, 44, 22};
+        assertEquals(45, MathUtils.big(mas, 1));
+        assertEquals(44, MathUtils.big(mas, 2));
+        assertEquals(22, MathUtils.big(mas, 3));
+        assertEquals(10, MathUtils.big(mas, 4));
+        assertEquals(4, MathUtils.big(mas, 5));
+        
+        try {
+            assertEquals(0, MathUtils.big(mas, 6));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("There is no position '6' in the given array", e.getMessage());
+        }
+        
+        mas = null;
+        try {
+            assertEquals(0, MathUtils.big(mas, 5));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("The array cannot be null", e.getMessage());
+        }
+        
+        
+        mas = new int[1];
+        try {
+            assertEquals(0, MathUtils.big(mas, 5));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("There is no position '5' in the given array", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testBigForLong() {
+        Long[] mas = new Long[]{Long.valueOf(10), Long.valueOf(45), Long.valueOf(4), Long.valueOf(44), Long.valueOf(22)};
+        assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
+        assertEquals(Long.valueOf(44), MathUtils.big(mas, 2));
+        assertEquals(Long.valueOf(22), MathUtils.big(mas, 3));
+        assertEquals(Long.valueOf(10), MathUtils.big(mas, 4));
+        assertEquals(Long.valueOf(4), MathUtils.big(mas, 5));
+        
+        try {
+            assertEquals(Long.valueOf(0), MathUtils.big(mas, 6));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("There is no position '6' in the given array", e.getMessage());
+        }
+        
+        mas = null;
+        try {
+            assertEquals(Long.valueOf(0), MathUtils.big(mas, 5));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("The array cannot be null", e.getMessage());
+        }
+        
+        
+        mas = new Long[1];
+        try {
+            assertEquals(Long.valueOf(0), MathUtils.big(mas, 5));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("There is no position '5' in the given array", e.getMessage());
         }
     }
     

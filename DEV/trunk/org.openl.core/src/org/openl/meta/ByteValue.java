@@ -147,11 +147,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return value;
 	}
 	
-	// QUOTIENT
+	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -183,6 +183,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         byte small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.ByteValue big(org.openl.meta.ByteValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        byte[] primitiveArray = unwrap(values);
+        byte big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.ByteValue pow(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
@@ -282,7 +292,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>
+                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
     

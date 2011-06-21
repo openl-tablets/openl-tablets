@@ -307,6 +307,64 @@ public class RulesUtils {
     }
     
 
+	// BIG
+	public static java.lang.Byte big(java.lang.Byte[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.lang.Short big(java.lang.Short[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.lang.Integer big(java.lang.Integer[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.lang.Long big(java.lang.Long[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.lang.Float big(java.lang.Float[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.lang.Double big(java.lang.Double[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.math.BigInteger big(java.math.BigInteger[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static java.math.BigDecimal big(java.math.BigDecimal[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static byte big(byte[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static short big(short[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static int big(int[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static long big(long[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static float big(float[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+	public static double big(double[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+
 	// MEDIAN
 	public static java.lang.Byte median(java.lang.Byte[] values) {
         return MathUtils.median(values);
@@ -365,7 +423,7 @@ public class RulesUtils {
     } 
     
 
-	// QUOTIENT
+	// QUAOTIENT
 	public static long quotient(java.lang.Byte number, java.lang.Byte divisor) {
         return MathUtils.quotient(number, divisor);
     }
@@ -656,7 +714,7 @@ public class RulesUtils {
 	
     
     
-		// <<< END INSERT Functions >>> 
+				// <<< END INSERT Functions >>> 
 
     public static boolean contains(Object[] array, Object obj) {
         return ArrayUtils.contains(array, obj);
