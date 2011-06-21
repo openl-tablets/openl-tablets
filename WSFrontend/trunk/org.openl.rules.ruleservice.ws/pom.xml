@@ -38,6 +38,9 @@
           <webResources>
             <resource>
               <directory>conf</directory>
+              <excludes>
+                <exclude>openl-ruleservice-publisher-beans.xml</exclude>
+              </excludes>
             </resource>
           </webResources>
         </configuration>
@@ -70,6 +73,12 @@
 
     <resources>
       <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>binding-conf/aegis</directory>
       </resource>
       <resource>
@@ -83,9 +92,6 @@
       </testResource>
       <testResource>
         <directory>test</directory>
-      </testResource>
-      <testResource>
-        <directory>test-resources</directory>
       </testResource>
     </testResources>
   </build>

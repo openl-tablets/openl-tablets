@@ -16,7 +16,7 @@
 		<property name="publisher" ref="rulesPublisher"></property>
 	</bean>
 
-	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.management.LastVersionProjectsServceConfigurer">
+	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.management.LastVersionProjectsServiceConfigurer">
 		<property name="provideRuntimeContext" value="true"/>
 	</bean>
 
