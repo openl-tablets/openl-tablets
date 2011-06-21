@@ -21,6 +21,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
             && parseInt(navigator.userAgent.substring(
                     navigator.userAgent.indexOf("MSIE") + 5)) == 6;
 
+        var self = this;
+
         this.createInput();
         this.choices = param.choices;
         this.entries = $H();
@@ -30,12 +32,17 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.multiselectPanel.className = "multiselect_container_outer";
 
         // Creating buttons
-        var self = this;
-        this.multiselectPanel.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
-        var b1 = this.multiselectPanel.down(), b2 = b1.next(), b3 = b2.next();
+
+        var buttonContainer = new Element("div");
+        buttonContainer.className = "multiselect_buttons";
+
+        buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">'
+        var b1 = buttonContainer.down(), b2 = b1.next(), b3 = b2.next();
         b1.onclick = function() {self.setAllCheckBoxes(true)}
         b2.onclick = function() {self.setAllCheckBoxes(false)}
         b3.onclick = function() {self.finishEdit()}
+
+        this.multiselectPanel.appendChild(buttonContainer);
 
         // Creating inner DIV
         var container = new Element("div");
