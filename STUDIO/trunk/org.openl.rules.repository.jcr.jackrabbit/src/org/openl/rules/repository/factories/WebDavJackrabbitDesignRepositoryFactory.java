@@ -8,7 +8,7 @@ import org.openl.config.ConfigPropertyString;
 public class WebDavJackrabbitDesignRepositoryFactory extends WebDavJacrabbitRepositoryFactory {
 
     private ConfigPropertyString confWebdavUrl = new ConfigPropertyString(
-            "design-repository.jackrabbit.webdav.url", "http://localhost:8080/jcr/server/");
+            "design-repository.remote.webdav.url", "http://localhost:8080/jcr/server/");
 
     public WebDavJackrabbitDesignRepositoryFactory() {
         setConfWebdavUrl(confWebdavUrl);

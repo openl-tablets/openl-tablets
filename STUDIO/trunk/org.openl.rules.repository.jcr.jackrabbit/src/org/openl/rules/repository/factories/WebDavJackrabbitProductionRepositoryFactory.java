@@ -15,7 +15,7 @@ import org.openl.rules.repository.jcr.JcrProductionRepository;
 public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbitRepositoryFactory {
 
     private ConfigPropertyString confWebdavUrl = new ConfigPropertyString(
-            "production-repository.jackrabbit.webdav.url", "http://localhost:8080/jcr/server/");
+            "production-repository.remote.webdav.url", "http://localhost:8080/jcr/server/");
 
     public WebDavJackrabbitProductionRepositoryFactory() {
         setConfWebdavUrl(confWebdavUrl);
