@@ -28,7 +28,7 @@ var BaseTextEditor = Class.create(BaseEditor, {
     setDefaultStyle: function() {
         this.input.style.border = "1px solid threedface";
         this.input.style.margin = "0px";
-        this.input.style.padding = "0px";
+        //this.input.style.padding = "0px";
         this.input.style.width = "100%";
         this.input.style.height = "100%";
     },

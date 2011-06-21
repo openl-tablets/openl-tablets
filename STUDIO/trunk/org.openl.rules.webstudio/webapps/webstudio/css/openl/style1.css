@@ -21,6 +21,7 @@ input[type='text'], input[type='password'], textarea, select {
     border-right-color: rgb(230,230,230) !important;
     border-bottom-color: rgb(230,230,230) !important;
     border-radius: 1px;
+    outline: none;
 }
 
 input[type='text'], input[type='password'], textarea {

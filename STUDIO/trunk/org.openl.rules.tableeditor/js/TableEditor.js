@@ -522,7 +522,7 @@ var TableEditor = Class.create({
         var pos = Element.cumulativeOffset(cell);
         editorWrapper.style.left = pos[0] + "px";
         editorWrapper.style.top = pos[1] + "px";
-        editorWrapper.style.padding = "1px";
+        //editorWrapper.style.padding = "0px";
         editorWrapper.style.backgroundColor = "#B4C8FF";
         
         return editorWrapper;
@@ -536,9 +536,12 @@ var TableEditor = Class.create({
                 fontWeight: cell.style.fontWeight,
                 fontStyle: cell.style.fontStyle,
 
-                textAlign: cell.style.textAlign
+                textAlign: cell.style.textAlign,
+
+                padding: '1px',
+                boxShadow: '0 0 1px orange'
             }
-    
+
             return style;
         }
     },
