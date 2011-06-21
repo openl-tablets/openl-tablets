@@ -1,7 +1,7 @@
 package org.openl.tablets.tutorial4.client;
 
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.openl.tablets.tutorial4.Tutorial_4Wrapper;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class WebServiceTemplate {
         ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
         factory.setServiceClass(Tutorial_4Wrapper.class);
         factory.setWsdlLocation(getAddress() + "?wsdl");
-        factory.setDataBinding(new AegisDatabinding());
+        factory.setDataBinding(new JAXBDataBinding());
         return (Tutorial_4Wrapper) factory.create();
     }
 
