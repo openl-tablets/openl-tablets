@@ -40,6 +40,7 @@ img {
 .te_props_prop input,
 .te_props_prop select {
     color: rgb(40,40,40);
+    padding: 1px;
 }
 
 .te_props_prop_inherited {
@@ -79,5 +80,5 @@ select.te_props_prop_focused {
 }
 
 .te_props_proptextinput {
-    width: 150px;
+    width: 161px;
 }
