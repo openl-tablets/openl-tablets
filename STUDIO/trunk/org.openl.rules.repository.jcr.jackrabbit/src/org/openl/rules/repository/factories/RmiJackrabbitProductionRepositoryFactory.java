@@ -12,7 +12,7 @@ import javax.jcr.RepositoryException;
 public class RmiJackrabbitProductionRepositoryFactory extends RmiJackrabbitRepositoryFactory {
 
     private ConfigPropertyString confRmiUrl = new ConfigPropertyString(
-            "production-repository.jackrabbit.rmi.url", "//localhost:1099/jackrabbit.repository");
+            "production-repository.remote.rmi.url", "//localhost:1099/jackrabbit.repository");
 
     public RmiJackrabbitProductionRepositoryFactory() {
         setConfRmiUrl(confRmiUrl);
