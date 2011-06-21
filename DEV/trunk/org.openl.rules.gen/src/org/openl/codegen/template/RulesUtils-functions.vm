@@ -37,6 +37,14 @@
     
 #end
 
+	// BIG
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) big($tool.getTypeName($type)[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+#end
+
 	// MEDIAN
 #foreach ($type in $allTypes)
 	public static $tool.getTypeName($type) median($tool.getTypeName($type)[] values) {
@@ -47,8 +55,8 @@
 
 	// QUAOTIENT
 #foreach ($type in $allTypes)
-	public static long quaotient($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
-        return MathUtils.quaotient(number, divisor);
+	public static long quotient($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        return MathUtils.quotient(number, divisor);
     }
     
 #end

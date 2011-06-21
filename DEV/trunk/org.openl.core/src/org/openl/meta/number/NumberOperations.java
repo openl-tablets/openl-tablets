@@ -33,13 +33,14 @@ public enum NumberOperations {
     SUM("sum"), 
     MEDIAN("median"), 
     PRODUCT("product"), 
-    QUAOTIENT("quaotient"), 
+    QUOTIENT("quotient"), 
     MOD("mod"), 
     NEGATIVE("negative"),
     INC("inc"),
     POSITIVE("positive"),
     DEC("dec"),
-    SMALL("small");
+    SMALL("small"),
+    BIG("big");;
     
     private String description;
     

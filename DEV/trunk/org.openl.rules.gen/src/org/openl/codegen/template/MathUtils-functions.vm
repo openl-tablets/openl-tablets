@@ -55,7 +55,7 @@
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -65,21 +65,57 @@
 #end   
 
 #foreach ($type in $wrapperTypes)
-	 public static $tool.getTypeName($type) small($tool.getTypeName($type)[] values, int position) {
-        $tool.getTypeName($type) result = ${tool.getTypeName($type)}.valueOf("0");
-        int index = position - 1; 
+	public static $tool.getTypeName($type) small($tool.getTypeName($type)[] values, int position) {
+       $tool.getTypeName($type) result = ${tool.getTypeName($type)}.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+#end 
+
+	// BIG for primitives	
+#foreach ($type in $primitiveTypes)	
+    public static $type big($type[] values, int position) {
+        $type result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
     }
-#end 
+#end   
+
+	// BIG for wrapper types	
+#foreach ($type in $wrapperTypes)
+	public static $tool.getTypeName($type) big($tool.getTypeName($type)[] values, int position) {
+       $tool.getTypeName($type) result = ${tool.getTypeName($type)}.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
+    }
+#end
 
 	// SUM
 #foreach ($type in $primitiveTypes)

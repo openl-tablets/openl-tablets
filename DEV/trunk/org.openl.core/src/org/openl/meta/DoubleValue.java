@@ -190,7 +190,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	public static LongValue quotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -222,6 +222,16 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         double small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, new org.openl.meta.DoubleValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.DoubleValue big(org.openl.meta.DoubleValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        double[] primitiveArray = unwrap(values);
+        double big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, new org.openl.meta.DoubleValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.DoubleValue pow(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
@@ -321,7 +331,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>    
+                            // <<< END INSERT Functions >>>    
     
     // ******* Autocasts *************
 

@@ -150,7 +150,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -182,6 +182,16 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         float small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.FloatValue big(org.openl.meta.FloatValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        float[] primitiveArray = unwrap(values);
+        float big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.FloatValue pow(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
@@ -281,7 +291,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>
+                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 

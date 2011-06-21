@@ -149,11 +149,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return value;
 	}
 	
-	// QUOTIENT
+	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -185,6 +185,16 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         java.math.BigInteger small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, new org.openl.meta.BigIntegerValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.BigIntegerValue big(org.openl.meta.BigIntegerValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        java.math.BigInteger[] primitiveArray = unwrap(values);
+        java.math.BigInteger big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, new org.openl.meta.BigIntegerValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.BigIntegerValue pow(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
@@ -284,7 +294,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>        
+                            // <<< END INSERT Functions >>>        
 
     // ******* Autocasts 8*************    
 

@@ -191,7 +191,7 @@ public class MathUtils {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -205,7 +205,7 @@ public class MathUtils {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -219,7 +219,7 @@ public class MathUtils {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -233,7 +233,7 @@ public class MathUtils {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -247,7 +247,7 @@ public class MathUtils {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -261,7 +261,7 @@ public class MathUtils {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
         Arrays.sort(values);
         result = values[index];
@@ -269,89 +269,261 @@ public class MathUtils {
         return result;
     }
 
-	 public static java.lang.Byte small(java.lang.Byte[] values, int position) {
-        java.lang.Byte result = java.lang.Byte.valueOf("0");
-        int index = position - 1; 
+	public static java.lang.Byte small(java.lang.Byte[] values, int position) {
+       java.lang.Byte result = java.lang.Byte.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+	public static java.lang.Short small(java.lang.Short[] values, int position) {
+       java.lang.Short result = java.lang.Short.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+	public static java.lang.Integer small(java.lang.Integer[] values, int position) {
+       java.lang.Integer result = java.lang.Integer.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+	public static java.lang.Long small(java.lang.Long[] values, int position) {
+       java.lang.Long result = java.lang.Long.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+	public static java.lang.Float small(java.lang.Float[] values, int position) {
+       java.lang.Float result = java.lang.Float.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+	public static java.lang.Double small(java.lang.Double[] values, int position) {
+       java.lang.Double result = java.lang.Double.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[index];
+       
+       return result;
+    }
+
+	// BIG for primitives	
+    public static byte big(byte[] values, int position) {
+        byte result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
     }
-	 public static java.lang.Short small(java.lang.Short[] values, int position) {
-        java.lang.Short result = java.lang.Short.valueOf("0");
-        int index = position - 1; 
+    public static short big(short[] values, int position) {
+        short result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
     }
-	 public static java.lang.Integer small(java.lang.Integer[] values, int position) {
-        java.lang.Integer result = java.lang.Integer.valueOf("0");
-        int index = position - 1; 
+    public static int big(int[] values, int position) {
+        int result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
     }
-	 public static java.lang.Long small(java.lang.Long[] values, int position) {
-        java.lang.Long result = java.lang.Long.valueOf("0");
-        int index = position - 1; 
+    public static long big(long[] values, int position) {
+        long result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
     }
-	 public static java.lang.Float small(java.lang.Float[] values, int position) {
-        java.lang.Float result = java.lang.Float.valueOf("0");
-        int index = position - 1; 
+    public static float big(float[] values, int position) {
+        float result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
     }
-	 public static java.lang.Double small(java.lang.Double[] values, int position) {
-        java.lang.Double result = java.lang.Double.valueOf("0");
-        int index = position - 1; 
+    public static double big(double[] values, int position) {
+        double result = 0;
+        int index = position - 1; // arrays are 0-based
         if (values == null) {
             throw new IllegalArgumentException("The array cannot be null");
         }
         if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no index '%d' in the given array", index));
-        }        
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
         Arrays.sort(values);
-        result = values[index];
+        result = values[values.length - 1 - index];
         
         return result;
+    }
+
+    // BIG for wrapper types	
+	public static java.lang.Byte big(java.lang.Byte[] values, int position) {
+       java.lang.Byte result = java.lang.Byte.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
+    }
+	public static java.lang.Short big(java.lang.Short[] values, int position) {
+       java.lang.Short result = java.lang.Short.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
+    }
+	public static java.lang.Integer big(java.lang.Integer[] values, int position) {
+       java.lang.Integer result = java.lang.Integer.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
+    }
+	public static java.lang.Long big(java.lang.Long[] values, int position) {
+       java.lang.Long result = java.lang.Long.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
+    }
+	public static java.lang.Float big(java.lang.Float[] values, int position) {
+       java.lang.Float result = java.lang.Float.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
+    }
+	public static java.lang.Double big(java.lang.Double[] values, int position) {
+       java.lang.Double result = java.lang.Double.valueOf("0");
+       int index = position - 1; 
+       if (values == null) {
+           throw new IllegalArgumentException("The array cannot be null");
+       }
+       if (index < 0 || values.length <= index) {
+           throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+       }        
+       Arrays.sort(values);
+       result = values[values.length - 1 - index];
+       
+       return result;
     }
 
 	// SUM
@@ -976,7 +1148,7 @@ public class MathUtils {
 		Arrays.sort(values);
         return values;
     }
-         	// <<< END INSERT Functions >>> 
+           	// <<< END INSERT Functions >>> 
 
 	public static boolean eq(float x, float y) {
 		return Math.abs(x - y) <= Math.ulp(x);
@@ -1300,20 +1472,61 @@ public class MathUtils {
     public static BigInteger small(BigInteger[] values, int position) {
         BigInteger result = BigInteger.valueOf(0);
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }        
+        Arrays.sort(values);
+        result = values[index];
+        
         return result;
     }
     
     public static BigDecimal small(BigDecimal[] values, int position) {
         BigDecimal result = BigDecimal.valueOf(0);
         int index = position - 1; 
-        if (values != null && values.length > index && index >= 0) {
-            Arrays.sort(values);
-            result = values[index];
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
         }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
+        return result;
+    }
+    
+    // BIG for big types
+    public static BigInteger big(BigInteger[] values, int position) {
+        BigInteger result = BigInteger.valueOf(0);
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[values.length - 1 - index];
+        
+        return result;
+    }
+    
+    public static BigDecimal big(BigDecimal[] values, int position) {
+        BigDecimal result = BigDecimal.valueOf(0);
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[values.length - 1 - index];
+        
         return result;
     }
     

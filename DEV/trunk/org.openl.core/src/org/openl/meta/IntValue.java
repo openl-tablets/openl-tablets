@@ -150,7 +150,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	public static LongValue quotient(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
-            return new LongValue(result, NumberOperations.QUAOTIENT, null);
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
@@ -182,6 +182,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         int small = MathUtils.small(primitiveArray, position);
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(small)), 
             NumberOperations.SMALL, values);
+    }
+    
+    public static org.openl.meta.IntValue big(org.openl.meta.IntValue[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        int[] primitiveArray = unwrap(values);
+        int big = MathUtils.big(primitiveArray, position);
+        return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(big)), 
+            NumberOperations.BIG, values);
     }
     
     public static org.openl.meta.IntValue pow(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
@@ -281,7 +291,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	
 	 
       
-            // <<< END INSERT Functions >>>
+                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
