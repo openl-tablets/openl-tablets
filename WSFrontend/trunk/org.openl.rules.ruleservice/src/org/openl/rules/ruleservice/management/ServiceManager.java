@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.core.IRuleService;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleService;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.IDataSourceListener;
@@ -39,11 +38,14 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     }
 
     public void setRuleService(IRuleService ruleService) {
-        if (ruleService == null){
+        if (ruleService == null) {
             throw new IllegalArgumentException("ruleService can't be null");
         }
-        
+        if (this.ruleService != null) {
+            this.ruleService.getLoader().getDataSource().removeListener(this);
+        }
         this.ruleService = ruleService;
+        this.ruleService.getLoader().getDataSource().addListener(this);
     }
 
     public IServiceConfigurer getServiceConfigurer() {
