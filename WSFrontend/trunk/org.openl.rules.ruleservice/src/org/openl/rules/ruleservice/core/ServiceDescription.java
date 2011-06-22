@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.core;
 
 import java.util.List;
 

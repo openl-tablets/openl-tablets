@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.core;
 
 import java.util.List;
 
@@ -6,8 +6,12 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 import org.openl.rules.ruleservice.publish.IRulesPublisher;
 
-public class RuleService {
+public class RuleService implements IRuleService {
+    
+    //private Log log = LogFactory.getLog(RuleService.class);
+    
     private IRulesLoader loader;
+    
     private IRulesPublisher publisher;
 
     protected OpenLService createService(ServiceDescription serviceDescription) {

@@ -12,7 +12,7 @@ Require-Bundle: org.junit;visibility:=reexport,
  org.openl.rules.repository.jcr.jackrabbit;visibility:=reexport,
  org.openl.rules.ruleservice.lib;visibility:=reexport,
  org.openl.rules.project;visibility:=reexport
-Export-Package: org.openl.rules.ruleservice,
+Export-Package: org.openl.rules.ruleservice.core,
  org.openl.rules.ruleservice.loader,
  org.openl.rules.ruleservice.management,
  org.openl.rules.ruleservice.publish

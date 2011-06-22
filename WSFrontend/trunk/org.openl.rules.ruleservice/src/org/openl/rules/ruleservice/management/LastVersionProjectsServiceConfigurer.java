@@ -9,8 +9,8 @@ import java.util.Map;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.ServiceDescription;
-import org.openl.rules.ruleservice.ServiceDescription.ModuleConfiguration;
+import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.ServiceDescription.ModuleConfiguration;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 
 /**
@@ -20,13 +20,16 @@ import org.openl.rules.ruleservice.loader.IRulesLoader;
  * @author PUdalau
  */
 public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer {
-
+    //private Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
+    
     private boolean provideRuntimeContext;
 
     /** {@inheritDoc} */
     public List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader) {
-        if (loader == null)
+        if (loader == null){
             throw new IllegalArgumentException("loader argument can't be null");
+        }
+        
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         for (Deployment deployment : loader.getDeployments()) {
             String deploymentName = deployment.getName();

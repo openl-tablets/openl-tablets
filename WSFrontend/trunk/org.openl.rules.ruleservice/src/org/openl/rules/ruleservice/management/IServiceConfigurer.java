@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.management;
 
 import java.util.List;
 
-import org.openl.rules.ruleservice.ServiceDescription;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 
 /**

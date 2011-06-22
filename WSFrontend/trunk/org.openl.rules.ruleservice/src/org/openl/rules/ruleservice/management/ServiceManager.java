@@ -6,11 +6,13 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.ruleservice.OpenLService;
-import org.openl.rules.ruleservice.RuleService;
-import org.openl.rules.ruleservice.ServiceDeployException;
-import org.openl.rules.ruleservice.ServiceDescription;
+import org.openl.rules.ruleservice.core.IRuleService;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleService;
+import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.IDataSourceListener;
+import org.openl.rules.ruleservice.loader.IRulesLoader;
 
 /**
  * Handles data source modifications and controls all services
@@ -18,18 +20,29 @@ import org.openl.rules.ruleservice.loader.IDataSourceListener;
  * @author PUdalau
  * 
  */
-public class ServiceManager implements IDataSourceListener {
-    private static final Log LOG = LogFactory.getLog(ServiceManager.class);
-    private RuleService ruleService;
+public class ServiceManager implements IServiceManager, IDataSourceListener {
+    private Log log = LogFactory.getLog(ServiceManager.class);
+    private IRuleService ruleService;
     private IServiceConfigurer serviceConfigurer;
-
-    public RuleService getRuleService() {
+    private IRulesLoader rulesLoader;
+    
+    public void setRulesLoader(IRulesLoader rulesLoader) {
+        this.rulesLoader = rulesLoader;
+    }
+    
+    public IRulesLoader getRulesLoader() {
+        return rulesLoader;
+    }
+    
+    public IRuleService getRuleService() {
         return ruleService;
     }
 
-    public void setRuleService(RuleService ruleService) {
-        if (ruleService == null)
+    public void setRuleService(IRuleService ruleService) {
+        if (ruleService == null){
             throw new IllegalArgumentException("ruleService can't be null");
+        }
+        
         this.ruleService = ruleService;
     }
 
@@ -38,9 +51,10 @@ public class ServiceManager implements IDataSourceListener {
     }
 
     public void setServiceConfigurer(IServiceConfigurer serviceConfigurer) {
-        if (serviceConfigurer == null)
+        if (serviceConfigurer == null){
             throw new IllegalArgumentException("serviceConfigurer can't be null");
-
+        }
+        
         this.serviceConfigurer = serviceConfigurer;
     }
 
@@ -48,18 +62,17 @@ public class ServiceManager implements IDataSourceListener {
      * Determine services to be deployed on start.
      */
     public void start() {
-        LOG.info("Assembling services after service manager start");
+        log.info("Assembling services after service manager start");
         processServices();
     }
 
     public void onDeploymentAdded() {
-        LOG.info("Assembling services after data source modification");
+        log.info("Assembling services after data source modification");
         processServices();
     }
 
     private void processServices() {
-        List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(ruleService
-                .getLoader());
+        List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRulesLoader());
         Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
         for (ServiceDescription serviceDescription : servicesToBeDeployed) {
             newServices.put(serviceDescription.getName(), serviceDescription);
@@ -76,7 +89,7 @@ public class ServiceManager implements IDataSourceListener {
                 try {
                     ruleService.undeploy(serviceName);
                 } catch (ServiceDeployException e) {
-                    LOG.error(String.format("Failed to undeploy \"%s\" service", serviceName), e);
+                    log.error(String.format("Failed to undeploy \"%s\" service", serviceName), e);
                 }
             }
         }
@@ -87,24 +100,24 @@ public class ServiceManager implements IDataSourceListener {
     }
 
     private void redeployExisitng(Map<String, ServiceDescription> newServices) {
-        for (String serviceName : newServices.keySet()) {
-            if (isServiceExists(serviceName)) {
+        for (ServiceDescription serviceDescription : newServices.values()){
+            if (isServiceExists(serviceDescription.getName())) {
                 try {
-                    ruleService.redeploy(newServices.get(serviceName));
+                    ruleService.redeploy(serviceDescription);
                 } catch (ServiceDeployException e) {
-                    LOG.error(String.format("Failed to redeploy \"%s\" service", serviceName), e);
+                    log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
                 }
             }
         }
     }
 
     private void deployNewServices(Map<String, ServiceDescription> newServices) {
-        for (String serviceName : newServices.keySet()) {
-            if (!isServiceExists(serviceName)) {
+        for (ServiceDescription serviceDescription : newServices.values()){
+            if (!isServiceExists(serviceDescription.getName())) {
                 try {
-                    ruleService.deploy(newServices.get(serviceName));
+                    ruleService.deploy(serviceDescription);
                 } catch (ServiceDeployException e) {
-                    LOG.error(String.format("Failed to deploy \"%s\" service", serviceName), e);
+                    log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
                 }
             }
         }
