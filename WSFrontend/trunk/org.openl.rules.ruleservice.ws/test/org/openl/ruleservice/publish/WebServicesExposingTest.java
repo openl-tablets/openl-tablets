@@ -22,6 +22,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.jvnet.annox.xml.bind.AnnoxAnnotationReader;
@@ -100,9 +101,13 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
+    @BeforeClass
+    public static void createdRepository() throws Exception {
+        unzipArchive(new File("./test-resources/production-repository.zip"), new File(TEST_REPOSITORY_PATH));
+    }
+
     @Test
     public void testExposing() throws Exception {
-        unzipArchive(new File("./test-resources/production-repository.zip"), new File(TEST_REPOSITORY_PATH));
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

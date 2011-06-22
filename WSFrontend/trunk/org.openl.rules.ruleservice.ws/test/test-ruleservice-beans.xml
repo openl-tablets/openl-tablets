@@ -11,7 +11,7 @@
 	
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
 	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleService">
-		<property name="loader" ref="ruleLoader"></property>
+		<property name="loader" ref="rulesLoader"></property>
 		<property name="publisher" ref="rulesPublisher"></property>
 	</bean>
 
@@ -20,5 +20,6 @@
 	<bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManager">
 		<property name="serviceConfigurer" ref="serviceConfigurer"/>
 		<property name="ruleService" ref="ruleService"/>
+		<property name="rulesLoader" ref="rulesLoader"/>
 	</bean>
 </beans>

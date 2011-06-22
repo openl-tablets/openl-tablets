@@ -27,6 +27,10 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     
     public void setRulesLoader(IRulesLoader rulesLoader) {
         this.rulesLoader = rulesLoader;
+        if (this.rulesLoader != null) {
+            rulesLoader.getDataSource().removeListener(this);
+        }
+        this.rulesLoader.getDataSource().addListener(this);
     }
     
     public IRulesLoader getRulesLoader() {
@@ -41,11 +45,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         if (ruleService == null) {
             throw new IllegalArgumentException("ruleService can't be null");
         }
-        if (this.ruleService != null) {
-            this.ruleService.getLoader().getDataSource().removeListener(this);
-        }
         this.ruleService = ruleService;
-        this.ruleService.getLoader().getDataSource().addListener(this);
     }
 
     public IServiceConfigurer getServiceConfigurer() {
