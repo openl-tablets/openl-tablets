@@ -24,13 +24,13 @@ public class MethodBoundNode extends ATargetBoundNode {
 
     protected IMethodCaller boundMethod;
 
-    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
-        this(syntaxNode, child, method, null);        
+    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller) {
+        this(syntaxNode, child, methodCaller, null);        
     }
 
-    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method, IBoundNode targetNode) {
+    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller, IBoundNode targetNode) {
         super(syntaxNode, child, targetNode);
-        boundMethod = method;
+        boundMethod = methodCaller;
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -71,7 +71,7 @@ public class MethodBoundNode extends ATargetBoundNode {
         return boundMethod.getMethod().isStatic() && hasLiteralReturnType(boundMethod.getMethod().getType());
     }
     
-    protected IMethodCaller getMethodCaller() {
+    public IMethodCaller getMethodCaller() {
         return boundMethod;
     }
 
