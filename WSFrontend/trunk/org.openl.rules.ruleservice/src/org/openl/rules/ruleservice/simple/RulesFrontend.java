@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.ruleservice.OpenLService;
+import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.util.StringTool;
 
 /**
@@ -20,21 +20,23 @@ import org.openl.util.StringTool;
  * 
  */
 public class RulesFrontend implements IRulesFrontend {
-    private static final Log LOG = LogFactory.getLog(RulesFrontend.class);
+    private Log log = LogFactory.getLog(RulesFrontend.class);
 
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
 
     /** {@inheritDoc} */
     public void registerService(OpenLService service) {
-        if (service == null)
+        if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
+        }
         runningServices.put(service.getName(), service);
     }
 
     /** {@inheritDoc} */
     public void unregisterService(String serviceName) {
-        if (serviceName == null)
+        if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
+        }
         runningServices.remove(serviceName);
     }
 
@@ -45,11 +47,12 @@ public class RulesFrontend implements IRulesFrontend {
 
     /** {@inheritDoc} */
     public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params) {
-        if (serviceName == null)
+        if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
-        if (ruleName == null)
+        }
+        if (ruleName == null) {
             throw new IllegalArgumentException("ruleName argument can't be null");
-
+        }
         Object result = null;
 
         OpenLService service = runningServices.get(serviceName);
@@ -59,7 +62,7 @@ public class RulesFrontend implements IRulesFrontend {
                         ruleName, inputParamsTypes);
                 result = serviceMethod.invoke(service.getServiceBean(), params);
             } catch (Exception e) {
-                LOG.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
+                log.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
                         serviceName), e);
             }
         }
@@ -69,10 +72,12 @@ public class RulesFrontend implements IRulesFrontend {
 
     /** {@inheritDoc} */
     public Object execute(String serviceName, String ruleName, Object... params) {
-        if (serviceName == null)
+        if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
-        if (ruleName == null)
+        }
+        if (ruleName == null) {
             throw new IllegalArgumentException("ruleName argument can't be null");
+        }
 
         Class<?>[] paramTypes = new Class<?>[params.length];
         for (int i = 0; i < params.length; i++) {
@@ -83,10 +88,12 @@ public class RulesFrontend implements IRulesFrontend {
 
     /** {@inheritDoc} */
     public Object getValues(String serviceName, String fieldName) {
-        if (serviceName == null)
+        if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
-        if (fieldName == null)
+        }
+        if (fieldName == null) {
             throw new IllegalArgumentException("fieldName argument can't be null");
+        }
 
         Object result = null;
 
@@ -97,7 +104,7 @@ public class RulesFrontend implements IRulesFrontend {
                         StringTool.getGetterName(fieldName), new Class<?>[] {});
                 result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
             } catch (Exception e) {
-                LOG.warn(String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName), e);
+                log.warn(String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName), e);
             }
         }
 

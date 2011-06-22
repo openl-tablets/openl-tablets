@@ -5,7 +5,7 @@ import java.util.List;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.ServiceDescription;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the

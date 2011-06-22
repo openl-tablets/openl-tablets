@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.publish;
 
 import java.util.List;
 
-import org.openl.rules.ruleservice.OpenLService;
-import org.openl.rules.ruleservice.ServiceDeployException;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.ServiceDeployException;
 
 /**
  * Deployment admin controls the way how the services will be exposed.

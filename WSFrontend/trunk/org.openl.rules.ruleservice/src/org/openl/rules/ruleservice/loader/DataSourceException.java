@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.loader;
 
-import org.openl.rules.ruleservice.RuleServiceException;
+import org.openl.rules.ruleservice.core.RuleServiceException;
 
 /**
  * Main data source exception for wrapping data source exceptions

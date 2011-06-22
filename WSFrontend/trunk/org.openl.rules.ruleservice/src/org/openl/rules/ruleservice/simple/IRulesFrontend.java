@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.simple;
 
 import java.util.List;
 
-import org.openl.rules.ruleservice.OpenLService;
+import org.openl.rules.ruleservice.core.OpenLService;
 
 /**
  * The instance of this interface is not thread safe.

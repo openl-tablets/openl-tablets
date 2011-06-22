@@ -23,7 +23,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class JcrDataSource implements IDataSource {
-    private static Log log = LogFactory.getLog(JcrDataSource.class);
+    private Log log = LogFactory.getLog(JcrDataSource.class);
 
     private static final String SEPARATOR = "#";
 

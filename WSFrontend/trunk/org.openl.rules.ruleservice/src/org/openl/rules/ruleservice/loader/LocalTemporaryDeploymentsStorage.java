@@ -12,7 +12,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.ruleservice.RuleServiceException;
+import org.openl.rules.ruleservice.core.RuleServiceException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
@@ -25,7 +25,7 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
  */
 public class LocalTemporaryDeploymentsStorage {
 
-    private final static Log log = LogFactory.getLog(LocalTemporaryDeploymentsStorage.class);
+    private Log log = LogFactory.getLog(LocalTemporaryDeploymentsStorage.class);
 
     private final static String DEPLOYMENTS_TMP_DIRECTORY_DEFAULT = "/tmp/rules-deploy";
 

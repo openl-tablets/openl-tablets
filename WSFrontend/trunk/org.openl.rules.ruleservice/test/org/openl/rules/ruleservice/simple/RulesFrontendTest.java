@@ -14,8 +14,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.ruleservice.OpenLService;
-import org.openl.rules.ruleservice.ServiceDeployException;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.ServiceDeployException;
 
 public class RulesFrontendTest {
     private IRulesFrontend frontend;

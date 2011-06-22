@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.core;
 /**
  * Main rule service exception. All exceptions in rule service project should extend this exception.
  *  

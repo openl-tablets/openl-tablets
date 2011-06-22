@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.core;
 
 import java.util.List;
 
@@ -8,14 +8,22 @@ import org.openl.rules.project.model.Module;
 
 public class OpenLService {
     private String name;
+    
     private String url;
-    private List<Module> modules;
+
     private String serviceClassName;
+    
     private RulesInstantiationStrategy instantiationStrategy;
+
     private RulesServiceEnhancer enhancer;
+    
     private Class<?> serviceClass;
+    
     private Object serviceBean;
+    
     private boolean provideRuntimeContext;
+    
+    private List<Module> modules;
 
     public OpenLService(String name, String url, List<Module> modules, String serviceClassName,
             boolean provideRuntimeContext) {
