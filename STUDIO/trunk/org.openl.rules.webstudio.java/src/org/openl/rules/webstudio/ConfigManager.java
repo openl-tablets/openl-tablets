@@ -51,7 +51,7 @@ public class ConfigManager {
             compositeConfiguration.addConfiguration(systemConfiguration);
         }
 
-        configurationToSave = createFileConfiguration(propsLocation);
+        configurationToSave = createFileConfiguration(propsLocation, true);
         if (configurationToSave != null) {
             compositeConfiguration.addConfiguration(configurationToSave);
         }
