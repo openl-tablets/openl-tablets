@@ -112,17 +112,17 @@ public class SystemSettingsBean {
         return (String) DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
     }
 
+    public void setDesignRepositoryType(String type) {
+        configManager.setProperty(
+                DESIGN_REPOSITORY_FACTORY, DESIGN_REPOSITORY_TYPE_FACTORY_MAP.get(type));
+    }
+
     public String getDesignRepositoryName() {
         return configManager.getStringProperty(DESIGN_REPOSITORY_NAME);
     }
 
     public void setDesignRepositoryName(String name) {
         configManager.setProperty(DESIGN_REPOSITORY_NAME, name);
-    }
-
-    public void setDesignRepositoryType(String type) {
-        configManager.setProperty(
-                DESIGN_REPOSITORY_FACTORY, DESIGN_REPOSITORY_TYPE_FACTORY_MAP.get(type));
     }
 
     public String getDesignRepositoryPath() {
@@ -156,13 +156,13 @@ public class SystemSettingsBean {
     }
 
     public String getProductionRepositoryPath() {
-        String type = getDesignRepositoryType();
+        String type = getProductionRepositoryType();
         return configManager.getStringProperty(
                 PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
 
     public void setProductionRepositoryPath(String path) {
-        String type = getDesignRepositoryType();
+        String type = getProductionRepositoryType();
         configManager.setProperty(
                 PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
     }
