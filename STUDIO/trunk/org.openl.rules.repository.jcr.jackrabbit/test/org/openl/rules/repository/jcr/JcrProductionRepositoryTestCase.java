@@ -110,6 +110,18 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         assertEquals(1, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "f1"));
     }
+    
+    private static class TestDeployer{
+        public static void deploy(JcrProductionRepository productionRepository) throws ProjectException {
+            FolderAPI deployment = productionRepository.createDeploymentProject("lis");
+
+            FolderAPI rProject = deployment.addFolder("p1");
+            rProject.addFolder("f1");
+
+            deployment.commit(new CommonUserImpl("sys"), 0, 0, deployment.getVersion().getRevision() +1);
+            productionRepository.notifyChanges();
+        }
+    }
 
     private void _testListeners() throws ProjectException, InterruptedException {
         final boolean[] flag = new boolean[1];
@@ -122,12 +134,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         TestListener listener = new TestListener();
         instance.addListener(listener);
         try {
-            FolderAPI deployment = instance.createDeploymentProject("lis");
-
-            FolderAPI rProject = deployment.addFolder("p1");
-            rProject.addFolder("f1");
-
-            deployment.commit(new CommonUserImpl("sys"), 0, 0, deployment.getVersion().getRevision() +1);
+            TestDeployer.deploy(instance);
             Thread.sleep(500); // notifications come asynchroniously
         } finally {
             instance.removeListener(listener);
