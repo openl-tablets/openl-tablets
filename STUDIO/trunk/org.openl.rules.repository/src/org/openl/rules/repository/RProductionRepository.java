@@ -69,4 +69,11 @@ public interface RProductionRepository extends RRepository {
     boolean hasDeployment(String name) throws RRepositoryException;
 
     boolean removeListener(RDeploymentListener listener) throws RRepositoryException;
+
+    /**
+     * Notify production repository about changes.
+     * 
+     * @throws RRepositoryException
+     */
+    void notifyChanges() throws RRepositoryException;
 }

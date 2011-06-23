@@ -85,6 +85,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 copyProperties(deploymentPRJ, deploymentProject);
 
                 deploymentPRJ.checkIn(user);
+                rRepository.notifyChanges();
             }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
