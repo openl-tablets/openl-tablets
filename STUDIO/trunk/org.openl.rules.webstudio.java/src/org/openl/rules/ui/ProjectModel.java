@@ -746,13 +746,12 @@ public class ProjectModel {
         return compiledOpenClass != null;
     }
 
-    public boolean isRunnable(String elementUri) {
+    public boolean isMethodHasParams(String elementUri) {
         IOpenMethod m = getMethod(elementUri);
         if (m == null) {
             return false;
         }
-
-        return ProjectHelper.isRunnable(m);
+        return ProjectHelper.isMethodHasParams(m);
     }
 
     public boolean isTestable(String elementUri) {

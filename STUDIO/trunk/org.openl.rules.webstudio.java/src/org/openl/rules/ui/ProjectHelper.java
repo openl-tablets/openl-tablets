@@ -52,23 +52,18 @@ public class ProjectHelper {
         return toTest == tested && isTester(tester);
     }
 
-    public static boolean isRunnable(IOpenMethod m) {
-
+    public static boolean isMethodHasParams(IOpenMethod m) {
         IOpenClass[] par = m.getSignature().getParameterTypes();
-        if (par.length == 0) {
+        if (par.length > 0) {
             return true;
         }
-
-        // if (isTestable(m))
-        // return true;
-
         return false;
     }
 
     public static boolean isTestable(IOpenMethod m) {
         return testers(m).length > 0;
     }
-    
+
     /**
      * Checks if the tester is instance of {@link TestSuiteMethod}, if it has any parameters for testing(see 
      * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors in it.
