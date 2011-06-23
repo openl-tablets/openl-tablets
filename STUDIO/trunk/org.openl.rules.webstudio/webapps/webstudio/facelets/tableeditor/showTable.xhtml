@@ -58,7 +58,7 @@
     <ui:define name="page">
         <br />
 
-        <h:panelGroup rendered="#{showTableBean.runnable and not empty showTableBean.targetTables}" layout="block"
+        <h:panelGroup rendered="#{not empty showTableBean.targetTables}" layout="block"
             style="margin-bottom: 15px;">
             <h:panelGroup style="font-weight: bold;">
                 <h:outputText value="Target Table" />
@@ -131,7 +131,7 @@
                             title="Test" alt="Test" />
                     </h:outputLink>
 
-                    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors and showTableBean.testRunResults.notEmpty}">
+                    <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
                         <h:outputLink value="#{contextPath}/faces/facelets/test/runTestMethod.xhtml">
                             <f:param value="#{showTableBean.uri}" name="uri" />
                             <h:graphicImage url="/webresource/images/test.gif" alt="Run" title="Run" />

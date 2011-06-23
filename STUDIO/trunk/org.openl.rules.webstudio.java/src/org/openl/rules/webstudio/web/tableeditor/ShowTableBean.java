@@ -100,9 +100,12 @@ public class ShowTableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {
-            runnable = model.isRunnable(uri); 
+            runnable = !model.isMethodHasParams(uri)
+                && (getTestRunResults().isNotEmpty() || table.isExecutable());
 
-            if (runnable) {
+            String tableType = table.getType();
+            if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
+                    || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD)) {
                 targetTables = model.getTargetTables(uri);
             }
 
@@ -342,10 +345,16 @@ public class ShowTableBean {
         return isHasErrors() || isHasWarnings();
     }
 
+    /**
+     * Checks if table can be run.
+     * Runnable tables:
+     *   - Test and Run tables;
+     *   - Executable tables without parameters.
+     */
     public boolean isRunnable() {
         return runnable;
     }
-    
+
     /**
      * Checks if there are runnable tests for current table.
      * 
