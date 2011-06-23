@@ -828,6 +828,10 @@ public class RulesUtils {
     public static int indexOf(boolean[] array, boolean elem) {
         return ArrayUtils.indexOf(array, elem);
     }
+    
+    public static boolean noNulls(Object[] values) {
+        return ArrayTool.noNulls(values);
+    }
 
     public static void error(String msg) {
         throw new OpenLUserRuntimeException(msg);
@@ -861,6 +865,42 @@ public class RulesUtils {
 
     public static void out(String output) {
         System.out.println(output);
+    }
+    
+    public static void out(Object output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(byte output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(short output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(int output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(long output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(float output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(double output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(char output) {
+        System.out.println(String.valueOf(output));
+    }
+    
+    public static void out(boolean output) {
+        System.out.println(String.valueOf(output));
     }
 
     public static double parseFormattedDouble(String s) throws ParseException {
