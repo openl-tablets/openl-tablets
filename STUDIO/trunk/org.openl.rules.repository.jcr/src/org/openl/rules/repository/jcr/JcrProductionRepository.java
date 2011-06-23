@@ -308,7 +308,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             Node node = NodeUtil.createNode(deployLocation, name, JcrNT.NT_APROJECT, true);
             deployLocation.save();
             node.checkin();
-            repositoryNotify();
             return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new  RRepositoryException("",e);
@@ -317,11 +316,15 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
     //FIXME
     private static final Object lock = new Object();
-    private void repositoryNotify() throws RepositoryException {
+    public void notifyChanges() throws RRepositoryException {
         synchronized (lock) {
-            deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
-            deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
-            deployLocation.save();
+            try {
+                deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
+                deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
+                deployLocation.save();
+            } catch (RepositoryException e) {
+                throw new RRepositoryException("Failed to notify changes", e);
+            }
         }
     }
 

@@ -32,7 +32,7 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
         
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         for (Deployment deployment : loader.getDeployments()) {
-            String deploymentName = deployment.getName();
+            String deploymentName = deployment.getDeploymentName();
             if (latestDeployments.containsKey(deploymentName)) {
                 if (latestDeployments.get(deploymentName).getCommonVersion().compareTo(deployment.getCommonVersion()) < 0) {
                     latestDeployments.put(deploymentName, deployment);

@@ -10,7 +10,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class RuleServiceStarter {
     public static void main(String[] args) throws RRepositoryException {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("openl-ws.xml");
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("openl-ruleservice-beans.xml");
         final ServiceManager serviceManager = (ServiceManager) applicationContext.getBean("serviceManager");
         serviceManager.start();
         System.out.println("Type \"exit\" to stop services.");
