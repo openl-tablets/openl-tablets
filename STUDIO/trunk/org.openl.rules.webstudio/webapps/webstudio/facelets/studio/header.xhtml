@@ -28,12 +28,6 @@
             border-bottom: 0px;
             padding: 4px 8px 1px 8px;
         }
-        .pageLinks {
-            padding: 4px 11px 1px 11px;
-        }
-        .pageLinks a:hover {
-            border-bottom: 2px solid rgb(90,110,255);
-        }
     </style>
 
     <f:verbatim>
@@ -179,8 +173,7 @@
                       src="#{contextPath}/webresource/images/forced_refresh.png" alt="Refresh Project(s)"/></a>
                   <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/guide/html/#{versionProperties['openl.version']}/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                      title="Help"><img src="#{contextPath}/webresource/images/help.png" alt="Help"/></a>
-                </td>
-                <td class="pageLinks">
+
                   <c:if test="#{headerBean.repositoryFailed}">
                     <img src="#{contextPath}/webresource/images/repository/storage-disabled.gif"
                         alt="Rules Repository failed"/>
@@ -195,15 +188,14 @@
 
                   <a target="mainFrame" href='#{contextPath}/faces/facelets/admin/systemSettings.xhtml'
                         title="System Settings"><img
-                        src="#{contextPath}/webresource/images/settings22.png" alt="System Settings"/></a>
+                        src="#{contextPath}/webresource/images/settings.png" alt="System Settings"/></a>
 
                   <c:if test="#{not systemConfig['webstudio.hideLogout']}">
                     <f:verbatim>&amp;nbsp;</f:verbatim>
                     <a target="main" href='#{contextPath}/security_logout' title="Log out"
                         onclick="return confirm('Are you sure you want to Log out?')"><img
                         src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
-                  </c:if>
-
+                  </c:if>   
                 </td>
                 </tr>
                 </table>
