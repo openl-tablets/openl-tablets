@@ -26,11 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.jvnet.annox.xml.bind.AnnoxAnnotationReader;
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.Property;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.Deployment;
@@ -183,6 +179,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                 break;
             }
         }
+        assertEquals(2, applicationContext.getBean("rulesPublisher", RulesPublisher.class).getRunningServices().size());
         assertNotSame(multimoduleService, serviceManager.getRuleService().findServiceByName("multimodule"));
         //uncomment after the smart redeployment will be implemented
         //assertSame(tutorial4Service, serviceManager.getRuleService().findServiceByName("tutorial4"));
