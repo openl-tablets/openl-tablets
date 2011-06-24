@@ -5,9 +5,9 @@
        default-autowire="no">
 
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
-    <property name="localWorkspace" value="#{systemConfig['webstudio.localWorkspace']}" />
-    <property name="workspacesRoot" value="#{systemConfig['webstudio.workspacesRoot']}" />
-    <property name="autoLogin" value="#{systemConfig['security.autoLogin']}" />
+    <property name="localWorkspace" value="#{systemConfig['workspace.local.home']}" />
+    <property name="workspacesRoot" value="#{systemConfig['workspace.root']}" />
+    <property name="autoLogin" value="#{systemConfig['security.login.auto']}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>
@@ -66,7 +66,7 @@
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="deployer">
       <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-        <property name="testValue" value="#{systemConfig['webstudio.deployer']}" />
+        <property name="testValue" value="#{systemConfig['deployer']}" />
         <property name="casesMap">
           <map>
             <entry key="production" value-ref="jcrProductionDeployer" />

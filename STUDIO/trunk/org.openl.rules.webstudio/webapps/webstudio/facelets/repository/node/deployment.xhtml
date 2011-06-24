@@ -15,7 +15,7 @@
 
     <h:outputText value="Creation Date" />
     <h:outputText value="#{node.createdAt}">
-    	<f:convertDateTime type="date" pattern="#{systemConfig['webstudio.datePattern']}" />
+    	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
     </h:outputText>
   </h:panelGrid>
 

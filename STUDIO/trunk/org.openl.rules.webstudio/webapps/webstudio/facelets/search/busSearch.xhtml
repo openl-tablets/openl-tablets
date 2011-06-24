@@ -44,7 +44,7 @@
                 <h:outputText value="#{prop.displayName}"/>
             </h:column>
             <h:column>
-	            <rich:calendar value="#{prop.value}" datePattern="#{systemConfig['webstudio.datePattern']}"
+	            <rich:calendar value="#{prop.value}" datePattern="#{systemConfig['data.format.date']}"
                     defaultTime="00:00" rendered="#{prop.dateType}" />
 
                 <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 

@@ -36,7 +36,7 @@
 
   <bean id="localUserFilter" class="org.openl.rules.security.LocalUserFilter">
     <property name="userDetailsService" ref="userDetailsService" />
-    <property name="autoLogin" value="#{systemConfig['security.autoLogin']}" />
+    <property name="autoLogin" value="#{systemConfig['security.login.auto']}" />
     <property name="ignoredUrls">
       <list>
         <ref bean="logoutUrl" />

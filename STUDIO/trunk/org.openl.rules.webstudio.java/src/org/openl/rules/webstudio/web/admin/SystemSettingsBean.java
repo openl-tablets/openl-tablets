@@ -15,13 +15,13 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  */
 public class SystemSettingsBean {
 
-    private static final String WORKSPACES_ROOT = "webstudio.workspacesRoot";
-    private static final String LOCAL_WORKSPACE = "webstudio.localWorkspace";
+    private static final String WORKSPACES_ROOT = "workspace.root";
+    private static final String LOCAL_WORKSPACE = "workspace.local.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
-    private static final String DATE_PATTERN = "webstudio.datePattern";
+    private static final String DATE_PATTERN = "data.format.date";
 
-    private static final String AUTO_LOGIN = "security.autoLogin";
-    private static final String HIDE_LOGOUT = "webstudio.hideLogout";
+    private static final String AUTO_LOGIN = "security.login.auto";
+    private static final String HIDE_LOGOUT = "security.logout.hidden";
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
