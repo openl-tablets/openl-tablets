@@ -200,7 +200,7 @@
                         title="System Settings"><img
                         src="#{contextPath}/webresource/images/settings.png" alt="System Settings"/></a>
 
-                  <c:if test="#{not systemConfig['webstudio.hideLogout']}">
+                  <c:if test="#{not systemConfig['security.logout.hidden']}">
                     <f:verbatim>&amp;nbsp;</f:verbatim>
                     <a target="main" href='#{contextPath}/security_logout' title="Log out"
                         onclick="return confirm('Are you sure you want to Log out?')"><img

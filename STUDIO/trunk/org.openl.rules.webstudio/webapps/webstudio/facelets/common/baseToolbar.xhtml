@@ -54,7 +54,7 @@
             <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" alt="Open Rules Editor" />
         </h:commandLink>
 
-        <c:if test="#{not systemConfig['webstudio.hideLogout']}">
+        <c:if test="#{not systemConfig['security.logout.hidden']}">
         <a href="#{contextPath}/security_logout" class="actionButton"
           title="Log out" onclick="return confirm('Are you sure you want to Log out?')">
           <h:graphicImage url="/webresource/images/logout.gif" styleClass="actionImage" alt="Log out" />

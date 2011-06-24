@@ -102,7 +102,7 @@ public class WebStudio {
         }
 
         if (!initialized) {
-            workspacePath = systemConfigManager.getStringProperty("webstudio.localWorkspace");
+            workspacePath = systemConfigManager.getStringProperty("workspace.local.home");
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
         }

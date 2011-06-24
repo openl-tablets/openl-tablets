@@ -25,7 +25,7 @@ public class RevertProjectChangesBean {
     private static final Log LOG = LogFactory.getLog(RevertProjectChangesBean.class);
 
     public static final String DATE_MODIFIED_PATTERN = WebStudioUtils.getWebStudio().getSystemConfigManager()
-        .getStringProperty("webstudio.datePattern") + " 'at' hh:mm:ss a";
+        .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
 
     public RevertProjectChangesBean() {
     }
