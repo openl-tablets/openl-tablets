@@ -177,7 +177,12 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
         new JcrProductionDeployer(new WorkspaceUserImpl("test")).deploy(testDeploymentProject,
                 domainDeployment.getProjects());
-        Thread.sleep(5000); // notifications come asynchroniously
+        for (int i = 0; i < 12; i++) {//waiting for redeploying of services during.
+            Thread.sleep(5000); // notifications come asynchroniously
+            if (multimoduleService != serviceManager.getRuleService().findServiceByName("multimodule")) {
+                break;
+            }
+        }
         assertNotSame(multimoduleService, serviceManager.getRuleService().findServiceByName("multimodule"));
         //uncomment after the smart redeployment will be implemented
         //assertSame(tutorial4Service, serviceManager.getRuleService().findServiceByName("tutorial4"));
