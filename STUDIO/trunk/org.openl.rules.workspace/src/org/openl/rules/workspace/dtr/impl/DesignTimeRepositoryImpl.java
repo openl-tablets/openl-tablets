@@ -97,7 +97,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
         try {
             log.debug("Opening temporary write session...");
-            writeRep = getRepo();
+            writeRep = RulesRepositoryFactory.getRepositoryInstance();
             log.debug("Wrapping temporary write project...");
             AProject newProject = wrapProject(writeRep.createRulesProject(name), false);
 
@@ -283,7 +283,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
         try {
             log.debug("Opening temporary write session...");
-            writeRep = getRepo();
+            writeRep = RulesRepositoryFactory.getRepositoryInstance();
             log.debug("Wrapping temporary write project...");
             AProject project4Write = wrapProject(writeRep.getRulesProject(name), false);
 
