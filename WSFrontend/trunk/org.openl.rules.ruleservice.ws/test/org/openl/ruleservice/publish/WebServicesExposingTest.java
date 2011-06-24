@@ -26,16 +26,24 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.jvnet.annox.xml.bind.AnnoxAnnotationReader;
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription.ModuleConfiguration;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 import org.openl.rules.ruleservice.management.IServiceConfigurer;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.publish.RulesPublisher;
+import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -48,7 +56,7 @@ import com.sun.xml.bind.api.JAXBRIContext;
 @ContextConfiguration(locations = { "classpath:test-ruleservice-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
     public static class TestConfigurer implements IServiceConfigurer {
-        private CommonVersion getLastVersion(IRulesLoader loader, String deploymentName) {
+        private static CommonVersion getLastVersion(IRulesLoader loader, String deploymentName) {
             CommonVersion lastVersion = new CommonVersionImpl(0, 0, 0);
             for (Deployment deployment : loader.getDeployments()) {
                 if (deployment.getDeploymentName().equals(deploymentName)) {
@@ -152,6 +160,27 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         ServerFactoryBean firstServer = deploymentAdmin.getServerFactoryBean();
         ServerFactoryBean secondServer = deploymentAdmin.getServerFactoryBean();
         assertTrue(firstServer != secondServer);
+    }
+
+    @Test
+    public void testRedeployAfterChanges() throws Exception {
+        assertNotNull(applicationContext);
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        IRulesLoader rulesLoader = serviceManager.getRulesLoader();
+        serviceManager.start();
+        OpenLService multimoduleService = serviceManager.getRuleService().findServiceByName("multimodule");
+        OpenLService tutorial4Service = serviceManager.getRuleService().findServiceByName("tutorial4");
+        Deployment domainDeployment = rulesLoader.getDeployment("domain",
+                TestConfigurer.getLastVersion(rulesLoader, "domain"));
+
+        ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
+        new JcrProductionDeployer(new WorkspaceUserImpl("test")).deploy(testDeploymentProject,
+                domainDeployment.getProjects());
+        Thread.sleep(5000); // notifications come asynchroniously
+        assertNotSame(multimoduleService, serviceManager.getRuleService().findServiceByName("multimodule"));
+        //uncomment after the smart redeployment will be implemented
+        //assertSame(tutorial4Service, serviceManager.getRuleService().findServiceByName("tutorial4"));
     }
 
     public static void unzipArchive(File archive, File outputDir) throws Exception {
