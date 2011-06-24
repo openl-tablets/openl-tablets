@@ -1,5 +1,11 @@
 package org.openl.util.generation;
 
+/**
+ * Initialization writer for values that are of type char or Character.
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class CharInitializationWriter extends CommonInitializationWriter {
     
     @Override
