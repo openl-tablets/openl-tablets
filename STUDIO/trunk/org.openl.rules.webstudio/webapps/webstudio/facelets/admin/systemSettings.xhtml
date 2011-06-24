@@ -28,10 +28,11 @@
             .propsPage .propsSection div table tr { margin-bottom: 20px; }
             .propsPage .propsSection div .titleColumn { width: 153px; padding: 5px 0; }
 
-            .restartMessage { position: absolute; top: 7px; right: 33px; -moz-animation: restartMessage_anm 1.3s; -webkit-animation: restartMessage_anm 1.3s; }
+            .restartMessage { position: absolute; top: 7px; right: 33px; -moz-animation: restartMessage_anm 0.6s; -webkit-animation: restartMessage_anm 1.3s; }
             @-moz-keyframes restartMessage_anm {
-                from { right: 55px; }
-                to { right: 33px; }
+                0% { right: 33px; }
+                50% { right: 47px; }
+                100% { right: 33px; }
             }
             @-webkit-keyframes restartMessage_anm {
                 from { right: 55px; }
