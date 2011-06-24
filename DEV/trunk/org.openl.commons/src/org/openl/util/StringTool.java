@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class StringTool {
@@ -560,6 +561,17 @@ public class StringTool {
             }
         }
         return strBuf.toString();
+    }
+    
+    public static String arrayToStringThroughCommas(Object[] values) {
+        if (ArrayUtils.isNotEmpty(values)) {
+            List<String> objectStrings = new ArrayList<String>();
+            for (Object value : values) {
+                objectStrings.add(value.toString());
+            }
+            return listToStringThroughCommas(objectStrings);
+        }
+        return null;
     }
     
     public static String listToStringThroughCommas(List<String> values) {
