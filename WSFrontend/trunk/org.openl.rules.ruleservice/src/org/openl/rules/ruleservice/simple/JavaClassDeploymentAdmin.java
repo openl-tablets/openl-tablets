@@ -19,7 +19,7 @@ import org.openl.rules.ruleservice.publish.IDeploymentAdmin;
  */
 public class JavaClassDeploymentAdmin implements IDeploymentAdmin {
 
-    //private Log log = LogFactory.getLog(RulesFrontend.class);
+    // private Log log = LogFactory.getLog(RulesFrontend.class);
 
     private IRulesFrontend frontend;
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
@@ -32,7 +32,7 @@ public class JavaClassDeploymentAdmin implements IDeploymentAdmin {
         if (frontend == null) {
             throw new IllegalArgumentException("frontend argument can't be null");
         }
-        
+
         this.frontend = frontend;
     }
 
@@ -43,8 +43,13 @@ public class JavaClassDeploymentAdmin implements IDeploymentAdmin {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
         }
-        
+
         frontend.registerService(service);
+
+        /*
+         * if (log.isInfoEnabled()){ log.info("Service with name=" +
+         * service.getName() + " has been deployed"); }
+         */
         return runningServices.put(service.getName(), service);
     }
 
@@ -55,7 +60,13 @@ public class JavaClassDeploymentAdmin implements IDeploymentAdmin {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
+
         frontend.unregisterService(serviceName);
+
+        /*
+         * if (log.isInfoEnabled()){ log.info("Service with name=" + serviceName
+         * + " has been undeployed"); }
+         */
         return runningServices.remove(serviceName);
     }
 
@@ -73,6 +84,11 @@ public class JavaClassDeploymentAdmin implements IDeploymentAdmin {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
+
+        /*
+         * if (log.isDebugEnabled()){ log.info("Finding service with name=" +
+         * serviceName); }
+         */
         return runningServices.get(serviceName);
     }
 

@@ -40,7 +40,7 @@ public class LocalTemporaryDeploymentsStorage {
     private FileFilter localWorkspaceFileFilter;
 
     private Map<String, Deployment> cacheForGetDeployment = new HashMap<String, Deployment>();
-    
+
     /**
      * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
      */
@@ -48,31 +48,36 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Construct a new LocalTemporaryDeploymentsStorage for bean usage. 
-     * @see #setLocalWorkspaceFileFilter, #setLocalWorkspaceFolderFilter 
+     * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
+     * 
+     * @see #setLocalWorkspaceFileFilter, #setLocalWorkspaceFolderFilter
      */
     public LocalTemporaryDeploymentsStorage(FileFilter localWorkspaceFolderFilter, FileFilter localWorkspaceFileFilter) {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
-    
+
     /**
-     * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean configuration property
+     * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
+     * configuration property
+     * 
      * @param localWorkspaceFileFilter
      */
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
-    
+
     /**
      * Gets localWorkspaceFileFilter
      */
     public FileFilter getLocalWorkspaceFileFilter() {
         return localWorkspaceFileFilter;
     }
-    
+
     /**
-     * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean configuration property
+     * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
+     * configuration property
+     * 
      * @param localWorkspaceFolderFilter
      */
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
@@ -97,9 +102,11 @@ public class LocalTemporaryDeploymentsStorage {
     public String getDirectoryToLoadDeploymentsIn() {
         return directoryToLoadDeploymentsIn;
     }
-    
+
     /**
-     * Sets a path to local temporary storage. Spring bean configuration property
+     * Sets a path to local temporary storage. Spring bean configuration
+     * property
+     * 
      * @param directoryToLoadDeploymentsIn
      */
     public void setDirectoryToLoadDeploymentsIn(String directoryToLoadDeploymentsIn) {
@@ -109,7 +116,8 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Generates folder name for deployment by given deployment name and common verison
+     * Generates folder name for deployment by given deployment name and common
+     * verison
      * 
      * @param deployment
      * @return folder name
@@ -123,14 +131,12 @@ public class LocalTemporaryDeploymentsStorage {
             synchronized (flag) {
                 if (folderToLoadDeploymentsIn == null) {
                     folderToLoadDeploymentsIn = new File(getDirectoryToLoadDeploymentsIn());
-
                     folderToLoadDeploymentsIn.mkdirs();
-                    boolean clearBeforeFirstUse = true;
-                    if (clearBeforeFirstUse) {
-                        clear();
-                    }
+                    clear();
                 }
-                log.info("Local temprorary folder for downloading deployments was initializated.");
+            }
+            if (log.isInfoEnabled()) {
+                log.info("Local temprorary folder location is: " + getDirectoryToLoadDeploymentsIn());
             }
         }
         return folderToLoadDeploymentsIn;
@@ -143,21 +149,31 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets deployment from storage. If deployment doesn't exists in storage returns null.
+     * Gets deployment from storage. If deployment doesn't exists in storage
+     * returns null.
      * 
      * @param deployment
      * @return deployment from storage or null if doens't exists
      */
     public Deployment getDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null){
+        if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
-        if (version == null){
+        if (version == null) {
             throw new IllegalArgumentException("version argument can't be null");
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting deployement with name=" + deploymentName + " and version=" + version.getVersionName());
+        }
+
         if (containsDeployment(deploymentName, version)) {
             Deployment deployment = cacheForGetDeployment.get(getDeploymentFolderName(deploymentName, version));
             if (deployment != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Getting deployement with name=" + deploymentName + " and version="
+                            + version.getVersionName() + " has been returned from cache.");
+                }
                 return deployment;
             }
             File deploymentFolder = getDeploymentFolder(deploymentName, version);
@@ -166,8 +182,16 @@ public class LocalTemporaryDeploymentsStorage {
                     getLocalWorkspaceFolderFilter(), getLocalWorkspaceFileFilter()));
             deployment = new Deployment(localFolderAPI);
             cacheForGetDeployment.put(getDeploymentFolderName(deploymentName, version), deployment);
+            if (log.isDebugEnabled()) {
+                log.debug("Deployement with name=" + deploymentName + " and version=" + version.getVersionName()
+                        + " has been returned from local storage and putted to cache.");
+            }
             return deployment;
         } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Deployement with name=" + deploymentName + " and version=" + version.getVersionName()
+                        + " hasn't been found in local storage.");
+            }
             return null;
         }
     }
@@ -179,9 +203,15 @@ public class LocalTemporaryDeploymentsStorage {
      * @return loaded deployment
      */
     public Deployment loadDeployment(Deployment deployment) {
-        if (deployment == null){
+        if (deployment == null) {
             throw new IllegalArgumentException("deployment argument can't be null");
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Loading deployement with name=" + deployment.getDeploymentName() + " and version="
+                    + deployment.getVersion().getVersionName());
+        }
+
         File deploymentFolder = getDeploymentFolder(deployment.getDeploymentName(), deployment.getCommonVersion());
         LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, new ArtefactPathImpl(
                 deploymentFolder.getName()), new LocalWorkspaceImpl(null, deploymentFolder.getParentFile(),
@@ -192,11 +222,19 @@ public class LocalTemporaryDeploymentsStorage {
                     .getCommonVersion().getMinor());
             loadedDeployment.refresh();
         } catch (ProjectException e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Exception occurs on loading deployment with name=" + deployment.getDeploymentName()
+                        + " and version=" + deployment.getVersion().getVersionName() + " from data source", e);
+            }
             throw new RuleServiceException(e);
         }
 
         cacheForGetDeployment.remove(getDeploymentFolderName(deployment.getDeploymentName(),
                 deployment.getCommonVersion()));
+        if (log.isDebugEnabled()) {
+            log.debug("Deployement with name=" + deployment.getDeploymentName() + " and version="
+                    + deployment.getVersion().getVersionName() + " has been removed from cache.");
+        }
         return loadedDeployment;
     }
 
@@ -208,13 +246,23 @@ public class LocalTemporaryDeploymentsStorage {
      *         deleted; false otherwise
      */
     public boolean removeDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null){
+        if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
-        if (version == null){
+        if (version == null) {
             throw new IllegalArgumentException("version argument can't be null");
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Removing deployement with name=" + deploymentName + " and version=" + version.getVersionName());
+        }
+
         cacheForGetDeployment.remove(getDeploymentFolderName(deploymentName, version));
+        if (log.isDebugEnabled()) {
+            log.debug("Deployement with name=" + deploymentName + " and version=" + version.getVersionName()
+                    + " has been removed from cache.");
+        }
+
         return FolderHelper.clearFolder(getDeploymentFolder(deploymentName, version));
     }
 
@@ -225,10 +273,10 @@ public class LocalTemporaryDeploymentsStorage {
      * @return true if and only if the deployment exists; false otherwise
      */
     public boolean containsDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null){
+        if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
-        if (version == null){
+        if (version == null) {
             throw new IllegalArgumentException("version argument can't be null");
         }
         return getDeploymentFolder(deploymentName, version).exists();
@@ -241,6 +289,7 @@ public class LocalTemporaryDeploymentsStorage {
         synchronized (flag) {
             cacheForGetDeployment.clear();
             FolderHelper.clearFolder(getFolderToLoadDeploymentsIn());
+            log.info("Local temprorary folder for downloading deployments was cleared.");
         }
     }
 

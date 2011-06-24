@@ -97,9 +97,17 @@ public class RulesPublisher implements IRulesPublisher {
         try {
             initService(service);
         } catch (Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Failed to initialiaze service" + service.getName(), e);
+            }
             throw new ServiceDeployException(String.format("Failed to initialiaze service \"%s\"", service.getName()),
                     e);
         }
+
+        if (log.isInfoEnabled()) {
+            log.info("Deploying service with name=" + service.getName() + "...");
+        }
+
         return deploymentAdmin.deploy(service);
     }
 
@@ -111,6 +119,11 @@ public class RulesPublisher implements IRulesPublisher {
             throw new IllegalArgumentException("newService argument can't be null");
 
         // TODO smart redeploy without full recompiling
+
+        if (log.isInfoEnabled()) {
+            log.info("Redeploying service with name=" + runningService.getName() + "...");
+        }
+
         undeploy(runningService.getName());
         return deploy(newService);
     }
@@ -119,6 +132,11 @@ public class RulesPublisher implements IRulesPublisher {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
+
+        if (log.isInfoEnabled()) {
+            log.info("Undedeploying service with name=" + serviceName + "...");
+        }
+
         return deploymentAdmin.undeploy(serviceName);
     }
 

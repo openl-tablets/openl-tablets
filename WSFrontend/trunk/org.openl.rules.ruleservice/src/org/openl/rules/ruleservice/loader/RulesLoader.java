@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
@@ -24,12 +26,12 @@ import org.openl.rules.ruleservice.core.ServiceDescription.ModuleConfiguration;
  * 
  */
 public class RulesLoader implements IRulesLoader {
-    //private Log log = LogFactory.getLog(RulesLoader.class);
-    
+    private Log log = LogFactory.getLog(RulesLoader.class);
+
     private IDataSource dataSource;
 
     private RulesProjectResolver projectResolver;
-    
+
     private LocalTemporaryDeploymentsStorage storage;
 
     /**
@@ -51,13 +53,13 @@ public class RulesLoader implements IRulesLoader {
      */
     public RulesLoader(IDataSource dataSource, LocalTemporaryDeploymentsStorage storage,
             RulesProjectResolver projectResolver) {
-        if (dataSource == null){
+        if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
-        if (storage == null){
+        if (storage == null) {
             throw new IllegalArgumentException("storage argument can't be null");
         }
-        if (projectResolver == null){
+        if (projectResolver == null) {
             throw new IllegalArgumentException("projectResolver argument can't be null");
         }
 
@@ -75,7 +77,7 @@ public class RulesLoader implements IRulesLoader {
      * Sets data source
      */
     public void setDataSource(IDataSource dataSource) {
-        if (dataSource == null){
+        if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
 
@@ -95,7 +97,7 @@ public class RulesLoader implements IRulesLoader {
      * @param projectResolver
      */
     public void setProjectResolver(RulesProjectResolver projectResolver) {
-        if (projectResolver == null){
+        if (projectResolver == null) {
             throw new IllegalArgumentException("projectResolver argument can't be null");
         }
 
@@ -113,7 +115,7 @@ public class RulesLoader implements IRulesLoader {
      * Sets storage. Spring bean configuration property.
      */
     public void setStorage(LocalTemporaryDeploymentsStorage storage) {
-        if (storage == null){
+        if (storage == null) {
             throw new IllegalArgumentException("storage argument can't be null");
         }
 
@@ -127,16 +129,30 @@ public class RulesLoader implements IRulesLoader {
 
     /** {@inheritDoc} */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null){
+        if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
-        if (deploymentVersion == null){
+        if (deploymentVersion == null) {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
-        Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting deployement with name=" + deploymentName + " and version="
+                    + deploymentVersion.getVersionName());
+        }
+
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
+            Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
+            if (log.isDebugEnabled()) {
+                log.debug("Deployement with name=" + deploymentName + " and version="
+                        + deploymentVersion.getVersionName() + "has been returned from data source");
+            }
             return deployment;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Deployement with name=" + deploymentName + " and version=" + deploymentVersion.getVersionName()
+                    + "has been returned from local repository");
         }
         return localDeployment;
     }
@@ -144,20 +160,27 @@ public class RulesLoader implements IRulesLoader {
     /** {@inheritDoc} */
     public List<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
             String projectName) {
-        if (deploymentName == null){
+        if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
-        if (deploymentVersion == null){
+        if (deploymentVersion == null) {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
-        }        
-        if (projectName == null){
+        }
+        if (projectName == null) {
             throw new IllegalArgumentException("projectName argument can't be null");
-        }        
-        Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Resoliving modules for deployment with name=" + deploymentName + " and version="
+                    + deploymentVersion.getVersionName() + " and projectName=" + projectName);
+        }
+
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
+            Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
             localDeployment = storage.loadDeployment(deployment);
         }
+        
         AProject project = localDeployment.getProject(projectName);
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
@@ -172,9 +195,14 @@ public class RulesLoader implements IRulesLoader {
 
     /** {@inheritDoc} */
     public List<Module> getModulesForService(ServiceDescription serviceDescription) {
-        if (serviceDescription == null){
+        if (serviceDescription == null) {
             throw new IllegalArgumentException("serviceDescription argument can't be null");
         }
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Resoliving modules for service with name=" + serviceDescription.getName());
+        }
+
         List<Module> ret = new ArrayList<Module>();
         List<ModuleConfiguration> modulesToLoad = serviceDescription.getModulesToLoad();
         for (ModuleConfiguration moduleConfiguration : modulesToLoad) {
