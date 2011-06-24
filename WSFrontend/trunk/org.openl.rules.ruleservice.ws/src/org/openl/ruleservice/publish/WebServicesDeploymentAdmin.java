@@ -93,6 +93,7 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
             runningServices.get(service).stop();
             LOG.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName, baseAddress
                     + service.getUrl()));
+            runningServices.remove(service);
             return service;
         } catch (Throwable t) {
             throw new ServiceDeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
