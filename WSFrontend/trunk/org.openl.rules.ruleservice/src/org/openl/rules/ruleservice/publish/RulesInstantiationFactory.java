@@ -17,7 +17,7 @@ public class RulesInstantiationFactory implements IRulesInstantiationFactory {
         
         switch (modules.size()) {
             case 0:
-                throw new RuntimeException("There are no modules to instantiate.");
+                throw new IllegalArgumentException("There are no modules to instantiate.");
             case 1:
                 return RulesInstantiationStrategyFactory.getStrategy(modules.get(0), true, dependencyManager);
             default:

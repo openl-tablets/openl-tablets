@@ -115,8 +115,9 @@ public class RulesPublisher implements IRulesPublisher {
         if (runningService == null) {
             throw new IllegalArgumentException("runningService argument can't be null");
         }
-        if (newService == null)
+        if (newService == null) {
             throw new IllegalArgumentException("newService argument can't be null");
+        }
 
         // TODO smart redeploy without full recompiling
 
