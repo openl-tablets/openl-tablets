@@ -121,6 +121,13 @@ public class ConfigManager {
         return configurationToSave;
     }
 
+    public boolean isSystemProperty(String name) {
+        if (systemConfiguration != null && systemConfiguration.getString(name) != null) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean save() {
         if (configurationToSave != null) {
             try {

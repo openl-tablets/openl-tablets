@@ -94,4 +94,12 @@ public class JSFFunctions {
         return StringTool.encodeURL(url);
     }
 
+    public static String getSystemProp(String name) {
+        return System.getProperty(name);
+    }
+
+    public static boolean isSystemProp(String name) {
+        return getSystemProp(name) != null;
+    }
+
 }

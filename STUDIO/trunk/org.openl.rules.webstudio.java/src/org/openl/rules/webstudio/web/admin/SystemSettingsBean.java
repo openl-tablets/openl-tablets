@@ -137,6 +137,12 @@ public class SystemSettingsBean {
                 DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
     }
 
+    public boolean isDesignRepositoryPathSystem() {
+        String type = getDesignRepositoryType();
+        return configManager.isSystemProperty(
+                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+    }
+
     public String getProductionRepositoryName() {
         return configManager.getStringProperty(PRODUCTION_REPOSITORY_NAME);
     }
@@ -165,6 +171,12 @@ public class SystemSettingsBean {
         String type = getProductionRepositoryType();
         configManager.setProperty(
                 PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
+    }
+
+    public boolean isProductionRepositoryPathSystem() {
+        String type = getProductionRepositoryType();
+        return configManager.isSystemProperty(
+                PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
 
     public void applyChanges() {

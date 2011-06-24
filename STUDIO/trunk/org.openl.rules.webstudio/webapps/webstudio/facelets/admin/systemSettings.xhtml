@@ -98,10 +98,11 @@
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <h:outputText value="Workspaces Directory:" />
-                                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput" />
+                                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput"
+                                        disabled="#{jsffn:isSystemProp('workspace.root')}" />
                                     <h:outputText value="Local Directory:" />
                                     <h:inputText value="#{systemSettingsBean.localWorkspace}" styleClass="pathInput"
-                                        disabled="true" />
+                                        disabled="#{jsffn:isSystemProp('workspace.local.home')}" />
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -110,7 +111,8 @@
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <h:outputText value="History Directory:" />
-                                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput" />
+                                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
+                                        disabled="#{jsffn:isSystemProp('project.history.home')}" />
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -119,7 +121,8 @@
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <h:outputText value="Date Format:" />
-                                    <h:inputText value="#{systemSettingsBean.datePattern}" />
+                                    <h:inputText value="#{systemSettingsBean.datePattern}"
+                                        disabled="#{jsffn:isSystemProp('data.format.date')}" />
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -132,9 +135,11 @@
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <h:outputText value="Auto Login:" />
-                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}" />
+                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}"
+                                        disabled="#{jsffn:isSystemProp('security.login.auto')}" />
                                     <h:outputText value="Hide Logout link:" />
-                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}" />
+                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}"
+                                        disabled="#{jsffn:isSystemProp('security.logout.hidden')}" />
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -159,7 +164,8 @@
                                     <h:outputText id="designRepositoryPathTitle"
                                         value="Repository #{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
                                     <h:inputText id="designRepositoryPath"
-                                        value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput" />
+                                        value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
+                                            disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -180,7 +186,8 @@
                                     <h:outputText id="productionRepositoryPathTitle"
                                         value="Repository #{systemSettingsBean.productionRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
                                     <h:inputText id="productionRepositoryPath"
-                                        value="#{systemSettingsBean.productionRepositoryPath}" styleClass="pathInput" />
+                                        value="#{systemSettingsBean.productionRepositoryPath}" styleClass="pathInput"
+                                        disabled="#{systemSettingsBean.productionRepositoryPathSystem}" />
                                 </h:panelGrid>
                             </div>
                         </div>
