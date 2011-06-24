@@ -89,10 +89,6 @@ import org.openl.vm.trace.Tracer;
 
 public class ProjectModel {
 
-    //TODO Move to config
-    public static final String HISTORY_FOLDER_NAME = "openl_project_history";
-    public static final int HISTORY_COUNT = 10;
-
     /**
      * Compiled rules with errors. Representation of wrapper.
      */
