@@ -79,6 +79,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         for (ServiceDescription serviceDescription : servicesToBeDeployed) {
             newServices.put(serviceDescription.getName(), serviceDescription);
         }
+        
         undeployUnnecessary(newServices);
         redeployExisitng(newServices);
         deployNewServices(newServices);

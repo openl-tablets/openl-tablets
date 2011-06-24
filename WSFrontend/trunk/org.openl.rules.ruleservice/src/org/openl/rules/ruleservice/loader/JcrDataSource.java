@@ -14,13 +14,16 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
- * JCR repository data source. Uses ProductionRepositoryFactoryProxy.getRepositoryInstance() repository.
+ * JCR repository data source. Uses
+ * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository.
+ * 
  * @author MKamalov
- *
+ * 
  */
 public class JcrDataSource implements IDataSource {
     private Log log = LogFactory.getLog(JcrDataSource.class);
@@ -32,8 +35,7 @@ public class JcrDataSource implements IDataSource {
     /** {@inheritDoc} */
     public List<Deployment> getDeployments() {
         try {
-            List<FolderAPI> deploymentProjects = ProductionRepositoryFactoryProxy.getRepositoryInstance()
-                    .getDeploymentProjects();
+            List<FolderAPI> deploymentProjects = getRProductionRepository().getDeploymentProjects();
             List<Deployment> ret = new ArrayList<Deployment>();
             for (FolderAPI deploymentProject : deploymentProjects) {
                 String deploymentName = deploymentProject.getName();
@@ -50,26 +52,39 @@ public class JcrDataSource implements IDataSource {
             }
             return ret;
         } catch (RRepositoryException e) {
+            log.warn("Exception has been occured on deployments retriving from repository", e);
             throw new DataSourceException(e);
         }
     }
-    
+
     /** {@inheritDoc} */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null){
+        if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
-        if (deploymentVersion == null){
+        if (deploymentVersion == null) {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting deployement with name=" + deploymentName + " and version="
+                    + deploymentVersion.getVersionName());
+        }
+
         try {
             StringBuilder sb = new StringBuilder(deploymentName);
             sb.append(SEPARATOR);
             sb.append(deploymentVersion.getVersionName());
-            FolderAPI deploymentProject = ProductionRepositoryFactoryProxy.getRepositoryInstance()
-                    .getDeploymentProject(sb.toString());
+            // FIXME
+            // Should be deploymentNotFoundException or null return
+            FolderAPI deploymentProject = getRProductionRepository().getDeploymentProject(sb.toString());
             return new Deployment(deploymentProject, deploymentName, deploymentVersion);
         } catch (RRepositoryException e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Exception has been occured on deployment retriving from repository. Deployment name is "
+                        + deploymentName + ". Deployment version is " + deploymentVersion.getVersionName()
+                        + ". Deployment with this name may be doesn't exists.", e);
+            }
             throw new DataSourceException(e);
         }
     }
@@ -83,10 +98,21 @@ public class JcrDataSource implements IDataSource {
         }
         return Collections.unmodifiableList(tmp);
     }
-    
+
+    private RProductionRepository getRProductionRepository() {
+        RProductionRepository rProductionRepository = null;
+        try {
+            rProductionRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
+            return rProductionRepository;
+        } catch (RRepositoryException e) {
+            log.error("Exception has been occured on getting instance of RProductionRepository.", e);
+            throw new DataSourceException(e);
+        }
+    }
+
     /** {@inheritDoc} */
     public void addListener(IDataSourceListener dataSourceListener) {
-        if (dataSourceListener == null){
+        if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
@@ -94,10 +120,14 @@ public class JcrDataSource implements IDataSource {
             if (rDeploymentListener == null) {
                 rDeploymentListener = buildRDeploymentListener(dataSourceListener);
                 try {
-                    ProductionRepositoryFactoryProxy.getRepositoryInstance().addListener(rDeploymentListener);
+                    getRProductionRepository().addListener(rDeploymentListener);
                     listeners.put(dataSourceListener, rDeploymentListener);
-                    log.info(dataSourceListener.getClass().toString() + " listener is registered in JCRDataSource");
+                    if (log.isInfoEnabled()) {
+                        log.info(dataSourceListener.getClass().toString()
+                                + " listener is registered in jcr data source");
+                    }
                 } catch (RRepositoryException e) {
+                    log.warn("Exception has been occured on adding listener to jcr data source.", e);
                     throw new DataSourceException(e);
                 }
             }
@@ -106,41 +136,50 @@ public class JcrDataSource implements IDataSource {
 
     /** {@inheritDoc} */
     public void removeListener(IDataSourceListener dataSourceListener) {
-        if (dataSourceListener == null){
+        if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
             RDeploymentListener listener = listeners.get(dataSourceListener);
             if (listener != null) {
                 try {
-                    ProductionRepositoryFactoryProxy.getRepositoryInstance().removeListener(listener);
+                    getRProductionRepository().removeListener(listener);
                     listeners.remove(dataSourceListener);
-                    log.info(dataSourceListener.getClass().toString() + " listener is unregistered from JCRDataSource");
+                    if (log.isInfoEnabled()) {
+                        log.info(dataSourceListener.getClass().toString()
+                                + " listener is unregistered from jcr data source");
+                    }
                 } catch (RRepositoryException e) {
+                    log.warn("Exception has been occured on removing listener from jcr data source.", e);
                     throw new DataSourceException(e);
                 }
             }
         }
     }
-    
+
     /** {@inheritDoc} */
     public void removeAllListeners() {
         synchronized (listeners) {
-            for (IDataSourceListener dataSourceListener : listeners.keySet()){
+            RProductionRepository rProductionRepository = getRProductionRepository();
+            for (IDataSourceListener dataSourceListener : listeners.keySet()) {
                 RDeploymentListener listener = listeners.get(dataSourceListener);
                 if (listener != null) {
                     try {
-                        ProductionRepositoryFactoryProxy.getRepositoryInstance().removeListener(listener);
+                        rProductionRepository.removeListener(listener);
                         listeners.remove(dataSourceListener);
-                        log.info(dataSourceListener.getClass().toString() + " listener is unregistered from JCRDataSource");
+                        if (log.isInfoEnabled()) {
+                            log.info(dataSourceListener.getClass().toString()
+                                    + " listener is removed from jcr data source");
+                        }
                     } catch (RRepositoryException e) {
+                        log.warn("Exception has been occured on removing listener from jcr data source.", e);
                         throw new DataSourceException(e);
                     }
                 }
             }
         }
     }
-    
+
     private RDeploymentListener buildRDeploymentListener(IDataSourceListener dataSourceListener) {
         return new DataSourceListenerWrapper(dataSourceListener);
     }
@@ -149,7 +188,7 @@ public class JcrDataSource implements IDataSource {
         private IDataSourceListener dataSourceListener;
 
         public DataSourceListenerWrapper(IDataSourceListener dataSourceListener) {
-            if (dataSourceListener == null){
+            if (dataSourceListener == null) {
                 throw new IllegalArgumentException();
             }
             this.dataSourceListener = dataSourceListener;

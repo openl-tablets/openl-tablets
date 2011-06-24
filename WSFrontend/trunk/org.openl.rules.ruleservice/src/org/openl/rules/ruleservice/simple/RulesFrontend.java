@@ -62,8 +62,10 @@ public class RulesFrontend implements IRulesFrontend {
                         ruleName, inputParamsTypes);
                 result = serviceMethod.invoke(service.getServiceBean(), params);
             } catch (Exception e) {
-                log.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
-                        serviceName), e);
+                if (log.isWarnEnabled()) {
+                    log.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
+                            serviceName), e);
+                }
             }
         }
 
@@ -75,8 +77,13 @@ public class RulesFrontend implements IRulesFrontend {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
+
         if (ruleName == null) {
             throw new IllegalArgumentException("ruleName argument can't be null");
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Executing rule from service with name=" + serviceName + ", ruleName=" + ruleName);
         }
 
         Class<?>[] paramTypes = new Class<?>[params.length];
@@ -95,6 +102,10 @@ public class RulesFrontend implements IRulesFrontend {
             throw new IllegalArgumentException("fieldName argument can't be null");
         }
 
+        if (log.isDebugEnabled()) {
+            log.debug("Getting value from service with name=" + serviceName + ", fieldName= " + fieldName);
+        }
+
         Object result = null;
 
         OpenLService service = runningServices.get(serviceName);
@@ -104,7 +115,11 @@ public class RulesFrontend implements IRulesFrontend {
                         StringTool.getGetterName(fieldName), new Class<?>[] {});
                 result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
             } catch (Exception e) {
-                log.warn(String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName), e);
+                if (log.isWarnEnabled()) {
+                    log.warn(
+                            String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName),
+                            e);
+                }
             }
         }
 

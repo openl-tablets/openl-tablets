@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
@@ -20,7 +22,7 @@ import org.openl.rules.ruleservice.loader.IRulesLoader;
  * @author PUdalau
  */
 public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer {
-    //private Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
+    private Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
     
     private boolean provideRuntimeContext;
 
@@ -29,6 +31,8 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
         if (loader == null){
             throw new IllegalArgumentException("loader argument can't be null");
         }
+        
+        log.debug("Calculate services to be deployed...");
         
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         for (Deployment deployment : loader.getDeployments()) {
