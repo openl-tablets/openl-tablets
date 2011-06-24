@@ -10,15 +10,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class ZipFileProjectCreator extends AProjectCreator {
-    
-    private static final Log LOG = LogFactory.getLog(ZipFileProjectCreator.class);
     
     private ZipFile zipFile;
     
@@ -33,37 +29,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
         this.zipFile = new ZipFile(uploadedFile);
         this.zipFilter = zipFilter;
     }
-
-    @Override
-    public String createRulesProject() {
-        String errorMessage = null;
-        ZipRulesProjectBuilder projectBuilder = null;
-        try {
-            Set<String> sortedNames = sortZipEntriesNames(zipFile);
-            projectBuilder = getProjectBuilder(sortedNames);
-            for (String name : sortedNames) {
-                ZipEntry item = zipFile.getEntry(name);
-                if (item.isDirectory()) {
-                    projectBuilder.addFolder(item.getName());
-                } else {
-                    InputStream zipInputStream = zipFile.getInputStream(item);
-                    projectBuilder.addFile(item.getName(), zipInputStream);
-                }
-            }
-            projectBuilder.checkIn();
-        } catch (Exception e) {
-            if (projectBuilder != null) {
-                projectBuilder.cancel();
-            }
-            LOG.error("Error creating project.", e);
-            errorMessage = e.getMessage();
-        }
-
-        return errorMessage;
-        
-    }
     
-    private ZipRulesProjectBuilder getProjectBuilder(Set<String> sortedNames) throws ProjectException{        
+    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames) throws ProjectException {        
         RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames);
         return new ZipRulesProjectBuilder(getUserWorkspace(), getProjectName(), zipFilter, folderExtractor);
     }
@@ -76,5 +43,26 @@ public class ZipFileProjectCreator extends AProjectCreator {
             sortedNames.add(item.getName());
         }
         return sortedNames;
+    }
+
+    @Override
+    protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
+        Set<String> sortedNames = sortZipEntriesNames(zipFile);
+        ZipRulesProjectBuilder projectBuilder = getZipProjectBuilder(sortedNames);
+        for (String name : sortedNames) {
+            ZipEntry item = zipFile.getEntry(name);
+            if (item.isDirectory()) {
+                projectBuilder.addFolder(item.getName());
+            } else {
+                InputStream zipInputStream;
+                try {
+                    zipInputStream = zipFile.getInputStream(item);
+                } catch (IOException e) {                    
+                    throw new ProjectException("Error extracting zip archive", e);
+                }
+                projectBuilder.addFile(item.getName(), zipInputStream);
+            }
+        }
+        return projectBuilder;
     }
 }
