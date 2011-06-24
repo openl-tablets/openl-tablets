@@ -4,6 +4,9 @@
 
 package org.openl.binding.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
@@ -12,12 +15,21 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.util.StringTool;
 
 /**
  * @author snshor
  */
 
-public class MethodNodeBinder extends ANodeBinder {    
+public class MethodNodeBinder extends ANodeBinder {  
+    
+    private static final String FIELD_ACCESS_METHOD = "field access method";
+    private static final String VARIABLE_NUMBER_OF_ARGUMENTS_METHOD = "method with varialble number of arguments";
+    private static final String ARRAY_ARGUMENT_METHOD = "array argument method";
+    private static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
+    private static final String NO_PARAMETERS = "no parameters";
+    
+    private static final Log LOG = LogFactory.getLog(MethodNodeBinder.class);
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
@@ -44,7 +56,9 @@ public class MethodNodeBinder extends ANodeBinder {
         if (methodCaller == null) { 
             return bindWithAdditionalBinders(node, bindingContext, methodName, parameterTypes, children, childrenCount);
         }
-
+        
+        String bindingType = APPROPRIATE_BY_SIGNATURE_METHOD;
+        log(methodName, parameterTypes, bindingType);
         return new MethodBoundNode(node, children, methodCaller);
     }
     
@@ -59,6 +73,8 @@ public class MethodNodeBinder extends ANodeBinder {
             .bind(methodNode, bindingContext);
         
         if (arrayParametersMethod != null) {
+            String bindingType = ARRAY_ARGUMENT_METHOD;
+            log(methodName, argumentTypes, bindingType);
             return arrayParametersMethod;
         }   
         
@@ -68,6 +84,8 @@ public class MethodNodeBinder extends ANodeBinder {
             IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children)
                 .bind(methodNode, bindingContext);
             if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
+                String bindingType = FIELD_ACCESS_METHOD;                
+                log(methodName, argumentTypes, bindingType);
                 return accessorChain;
             } 
         }
@@ -78,11 +96,29 @@ public class MethodNodeBinder extends ANodeBinder {
             IBoundNode varArgsMethod = new VariableLengthArgumentsMethodBinder(methodName, argumentTypes, children)
                 .bind(methodNode, bindingContext);            
             if (varArgsMethod != null) {
+                String bindingType = VARIABLE_NUMBER_OF_ARGUMENTS_METHOD;               
+                log(methodName, argumentTypes, bindingType);
                 return varArgsMethod;
             }
         }
 
         return cantFindMethodError(methodNode, bindingContext, methodName, argumentTypes);
+    }
+
+    private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
+        if (LOG.isTraceEnabled()) {
+            String message = String.format("Method '%s' with parameters '%s' was binded as %s", 
+                methodName, getArgumentsAsString(argumentTypes), bindingType);
+            LOG.trace(message);
+        }
+    }   
+    
+    private String getArgumentsAsString(IOpenClass[] argumentTypes) {
+        String result = StringTool.arrayToStringThroughCommas(argumentTypes);
+        if (StringUtils.isNotBlank(result)) {
+            return result;
+        }
+        return NO_PARAMETERS;
     }
 
     private IBoundNode cantFindMethodError(ISyntaxNode node, IBindingContext bindingContext, String methodName,
