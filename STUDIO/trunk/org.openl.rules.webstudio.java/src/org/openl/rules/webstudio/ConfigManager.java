@@ -104,7 +104,7 @@ public class ConfigManager {
             String defaultValue = compositeConfiguration.getString(key);
             if (defaultValue != null) {
                 if (!defaultValue.equals(value.toString())) {
-                    getConfigurationToSave().setProperty(key, value);
+                    getConfigurationToSave().setProperty(key, value.toString());
                 }
             }
         }
