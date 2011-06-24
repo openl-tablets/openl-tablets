@@ -30,7 +30,11 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         if (this.rulesLoader != null) {
             rulesLoader.getDataSource().removeListener(this);
         }
-        this.rulesLoader.getDataSource().addListener(this);
+        if (this.rulesLoader.getDataSource() != null) {
+            this.rulesLoader.getDataSource().addListener(this);
+        }else{
+            throw new IllegalArgumentException("The should be defined the data source in rules loader");
+        }
     }
     
     public IRulesLoader getRulesLoader() {
