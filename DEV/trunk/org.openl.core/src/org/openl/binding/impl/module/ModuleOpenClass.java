@@ -16,13 +16,10 @@ import java.util.Set;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenlNotCheckedException;
 
-import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -74,8 +71,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
             try {
                 initDependencies();
             } catch (OpenLCompilationException e) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype", e, (ISyntaxNode) this);
-                BindHelper.processError(error);
+                throw new OpenlNotCheckedException("Can`t add datatype", e);
             }
         }
     }
@@ -86,7 +82,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
     private void initDependencies() throws OpenLCompilationException {    
         for (CompiledOpenClass dependency : usingModules) {
             if (!dependency.hasErrors()) {
-//              addTypes(dependency);
+                // commented as there is no need to add each datatype to upper module.
+                // as now it`s will be impossible to validate from which module the datatype is.
+                //
+                //addTypes(dependency);
                 addMethods(dependency);
             }            
         }
@@ -231,8 +230,15 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @return map of internal types 
      */
     @Override
-    public Map<String, IOpenClass> getTypes() {        
-        return new HashMap<String, IOpenClass>(internalTypes);
+    public Map<String, IOpenClass> getTypes() {
+        Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(internalTypes);
+        for (CompiledOpenClass dependency : usingModules) {
+            if (!dependency.hasErrors()) {
+                currentModuleDatatypes.putAll(dependency.getTypes());
+            }
+        }
+        
+        return currentModuleDatatypes;
     }
     
     /**
@@ -247,7 +253,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     public IOpenClass findType(String namespace, String typeName) {
         
         String name = StringTool.buildTypeName(namespace, typeName);
-        // it will contain all types from current module and dependent ones.
+        // it will contain types from current module.
         //
         if (internalTypes.containsKey(name)) {
             return internalTypes.get(name);
