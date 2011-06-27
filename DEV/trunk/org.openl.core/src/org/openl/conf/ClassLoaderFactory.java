@@ -78,24 +78,27 @@ public class ClassLoaderFactory {
 
         return createClassLoader(splitClassPath(classpath), parent, ucxt);
     }
-
-    static public ClassLoader createClassLoader(String[] classpath, ClassLoader parent, IUserContext ucxt)
-            throws Exception {
+    
+    public static ClassLoader createClassLoader(String classpath, ClassLoader parent, String userHome) throws Exception {
+        return createClassLoader(splitClassPath(classpath), parent, userHome);
+    }
+    
+    public static ClassLoader createClassLoader(String[] classpath, ClassLoader parent, String userHome)throws Exception {
         List<URL> urls = new ArrayList<URL>();
         for (int i = 0; i < classpath.length; i++) {
 
             if (classpath[i].endsWith("*")) {
-                makeWildcardPath(makeFile(ucxt.getUserHome(), classpath[i].substring(0, classpath[i].length() - 1)),
+                makeWildcardPath(makeFile(userHome, classpath[i].substring(0, classpath[i].length() - 1)),
                         urls);
             } else {
 
-                File f = makeFile(ucxt.getUserHome(), classpath[i]);
+                File f = makeFile(userHome, classpath[i]);
 
                 if (!f.exists()) {
                     throw new IOException("File " + f.getPath() + " does not exist");
                 }
 
-                urls.add(makeFile(ucxt.getUserHome(), classpath[i]).toURI().toURL());
+                urls.add(makeFile(userHome, classpath[i]).toURI().toURL());
             }
 
             // System.out.println(urls[i].toExternalForm());
@@ -103,6 +106,11 @@ public class ClassLoaderFactory {
 
         URL[] uurl = urls.toArray(new URL[urls.size()]);
         return new URLClassLoader(uurl, parent);
+    }
+
+    static public ClassLoader createClassLoader(String[] classpath, ClassLoader parent, IUserContext ucxt)
+            throws Exception {
+        return createClassLoader(classpath, parent, ucxt.getUserHome());
     }
 
     public static synchronized ClassLoader createUserClassloader(String name, String classpath, ClassLoader parent,

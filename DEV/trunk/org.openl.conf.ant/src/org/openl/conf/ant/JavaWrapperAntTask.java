@@ -6,6 +6,7 @@ package org.openl.conf.ant;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -14,14 +15,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.UserContext;
-import org.openl.exception.OpenLCompilationException;
+import org.openl.dependency.IDependencyManager;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.main.OpenLWrapper;
@@ -44,6 +49,8 @@ import org.openl.util.generation.SimpleBeanJavaGenerator;
  * 
  */
 public class JavaWrapperAntTask extends Task {
+    
+    private static final Log LOG = LogFactory.getLog(JavaWrapperAntTask.class);
 
     private static final String GOAL_MAKE_WRAPPER = "make wrapper";
     private static final String GOAL_UPDATE_PROPERTIES = "update properties";
@@ -90,6 +97,8 @@ public class JavaWrapperAntTask extends Task {
     private String rulesFolder = "rules";
 
     private String extendsClass = null;
+    
+    private String dependencyManagerClass;
 
     /*
      * Full or relative path to directory where properties will be saved
@@ -244,20 +253,28 @@ public class JavaWrapperAntTask extends Task {
         return ignoreNonJavaTypes;
     }
 
+    public String getDependencyManager() {
+        return dependencyManagerClass;
+    }
+
+    public void setDependencyManager(String dependencyManagerClass) {
+        this.dependencyManagerClass = dependencyManagerClass;
+    }
+
     private IOpenClass makeOpenClass() throws Exception {
-
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), userHome);
-        if (userClassPath != null) {
-            ClassLoader cl = ClassLoaderFactory.createClassLoader(userClassPath, this.getClass().getClassLoader(), ucxt);
-
-            ucxt = new UserContext(cl, userHome);
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
+        
+        ClassLoader applicationClassLoader = getApplicationClassLoader();        
+        UserContext ucxt = getUserContext(applicationClassLoader);
+        
+        SimpleBundleClassLoader bundleClassLoader = new SimpleBundleClassLoader(applicationClassLoader);
+        Thread.currentThread().setContextClassLoader(bundleClassLoader);
+        
         long start = System.currentTimeMillis();
         OpenClassJavaWrapper jwrapper = null;
         try {
-            jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile);
+            IDependencyManager dependencyManager = instantiateDependencyManager();            
+            
+            jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile, false, dependencyManager);
         } finally {
             long end = System.currentTimeMillis();
             System.out.println("Loaded " + srcFile + " in " + (end - start) + " ms");
@@ -272,6 +289,34 @@ public class JavaWrapperAntTask extends Task {
         } //else {
             return jwrapper.getOpenClass();
 //        }
+    }
+
+    private UserContext getUserContext(ClassLoader cl) throws Exception {
+        return new UserContext(cl, userHome);
+    }
+    
+    private ClassLoader getApplicationClassLoader() throws Exception {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (userClassPath != null) {
+            cl = ClassLoaderFactory.createClassLoader(userClassPath, this.getClass().getClassLoader(), userHome);
+        }
+        return cl;
+    }
+    
+    
+
+    private IDependencyManager instantiateDependencyManager() {
+        IDependencyManager dependecyManager = null;
+        if (StringUtils.isNotBlank(dependencyManagerClass)) {            
+            try {
+                Class<?> depManagerClass = Class.forName(dependencyManagerClass);
+                Constructor<?> constructor = depManagerClass.getConstructor();
+                dependecyManager = (IDependencyManager) constructor.newInstance();
+            } catch (Exception e) {
+                LOG.debug(e);
+            }
+        }        
+        return dependecyManager;
     }
 
     private String getErrorMessage(List<OpenLMessage> errorMessages) {
