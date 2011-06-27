@@ -104,8 +104,8 @@ public class ShowTableBean {
                 && (getTestRunResults().isNotEmpty() || table.isExecutable());
 
             String tableType = table.getType();
-            if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
-                    || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD)) {
+            if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
+                    || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
                 targetTables = model.getTargetTables(uri);
             }
 
