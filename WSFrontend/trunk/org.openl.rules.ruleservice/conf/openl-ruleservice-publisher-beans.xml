@@ -3,22 +3,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!--  -->
+	<!-- Simple front end to access all services. -->
 	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontend"/>
 
-	<!-- Exposes web services. -->	
+	<!-- Deploymen admin defines the way to expose services. -->
 	<bean id="deploymentAdmin" class="org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin">
 		<property name="frontend" ref="frontend"></property>
 	</bean>
 
-	<!--  -->
+	<!-- Provide information about modules that can be used as dependencies. -->
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
 	
-	<!--  -->
+	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
 	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>
 	
 	<!-- Initializes OpenL Engine instances according to web services configuration description 
-	and calls DeploymentAdmin to expose corresponding web service -->
+	and calls DeploymentAdmin to expose corresponding web service. -->
 	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
 		<property name="deploymentAdmin" ref="deploymentAdmin"/>
 		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
