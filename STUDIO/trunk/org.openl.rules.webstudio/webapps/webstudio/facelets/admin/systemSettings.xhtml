@@ -17,7 +17,14 @@
             #tab-container ul li { width: 100px; margin: 0; padding: 0; text-align: center; }
             #tab-container ul li a { display: block; padding: 15px 0; outline: none; text-decoration: none; color: rgb(31,31,31); }
             #tab-container ul li a span { display: block; }
-            #tab-container ul li.selected-tab { background: #F7F7F7; font-weight: bold; position: relative; left: 1px; border: 1px solid rgb(195,195,195); border-left: 0; border-right: 1px dashed rgb(230,230,230); box-shadow: -2px 1px 2px rgb(210,210,210); }
+            #tab-container ul li.selected-tab {
+                background: #F7F7F7; font-weight: bold; position: relative; left: 1px; border: 1px solid rgb(195,195,195); border-left: 0; border-right: 1px dashed rgb(230,230,230); box-shadow: -2px 1px 2px rgb(210,210,210);
+                background: -moz-linear-gradient(left center , #FEFEFE, #F7F7F7);
+                background: -webkit-linear-gradient(left center , #FEFEFE, #F7F7F7);
+                background: -ms-linear-gradient(left center , #FEFEFE, #F7F7F7);
+                background: linear-gradient(left center , #FEFEFE, #F7F7F7);
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=1);
+            }
             #tab-container ul li:first-child.selected-tab { border-top: 0; }
             #tab-container .data-container { padding: 1px 0 0 100px; }
 
