@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.core
 Bundle-SymbolicName: org.openl.core;singleton:=true
-Bundle-Version: 5.8.0
+Bundle-Version: 5.8.1
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.commons;visibility:=reexport,
  org.openl.lib
