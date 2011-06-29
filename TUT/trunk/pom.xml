@@ -10,8 +10,8 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.5.0</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.5.0</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</developerConnection>
   </scm>
 
   <modules>
