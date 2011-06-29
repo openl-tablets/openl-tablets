@@ -6,21 +6,21 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
     <version>5.8.0</version>
-    <relativePath></relativePath><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687-->
+    <relativePath /><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687-->
   </parent>
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.eclipse-pom</artifactId>
-  <version>5.7.6-SNAPSHOT</version>
+  <version>5.8.0</version>
   <packaging>pom</packaging>
   <name>OpenL - Eclipse</name>
   <description>Eclipse related projects</description>
   <url>http://openl-tablets.sf.net/</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/trunk</developerConnection>
-    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags/release-5.8.0/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags/release-5.8.0/trunk</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.8.0/openl-tablets</url>
   </scm>
 
   <modules>
