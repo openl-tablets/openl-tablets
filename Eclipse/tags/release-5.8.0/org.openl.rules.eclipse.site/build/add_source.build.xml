@@ -1,0 +1,36 @@
+<project default="add_all_source" basedir="..">
+
+<property file="../org.openl.core/src/org/openl/main/openl.version.properties"/>
+	
+<target name="add_all_source">
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.commons"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.conf.ant"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.core"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.eclipse.ui"/></antcall>	
+<!--	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.eclipse.ui.wizard"/></antcall>	
+-->	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.j"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.eclipse.ui"/></antcall>	
+<!--	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.eclipse.ui.wizard"/></antcall>	
+-->	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.validator"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.webstudio.java"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.security"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.security.standalone"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.workspace"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.repository"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.repository.jcr"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.repository.jcr.jackrabbit"/></antcall>	
+</target>
+	
+<target name="add_source">
+		<echo message="Updating ${plugin_name}_${openl.version}.jar"/>
+		<jar  destfile="plugins/${plugin_name}_${openl.version}.jar" update="true" basedir="../${plugin_name}/src"></jar>
+</target>
+
+	
+	
+</project>
