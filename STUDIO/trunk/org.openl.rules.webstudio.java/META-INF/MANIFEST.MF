@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Webstudio Java Plug-in
 Bundle-SymbolicName: org.openl.rules.webstudio.java
-Bundle-Version: 5.8.0
+Bundle-Version: 5.8.1
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.tomcat.lib;visibility:=reexport,
  org.openl.core;visibility:=reexport,
