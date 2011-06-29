@@ -6,21 +6,21 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
     <version>5.8.0</version>
-    <relativePath></relativePath><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687-->
+    <relativePath /><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687-->
   </parent>
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
-  <version>5.7.6-SNAPSHOT</version>
+  <version>5.8.0</version>
   <packaging>pom</packaging>
   <name>OpenL - STUDIO</name>
   <description>OpenL WebStudio Pom Project</description>
   <url>http://openl-tablets.sf.net/</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk</developerConnection>
-    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/tags/release-5.8.0/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/tags/release-5.8.0/trunk</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.8.0/openl-tablets</url>
   </scm>
 
   <modules>
@@ -45,7 +45,7 @@
       <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
     </repository>
 
-    <repository>
+    <!--<repository>
       <id>jboss</id>
       <url>http://repository.jboss.com/maven2</url>
     </repository>
@@ -53,7 +53,7 @@
     <repository>
       <id>apache-incubating</id>
       <url>http://people.apache.org/repo/m2-incubating-repository/</url>
-    </repository>
+    </repository>-->
   </repositories>
 
   <pluginRepositories>
