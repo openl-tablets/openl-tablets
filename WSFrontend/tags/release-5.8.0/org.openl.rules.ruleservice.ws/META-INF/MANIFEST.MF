@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Ruleservice Plug-in
+Bundle-SymbolicName: org.openl.rules.ruleservice.ws;singleton:=true
+Bundle-Version: 5.8.0
+Bundle-Vendor: OpenL Tablets
+Bundle-Localization: plugin
+Require-Bundle: org.openl.rules.ruleservice.ws.lib,
+ org.openl.rules.ruleservice,
+ org.openl.conf.ant,
+ org.openl.grammars,
+ org.openl.j,
+ org.openl.j.science,
+ org.openl.rules,
+ org.openl.rules.diff,
+ org.openl.rules.security,
+ org.openl.rules.security.standalone,
+ org.openl.rules.tableeditor,
+ org.openl.rules.webstudio,
+ org.openl.rules.webstudio.java,
+ org.openl.commons.web
+Export-Package: org.openl.rules.ruleservice
