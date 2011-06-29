@@ -10,7 +10,7 @@
     <name>@project.name@</name>
 
     <properties>
-        <openl.rules.version>5.8.0-SNAPSHOT</openl.rules.version>
+        <openl.rules.version>5.8.1-SNAPSHOT</openl.rules.version>
     </properties>
 
     <dependencies>
