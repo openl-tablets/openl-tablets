@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.tutorials-pom</artifactId>
+    <version>5.5.0</version>
+    <relativePath>../org.openl.rules.tutorials-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.tutorials</artifactId>
+  <version>5.5.0</version>
+  <name>OpenL - Tutorials</name>
+  <description />
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.5.0</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.5.0</developerConnection>
+  </scm>
+
+  <build>
+    <sourceDirectory>.</sourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>org.openl.rules.examples*/**/*.java</include>
+            <include>org.openl.tablets.tutorial*/**/*.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>org.openl.rules.examples*/</include>
+          <include>org.openl.tablets.tutorial*/</include>
+          <include>org.openl.tablets.deploy*/</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.core</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>com.exigen.rules</groupId>
+        <artifactId>com.exigen.rules.constrainer</artifactId>
+      </dependency>
+
+    </dependencies>
+</project>
