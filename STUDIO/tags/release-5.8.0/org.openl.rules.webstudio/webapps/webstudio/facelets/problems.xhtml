@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/view.xhtml">
+
+    <ui:define name="workspace">
+        <a4j:loadStyle src="resource:///css/tree.css" />
+
+        <!-- Tree BEGIN -->
+        <rich:tree styleClass="tree" value="#{problemsBean.tree}" switchType="client" toggleOnClick="true"
+            var="node" nodeFace="#{node.type}" selectedClass="treeNodeSelected">
+            <rich:treeNode type="errors" icon="webresource/images/error16.png">
+                <h:outputText value="#{node.name}" />
+            </rich:treeNode>
+            <rich:treeNode type="error" iconLeaf="webresource/images/error16.png">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="warnings" icon="webresource/images/warning16.png">
+                <h:outputText value="#{node.name}" />
+            </rich:treeNode>
+            <rich:treeNode type="warning" iconLeaf="webresource/images/warning16.png">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+        </rich:tree>
+        <!-- Tree END -->
+    </ui:define>
+
+</ui:composition>

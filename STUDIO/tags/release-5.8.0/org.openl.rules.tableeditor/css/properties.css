@@ -1,0 +1,84 @@
+img {
+    border: 0;
+}
+
+.te_props {
+    font-size: 12px;
+    font-family: Arial;
+}
+
+.te_props_header {
+    padding: 5px 0px 6px 3px;
+    background-color: rgb(232,236,240);
+    font-weight:bold;
+}
+
+.te_props_propstable {
+    margin-bottom: 5px;
+    border-top: 1px solid rgb(182,186,190);
+}
+
+.te_props_group {
+    border-bottom: 1px solid rgb(202,206,210);
+    width: 50%
+}
+
+.te_props_groupheader {
+    margin: 0px 0px 5px 5px;
+    color: #F09D0F;
+    font-weight: bold;
+}
+
+.te_props_grouptable {
+    margin: 0px 4px 8px 0px;
+    border-top: 1px dashed rgb(192,196,200);
+}
+
+.te_props_prop {
+}
+
+.te_props_prop input,
+.te_props_prop select {
+    color: rgb(40,40,40);
+    padding: 1px;
+}
+
+.te_props_prop_inherited {
+    background: #E8ECF0;
+    color: rgb(55,105,165);
+}
+
+.te_props_prop_inherited input,
+.te_props_prop_inherited select {
+    border-top-color: rgb(180,200,255) !important;
+    border-left-color: rgb(180,200,255) !important;
+    color: rgb(55,105,165);
+}
+
+input.te_props_prop_focused,
+select.te_props_prop_focused {
+    border-top-color: #F59B00 !important;
+    border-left-color: #F59B00 !important;
+}
+
+.te_props_proplabel {
+    font-weight: bold;
+    color: rgb(50,50,50);
+    padding: 2px 0px;
+}
+
+.te_props_propvalue {
+    font-size: 13px;
+}
+
+.te_props_hidebutton {
+    width: 15px;
+    height: 15px;
+    border: 0px;
+    background: none;
+    cursor: pointer;
+}
+
+.te_props_proptextinput {
+    width: 161px;
+}
