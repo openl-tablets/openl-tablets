@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.core;
 
-public class ServiceDeployException extends Exception {
+public class ServiceDeployException extends RuleServiceSystemException {
     private static final long serialVersionUID = -5393130145512014248L;
 
     public ServiceDeployException() {

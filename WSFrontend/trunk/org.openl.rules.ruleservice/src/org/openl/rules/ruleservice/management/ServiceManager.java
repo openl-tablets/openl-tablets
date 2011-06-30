@@ -24,7 +24,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     private IRuleService ruleService;
     private IServiceConfigurer serviceConfigurer;
     private IRulesLoader rulesLoader;
-    
+
     public void setRulesLoader(IRulesLoader rulesLoader) {
         this.rulesLoader = rulesLoader;
         if (this.rulesLoader != null) {
@@ -32,15 +32,15 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         }
         if (this.rulesLoader.getDataSource() != null) {
             this.rulesLoader.getDataSource().addListener(this);
-        }else{
+        } else {
             throw new IllegalArgumentException("The should be defined the data source in rules loader");
         }
     }
-    
+
     public IRulesLoader getRulesLoader() {
         return rulesLoader;
     }
-    
+
     public IRuleService getRuleService() {
         return ruleService;
     }
@@ -57,10 +57,10 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     }
 
     public void setServiceConfigurer(IServiceConfigurer serviceConfigurer) {
-        if (serviceConfigurer == null){
+        if (serviceConfigurer == null) {
             throw new IllegalArgumentException("serviceConfigurer can't be null");
         }
-        
+
         this.serviceConfigurer = serviceConfigurer;
     }
 
@@ -83,7 +83,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         for (ServiceDescription serviceDescription : servicesToBeDeployed) {
             newServices.put(serviceDescription.getName(), serviceDescription);
         }
-        
+
         undeployUnnecessary(newServices);
         redeployExisitng(newServices);
         deployNewServices(newServices);
@@ -107,7 +107,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     }
 
     private void redeployExisitng(Map<String, ServiceDescription> newServices) {
-        for (ServiceDescription serviceDescription : newServices.values()){
+        for (ServiceDescription serviceDescription : newServices.values()) {
             if (isServiceExists(serviceDescription.getName())) {
                 try {
                     ruleService.redeploy(serviceDescription);
@@ -119,7 +119,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     }
 
     private void deployNewServices(Map<String, ServiceDescription> newServices) {
-        for (ServiceDescription serviceDescription : newServices.values()){
+        for (ServiceDescription serviceDescription : newServices.values()) {
             if (!isServiceExists(serviceDescription.getName())) {
                 try {
                     ruleService.deploy(serviceDescription);
