@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -9,7 +11,11 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceException;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.springframework.aop.ThrowsAdvice;
+import org.springframework.aop.framework.ProxyFactory;
 
 /**
  * Publisher
@@ -53,7 +59,6 @@ public class RulesPublisher implements IRulesPublisher {
         resolveInterface(service);
     }
 
-    @SuppressWarnings("deprecation")
     private void instantiateServiceBean(OpenLService service) throws InstantiationException, ClassNotFoundException,
             IllegalAccessException {
         Object serviceBean = null;
@@ -62,8 +67,24 @@ public class RulesPublisher implements IRulesPublisher {
         } else {
             serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
         }
-        service.setServiceBean(serviceBean);
-
+        ProxyFactory factory = new ProxyFactory(serviceBean);
+        factory.addAdvice(new ExceptionWrapperThrowsAdvice());
+        if (!Proxy.isProxyClass(serviceBean.getClass())) {
+            factory.setProxyTargetClass(true);
+        } else {
+            factory.setProxyTargetClass(false);
+        }
+        Thread.currentThread().setContextClassLoader(serviceBean.getClass().getClassLoader());
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Object proxyServiceBean = null;
+        try {
+            proxyServiceBean = factory.getProxy();
+            service.setServiceBean(proxyServiceBean);
+        } catch (Throwable t) {
+            throw new RuleServiceException("Can't create a proxy of service bean object", t);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     private void resolveInterface(OpenLService service) throws InstantiationException, ClassNotFoundException {
@@ -173,5 +194,33 @@ public class RulesPublisher implements IRulesPublisher {
             throw new IllegalArgumentException("dependencyManager argument can't be null");
         }
         this.dependencyManager = dependencyManager;
+    }
+
+    public static class ExceptionWrapperThrowsAdvice implements ThrowsAdvice {
+        public void afterThrowing(Method m, Object[] args, Object target, RuntimeException ex) throws Throwable {
+            StringBuilder argsTypes = new StringBuilder();
+            boolean f = false;
+            for (Class<?> clazz : m.getParameterTypes()) {
+                if (f) {
+                    argsTypes.append(", ");
+                } else {
+                    f = true;
+                }
+                argsTypes.append(clazz.getName());
+            }
+            StringBuilder argsValues = new StringBuilder();
+            f = false;
+            for (Object arg : args) {
+                if (f) {
+                    argsValues.append(", ");
+                } else {
+                    f = true;
+                }
+                argsValues.append(arg.toString());
+            }
+            throw new RuleServiceWrapperException("During openL rule execution exception was occur. Method name is \""
+                    + m.getName() + "\". Arguments types are: " + argsTypes.toString() + ". "
+                    + "Arguments values are: " + argsValues.toString().replace("\r", "").replace("\n", "") + ".", ex);
+        }
     }
 }

@@ -21,7 +21,7 @@ public interface IRulesFrontend {
      * @param params Parameters for method execution
      * @return Result of execution
      */
-    Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params);
+    Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params) throws MethodInvocationException;
 
     /**
      * Executes method with specified parameters. Method discovery is done based
@@ -32,7 +32,7 @@ public interface IRulesFrontend {
      * @param params Parameters for method execution
      * @return Result of execution
      */
-    Object execute(String serviceName, String ruleName, Object... params);
+    Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException;
 
     /**
      * Gets values defined in rules.
@@ -41,7 +41,7 @@ public interface IRulesFrontend {
      * @param fieldName Technical name of the rule to execute
      * @return Data stored in field
      */
-    Object getValues(String serviceName, String fieldName);
+    Object getValues(String serviceName, String fieldName) throws MethodInvocationException;
 
     /**
      * Registers service to use it in calculations.

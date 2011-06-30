@@ -30,6 +30,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
 import org.openl.rules.ruleservice.simple.IRulesFrontend;
 import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
+import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 public class RulesPublisherTest {
@@ -81,7 +82,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMultiModuleService() throws Exception {
+    public void testMultiModuleService() throws MethodInvocationException{
         assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof MultiModuleInstantiationStrategy);
         assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));
         assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
@@ -89,7 +90,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMultipleServices() throws Exception {
+    public void testMultipleServices() throws Exception{
         assertEquals(2, publisher.getRunningServices().size());
         assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
         assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
@@ -100,7 +101,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testServiceClassResolving() throws Exception {
+    public void testServiceClassResolving() throws Exception{
         Class<?> tutorial4ServiceClass = publisher.findServiceByName("tutorial4").getServiceClass();
         assertTrue(tutorial4ServiceClass.isInterface());
         assertEquals("org.openl.rules.tutorial4.Tutorial4Interface", tutorial4ServiceClass.getName());

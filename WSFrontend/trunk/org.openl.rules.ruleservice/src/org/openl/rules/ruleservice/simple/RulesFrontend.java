@@ -11,6 +11,7 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.util.StringTool;
 
 /**
@@ -46,7 +47,8 @@ public class RulesFrontend implements IRulesFrontend {
     }
 
     /** {@inheritDoc} */
-    public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params) {
+    public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)
+            throws MethodInvocationException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
@@ -66,6 +68,9 @@ public class RulesFrontend implements IRulesFrontend {
                     log.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
                             serviceName), e);
                 }
+                if (e.getCause() instanceof RuleServiceWrapperException) {
+                    throw new MethodInvocationException(e.getMessage(), e.getCause());
+                }
             }
         }
 
@@ -73,7 +78,7 @@ public class RulesFrontend implements IRulesFrontend {
     }
 
     /** {@inheritDoc} */
-    public Object execute(String serviceName, String ruleName, Object... params) {
+    public Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
@@ -94,7 +99,7 @@ public class RulesFrontend implements IRulesFrontend {
     }
 
     /** {@inheritDoc} */
-    public Object getValues(String serviceName, String fieldName) {
+    public Object getValues(String serviceName, String fieldName) throws MethodInvocationException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
@@ -119,6 +124,10 @@ public class RulesFrontend implements IRulesFrontend {
                     log.warn(
                             String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName),
                             e);
+                }
+
+                if (e.getCause() instanceof RuleServiceWrapperException) {
+                    throw new MethodInvocationException(e.getCause());
                 }
             }
         }
