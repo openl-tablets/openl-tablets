@@ -60,34 +60,38 @@
             <substitution expression='${version}'/>
             <fileset refid="all_feature"/>
             <fileset refid="other_files"/>
-        </replaceregexp>
+        </replaceregexp>    	
+    	
         <replaceregexp byline="true" description="Updates OpenL version">
             <regexp pattern="openl.version=(.*)"/>
             <substitution expression="openl.version=${version}"/>
             <fileset refid="openl_version_file"/>
-        </replaceregexp>
+        </replaceregexp>   	
+    	
         <replaceregexp byline="true" description="Updates build number">
             <regexp pattern="openl.build=(.*)"/>
             <substitution expression="openl.build=${build}"/>
             <fileset refid="openl_version_file"/>
         </replaceregexp>
+    	
         <replaceregexp byline="false" description="Updates base-pom version">
-        	<regexp pattern="(?&lt;=&lt;version&gt;).*(?=&lt;/version&gt;[.\s]*&lt;/parent&gt;)"/>
+        	<regexp pattern="(?&lt;=&lt;version&gt;).*(?=&lt;/version&gt;[\s]*.*[\s]*&lt;/parent&gt;)"/>
             <substitution expression="${version_for_poms}"/>
             <fileset refid="project_pom"/>
-        </replaceregexp>
+        </replaceregexp>    	
     	
     	<!-- Change versions in base pom -->
         <replaceregexp byline="false" description="Updates base-pom version">
         	<regexp pattern="(?&lt;=&lt;openl.version.maven&gt;).*(?=&lt;/openl.version.maven&gt;[.\s]*&lt;)"/>
             <substitution expression="${version_for_poms}"/>
             <fileset refid="project_pom"/>
-        </replaceregexp>
+        </replaceregexp>    	
+    	
         <replaceregexp byline="false" description="Updates base-pom version">
         	<regexp pattern="(?&lt;=&lt;openl.version.eclipse&gt;).*(?=&lt;/openl.version.eclipse&gt;[.\s]*&lt;)"/>
             <substitution expression="${version}"/>
             <fileset refid="project_pom"/>
-        </replaceregexp>
+        </replaceregexp>    	
     </target>
 
     <target name="help">
