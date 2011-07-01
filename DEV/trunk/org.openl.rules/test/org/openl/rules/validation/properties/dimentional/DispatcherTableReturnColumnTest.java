@@ -13,11 +13,11 @@ import org.openl.types.java.JavaOpenClass;
 
 import static org.junit.Assert.*;
 
-public class DimensionPropertiesReturnColumnTest {
+public class DispatcherTableReturnColumnTest {
     
     @Test
     public void testGetparameterDeclaration() {
-        DimensionPropertiesReturnColumn retColumn = new DimensionPropertiesReturnColumn();
+        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
         IOpenClass originalReturnType = JavaOpenClass.FLOAT;
         retColumn.setOriginalReturnType(originalReturnType);
         
@@ -29,19 +29,19 @@ public class DimensionPropertiesReturnColumnTest {
     
     @Test 
     public void testGetCodeExpression() {
-        DimensionPropertiesReturnColumn retColumn = new DimensionPropertiesReturnColumn();
+        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
         assertEquals("result", retColumn.getCodeExpression());
     }
     
     @Test
     public void testGetTitle() {
-        DimensionPropertiesReturnColumn retColumn = new DimensionPropertiesReturnColumn();
+        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
         assertEquals("RESULT", retColumn.getTitle());
     }
     
     @Test
     public void testGetOriginalParamsThroughComma() {
-        DimensionPropertiesReturnColumn retColumn = new DimensionPropertiesReturnColumn();
+        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
         IMethodSignature signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.FLOAT});
         retColumn.setOriginalSignature(signature);
         
@@ -54,7 +54,7 @@ public class DimensionPropertiesReturnColumnTest {
     
     @Test
     public void testParamsThroughComma() {
-        DimensionPropertiesReturnColumn retColumn = new DimensionPropertiesReturnColumn();
+        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
         IMethodSignature signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.FLOAT});
         
         Map<String, IOpenClass> newIncomeParams = new HashMap<String, IOpenClass>();
