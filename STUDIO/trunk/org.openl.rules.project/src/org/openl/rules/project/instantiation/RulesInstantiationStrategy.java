@@ -152,11 +152,11 @@ public abstract class RulesInstantiationStrategy {
         return dependencyManager;
     }
     
-    protected void setRulesInterface(Class<?> rulesInterface){
+    public void setRulesInterface(Class<?> rulesInterface){
         this.rulesClass = rulesInterface;
     }
     
-    protected Class<?> getRulesClass(){
+    public Class<?> getRulesClass(){
         return rulesClass;
     }    
     

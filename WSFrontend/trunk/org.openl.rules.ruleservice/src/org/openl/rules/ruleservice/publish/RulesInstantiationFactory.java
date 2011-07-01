@@ -48,8 +48,10 @@ public class RulesInstantiationFactory implements IRulesInstantiationFactory {
             default:
                 MultiModuleInstantiationStrategy multiModuleInstantiationStrategy = new MultiModuleInstantiationStrategy(
                         modules, true, dependencyManager);
-                for (InitializingListener listener : initializingListeners) {
-                    multiModuleInstantiationStrategy.addInitializingListener(listener);
+                if (initializingListeners != null) {
+                    for (InitializingListener listener : initializingListeners) {
+                        multiModuleInstantiationStrategy.addInitializingListener(listener);
+                    }
                 }
                 return multiModuleInstantiationStrategy;
         }

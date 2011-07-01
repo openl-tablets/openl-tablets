@@ -44,6 +44,11 @@ public class MultiProjectEngineFactory extends AOpenLEngineFactory {
         this.modules = modules;
     }
 
+    public MultiProjectEngineFactory(Collection<Module> modules, Class<?> interfaceClass) {
+        this(modules);
+        this.interfaceClass = interfaceClass;
+    }
+
     public void setDependencyManager(IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
     }
