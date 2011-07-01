@@ -17,6 +17,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
 
 public class MultiModuleInstantiationTest {
@@ -34,17 +35,17 @@ public class MultiModuleInstantiationTest {
                 ITableProperties props1 = new TableProperties();
                 props1.setLob("lob1");
                 Map<String, Object> params1 = new HashMap<String, Object>();
-                params1.put("external-module-properties", props1);
+                params1.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, props1);
 
                 ITableProperties props2 = new TableProperties();
                 props2.setLob("lob2");
                 Map<String, Object> params2 = new HashMap<String, Object>();
-                params2.put("external-module-properties", props2);
+                params2.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, props2);
 
                 ITableProperties props3 = new TableProperties();
                 props3.setLob("lob3");
                 Map<String, Object> params3 = new HashMap<String, Object>();
-                params3.put("external-module-properties", props3);
+                params3.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, props3);
 
                 if ("project1".equals(module.getProject().getName())) {
                     module.setProperties(params1);
@@ -127,12 +128,12 @@ public class MultiModuleInstantiationTest {
                 ITableProperties props2 = new TableProperties();
                 props2.setLob("lob2");
                 Map<String, Object> params2 = new HashMap<String, Object>();
-                params2.put("external-module-properties", props2);
+                params2.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, props2);
 
                 ITableProperties props3 = new TableProperties();
                 props3.setLob("lob3");
                 Map<String, Object> params3 = new HashMap<String, Object>();
-                params3.put("external-module-properties", props3);
+                params3.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, props3);
 
                 if ("project1".equals(module.getProject().getName())) {
                     // base hello method used as template
