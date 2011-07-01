@@ -8,7 +8,7 @@ import java.util.Map;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.validation.properties.dimentional.ADimensionPropertyColumn;
+import org.openl.rules.validation.properties.dimentional.ADispatcherTableColumn;
 
 /**
  * Collect domains for all dimension properties.
@@ -74,7 +74,7 @@ public class DimensionPropertiesDomainsCollector {
             propertiesDomains.put(propNeedDomain, domainAdaptor);
             for (int i = 1; i <= arrayCollector.getNumberOfDomainElements(); i++) {
                 propertiesDomains.put(
-                        String.format("%s%s%s", propNeedDomain, ADimensionPropertyColumn.LOCAL_PARAM_SUFFIX, i), 
+                        String.format("%s%s%s", propNeedDomain, ADispatcherTableColumn.LOCAL_PARAM_SUFFIX, i), 
                         domainAdaptor);
             }
         }
@@ -82,7 +82,7 @@ public class DimensionPropertiesDomainsCollector {
 
     private void applyDomain(TablePropertyDefinition propDef, IDomainAdaptor gatheredDomain) {
         String propName = propDef.getName();
-        String key = propName + ADimensionPropertyColumn.LOCAL_PARAM_SUFFIX;
+        String key = propName + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX;
         if (gatheredDomain != null && !propertiesDomains.containsKey(key)) {
             propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAtribute(), gatheredDomain);
             propertiesDomains.put(propName, gatheredDomain);

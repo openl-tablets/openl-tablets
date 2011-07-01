@@ -161,29 +161,43 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return {@link DecisionTablePOIBuilder}
      */
     private DecisionTablePOIBuilder initDTPOIBuilder() {
-        // properties values from methods in group that will be used to build dispatcher table by dimensional properties.
-        List<ITableProperties> propertiesValues = getMethodsProperties();        
+        // properties values from methods in group that will be used 
+        // to build dispatcher table by dimensional properties.
+        //
+        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+        
+        DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
+
+        List<IDecisionTableColumn> conditions = getDispatcherTableConditions(propertiesFromMethods, rules);       
+        
+        // table name for dispatcher table
+        //
+        String newTableName = getDispatcherTableName();
+        DispatcherTableReturnColumn returnColumn = getReturnColumn();
+        
+        return new DecisionTablePOIBuilder(newTableName, conditions, returnColumn, rules.getRulesNumber());
+    }
+    
+    private List<IDecisionTableColumn> getDispatcherTableConditions(List<ITableProperties> propertiesFromMethods, 
+        DispatcherTableRules rules) {
+               
         List<TablePropertyDefinition> dimensionalPropertiesDef = 
             TablePropertyDefinitionUtils.getDimensionalTableProperties();
         
         List<IDecisionTableColumn> conditions = new ArrayList<IDecisionTableColumn>();
-        DimensionPropertiesRules rules = new DimensionPropertiesRules(propertiesValues);
         
+        // get only dimensional properties from methods properties
+        //
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            if (isPropertyValueSetInTables(dimensionProperty.getName(), propertiesValues)) {
-                conditions.add(DimensionProperiesColumnMaker.makeColumn(dimensionProperty, rules));
+            if (isPropertyPresented(dimensionProperty.getName(), propertiesFromMethods)) {
+                conditions.add(DispatcherTableColumnMaker.makeColumn(dimensionProperty, rules));
             }
         }
-        
-        // table name for dispatcher table
-        String newTableName = getDispatcherTableName();
-        DimensionPropertiesReturnColumn returnColumn = getReturnColumn();
-        
-        return new DecisionTablePOIBuilder(newTableName, conditions, returnColumn, rules.getRulesNumber());
+        return conditions;
     }
 
-    private DimensionPropertiesReturnColumn getReturnColumn() {         
-        return new DimensionPropertiesReturnColumn(getMember(), incomeParams);        
+    private DispatcherTableReturnColumn getReturnColumn() {         
+        return new DispatcherTableReturnColumn(getMember(), incomeParams);        
     }
     
     /**
@@ -191,18 +205,18 @@ public class TableSyntaxNodeDispatcherBuilder {
      * If no, we don`t need to create column for this property.
      * 
      */
-    private boolean isPropertyValueSetInTables(String propertyName, List<ITableProperties> tableProperties) {
-        boolean isPropertyValueSet = false;
+    private boolean isPropertyPresented(String propertyName, List<ITableProperties> methodsProperties) {
+        boolean isPropertyPresented = false;
 
-        for (ITableProperties properties : tableProperties) {
+        for (ITableProperties properties : methodsProperties) {
             String propertyValue = properties.getPropertyValueAsString(propertyName);            
             if (StringUtils.isNotEmpty(propertyValue)) {
-                isPropertyValueSet = true;
+                isPropertyPresented = true;
                 break;
             }
         }
 
-        return isPropertyValueSet;        
+        return isPropertyPresented;        
     }
 
     private ExecutableRulesMethod getMember() {

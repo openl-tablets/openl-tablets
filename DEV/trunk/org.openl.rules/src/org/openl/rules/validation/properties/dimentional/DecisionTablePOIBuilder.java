@@ -51,7 +51,7 @@ public class DecisionTablePOIBuilder {
         arrayConditions = new ArrayList<IDecisionTableColumn>();
       
         for (IDecisionTableColumn condition : conditions) {
-            if (condition.isArrayCondition()) {                    
+            if (condition.getNumberOfLocalParameters() > 1) {                    
                 arrayConditions.add(condition);
             } else {                    
                 simpleConditions.add(condition);
@@ -165,7 +165,7 @@ public class DecisionTablePOIBuilder {
      * @return number of written columns
      */
     private int writeArrayConditionColumn(int columnNumber, IDecisionTableColumn condition) {
-        int numberOfValues = condition.getMaxNumberOfValuesForRules();
+        int numberOfValues = condition.getNumberOfLocalParameters();
         
         if (numberOfValues > 0) {
             conditionNumber++; //is used further in writing logic

@@ -20,7 +20,7 @@ import org.openl.util.StringTool;
  * @author DLiauchuk
  *
  */
-public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColumn {
+public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     
     /**
      * Return type of the member of overloaded tables group.
@@ -45,10 +45,10 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
     private static final String RESULT_VAR = "result";
     
     /**for tests*/
-    protected DimensionPropertiesReturnColumn () {        
+    protected DispatcherTableReturnColumn () {        
     }
     
-    protected DimensionPropertiesReturnColumn(IOpenClass originalReturnType, String originalTableName, 
+    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, String originalTableName, 
             IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
         this.originalReturnType = originalReturnType;
         this.originalTableName = originalTableName;
@@ -56,7 +56,7 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
         this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);    
     }
     
-    public DimensionPropertiesReturnColumn(ExecutableRulesMethod originalMethod, 
+    public DispatcherTableReturnColumn(ExecutableRulesMethod originalMethod, 
             Map<String, IOpenClass> newIncomeParams) {        
         this(originalMethod.getHeader().getType(), originalMethod.getHeader().getName(), 
             originalMethod.getHeader().getSignature(), newIncomeParams);        
@@ -160,10 +160,10 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
         return result; 
     }
     
-    /**
-     * default behavior says that just one value can exist for any rule.
-     */
-    public int getMaxNumberOfValuesForRules() {
+    public int getNumberOfLocalParameters() {
+        /**
+         * For return column only one local parameter is possible.
+         */
         return 1;
     }
     
