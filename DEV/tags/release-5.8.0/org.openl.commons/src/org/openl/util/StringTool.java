@@ -575,7 +575,7 @@ public class StringTool {
     }
     
     public static String listToStringThroughCommas(List<String> values) {
-        String result = null;
+        String result = StringUtils.EMPTY;
         if (values != null && !values.isEmpty()) {
             StringBuffer strBuf = new StringBuffer();
             int paramNum = values.size();
