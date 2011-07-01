@@ -35,7 +35,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class PropertiesLoader {
 
-    private static final String EXTERNAL_MODULE_PROPERTIES_KEY = "external-module-properties";
+    public static final String EXTERNAL_MODULE_PROPERTIES_KEY = "external-module-properties";
 
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
 

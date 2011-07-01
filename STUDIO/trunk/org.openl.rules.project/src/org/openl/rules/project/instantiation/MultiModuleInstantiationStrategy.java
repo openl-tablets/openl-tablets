@@ -25,12 +25,21 @@ public class MultiModuleInstantiationStrategy extends RulesInstantiationStrategy
     private ClassLoader classLoader;
     
     private Collection<Module> modules;
+    private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
 
     public MultiModuleInstantiationStrategy(Collection<Module> modules, boolean executionMode, IDependencyManager dependencyManager) {
         super(null, executionMode, createDependencyManager(modules, executionMode, dependencyManager));
         this.modules = modules;
     }
     
+    public void addInitializingListener(InitializingListener listener) {
+        listeners.add(listener);
+    }
+    
+    public void removeInitializingListener(InitializingListener listener) {
+        listeners.remove(listener);
+    }
+
     private static IDependencyManager createDependencyManager(Collection<Module> modules, boolean executionMode, IDependencyManager dependencyManager){
         RulesProjectDependencyManager multiModuleDependencyManager = new RulesProjectDependencyManager();
         multiModuleDependencyManager.setExecutionMode(executionMode);
@@ -100,6 +109,11 @@ public class MultiModuleInstantiationStrategy extends RulesInstantiationStrategy
     private MultiProjectEngineFactory getEngineFactory() {
         if (factory == null) {
             factory = new MultiProjectEngineFactory(modules);
+            for (Module module : modules) {
+                for (InitializingListener listener : listeners) {
+                    listener.afterModuleLoad(module);
+                }
+            }
             factory.setDependencyManager(getDependencyManager());
         }
         
