@@ -108,7 +108,7 @@ public class MultiModuleInstantiationStrategy extends RulesInstantiationStrategy
     
     private MultiProjectEngineFactory getEngineFactory() {
         if (factory == null) {
-            factory = new MultiProjectEngineFactory(modules);
+            factory = new MultiProjectEngineFactory(modules, getRulesClass());
             for (Module module : modules) {
                 for (InitializingListener listener : listeners) {
                     listener.afterModuleLoad(module);

@@ -55,8 +55,8 @@ public class RulesPublisher implements IRulesPublisher {
             RulesServiceEnhancer enhancer = new RulesServiceEnhancer(instantiationStrategy);
             service.setEnhancer(enhancer);
         }
-        instantiateServiceBean(service);
         resolveInterface(service);
+        instantiateServiceBean(service);
     }
 
     private void instantiateServiceBean(OpenLService service) throws InstantiationException, ClassNotFoundException,
@@ -100,6 +100,7 @@ public class RulesPublisher implements IRulesPublisher {
             ClassLoader serviceClassLoader = generatedServiceClass.getClassLoader();
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
+                service.getInstantiationStrategy().setRulesInterface(serviceClass);
             } catch (ClassNotFoundException e) {
                 log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
                 serviceClass = null;
