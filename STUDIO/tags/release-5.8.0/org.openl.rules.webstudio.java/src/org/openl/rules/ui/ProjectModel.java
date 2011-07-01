@@ -405,9 +405,12 @@ public class ProjectModel {
 
         for (IOpenMethod targetMethod : targetMethods) {
             if (targetMethod != null) {
-                TableSyntaxNode tsn = (TableSyntaxNode) targetMethod.getInfo().getSyntaxNode();
-                IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
-                targetTables.add(targetTable);
+                IMemberMetaInfo methodInfo = targetMethod.getInfo();
+                if (methodInfo != null) {
+                    TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
+                    IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
+                    targetTables.add(targetTable);
+                }
             }
         }
 
