@@ -182,12 +182,8 @@ public class TableSyntaxNodeDispatcherBuilder {
         return new DecisionTablePOIBuilder(newTableName, conditions, returnColumn, rules.getRulesNumber());
     }
 
-    private DimensionPropertiesReturnColumn getReturnColumn() {
-        String originalMethodName = getMethodName();
-        IMethodSignature originalSignature = getMethodSignature();
-        IOpenClass originalReturnType = getMethodReturnType();
-         
-        return new DimensionPropertiesReturnColumn(originalReturnType, originalMethodName, originalSignature, incomeParams);        
+    private DimensionPropertiesReturnColumn getReturnColumn() {         
+        return new DimensionPropertiesReturnColumn(getMember(), incomeParams);        
     }
     
     /**

@@ -1,10 +1,13 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -41,15 +44,38 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
     
     private static final String RESULT_VAR = "result";
     
-    public DimensionPropertiesReturnColumn(IOpenClass originalReturnType, String originalTableName, IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
+    /**for tests*/
+    protected DimensionPropertiesReturnColumn () {        
+    }
+    
+    protected DimensionPropertiesReturnColumn(IOpenClass originalReturnType, String originalTableName, 
+            IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
         this.originalReturnType = originalReturnType;
         this.originalTableName = originalTableName;
         this.originalSignature = originalSignature;
-        this.newIncomeParams = newIncomeParams;    
+        this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);    
     }
     
+    public DimensionPropertiesReturnColumn(ExecutableRulesMethod originalMethod, 
+            Map<String, IOpenClass> newIncomeParams) {        
+        this(originalMethod.getHeader().getType(), originalMethod.getHeader().getName(), 
+            originalMethod.getHeader().getSignature(), newIncomeParams);        
+    }
+
+    public void setOriginalReturnType(IOpenClass originalReturnType) {
+        this.originalReturnType = originalReturnType;
+    }
+    
+    public void setOriginalSignature(IMethodSignature originalSignature) {
+        this.originalSignature = originalSignature;
+    }
+
+    public void setNewIncomeParams(Map<String, IOpenClass> newIncomeParams) {
+        this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);
+    }
+
     public String getParameterDeclaration() {        
-        return String.format("%s %s", originalReturnType.getDisplayName(0), RESULT_VAR);
+        return String.format("%s %s", getReturnType().getDisplayName(0), getCodeExpression());
     }
     
     public String getCodeExpression() {
@@ -57,7 +83,7 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
     }
     
     public String getTitle() {
-        return RESULT_VAR.toUpperCase();
+        return getCodeExpression().toUpperCase();
     }
     
     public String getRuleValue(int ruleIndex, int elementNum) {        
@@ -68,23 +94,41 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
         return originalReturnType;
     }
     
-    private String originalParamsThroughComma() {
+    /**protected for tests*/
+    protected String originalParamsThroughComma() {
+        String result = StringUtils.EMPTY;
         List<String> values = new ArrayList<String>();        
         for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {            
             values.add(originalSignature.getParameterName(i));            
         }
-        return StringTool.listToStringThroughCommas(values);
+        if (!values.isEmpty()) {
+            result = StringTool.listToStringThroughCommas(values); 
+        }
+        return result; 
     }
 
     public String paramsThroughComma() {
-        StringBuffer strBuf = new StringBuffer();
-        strBuf.append(originalParamsWithTypesThroughComma());  
-        strBuf.append(", ");
-        strBuf.append(paramsWithTypesThroughComma(newIncomeParams));  
-        return strBuf.toString();
+        List<String> values = new ArrayList<String>();
+        String originalParamsThroughComma = originalParamsWithTypesThroughComma();
+        
+        // add original parameters of the method
+        //
+        if (StringUtils.isNotBlank(originalParamsThroughComma)) {
+            values.add(originalParamsThroughComma);
+        }
+        
+        // add new income parameters through comma
+        //
+        String newParamsThroughComma = paramsWithTypesThroughComma(newIncomeParams);
+        if (StringUtils.isNotBlank(newParamsThroughComma)) {
+            values.add(newParamsThroughComma);
+        }
+        
+        return StringTool.listToStringThroughCommas(values);
     }
     
-    private String originalParamsWithTypesThroughComma() {        
+    private String originalParamsWithTypesThroughComma() {
+        String result = StringUtils.EMPTY;
         List<String> values = new ArrayList<String>();        
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) { 
             if (!(originalSignature.getParameterType(j) instanceof NullOpenClass)) { // on compare in repository tutorial10,
@@ -98,16 +142,22 @@ public class DimensionPropertiesReturnColumn implements IDecisionTableReturnColu
                     originalSignature.getParameterName(j)));
             }           
         }   
-        return StringTool.listToStringThroughCommas(values);
+        if (values.size() > 0) {
+            result = StringTool.listToStringThroughCommas(values); 
+        }
+        return result; 
     }
     
-    private String paramsWithTypesThroughComma(Map<String, IOpenClass> params) {
+    private String paramsWithTypesThroughComma(Map<String, IOpenClass> params) {    
+        String result = StringUtils.EMPTY;
         List<String> values = new ArrayList<String>();
         for (Map.Entry<String, IOpenClass> param : params.entrySet()) {
             values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
         }
-        
-        return StringTool.listToStringThroughCommas(values);
+        if (!values.isEmpty()) {
+            result = StringTool.listToStringThroughCommas(values);; 
+        }        
+        return result; 
     }
     
     /**
