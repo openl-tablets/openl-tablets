@@ -28,7 +28,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
     }
 
     public String getCodeExpression() {
-        String propertyName = getProperty().getName();
+        String result = StringUtils.EMPTY;        
         MatchingExpression matchExpression = getProperty().getExpression();        
         
         // array values can have only "contains" operation  
@@ -36,24 +36,31 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
         StringBuffer codeExpression = new StringBuffer();
         
         if (matchExpression != null) {
-            // building condition like: 
-            // "<propertyName>Local1 == <contextValue> || <propertyName>Local2 == <contextValue> || ..."
-            //
-            for (int i = 1; i <= getNumberOfLocalParameters(); i++) {
-                if (i > 1){
-                    codeExpression.append(" || ");
+            
+            if (getNumberOfLocalParameters() == 1) {
+                // code expression will look like: "<propertyName>Local == <contextValue>"
+                //
+                result = createCodeExpression(matchExpression, getLocalParameterName());
+            } else {
+                // building condition like: 
+                // "<propertyName>Local1 == <contextValue> || <propertyName>Local2 == <contextValue> || ..."
+                //
+                for (int i = 1; i <= getNumberOfLocalParameters(); i++) {
+                    if (i > 1){
+                        codeExpression.append(" || ");
+                    }
+                    String parameterName = getLocalParameterName(i);                    
+                    codeExpression.append(createCodeExpression(matchExpression, parameterName));
                 }
-                String oneValueName = String.format("%s%s%d", propertyName, 
-                    ADispatcherTableColumn.LOCAL_PARAM_SUFFIX, i);
-                String expressionForOneValue = matchExpression.getMatchExpression().getCodeExpression(oneValueName);
-                codeExpression.append(expressionForOneValue);
+                result = codeExpression.toString();
             }
         } else {
-            String message = String.format("Can`t create expression for \"%s\" property validation.", propertyName);
+            String message = String.format("Can`t create expression for \"%s\" property validation.", 
+                getProperty().getName());
             OpenLMessagesUtils.addWarn(message);
         }
-        return codeExpression.toString();        
-    }
+        return result;        
+    }    
 
     public String getTitle() {        
         return getProperty().getDisplayName();
@@ -61,10 +68,8 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
 
     public String getParameterDeclaration() {
         Class<?> componentType = getProperty().getType().getInstanceClass().getComponentType();
-        return String.format("%s %s", componentType.getSimpleName(), getProperty().getName() + 
-            ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);        
+        return String.format("%s %s", componentType.getSimpleName(), getLocalParameterName());        
     }
-    
     
     public String getRuleValue(int ruleIndex, int localParameterIndex) {
         String valuesThroughComma = getRules().getRule(ruleIndex).getPropertyValueAsString(getProperty().getName());
@@ -94,5 +99,23 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             }
         }        
         return maxNumberOfValues;        
+    }
+    
+    private String getLocalParameterName() {
+        return String.format("%s%s", getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
+    }
+    
+    private String createCodeExpression(MatchingExpression matchExpression, String parameterName) {        
+        return matchExpression.getMatchExpression().getCodeExpression(parameterName);
+    }
+    
+    /**
+     * Creates code expression for appropriate local parameter.
+     * 
+     * @param numberOfLocalParameter number of local paramter
+     * @return code expression like "<propertyName>Local1"
+     */
+    private String getLocalParameterName(int numberOfLocalParameter) {
+        return String.format("%s%d", getLocalParameterName(), numberOfLocalParameter);
     }
 }
