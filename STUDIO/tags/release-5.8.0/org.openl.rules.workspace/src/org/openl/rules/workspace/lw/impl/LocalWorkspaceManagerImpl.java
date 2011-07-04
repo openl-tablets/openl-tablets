@@ -41,10 +41,14 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         log.info("Allow local user:" + autoLogin);
     }
 
-    protected LocalWorkspaceImpl createEclipseWorkspace(WorkspaceUser user) throws WorkspaceException {
+    protected LocalWorkspaceImpl createLocalWorkspace(WorkspaceUser user) throws WorkspaceException {
         log.debug(MsgHelper.format("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(),
                 localWorkspace));
-        return new LocalWorkspaceImpl(user, new File(localWorkspace), localWorkspaceFolderFilter,
+        File localWorkspaceDir = new File(localWorkspace);
+        if (!localWorkspaceDir.exists()) {
+            localWorkspaceDir.mkdir();
+        }
+        return new LocalWorkspaceImpl(user, localWorkspaceDir, localWorkspaceFolderFilter,
                 localWorkspaceFileFilter);
     }
 
@@ -64,7 +68,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
             if (autoLogin && AccessManager.LOCAL_USER_ID.equals(userId)) {
-                lwi = createEclipseWorkspace(user);
+                lwi = createLocalWorkspace(user);
             } else {
                 lwi = createWorkspace(user);
             }
