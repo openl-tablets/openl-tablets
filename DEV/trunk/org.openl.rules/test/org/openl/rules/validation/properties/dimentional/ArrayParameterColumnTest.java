@@ -22,6 +22,17 @@ public class ArrayParameterColumnTest {
         
         assertEquals("countryLocal1 == country || countryLocal2 == country || countryLocal3 == country || countryLocal4 == country", 
             arrayColumn.getCodeExpression());
+        
+        // test array column with one element
+        //
+        TableProperties tableProperty = new TableProperties();
+        tableProperty.setCountry(new CountriesEnum[]{CountriesEnum.CL});
+        List<ITableProperties> properties = new ArrayList<ITableProperties>();
+        properties.add(tableProperty);
+        ArrayParameterColumn arrayColumn1 = new ArrayParameterColumn(getArrayProperty(), 
+            new DispatcherTableRules(properties));
+        assertEquals("countryLocal == country", arrayColumn1.getCodeExpression());
+        
     }
     
     @Test
