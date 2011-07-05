@@ -64,6 +64,9 @@ public class FileSystemDataSource implements IDataSource {
         return localWorkspaceFolderFilter;
     }
 
+    public FileSystemDataSource() {
+    }
+
     public FileSystemDataSource(String loadDeploymentsFromDirectory) {
         if (loadDeploymentsFromDirectory == null) {
             throw new IllegalArgumentException("loadDeploymentsFromDirectory argument can't be null");
