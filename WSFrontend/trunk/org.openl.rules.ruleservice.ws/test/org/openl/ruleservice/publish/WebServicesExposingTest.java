@@ -69,7 +69,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
             List<ModuleConfiguration> modules = new ArrayList<ServiceDescription.ModuleConfiguration>(1);
             modules.add(new ModuleConfiguration(deploymentName, getLastVersion(loader, deploymentName), deploymentName,
                     "Tutorial 4 - UServ Product Derby"));
-            return new ServiceDescription("tutorial4", TUTORIAL4_SERVICE_URL, null, false, modules);
+            return new ServiceDescription("tutorial4", TUTORIAL4_SERVICE_URL, "org.openl.rules.tutorial4.Tutorial4Interface" , false, modules);
         }
 
         private ServiceDescription resolveMultimoduleService(IRulesLoader loader) {

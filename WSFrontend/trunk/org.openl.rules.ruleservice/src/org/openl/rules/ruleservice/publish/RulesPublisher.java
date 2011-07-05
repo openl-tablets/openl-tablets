@@ -14,6 +14,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationHandler;
 import org.springframework.aop.ThrowsAdvice;
 import org.springframework.aop.framework.ProxyFactory;
 
@@ -67,6 +68,9 @@ public class RulesPublisher implements IRulesPublisher {
         } else {
             serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
         }
+        Class<?> serviceClass = service.getServiceClass();
+        serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass },
+                new ServiceInvocationHandler(serviceBean, serviceClass));
         ProxyFactory factory = new ProxyFactory(serviceBean);
         factory.addAdvice(new ExceptionWrapperThrowsAdvice());
         if (!Proxy.isProxyClass(serviceBean.getClass())) {

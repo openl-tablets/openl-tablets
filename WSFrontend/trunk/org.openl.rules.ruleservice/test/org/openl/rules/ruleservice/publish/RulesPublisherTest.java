@@ -99,6 +99,35 @@ public class RulesPublisherTest {
         assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
         assertEquals(1, publisher.getRunningServices().size());
     }
+    
+    private int getCount()throws Exception{
+        Class<?> counter = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
+                .loadClass("org.openl.rules.tutorial4.InvocationCounter");
+        return (Integer)counter.getMethod("getCount").invoke(null);
+    }
+    
+    @Test(expected=MethodInvocationException.class)
+    public void testMethodBeforeInterceptors() throws Exception{
+        int count = getCount();
+        final int executedTimes = 10;
+        for(int i = 0; i < executedTimes; i++){
+            assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
+        }
+        assertEquals(executedTimes, getCount() - count);
+        Object driver = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
+                .loadClass("org.openl.generated.beans.Driver").newInstance();
+        System.out.println(frontend.execute("tutorial4", "driverAgeType", new Object[] { driver }));
+    }
+
+    public void testMethodAfterInterceptors() throws Exception{
+        Object driver = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
+                .loadClass("org.openl.generated.beans.Driver").newInstance();
+        Method nameSetter = driver.getClass().getMethod("setName", String.class);
+        nameSetter.invoke(driver, "name");
+        Class<? extends Object> returnType = frontend.execute("tutorial4", "driverAgeType", new Object[] { driver }).getClass();
+        assertTrue(returnType.isEnum());
+        assertTrue(returnType.getName().equals("org.openl.rules.tutorial4.DriverAgeType"));
+    }
 
     @Test
     public void testServiceClassResolving() throws Exception{
