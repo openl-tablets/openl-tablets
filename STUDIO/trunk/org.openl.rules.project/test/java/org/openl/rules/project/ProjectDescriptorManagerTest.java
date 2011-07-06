@@ -1,9 +1,9 @@
 package org.openl.rules.project;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,13 +31,13 @@ public class ProjectDescriptorManagerTest {
 
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
-        assertEquals("file://MyModule1.xls", module1.getRulesRootPath().getPath());
+        assertTrue(new File(module1.getRulesRootPath().getPath()).isAbsolute());
         assertEquals(ModuleType.STATIC, module1.getType());
         assertEquals("com.test.MyWrapper", module1.getClassname());
 
         Module module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
-        assertEquals("file://MyModule2.xls", module2.getRulesRootPath().getPath());
+        assertTrue(new File(module2.getRulesRootPath().getPath()).isAbsolute());
         assertEquals(ModuleType.API, module2.getType());
         assertNull(module2.getClassname());
 
