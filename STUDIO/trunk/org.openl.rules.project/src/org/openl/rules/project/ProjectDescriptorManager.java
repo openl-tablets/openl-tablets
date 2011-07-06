@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
 import org.openl.rules.project.model.validation.ValidationException;
@@ -62,6 +63,11 @@ public class ProjectDescriptorManager {
         
         for (Module module : descriptor.getModules()) {
             module.setProject(descriptor);
+            if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
+                PathEntry absolutePath = new PathEntry(
+                        new File(projectRoot, module.getRulesRootPath().getPath()).getAbsolutePath());
+                module.setRulesRootPath(absolutePath);
+            }
         }
     }
 
