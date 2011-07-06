@@ -225,7 +225,7 @@ public class RulesPublisher implements IRulesPublisher {
             }
             throw new RuleServiceWrapperException("During openL rule execution exception was occur. Method name is \""
                     + m.getName() + "\". Arguments types are: " + argsTypes.toString() + ". "
-                    + "Arguments values are: " + argsValues.toString().replace("\r", "").replace("\n", "") + ".", ex);
+                    + "Arguments values are: " + argsValues.toString().replace("\r", "").replace("\n", "") + ". Exception message is: " + ex.getMessage(), ex);
         }
     }
 }
