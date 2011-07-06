@@ -124,7 +124,7 @@ public class JcrDataSource implements IDataSource {
                     listeners.put(dataSourceListener, rDeploymentListener);
                     if (log.isInfoEnabled()) {
                         log.info(dataSourceListener.getClass().toString()
-                                + " listener is registered in jcr data source");
+                                + " class listener is registered in jcr data source");
                     }
                 } catch (RRepositoryException e) {
                     log.warn("Exception has been occured on adding listener to jcr data source.", e);
@@ -147,7 +147,7 @@ public class JcrDataSource implements IDataSource {
                     listeners.remove(dataSourceListener);
                     if (log.isInfoEnabled()) {
                         log.info(dataSourceListener.getClass().toString()
-                                + " listener is unregistered from jcr data source");
+                                + " class listener is unregistered from jcr data source");
                     }
                 } catch (RRepositoryException e) {
                     log.warn("Exception has been occured on removing listener from jcr data source.", e);
@@ -169,7 +169,7 @@ public class JcrDataSource implements IDataSource {
                         listeners.remove(dataSourceListener);
                         if (log.isInfoEnabled()) {
                             log.info(dataSourceListener.getClass().toString()
-                                    + " listener is removed from jcr data source");
+                                    + " class listener is removed from jcr data source");
                         }
                     } catch (RRepositoryException e) {
                         log.warn("Exception has been occured on removing listener from jcr data source.", e);

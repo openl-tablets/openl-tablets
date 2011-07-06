@@ -41,6 +41,13 @@
           <include>**/*.xml</include>
         </includes>
       </testResource>
+      <testResource>
+        <directory>conf_test</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </testResource>
     </testResources>
 
     <testSourceDirectory>test</testSourceDirectory>
