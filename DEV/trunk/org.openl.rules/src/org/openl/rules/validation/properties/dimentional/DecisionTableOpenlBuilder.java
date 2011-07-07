@@ -13,12 +13,17 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 
+/**
+ * Builder for executable Decision table. 
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class DecisionTableOpenlBuilder {
         
     private String tableName;
     private IOpenClass returnType;
     private Map<String, IOpenClass> incomeParams;
-    
     
     public DecisionTableOpenlBuilder(String tableName, IOpenClass returnType, Map<String, IOpenClass> incomeParams) {
         this.tableName = tableName;
