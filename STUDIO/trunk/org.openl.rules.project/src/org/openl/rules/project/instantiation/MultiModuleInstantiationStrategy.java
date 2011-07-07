@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
@@ -61,6 +63,10 @@ public class MultiModuleInstantiationStrategy extends RulesInstantiationStrategy
     protected ClassLoader getClassLoader() {
         if (classLoader == null) {
             classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());            
+            for (Module module : modules) {
+                URL[] urls = module.getProject().getClassPathUrls();
+                OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+            }
         }
         
         return classLoader;
