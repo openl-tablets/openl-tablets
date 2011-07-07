@@ -1,7 +1,9 @@
 package org.openl.rules.dt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -224,7 +226,7 @@ public class DecisionTableHelper {
         int numberOfConditions = getNumberOfConditions(decisionTable);
         int column = 0;
         for (int i = 0; i < numberOfConditions; i++) {
-            if(column > originalTable.getWidth()){
+            if (column > originalTable.getWidth()){
                 String message = "Wrong table structure: Columns count is less than parameters count";
                 throw new OpenLCompilationException(message);
             }
@@ -267,11 +269,23 @@ public class DecisionTableHelper {
      * @return virtual {@link IWritableGrid}.
      */
     public static IWritableGrid createVirtualGrid() {
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet();
-        return XlsSheetGridHelper.createVirtualGrid(sheet);
+        return XlsSheetGridHelper.createVirtualGrid(getPOISheet());
     }
-
+    
+    public static IWritableGrid createVirtualGrid(String gridName, String poiSheetName) {
+        return XlsSheetGridHelper.createVirtualGrid(getPOISheet(poiSheetName), gridName);
+    }
+    
+    private static Sheet getPOISheet() {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        return workbook.createSheet();
+    }
+    
+    private static Sheet getPOISheet(String poiSheetName) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        return workbook.createSheet(poiSheetName);
+    }
+ 
     public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
         if (IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType)) {

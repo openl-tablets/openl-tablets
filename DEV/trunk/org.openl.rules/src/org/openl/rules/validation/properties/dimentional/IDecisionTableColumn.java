@@ -55,7 +55,15 @@ package org.openl.rules.validation.properties.dimentional;
 public interface IDecisionTableColumn {
     
     /**
-     * Gets the string representation of the code expression cell(the next cell after condition name definition).
+     * Gets the type of the column. For more information see {@link DecisionTableColumnHeaders}
+     * 
+     * @return string representation type of the column.
+     */
+    String getColumnType();
+    
+    /**
+     * Gets the string representation of the code expression cell(the next cell after column type definition 
+     * see {@link #getColumnType()}).
      * 
      * @return string representation of the code expression cell.
      */
@@ -132,12 +140,5 @@ public interface IDecisionTableColumn {
      * @return
      */
     int getNumberOfLocalParameters();
-    
-    /**
-     * Gets the type of the column. For more information see {@link DecisionTableColumnHeaders}
-     * 
-     * @return string representation type of the column.
-     */
-    String getColumnType();
     
 }

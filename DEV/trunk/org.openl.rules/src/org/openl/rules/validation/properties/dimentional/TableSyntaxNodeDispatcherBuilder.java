@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
@@ -17,19 +16,26 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.builder.ConditionsBuilder;
+import org.openl.rules.dt.builder.DecisionTableBuilder;
+import org.openl.rules.dt.builder.ReturnColumnBuilder;
+import org.openl.rules.dt.builder.TableHeaderBuilder;
 import org.openl.rules.dt.element.IAction;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -42,6 +48,8 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public class TableSyntaxNodeDispatcherBuilder {
+    
+    public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
     
     private static Log LOG = LogFactory.getLog(TableSyntaxNodeDispatcherBuilder.class);
     
@@ -100,7 +108,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      */
     public TableSyntaxNode build() {
         
-        XlsSheetGridModel sheetGridModel = createSheetGridModel();
+        XlsSheetGridModel sheetGridModel = (XlsSheetGridModel) initSheetGridModel();
         
         // build TableSyntaxNode
         TableSyntaxNode tsn = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetGridModel,
@@ -138,11 +146,19 @@ public class TableSyntaxNodeDispatcherBuilder {
         }
     }
 
-    private XlsSheetGridModel createSheetGridModel() {
-        // create the table by POI builder. gets the sheet containing this table.
-        Sheet sheetWithTable = initDTPOIBuilder().build();
+    private IWritableGrid initSheetGridModel() {
+        // properties values from methods in group that will be used 
+        // to build dispatcher table by dimensional properties.
+        //
+        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
         
-        return XlsSheetGridHelper.createVirtualGrid(sheetWithTable, VIRTUAL_EXCEL_FILE);        
+        DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
+        
+        IWritableGrid grid = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, 
+            DISPATCHER_TABLES_SHEET + getDispatcherTableName());
+        
+        return initDecisionTableBuilder(getDispatcherTableConditions(propertiesFromMethods, rules), getReturnColumn())
+            .build(grid, rules.getRulesNumber());        
     }
     
     private DecisionTableOpenlBuilder initDTOpenlBuilder() {
@@ -155,27 +171,28 @@ public class TableSyntaxNodeDispatcherBuilder {
         return new DecisionTableOpenlBuilder(tableName, originalReturnType, updatedIncomeParams);
     }
     
-    /**
-     * Initialize POI table builder with columns and return column, number of rules.
-     *     
-     * @return {@link DecisionTablePOIBuilder}
-     */
-    private DecisionTablePOIBuilder initDTPOIBuilder() {
-        // properties values from methods in group that will be used 
-        // to build dispatcher table by dimensional properties.
-        //
-        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+    private DecisionTableBuilder initDecisionTableBuilder(List<IDecisionTableColumn> conditions, 
+            DispatcherTableReturnColumn returnColumn) {
         
-        DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
-
-        List<IDecisionTableColumn> conditions = getDispatcherTableConditions(propertiesFromMethods, rules);       
+        DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder(new Point(0, 0));
         
-        // table name for dispatcher table
-        //
-        String newTableName = getDispatcherTableName();
-        DispatcherTableReturnColumn returnColumn = getReturnColumn();
+        decisionTableBuilder.setConditionsBuilder(new ConditionsBuilder(conditions));
+        decisionTableBuilder.setReturnBuilder(new ReturnColumnBuilder(returnColumn));
+        decisionTableBuilder.setHeaderBuilder(new TableHeaderBuilder(buildMethodHeader(getDispatcherTableName(), 
+            returnColumn)));
         
-        return new DecisionTablePOIBuilder(newTableName, conditions, returnColumn, rules.getRulesNumber());
+        return decisionTableBuilder; 
+    }
+    
+    private String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
+        String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2, 
+            returnColumn.getReturnType().getDisplayName(0), tableName);
+        StringBuffer strBuf = new StringBuffer();
+        strBuf.append(start);
+        strBuf.append(returnColumn.paramsThroughComma());
+        strBuf.append(")");
+        
+        return strBuf.toString();
     }
     
     private List<IDecisionTableColumn> getDispatcherTableConditions(List<ITableProperties> propertiesFromMethods, 
