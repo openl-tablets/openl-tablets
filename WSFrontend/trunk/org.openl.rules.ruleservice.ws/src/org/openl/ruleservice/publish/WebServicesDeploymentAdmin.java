@@ -7,8 +7,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.databinding.AbstractDataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
 import org.openl.rules.ruleservice.publish.IDeploymentAdmin;
@@ -24,9 +26,18 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
     private static final Log LOG = LogFactory.getLog(WebServicesDeploymentAdmin.class);
 
     private ObjectFactory<?> serverFactory;
+    private AbstractDataBinding dataBinding;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
     private String baseAddress;
 
+    public void setDataBinding(AbstractDataBinding dataBinding) {
+        this.dataBinding = dataBinding;
+    }
+    
+    public AbstractDataBinding getDataBinding() {
+        return dataBinding;
+    }
+    
     public String getBaseAddress() {
         return baseAddress;
     }
@@ -50,14 +61,24 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         return new ServerFactoryBean();
     }
 
+    private ReflectionServiceFactoryBean getServiceFactory(OpenLService service){
+        ReflectionServiceFactoryBean serviceFactory = new ReflectionServiceFactoryBean();
+        //serviceFactory.setServiceClass(service.getServiceBean().getClass());
+        serviceFactory.setDataBinding(getDataBinding());
+        serviceFactory.setWrapped(false);
+        return serviceFactory;
+    }
+    
     public OpenLService deploy(OpenLService service) throws ServiceDeployException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
+        ReflectionServiceFactoryBean serviceFactory = getServiceFactory(service);
+        svrFactory.setServiceFactory(serviceFactory);
         String serviceAddress = baseAddress + service.getUrl();
         svrFactory.setAddress(serviceAddress);
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(svrFactory.getServiceClass().getClassLoader());
+        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
         try {
             Server wsServer = svrFactory.create();
             runningServices.put(service, wsServer);

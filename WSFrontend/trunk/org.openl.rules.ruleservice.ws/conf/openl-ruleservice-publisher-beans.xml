@@ -12,8 +12,8 @@
 	<!--
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
-	<!--bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/-->
-	<bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding" scope="prototype">
+	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
+	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding">
         <property name="contextProperties">
     		<map>
    			<entry>
@@ -23,7 +23,7 @@
    			</entry>
       		</map>
         </property>
-	</bean>
+	</bean -->
 
 	<!-- Main description for the one WebService.-->
 	<!--
@@ -53,6 +53,7 @@
 	<bean id="deploymentAdmin" class="org.openl.ruleservice.publish.WebServicesDeploymentAdmin">
 		<property name="serverFactory" ref="serverPrototypeFactory" />
 		<property name="baseAddress" value="http://localhost:9000/" />
+		<property name="dataBinding" ref="binding"/>
 	</bean>
 
 	<!-- Provide information about modules that can be used as dependencies. -->
@@ -66,6 +67,6 @@
 	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
 		<property name="deploymentAdmin" ref="deploymentAdmin"/>
 		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
-		<property name="instantiationFactory" ref="instantiationFactory"/> 
+		<property name="instantiationFactory" ref="instantiationFactory"/>
 	</bean>
 </beans>

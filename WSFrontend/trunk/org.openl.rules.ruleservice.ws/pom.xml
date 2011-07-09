@@ -1,146 +1,224 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-    <version>5.8.1-SNAPSHOT</version>
-    <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
-  </parent>
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
+		<version>5.8.1-SNAPSHOT</version>
+		<relativePath>../org.openl.rules.ruleservice-pom</relativePath>
+	</parent>
 
-  <groupId>org.openl.rules</groupId>
-  <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-  <packaging>war</packaging>
-  <name>OpenL - RuleService - RuleService - Web Services</name>
-  <description>OpenL Rules Webservice(war)</description>
-  <url>http://openl-tablets.sf.net/</url>
+	<groupId>org.openl.rules</groupId>
+	<artifactId>org.openl.rules.ruleservice.ws</artifactId>
+	<packaging>war</packaging>
+	<name>OpenL - RuleService - RuleService - Web Services</name>
+	<description>OpenL Rules Webservice(war)</description>
+	<url>http://openl-tablets.sf.net/</url>
 
-  <properties>
-    <war.name>ws</war.name>
-  </properties>
+	<properties>
+		<war.name>ws</war.name>
+	</properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <warSourceDirectory>webapps/ws</warSourceDirectory>
-          <warName>${war.name}-${project.version}</warName>
-          <packagingExcludes>
-            WEB-INF/lib/poi-2.5.1-*.jar,
-            WEB-INF/lib/org.openl.lib-*.jar,
-            WEB-INF/lib/org.openl.poi.lib-*.jar,
-            WEB-INF/lib/org.openl.rules.webstudio.lib-*.jar,
-            WEB-INF/lib/org.openl.rules.ruleservice.ws.lib-*.jar
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<warSourceDirectory>webapps/ws</warSourceDirectory>
+					<warName>${war.name}-${project.version}</warName>
+					<packagingExcludes>
+						WEB-INF/lib/poi-2.5.1-*.jar,
+						WEB-INF/lib/org.openl.lib-*.jar,
+						WEB-INF/lib/org.openl.poi.lib-*.jar,
+						WEB-INF/lib/org.openl.rules.webstudio.lib-*.jar,
+						WEB-INF/lib/org.openl.rules.ruleservice.ws.lib-*.jar
           </packagingExcludes>
-          <webResources>
-            <resource>
-              <directory>conf</directory>
-              <excludes>
-                <exclude>openl-ruleservice-publisher-beans.xml</exclude>
-              </excludes>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
+					<webResources>
+						<resource>
+							<directory>conf</directory>
+							<excludes>
+								<exclude>openl-ruleservice-publisher-beans.xml</exclude>
+							</excludes>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>assembly-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-              <descriptors>
-                <descriptor>assembly/assembly-jar.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>assembly-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifestFile>META-INF/MANIFEST.MF</manifestFile>
+							</archive>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<descriptors>
+								<descriptor>assembly/assembly-jar.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-    </plugins>
+		</plugins>
 
-    <resources>
-      <resource>
-        <directory>src</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>binding-conf/aegis</directory>
-      </resource>
-      <resource>
-        <directory>binding-conf/jaxb</directory>
-      </resource>
-    </resources>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>binding-conf/aegis</directory>
+			</resource>
+			<resource>
+				<directory>binding-conf/jaxb</directory>
+			</resource>
+		</resources>
 
-    <testResources>
-      <testResource>
-        <directory>conf</directory>
-      </testResource>
-      <testResource>
-        <directory>test</directory>
-      </testResource>
-    </testResources>
-  </build>
+		<testResources>
+			<testResource>
+				<directory>conf</directory>
+			</testResource>
+			<testResource>
+				<directory>test</directory>
+			</testResource>
+		</testResources>
+	</build>
 
-  <dependencies>
+	<profiles>
+		<profile>
+			<id>default.val</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<!-- STUDIO -->
+				<dependency>
+					<groupId>org.openl.rules</groupId>
+					<artifactId>org.openl.rules.repository</artifactId>
+				</dependency>
 
-    <!-- STUDIO -->
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository</artifactId>
-    </dependency>
+				<dependency>
+					<groupId>org.openl.rules</groupId>
+					<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+				</dependency>
 
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-    </dependency>
+				<!-- RulesService -->
+				<dependency>
+					<groupId>org.openl.rules</groupId>
+					<artifactId>org.openl.rules.ruleservice</artifactId>
+				</dependency>
 
-    <!-- RulesService-->
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.ruleservice</artifactId>
-    </dependency>
+				<!-- Other -->
+				<dependency>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-bundle</artifactId>
+				</dependency>
 
-    <!-- Other-->
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-bundle</artifactId>
-    </dependency>
+				<dependency>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-distribution-manifest</artifactId>
+				</dependency>
 
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-distribution-manifest</artifactId>
-    </dependency>
+				<dependency>
+					<groupId>javax.servlet</groupId>
+					<artifactId>jstl</artifactId>
+				</dependency>
 
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
+				<dependency>
+					<groupId>org.jvnet.annox</groupId>
+					<artifactId>annox</artifactId>
+				</dependency>
 
-    <dependency>
-      <groupId>org.jvnet.annox</groupId>
-      <artifactId>annox</artifactId>
-    </dependency>
+				<dependency>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-test</artifactId>
+					<version>${org.springframework.version}</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>server</id>
+			<build>
+				<defaultGoal>test</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>test</phase>
+								<goals>
+									<goal>java</goal>
+								</goals>
+								<configuration>
+									<mainClass>org.openl.ruleservice.publish.server.WebServicesExposingTest</mainClass>
+									<classpathScope>test</classpathScope>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<dependencies>
+				<!-- STUDIO -->
+				<dependency>
+					<groupId>org.openl.rules</groupId>
+					<artifactId>org.openl.rules.repository</artifactId>
+				</dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>${org.springframework.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+				<dependency>
+					<groupId>org.openl.rules</groupId>
+					<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+				</dependency>
+
+				<!-- RulesService -->
+				<dependency>
+					<groupId>org.openl.rules</groupId>
+					<artifactId>org.openl.rules.ruleservice</artifactId>
+				</dependency>
+
+				<!-- Other -->
+				<dependency>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-bundle</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-distribution-manifest</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>javax.servlet</groupId>
+					<artifactId>jstl</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.jvnet.annox</groupId>
+					<artifactId>annox</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-test</artifactId>
+					<version>${org.springframework.version}</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>		
+	</profiles>
 </project>

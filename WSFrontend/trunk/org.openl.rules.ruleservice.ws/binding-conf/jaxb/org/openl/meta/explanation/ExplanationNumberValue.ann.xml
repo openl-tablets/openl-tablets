@@ -6,5 +6,4 @@
 	<method name="getMetaInfo">
 		<ann:XmlTransient/>
 	</method>
-
 </class>
