@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -56,11 +59,69 @@ public class ProjectDescriptorManager {
         dest.write(serializedObject.getBytes());
     }
     
+    private boolean isModuleWithPathPattern(Module module) {
+        if (module.getRulesRootPath() != null) {
+            return module.getRulesRootPath().getPath().contains("*") || module.getRulesRootPath().getPath().contains("?");
+        }
+        return false;
+    }
+    
+    private void check(File folder, List<File> matched, Pattern pathPattern, File rootFolder) {
+        File[] files = folder.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                check(file, matched, pathPattern, rootFolder);
+            } else {
+                String relativePath = file.getAbsolutePath().substring((int) rootFolder.getAbsolutePath().length()+1);
+                relativePath = relativePath.replace("\\", "/");
+                if (pathPattern.matcher(relativePath).matches()) {
+                    matched.add(file);
+                }
+            }
+        }
+    }
+
+    private List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor, String pathPattern) {
+        List<Module> modules = new ArrayList<Module>();
+        String pattern = pathPattern.replace("**", ".*");
+        pattern = pattern.replace("?", ".");
+        pattern = pattern.replace("\\", "/");
+        pattern = pattern.replace(".", "\\.");
+        pattern = pattern.replace("*", "[^/]*");
+        
+        List<File> files = new ArrayList<File>();
+        check(descriptor.getProjectFolder(), files, Pattern.compile(pattern), descriptor.getProjectFolder());
+
+        for (File file : files) {
+            Module module = new Module();
+            module.setProject(descriptor);
+            module.setRulesRootPath(new PathEntry(file.getAbsolutePath()));
+            module.setName(file.getName());
+            modules.add(module);
+        }
+        return modules;
+    }
+
+    private void processModulePathPatterns(ProjectDescriptor descriptor) {
+        List<Module> modulesWasRead = descriptor.getModules();
+        List<Module> processedModules = new ArrayList<Module>(modulesWasRead.size());
+        for (Module module : modulesWasRead) {
+            if (isModuleWithPathPattern(module)) {
+                processedModules.addAll(getAllModulesMatchingPathPattern(descriptor, module.getRulesRootPath()
+                        .getPath()));
+            } else {
+                processedModules.add(module);
+            }
+        }
+        descriptor.setModules(processedModules);
+    }
+
     private void postProcess(ProjectDescriptor descriptor, File projectDescriptorFile) {
         
         File projectRoot = projectDescriptorFile.getParentFile();
         descriptor.setProjectFolder(projectRoot);
-        
+        processModulePathPatterns(descriptor);
+
         for (Module module : descriptor.getModules()) {
             module.setProject(descriptor);
             if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
