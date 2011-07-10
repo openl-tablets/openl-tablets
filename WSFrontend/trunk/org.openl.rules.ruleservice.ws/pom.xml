@@ -30,6 +30,7 @@
 					<warSourceDirectory>webapps/ws</warSourceDirectory>
 					<warName>${war.name}-${project.version}</warName>
 					<packagingExcludes>
+						WEB-INF/lib/geronimo-servlet*.jar,
 						WEB-INF/lib/poi-2.5.1-*.jar,
 						WEB-INF/lib/org.openl.lib-*.jar,
 						WEB-INF/lib/org.openl.poi.lib-*.jar,
