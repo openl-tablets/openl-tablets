@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
@@ -97,6 +98,7 @@ public class ProjectDescriptorManager {
             module.setProject(descriptor);
             module.setRulesRootPath(new PathEntry(file.getAbsolutePath()));
             module.setName(file.getName());
+            module.setType(ModuleType.API);
             modules.add(module);
         }
         return modules;

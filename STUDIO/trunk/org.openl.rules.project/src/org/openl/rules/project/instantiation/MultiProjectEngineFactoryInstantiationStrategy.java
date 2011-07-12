@@ -54,7 +54,10 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
     @Override
     protected ClassLoader getClassLoader() {
         if (classLoader == null) {
-            classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());            
+            classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+            if (modules == null) {
+                init();
+            }
             for (Module module : modules) {
                 URL[] urls = module.getProject().getClassPathUrls();
                 OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
