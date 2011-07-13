@@ -1,0 +1,61 @@
+package org.openl.rules.ruleservice.loader;
+
+import java.io.File;
+import java.io.IOException;
+
+import junit.framework.Assert;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-unpackclasspathjartodirectorybean-test.xml" })
+@DependsOn(value = { "unpackClasspathJarToDirectoryBean" })
+public class UnpackClasspathJarToDirectoryBeanTest implements ApplicationContextAware {
+
+    private ApplicationContext applicationContext;
+
+    private static final String UNPACK_CLASSPATH_JAR_TO_DIRECTORY_BEAN_TEST_DIRECTORY = "test-resources/unpackClasspathJarToDirectoryBeanTest";
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Before
+    public void before() {
+        FolderHelper.clearFolder(new File(UNPACK_CLASSPATH_JAR_TO_DIRECTORY_BEAN_TEST_DIRECTORY));
+    }
+
+    private boolean isFolderHasElements(String folderPath) throws IOException {
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            throw new IOException("Folder does not exist. Path: " + folderPath);
+        }
+
+        if (!folder.isDirectory()) {
+            throw new IOException("Path is'nt a directory on file system. Path: " + folderPath);
+        }
+
+        return folder.listFiles().length > 0;
+    }
+
+    @Test
+    @Ignore
+    public void test() throws Exception {
+        Assert.assertNotNull(applicationContext);
+        UnpackClasspathJarToDirectoryBean bean = applicationContext.getBean(UnpackClasspathJarToDirectoryBean.class);
+        Assert.assertNotNull(bean);
+        Assert.assertFalse(isFolderHasElements(UNPACK_CLASSPATH_JAR_TO_DIRECTORY_BEAN_TEST_DIRECTORY));
+        bean.afterPropertiesSet();
+        Assert.assertTrue(isFolderHasElements(UNPACK_CLASSPATH_JAR_TO_DIRECTORY_BEAN_TEST_DIRECTORY));
+    }
+}
