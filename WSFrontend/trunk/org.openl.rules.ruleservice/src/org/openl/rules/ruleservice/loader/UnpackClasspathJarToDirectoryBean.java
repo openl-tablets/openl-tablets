@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.Log;
 import org.springframework.beans.factory.InitializingBean;
@@ -74,12 +75,15 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     private static void unpack(File jarFile, String destDir) throws IOException {
         FolderHelper.clearFolder(new File(destDir));
+        File newProjectDir = new File(destDir, FilenameUtils.getBaseName(jarFile.getCanonicalPath()));
+        newProjectDir.mkdirs();
 
         JarFile jar = new JarFile(jarFile);
+        
         Enumeration<JarEntry> e = jar.entries();
         while (e.hasMoreElements()) {
-            java.util.jar.JarEntry file = e.nextElement();
-            java.io.File f = new java.io.File(destDir + java.io.File.separator + file.getName());
+            JarEntry file = e.nextElement();
+            File f = new File(newProjectDir, file.getName());
             if (file.isDirectory()) {
                 f.mkdir();
                 continue;
