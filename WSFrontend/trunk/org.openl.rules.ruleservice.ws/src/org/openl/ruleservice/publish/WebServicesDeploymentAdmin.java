@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.databinding.AbstractDataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -25,17 +24,8 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
     private static final Log LOG = LogFactory.getLog(WebServicesDeploymentAdmin.class);
 
     private ObjectFactory<?> serverFactory;
-    private AbstractDataBinding dataBinding;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
     private String baseAddress;
-
-    public void setDataBinding(AbstractDataBinding dataBinding) {
-        this.dataBinding = dataBinding;
-    }
-    
-    public AbstractDataBinding getDataBinding() {
-        return dataBinding;
-    }
     
     public String getBaseAddress() {
         return baseAddress;
@@ -64,7 +54,6 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         ServerFactoryBean svrFactory = getServerFactoryBean();
         String serviceAddress = baseAddress + service.getUrl();
         svrFactory.setAddress(serviceAddress);
-        svrFactory.setDataBinding(getDataBinding());
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
         
