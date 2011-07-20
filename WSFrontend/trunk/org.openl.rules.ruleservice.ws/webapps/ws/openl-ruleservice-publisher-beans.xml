@@ -12,8 +12,8 @@
 	<!--
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
-	<!--bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/-->
-	<bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding" scope="prototype">
+	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
+	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding" scope="prototype">
         <property name="contextProperties">
     		<map>
    			<entry>
@@ -23,7 +23,7 @@
    			</entry>
       		</map>
         </property>
-	</bean>
+	</bean-->
 
 	<!-- Main description for the one WebService.-->
 	<!--
