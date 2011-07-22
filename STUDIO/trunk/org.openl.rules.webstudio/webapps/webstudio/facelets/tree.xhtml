@@ -8,7 +8,7 @@
     template="/facelets/common/view.xhtml">
 
     <ui:define name="toolbar">
-        <link href="webresource/css/tree.css" rel="stylesheet" type="text/css"/>
+        <link href="#{contextPath}/css/tree.css" rel="stylesheet" type="text/css" />
 
         <c:set var="project" value="#{studio.currentProject}" />
         <h:panelGroup rendered="#{project != null}">
