@@ -29,11 +29,11 @@ public class SimpleStep extends CodeStep {
         this.value = value;
     }
     
-    public String getID() {
+    public String getId() {
         return id;
     }
     
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
     
