@@ -5,13 +5,14 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalDeleteNode" width="400" minWidth="400" height="110" minHeight="110">
+  <rich:popupPanel id="modalDeleteNode" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="Confirm Delete" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalDeleteNode');" alt="Close" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+        onclick="RichFaces.$('modalDeleteNode').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="deleteNodeForm">
@@ -24,17 +25,14 @@
       <h:outputText rendered="#{node.type == 'file'}"
         value="Are you sure you want to delete the file '#{node.name}'?" />
 
-      <br />
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Delete" action="#{repositoryTreeController.deleteNode}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
+        <h:commandButton value="Delete" action="#{repositoryTreeController.deleteNode}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
       </h:panelGrid>
     </h:form>
 
-  </rich:modalPanel>
+  </rich:popupPanel>
 
 </ui:composition>

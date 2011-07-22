@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.text.MessageFormat;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.main.OpenLVersion;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
@@ -121,13 +122,9 @@ public class StartTomcat {
 
     public static void main(String[] args) throws Exception {
 
-        // System.out.println("OpenL Tomcat Starter, Version " +
-        // OpenLVersion.getVersion() +
-        // " Build " + OpenLVersion.getBuild() + "
-        // http://openl-tablets.sourceforge.net (c) 2006,2007\n");
-
-        System.out.println("OpenL Tomcat Starter,  Version " + OpenLVersion.getVersion() + " Build "
-                + OpenLVersion.getBuild() + " " + OpenLVersion.getURL() + " (c) " + OpenLVersion.getCopyrightYear()
+        System.out.println("OpenL Tomcat Starter, Version " + OpenLVersion.getVersion()
+                + (StringUtils.isNotBlank(OpenLVersion.getBuild()) ? " Build " + OpenLVersion.getBuild() : "")
+                + " " + OpenLVersion.getURL() + " (c) " + OpenLVersion.getCopyrightYear()
                 + "\n");
 
         Class<?> bootstrap = null;

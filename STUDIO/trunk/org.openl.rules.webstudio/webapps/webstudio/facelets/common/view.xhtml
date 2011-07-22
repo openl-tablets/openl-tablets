@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <style>
         html, body {
             overflow: hidden;
         }
         #toolbar {
-            padding: 4px 3px 0px 3px;
+            padding: 0 3px;
         }
         #workspace {
             width: 100%;
@@ -21,7 +21,7 @@
         }
     </style>
 
-    <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+    <script src="webresource/js/prototype/prototype-1.6.1.js" />
 
     <div>
         <div id="toolbar">
@@ -39,8 +39,8 @@
             var width = viewport.width;
             var height = viewport.height;
 
-            $('workspace').style.width = width - 16 + 'px';
-            $('workspace').style.height = height - $('toolbar').offsetHeight - 30 + 'px';
+            $('workspace').style.width = width - 27 + 'px';
+            $('workspace').style.height = height - $('toolbar').offsetHeight - 51 + 'px';
         }
 
         setViewDimensions();

@@ -24,8 +24,8 @@ public class TreeFolder extends AbstractTreeNode {
     /**
      * Collection of children. In LeafOnly mode it is left uninitialized.
      */
-    private Map<Object, AbstractTreeNode> elements;
-    
+    private Map<Object, TreeNode> elements;
+
     private IFilter<AProjectArtefact> filter;
 
     public TreeFolder(String id, String name, IFilter<AProjectArtefact> filter) {
@@ -48,20 +48,18 @@ public class TreeFolder extends AbstractTreeNode {
         return getIcon();
     }
 
-    /** {@inheritDoc} */
-    @Override
     public String getType() {
         return UiConst.TYPE_FOLDER;
     }
-    
+
     @Override
     public String getId() {
         return AbstractTreeNode.FOLDER_PREFIX + super.getId();
     }
-    
-    protected Map<Object, AbstractTreeNode> getElements() {
+
+    public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
-            elements = new TreeMap<Object, AbstractTreeNode>();
+            elements = new TreeMap<Object, TreeNode>();
             if (getData() instanceof AProjectFolder) {
                 AProjectFolder folder = (AProjectFolder) getData();
                 Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();

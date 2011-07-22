@@ -12,7 +12,7 @@ import org.openl.commons.web.jsf.FacesUtils;
  */
 public class SkinBean {
     private static final String[] skinsArray = { "DEFAULT", "blueSky", "classic", "deepMarine", "emeraldTown",
-            "japanCherry", "ruby", "wine", "plain" };
+            "japanCherry", "ruby", "wine" };
 
     private static final String DEFAULT_SKIN = skinsArray[2];
     private static final String SKIN_COOKIE = "rulesskin";

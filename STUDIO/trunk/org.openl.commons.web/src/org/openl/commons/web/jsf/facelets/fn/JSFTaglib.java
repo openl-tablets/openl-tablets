@@ -1,8 +1,8 @@
 package org.openl.commons.web.jsf.facelets.fn;
 
-import com.sun.facelets.tag.AbstractTagLibrary;
-
 import java.lang.reflect.Method;
+
+import com.sun.faces.facelets.tag.AbstractTagLibrary;
 
 /**
  * Facelets taglib.
@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
  * @author Andrey Naumenko
  */
 public class JSFTaglib extends AbstractTagLibrary {
+
     private final static String NAMESPACE = "http://rules.openl.org/taglibs/jsffn";
 
     public JSFTaglib() {

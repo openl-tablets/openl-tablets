@@ -7,8 +7,7 @@
                 template="/facelets/common/wizardBase.xhtml">
 
     <ui:define name="header">
-        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
-        <a4j:loadScript src="resource:///javascript/validator.js" />
+        <script src="#{contextPath}/javascript/validator.js" type="text/javascript"></script>
     </ui:define>
 
     <ui:define name="title">Select destination</ui:define>
@@ -21,7 +20,7 @@
       <h:panelGrid columns="2">
         <h:outputText value="Workbook" />
         <h:selectOneMenu value="#{tableWizard.workbook}">
-          <a4j:support event="onchange" reRender="sheet" ajaxSingle="true" oncomplete="updateControls()"/>
+          <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
           <f:selectItems value="#{tableWizard.workbooks}"/>
         </h:selectOneMenu>
         </h:panelGrid>

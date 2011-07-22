@@ -8,8 +8,8 @@
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
-        <a4j:loadScript src="resource:///javascript/jquery-1.4.4.min.js" />
-        <a4j:loadScript src="resource:///javascript/jquery.easytabs.min.js" />
+        <h:outputScript name="jquery.js" />
+        <script src="#{contextPath}/javascript/jquery.easytabs.min.js" type="text/javascript" ></script>
 
         <style>
             #tab-container { border: 1px solid rgb(195,195,195); border-width: 1px 0; height: 350px; background: #F7F7F7; margin: 13px 3px; }
@@ -42,8 +42,9 @@
                 100% { right: 33px; }
             }
             @-webkit-keyframes restartMessage_anm {
-                from { right: 55px; }
-                to { right: 33px; }
+                0% { right: 33px; }
+                50% { right: 47px; }
+                100% { right: 33px; }
             }
 
             .pathInput { width: 211px; }
@@ -99,7 +100,7 @@
             </ul>
             <div class="data-container">
                 <div id="common">
-                    <h:panelGroup id="commonProps" class="propsPage" layout="block">
+                    <h:panelGroup id="commonProps" styleClass="propsPage" layout="block">
                         <div class="propsSection">
                             <h3>User Workspace</h3>
                             <div>
@@ -136,7 +137,7 @@
                     </h:panelGroup>
                 </div>
                 <div id="security">
-                    <h:panelGroup id="securityProps" class="propsPage" layout="block">
+                    <h:panelGroup id="securityProps" styleClass="propsPage" layout="block">
                         <div class="propsSection">
                             <h3>Security</h3>
                             <div>
@@ -153,7 +154,7 @@
                     </h:panelGroup>
                 </div>
                 <div id="repository">
-                    <h:panelGroup id="repositoryProps" class="propsPage" layout="block">
+                    <h:panelGroup id="repositoryProps" styleClass="propsPage" layout="block">
                         <div class="propsSection">
                             <h3>Design Repository</h3>
                             <div>
@@ -162,8 +163,7 @@
                                     <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
                                     <h:outputText value="Repository Type:" />
                                     <h:selectOneMenu value="#{systemSettingsBean.designRepositoryType}">
-                                        <a4j:support event="onchange" ajaxSingle="true"
-                                            reRender="designRepositoryPathTitle, designRepositoryPath" />
+                                        <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
                                         <f:selectItem itemValue="local" itemLabel="Local" />
                                         <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                         <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -184,8 +184,7 @@
                                     <h:inputText value="#{systemSettingsBean.productionRepositoryName}" disabled="true" />
                                     <h:outputText value="Repository Type:" />
                                     <h:selectOneMenu value="#{systemSettingsBean.productionRepositoryType}">
-                                        <a4j:support event="onchange" ajaxSingle="true"
-                                            reRender="productionRepositoryPathTitle, productionRepositoryPath" />
+                                        <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
                                         <f:selectItem itemValue="local" itemLabel="Local" />
                                         <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                         <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -204,10 +203,10 @@
         </div>
 
         <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
-            ajaxSingle="true" reRender="commonProps,securityProps,repositoryProps,restartMessage"
+            execute="@this" render="commonProps securityProps repositoryProps restartMessage"
             onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
         <h:outputText value=" " />
-        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" reRender="restartMessage" />
+        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage" />
 
         </h:form>
 

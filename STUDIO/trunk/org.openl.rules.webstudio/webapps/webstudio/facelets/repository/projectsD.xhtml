@@ -32,7 +32,7 @@
 
     <rich:columnGroup>
       <rich:column>
-        <h:commandLink styleClass="actionButton" value="#{prj.name}" action="#{repositoryTreeController.selectDeploymentProject}">
+        <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectDeploymentProject}">
           <f:param name="projectName" value="#{prj.name}" />
         </h:commandLink>
       </rich:column>
@@ -53,12 +53,12 @@
       <rich:column style="text-align:center">
         <h:panelGroup rendered="#{!prj.data.deleted}">
           &#160;
-          <h:commandLink styleClass="actionButton" immediate="true" onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" title="Copy">
+          <h:commandLink immediate="true" onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" title="Copy">
             <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
             &#160;
-            <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}"
+            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}"
               onclick="if(!window.confirm('Are you sure you want to delete the deployment project?')) {return false;}">
               <f:param name="deploymentProjectName" value="#{prj.name}" title="Delete"/>
               <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" alt="Delete" />

@@ -28,7 +28,7 @@
         <h:outputText value="#{dep.versionString}" />
       </rich:column>
       <rich:column style="text-align:center;">
-        <h:commandLink styleClass="actionButton" action="#{dep.delete}"
+        <h:commandLink action="#{dep.delete}"
           onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
           rendered="#{artefact.checkedOut}" title="Delete">
           <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
@@ -44,7 +44,7 @@
   <br/>
 
   <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-    <h:commandButton value="Add" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}"
-      onclick="#{artefact.checkedOut} &amp;&amp; showAddDependency();return false;" />
+    <h:commandButton value="Add" disabled="#{!artefact.checkedOut}"
+      onclick="showAddDependency();return false;" />
   </h:panelGrid>
 </ui:composition>

@@ -4,60 +4,49 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.faces.event.ActionEvent;
 
-import org.richfaces.model.UploadItem;
+import org.openl.util.FileTool;
+import org.richfaces.event.FileUploadEvent;
+import org.richfaces.model.UploadedFile;
 
 public class UploadExcelDiffController extends ExcelDiffController {
 
-    /**
-     * Then name of file which should be removed from list of files to compare.
-     * NOTE: it is not used directly by controller but required for action
-     * listener invocation using ajax request.
-     */
-    private String fileName;
-    private List<UploadItem> uploadedFiles = new ArrayList<UploadItem>();
+    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public List<UploadItem> getUploadedFiles() {
+    public List<UploadedFile> getUploadedFiles() {
         return uploadedFiles;
     }
 
-    public void setUploadedFiles(List<UploadItem> uploadedFiles) {
+    public void setUploadedFiles(List<UploadedFile> uploadedFiles) {
         this.uploadedFiles = uploadedFiles;
     }
 
-    public int getUploadsAvailable() {
-        return MAX_FILES_COUNT - uploadedFiles.size();
+    public int getUploadsSize() {
+        return uploadedFiles.size();
     }
 
-    public void clearUploadData(ActionEvent event) {
+    public void clearUploadData() {
         uploadedFiles.clear();
+    }
+
+    public void uploadListener(FileUploadEvent event) {
+        UploadedFile file = event.getUploadedFile();
+        uploadedFiles.add(file);
     }
 
     public String compare() {
         // fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
-            
+
             List<File> filesToCompare = new ArrayList<File>();
-            for (UploadItem uploadedFile : uploadedFiles) {
-                filesToCompare.add(uploadedFile.getFile());
+            for (UploadedFile uploadedFile : uploadedFiles) {
+                File fileToCompare = FileTool.toFile(
+                        uploadedFile.getInputStream(), uploadedFile.getName());
+                filesToCompare.add(fileToCompare);
             }
             compare(filesToCompare);
 
-            // Clean up
-            for (UploadItem uploadedFile : uploadedFiles) {
-                uploadedFile.getFile().delete();
-            }
-            clearUploadData(null);
-
+            clearUploadData();
         }
 
         return null;

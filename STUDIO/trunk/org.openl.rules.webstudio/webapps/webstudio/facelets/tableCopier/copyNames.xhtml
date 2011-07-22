@@ -14,10 +14,10 @@
             <h:panelGrid columns="3">
                 <h:outputText value="Business Name" />
                 <h:inputText id="businessName" value="#{tableCopierWizard.tableBusinessName}" />
-                <rich:spacer />
+                <h:outputText value="" />
                 <h:outputText value="Technical Name" />
                 <h:inputText id="technicalName" value="#{tableCopierWizard.tableTechnicalName}">
-                    <rich:ajaxValidator event="onblur" />
+                    <rich:validator />
                 </h:inputText>
                 <rich:message for="technicalName" styleClass="error" />
             </h:panelGrid>

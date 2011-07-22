@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.List;
 
-import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -16,6 +15,7 @@ import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
+import org.richfaces.component.UIRepeat;
 
 /**
  * Request scope managed bean providing logic for 'Run All Tests' page of OpenL Studio.
@@ -23,7 +23,7 @@ import org.openl.util.StringTool;
 public class RunAllTestsBean {
 
     private RanTestsResults testsResult;
-    
+
     private UIRepeat testUnits;
     private UIRepeat testDataColumnHeaders;
 

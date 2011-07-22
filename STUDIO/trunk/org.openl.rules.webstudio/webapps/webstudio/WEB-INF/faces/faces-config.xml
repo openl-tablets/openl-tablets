@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<faces-config version="1.2"
+<faces-config
     xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0">
 
   <application>
-    <variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
+    <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
 
     <locale-config>
       <default-locale>en</default-locale>
@@ -97,7 +97,7 @@
   <managed-bean>
     <managed-bean-name>repositoryTreeController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
+    <managed-bean-scope>view</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>
       <value>#{rulesUserSession.userWorkspace}</value>
@@ -157,7 +157,7 @@
   <managed-bean>
     <managed-bean-name>uploadExcelDiffController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.diff.UploadExcelDiffController</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
+    <managed-bean-scope>view</managed-bean-scope>
   </managed-bean>
 
   <!-- studio config -->

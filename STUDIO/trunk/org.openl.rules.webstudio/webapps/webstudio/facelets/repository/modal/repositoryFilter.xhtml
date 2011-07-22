@@ -5,13 +5,13 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalRepFilter" width="400" minWidth="200" height="130" minHeight="110">
+  <rich:popupPanel id="modalRepFilter" width="300" autosized="true">
     <f:facet name="header">
       <h:outputText value="Repository filter"/>
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalRepFilter');" alt="Close"/>
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('modalRepFilter').hide();" alt="Close"/>
     </f:facet>
 
     <h:form id="filterForm">
@@ -20,21 +20,18 @@
       <h:outputText value="Hide deleted projects : " />
       <h:selectBooleanCheckbox id="hideDeleted" value="#{repositoryTreeController.hideDeleted}" />
 
-      <br />
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Apply" action="#{repositoryTreeController.filter}"/>
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalRepFilter')}.hide();" />
+        <h:commandButton value="Apply" action="#{repositoryTreeController.filter}"/>
+        <input type="button" value="Cancel" onclick="#{rich:component('modalRepFilter')}.hide();" />
       </h:panelGrid>
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function showRepFilterDialog() {
-        Richfaces.showModalPanel('modalRepFilter');
+        RichFaces.$('modalRepFilter').show();
         focusElement('filterForm:filter');
     }
   </script>

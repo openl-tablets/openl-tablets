@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
@@ -21,16 +19,14 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UITree;
-import org.richfaces.event.NodeSelectedEvent;
-import org.richfaces.model.TreeNode;
-import org.richfaces.model.TreeNodeImpl;
+import org.richfaces.event.TreeSelectionChangeEvent;
 
 public abstract class AbstractDiffController {
     // TODO remove?
     private boolean showEqualElements = false;
 
-    private TreeNode<UiTreeData> richDiffTree;
-    private UiTreeData selectedNode;
+    private TreeNode richDiffTree;
+    private TreeNode selectedNode;
 
     public abstract String compare();
 
@@ -124,8 +120,7 @@ public abstract class AbstractDiffController {
             // for a sake of auto increment counter only
             AtomicInteger idGenerator = new AtomicInteger();
 
-            richDiffTree = new TreeNodeImpl<UiTreeData>();
-            richDiffTree.setData(new UiTreeData(diffTree));
+            richDiffTree = new TreeNode(diffTree);
 
             rebuild(idGenerator, richDiffTree, diffTree);
         }
@@ -133,11 +128,11 @@ public abstract class AbstractDiffController {
         selectedNode = null;
     }
 
-    private void rebuild(AtomicInteger idGenerator, TreeNode<UiTreeData> parent, DiffTreeNode diff) {
+    private void rebuild(AtomicInteger idGenerator, TreeNode parent, DiffTreeNode diff) {
         for (DiffTreeNode d : diff.getChildren()) {
-            UiTreeData ui = new UiTreeData(d);
+            TreeNode node = new TreeNode(d);
 
-            String type = ui.getType();
+            String type = node.getType();
             if (type.equals(XlsProjectionType.GRID.name())) {
                 // don't show tree deeper
                 continue;
@@ -148,9 +143,7 @@ public abstract class AbstractDiffController {
                 continue;// skip equal elements
             }
 
-            TreeNode<UiTreeData> n = new TreeNodeImpl<UiTreeData>();
-            n.setData(ui);
-            parent.addChild(idGenerator.getAndIncrement(), n);
+            parent.addChild(String.valueOf(idGenerator.getAndIncrement()), node);
 
             // props
             Projection p1 = d.getElement(0).getProjection();
@@ -169,36 +162,35 @@ public abstract class AbstractDiffController {
                                 }
                                 String s = pp1.getName() + ": " + v1 + " -> " + v2;
 
-                                UiTreeData2 uip = new UiTreeData2(d, s);
-                                TreeNode<UiTreeData> np = new TreeNodeImpl<UiTreeData>();
-                                np.setData(uip);
-                                n.addChild(idGenerator.getAndIncrement(), np);
+                                TreeNode2 np = new TreeNode2(d, s);
+                                node.addChild(String.valueOf(idGenerator.getAndIncrement()), np);
                             }
                         }
                     }
                 }
             }
 
-            rebuild(idGenerator, n, d);
+            rebuild(idGenerator, node, d);
         }
     }
     
     private boolean isEqualElements(DiffTreeNode d){
         return d.getElement(1).isSelfEqual();
     }
-    
-    public TreeNode<UiTreeData> getRichDiffTree() {
+
+    public TreeNode getRichDiffTree() {
         return richDiffTree;
     }
 
-    public void processSelection(NodeSelectedEvent event) {
-        UITree tree = (UITree) event.getComponent();
+    public void processSelection(TreeSelectionChangeEvent event) {
+        List<Object> selection = new ArrayList<Object>(event.getNewSelection());
+        Object currentSelectionKey = selection.get(0);
+        UITree tree = (UITree) event.getSource();
 
-        try {
-            selectedNode = (UiTreeData) tree.getRowData();
-        } catch (IllegalStateException ex) {
-            // If nothing selected in tree then invalidate selection. 
-            selectedNode = null;
-        }
+        Object storedKey = tree.getRowKey();
+        tree.setRowKey(currentSelectionKey);
+        selectedNode = (TreeNode) tree.getRowData();
+        tree.setRowKey(storedKey);
     }
+
 }

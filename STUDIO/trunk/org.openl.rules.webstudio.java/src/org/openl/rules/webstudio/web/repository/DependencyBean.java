@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 
 public class DependencyBean {
@@ -13,7 +13,7 @@ public class DependencyBean {
     public String delete() {
         RepositoryTreeState treeState = (RepositoryTreeState) FacesUtils.getBackingBean("repositoryTreeState");
         if (treeState != null) {
-            AbstractTreeNode selectedNode = treeState.getSelectedNode();
+            TreeNode selectedNode = treeState.getSelectedNode();
             if (selectedNode instanceof TreeProject) {
                 TreeProject project = (TreeProject) selectedNode;
                 try {

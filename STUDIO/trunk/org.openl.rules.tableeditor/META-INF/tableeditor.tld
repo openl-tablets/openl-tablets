@@ -185,12 +185,25 @@
             </deferred-value>
         </attribute>
         <attribute>
+            <description>Save failure JS action.</description>
+            <name>onSaveFailure</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
             <description>
                 Comma-separated list of javascript libraries to exclude from TableEditor html
                 to prevent conflicts with already used on page another versions of this libraries.
                 Available options: 'prototype'.
             </description>
             <name>excludeScripts</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <name>showLinksBase</name>
             <deferred-value>
                 <type>String</type>
             </deferred-value>

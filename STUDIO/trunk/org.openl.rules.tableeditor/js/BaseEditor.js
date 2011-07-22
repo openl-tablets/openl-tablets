@@ -12,6 +12,7 @@ var BaseEditor = Class.create({
     tableEditor: null,
     parentElement: null,
     input: null,
+    input: null,
     initialValue: null,
     stoppedEvents: null,
     focus: null,

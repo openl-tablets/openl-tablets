@@ -25,7 +25,7 @@
     <ui:define name="page">
         <h:form>
             <a4j:commandLink action="#{tableWizard.addValue}"
-                reRender="valuesTable" title="Add more" styleClass="addButton">
+                render="valuesTable" title="Add more" styleClass="addButton">
                 <h:outputText value="Add Value" />
             </a4j:commandLink>
 
@@ -39,13 +39,13 @@
                         <h:outputText value="Values" />
                     </f:facet>
                     <h:inputText id="vname" value="#{value.value}">
-                        <rich:ajaxValidator />
+                        <rich:validator  />
                     </h:inputText>
                 </h:column>
 
                 <h:column>
                     <a4j:commandLink action="#{tableWizard.removeValue}"
-                        reRender="valuesTable" ajaxSingle="true"
+                        render="valuesTable" execute="@this"
                         title="Remove Value" style="margin-left: 5px;">
                         <h:graphicImage value="/images/delete.gif" />
                     </a4j:commandLink>

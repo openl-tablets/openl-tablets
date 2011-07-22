@@ -6,6 +6,7 @@ body {
 .treeMenu {
     width: 100%;
     border-bottom: 1px dotted rgb(150,150,150);
+    padding-bottom: 4px;
 }
 
 .treeMenu a {
@@ -14,16 +15,10 @@ body {
 
 .tree a {
     text-decoration: none;
-    color: black !important;
-}
-
-.treeNodeSelected {
-    border: 0px;
-    font-size: 95%;
-    font-weight: bold;
+    color: #111111 !important;
 }
 
 .treeNodeInactive {
-    opacity: 0.30;
-    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 30);
+    opacity: 0.35;
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 35);
 }

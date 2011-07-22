@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.jsf.facelets.resource;
 
-import com.sun.facelets.impl.ResourceResolver;
-import com.sun.facelets.util.Resource;
+import com.sun.faces.facelets.util.Resource;
 
 import java.io.IOException;
 
@@ -9,6 +8,7 @@ import java.net.URL;
 
 import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
+import javax.faces.view.facelets.ResourceResolver;
 
 /**
  * Convenient implementation of resource resolver that allows to store all
@@ -18,7 +18,8 @@ import javax.faces.context.FacesContext;
  *
  * @author Andrey Naumenko
  */
-public class DefaultResourceResolver implements ResourceResolver {
+public class DefaultResourceResolver extends ResourceResolver {
+
     private static final String PREFIX = "/facelets";
 
     public URL resolveUrl(String path) {

@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.List;
 
-import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
@@ -13,6 +12,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
+import org.richfaces.component.UIRepeat;
 
 /**
  * Request scope managed bean providing logic for 'Run TestMethod' page of OpenL Studio.

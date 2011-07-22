@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +26,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.conf.Version;
+import org.richfaces.component.UIRepeat;
 
 public class TablePropertyCopier extends TableCopier {
     

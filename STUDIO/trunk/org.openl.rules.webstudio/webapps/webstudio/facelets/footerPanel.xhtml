@@ -5,9 +5,8 @@
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
-        <link href="webresource/css/common/tabpanel.css" rel="stylesheet" type="text/css" />
         <style type="text/css">
-            #footerPanel {
+            html, body, #footerPanel {
                 height: 100%;
             }
         </style>
@@ -16,7 +15,7 @@
     <ui:define name="page">
 
         <rich:tabPanel id="footerPanel" switchType="client">
-            <rich:tab label="Problems">
+            <rich:tab header="Problems">
                 <ui:include src="/facelets/problems.xhtml" />
             </rich:tab>
         </rich:tabPanel>

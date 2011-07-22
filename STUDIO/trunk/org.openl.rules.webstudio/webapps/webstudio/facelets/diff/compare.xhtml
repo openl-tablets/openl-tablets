@@ -10,11 +10,6 @@
   <ui:define name="title">Excel Structured Diff</ui:define>
 
   <ui:define name="page">
-    <style>
-      .fileEntry {
-        height: 40px;
-      }
-    </style>
 
     <h:messages style="color:red" globalOnly="true" />
 
@@ -22,31 +17,16 @@
       <h:panelGrid columns="2" rendered="#{!param.disableUpload}">
         <h:outputText value="Select 2 Excel Files" />
 
-        <rich:fileUpload id="fileUpload"
-        	clearControlLabel=""
-        	uploadData="#{uploadExcelDiffController.uploadedFiles}"
-            maxFilesQuantity="#{uploadExcelDiffController.uploadsAvailable}" 
-            immediateUpload="true" 
-            acceptedTypes="xls, xlsx, xlsm"
-            allowFlash="true"
-            listHeight="85px" 
-            fileEntryClass="fileEntry">
-
-			<a4j:support event="onuploadcomplete" ajaxSingle="true" reRender="compareButton" />
-
-			<a4j:support event="onclear" ajaxSingle="true" reRender="fileUpload,compareButton">
-          		<a4j:actionparam name="fname" noEscape="true" value = "(event.memo.entry)?event.memo.entry.fileName:'' "
-                           assignTo="#{uploadExcelDiffController.fileName}"
-                           actionListener="#{uploadExcelDiffController.clearUploadData}" />
-     		</a4j:support>
-
+        <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
+            acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
+			<a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
 		</rich:fileUpload>
 
         <h:outputText value="Show equal elements" />
         <h:selectBooleanCheckbox value="#{uploadExcelDiffController.showEqualElements}" />
 
         <h:commandButton id="compareButton" value="Compare" action="#{uploadExcelDiffController.compare}"
-            disabled="#{uploadExcelDiffController.uploadsAvailable != 0}" />
+            disabled="#{uploadExcelDiffController.uploadsSize != 2}" />
       </h:panelGrid>
     </h:form>
 
@@ -54,15 +34,13 @@
       <tr>
         <td valign="top">
 
-      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="tableEditor1,tableEditor2,newTree"
-        prependId="false">
+      <h:form id="diffTreeForm">
         <input type="hidden" name="id" value=""  />
         <table width="100%">
           <tr>
             <td colspan="2" style="height:16px;">
                 <a4j:status>
                     <f:facet name="start">
-                        <h:graphicImage value="/webresource/images/ajax-loader.gif" />
                         Loading...
                     </f:facet>
                 </a4j:status>
@@ -70,21 +48,18 @@
           </tr>
           <tr>
             <td colspan="2" valign="top">
-  <rich:panel style="width:100%; height:480px; background-color: #f5f5f5; border: 1px solid Silver; overflow:auto; clear:left;">
-    <rich:tree
-      id="newTree"
-      switchType="ajax" 
-      value="#{uploadExcelDiffController.richDiffTree}"
-      var="item"
-      nodeFace="any"
-      ajaxSubmitSelection="true"
-      nodeSelectListener="#{uploadExcelDiffController.processSelection}"
-      reRender="tableEditor1,tableEditor2">
-      <rich:treeNode type="any" icon="#{item.icon}" iconLeaf="#{item.icon}">
-        <h:outputText value="#{item.name}" />
-      </rich:treeNode>
-    </rich:tree>
-  </rich:panel>
+              <rich:panel style="width:100%; height:480px; background-color: #f5f5f5; border: 1px solid Silver; overflow:auto; clear:left;">
+                <rich:tree id="newTree" toggleType="client" selectionType="ajax"
+                    selectionChangeListener="#{uploadExcelDiffController.processSelection}"
+                    value="#{uploadExcelDiffController.richDiffTree}" var="item"
+                    nodeType="any" render="tableEditor1 tableEditor2">
+                    <rich:treeNode type="any"
+                        iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}"
+                        iconLeaf="#{item.icon}">
+                        <h:outputText value="#{item.name}" />
+                    </rich:treeNode>
+                </rich:tree>
+              </rich:panel>
             </td>
           </tr>
           <tr>
@@ -100,20 +75,20 @@
               <p />
               	<a4j:outputPanel ajaxRendered="true">
            			<rules:tableEditor id="tableEditor1" table="#{uploadExcelDiffController.table1}" editable="false"
-                        collapseProps="true" filter="#{uploadExcelDiffController.filter1}" excludeScripts="prototype" />
+                        collapseProps="true" filter="#{uploadExcelDiffController.filter1}" />
            		</a4j:outputPanel>
             </td>
             <td valign="top">
               <p />
                 <a4j:outputPanel ajaxRendered="true">
 	           		<rules:tableEditor id="tableEditor2" table="#{uploadExcelDiffController.table2}" editable="false"
-                        collapseProps="true" filter="#{uploadExcelDiffController.filter2}" excludeScripts="prototype" />
+                        collapseProps="true" filter="#{uploadExcelDiffController.filter2}" />
               	</a4j:outputPanel>
             </td>
           </tr>
         </table>
 
-      </a4j:form>
+      </h:form>
       <br />
 
         </td>

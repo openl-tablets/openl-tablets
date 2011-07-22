@@ -3,7 +3,7 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:c="http://java.sun.com/jstl/core">
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
 
   <rich:dataTable value="#{node.childNodes}" var="el" cellspacing="0px" styleClass="standard"
     rowClasses="odd,even">
@@ -30,7 +30,7 @@
         <h:outputText value="#{el.name}" />
       </rich:column>
       <rich:column style="text-align:center;">
-        <h:commandLink styleClass="actionButton" action="#{repositoryTreeController.deleteElement}"
+        <h:commandLink action="#{repositoryTreeController.deleteElement}"
           onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
           rendered="#{artefact.project.checkedOut}" title="Delete">
           <f:param name="element" value="#{el.name}" />
@@ -44,5 +44,5 @@
     <h:outputText value="No entries found" />
   </h:panelGroup>
 
-  <h:outputText styleClass="label" rendered="#{empty node.children}" value="There are no elements (Folders, Files)." />
+  <h:outputText styleClass="label" rendered="#{empty node.elements}" value="There are no elements (Folders, Files)." />
 </ui:composition>

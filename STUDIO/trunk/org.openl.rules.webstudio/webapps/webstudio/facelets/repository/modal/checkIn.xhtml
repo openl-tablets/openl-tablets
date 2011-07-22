@@ -5,19 +5,19 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalCheckIn" width="400" minWidth="400" height="220" minHeight="220">
+  <rich:popupPanel id="modalCheckIn" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="Check In" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" alt="Close" title="Close" onclick="Richfaces.hideModalPanel('modalCheckIn');" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" alt="Close" title="Close" onclick="RichFaces.$('modalCheckIn').hide();" />
     </f:facet>
 
     <h:form id="checkInForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputText value="Current Version" />
         <h:outputText value="#{node.versionName}"/>
         <h:outputText value="Next Version" />
@@ -30,13 +30,11 @@
                  onchange="checkinDlgAdjustNextVersion()"/>
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Check In" action="#{repositoryTreeController.checkInProject}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalCheckIn')}.hide();" />
+        <h:commandButton value="Check In" action="#{repositoryTreeController.checkInProject}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalCheckIn')}.hide();" />
       </h:panelGrid>
     </h:form>
 
@@ -48,12 +46,12 @@
         $("checkInForm:nextVersion").innerHTML = major + "." + minor + "." + rev;
       }
     </script>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openCheckInDialog() {
       submitMainForm(function() {
-        Richfaces.showModalPanel('modalCheckIn');
+        RichFaces.$('modalCheckIn').show();
         focusElement('checkInForm:projectVersion');
       });
     }

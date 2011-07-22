@@ -24,7 +24,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
@@ -33,7 +33,8 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
-import org.richfaces.model.UploadItem;
+import org.richfaces.event.FileUploadEvent;
+import org.richfaces.model.UploadedFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,7 +70,7 @@ public class RepositoryTreeController {
     private String newProjectTemplate;
     private String[] projectTemplates = { "SampleTemplate.xls" };
     private String folderName;
-    private List<UploadItem> uploadedFiles = new ArrayList<UploadItem>();
+    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -313,8 +314,8 @@ public class RepositoryTreeController {
         try {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             project.delete(userWorkspace.getUser());
-            if(repositoryTreeState.isHideDeleted()){
-                AbstractTreeNode projectInTree = repositoryTreeState.getDeploymentRepository().getChild(project.getName());
+            if(repositoryTreeState.isHideDeleted()) {
+                TreeNode projectInTree = repositoryTreeState.getDeploymentRepository().getChild(project.getName());
                 repositoryTreeState.deleteNode(projectInTree);
             }
         } catch (ProjectException e) {
@@ -365,12 +366,12 @@ public class RepositoryTreeController {
             RulesProject project = userWorkspace.getProject(projectName);
             if (project.isLocalOnly()) {
                 project.erase(userWorkspace.getUser());
-                AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                TreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
                 repositoryTreeState.deleteNode(projectInTree);
             } else {
                 project.delete(userWorkspace.getUser());
                 if(repositoryTreeState.isHideDeleted()){
-                    AbstractTreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                    TreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
                     repositoryTreeState.deleteNode(projectInTree);
                 }
             }
@@ -541,7 +542,7 @@ public class RepositoryTreeController {
      *
      * @return list of deployments projects
      */
-    public List<AbstractTreeNode> getDeploymentProjects() {
+    public List<TreeNode> getDeploymentProjects() {
         return repositoryTreeState.getDeploymentRepository().getChildNodes();
     }
 
@@ -702,7 +703,7 @@ public class RepositoryTreeController {
      *
      * @return list of rules projects
      */
-    public List<AbstractTreeNode> getRulesProjects() {
+    public List<TreeNode> getRulesProjects() {
         return repositoryTreeState.getRulesRepository().getChildNodes();
     }
 
@@ -761,7 +762,7 @@ public class RepositoryTreeController {
     }
 
     private void selectProject(String projectName, TreeRepository root) {
-        for (AbstractTreeNode node : root.getChildNodes()) {
+        for (TreeNode node : root.getChildNodes()) {
             if (node.getName().equals(projectName)) {
                 repositoryTreeState.setSelectedNode(node);
                 repositoryTreeState.refreshSelectedNode();
@@ -876,12 +877,9 @@ public class RepositoryTreeController {
         }
     }
 
-    public List<UploadItem> getUploadedFiles() {
-        return uploadedFiles;
-    }
-
-    public void setUploadedFiles(List<UploadItem> uploadedFiles) {
-        this.uploadedFiles = uploadedFiles;
+    public void uploadListener(FileUploadEvent event) {
+        UploadedFile file = event.getUploadedFile();
+        uploadedFiles.add(file);
     }
 
     public void setFileName(String fileName) {
@@ -1039,13 +1037,11 @@ public class RepositoryTreeController {
             return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         }
 
-        File uploadedFile = getLastUploadedFile().getFile();
-
         try {
             AProjectFolder node = (AProjectFolder) repositoryTreeState.getSelectedNode()
                     .getData();
 
-            AProjectResource addedFileResource = node.addResource(fileName, new FileInputStream(uploadedFile));
+            AProjectResource addedFileResource = node.addResource(fileName, getLastUploadedFile().getInputStream());
 
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
             clearUploadedFiles();
@@ -1058,11 +1054,10 @@ public class RepositoryTreeController {
     }
 
     private String uploadAndUpdateFile() {
-        File uploadedFile = getLastUploadedFile().getFile();
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode()
                     .getData();
-            node.setContent(new FileInputStream(uploadedFile));
+            node.setContent(getLastUploadedFile().getInputStream());
 
             clearUploadedFiles();
         } catch (Exception e) {
@@ -1073,7 +1068,7 @@ public class RepositoryTreeController {
         return null;
     }
 
-    private UploadItem getLastUploadedFile() {
+    private UploadedFile getLastUploadedFile() {
         if (!uploadedFiles.isEmpty()) {
             return uploadedFiles.get(uploadedFiles.size() - 1);
         }
@@ -1084,7 +1079,7 @@ public class RepositoryTreeController {
         String errorMessage = null;
 
         if (StringUtils.isNotBlank(projectName)) {
-            UploadItem uploadedItem = getLastUploadedFile();
+            UploadedFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem, projectName, userWorkspace, zipFilter);
                 errorMessage = projectUploader.uploadProject();                     
@@ -1105,9 +1100,6 @@ public class RepositoryTreeController {
     }
 
     private void clearUploadedFiles() {
-        for (UploadItem uploadFile : uploadedFiles) {
-            uploadFile.getFile().delete();
-        }
         uploadedFiles.clear();
     }
 

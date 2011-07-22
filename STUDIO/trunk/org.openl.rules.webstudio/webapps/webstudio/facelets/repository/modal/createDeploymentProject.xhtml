@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalNewDProject" width="400" minWidth="400" height="120" minHeight="120">
+  <rich:popupPanel id="modalNewDProject" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="New Deployment Project" />
     </f:facet>
@@ -21,20 +21,18 @@
         <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"/>
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br/>
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Create" action="#{repositoryTreeController.createDeploymentProject}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalNewDProject')}.hide();" />
+        <h:commandButton value="Create" action="#{repositoryTreeController.createDeploymentProject}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalNewDProject')}.hide();" />
       </h:panelGrid>
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openNewDeploymentProjectDialog() {
-      Richfaces.showModalPanel('modalNewDProject');
+      RichFaces.$('modalNewDProject').show();
       focusElement("newDProjectForm:projectName");
     }
   </script>

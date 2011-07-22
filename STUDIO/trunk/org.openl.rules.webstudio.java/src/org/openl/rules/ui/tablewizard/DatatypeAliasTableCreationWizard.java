@@ -18,7 +18,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
-import org.richfaces.component.html.HtmlDataTable;
+import org.richfaces.component.UIDataTable;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -38,7 +38,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
     private DomainTree domainTree;
     private SelectItem[] domainTypes;
 
-    private HtmlDataTable valuesTable;
+    private UIDataTable valuesTable;
 
     public DatatypeAliasTableCreationWizard() {
     }
@@ -75,11 +75,11 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
         return domainTypes;
     }
 
-    public HtmlDataTable getValuesTable() {
+    public UIDataTable getValuesTable() {
         return valuesTable;
     }
 
-    public void setValuesTable(HtmlDataTable valuesTable) {
+    public void setValuesTable(UIDataTable valuesTable) {
         this.valuesTable = valuesTable;
     }
 

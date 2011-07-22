@@ -5,38 +5,36 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalUpdateFile" width="500" height="200">
+  <rich:popupPanel id="modalUpdateFile" width="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Update File" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUpdateFile');" alt="Close" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+        onclick="RichFaces.$('modalUpdateFile').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="updateFileForm">
-      <a4j:keepAlive beanName="repositoryTreeController" />
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File" />
         <rich:fileUpload id="file" uploadData="#{repositoryTreeController.uploadedFiles}"
             immediateUpload="true" allowFlash="true" listHeight="60px" />
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Update" action="#{repositoryTreeController.updateFile}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalUpdateFile')}.hide();" />
+        <h:commandButton value="Update" action="#{repositoryTreeController.updateFile}" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalUpdateFile').hide();" />
       </h:panelGrid>
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openUpdateFileDialog() {
       submitMainForm(function() {
-        Richfaces.showModalPanel('modalUpdateFile');
+        RichFaces.$('modalUpdateFile').show();
       });
     }
   </script>

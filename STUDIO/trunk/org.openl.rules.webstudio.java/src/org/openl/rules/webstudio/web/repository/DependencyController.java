@@ -10,7 +10,7 @@ import org.openl.rules.common.impl.ProjectDependencyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -55,7 +55,7 @@ public class DependencyController {
     }
 
     public String add() {
-        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
+        TreeNode selected = repositoryTreeState.getSelectedNode();
         if (!(selected instanceof TreeProject)) {
             return null;
         }
@@ -105,7 +105,7 @@ public class DependencyController {
     }
 
     public SelectItem[] getAvailableProjects() {
-        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
+        TreeNode selected = repositoryTreeState.getSelectedNode();
         Set<String> existing = new HashSet<String>();
 
         if (selected instanceof TreeProject) {
@@ -116,7 +116,7 @@ public class DependencyController {
         }
 
         List<String> matching = new ArrayList<String>();
-        for (AbstractTreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
+        for (TreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
             if (!existing.contains(node.getName()) && !((RulesProject) node.getData()).isLocalOnly()) {
                 matching.add(node.getName());
             }

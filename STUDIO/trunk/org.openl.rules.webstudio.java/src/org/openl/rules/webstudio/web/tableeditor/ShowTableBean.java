@@ -132,10 +132,9 @@ public class ShowTableBean {
             }
         }
 
-        notViewParams = WebTool.listRequestParams(paramMap, new String[] { "transparency", "filterType", "view" });
+        notViewParams = WebTool.listRequestParams(paramMap, new String[] { "view" });
         paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
-        paramsWithoutShowFormulas = WebTool.listRequestParams(
-                paramMap, new String[] { "transparency", "filterType", "showFormulas" });
+        paramsWithoutShowFormulas = WebTool.listRequestParams(paramMap, new String[] { "showFormulas" });
     }
 
     private void initTests(final ProjectModel model) {

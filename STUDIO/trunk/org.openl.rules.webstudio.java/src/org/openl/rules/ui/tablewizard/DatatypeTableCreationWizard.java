@@ -19,7 +19,7 @@ import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
-import org.richfaces.component.html.HtmlDataTable;
+import org.richfaces.component.UIDataTable;
 
 /**
  * @author Andrei Astrouski
@@ -38,7 +38,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
     private SelectItem[] domainTypes;
     private String parent;
 
-    private HtmlDataTable parametersTable;
+    private UIDataTable parametersTable;
 
     public DatatypeTableCreationWizard() {
     }
@@ -79,11 +79,11 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         return domainTypes;
     }
 
-    public HtmlDataTable getParametersTable() {
+    public UIDataTable getParametersTable() {
         return parametersTable;
     }
 
-    public void setParametersTable(HtmlDataTable parametersTable) {
+    public void setParametersTable(UIDataTable parametersTable) {
         this.parametersTable = parametersTable;
     }
 

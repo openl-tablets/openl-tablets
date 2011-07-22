@@ -16,21 +16,21 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.filter.IFilter;
 import org.openl.util.filter.AllFilter;
 import org.richfaces.component.UITree;
 
-import org.richfaces.event.NodeSelectedEvent;
+import org.richfaces.event.TreeSelectionChangeEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -41,20 +41,21 @@ import java.util.List;
  * @author Andrey Naumenko
  */
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
+
     private static final Log LOG = LogFactory.getLog(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
     /** Root node for RichFaces's tree. It is not displayed. */
     private TreeRepository root;
-    private AbstractTreeNode selectedNode;
+    private TreeNode selectedNode;
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
-    
+
     public Boolean adviseNodeSelected(UITree uiTree) {
-        AbstractTreeNode node = (AbstractTreeNode) uiTree.getTreeNode();
+        /*TreeNode node = (TreeNode) uiTree.getTreeNode();
 
         AProjectArtefact projectArtefact = node.getData();
         AProjectArtefact selected = null;
@@ -73,10 +74,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                 return selected instanceof DeploymentDescriptorProject;
             }
             return true;
-        }
+        }*/
         return false;
     }
-    
+
     private void buildTree() {
         if (root != null) {
             return;
@@ -151,7 +152,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return rulesRepository;
     }
 
-    public AbstractTreeNode getSelectedNode() {
+    public TreeNode getSelectedNode() {
         buildTree();
         return selectedNode;
     }
@@ -173,24 +174,24 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      */
     public void updateSelectedNode() {
         Iterator<String> it = getSelectedNode().getData().getArtefactPath().getSegments().iterator();
-        AbstractTreeNode currentNode = getRulesRepository();
+        TreeNode currentNode = getRulesRepository();
         while ((currentNode != null) && it.hasNext()) {
-            currentNode = currentNode.getChild(it.next());
+            currentNode = (TreeNode) currentNode.getChild(it.next());
         }
 
         if (currentNode != null) {
-            selectedNode = (AbstractTreeNode) currentNode;
+            selectedNode = currentNode;
         }
     }
 
-    public void refreshNode(AbstractTreeNode node){
+    public void refreshNode(TreeNode node){
         node.refresh();
     }
-    
-    public void deleteNode(AbstractTreeNode node){
+
+    public void deleteNode(TreeNode node){
         node.getParent().removeChild(node.getId());
     }
-    
+
     public void deleteSelectedNodeFromTree(){
         deleteNode(selectedNode);
         moveSelectionToParentNode();
@@ -212,7 +213,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         }
     }
 
-    public void addNodeToTree(AbstractTreeNode parent, AProjectArtefact childArtefact) {
+    public void addNodeToTree(TreeNode parent, AProjectArtefact childArtefact) {
         String id = childArtefact.getName();
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName(), filter);
@@ -237,22 +238,22 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      * Moves selection to the parent of the current selected node.
      */
     public void moveSelectionToParentNode() {
-        if (selectedNode.getParent() instanceof AbstractTreeNode) {
-            selectedNode = (AbstractTreeNode) selectedNode.getParent();
+        if (selectedNode.getParent() instanceof TreeNode) {
+            selectedNode = selectedNode.getParent();
         } else {
             invalidateSelection();
         }
     }
 
-    public void processSelection(NodeSelectedEvent event) {
-        UITree tree = (UITree) event.getComponent();
-        
-        try {
-            selectedNode = (AbstractTreeNode) tree.getTreeNode();
-        } catch (IllegalStateException ex) {
-            // If nothing selected in tree then invalidate selection. 
-            selectedNode = getSelectedNode();
-        }
+    public void processSelection(TreeSelectionChangeEvent event) {
+        List<Object> selection = new ArrayList<Object>(event.getNewSelection());
+        Object currentSelectionKey = selection.get(0);
+        UITree tree = (UITree) event.getSource();
+
+        Object storedKey = tree.getRowKey();
+        tree.setRowKey(currentSelectionKey);
+        selectedNode = (TreeNode) tree.getRowData();
+        tree.setRowKey(storedKey);
     }
 
     /**
@@ -271,7 +272,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         this.root = root;
     }
 
-    public void setSelectedNode(AbstractTreeNode selectedNode) {
+    public void setSelectedNode(TreeNode selectedNode) {
         this.selectedNode = selectedNode;
     }
 
@@ -283,7 +284,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
         String projectName = event.getProjectName();
-        AbstractTreeNode rulesProject = getRulesRepository().getChild(projectName);
+        TreeNode rulesProject = getRulesRepository().getChild(projectName);
         if (rulesProject == null) {
             if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
                 try {
@@ -306,7 +307,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void onDeploymentProjectModified(DTRepositoryEvent event) {
-        AbstractTreeNode deploymentProject = getDeploymentRepository().getChild(event.getProjectName());
+        TreeNode deploymentProject = getDeploymentRepository().getChild(event.getProjectName());
         if(deploymentProject == null){
             if(userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
                 try {

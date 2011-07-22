@@ -2,11 +2,11 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:rich="http://richfaces.org/rich">
 
-  <rich:modalPanel id="modalSessionExpired" width="300" minWidth="300" height="130" minHeight="110">
+  <!--<rich:popupPanel id="modalSessionExpired" width="300" minWidth="300" height="130" minHeight="110">
     <f:facet name="header">
       <h:outputText value="Session Expired" />
     </f:facet>
@@ -25,9 +25,10 @@
       <br />
 
       <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <input type="button" id="sessionExpiredBtn" class="button" value="Login Now" onclick="return relogin();" />
+        <input type="button" id="sessionExpiredBtn" value="Login Now" onclick="return relogin();" />
       </h:panelGrid>
-  </rich:modalPanel>
+  </rich:popupPanel>
+  -->
 
     <script type="text/javascript">
         function relogin() {
@@ -35,7 +36,7 @@
             return false;
         }
 //<!--
-        function reloginCountDown(countDown) {
+        /*function reloginCountDown(countDown) {
             if (countDown == null) {
                 countDown = window._countDown;
             }
@@ -47,9 +48,9 @@
                 window._countDown = countDown - 1;
                 setTimeout(reloginCountDown, 1000, countDown - 1);
             }
-        }
+        }*/
 
-        // Richfaces.showModalPanel('modalSessionExpired');
+        //RichFaces.$('modalSessionExpired').show();
 
         // reloginCountDown(15);
         relogin();

@@ -1,6 +1,8 @@
-package org.openl.rules.ui.tree;
+package org.openl.rules.ui.tree.richfaces;
 
-public class TreeNodeData {
+import org.richfaces.model.TreeNodeImpl;
+
+public class TreeNode extends TreeNodeImpl {
 
     private String name;
     private String title;
@@ -9,11 +11,20 @@ public class TreeNodeData {
     private String type;
     private boolean active;
 
-    public TreeNodeData() {
+    public TreeNode() {
+        this(false);
     }
 
-    public TreeNodeData(String name, String title, String url, int state,
-            String type, boolean active) {
+    public TreeNode(boolean isLeaf) {
+        super(isLeaf);
+    }
+
+    public TreeNode(String name, String title, String url, int state, String type, boolean active) {
+        this(false, name, title, url, state, type, active);
+    }
+
+    public TreeNode(boolean isLeaf, String name, String title, String url, int state, String type, boolean active) {
+        this(isLeaf);
         this.name = name;
         this.title = title;
         this.url = url;

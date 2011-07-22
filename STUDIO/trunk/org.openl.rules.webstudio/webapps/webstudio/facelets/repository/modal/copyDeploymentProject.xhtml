@@ -5,34 +5,32 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalCopyDeploymentProject" width="400" minWidth="400" height="145" minHeight="145">
+  <rich:popupPanel id="modalCopyDeploymentProject" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="Copy Deployment Project" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCopyDeploymentProject');" alt="Close" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('modalCopyDeploymentProject').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="copyDeploymentProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input id="deploymentProjectName1" value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input id="deploymentProjectName1" value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
         <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalCopyDeploymentProject')}.hide();" />
+        <h:commandButton value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalCopyDeploymentProject')}.hide();" />
       </h:panelGrid>
       <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openCopyDeploymentProjectDialog(projectName) {
@@ -42,7 +40,7 @@
           el.value = projectName;
           el.title = projectName;
         }
-        Richfaces.showModalPanel('modalCopyDeploymentProject');
+        RichFaces.$('modalCopyDeploymentProject').show();
         focusElement('copyDeploymentProjectForm:newProjectName');
         document.getElementById('copyDeploymentProjectForm:hiddenProjectName').value = document.getElementById('deploymentProjectName1').value;
       });
