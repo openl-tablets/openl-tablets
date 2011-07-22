@@ -21,7 +21,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public final class FileTool {
+
+    private static final Log LOG = LogFactory.getLog(FileTool.class);
 
     public static class CacheMap {
 
@@ -488,7 +494,7 @@ public final class FileTool {
                 removeChildren(file[i]);
             }
             if (file[i].delete() == false) {
-                Log.warn("Cant delete file/dir: " + file[i].getAbsolutePath());
+                LOG.warn("Cant delete file/dir: " + file[i].getAbsolutePath());
             // else
             // Log.warn("Deleted: "+file[i].getAbsolutePath());
             }
@@ -546,7 +552,7 @@ public final class FileTool {
                 return;
             }
         } catch (Exception ex) {
-            Log.warn(ex);
+            LOG.warn(ex);
         }
 
         File file = new File(fname);
@@ -598,6 +604,17 @@ public final class FileTool {
             fr.close();
         }
 
+    }
+
+    public static File toFile(InputStream source, String pathName) {
+        File file = null;
+        try {
+            file = new File(pathName);
+            FileUtils.copyInputStreamToFile(source, file);
+        } catch (IOException e) {
+            LOG.error("Error when creating file: " + pathName, e);
+        }
+        return file;
     }
 
 }

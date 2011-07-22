@@ -1,7 +1,7 @@
 <ui:composition
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
@@ -9,12 +9,13 @@
 
     <ui:define name="header">
         <style>
-            .column {
+            .revertTable th,
+            .revertTable td {
                 padding: 5px 11px;
                 text-align: center;
             }
         </style>
-        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+        <h:outputScript name="jquery.js" />
     </ui:define>
 
     <ui:define name="page">
@@ -37,10 +38,10 @@
 
             <h:form>
 
-                <rich:dataTable value="#{history}" var="historyItem" rowKeyVar="row"
-                    onRowMouseOver="rowMouseOver(this)" onRowMouseOut="rowMouseOut(this)"
-                    onRowClick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
-                    headerClass="column" columnClasses="column">
+                <rich:dataTable id="revertTable" value="#{history}" var="historyItem" rowKeyVar="row"
+                    onrowmouseover="rowMouseOver(this)" onrowmouseout="rowMouseOut(this)"
+                    onrowclick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
+                    styleClass="revertTable">
                     <rich:column>
                         <f:facet name="header">
                             <h:outputText value="#" />
@@ -54,13 +55,15 @@
                         <h:outputText value="#{historyItem.disabled ? 'Initial' : historyItem.modifiedOn}"
                             style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
                     </rich:column>
-                    <rich:columns value="#{revertProjectChangesBean.sources}" var="source">
-                        <f:facet name="header">
-                            <h:outputText value="#{source}" />
-                        </f:facet>
-                        <h:graphicImage value="webresource/images/ok.png"
-                            rendered="#{historyItem.sourceName == source}" />
-                    </rich:columns>
+                    <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
+                        <rich:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{source}" />
+                            </f:facet>
+                            <h:graphicImage value="webresource/images/ok.png"
+                                rendered="#{historyItem.sourceName == source}" />
+                        </rich:column>
+                    </c:forEach>
                     <rich:column>
                         <f:facet name="header">
                             <h:outputText value="Compare" />
@@ -80,9 +83,9 @@
             </h:form>
 
         <script type="text/javascript">
-            var rowHoverColor = '#FAE5C1';
-            var rowDefaultColor = '#{a4jSkin.tableBackgroundColor}';
-            var rowSelectedColor = '#FBBE83';
+            var rowHoverColor = "#FAE5C1";
+            var rowDefaultColor = "#{richSkin.tableBackgroundColor}";
+            var rowSelectedColor = "#FBBE83";
             var selectedRow;
 
             var versionsToCompare = [];
@@ -116,7 +119,7 @@
             }
 
             function setVersionToRevert(version) {
-                $('versionToRevert').value = version;
+                $("#versionToRevert").val(version);
                 revertBtn.disabled = false;
             }
 
@@ -124,17 +127,17 @@
                 // Check
                 if (checkbox.checked) {
                     if (versionsToCompare.length >= 2) {
-                        alert('Ooops, maximum number of versions to compare is 2');
+                        alert("Ooops, maximum number of versions to compare is 2");
                         return false;
                     }
                     versionsToCompare.push(version);
 
                 // Uncheck
                 } else {
-                    versionsToCompare = versionsToCompare.without(version);
+                    versionsToCompare = $.grep(versionsToCompare, function (v) { return v != version; });
                 }
 
-                $('versionsToCompare').value = versionsToCompare.join();
+                $("#versionsToCompare").val(versionsToCompare.join());
 
                 if (versionsToCompare.length >= 2) {
                     compareBtn.disabled = false;

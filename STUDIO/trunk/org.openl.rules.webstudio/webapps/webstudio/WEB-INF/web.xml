@@ -49,40 +49,13 @@
   </context-param>
 
   <context-param>
-    <description>State saving method: "client" or "server" (= default)</description>
-    <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-    <param-value>server</param-value>
+    <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+    <param-value>/WEB-INF/taglib/jsffn.taglib.xml;/WEB-INF/taglib/acegi.taglib.xml;/WEB-INF/taglib/rich.taglib.xml;/WEB-INF/taglib/a4j.taglib.xml</param-value>
   </context-param>
 
   <context-param>
-    <description>Enabling compression in MyFaces version 1.1.4 and later.</description>
-    <param-name>org.apache.myfaces.COMPRESS_STATE_IN_CLIENT</param-name>
-    <param-value>true</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>facelets.VIEW_MAPPINGS</param-name>
-    <param-value>*.xhtml</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>facelets.DEVELOPMENT</param-name>
-    <param-value>false</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>facelets.LIBRARIES</param-name>
-    <param-value>/WEB-INF/taglib/jsffn.taglib.xml;/WEB-INF/taglib/acegi.taglib.xml</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>org.richfaces.SKIN</param-name>
+    <param-name>org.richfaces.skin</param-name>
     <param-value>#{skinBean.skin}</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>org.ajax4jsf.VIEW_HANDLERS</param-name>
-    <param-value>com.sun.facelets.FaceletViewHandler</param-value>
   </context-param>
 
   <context-param>
@@ -109,20 +82,6 @@
   <filter-mapping>
     <filter-name>WebResourceFilter</filter-name>
     <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-    <display-name>RichFaces Filter</display-name>
-    <filter-name>RichFacesFilter</filter-name>
-    <filter-class>org.ajax4jsf.Filter</filter-class>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>RichFacesFilter</filter-name>
-    <servlet-name>FacesServlet</servlet-name>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
 
   <filter>
@@ -167,9 +126,9 @@
     <listener-class>org.openl.rules.webstudio.web.servlet.StartupListener</listener-class>
   </listener>
 
-  <listener>
-    <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-  </listener>
+  <!--listener>
+    <listener-class>com.sun.faces.config.ConfigureListener</listener-class>
+  </listener-->
 
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>

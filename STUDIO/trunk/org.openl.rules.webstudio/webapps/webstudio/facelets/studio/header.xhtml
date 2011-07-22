@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:authz="http://rules.openl.org/taglibs/acegi"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <a4j:loadStyle src="resource:///css/openl/style1.css" />
-    <a4j:loadStyle src="resource:///css/header.css" />
+    <h:head>
+        <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css" />
+        <link href="webresource/css/header.css" rel="stylesheet" type="text/css" />
+    </h:head>
 
     <style>
-        form { margin: 0px; }
-
         .projectItem {
             margin-top: 3px;
             color: #337AB6;
@@ -193,13 +192,13 @@
 
                   <f:verbatim>&amp;nbsp;</f:verbatim>
 
-                  <a target="mainFrame" href='#{contextPath}/faces/facelets/admin/systemSettings.xhtml'
+                  <a target="mainFrame" href="#{contextPath}/faces/facelets/admin/systemSettings.xhtml"
                         title="System Settings"><img
                         src="#{contextPath}/webresource/images/settings.png" alt="System Settings"/></a>
 
                   <c:if test="#{not systemConfig['security.logout.hidden']}">
                     <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <a target="main" href='#{contextPath}/security_logout' title="Log out"
+                    <a target="main" href="#{contextPath}/security_logout" title="Log out"
                         onclick="return confirm('Are you sure you want to Log out?')"><img
                         src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
                   </c:if>   

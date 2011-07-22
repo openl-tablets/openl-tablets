@@ -5,19 +5,19 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalOpenVersion" width="400" minWidth="400" height="145" minHeight="#{node.type == 'project' and artefact.opened ? 195:145}">
+  <rich:popupPanel id="modalOpenVersion" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="Open Version" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalOpenVersion');" alt="Close" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('modalOpenVersion').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="openVersionForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
         <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
@@ -30,22 +30,21 @@
             Your project in local workspace will be replaced by project of specified version that will be checked out from repository." />
         <br />
       </h:panelGroup>
-      <br />
-      <rich:separator height="1" />
-      <br />
+
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Open" action="#{repositoryTreeController.openProjectVersion}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalOpenVersion')}.hide();" />
+        <h:commandButton value="Open" action="#{repositoryTreeController.openProjectVersion}" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalOpenVersion').hide();" />
       </h:panelGrid>
     </h:form>
 
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openOpenVersionDialog() {
       submitMainForm(function() {
-        Richfaces.showModalPanel('modalOpenVersion');
+        RichFaces.$('modalOpenVersion').show();
         focusElement('openVersionForm:projectVersion');
       });
     }

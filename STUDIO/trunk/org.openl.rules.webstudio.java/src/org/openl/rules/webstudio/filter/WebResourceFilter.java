@@ -15,6 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Servlet filter to load web resources (images, html, etc). First, attempt is
@@ -37,7 +38,7 @@ public class WebResourceFilter implements Filter {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             String path = httpRequest.getRequestURI();
 
-            if (path != null && path.indexOf(WEBRESOURCE_PREFIX) != -1) {
+            if (StringUtils.contains(path, WEBRESOURCE_PREFIX)) {
                 // When "webresource/**" is requested from html page which was
                 // loaded via "webresource/**" itself
                 // the path will contain 2 "webresource" strings.

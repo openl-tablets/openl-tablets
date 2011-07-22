@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -15,7 +13,8 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
-import org.richfaces.model.TreeNode;
+
+import com.google.common.collect.Iterators;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode}
@@ -45,19 +44,9 @@ import org.richfaces.model.TreeNode;
  * @author Aleh Bykhavets
  *
  */
-public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
-    //to sort elements by adding prefix in id: folder before files.
-    public static final String FOLDER_PREFIX = "dir_";
-    public static final String FILE_PREFIX = "file_";
+public abstract class AbstractTreeNode implements TreeNode {
 
     private static final long serialVersionUID = 1238954077308840345L;
-
-    /**
-     * Empty collection. It is used in LeafOnly mode to return empty iterator.
-     *
-     * Must be the same type as {@link #elements} is.
-     */
-    private static final transient Map EMPTY = new LinkedHashMap();
 
     // private static final Comparator<AbstractTreeNode> CHILD_COMPARATOR
     // = new Comparator<AbstractTreeNode>() {
@@ -85,7 +74,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     /**
      * Reference on parent node. For upper level node(s) it is <code>null</code>
      */
-    private TreeNode<AProjectArtefact> parent;
+    private TreeNode parent;
 
     /**
      * When <code>true</code> then the node cannot have children. Any
@@ -119,8 +108,6 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         this.name = name;
         this.isLeafOnly = isLeafOnly;
     }
-    
-    protected abstract Map<Object, AbstractTreeNode> getElements(); 
 
     /**
      * Short for <code>addChild(child.getId(), child)</code>.
@@ -134,7 +121,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      * @param child a node to be added as child
      * @return self-reference on the node
      */
-    public AbstractTreeNode add(AbstractTreeNode child) {
+    public TreeNode add(TreeNode child) {
         addChild(child.getId(), child);
         return this;
     }
@@ -142,11 +129,21 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     /**
      * @see TreeNode#addChild(Object, TreeNode)
      */
-    public void addChild(Object id, TreeNode<AProjectArtefact> child) {
+    public void addChild(Object id, TreeNode child) {
         checkLeafOnly();
 
-        getElements().put(id, (AbstractTreeNode) child);
+        getElements().put(id, child);
         child.setParent(this);
+    }
+
+    public void addChild(Object id, org.richfaces.model.TreeNode child) {
+    }
+
+    public void insertChild(int index, Object id, org.richfaces.model.TreeNode child) {
+    }
+
+    public int indexOf(Object id) {
+        return 0;
     }
 
     /**
@@ -156,7 +153,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      * This method is used internally in {@link #addChild(Object, TreeNode)},
      * {@link #getChild(Object)}, and {@link #removeChild(Object)} methods.
      * <p>
-     * Note, that method {@link #getChildren()} must work in any case.
+     * Note, that method {@link #getChildrenKeysIterator()()} must work in any case.
      *
      * @throws UnsupportedOperationException if the node is LeafOnly and current
      *             operation implies work with children
@@ -170,10 +167,10 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     /**
      * Clears children. Works recursively.
      */
-    protected void clear() {
+    public void clear() {
         if (getElements() != null) {
             // recursion
-            for (AbstractTreeNode child : getElements().values()) {
+            for (TreeNode child : getElements().values()) {
                 child.clear();
             }
 
@@ -184,10 +181,10 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     /**
      * @see TreeNode#getChild(Object)
      */
-    public AbstractTreeNode getChild(Object id) {
+    public TreeNode getChild(Object id) {
         checkLeafOnly();
 
-        if(getElements().containsKey(id)){
+        if (getElements().containsKey(id)){
             return getElements().get(id);
         } else if (id instanceof String){
             String idAsString = (String)id;
@@ -201,27 +198,23 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         return null;
     }
 
-    public List<AbstractTreeNode> getChildNodes() {
-        List<AbstractTreeNode> list = new ArrayList<AbstractTreeNode>(getElements().values());
+    public List<TreeNode> getChildNodes() {
+        List<TreeNode> list = new ArrayList<TreeNode>(getElements().values());
         // elements are sorted already
         // Collections.sort(list, CHILD_COMPARATOR);
 
         return list;
     }
 
-    /**
-     * @see TreeNode#getChildren()
-     */
-    public Iterator getChildren() {
-        Iterator result;
+    public Iterator<Object> getChildrenKeysIterator() {
+        Iterator<Object> result;
 
         if (isLeafOnly) {
             checkLeafOnly();
-            // trick: return iterator for empty set
-            result = EMPTY.entrySet().iterator();
+            result = Iterators.emptyIterator();
             // work around limitation for TreeNode
         } else {
-            result = getElements().entrySet().iterator();
+            result = getElements().keySet().iterator();
         }
 
         return result;
@@ -259,8 +252,6 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
      */
     public abstract String getIconLeaf();
 
-    // ------ * ------
-
     public String getId() {
         return id;
     }
@@ -277,21 +268,9 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     /**
      * @see TreeNode#getParent()
      */
-    public TreeNode<AProjectArtefact> getParent() {
+    public TreeNode getParent() {
         return parent;
     }
-
-    /**
-     * Returns type of the node in tree.
-     *
-     * <pre>
-     * &lt;rich:tree var=&quot;item&quot; &lt;b&gt;nodeFace=&quot;#{item.type}&quot;&lt;/b&gt; ... &gt;
-     *     &lt;rich:treeNode &lt;b&gt;type=&quot;project&quot;&lt;/b&gt; ... &gt;
-     * </pre>
-     *
-     * @return type of node
-     */
-    public abstract String getType();
 
     public String getVersionName() {
         if (data instanceof AProject) {
@@ -302,7 +281,7 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
     }
 
     private RulesProject findProjectContainingCurrentArtefact() {
-        TreeNode<AProjectArtefact> node = this;
+        TreeNode node = this;
         while (node != null && !(node.getData() instanceof RulesProject)) {
             node = node.getParent();
         }
@@ -325,13 +304,10 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         }
     }
 
-    protected boolean isLeafOnly() {
+    public boolean isLeafOnly() {
         return isLeafOnly;
     }
 
-    /**
-     * @see TreeNode#isLeaf()
-     */
     public boolean isLeaf() {
         boolean result;
 
@@ -344,11 +320,6 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         return result;
     }
 
-    // ------ UI methods ------
-
-    /**
-     * @see TreeNode#removeChild(Object)
-     */
     public void removeChild(Object id) {
         checkLeafOnly();
 
@@ -364,14 +335,12 @@ public abstract class AbstractTreeNode implements TreeNode<AProjectArtefact> {
         this.data = data;
     }
 
-    /**
-     * @see TreeNode#setParent(TreeNode)
-     */
-    public void setParent(TreeNode<AProjectArtefact> parent) {
+    public void setParent(TreeNode parent) {
         this.parent = parent;
     }
-    
+
     public void refresh(){
         data.refresh();
     }
+
 }

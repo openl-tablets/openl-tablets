@@ -13,7 +13,7 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -24,6 +24,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  *
  */
 public class SmartRedeployController {
+
     private static final Log LOG = LogFactory.getLog(SmartRedeployController.class);
 
     /** A controller which contains pre-built UI object tree. */
@@ -54,8 +55,8 @@ public class SmartRedeployController {
 
         // FIXME take latest deployment projects from DTR not from user scope
         // get all deployment projects
-        List<AbstractTreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
-        for (AbstractTreeNode node : nodes) {
+        List<TreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
+        for (TreeNode node : nodes) {
             AProjectArtefact artefact = node.getData();
             if (!(artefact instanceof ADeploymentProject)) {
                 continue; // should never happen

@@ -3,6 +3,7 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:rich="http://richfaces.org/rich"
                 template="/facelets/common/wizardBase.xhtml">
 
     <ui:define name="title">Actions configuration</ui:define>
@@ -70,9 +71,11 @@
             <h:graphicImage value="/images/moveup.gif" rendered="#{counter.prev &gt; 0}" onclick='wiz_moveup(this, #{counter.prev})'/>
             <h:graphicImage value="/images/empty.gif" rendered="#{counter.prev == 0}" width="16"/>
             <h:graphicImage value="/images/movedown.gif" rendered="#{tableWizard.currentAction.paramsCount > 1 and counter.current &lt; tableWizard.currentAction.paramsCount}"
-                            onclick='wiz_moveup(this, #{counter.current})'/>
+                            onclick="wiz_moveup(this, #{counter.current})" />
           </h:column>
-          <h:column><h:message for="pname" errorClass="error" showSummary="true" showDetail="true"/></h:column>
+          <h:column>
+            <rich:message for="tname" />
+          </h:column>
         </h:dataTable>
       </h:panelGroup>
 

@@ -1,16 +1,15 @@
 package org.openl.rules.webstudio.web;
 
-import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.richfaces.component.UIRepeat;
 
 public class MessagesBean {
 

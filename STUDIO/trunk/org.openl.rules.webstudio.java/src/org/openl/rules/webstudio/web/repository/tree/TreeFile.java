@@ -13,8 +13,9 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  *
  */
 public class TreeFile extends AbstractTreeNode {
+
     private static final long serialVersionUID = -4563895481021883236L;
-    private static final List<AbstractTreeNode> EMPTY_LIST = new LinkedList<AbstractTreeNode>();
+    private static final List<TreeNode> EMPTY_LIST = new LinkedList<TreeNode>();
 
     public TreeFile(String id, String name) {
         // File cannot have children !!!
@@ -24,7 +25,7 @@ public class TreeFile extends AbstractTreeNode {
     // ------ UI methods ------
 
     @Override
-    public List<AbstractTreeNode> getChildNodes() {
+    public List<TreeNode> getChildNodes() {
         return EMPTY_LIST;
     }
 
@@ -42,19 +43,16 @@ public class TreeFile extends AbstractTreeNode {
         return UiConst.ICON_FILE;
     }
 
-    /** {@inheritDoc} */
-    @Override
     public String getType() {
         return UiConst.TYPE_FILE;
     }
-    
+
     @Override
     public String getId() {
         return AbstractTreeNode.FILE_PREFIX + super.getId();
     }
 
-    @Override
-    protected Map<Object, AbstractTreeNode> getElements() {
+    public Map<Object, TreeNode> getElements() {
         return null;
     }
 }

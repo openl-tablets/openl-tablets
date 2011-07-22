@@ -5,43 +5,39 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalUploadProject" width="500" height="240">
+  <rich:popupPanel id="modalUploadProject" width="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Upload Project" />
     </f:facet>
 
     <f:facet name="controls">
       <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
-        onclick="Richfaces.hideModalPanel('modalUploadProject');" alt="Close" />
+        onclick=" RichFaces.$('modalUploadProject').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="uploadProjectForm">
-      <a4j:keepAlive beanName="repositoryTreeController" />
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File" />
 
-        <rich:fileUpload id="file" uploadData="#{repositoryTreeController.uploadedFiles}"
-            immediateUpload="true" acceptedTypes="zip, xls, xlsx, xlsm" allowFlash="true"
-            listHeight="60px" />
+        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+            acceptedTypes="zip, xls, xlsx, xlsm" />
 
         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
         <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br/>
+      <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalUploadProject')}.hide();" />
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
+        <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
       </h:panelGrid>
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openUploadProjectDialog() {
-      Richfaces.showModalPanel('modalUploadProject');
+      RichFaces.$('modalUploadProject').show();
     }
   </script>
 </ui:composition>

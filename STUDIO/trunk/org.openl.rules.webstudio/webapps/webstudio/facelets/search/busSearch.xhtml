@@ -4,25 +4,30 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:c="http://java.sun.com/jstl/core"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
   template="/facelets/common/studioBase.xhtml">
 
   <ui:define name="header">
-      <a4j:loadScript src="resource:///js/validation.js" />
-      <a4j:loadScript src="resource:///js/BaseEditor.js" />
-      <a4j:loadScript src="resource:///js/BaseTextEditor.js" />
-      <a4j:loadScript src="resource:///js/MultiselectEditor.js" />
-      <a4j:loadScript src="resource:///js/DropdownEditor.js" />
-      <a4j:loadScript src="resource:///js/AjaxHelper.js" />
-      <a4j:loadStyle src="resource:///css/multiselect.css" />
+      <link href="webresource/css/multiselect.css" rel="stylesheet" type="text/css"></link>
+      <script src="webresource/js/prototype/prototype-1.6.1.js" type="text/javascript"></script>
+        <h:outputScript name="jquery.js" />
+        <script type="text/javascript">
+            $.noConflict();
+        </script>
+      <script src="webresource/js/AjaxHelper.js" type="text/javascript"></script>
+      <script src="webresource/js/BaseEditor.js" type="text/javascript"></script>
+      <script src="webresource/js/BaseTextEditor.js" type="text/javascript"></script>
+      <script src="webresource/js/MultiselectEditor.js" type="text/javascript"></script>
+      <script src="webresource/js/DropdownEditor.js" type="text/javascript"></script>
+      <script src="webresource/js/validation.js" type="text/javascript"></script>
   </ui:define>
 
   <ui:define name="page">
-  
+
     <br />
-  
+
   	<div class="menuPanel">
         <h:outputLink value="#{contextPath}/faces/facelets/search/simpleSearch.xhtml"
             target="_self">Simple Search</h:outputLink>
@@ -104,7 +109,7 @@
         <br /><br />
         <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
             showLinksBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
-            collapseProps="true" excludeScripts="prototype" />
+            collapseProps="true" />
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>
 

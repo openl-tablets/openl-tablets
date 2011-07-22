@@ -5,40 +5,37 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalNewFile" width="500" height="230">
+  <rich:popupPanel id="modalNewFile" width="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Upload File" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalNewFile');" alt="Close" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+        onclick="RichFaces.$('modalNewFile').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="newFileForm">
-      <a4j:keepAlive beanName="repositoryTreeController" />
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File" />
-        <rich:fileUpload id="file" uploadData="#{repositoryTreeController.uploadedFiles}"
-            immediateUpload="true" allowFlash="true" listHeight="60px" />
+        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" />
         <h:outputLabel for="fileName" styleClass="required" value="File name" />
         <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}" />
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Upload" action="#{repositoryTreeController.addFile}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalNewFile')}.hide();" />
+        <h:commandButton value="Upload" action="#{repositoryTreeController.addFile}" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalNewFile').hide();" />
       </h:panelGrid>
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openNewFileDialog() {
       submitMainForm(function() {
-        Richfaces.showModalPanel('modalNewFile');
+        RichFaces.$('modalNewFile').show();
       });
     }
   </script>

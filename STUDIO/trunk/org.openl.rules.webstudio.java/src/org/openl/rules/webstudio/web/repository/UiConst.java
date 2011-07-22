@@ -39,6 +39,6 @@ public class UiConst {
     public static final String OUTCOME_FAILURE = "failure";
 
     // default.css
-    public static final String STYLE_ERROR = "text-error";
-    public static final String STYLE_WARNING = "text-warning";
+    public static final String STYLE_ERROR = "error";
+    public static final String STYLE_WARNING = "warning";
 }

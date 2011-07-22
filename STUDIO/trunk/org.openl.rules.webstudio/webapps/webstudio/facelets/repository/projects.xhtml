@@ -32,7 +32,7 @@
 
     <rich:columnGroup>
       <rich:column>
-        <h:commandLink styleClass="actionButton" value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
+        <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
           <f:param name="projectName" value="#{prj.name}" />
         </h:commandLink>
       </rich:column>
@@ -53,13 +53,13 @@
       <rich:column style="text-align:center">
         <h:panelGroup rendered="#{!prj.data.deleted}">
           &#160;
-          <h:commandLink styleClass="actionButton" immediate="true"
+          <h:commandLink immediate="true"
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
               &#160;
-              <h:commandLink styleClass="actionButton" immediate="true"
+              <h:commandLink immediate="true"
                   action="#{repositoryTreeController.deleteRulesProject}"
                   onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}"
                   title="Delete">

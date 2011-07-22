@@ -8,10 +8,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/aspectjweaver-1.6.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher-2-1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-digester-1.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-discovery-0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-fileupload-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.6.jar"/>
@@ -27,15 +25,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb-1.8.0.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcr-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht-jdk1.5-0.7.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jsf-facelets-1.1.14.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jstl-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/myfaces-api-1.2.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/myfaces-impl-1.2.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/richfaces-api-3.3.2.SR1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/richfaces-impl-3.3.2.SR1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/richfaces-ui-3.3.2.SR1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/serializer-2.7.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j12-1.5.6.jar"/>
@@ -71,5 +62,15 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-orm-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-tx-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cssparser-0.9.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/guava-r08.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsf-api-2.1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsf-impl-2.1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/richfaces-components-api-4.0.0.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/richfaces-components-ui-4.0.0.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/richfaces-core-api-4.0.0.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/richfaces-core-impl-4.0.0.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sac-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jstl-1.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

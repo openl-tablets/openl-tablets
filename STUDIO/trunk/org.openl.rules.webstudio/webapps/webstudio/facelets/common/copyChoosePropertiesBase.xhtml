@@ -4,23 +4,23 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:rich="http://richfaces.org/rich"
 	xmlns:a4j="http://richfaces.org/a4j"
-	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	template="/facelets/common/copyWizardBase.xhtml">
 
 	<ui:define name="header">
-		<a4j:loadStyle src="resource:///css/multiselect.css" />
-		<a4j:loadScript src="resource:///js/AjaxHelper.js" />
-		<a4j:loadScript src="resource:///js/BaseEditor.js" />
-		<a4j:loadScript src="resource:///js/BaseTextEditor.js" />
-		<a4j:loadScript src="resource:///js/MultiselectEditor.js" />
-		<a4j:loadScript src="resource:///js/DropdownEditor.js" />
-        <a4j:loadScript src="resource:///js/validation.js" />
+		<link href="webresource/css/multiselect.css" rel="stylesheet" type="text/css"></link>
+		<script src="webresource/js/AjaxHelper.js" type="text/javascript" ></script>
+        <script src="webresource/js/BaseEditor.js" type="text/javascript" ></script>
+        <script src="webresource/js/BaseTextEditor.js" type="text/javascript" ></script>
+        <script src="webresource/js/MultiselectEditor.js" type="text/javascript" ></script>
+        <script src="webresource/js/DropdownEditor.js" type="text/javascript" ></script>
+        <script src="webresource/js/validation.js" type="text/javascript" ></script>
 	</ui:define>
 
 	<ui:define name="page">
         <h2><ui:insert name="pageTitle" /></h2>
 		<h:form>
-			<h:outputLabel value="Table Name : " for="techName" />
+			<h:outputLabel value="Table Name: " for="techName" />
 			<ui:insert name="tableTitle" />
 		    <br />
             <br />
@@ -75,7 +75,7 @@
 							</td>
 							<td>
 								<a4j:commandLink action="#{propertiesManager.removeProperty}"
-									reRender="propertiesTable,newPropertyDlg">
+									render="propertiesTable newPropertyDlg">
 									<h:graphicImage value="/images/delete.gif"
 										alt="Remove property" title="Remove property" />
 									<f:setPropertyActionListener value="#{prop}"
@@ -97,8 +97,7 @@
 		</h:form>
 
 
-		<rich:modalPanel id="modalVersionChange" width="400" minWidth="400"
-			height="220" minHeight="220">
+		<rich:popupPanel id="modalVersionChange" width="400" autosized="true">
 			<f:facet name="header">
 				<h:outputText value="Version" />
 			</f:facet>
@@ -113,23 +112,20 @@
 				<ui:include src="/facelets/tableCopier/selectVersionForm.xhtml" />
 
 				<br />
-				<rich:separator height="1" />
+				<hr />
 				<br />
 
 				<h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;"
 					cellspacing="0px;">
-					<a4j:commandButton styleClass="button" value="Ok"
-						reRender="editVersionPanel"
+					<a4j:commandButton value="Ok" render="editVersionPanel"
 						oncomplete="#{rich:component('modalVersionChange')}.hide();" />
-					<input type="button" class="button" value="Cancel"
+					<input type="button" value="Cancel"
 						onclick="#{rich:component('modalVersionChange')}.hide();" />
 				</h:panelGrid>
 			</h:form>
-		</rich:modalPanel>
+		</rich:popupPanel>
 
-
-		<rich:modalPanel id="newPropertyDlg" height="100" width="290"
-			top="100" left="200" resizeable="false">
+		<rich:popupPanel id="newPropertyDlg" width="290" top="100" left="200" autosized="true">
 			<f:facet name="header">
 				<h:outputText value="Add Property" />
 			</f:facet>
@@ -151,14 +147,14 @@
 				<h:panelGrid columns="2" style="margin-top: 10px;">
 					<a4j:commandButton value="Add"
 						action="#{propertiesManager.addProperty}"
-						reRender="propertiesTable,newPropertyDlg,modalVersionChange"
+						render="propertiesTable,newPropertyDlg,modalVersionChange"
 						oncomplete="#{rich:component('newPropertyDlg')}.hide();"
 						rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}" />
 					<h:commandButton value="Cancel"
 						onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
 				</h:panelGrid>
 			</h:form>
-		</rich:modalPanel>
+		</rich:popupPanel>
 
 	</ui:define>
 

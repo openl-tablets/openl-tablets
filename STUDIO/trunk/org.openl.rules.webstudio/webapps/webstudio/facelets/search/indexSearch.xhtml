@@ -3,13 +3,13 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
-        <a4j:loadStyle src="resource:///css/indexSearch.css" />
+        <link href="#{contextPath}/css/indexSearch.css" rel="stylesheet" type="text/css"></link>
     </ui:define>
 
     <ui:define name="page">

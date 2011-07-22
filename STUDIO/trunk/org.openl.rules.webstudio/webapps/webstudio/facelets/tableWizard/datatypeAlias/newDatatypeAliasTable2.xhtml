@@ -14,7 +14,7 @@
             <h:panelGrid columns="3">
                 <h:outputText value="Technical Name" />
                 <h:inputText id="technicalName" value="#{tableWizard.technicalName}">
-                    <rich:ajaxValidator event="onblur" />
+                    <rich:validator />
                 </h:inputText>
                 <rich:message for="technicalName" styleClass="error" />
                 <h:outputText value="Alias Type" />
@@ -22,7 +22,7 @@
                     <!--<f:selectItem itemValue="" itemLabel="" />-->
                     <f:selectItems value="#{tableWizard.domainTypes}" />
                 </h:selectOneMenu>
-                <rich:spacer />
+                <h:outputText value="" />
             </h:panelGrid>
 
             <br />

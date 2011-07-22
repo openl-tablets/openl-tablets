@@ -6,26 +6,31 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="tableWizard" value="#{tableCreatorWizardManager.wizard}" />
 
-    <head>
-        <a4j:loadStyle src="resource:///css/openl/style1.css" />
+    <h:head>
+        <link href="#{contextPath}/css/openl/style1.css" rel="stylesheet" type="text/css"></link>
+
+        <script src="webresource/js/prototype/prototype-1.6.1.js" type="text/javascript"></script>
+        <h:outputScript name="jquery.js" />
+        <script type="text/javascript">
+            $.noConflict();
+        </script>
 
         <style type="text/css">
             body { margin: 0px 4px; }
-            .error { color:red; }
             .wz_selected_list_item { background-color: yellow; }
             fieldset { display: inline; }
         </style>
 
         <ui:insert name="header" />
-    </head>
+    </h:head>
 
-  <body>
+  <h:body>
       <h2>
           <ui:insert name="title" />
       </h2>
@@ -44,5 +49,5 @@
       <br />
 
       <ui:insert name="page" />
-    </body>
+    </h:body>
 </html>

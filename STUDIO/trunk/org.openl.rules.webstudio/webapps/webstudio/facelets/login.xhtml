@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://java.sun.com/jstl/core"
-                xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
-                template="/facelets/common/base.xhtml">
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
+    template="/facelets/common/base.xhtml">
 
   <ui:define name="page">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
-
-    <div id="stripe"></div>
-
-    <table border="0px" cellspacing="0" cellpadding="0" width="100%" height="90%">
+   <table border="0px" cellspacing="0" cellpadding="0" width="100%" height="90%">
       <tr>
         <td style="height: 440px; width: 100%" valign="middle">
           <div align="center">
@@ -70,9 +67,9 @@
                   <td>&#160;</td>
 
                   <td align="left">
-                    <input type="submit" class="button" id="loginSubmit" value="Login"/>
+                    <input type="submit" id="loginSubmit" value="Login"/>
                     <c:if test="#{systemConfig['security.login.auto'] &amp;&amp; jsffn:isLocalRequest()}">
-                      <input type="button" class="button" id="loginAsLocal" value="Login as local" onclick="window.location.href='#{contextPath}'"/>
+                      <input type="button" id="loginAsLocal" value="Login as local" onclick="window.location.href='#{contextPath}'"/>
                     </c:if>
                   </td>
                 </tr>

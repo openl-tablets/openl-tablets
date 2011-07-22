@@ -1,16 +1,16 @@
 package org.openl.rules.ui.tree.richfaces;
 
-import org.apache.commons.lang.ArrayUtils;
+/*import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.component.state.TreeStateAdvisor;
-import org.richfaces.model.TreeRowKey;
+import org.richfaces.model.TreeRowKey;*/
 
 /**
  * @author Andrei Astrouski
  */
-public class TreeStateManager implements TreeStateAdvisor {
-
+public class TreeStateManager/* implements TreeStateAdvisor*/ {
+/*
     public static final String TREE_NODE_KEY_SEPARATOR = ":";
 
     private String nodeToOpen;
@@ -62,5 +62,5 @@ public class TreeStateManager implements TreeStateAdvisor {
         }
         return Boolean.FALSE;
     }
-
+*/
 }

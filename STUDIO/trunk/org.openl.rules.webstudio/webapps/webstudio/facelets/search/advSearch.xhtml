@@ -4,14 +4,18 @@
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:c="http://java.sun.com/jstl/core"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
   template="/facelets/common/studioBase.xhtml">
 
   <ui:define name="header">
-    <a4j:loadStyle src="resource:///css/openl/advSearch.css" />
-     <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
-    <a4j:loadScript src="resource:///javascript/search/advSearch.js" />
+    <link href="#{contextPath}/css/openl/advSearch.css" rel="stylesheet" type="text/css"></link>
+    <script src="webresource/js/prototype/prototype-1.6.1.js" type="text/javascript"></script>
+        <h:outputScript name="jquery.js" />
+        <script type="text/javascript">
+            $.noConflict();
+        </script>
+    <script src="#{contextPath}/javascript/search/advSearch.js" type="text/javascript"></script>
   </ui:define>
 
   <ui:define name="page">
@@ -42,7 +46,7 @@
   <table class="search-table">
   <tr>
     <th/>
-    <th class="search" colspan='3'>Table Attribute</th>
+    <th class="search" colspan="3">Table Attribute</th>
     <th class="search">Condition</th>
     <th class="search">Value</th>
     </tr>
@@ -93,7 +97,6 @@
           </h:commandLink>
 
           <c:if test="#{status.index > 0}">
-            <rich:spacer />
             <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteCondition}">
               <f:param name="index" value="#{status.index}" />
               <h:graphicImage url="/webresource/images/delete.gif"/>
@@ -112,7 +115,7 @@
 <table class="search-table">
 <tr>
 <th/>
-<th class="search" colspan ='3'>Column Attribute</th>
+<th class="search" colspan="3">Column Attribute</th>
 <th class="search" colspan="2">Condition</th>
 <th class="search">Value</th>
 </tr>
@@ -170,7 +173,6 @@
         </h:commandLink>
 
         <c:if test="#{status.index > 0}">
-            <rich:spacer />
             <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteColCondition}">
               <f:param name="index" value="#{status.index}" />
               <h:graphicImage url="/webresource/images/delete.gif"/>
@@ -185,7 +187,7 @@
 
 </fieldset>
 
-
+<br/>
 <h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
 </h:form></td>
 
@@ -219,7 +221,7 @@
 <c:if test="#{advancedSearchRequest.searching}">
     <h:form id="saveAdvSearchForm">
         <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
-        <a4j:commandLink value="Save this search" action="#{advancedSearch.save}" reRender="savedSearches"
+        <a4j:commandLink value="Save this search" action="#{advancedSearch.save}" render="savedSearches"
             onclick="if (!inputSearchName()) return false;" oncomplete="top.main.leftFrame.location.reload(true);" />
     </h:form>
 
@@ -246,7 +248,7 @@
 
         <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
             showLinksBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
-            collapseProps="true" excludeScripts="prototype" />
+            collapseProps="true" />
 
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>

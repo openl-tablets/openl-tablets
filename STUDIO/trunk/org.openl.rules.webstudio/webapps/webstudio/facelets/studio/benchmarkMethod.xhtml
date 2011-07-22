@@ -25,7 +25,7 @@
     <ui:define name="page">
         <h:outputText style="font-size: large;"
             value="Results of benchmarking #{benchmarkMethodBean.testName} (#{benchmarkMethodBean.testDescr})" />
-        <a4j:form id="BMForm">
+        <h:form id="BMForm">
             <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
                 columnClasses="none,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix"
                 headerClass="none" styleClass="ov-matrix"
@@ -89,9 +89,9 @@
             </h:dataTable>
 
             <a4j:commandButton action="#{benchmarkMethodBean.compare}"
-                value="Compare" reRender="comparedBMTable"/>
+                value="Compare" render="comparedBMTable"/>
             <a4j:commandButton action="#{benchmarkMethodBean.delete}"
-                value="Delete" reRender="comparedBMTable,BMTable"/>
+                value="Delete" render="comparedBMTable BMTable"/>
         <h:dataTable id="comparedBMTable" 
             value="#{benchmarkMethodBean.comparedBenchmarks}" var="item"
             columnClasses="none,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix,ov-matrix"
@@ -118,6 +118,6 @@
             </h:column>
         </h:dataTable>
 
-        </a4j:form>
+        </h:form>
     </ui:define>
 </ui:composition>

@@ -3,10 +3,10 @@ package org.openl.rules.webstudio.web.diff;
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 
-public class UiTreeData2 extends UiTreeData {
+public class TreeNode2 extends TreeNode {
     private String title;
 
-    public UiTreeData2(DiffTreeNode node, String title) {
+    public TreeNode2(DiffTreeNode node, String title) {
         super(node);
         this.title = title;
     }

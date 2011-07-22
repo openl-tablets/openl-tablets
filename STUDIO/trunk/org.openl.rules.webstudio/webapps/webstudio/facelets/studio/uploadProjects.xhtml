@@ -6,10 +6,6 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     template="/facelets/common/studioBase.xhtml">
 
-    <ui:define name="header">
-        <a4j:loadStyle src="resource:///css/openl/default.css" />
-    </ui:define>
-
     <ui:define name="page">
         <div style="padding-left: 5px;">
             <h:form>
@@ -39,8 +35,7 @@
                 </rich:dataTable>
     
                 <br />
-                <h:commandButton styleClass="button"
-                    action="#{localUpload.upload}"
+                <h:commandButton action="#{localUpload.upload}"
                     rendered="#{not empty localUpload.projects4Upload}"
                     value="Upload" />
                 <h:outputText value="All projects are already in repository"

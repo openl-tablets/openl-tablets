@@ -2,50 +2,23 @@
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html
-   xmlns:f="http://java.sun.com/jsf/core"
    xmlns:h="http://java.sun.com/jsf/html"
-   xmlns:a4j="http://richfaces.org/a4j"
-   xmlns:rich="http://richfaces.org/rich"
-   xmlns:c="http://java.sun.com/jstl/core"
-   xmlns:ui="http://java.sun.com/jsf/facelets">
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-  <head>
-    <a4j:loadStyle src="resource:///css/openl/style1.css" />
+  <h:head>
+    <link href="#{contextPath}/css/openl/style1.css" rel="stylesheet" type="text/css"></link>
     <style type="text/css">
-      .title{
-          position:relative;
-          z-index:1;
-          zoom:1;
-          color:#06F;
-      }
-      .title em {display:none;}
-      .title:hover em {
-          display:block;
-          position:absolute;
-          z-index:1;
-          background-color:#000;
-          -webkit-border-radius:5px;
-          -moz-border-radius:5px;
-          border-radius:5px;
-          white-space: nowrap;
-          line-height:normal;
-          color:#FFF;
-          text-decoration:none;
-          padding:3px 5px;
-          bottom:22px;
-          left:0;
-      }
-      .error {color:red;}
       body {
           margin: 0px 5px;
       }
     </style>
     <ui:insert name="header" />
-  </head>
+  </h:head>
 
-  <body>
+  <h:body>
     <ui:insert name="page" />
-  </body>
+  </h:body>
 </html>

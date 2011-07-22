@@ -5,14 +5,14 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets" >
 
-  <rich:modalPanel id="modalNewProject" width="400" minWidth="400" height="143" minHeight="143">
+  <rich:popupPanel id="modalNewProject" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="New Project" />
     </f:facet>
 
     <f:facet name="controls">
       <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
-          onclick="Richfaces.hideModalPanel('modalNewProject');" alt="Close" />
+          onclick="RichFaces.$('modalNewProject').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="newProjectForm">
@@ -25,21 +25,19 @@
         </h:selectOneMenu>
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br/>
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" id="sbt" value="Create"
+        <h:commandButton id="sbt" value="Create"
             action="#{repositoryTreeController.createNewRulesProject}" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
       </h:panelGrid>
     </h:form>
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openNewProjectDialog() {
-      Richfaces.showModalPanel('modalNewProject');
+      RichFaces.$('modalNewProject').show();
       focusElement("newProjectForm:projectName");
     }
   </script>

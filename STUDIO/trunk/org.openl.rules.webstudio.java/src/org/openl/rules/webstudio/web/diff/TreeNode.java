@@ -1,15 +1,19 @@
 package org.openl.rules.webstudio.web.diff;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.webstudio.web.repository.UiConst;
+import org.richfaces.model.TreeNodeImpl;
 
-public class UiTreeData {
+public class TreeNode extends TreeNodeImpl {
+
     private DiffTreeNode diffTreeNode;
 
-    public UiTreeData(DiffTreeNode node) {
+    public TreeNode(DiffTreeNode node) {
+        super(CollectionUtils.isEmpty(node.getChildren()));
         this.diffTreeNode = node;
     }
 

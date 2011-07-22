@@ -3,7 +3,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
@@ -11,29 +11,17 @@
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
-        <a4j:loadStyle src="resource:///css/button.css" />
-        <a4j:loadScript src="resource:///javascript/button.js" />
+        <script src="webresource/js/prototype/prototype-1.6.1.js" type="text/javascript"></script>
+        <h:outputScript name="jquery.js" />
 
         <script type="text/javascript">
+             $.noConflict();
+
             function open_win(url, name) {
                 window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
             }
-
-            function openTraceIntoFileDlg(button) {
-                var pos = Element.cumulativeOffset(button);
-                pos[1] += button.getHeight();
-
-                var dlgParams = {left:'', top:'' };
-                dlgParams.left = pos[0];
-                dlgParams.top = pos[1] - 1;
-
-                Richfaces.showModalPanel('traceIntoFileDlg', dlgParams);
-            }
         </script>
         <style>
-            form {
-                margin: 0px;
-            }
             .editToolbar {
                 border-top: 1px dotted rgb(140,140,140);
                 border-bottom: 1px dotted rgb(140,140,140);
@@ -72,13 +60,13 @@
                 <h:outputText value="#{showTableBean.targetTables[0].name}" />
             </h:outputLink>
 
-            <rich:dataList value="#{showTableBean.targetTables}" var="targetTable"
+            <rich:list value="#{showTableBean.targetTables}" var="targetTable"
                 rendered="#{fn:length(showTableBean.targetTables) > 1}" style="margin: 3px 0px 0px;">
                 <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
                     <f:param name="uri" value="#{targetTable.uri}" />
                     <h:outputText value="#{targetTable.name}" />
                 </h:outputLink>
-            </rich:dataList>
+            </rich:list>
         </h:panelGroup>
 
         <h:form>
@@ -95,15 +83,14 @@
 
                 <h:commandLink rendered="#{showTableBean.editableAsNewVersion}"
                     action="#{tableCopierWizardManager.startWizard}">
-                    <a4j:actionparam assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
+                    <a4j:param assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
                     <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
                         alt="Edit Table as New Version" title="Edit Table as New Version" />
                 </h:commandLink>
 
                 <h:outputLink rendered="#{showTableBean.editable}"
-                    value="#{contextPath}/action/launch"
-                    target="show_app_hidden">
+                    value="#{contextPath}/action/launch" target="show_app_hidden">
                     <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage
                         url="/webresource/images/excel.png"
@@ -141,11 +128,17 @@
                             value="#{contextPath}/faces/treeview.xhtml?title=Trace&amp;treePage=faces/facelets/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/facelets/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
                         <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
                             <img src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
-
-                        <a onclick="openTraceIntoFileDlg(this);" href="#">
+                        <h:commandLink id="traceIntoFile">
                             <h:graphicImage url="/webresource/images/traceIntoFile.gif"
-                                title="Trace into File" alt="Trace into File" /></a>
-
+                                title="Trace into File" alt="Trace into File" />
+                            <rich:componentControl target="traceIntoFileDlg" operation="show">
+                                <a4j:param noEscape="true" value="event" />
+                                <rich:hashParam>
+                                    <a4j:param noEscape="true" name="left" value="traceIntoFileDlgLeft" />
+                                    <a4j:param noEscape="true" name="top" value="traceIntoFileDlgTop" />
+                                </rich:hashParam>
+                            </rich:componentControl>
+                        </h:commandLink>
                         <h:outputLink
                             value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml">
                             <f:param value="#{showTableBean.uri}" name="uri" />
@@ -155,20 +148,19 @@
                     </c:if>
 
                     <h:outputLink value="?#{showTableBean.notViewParams}">
-                        <f:param value="view.business" name="view" />
+                        <f:param name="view" value="view.business" />
                         <h:graphicImage
                             url="/webresource/images/business-view.png"
                             title="Business View" alt="Business View" />
                     </h:outputLink>
-    
+
                     <h:outputLink value="?#{showTableBean.notViewParams}">
-                        <f:param value="view.developer" name="view" />
+                        <f:param name="view" value="view.developer" />
                         <h:graphicImage
                             url="/webresource/images/developer-view.png"
-                            title="Developer (Full) View"
-                            alt="Full View" />
+                            title="Developer View" alt="Developer View" />
                     </h:outputLink>
-    
+
                     <h:outputLink rendered="#{showTableBean.showFormulas}"
                         value="?#{showTableBean.paramsWithoutShowFormulas}">
                         <f:param name="showFormulas" value="false" />
@@ -193,7 +185,7 @@
             <td>
                 <h:commandLink action="#{tableCreatorWizardManager.startWizard}"
                     styleClass="newTestLink">
-                    <a4j:actionparam assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
+                    <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
                     <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:outputText value="Create Test" />
                 </h:commandLink>
@@ -222,6 +214,13 @@
         <br />
 
         <script type="text/javascript">
+            var traceIntoFileLink = jQuery(#{rich:element('traceIntoFile')});
+            if (traceIntoFileLink.length) {
+                var traceIntoFileLinkPosition = traceIntoFileLink.offset();
+                var traceIntoFileDlgLeft = traceIntoFileLinkPosition.left;
+                var traceIntoFileDlgTop = traceIntoFileLinkPosition.top + traceIntoFileLink.height() - 2;
+             }
+
             function search(f) {
 	           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
                	    .find(function(s) {
@@ -240,32 +239,31 @@
             }
 
             function onBeforeSave() {
-                $('saveWindow').component.show();
-                top.main.leftFrame.document.getElementById('saveWindow').component.show();
+                RichFaces.$('saveWindow').show();
+                top.main.leftFrame.document.getElementById('saveWindow').rf.component.show();
             }
 
             function onAfterSave() {
-                $('saveWindow').component.hide();
-                top.main.leftFrame.document.getElementById('saveWindow').component.hide();
+                RichFaces.$('saveWindow').hide();
+                top.main.leftFrame.document.getElementById('saveWindow').rf.component.hide();
 
                 top.main.leftFrame.location.href =
                     "#{contextPath}/faces/openTable.xhtml?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
             }
 
             function onSaveFailure() {
-                $('saveWindow').component.hide();
-                top.main.leftFrame.document.getElementById('saveWindow').component.hide();
+                RichFaces.$('saveWindow').hide();
+                top.main.leftFrame.document.getElementById('saveWindow').rf.component.hide();
             }
-            
         </script>
 
-        <rich:modalPanel id="saveWindow" height="40" width="105" top="200" left="220"
+        <rich:popupPanel id="saveWindow" height="43" width="105" top="200" left="220"
             style="text-align:center; background:#fff; border-color:#B4C8FF; color:#323232">
             <h:panelGrid columns="2">
                 <h:outputText value="Saving... " />
                 <h:graphicImage url="/webresource/images/ajax-loader.gif" />
             </h:panelGrid>
-        </rich:modalPanel>
+        </rich:popupPanel>
 
         <form name="searchForm" method="post" action="#{contextPath}/faces/facelets/search/simpleSearch.xhtml">
             <input type="hidden" name="searchQuery" value="" />
@@ -293,14 +291,14 @@
         <h:panelGroup rendered="#{showTableBean.hasAnyTests}"> <!-- If table has any type of tests, including tests with 
         test cases, run methods -->
             <h3>Available Checks and Tests:</h3>
-            <a4j:repeat value="#{showTableBean.allTests}" var="test">
+            <ui:repeat value="#{showTableBean.allTests}" var="test">
                 <p style="margin-left: 10px">
                     <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
                         <f:param name="uri" value="#{test.uri}" />
                         <h:outputText value="#{test.testName}" />
                     </h:outputLink>
                 </p>
-            </a4j:repeat>
+            </ui:repeat>
         </h:panelGroup>
 
         <c:set value="#{showTableBean.testRunResults}" var="testResult" />
@@ -357,31 +355,24 @@
             </c:forEach>
         </c:if>
 
-        <rich:modalPanel id="traceIntoFileDlg" height="70" width="135" resizeable="false">
-            <h:form>
-                <a4j:keepAlive beanName="traceIntoFileBean" />
+        <rich:popupPanel id="traceIntoFileDlg" width="134" modal="false" autosized="true">
+            <h:form style="text-align: center">
                 <h:panelGrid columns="2">
                     <h:outputText value="Format" />
                     <h:selectOneMenu value="#{traceIntoFileBean.fileFormat}">
                         <f:selectItems value="#{traceIntoFileBean.fileFormats}" />
                     </h:selectOneMenu>
-                    <rich:spacer />
-                    <rich:spacer />
+                    <h:outputText value="" />
+                    <h:outputText value="" />
                 </h:panelGrid>
-                <h:commandLink id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
-                    onclick="Richfaces.hideModalPanel('traceIntoFileDlg');">
-                    <a4j:actionparam assignTo="#{traceIntoFileBean.tableUri}" value="#{showTableBean.uri}" />
-                </h:commandLink>
-                <rich:spacer width="3px" />
-                <h:commandLink id="cancelBtn" value="Cancel"
-                    onclick="Richfaces.hideModalPanel('traceIntoFileDlg'); return false;" />
-
-                <script type="text/javascript">
-                    new Button(#{rich:element('traceBtn')}.id);
-                    new Button(#{rich:element('cancelBtn')}.id);
-                </script>
+                <h:commandButton id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
+                    onclick="RichFaces.$('traceIntoFileDlg').hide();">
+                    <a4j:param assignTo="#{traceIntoFileBean.tableUri}" value="#{showTableBean.uri}" />
+                </h:commandButton>
+                <h:commandButton id="cancelBtn" value="Cancel"
+                    onclick="RichFaces.$('traceIntoFileDlg').hide(); return false;" />
             </h:form>
-        </rich:modalPanel>
+        </rich:popupPanel>
 
     </ui:define>
 

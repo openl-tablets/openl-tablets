@@ -1,8 +1,8 @@
 package org.openl.commons.web.jsf.facelets.acegi;
 
-import com.sun.facelets.tag.AbstractTagLibrary;
-
 import java.lang.reflect.Method;
+
+import com.sun.faces.facelets.tag.AbstractTagLibrary;
 
 /**
  * Facelets taglib that provides support for Security

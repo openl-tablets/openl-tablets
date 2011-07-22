@@ -5,41 +5,40 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalExportVersion" width="400" minWidth="400" height="145" minHeight="145">
+  <rich:popupPanel id="modalExportVersion" width="400" autosized="true">
     <f:facet name="header">
       <h:outputText value="Export Version" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalExportVersion');" alt="Close" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('modalExportVersion').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="exportVersionForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
         <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
         </h:selectOneMenu>
       </h:panelGrid>
 
-      <br />
-      <rich:separator height="1" />
-      <br />
+      <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Export" action="#{repositoryTreeController.exportProjectVersion}" onclick="Richfaces.hideModalPanel('modalExportVersion');" />
-        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalExportVersion')}.hide();" />
+        <h:commandButton value="Export" action="#{repositoryTreeController.exportProjectVersion}"
+            onclick="RichFaces.$('modalExportVersion').hide();" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalExportVersion').hide();" />
       </h:panelGrid>
     </h:form>
 
-  </rich:modalPanel>
+  </rich:popupPanel>
 
   <script>
     function openExportVersionDialog() {
       submitMainForm(function() {
-        Richfaces.showModalPanel('modalExportVersion');
+        RichFaces.$('modalExportVersion').show();
         focusElement('exportVersionForm:projectVersion');
       });
     }
