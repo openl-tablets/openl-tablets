@@ -17,11 +17,11 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            padding: 5px 3px 2px 3px;
+            padding: 5px 0 2px;
         }
     </style>
 
-    <script src="webresource/js/prototype/prototype-1.6.1.js" />
+    <h:outputScript name="jquery.js" />
 
     <div>
         <div id="toolbar">
@@ -35,12 +35,10 @@
 
     <script type="text/javascript">
         function setViewDimensions() {
-            var viewport = document.viewport.getDimensions();
-            var width = viewport.width;
-            var height = viewport.height;
-
-            $('workspace').style.width = width - 27 + 'px';
-            $('workspace').style.height = height - $('toolbar').offsetHeight - 51 + 'px';
+            $("#workspace").css({
+                "width": $(window).width() - 11 + "px",
+                "height": $(window).height() - $("toolbar").height() - 51 + "px"
+            });
         }
 
         setViewDimensions();
