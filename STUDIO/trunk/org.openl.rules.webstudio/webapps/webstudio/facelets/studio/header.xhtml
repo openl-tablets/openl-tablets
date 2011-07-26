@@ -96,11 +96,14 @@
                 </td>
                 <td style="text-align: right;">
                     <h:form>
-                    <span id="userName" title="Current user">
-                        <authz:authentication operation="username"/>
-                    </span>
-                    <table style="display: inline;" cellspacing="0" cellpadding="2">
-                      <tr><td class="toolbar">
+                    <table style="float: right" cellspacing="0" cellpadding="2">
+                      <tr>
+                      <td style="padding: 6px 10px 0 0">
+                          <span id="userName" title="Current user">
+                              <authz:authentication operation="username" />
+                          </span>
+                      </td>
+                      <td class="toolbar">
                       <a href="#{contextPath}/faces/main.xhtml?mode=business" title="Business View" target="main"><img
                           alt="Business View"
                           src="#{contextPath}/webresource/images/business-view.png" /></a>
