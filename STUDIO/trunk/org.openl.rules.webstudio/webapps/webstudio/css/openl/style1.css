@@ -280,7 +280,7 @@ div#iconbar {
 div#colorScheme {
   border: 0px solid gray;
   position: absolute;
-  top: 76px;
+  top: 89px;
   right: 10px;
   font-size: 10px;
   text-align: center;
@@ -432,6 +432,11 @@ table.header thead td {
 
 .rf-tab-hdr-tabline-vis {
     height: 21px !important;
+    border: 0 !important;
+}
+
+.rf-tab-cnt {
+    border: 0 !important;
 }
 
 .rf-tab-hdr-brd {

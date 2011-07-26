@@ -10,10 +10,10 @@
         html, body {
             overflow: hidden;
         }
-        #toolbar {
+        .view_toolbar {
             padding: 0 3px;
         }
-        #workspace {
+        .view_workspace {
             width: 100%;
             height: 100%;
             overflow: auto;
@@ -24,20 +24,22 @@
     <h:outputScript name="jquery.js" />
 
     <div>
-        <div id="toolbar">
+        <div class="view_toolbar">
             <ui:insert name="toolbar" />
         </div>
     
-        <div id="workspace">
+        <div class="view_workspace">
             <ui:insert name="workspace" />
         </div>
     </div>
 
     <script type="text/javascript">
         function setViewDimensions() {
-            $("#workspace").css({
-                "width": $(window).width() - 11 + "px",
-                "height": $(window).height() - $("toolbar").height() - 51 + "px"
+            $(".view_workspace").each(function() {
+                $(this).css({
+                    "width": $(window).width() - 9 + "px",
+                    "height": $(window).height() - $(this).prev(".view_toolbar").height() - 50 + "px"
+                });
             });
         }
 
