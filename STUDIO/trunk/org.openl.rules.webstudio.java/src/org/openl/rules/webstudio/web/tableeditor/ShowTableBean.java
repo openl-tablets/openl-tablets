@@ -69,11 +69,8 @@ public class ShowTableBean {
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
-    private String notViewParams;
-    private String paramsWithoutShowFormulas;
     private String paramsWithoutUri;
 
-    
     public ShowTableBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
@@ -132,9 +129,7 @@ public class ShowTableBean {
             }
         }
 
-        notViewParams = WebTool.listRequestParams(paramMap, new String[] { "view" });
         paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
-        paramsWithoutShowFormulas = WebTool.listRequestParams(paramMap, new String[] { "showFormulas" });
     }
 
     private void initTests(final ProjectModel model) {
@@ -235,16 +230,8 @@ public class ShowTableBean {
         return FacesUtils.getRequestParameter("mode");
     }
 
-    public String getNotViewParams() {
-        return notViewParams;
-    }
-
     public String getParamsWithoutUri() {
         return paramsWithoutUri;
-    }
-
-    public String getParamsWithoutShowFormulas() {
-        return paramsWithoutShowFormulas;
     }
 
     public IOpenLTable getTable() {

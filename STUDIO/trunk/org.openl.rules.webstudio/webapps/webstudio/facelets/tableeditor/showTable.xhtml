@@ -147,14 +147,20 @@
                         </h:outputLink>
                     </c:if>
 
-                    <h:outputLink value="?#{showTableBean.notViewParams}">
+                    <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                        <f:param name="uri" value="#{showTableBean.uri}" />
+                        <f:param name="mode" value="#{showTableBean.mode}" />
+                        <f:param name="showFormulas" value="#{showTableBean.showFormulas}" />
                         <f:param name="view" value="view.business" />
                         <h:graphicImage
                             url="/webresource/images/business-view.png"
                             title="Business View" alt="Business View" />
                     </h:outputLink>
 
-                    <h:outputLink value="?#{showTableBean.notViewParams}">
+                    <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                        <f:param name="uri" value="#{showTableBean.uri}" />
+                        <f:param name="mode" value="#{showTableBean.mode}" />
+                        <f:param name="showFormulas" value="#{showTableBean.showFormulas}" />
                         <f:param name="view" value="view.developer" />
                         <h:graphicImage
                             url="/webresource/images/developer-view.png"
@@ -162,7 +168,10 @@
                     </h:outputLink>
 
                     <h:outputLink rendered="#{showTableBean.showFormulas}"
-                        value="?#{showTableBean.paramsWithoutShowFormulas}">
+                        value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                        <f:param name="uri" value="#{showTableBean.uri}" />
+                        <f:param name="mode" value="#{showTableBean.mode}" />
+                        <f:param name="view" value="#{showTableBean.view}" />
                         <f:param name="showFormulas" value="false" />
                         <h:graphicImage
                             url="/webresource/images/formula.png"
@@ -171,8 +180,11 @@
                     </h:outputLink>
     
                     <h:outputLink rendered="#{not showTableBean.showFormulas}"
-                        value="?#{showTableBean.paramsWithoutShowFormulas}">
-                        <f:param value="true" name="showFormulas" />
+                         value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                        <f:param name="uri" value="#{showTableBean.uri}" />
+                        <f:param name="mode" value="#{showTableBean.mode}" />
+                        <f:param name="view" value="#{showTableBean.view}" />
+                        <f:param name="showFormulas" value="true" />
                         <h:graphicImage
                             url="/webresource/images/formula.png"
                             title="Show Formulas"
