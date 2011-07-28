@@ -32,7 +32,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Check In" action="#{repositoryTreeController.checkInProject}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalCheckIn')}.hide();" />
       </h:panelGrid>
@@ -40,10 +40,10 @@
 
     <script>
       function checkinDlgAdjustNextVersion() {
-        var major = $('checkInForm:majorEdit').down().value;
-        var minor = $('checkInForm:minorEdit').down().value;
-        var rev = #{repositoryTreeController.revision+1};
-        $("checkInForm:nextVersion").innerHTML = major + "." + minor + "." + rev;
+        var major = RichFaces.$("checkInForm:major").getValue();
+        var minor = RichFaces.$("checkInForm:minor").getValue();
+        var rev = #{repositoryTreeController.revision + 1};
+        #{rich:element("nextVersion")}.innerHTML = major + "." + minor + "." + rev;
       }
     </script>
   </rich:popupPanel>
@@ -51,7 +51,7 @@
   <script>
     function openCheckInDialog() {
       submitMainForm(function() {
-        RichFaces.$('modalCheckIn').show();
+        RichFaces.$("modalCheckIn").show();
         focusElement('checkInForm:projectVersion');
       });
     }
