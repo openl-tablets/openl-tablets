@@ -95,7 +95,7 @@
         </h:panelGrid>
 
         <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
-          <h:commandButton id="openId2" disabled="#{!repositoryTreeState.canOpen}" value="Open" onclick="#{repositoryTreeState.canClose} &amp;&amp; #{rich:component('modalOpenProject')}.show();return false;">
+          <h:commandButton id="openId2" disabled="#{!repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
 
