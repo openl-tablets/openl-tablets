@@ -6,10 +6,13 @@
 
   <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
     <h:outputText value="Project Name" />
-    <h:outputText value="#{node.name}" />
+    <h:outputText value="#{node.name}" style="font-weight: bold" />
 
-    <h:outputText value="Project Version" />
+    <h:outputText value="Version" />
     <h:outputText value="#{artefact.version.versionName}" />
+
+    <h:outputText value="Status" />
+    <h:outputText value="#{node.status}" />
 
     <ui:remove>
       <h:outputText value="Description" />
@@ -17,7 +20,7 @@
 
     </ui:remove>
 
-    <h:outputText value="Creation Date" />
+    <h:outputText value="Created At" />
     <h:outputText value="#{node.createdAt}">
     	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
     </h:outputText>
