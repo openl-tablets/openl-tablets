@@ -15,7 +15,7 @@
     </f:facet>
 
     <h:form id="smartRedeployForm">
-      <div style="width:380px;height:180px;overflow:auto;">
+      <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
       <h:outputText value="There are no deployment projects containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty  smartRedeployController.items}"/>
       <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
         cellspacing="0px" styleClass="standard" rowClasses="odd,even" rendered="#{not empty smartRedeployController.items}">
@@ -43,23 +43,23 @@
           <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}" />
         </rich:column>
       </rich:dataTable>
-      </div>
+      </h:panelGroup>
 
-      <h:panelGrid columns="2" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
         <input value="Select All" type="button" onclick="selectAll4SmartRedeploy(true); return false;" />
         <input value="Reset All" type="button" onclick="selectAll4SmartRedeploy(false); return false;" />
       </h:panelGrid>
 
-      <h:panelGrid id="processing" columns="2" cellpadding="4px;" cellspacing="0px;"
+      <h:panelGrid id="processing" columns="2" cellpadding="4" cellspacing="0"
         styleClass="dr-mpnl-pnl"
-        style="width:100px;height:28px;position:absolute;top:120px;left:150px;border-width:2px;visibility:hidden;" >
+        style="width:100px; height:28px; position:absolute; top:120px; left:150px; border-width:2px; visibility:hidden;" >
         <h:graphicImage value="/webresource/images/modal/wait.gif" alt="Waiting" />
         <h:outputText value="Processing..." />
       </h:panelGrid>
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton id="smartRedeployBtn" disabled="true" value="Redeploy" onclick="return startSmartRedeploy()" action="#{smartRedeployController.redeploy}" />
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSmartRedeploy();" />
       </h:panelGrid>
@@ -68,10 +68,8 @@
 
   <script>
     function openSmartRedeployDialog() {
-      submitMainForm(function() {
-        RichFaces.$('modalSmartRedeploy').show();
-        window._smartRedeployInProgress = false;
-      });
+      RichFaces.$('modalSmartRedeploy').show();
+      window._smartRedeployInProgress = false;
     }
 
     function isEmptySelection4SmartRedeploy() {
@@ -86,7 +84,6 @@
 
     function updateSmartRedeployBtn() {
       if (window._smartRedeployInProgress) return;
-
       document.getElementById('smartRedeployForm:smartRedeployBtn').disabled = isEmptySelection4SmartRedeploy();
     }
 

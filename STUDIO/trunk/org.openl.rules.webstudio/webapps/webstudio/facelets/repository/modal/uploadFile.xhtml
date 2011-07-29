@@ -25,7 +25,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Upload" action="#{repositoryTreeController.addFile}" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalNewFile').hide();" />
       </h:panelGrid>
@@ -34,9 +34,7 @@
 
   <script>
     function openNewFileDialog() {
-      submitMainForm(function() {
-        RichFaces.$('modalNewFile').show();
-      });
+      RichFaces.$('modalNewFile').show();
     }
   </script>
 </ui:composition>

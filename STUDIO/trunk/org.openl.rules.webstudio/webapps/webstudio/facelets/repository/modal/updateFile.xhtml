@@ -24,7 +24,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Update" action="#{repositoryTreeController.updateFile}" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalUpdateFile').hide();" />
       </h:panelGrid>
@@ -33,9 +33,7 @@
 
   <script>
     function openUpdateFileDialog() {
-      submitMainForm(function() {
-        RichFaces.$('modalUpdateFile').show();
-      });
+      RichFaces.$('modalUpdateFile').show();
     }
   </script>
 </ui:composition>

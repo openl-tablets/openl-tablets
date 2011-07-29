@@ -38,7 +38,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Add" action="#{dependencyController.add}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalNewDependency')}.hide();" />
       </h:panelGrid>
@@ -48,10 +48,8 @@
 
   <script>
     function showAddDependency() {
-      submitMainForm(function() {
-        document.getElementById('modaNewDependencyForm:addDependencyBtn').click();
-        RichFaces.$('modalNewDependency').show();
-      });
+      document.getElementById('modaNewDependencyForm:addDependencyBtn').click();
+      RichFaces.$('modalNewDependency').show();
     }
 
     function showAddDependencyUpdateVersion() {

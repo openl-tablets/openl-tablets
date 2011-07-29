@@ -16,35 +16,36 @@
     </f:facet>
 
     <h:form id="copyProjectForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputText value="Project Name" />
-        <input id="projectName1" value="#{artefact.name}" type="text" size="35"
-            readonly="readonly" title="#{artefact.name}"/>
-        <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
-        <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
-      </h:panelGrid>
+      <h:panelGroup id="modalCopyProjectData">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+          <h:outputText value="Project Name" />
+          <input id="projectName1" value="#{artefact.name}" type="text" size="35"
+              readonly="readonly" title="#{artefact.name}"/>
+          <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
+          <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
+        </h:panelGrid>
+  
+        <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
+      </h:panelGroup>
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton id="sbt" value="Copy" action="#{repositoryTreeController.copyProject}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalCopyProject')}.hide();" />
       </h:panelGrid>
-      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
   </rich:popupPanel>
 
   <script>
     function openCopyProjectDialog(projectName) {
-      submitMainForm(function() {
-        if (projectName) {
-          document.getElementById('projectName1').value = projectName;
-          document.getElementById('projectName1').title = projectName;
-        }
-        RichFaces.$('modalCopyProject').show();
-        focusElement('copyProjectForm:newProjectName');
-        document.getElementById('copyProjectForm:hiddenProjectName').value = document.getElementById('projectName1').value;
-      });
+      if (projectName) {
+        document.getElementById('projectName1').value = projectName;
+        document.getElementById('projectName1').title = projectName;
+      }
+      RichFaces.$('modalCopyProject').show();
+      focusElement('copyProjectForm:newProjectName');
+      document.getElementById('copyProjectForm:hiddenProjectName').value = document.getElementById('projectName1').value;
     }
   </script>
 </ui:composition>

@@ -15,12 +15,14 @@
     </f:facet>
 
     <h:form id="closeProjectForm">
-      <h:outputText value="Are you sure you want to close the project '#{node.name}'? All your local changes will be lost. 
+      <h:panelGroup id="modalCloseProjectData">
+        <h:outputText value="Are you sure you want to close the project '#{node.name}'? All your local changes will be lost. 
           Project will be removed from local workspace." />
+      </h:panelGroup>
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4;" cellspacing="0">
         <h:commandButton value="Close Project" action="#{repositoryTreeController.closeProject}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalCloseProject')}.hide();" />
       </h:panelGrid>

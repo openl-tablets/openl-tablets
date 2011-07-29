@@ -15,12 +15,14 @@
     </f:facet>
 
     <h:form id="checkOutProjectForm">
-      <h:outputText value="Are you sure you want to check out the project '#{node.name}'? All your local changes will be lost. 
+      <h:panelGroup id="modalCheckOutProjectData">
+        <h:outputText value="Are you sure you want to check out the project '#{node.name}'? All your local changes will be lost. 
           Your project in local workspace will be replaced by project that will be checked out from repository." />
+      </h:panelGroup>
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Check Out Project" action="#{repositoryTreeController.checkOutProject}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalCheckOutProject')}.hide();" />
       </h:panelGrid>

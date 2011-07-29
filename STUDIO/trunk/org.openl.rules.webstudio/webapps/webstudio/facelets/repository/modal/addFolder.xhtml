@@ -22,7 +22,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Add" action="#{repositoryTreeController.addFolder}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalNewFolder')}.hide();" />
       </h:panelGrid>
@@ -31,10 +31,8 @@
 
   <script>
     function openNewFolderDialog() {
-      submitMainForm(function() {
-        RichFaces.$('modalNewFolder').show();
-        focusElement("newFolderForm:folderName");
-      });
+      RichFaces.$('modalNewFolder').show();
+      focusElement("newFolderForm:folderName");
     }
   </script>
 </ui:composition>

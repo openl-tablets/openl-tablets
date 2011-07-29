@@ -22,7 +22,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Apply" action="#{repositoryTreeController.filter}"/>
         <input type="button" value="Cancel" onclick="#{rich:component('modalRepFilter')}.hide();" />
       </h:panelGrid>
