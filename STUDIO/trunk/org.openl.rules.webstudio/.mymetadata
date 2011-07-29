@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="org.openl.rules.webstudio"
+  id="myeclipse.1309973986707"
+  context-root="/org.openl.rules.webstudio"
+  j2ee-spec="5.0"
+  archive="org.openl.rules.webstudio.war">
+  <attributes>
+    <attribute name="webrootdir" value="webapps/webstudio" />
+  </attributes>
+</project-module>
+
