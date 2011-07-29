@@ -13,5 +13,5 @@
 <booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.openl.rules.webstudio.util.StartTomcat"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.openl.rules.webstudio"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms512M -Xmx2048M -XX:MaxPermSize=512M -XX:PermSize=256M"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256M -Xmx1024M -XX:MaxPermSize=256M -XX:PermSize=128M -Dworkspace.local.home=${workspace_loc}"/>
 </launchConfiguration>
