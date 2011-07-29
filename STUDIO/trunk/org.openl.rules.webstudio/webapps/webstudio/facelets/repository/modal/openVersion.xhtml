@@ -15,25 +15,27 @@
     </f:facet>
 
     <h:form id="openVersionForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
-        <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
-        <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
-            <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
-        </h:selectOneMenu>
-      </h:panelGrid>
-
-      <h:panelGroup  rendered="#{node.type == 'project' and artefact.opened and rulesUserSession.localUser}">
-        <br />
-        <h:outputText value="Are you sure you want to open the project '#{node.name}'? All your local changes will be lost. 
-            Your project in local workspace will be replaced by project of specified version that will be checked out from repository." />
-        <br />
+      <h:panelGroup id="modalOpenVersionData">
+          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+            <h:outputText value="Project Name" />
+            <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+            <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
+            <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
+                <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
+            </h:selectOneMenu>
+          </h:panelGrid>
+    
+          <h:panelGroup rendered="#{node.type == 'project' and artefact.opened and rulesUserSession.localUser}">
+            <br />
+            <h:outputText value="Are you sure you want to open the project '#{node.name}'? All your local changes will be lost. 
+                Your project in local workspace will be replaced by project of specified version that will be checked out from repository." />
+            <br />
+          </h:panelGroup>
       </h:panelGroup>
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Open" action="#{repositoryTreeController.openProjectVersion}" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalOpenVersion').hide();" />
       </h:panelGrid>
@@ -43,10 +45,8 @@
 
   <script>
     function openOpenVersionDialog() {
-      submitMainForm(function() {
         RichFaces.$('modalOpenVersion').show();
         focusElement('openVersionForm:projectVersion');
-      });
     }
   </script>
 </ui:composition>

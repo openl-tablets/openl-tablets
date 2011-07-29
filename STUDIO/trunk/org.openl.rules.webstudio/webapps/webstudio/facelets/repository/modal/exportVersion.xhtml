@@ -15,9 +15,9 @@
     </f:facet>
 
     <h:form id="exportVersionForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="modalExportVersionData">
         <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <h:outputText value="#{artefact.name}" />
         <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
         <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
@@ -26,7 +26,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Export" action="#{repositoryTreeController.exportProjectVersion}"
             onclick="RichFaces.$('modalExportVersion').hide();" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportVersion').hide();" />
@@ -37,10 +37,8 @@
 
   <script>
     function openExportVersionDialog() {
-      submitMainForm(function() {
         RichFaces.$('modalExportVersion').show();
         focusElement('exportVersionForm:projectVersion');
-      });
     }
   </script>
 </ui:composition>

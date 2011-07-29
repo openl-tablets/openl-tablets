@@ -19,7 +19,7 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Undelete" action="#{repositoryTreeController.undeleteProject}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalUndeleteProject')}.hide();" />
       </h:panelGrid>
@@ -29,9 +29,7 @@
 
   <script>
     function confirmUndeleteProject() {
-      submitMainForm(function() {
-        RichFaces.$('modalUndeleteProject').show();
-      });
+      RichFaces.$('modalUndeleteProject').show();
     }
   </script>
 

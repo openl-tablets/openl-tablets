@@ -11,33 +11,8 @@
                 template="/facelets/common/base.xhtml">
 
   <ui:define name="page">
-    <script>
-      function ajaxRequestContainsErrors() {
-        return document.getElementById("severityForm:maximumSeverity").value >= 2;
-      }
-
-      var actionCallback = function() { }
-
-      function onComplete() {
-        if (!ajaxRequestContainsErrors()) {
-          actionCallback();
-        }
-      }
-
-      function submitMainForm(callback) {
-        actionCallback = callback;
-        document.getElementById('mainForm:submitButton').click();
-      }
-    </script>
-
     <c:set var="node" value="#{repositoryTreeState.selectedNode}"/>
     <c:set var="artefact" value="#{node.data}"/>
-
-    <a4j:outputPanel id="severityFormPanel" ajaxRendered="true">
-      <h:form id="severityForm" style="display:none">
-        <h:inputHidden id="maximumSeverity" value="#{facesContext.maximumSeverity.ordinal}" />
-      </h:form>
-    </a4j:outputPanel>
 
     <h:form id="mainForm">
       <span id="userName" title="Current user" style="position: absolute; top: 52px; right: 85px;">
@@ -70,8 +45,6 @@
         </h:panelGrid>
       </div>
 
-      <a4j:commandButton id="submitButton" render="severityFormPanel nodeView" oncomplete="onComplete()"
-        style="display:none;" />
       <ui:insert name="body" />
     </h:form>
   </ui:define>

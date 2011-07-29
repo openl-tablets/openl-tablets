@@ -55,11 +55,9 @@
 
   <script>
     function showAddDeployEntry() {
-      submitMainForm(function() {
-          var btn = document.getElementById('addDeployEntryForm:addDeployEntryBtn');
-          if (btn) btn.click();
-          RichFaces.$('addDeployEntry').show();
-      });
+      var btn = document.getElementById('addDeployEntryForm:addDeployEntryBtn');
+      if (btn) btn.click();
+      RichFaces.$('addDeployEntry').show();
     }
 
     function showAddDeployEntryUpdateVersion() {

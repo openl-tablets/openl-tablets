@@ -15,12 +15,14 @@
     </f:facet>
 
     <h:form id="openProjectForm">
-      <h:outputText value="Are you sure you want to open the project '#{node.name}'? All your local changes will be lost. 
-          Your project in local workspace will be replaced by project of the last version." />
+      <h:panelGroup id="modalOpenProjectData">
+        <h:outputText value="Are you sure you want to open the project '#{node.name}'? All your local changes will be lost. 
+            Your project in local workspace will be replaced by project of the last version." />
+        </h:panelGroup>
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Open Project" action="#{repositoryTreeController.openProject}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalOpenProject')}.hide();" />
       </h:panelGrid>

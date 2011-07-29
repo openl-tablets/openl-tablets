@@ -15,20 +15,32 @@
     </f:facet>
 
     <h:form id="checkInForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
-        <h:outputText value="Current Version" />
-        <h:outputText value="#{node.versionName}"/>
-        <h:outputText value="Next Version" />
-        <h:outputText value="#{repositoryTreeController.major}.#{repositoryTreeController.minor}.#{repositoryTreeController.revision+1}" id="nextVersion"/>
-        <h:outputLabel for="major" styleClass="required" value="Major Version" />
-        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="32000" value="#{repositoryTreeController.major}"
-                                 inputSize="4" cycled="false" onchange="checkinDlgAdjustNextVersion();"/>
-        <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
-        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false"
-                 onchange="checkinDlgAdjustNextVersion()"/>
-      </h:panelGrid>
+      <h:panelGroup id="modalCheckInProjectData">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+          <h:outputText value="Project Name" />
+          <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+          <h:outputText value="Current Version" />
+          <h:outputText value="#{node.versionName}"/>
+          <h:outputText value="Next Version" />
+          <h:outputText value="#{repositoryTreeController.major}.#{repositoryTreeController.minor}.#{repositoryTreeController.revision+1}" id="nextVersion"/>
+          <h:outputLabel for="major" styleClass="required" value="Major Version" />
+          <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="32000" value="#{repositoryTreeController.major}"
+                                   inputSize="4" cycled="false" onchange="checkinDlgAdjustNextVersion();"/>
+          <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
+          <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false"
+                   onchange="checkinDlgAdjustNextVersion()"/>
+        </h:panelGrid>
+        
+        <script>
+          function checkinDlgAdjustNextVersion() {
+            var major = RichFaces.$("checkInForm:major").getValue();
+            var minor = RichFaces.$("checkInForm:minor").getValue();
+            var rev = #{repositoryTreeController.revision + 1};
+            #{rich:element("nextVersion")}.innerHTML = major + "." + minor + "." + rev;
+          }
+        </script>
+
+      </h:panelGroup>
 
       <hr />
 
@@ -38,22 +50,12 @@
       </h:panelGrid>
     </h:form>
 
-    <script>
-      function checkinDlgAdjustNextVersion() {
-        var major = RichFaces.$("checkInForm:major").getValue();
-        var minor = RichFaces.$("checkInForm:minor").getValue();
-        var rev = #{repositoryTreeController.revision + 1};
-        #{rich:element("nextVersion")}.innerHTML = major + "." + minor + "." + rev;
-      }
-    </script>
   </rich:popupPanel>
 
   <script>
     function openCheckInDialog() {
-      submitMainForm(function() {
-        RichFaces.$("modalCheckIn").show();
-        focusElement('checkInForm:projectVersion');
-      });
+      RichFaces.$("modalCheckIn").show();
+      focusElement('checkInForm:projectVersion');
     }
   </script>
 </ui:composition>
