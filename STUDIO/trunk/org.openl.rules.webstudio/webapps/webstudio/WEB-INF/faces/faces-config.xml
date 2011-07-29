@@ -67,7 +67,7 @@
   <managed-bean>
     <managed-bean-name>deploymentController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.DeploymentController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
+    <managed-bean-scope>view</managed-bean-scope>
     <managed-property>
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
@@ -119,7 +119,7 @@
   <managed-bean>
     <managed-bean-name>dependencyController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.DependencyController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
+    <managed-bean-scope>view</managed-bean-scope>
     <managed-property>
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
