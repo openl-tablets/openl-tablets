@@ -83,13 +83,14 @@ public class TreeFolder extends AbstractTreeNode {
     }
     
     public void addChild(AProjectArtefact childArtefact){
-        String id = childArtefact.getName();
+        String name = childArtefact.getName();
+        String id = String.valueOf(name.hashCode());
         if (childArtefact.isFolder()) {
-            TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName(), filter);
+            TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);
             add(treeFolder);
         } else {
-            TreeFile treeFile = new TreeFile(id, childArtefact.getName());
+            TreeFile treeFile = new TreeFile(id, name);
             treeFile.setData(childArtefact);
             add(treeFile);
         }
