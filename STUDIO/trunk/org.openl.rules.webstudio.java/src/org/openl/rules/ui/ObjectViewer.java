@@ -11,7 +11,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
-import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 
@@ -69,11 +68,7 @@ public class ObjectViewer {
         }
 
         public FormattedCell filterFormat(FormattedCell cell) {
-
-            String fontStyle = CellModel.fontToHtml(cell.getFont(), new StringBuilder()).toString();
-
-            cell.setFormattedValue("<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
-                    + cell.getFormattedValue() + "</a>");
+            cell.setFormattedValue("<a href=\"" + url + "\">" + cell.getFormattedValue() + "</a>");
             return cell;
         }
 

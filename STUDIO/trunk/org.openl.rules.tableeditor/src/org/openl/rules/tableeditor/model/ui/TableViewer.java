@@ -100,14 +100,16 @@ public class TableViewer {
         }
 
         String formattedValue = cell.getFormattedValue();
-        if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
-            cm.setContent(createFormulaCellWithLinks(cell, formattedValue));
-        } else if (StringUtils.isNotBlank(formattedValue)) {
+        if (StringUtils.isNotBlank(formattedValue)) {
             String content = null;
-            if (!formattedValue.matches("<a href.*</a>")) { // Allow links
-                content = StringEscapeUtils.escapeHtml(formattedValue);
-            } else {
+            // has Explanation link
+            if (formattedValue.matches("<a href.*</a>")) {
                 content = formattedValue;
+            // has method call
+            } else if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
+                content = createFormulaCellWithLinks(cell, formattedValue);
+            } else {
+                content = StringEscapeUtils.escapeHtml(formattedValue);
             }
             cm.setContent(content);
             if (cell.getFormula() != null) {
