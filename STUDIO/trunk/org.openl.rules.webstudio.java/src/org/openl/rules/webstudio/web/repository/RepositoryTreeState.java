@@ -198,29 +198,34 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
     
     public void addDeploymentProjectToTree(ADeploymentProject project) {
+        String name = project.getName();
+        String id = String.valueOf(name.hashCode());
         if (!project.isDeleted() || !hideDeleted) {
-            TreeDProject prj = new TreeDProject(project.getName(), project.getName());
+            TreeDProject prj = new TreeDProject(id, name);
             prj.setData(project);
             deploymentRepository.add(prj);
         }
     }
 
     public void addRulesProjectToTree(AProject project) {
+        String name = project.getName();
+        String id = String.valueOf(name.hashCode());
         if (!project.isDeleted() || !hideDeleted) {
-            TreeProject prj = new TreeProject(project.getName(), project.getName(), filter);
+            TreeProject prj = new TreeProject(id, name, filter);
             prj.setData(project);
             rulesRepository.add(prj);
         }
     }
 
     public void addNodeToTree(TreeNode parent, AProjectArtefact childArtefact) {
-        String id = childArtefact.getName();
+        String name = childArtefact.getName();
+        String id = String.valueOf(name.hashCode());
         if (childArtefact.isFolder()) {
-            TreeFolder treeFolder = new TreeFolder(id, childArtefact.getName(), filter);
+            TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);
             parent.add(treeFolder);
         } else {
-            TreeFile treeFile = new TreeFile(id, childArtefact.getName());
+            TreeFile treeFile = new TreeFile(id, name);
             treeFile.setData(childArtefact);
             parent.add(treeFile);
         }
@@ -395,7 +400,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = selectedNode.getData();
         String projectName = selectedArtefact.getProject().getName();
-        RulesProject project = (RulesProject) getRulesRepository().getChild(projectName).getData();
+        String projectId = String.valueOf(projectName.hashCode());
+        RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
         return (project.isCheckedOut() && isGranted(PRIVILEGE_EDIT));
     }
 

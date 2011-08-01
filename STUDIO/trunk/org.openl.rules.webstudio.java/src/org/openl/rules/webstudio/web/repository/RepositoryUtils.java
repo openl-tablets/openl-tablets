@@ -28,12 +28,13 @@ public class RepositoryUtils {
             return o2.compareTo(o1);
         }
     };
+
     public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<AProjectArtefact>() {
         public int compare(AProjectArtefact o1, AProjectArtefact o2) {
             if (o1.isFolder() == o2.isFolder()) {
                 return o1.getName().compareTo(o2.getName());
             } else {
-                return (o1.isFolder() ? (-1) : 1);
+                return (o1.isFolder() ? -1 : 1);
             }
         }
     };
