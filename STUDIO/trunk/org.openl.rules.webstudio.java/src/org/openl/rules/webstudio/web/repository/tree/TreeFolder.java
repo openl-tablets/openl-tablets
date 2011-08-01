@@ -3,8 +3,8 @@ package org.openl.rules.webstudio.web.repository.tree;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -59,7 +59,7 @@ public class TreeFolder extends AbstractTreeNode {
 
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
-            elements = new TreeMap<Object, TreeNode>();
+            elements = new LinkedHashMap<Object, TreeNode>();
             if (getData() instanceof AProjectFolder) {
                 AProjectFolder folder = (AProjectFolder) getData();
                 Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
