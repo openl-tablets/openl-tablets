@@ -84,9 +84,6 @@ public class ObjectViewer {
             }
 
             ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) obj;
-            if (Math.abs(explanationValue.doubleValue()) < 0.005) {
-                return null;
-            }
 
             return getURL(explanationValue);
         }
