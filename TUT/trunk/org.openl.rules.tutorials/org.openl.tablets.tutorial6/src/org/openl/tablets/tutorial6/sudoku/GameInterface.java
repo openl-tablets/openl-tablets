@@ -31,8 +31,7 @@ public class GameInterface
 		DecisionTable dt = (DecisionTable) m;
 		TableSyntaxNode tsn = dt.getSyntaxNode();
 
-		IGridTable gt = tsn.getSubTables().get(
-				IXlsTableNames.VIEW_BUSINESS).getSource();
+		IGridTable gt = tsn.getTable(IXlsTableNames.VIEW_BUSINESS).getSource();
 		return gt;
 	}
 	

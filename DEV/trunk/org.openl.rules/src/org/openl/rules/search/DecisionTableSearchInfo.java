@@ -9,6 +9,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.DecisionTableParameterInfo;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenClass;
@@ -70,8 +71,8 @@ public class DecisionTableSearchInfo implements ITableSearchInfo {
         return tsn;
     }
 
-    public IGridTable getHeaderDisplayTable() {
-        return dt.getDisplayTable().getSource();
+    public IGridTable getHeader() {
+        return dt.getSyntaxNode().getTable(IXlsTableNames.VIEW_BUSINESS).getRow(0).getSource();
     }
 
     public int getNumberOfColumns() {
@@ -83,8 +84,7 @@ public class DecisionTableSearchInfo implements ITableSearchInfo {
     }
 
     public IGridTable getRowTable(int row) {
-//        return dt.getRuleTable(row).getSourceTable();
-        return dt.getRuleByIndex(row).getSource();
+        return dt.getRuleTable(row).getSource();
     }
 
     public Object getTableValue(int col, int row) {

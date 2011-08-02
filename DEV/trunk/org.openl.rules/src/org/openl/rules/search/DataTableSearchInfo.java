@@ -41,7 +41,7 @@ public class DataTableSearchInfo implements ITableSearchInfo {
         return tsn;
     }
 
-    public IGridTable getHeaderDisplayTable() {
+    public IGridTable getHeader() {
         return table.getHeaderTable();
     }
 

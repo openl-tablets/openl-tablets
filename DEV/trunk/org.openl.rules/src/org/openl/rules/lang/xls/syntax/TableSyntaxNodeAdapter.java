@@ -32,7 +32,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     public IGridTable getGridTable(String view) {
         if (view != null) {
-            ILogicalTable gtx = tsn.getSubTables().get(view);
+            ILogicalTable gtx = tsn.getTable(view);
             if (gtx != null) {
                 return gtx.getSource();
             }
