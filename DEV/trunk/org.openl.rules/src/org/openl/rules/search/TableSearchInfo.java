@@ -30,7 +30,7 @@ public class TableSearchInfo implements ITableSearchInfo {
         return tsn;
     }
 
-    public IGridTable getHeaderDisplayTable() {
+    public IGridTable getHeader() {
         return null;
     }
 

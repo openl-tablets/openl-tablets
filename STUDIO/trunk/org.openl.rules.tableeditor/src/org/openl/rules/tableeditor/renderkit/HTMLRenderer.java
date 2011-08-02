@@ -122,16 +122,16 @@ public class HTMLRenderer {
             TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getShowLinksBase());
 
             if (tableModel != null) {
-                String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
+                
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
-
                 String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
+
                 result.append("<div id=\"").append(tableId).append("\">");
                 if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
+                    String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
                     result.append(tableRenderer.renderWithMenu(editor, menuId, errorCell));
                 } else {
-                    result.append(
-                            tableRenderer.render(null, editor.isShowFormulas(), null, editor.getId()));
+                    result.append(tableRenderer.render(null, editor.isShowFormulas(), null, editor.getId()));
                 }
                 result.append("</div>");
 
@@ -353,8 +353,8 @@ public class HTMLRenderer {
         if (editor.getTable() != null) {
             result.append(renderPropsEditor(editor, Constants.MODE_VIEW));
 
-            String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
             if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
+                String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
                 result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
             }
         }

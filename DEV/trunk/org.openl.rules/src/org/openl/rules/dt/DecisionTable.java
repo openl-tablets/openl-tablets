@@ -23,7 +23,6 @@ import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
@@ -85,12 +84,6 @@ public class DecisionTable extends ExecutableRulesMethod {
         return getHeader().getInfo().getDisplayName(mode);
     }
 
-    public ILogicalTable getDisplayTable() {
-        ILogicalTable table = getSyntaxNode().getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
-
-        return table.getColumn(0);
-    }
-
     public IOpenMethod getMethod() {
         return this;
     }
@@ -112,24 +105,18 @@ public class DecisionTable extends ExecutableRulesMethod {
         return ruleRow;
     }
 
-    public ILogicalTable getRuleTable(int col) {
-        ILogicalTable table = getSyntaxNode().getSubTables().get(IXlsTableNames.VIEW_BUSINESS);
-
-        return table.getColumn(col + 1);
-    }
-    
     /**
      * Returns logical table that contains rule column. The column will contain
      * all return, action and condition cells for rule specified by index.
      * 
-     * @param ruleNumber Index of rule.
+     * @param ruleIndex Index of rule.
      * @return ILogicalTable that contains rule column.
      */
-    public ILogicalTable getRuleByIndex(int ruleNumber) {
+    public ILogicalTable getRuleTable(int ruleIndex) {
         ILogicalTable dt = actionRows[0].getDecisionTable();
         int starColumn = dt.getWidth() - columns;
-        
-        return dt.getColumn(starColumn + ruleNumber);
+
+        return dt.getColumn(starColumn + ruleIndex);
     }
 
     public String getSourceUrl() {

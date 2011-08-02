@@ -21,7 +21,7 @@ public interface ITableSearchInfo {
 
     TableSyntaxNode getTableSyntaxNode();
 
-    IGridTable getHeaderDisplayTable();
+    IGridTable getHeader();
 
     int getNumberOfColumns();
 

@@ -113,6 +113,10 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         return subTables;
     }
 
+    public ILogicalTable getTable(String view) {
+        return subTables.get(view);
+    }
+
     public ILogicalTable getTable() {
         return table;
     }

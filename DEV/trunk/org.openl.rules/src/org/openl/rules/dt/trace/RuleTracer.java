@@ -32,7 +32,7 @@ public class RuleTracer extends ATableTracerLeaf {
     }
 
     public ILogicalTable getRuleTable() {
-        return decisionTableTraceObject.getDecisionTable().getRuleByIndex(ruleIndex);
+        return decisionTableTraceObject.getDecisionTable().getRuleTable(ruleIndex);
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
