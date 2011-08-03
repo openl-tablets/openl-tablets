@@ -74,30 +74,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     // private final static Log LOG =
     // LogFactory.getLog(XlsSheetGridModel.class);
-    
-    /**
-     * Use {@link IGridRegion.Tool#getColumn(String)}
-     */
-    @Deprecated
-    public static int getColumn(String cell) {
-        return IGridRegion.Tool.getColumn(cell);
-    }
-    
-    /**
-     * Use {@link IGridRegion.Tool#getRow(String)}
-     */
-    @Deprecated
-    public static int getRow(String cell) {
-        return IGridRegion.Tool.getRow(cell);
-    }
-    
-    /**
-     * Use {@link IGridRegion.Tool#makeRegion(String)}
-     */
-    @Deprecated
-    public static IGridRegion makeRegion(String range) {
-        return IGridRegion.Tool.makeRegion(range);
-    }
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;

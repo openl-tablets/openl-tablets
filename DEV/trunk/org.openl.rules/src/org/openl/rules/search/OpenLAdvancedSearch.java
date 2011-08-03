@@ -177,58 +177,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         }
 
     }
-    
-    @Deprecated
-    public void fillColumnElement(int i, String gopID, String nfID, String typeID, String opType1ID, String value1ID,
-            String opType2ID, String value2ID) {
-        if (i >= columnElements.length) {
-            return;
-        }
-
-        if (typeID == null) {
-            typeID = COLUMN_PARAMETER;
-        }
-
-        SearchConditionElement se = new SearchConditionElement(typeID);
-
-        se.setGroupOperator(GroupOperator.find(gopID));
-        se.setNotFlag(NF_VALUES[1].equals(nfID));
-
-        se.setOpType1(opType1ID);
-        if (value1ID != null) {
-            se.setElementValueName(value1ID);
-        }
-        se.setOpType2(opType2ID);
-        se.setElementValue(value2ID);
-
-        columnElements[i] = se;
-
-    }
-    
-    @Deprecated
-    public void fillTableElement(int i, String gopID, String nfID, String typeID, String value1ID, String opTypeID,
-            String value2ID) {
-        if (i >= tableElements.length) {
-            return;
-        }
-
-        if (typeID == null) {
-            typeID = PROPERTY;
-        }
-
-        SearchConditionElement se = new SearchConditionElement(typeID);
-
-        se.setGroupOperator(GroupOperator.find(gopID));
-        se.setNotFlag(NF_VALUES[1].equals(nfID));
-        if (value1ID != null) {
-            se.setElementValueName(value1ID);
-        }
-        se.setOpType2(opTypeID);
-        se.setElementValue(value2ID);
-
-        tableElements[i] = se;
-
-    }
 
     public SearchConditionElement[] getColumnElements() {
         return columnElements;
