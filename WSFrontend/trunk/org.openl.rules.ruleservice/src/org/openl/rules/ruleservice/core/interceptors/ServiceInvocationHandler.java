@@ -34,39 +34,45 @@ public class ServiceInvocationHandler implements InvocationHandler {
 
     private void checkForBeforeInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallBeforeInterceptor) {
-            Class<? extends ServiceMethodBeforeInterceptor> interceptorClass = ((ServiceCallBeforeInterceptor) annotation)
+            Class<? extends ServiceMethodBeforeInterceptor>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
                     .interceptorClass();
-            try {
-                ServiceMethodBeforeInterceptor preInterceptor = interceptorClass.getConstructor(Method.class)
-                        .newInstance(method);
-                beforeInterceptors.put(method, preInterceptor);
-            } catch (Exception e) {
-                throw new RuntimeException(String.format(
-                        "Wrong annotation definining BeforeInterceptor for method \"%s\" of class \"%s\"",
-                        method.getName(), serviceClass.getName()));
+
+            for (Class<? extends ServiceMethodBeforeInterceptor> interceptorClass : interceptorClasses) {
+                try {
+                    ServiceMethodBeforeInterceptor preInterceptor = interceptorClass.getConstructor(Method.class)
+                            .newInstance(method);
+                    beforeInterceptors.put(method, preInterceptor);
+                } catch (Exception e) {
+                    throw new RuntimeException(String.format(
+                            "Wrong annotation definining BeforeInterceptor for method \"%s\" of class \"%s\"",
+                            method.getName(), serviceClass.getName()));
+                }
+
             }
         }
     }
 
     private void checkForAfterInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallAfterInterceptor) {
-            Class<? extends ServiceMethodAfterInterceptor<?>> interceptorClass = ((ServiceCallAfterInterceptor) annotation)
+            Class<? extends ServiceMethodAfterInterceptor<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
                     .interceptorClass();
-            try {
-                ServiceMethodAfterInterceptor<?> postInterceptor = interceptorClass.getConstructor(Method.class)
-                        .newInstance(method);
-                afterInterceptors.put(method, postInterceptor);
-            } catch (Exception e) {
-                throw new RuntimeException(String.format(
-                        "Wrong annotation definining AfterInterceptor for method \"%s\" of class \"%s\"",
-                        method.getName(), serviceClass.getName()));
+            for (Class<? extends ServiceMethodAfterInterceptor<?>> interceptorClass : interceptorClasses) {
+                try {
+                    ServiceMethodAfterInterceptor<?> postInterceptor = interceptorClass.getConstructor(Method.class)
+                            .newInstance(method);
+                    afterInterceptors.put(method, postInterceptor);
+                } catch (Exception e) {
+                    throw new RuntimeException(String.format(
+                            "Wrong annotation definining AfterInterceptor for method \"%s\" of class \"%s\"",
+                            method.getName(), serviceClass.getName()));
+                }
             }
         }
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (beforeInterceptors.get(method) != null) {
-            beforeInterceptors.get(method).invoke(args);
+            beforeInterceptors.get(method).invoke(proxy, args);
         }
         Method matchingAccessibleMethod = MethodUtils.getMatchingAccessibleMethod(serviceBean.getClass(),
                 method.getName(), method.getParameterTypes());

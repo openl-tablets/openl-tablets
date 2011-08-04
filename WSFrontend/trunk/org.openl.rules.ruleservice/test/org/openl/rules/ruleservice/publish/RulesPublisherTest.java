@@ -33,7 +33,7 @@ import org.openl.rules.ruleservice.simple.IRulesFrontend;
 import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-
+@Ignore
 public class RulesPublisherTest {
     private static RulesPublisher publisher;
     private static IRulesFrontend frontend;

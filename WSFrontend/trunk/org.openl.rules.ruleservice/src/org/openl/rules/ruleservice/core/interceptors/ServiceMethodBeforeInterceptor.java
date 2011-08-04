@@ -7,5 +7,5 @@ public abstract class ServiceMethodBeforeInterceptor extends ServiceMethodInterc
 		super(method);
 	}
 
-	public abstract void invoke(Object... args);
+	public abstract void invoke(Object proxy, Object... args);
 }
