@@ -27,7 +27,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     public void addTo(ModuleOpenClass openClass) {             
         TableSyntaxNode tsn = getTableSyntaxNode();
         if (tableName != null) {
-            field = new PropertiesOpenField(tableName, propertiesInstance);
+            field = new PropertiesOpenField(tableName, propertiesInstance, openClass);
             openClass.addField(field);
             tsn.setMember(field);   
         }

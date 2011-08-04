@@ -1,7 +1,9 @@
 package org.openl.rules.data;
 
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IDynamicObject;
+import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
@@ -9,8 +11,9 @@ public class DataOpenField extends AOpenField {
 
     private ITable table;
     private Object data;
+    private ModuleOpenClass declaringClass;
 
-    public DataOpenField(ITable table, TableSyntaxNode tableSyntaxNode) {
+    public DataOpenField(ITable table, TableSyntaxNode tableSyntaxNode, ModuleOpenClass declaringClass) {
 
         super(table.getDataModel().getName(), table.getDataModel()
             .getType()
@@ -19,6 +22,12 @@ public class DataOpenField extends AOpenField {
         
         this.table = table;
         data = table.getDataArray();
+        this.declaringClass = declaringClass;
+    }
+    
+    @Override
+    public IOpenClass getDeclaringClass() {
+    	return declaringClass;
     }
 
     public ITable getTable() {
