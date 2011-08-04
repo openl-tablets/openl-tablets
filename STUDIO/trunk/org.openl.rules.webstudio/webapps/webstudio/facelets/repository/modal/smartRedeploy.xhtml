@@ -18,7 +18,7 @@
       <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
       <h:outputText value="There are no deployment projects containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty  smartRedeployController.items}"/>
       <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
-        cellspacing="0px" styleClass="standard" rowClasses="odd,even" rendered="#{not empty smartRedeployController.items}">
+        styleClass="standard" rowClasses="odd,even" rendered="#{not empty smartRedeployController.items}">
         <f:facet name="header">
           <rich:columnGroup>
             <rich:column>

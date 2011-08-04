@@ -6,7 +6,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <rich:dataTable value="#{repositoryTreeController.rulesProjects}" var="prj"
-    cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+    styleClass="standard" rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -30,7 +30,6 @@
       </rich:columnGroup>
     </f:facet>
 
-    <rich:columnGroup>
       <rich:column>
         <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
           <f:param name="projectName" value="#{prj.name}" />
@@ -71,7 +70,6 @@
         &#160;
       </rich:column>
 
-    </rich:columnGroup>
   </rich:dataTable>
 
   <h:panelGroup rendered="#{empty repositoryTreeController.rulesProjects}" styleClass="noEntries">

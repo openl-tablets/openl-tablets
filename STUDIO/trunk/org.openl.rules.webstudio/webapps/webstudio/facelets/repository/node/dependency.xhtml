@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+  <rich:dataTable value="#{node.dependencies}" var="dep" styleClass="standard" rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -20,21 +20,19 @@
       </rich:columnGroup>
     </f:facet>
 
-    <rich:columnGroup>
-      <rich:column>
+    <rich:column>
         <h:outputText value="#{dep.projectName}" />
-      </rich:column>
-      <rich:column>
+    </rich:column>
+    <rich:column>
         <h:outputText value="#{dep.versionString}" />
-      </rich:column>
-      <rich:column style="text-align:center;">
+    </rich:column>
+    <rich:column style="text-align:center;">
         <h:commandLink action="#{dep.delete}"
-          onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
-          rendered="#{artefact.checkedOut}" title="Delete">
-          <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
+            onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
+            rendered="#{artefact.checkedOut}" title="Delete">
+            <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
         </h:commandLink>
-      </rich:column>
-    </rich:columnGroup>
+    </rich:column>
   </rich:dataTable>
 
   <h:panelGroup rendered="#{empty node.dependencies}" styleClass="noEntries">
