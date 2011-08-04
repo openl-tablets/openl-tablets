@@ -62,6 +62,7 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
         super(header, boundNode);
+        initProperties(getSyntaxNode().getTableProperties());
     }
 
     public IAction[] getActionRows() {
@@ -150,7 +151,6 @@ public class DecisionTable extends ExecutableRulesMethod {
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;        
         
-        initProperties(getSyntaxNode().getTableProperties());
         if (!cxtd.isExecutionMode()) {
             this.ruleRow = ruleRow;
         }

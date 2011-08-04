@@ -57,7 +57,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
       
-        field = new DataOpenField(table, tableSyntaxNode);
+        field = new DataOpenField(table, tableSyntaxNode, openClass);
         openClass.addField(field);
         tableSyntaxNode.setMember(field);
     }

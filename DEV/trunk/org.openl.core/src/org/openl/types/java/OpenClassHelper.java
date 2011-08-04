@@ -37,7 +37,8 @@ public class OpenClassHelper {
     private static IOpenClass findType(Class<?> classToFind, Map<String, IOpenClass> internalTypes) {
         IOpenClass result = null;
         for (IOpenClass datatypeClass : internalTypes.values()) {
-            if (!(datatypeClass instanceof DomainOpenClass) && classToFind.equals(datatypeClass.getInstanceClass())) {
+            //getInstanceClass() for DomainOpenClass returns simple type == enum type
+            if (!(datatypeClass instanceof DomainOpenClass) && classToFind.getName().equals(datatypeClass.getInstanceClass().getName())) {
 
                 result = datatypeClass;
                 break;

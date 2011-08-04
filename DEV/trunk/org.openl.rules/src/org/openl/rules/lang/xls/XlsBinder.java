@@ -511,7 +511,7 @@ public class XlsBinder implements IOpenBinder {
         return tableSyntaxNodes;
     }
 
-    private IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
+    protected IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
             XlsModuleOpenClass module,
             TableSyntaxNode[] tableSyntaxNodes,
             OpenL openl,
@@ -542,7 +542,7 @@ public class XlsBinder implements IOpenBinder {
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
 
-    private void finilizeBind(IMemberBoundNode memberBoundNode,
+    protected void finilizeBind(IMemberBoundNode memberBoundNode,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext moduleContext) {
 
@@ -565,7 +565,7 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private void removeDebugInformation(IMemberBoundNode[] boundNodes, TableSyntaxNode[] tableSyntaxNodes,
+    protected void removeDebugInformation(IMemberBoundNode[] boundNodes, TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext moduleContext) {
         for (int i = 0; i < boundNodes.length; i++) {
             if (boundNodes[i] != null) {
@@ -590,7 +590,7 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
+    protected IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
             XlsModuleOpenClass module,
             OpenL openl,
             RulesModuleBindingContext moduleContext) {
@@ -620,7 +620,7 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private void processError(SyntaxNodeException error,
+    protected void processError(SyntaxNodeException error,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext moduleContext) {
 
