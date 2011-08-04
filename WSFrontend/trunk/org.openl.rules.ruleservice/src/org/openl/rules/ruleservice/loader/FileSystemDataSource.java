@@ -165,7 +165,7 @@ public class FileSystemDataSource implements IDataSource {
         synchronized (listeners) {
             listeners.add(dataSourceListener);
             if (log.isInfoEnabled()) {
-                log.info(dataSourceListener.getClass().toString() + " class listener is registered in jcr data source");
+                log.info(dataSourceListener.getClass().toString() + " class listener is registered in file system data source");
             }
         }
 

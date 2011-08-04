@@ -10,5 +10,5 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeIntercep
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ServiceCallBeforeInterceptor {
-    Class<? extends ServiceMethodBeforeInterceptor> interceptorClass(); 
+    Class<? extends ServiceMethodBeforeInterceptor>[] interceptorClass(); 
 }

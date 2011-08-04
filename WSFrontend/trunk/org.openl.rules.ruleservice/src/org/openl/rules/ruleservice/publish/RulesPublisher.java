@@ -15,6 +15,7 @@ import org.openl.rules.ruleservice.core.RuleServiceException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationHandler;
+import org.openl.runtime.IEngineWrapper;
 import org.springframework.aop.ThrowsAdvice;
 import org.springframework.aop.framework.ProxyFactory;
 
@@ -63,14 +64,16 @@ public class RulesPublisher implements IRulesPublisher {
     private void instantiateServiceBean(OpenLService service) throws InstantiationException, ClassNotFoundException,
             IllegalAccessException {
         Object serviceBean = null;
+        Class<?> serviceClass = service.getServiceClass();
         if (service.isProvideRuntimeContext()) {
             serviceBean = service.getEnhancer().instantiate(ReloadType.NO);
+            serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass },
+                    new ServiceInvocationHandler(serviceBean, serviceClass));
         } else {
             serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
+            serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass, IEngineWrapper.class },
+                    new ServiceInvocationHandler(serviceBean, serviceClass));
         }
-        Class<?> serviceClass = service.getServiceClass();
-        serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass },
-                new ServiceInvocationHandler(serviceBean, serviceClass));
         ProxyFactory factory = new ProxyFactory(serviceBean);
         factory.addAdvice(new ExceptionWrapperThrowsAdvice());
         if (!Proxy.isProxyClass(serviceBean.getClass())) {
@@ -223,7 +226,7 @@ public class RulesPublisher implements IRulesPublisher {
                 }
                 argsValues.append(arg.toString());
             }
-            throw new RuleServiceWrapperException("During openL rule execution exception was occur. Method name is \""
+            throw new RuleServiceWrapperException("During openL rule execution exception was occured. Method name is \""
                     + m.getName() + "\". Arguments types are: " + argsTypes.toString() + ". "
                     + "Arguments values are: " + argsValues.toString().replace("\r", "").replace("\n", "") + ". Exception message is: " + ex.getMessage(), ex);
         }
