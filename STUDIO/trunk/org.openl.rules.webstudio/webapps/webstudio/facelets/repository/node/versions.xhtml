@@ -4,7 +4,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable value="#{node.versions}" var="version" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+  <rich:dataTable value="#{node.versions}" var="version" styleClass="standard" rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -18,7 +18,6 @@
         </rich:column>
       </rich:columnGroup>
     </f:facet>
-    <rich:columnGroup>
       <rich:column>
         <h:outputText value="#{version.versionName}" />
       </rich:column>
@@ -30,7 +29,6 @@
         	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
         </h:outputText>
       </rich:column>
-    </rich:columnGroup>
   </rich:dataTable>
 
   <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
