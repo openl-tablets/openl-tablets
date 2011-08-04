@@ -51,7 +51,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
         return null;
     }
     
-    private Module findDependencyModule(String moduleName){
+    protected Module findDependencyModule(String moduleName){
         return modulesMap.get(moduleName);
     }
     
