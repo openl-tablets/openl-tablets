@@ -5,10 +5,9 @@ import java.util.List;
 
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
-import org.openl.rules.project.instantiation.MultiModuleInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
 
 public class RulesInstantiationFactory implements IRulesInstantiationFactory {
 
@@ -36,24 +35,17 @@ public class RulesInstantiationFactory implements IRulesInstantiationFactory {
     }
 
     public RulesInstantiationStrategy getStrategy(List<Module> modules, IDependencyManager dependencyManager) {
-        if (modules == null) {
-            throw new IllegalArgumentException("modules argument can't be null");
-        }
-
         switch (modules.size()) {
             case 0:
-                throw new IllegalArgumentException("There are no modules to instantiate.");
-            case 1:
-                return RulesInstantiationStrategyFactory.getStrategy(modules.get(0), true, dependencyManager);
+                throw new RuntimeException("There are no modules to instantiate.");
             default:
-                MultiModuleInstantiationStrategy multiModuleInstantiationStrategy = new MultiModuleInstantiationStrategy(
-                        modules, true, dependencyManager);
+                LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, true, dependencyManager);
                 if (initializingListeners != null) {
                     for (InitializingListener listener : initializingListeners) {
-                        multiModuleInstantiationStrategy.addInitializingListener(listener);
+                        myInstantiationStrategy.addInitializingListener(listener);
                     }
                 }
-                return multiModuleInstantiationStrategy;
+                return myInstantiationStrategy;
         }
     }
 
