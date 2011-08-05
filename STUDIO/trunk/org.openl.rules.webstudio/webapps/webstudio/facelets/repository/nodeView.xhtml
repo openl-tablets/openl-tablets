@@ -111,7 +111,7 @@
           </h:commandButton>
         </h:panelGrid>
 
-        <h:commandButton id="checkInId1" disabled="#{!artefact.checkedOut}" value="Check In" onclick="openCheckInDialog();return false;">
+        <h:commandButton id="checkInId1" disabled="#{!repositoryTreeState.canCheckIn}" value="Check In" onclick="openCheckInDialog();return false;">
             <rich:tooltip showDelay="500">#{checkInMessage}</rich:tooltip>
         </h:commandButton>
         
@@ -217,7 +217,7 @@
           <rich:tooltip showDelay="500">Make project available for editing and lock it from editing by other users</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton id="checkInId2" disabled="#{!artefact.checkedOut}" value="Check In" action="#{deploymentController.checkIn}">
+      <h:commandButton id="checkInId2" disabled="#{!repositoryTreeState.canCheckIn}" value="Check In" action="#{deploymentController.checkIn}">
           <rich:tooltip showDelay="500">#{checkInMessage}</rich:tooltip>
       </h:commandButton>
 
