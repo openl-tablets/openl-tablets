@@ -17,6 +17,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.SequenceRowKey;
 import org.richfaces.model.TreeNode;
+import org.richfaces.model.TreeNodeImpl;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.
@@ -75,7 +76,8 @@ public class TreeBean {
             TreeNode rfTree = new ProjectTreeBuilder(tree, studio.getModel()).build();
             return rfTree;
         }
-        return null;
+        // Empty tree
+        return new TreeNodeImpl();
     }
 
     public Collection<Object> getSelected() {
