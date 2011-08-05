@@ -173,4 +173,9 @@
     <welcome-file>faces/index.xhtml</welcome-file>
   </welcome-file-list>
 
+  <error-page>
+    <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+    <location>/facelets/sessionExpired.xhtml</location>
+  </error-page>
+
 </web-app>
