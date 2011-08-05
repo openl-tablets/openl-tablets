@@ -340,28 +340,35 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     //for any project
     public boolean getCanCheckOut() {
-        if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut() || getSelectedProject().isLocked()) {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut() || selectedProject.isLocked()) {
             return false;
         }
 
         return isGranted(PRIVILEGE_EDIT);
     }
 
+    public boolean getCanCheckIn() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        return selectedProject.isCheckedOut() && selectedProject.isModified() && isGranted(PRIVILEGE_EDIT);
+    }
+
     public boolean getCanClose() {
-        return getSelectedProject().isLockedByMe() || (!getSelectedProject().isLocalOnly() && getSelectedProject().isOpened());
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        return selectedProject.isLockedByMe() || (!selectedProject.isLocalOnly() && selectedProject.isOpened());
     }
 
     public boolean getCanDelete() {
-        if (getSelectedProject().isLocalOnly()) {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject.isLocalOnly()) {
             // any user can delete own local project
             return true;
         }
-
-        return (!getSelectedProject().isLocked() || getSelectedProject().isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE);
     }
 
     public boolean getCanErase() {
-        return (getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE));
+        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE);
     }
 
     public boolean getCanExport() {
@@ -369,7 +376,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public boolean getCanOpen() {
-        if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut()) {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut()) {
             return false;
         }
 
@@ -384,7 +392,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public boolean getCanRedeploy() {
-        if (getSelectedProject().isLocalOnly() || getSelectedProject().isCheckedOut()) {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut()) {
             return false;
         }
 
@@ -392,7 +401,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public boolean getCanUndelete() {
-        return (getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT));
+        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT);
     }
 
 
@@ -407,6 +416,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     //for deployment project
     public boolean getCanDeploy() {
-        return (!getSelectedProject().isCheckedOut() && isGranted(PRIVILEGE_DEPLOY));
+        return !getSelectedProject().isCheckedOut() && isGranted(PRIVILEGE_DEPLOY);
     }
+
 }
