@@ -41,8 +41,9 @@
     </ui:define>
 
     <ui:define name="workspace">
-        <rich:tree styleClass="tree" value="#{treeBean.tree}" var="node" nodeType="#{node.type}" toggleType="client"
-            nodeClass="#{node.active ? '' : 'treeNodeInactive'}" selection="#{treeBean.selected}">
+        <c:set var="projectTree" value="#{treeBean.tree}" />
+        <rich:tree styleClass="tree" value="#{projectTree}" var="node" nodeType="#{node.type}" toggleType="client"
+            nodeClass="#{node.active ? '' : 'treeNodeInactive'}" selection="#{treeBean.selected}" rendered="#{not empty projectTree}">
             <rich:treeNode type="folder"
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/dtree/folder-error.png' : 'webresource/images/dtree/folder.png'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/dtree/folder-error.png' : 'webresource/images/dtree/folder.png'}">
