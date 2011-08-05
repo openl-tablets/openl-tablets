@@ -17,7 +17,7 @@
       </h:commandButton>
     </h:panelGrid>
 
-    <rich:tabPanel style="height:500px;">
+    <rich:tabPanel style="height:500px;margin-top:9px;">
       <rich:tab header="Rules Projects">
         <ui:include src="/facelets/repository/projects.xhtml" />
       </rich:tab>
@@ -149,7 +149,7 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <rich:tabPanel switchType="client" style="height:425px; margin-top:11px;"
+  <rich:tabPanel switchType="client" style="height:425px; margin-top:9px;"
     rendered="#{node.type != 'repository'
    &amp;&amp; node.type != 'drepository'
    &amp;&amp; node.type != 'deployment'}">
@@ -181,7 +181,7 @@
       <rich:tooltip for="createDeploymentId" showDelay="500">Create new deployment project</rich:tooltip>
     </h:panelGrid>
 
-    <rich:tabPanel style="height:500px;">
+    <rich:tabPanel style="height:500px;margin-top:9px;">
       <rich:tab header="Deployment Projects">
         <ui:include src="/facelets/repository/projectsD.xhtml" />
       </rich:tab>
@@ -230,7 +230,7 @@
       </h:commandButton>
     </h:panelGrid>
 
-    <rich:tabPanel switchType="client" style="height:425px; margin-top:11px;">
+    <rich:tabPanel switchType="client" style="height:425px; margin-top:9px;">
       <rich:tab header="Properties">
         <ui:include src="node/deployment.xhtml" />
       </rich:tab>
