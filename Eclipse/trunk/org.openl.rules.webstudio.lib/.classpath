@@ -25,7 +25,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/dbunit-2.4.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/derby-10.7.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ehcache-1.2.3.jar" sourcepath="C:/Users/MKamalov/.m2/repository/net/sf/ehcache/ehcache/1.2.3/ehcache-1.2.3-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ehcache-1.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guava-r08.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-commons-annotations-3.2.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-core-3.6.1.Final.jar"/>

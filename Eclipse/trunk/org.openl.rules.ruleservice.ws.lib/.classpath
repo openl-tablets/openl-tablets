@@ -10,7 +10,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-api-2.3.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/cxf-bundle-2.3.2.jar" sourcepath="C:/Users/MKamalov/.m2/repository/org/apache/cxf/cxf-bundle/2.3.2/cxf-bundle-2.3.2-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-bundle-2.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-common-utilities-2.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-distribution-manifest-2.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-bindings-corba-2.3.2.jar"/>
