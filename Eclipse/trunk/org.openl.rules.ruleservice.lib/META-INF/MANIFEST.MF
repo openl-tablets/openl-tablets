@@ -7,7 +7,8 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: 
  lib/cglib-nodep-2.1_3.jar,
- lib/asm-3.3.jar
+ lib/asm-3.3.jar,
+ lib/ehcache-1.2.3.jar
 Export-Package: 
  net.sf.cglib.asm,
  net.sf.cglib.asm.attrs,
@@ -19,6 +20,19 @@ Export-Package:
  net.sf.cglib.transform.hook,
  net.sf.cglib.transform.impl,
  net.sf.cglib.util,
+ net.sf.ehcache,
+ net.sf.ehcache.bootstrap,
+ net.sf.ehcache.config,
+ net.sf.ehcache.constructs.asynchronous,
+ net.sf.ehcache.constructs.blocking,
+ net.sf.ehcache.constructs.concurrent,
+ net.sf.ehcache.constructs.web,
+ net.sf.ehcache.constructs.web.filter,
+ net.sf.ehcache.distribution,
+ net.sf.ehcache.event,
+ net.sf.ehcache.hibernate,
+ net.sf.ehcache.store,
+ net.sf.ehcache.util,
  org.objectweb.asm,
  org.objectweb.asm.signature
 Require-Bundle: org.openl.rules;visibility:=reexport
