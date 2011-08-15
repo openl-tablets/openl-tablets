@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="lib/annox-0.5.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jaxb-impl-2.1.13.jar" sourcepath="D:/eclipse-SDK-3.6.1-win32/workspace/cxf/jaxb-impl-2.1.13-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-runtime-3.2.jar"/>
@@ -11,7 +10,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-api-2.3.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/cxf-bundle-2.3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-bundle-2.3.2.jar" sourcepath="C:/Users/MKamalov/.m2/repository/org/apache/cxf/cxf-bundle/2.3.2/cxf-bundle-2.3.2-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-common-utilities-2.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-distribution-manifest-2.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-bindings-corba-2.3.2.jar"/>
@@ -49,6 +48,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/geronimo-ws-metadata_2.0_spec-1.1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/isorelax-20030108.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-api-2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxb-impl-2.1.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-xjc-2.2.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty-continuation-7.2.2.v20101205.jar"/>
@@ -59,7 +59,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jra-1.0-alpha-4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/js-1.7R2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jstl-1.1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jstl-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/msv-core-2010.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/neethi-2.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/oro-2.0.8.jar"/>
@@ -68,6 +68,15 @@
 	<classpathentry exported="true" kind="lib" path="lib/saaj-impl-1.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/serializer-2.7.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-aop-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-asm-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-beans-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-context-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-core-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-expression-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-jms-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-tx-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax2-api-3.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/stringtemplate-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/velocity-1.6.2.jar"/>
@@ -80,14 +89,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/XmlSchema-1.4.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlsec-1.4.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xsdlib-2010.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-aop-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-asm-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-beans-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-context-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-core-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-expression-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-jms-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-tx-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
