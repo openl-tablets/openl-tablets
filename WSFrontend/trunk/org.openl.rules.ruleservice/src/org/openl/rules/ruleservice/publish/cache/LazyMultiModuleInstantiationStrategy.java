@@ -13,7 +13,6 @@ import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -125,7 +124,7 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
 
     private LazyMultiModuleEngineFactory getEngineFactory() {
         if (factory == null) {
-            factory = new LazyMultiModuleEngineFactory(modules, new ModulesCache());
+            factory = new LazyMultiModuleEngineFactory(modules);
             for (Module module : modules) {
                 for (InitializingListener listener : listeners) {
                     listener.afterModuleLoad(module);

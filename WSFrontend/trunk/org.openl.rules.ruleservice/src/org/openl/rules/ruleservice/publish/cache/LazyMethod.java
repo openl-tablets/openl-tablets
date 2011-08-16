@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.cache;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IMethodSignature;
@@ -22,9 +21,9 @@ public class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
     private String methodName;
     private Class<?>[] argTypes;
 
-    public LazyMethod(String methodName, Class<?>[] argTypes, ModulesCache cache, Module module,
+    public LazyMethod(String methodName, Class<?>[] argTypes, Module module,
             IDependencyManager dependencyManager, boolean executionMode) {
-        super(cache, module, dependencyManager, executionMode);
+        super(module, dependencyManager, executionMode);
         this.methodName = methodName;
         this.argTypes = argTypes;
     }

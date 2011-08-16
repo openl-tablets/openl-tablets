@@ -40,5 +40,4 @@ public class LazyMethodDispatcher extends MatchingOpenMethodDispatcher {
         super.decorate(delegate);
         getCandidates().clear();
     }
-
 }

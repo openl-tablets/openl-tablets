@@ -12,7 +12,8 @@ public class DriverValidator extends ServiceMethodBeforeInterceptor {
         super(method);
     }
 
-    public void invoke(Object... args) {
+    @Override
+    public void invoke(Object proxy, Object... args) {
         for (int i = 0; i < getMethod().getParameterTypes().length; i++) {
             if (getMethod().getParameterTypes()[i].equals(Driver.class)) {
                 Driver driver = (Driver) args[i];
@@ -22,5 +23,6 @@ public class DriverValidator extends ServiceMethodBeforeInterceptor {
                 return;
             }
         }
+        
     }
 }

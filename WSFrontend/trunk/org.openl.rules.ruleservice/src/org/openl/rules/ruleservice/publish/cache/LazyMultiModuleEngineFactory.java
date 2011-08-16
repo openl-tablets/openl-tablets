@@ -17,7 +17,6 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.lang.xls.XlsPreBinder;
-import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.ModuleInfoGatheringDependencyLoader.ModuleStatistics;
 import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
@@ -54,12 +53,10 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
     private Collection<Module> modules;
     private IDependencyManager dependencyManager;
     private ModuleStatistics moduleStatistic;
-    private ModulesCache modulesCache;
 
-    public LazyMultiModuleEngineFactory(Collection<Module> modules, ModulesCache modulesCache) {
+    public LazyMultiModuleEngineFactory(Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
         this.modules = modules;
-        this.modulesCache = modulesCache;
     }
 
     public void setDependencyManager(IDependencyManager dependencyManager) {
@@ -158,7 +155,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
                 } else if (entry.getValue() instanceof IOpenField) {
                     IOpenField field = (IOpenField) entry.getValue();
                     Module declaringModule = moduleStatistic.getModules().get(field.getDeclaringClass());
-                    processedMethodMap.put(entry.getKey(), new LazyField(field.getName(), modulesCache,
+                    processedMethodMap.put(entry.getKey(), new LazyField(field.getName(),
                             declaringModule, dependencyManager, true));
                 } else {
                     LOG.warn(String.format("Unknown IOpenMember type in method map : %s", entry.getValue().getClass()
@@ -175,7 +172,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        return new LazyMethod(method.getName(), argTypes, modulesCache, declaringModule, dependencyManager, true);
+        return new LazyMethod(method.getName(), argTypes, declaringModule, dependencyManager, true);
     }
 
     private CompiledOpenClass initializeOpenClass() {
