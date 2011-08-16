@@ -21,6 +21,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 /**
  * JCR repository data source. Uses
  * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository.
+ * Thread safe implementation.
  * 
  * @author MKamalov
  * 

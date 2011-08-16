@@ -80,7 +80,9 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
 
     public void onDeploymentAdded() {
         log.info("Assembling services after data source modification");
-        processServices();
+        synchronized (this) {
+            processServices();
+        }
     }
 
     private void processServices() {

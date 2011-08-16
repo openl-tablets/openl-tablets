@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.cache;
 
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -15,13 +14,11 @@ import org.openl.types.IOpenMember;
  * @author PUdalau
  */
 public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
-    private ModulesCache cache;
     private Module module;
     private IDependencyManager dependencyManager;
     private boolean executionMode;
 
-    public LazyMember(ModulesCache cache, Module module, IDependencyManager dependencyManager, boolean executionMode) {
-        this.cache = cache;
+    public LazyMember(Module module, IDependencyManager dependencyManager, boolean executionMode) {
         this.module = module;
         this.dependencyManager = dependencyManager;
         this.executionMode = executionMode;
@@ -35,7 +32,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     public abstract T getMember();
 
     protected ModulesCache getCache() {
-        return cache;
+        return ModulesCache.getInstance();
     }
 
     protected Module getModule() {

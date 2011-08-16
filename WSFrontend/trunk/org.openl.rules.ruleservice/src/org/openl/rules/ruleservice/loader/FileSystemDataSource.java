@@ -22,6 +22,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 /**
  * File based data source.
+ * Thread safe implementation.
  * 
  * @author MKamalov
  * 

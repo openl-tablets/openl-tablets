@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.cache;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenField;
@@ -18,9 +17,9 @@ import org.openl.vm.IRuntimeEnv;
 public class LazyField extends LazyMember<IOpenField> implements IOpenField {
     private String fieldName;
 
-    public LazyField(String fieldName, ModulesCache cache, Module module, IDependencyManager dependencyManager,
+    public LazyField(String fieldName, Module module, IDependencyManager dependencyManager,
             boolean executionMode) {
-        super(cache, module, dependencyManager, executionMode);
+        super(module, dependencyManager, executionMode);
         this.fieldName = fieldName;
     }
 

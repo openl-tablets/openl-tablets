@@ -33,7 +33,7 @@ import org.openl.rules.ruleservice.simple.IRulesFrontend;
 import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-@Ignore
+
 public class RulesPublisherTest {
     private static RulesPublisher publisher;
     private static IRulesFrontend frontend;
@@ -83,8 +83,8 @@ public class RulesPublisherTest {
     }
 
     //FIXME should be a test
-    @Ignore
     @Test
+    @Ignore
     public void testMultiModuleService() throws MethodInvocationException{
         assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));

@@ -19,6 +19,7 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 /**
  * Local temporary file system storage for deployments. Clears all data on first
  * initialization.
+ * Thread safe implementation.
  * 
  * @author MKamalov
  * 
