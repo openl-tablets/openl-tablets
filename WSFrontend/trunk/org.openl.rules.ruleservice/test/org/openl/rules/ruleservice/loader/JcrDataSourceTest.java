@@ -3,7 +3,8 @@ package org.openl.rules.ruleservice.loader;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.openl.rules.ruleservice.Constants.*;
+import static org.openl.rules.ruleservice.Constants.DEPLOYMENT_NAME;
+import static org.openl.rules.ruleservice.Constants.VERSION;
 
 import java.util.List;
 
@@ -13,18 +14,16 @@ import org.junit.Test;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.ruleservice.loader.IDataSource;
-import org.openl.rules.ruleservice.loader.JcrDataSource;
 
 public class JcrDataSourceTest {
 
     private static IDataSource dataSource;
 
     @BeforeClass
-    public static void setDataSource() {
+    public static void setDataSource() throws Exception{
         dataSource = new JcrDataSource();
     }
-
+    
     @Test
     public void testJcrDataSource() {
         assertNotNull(dataSource);

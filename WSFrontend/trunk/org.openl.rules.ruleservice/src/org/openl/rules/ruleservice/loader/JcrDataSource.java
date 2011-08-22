@@ -17,6 +17,7 @@ import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.springframework.beans.factory.DisposableBean;
 
 /**
  * JCR repository data source. Uses
@@ -26,7 +27,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author MKamalov
  * 
  */
-public class JcrDataSource implements IDataSource {
+public class JcrDataSource implements IDataSource, DisposableBean {
     private Log log = LogFactory.getLog(JcrDataSource.class);
 
     private static final String SEPARATOR = "#";
@@ -157,7 +158,7 @@ public class JcrDataSource implements IDataSource {
             }
         }
     }
-
+    
     /** {@inheritDoc} */
     public void removeAllListeners() {
         synchronized (listeners) {
@@ -180,7 +181,11 @@ public class JcrDataSource implements IDataSource {
             }
         }
     }
-
+    
+    public void destroy() throws Exception {
+        getRProductionRepository().release();
+    }
+   
     private RDeploymentListener buildRDeploymentListener(IDataSourceListener dataSourceListener) {
         return new DataSourceListenerWrapper(dataSourceListener);
     }

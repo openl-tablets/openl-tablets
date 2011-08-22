@@ -24,7 +24,7 @@ public class UnpackClasspathJarToDirectoryBeanTest implements ApplicationContext
 
     private ApplicationContext applicationContext;
 
-    private static final String UNPACK_CLASSPATH_JAR_TO_DIRECTORY_BEAN_TEST_DIRECTORY = "test-resources/unpackClasspathJarToDirectoryBeanTest";
+    private static final String UNPACK_CLASSPATH_JAR_TO_DIRECTORY_BEAN_TEST_DIRECTORY = "target/unpackClasspathJarToDirectoryBeanTest";
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
