@@ -17,7 +17,7 @@
       </h:commandButton>
     </h:panelGrid>
 
-    <rich:tabPanel style="height:500px;margin-top:9px;">
+    <rich:tabPanel style="height:500px;margin-top:9px;" switchType="client">
       <rich:tab header="Rules Projects">
         <ui:include src="/facelets/repository/projects.xhtml" />
       </rich:tab>
@@ -181,7 +181,7 @@
       <rich:tooltip for="createDeploymentId" showDelay="500">Create new deployment project</rich:tooltip>
     </h:panelGrid>
 
-    <rich:tabPanel style="height:500px;margin-top:9px;">
+    <rich:tabPanel style="height:500px;margin-top:9px;" switchType="client">
       <rich:tab header="Deployment Projects">
         <ui:include src="/facelets/repository/projectsD.xhtml" />
       </rich:tab>
