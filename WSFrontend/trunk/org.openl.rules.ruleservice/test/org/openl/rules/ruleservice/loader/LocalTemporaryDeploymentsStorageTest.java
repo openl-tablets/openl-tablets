@@ -1,6 +1,9 @@
 package org.openl.rules.ruleservice.loader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -8,9 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.ruleservice.loader.IDataSource;
-import org.openl.rules.ruleservice.loader.JcrDataSource;
-import org.openl.rules.ruleservice.loader.LocalTemporaryDeploymentsStorage;
 
 public class LocalTemporaryDeploymentsStorageTest {
 
@@ -19,7 +19,7 @@ public class LocalTemporaryDeploymentsStorageTest {
     private Deployment deployment;
 
     @BeforeClass
-    public static void setDataSource() {
+    public static void setDataSource() throws Exception{
         dataSource = new JcrDataSource();
     }
 

@@ -4,6 +4,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean name="unpackClasspathJarToDirectoryBean" class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean">
-		<property name="destinationDirectory" value="test-resources/unpackClasspathJarToDirectoryBeanTest"/>
+		<property name="destinationDirectory" value="target/unpackClasspathJarToDirectoryBeanTest"/>
 	</bean>
 </beans>

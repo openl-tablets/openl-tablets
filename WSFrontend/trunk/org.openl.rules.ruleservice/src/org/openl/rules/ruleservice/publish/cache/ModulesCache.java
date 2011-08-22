@@ -126,4 +126,5 @@ class ModulesCache {
         cache.removeAll();
         cache.clearStatistics();
     }
+   
 }

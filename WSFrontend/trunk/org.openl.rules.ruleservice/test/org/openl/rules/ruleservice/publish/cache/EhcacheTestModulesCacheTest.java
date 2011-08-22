@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.Statistics;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -35,7 +35,11 @@ public class EhcacheTestModulesCacheTest {
     private static OpenLService service1;
     
     private static OpenLService service2;
+    
+    private Cache cache;
 
+    private ModulesCache modulesCache;
+    
     private static List<Module> resolveAllModules(File root) {
         List<Module> modules = new ArrayList<Module>();
         resolver.setWorkspace(root.getAbsolutePath());
@@ -68,7 +72,15 @@ public class EhcacheTestModulesCacheTest {
     }
     
     @Before
-    public void before() throws ServiceDeployException {
+    public void before() throws ServiceDeployException, NoSuchFieldException, IllegalAccessException {
+        modulesCache = ModulesCache.getInstance();
+        modulesCache.reset();
+        Class<?> clazz = ModulesCache.class;
+        Field field = clazz.getDeclaredField("cache");
+        field.setAccessible(true);
+        cache = (Cache)field.get(modulesCache);
+        cache.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_GUARANTEED);
+        cache.setStatisticsEnabled(true);
         publisher.undeploy(service1.getName());
         publisher.undeploy(service2.getName());
         publisher.deploy(service1);
@@ -77,13 +89,7 @@ public class EhcacheTestModulesCacheTest {
     
     //Correct usage ehcache in ModulesCache test
     @Test
-    @Ignore
     public void testModulesCache() throws Exception{
-        ModulesCache modulesCache = ModulesCache.getInstance();
-        Class<?> clazz = ModulesCache.class;
-        Field field = clazz.getDeclaredField("cache");
-        field.setAccessible(true);
-        Cache cache = (Cache)field.get(modulesCache);
         assertEquals(0, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
         assertEquals(0, cache.getStatistics().getCacheMisses());
