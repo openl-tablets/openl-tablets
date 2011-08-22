@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.openl.util.FileTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
@@ -25,17 +24,13 @@ public class UploadExcelDiffController extends ExcelDiffController {
         return uploadedFiles.size();
     }
 
-    public void clearUploadData() {
-        uploadedFiles.clear();
-    }
-
     public void uploadListener(FileUploadEvent event) {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
     }
 
     public String compare() {
-        // fix Ctrl+R in browser
+        // Fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
 
             List<File> filesToCompare = new ArrayList<File>();
@@ -44,9 +39,14 @@ public class UploadExcelDiffController extends ExcelDiffController {
                         uploadedFile.getInputStream(), uploadedFile.getName());
                 filesToCompare.add(fileToCompare);
             }
+
             compare(filesToCompare);
 
-            clearUploadData();
+            // Clear uploaded files
+            uploadedFiles.clear();
+            for (File file : filesToCompare) {
+                file.delete();
+            }
         }
 
         return null;
