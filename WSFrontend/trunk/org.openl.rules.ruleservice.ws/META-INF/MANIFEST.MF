@@ -19,4 +19,6 @@ Require-Bundle: org.openl.rules.ruleservice.ws.lib,
  org.openl.rules.webstudio,
  org.openl.rules.webstudio.java,
  org.openl.commons.web
-Export-Package: org.openl.rules.ruleservice
+Export-Package: org.openl.rules.ruleservice,
+ org.openl.rules.ruleservice.servlet,
+ org.openl.ruleservice.publish
