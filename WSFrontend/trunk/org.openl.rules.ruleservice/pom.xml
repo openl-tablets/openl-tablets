@@ -121,14 +121,7 @@
 
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>${net.sf.ehcache.version}</version>
-			<type>pom</type>
-			<exclusions>
-				<exclusion>
-					<groupId>net.sf.ehcache</groupId>
-					<artifactId>ehcache-terracotta</artifactId>
-				</exclusion>
+			<artifactId>ehcache-core</artifactId>
 			</exclusions>
 		</dependency>
 
