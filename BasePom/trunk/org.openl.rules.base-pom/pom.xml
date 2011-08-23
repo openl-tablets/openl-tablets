@@ -97,14 +97,12 @@
 	<properties>
 		<openl.version.eclipse>5.8.1</openl.version.eclipse>
 		<openl.version.maven>5.8.1-SNAPSHOT</openl.version.maven>
-
 		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
 		<org.springsecurity.version>3.0.5.RELEASE</org.springsecurity.version>
-
 		<org.hibernate.version>3.6.7.Final</org.hibernate.version>
-
 		<mojarra.version>2.1.2</mojarra.version>
 		<org.richfaces.version>4.0.0.Final</org.richfaces.version>
+		<org.apache.cxf.version>2.4.2</org.apache.cxf.version>
 	</properties>
 
 	<distributionManagement>
@@ -585,12 +583,12 @@
 				<artifactId>commons-configuration</artifactId>
 				<version>1.6</version>
 				<exclusions>
-                    <exclusion>
-                        <groupId>commons-beanutils</groupId>
-                        <artifactId>commons-beanutils-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+		                    <exclusion>
+                		        <groupId>commons-beanutils</groupId>
+		                        <artifactId>commons-beanutils-core</artifactId>
+		                    </exclusion>
+		                </exclusions>
+			</dependency>
 
 			<!-- Other -->
 			<dependency>
@@ -923,108 +921,27 @@
 
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-bundle</artifactId>
-				<version>2.3.2</version>
+				<artifactId>cxf-rt-frontend-jaxws</artifactId>
+				<version>${org.apache.cxf.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-distribution-manifest</artifactId>
-				<version>2.3.2</version>
-
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-jdk14</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-common-schemas</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-tools-validator</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-tools-misctools</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-tools-java2wsdl</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-xjc-dv</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-xjc-ts</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-management</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-transports-local</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-bindings-soap</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-bindings-xml</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-bindings-object</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-bindings-coloc</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-bindings-http</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-ws-addr</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-ws-rm</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-ws-policy</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-rt-frontend-simple</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.cxf</groupId>
-						<artifactId>cxf-bundle</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>ant</groupId>
-						<artifactId>ant</artifactId>
-					</exclusion>
-				</exclusions>
+				<artifactId>cxf-rt-transports-http</artifactId>
+				<version>${org.apache.cxf.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-transports-http-jetty</artifactId>
+				<version>${org.apache.cxf.version}</version>
+			</dependency>
 
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-databinding-aegis</artifactId>
+				<version>${org.apache.cxf.version}</version>
+			</dependency>
 
 			<!-- Eclipse dependencies -->
 			<dependency>
@@ -1315,8 +1232,6 @@
 				<artifactId>ehcache-core</artifactId>
 				<version>2.4.3</version>
 			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
-
 </project>
