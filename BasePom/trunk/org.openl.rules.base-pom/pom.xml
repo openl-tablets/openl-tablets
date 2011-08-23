@@ -101,11 +101,10 @@
 		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
 		<org.springsecurity.version>3.0.5.RELEASE</org.springsecurity.version>
 
-		<org.hibernate.version>3.6.1.Final</org.hibernate.version>
+		<org.hibernate.version>3.6.7.Final</org.hibernate.version>
 
 		<mojarra.version>2.1.2</mojarra.version>
 		<org.richfaces.version>4.0.0.Final</org.richfaces.version>
-		<net.sf.ehcache.version>2.4.3</net.sf.ehcache.version>
 	</properties>
 
 	<distributionManagement>
@@ -585,7 +584,13 @@
 				<groupId>commons-configuration</groupId>
 				<artifactId>commons-configuration</artifactId>
 				<version>1.6</version>
-			</dependency>
+				<exclusions>
+                    <exclusion>
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
 			<!-- Other -->
 			<dependency>
@@ -626,8 +631,6 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
 				<version>${org.springframework.version}</version>
-				<exclusions>
-				</exclusions>
 			</dependency>
 
 			<!-- Application Context (depends on spring-core, spring-expression, spring-aop, 
@@ -885,19 +888,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>4.1.0.Final</version>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.xml.stream</groupId>
-						<artifactId>stax-api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-
-			<dependency>
-				<groupId>net.sf.ehcache</groupId>
-				<artifactId>ehcache</artifactId>
-				<version>1.2.3</version>
+				<version>4.2.0.Final</version>
 			</dependency>
 
 			<dependency>
@@ -1259,7 +1250,6 @@
 				<version>3.7</version>
 			</dependency>
 
-
 			<dependency>
 				<groupId>javax.xml.bind</groupId>
 				<artifactId>jaxb-api</artifactId>
@@ -1322,16 +1312,10 @@
 
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
-				<artifactId>ehcache</artifactId>
-				<version>${net.sf.ehcache.version}</version>
-				<type>pom</type>
-				<exclusions>
-					<exclusion>
-						<groupId>net.sf.ehcache</groupId>
-						<artifactId>ehcache-terracotta</artifactId>
-					</exclusion>
-				</exclusions>
+				<artifactId>ehcache-core</artifactId>
+				<version>2.4.3</version>
 			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
