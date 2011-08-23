@@ -5,26 +5,11 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertTrue;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
@@ -44,13 +29,81 @@ import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-ruleservice-beans.xml" })
-@Ignore
-public class WebServicesExposingTest implements ApplicationContextAware {
+public class WebServicesExposingTest implements ApplicationContextAware{
+    private static final String TUTORIAL4_SERVICE_URL = "org.openl.tablets.tutorial4";
+    
+    private static final String MULTIMODULE_SERVICE_URL = "multimodule";
+        
+    //private static final String TEST_REPOSITORY_PATH = "./target/production-repository/";
+    
+    private ApplicationContext applicationContext;
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @AfterClass
+    public static void clearRepository() throws Exception {
+        ProductionRepositoryFactoryProxy.release();
+    }
+    
+    @Test
+    public void testServerPrototypes() {
+        assertNotNull(applicationContext);
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        serviceManager.start();
+        WebServicesDeploymentAdmin deploymentAdmin = applicationContext.getBean("deploymentAdmin",
+                WebServicesDeploymentAdmin.class);
+        ServerFactoryBean firstServer = deploymentAdmin.getServerFactoryBean();
+        ServerFactoryBean secondServer = deploymentAdmin.getServerFactoryBean();
+        assertTrue(firstServer != secondServer);
+    }
+
+    @Test
+    public void testRedeployAfterChanges() throws Exception {
+        assertNotNull(applicationContext);
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        IRulesLoader rulesLoader = serviceManager.getRulesLoader();
+        serviceManager.start();
+        OpenLService multimoduleService = serviceManager.getRuleService().findServiceByName("multimodule");
+        //OpenLService tutorial4Service = serviceManager.getRuleService().findServiceByName("tutorial4");
+        Deployment domainDeployment = rulesLoader.getDeployment("domain",
+                TestConfigurer.getLastVersion(rulesLoader, "domain"));
+
+        ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
+        new JcrProductionDeployer(new WorkspaceUserImpl("test")).deploy(testDeploymentProject,
+                domainDeployment.getProjects());
+        for (int i = 0; i < 12; i++) {//waiting for redeploying of services during.
+            Thread.sleep(5000); // notifications come asynchroniously
+            if (multimoduleService != serviceManager.getRuleService().findServiceByName("multimodule")) {
+                break;
+            }
+        }
+        assertEquals(2, applicationContext.getBean("rulesPublisher", RulesPublisher.class).getRunningServices().size());
+        assertNotSame(multimoduleService, serviceManager.getRuleService().findServiceByName("multimodule"));
+        //uncomment after the smart redeployment will be implemented
+        //assertSame(tutorial4Service, serviceManager.getRuleService().findServiceByName("tutorial4"));
+    }
+    
+    public static void main(String[] args) throws Exception {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+                "classpath:test-ruleservice-beans.xml");
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        serviceManager.start();
+        System.out.print("Press enter for server stop:");
+        System.in.read();
+        System.out.println("Server is stoped");
+        System.exit(0);
+    }
+
     public static class TestConfigurer implements IServiceConfigurer {
         private static CommonVersion getLastVersion(IRulesLoader loader, String deploymentName) {
             CommonVersion lastVersion = new CommonVersionImpl(0, 0, 0);
@@ -95,129 +148,4 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         }
     }
 
-    private static final String TUTORIAL4_SERVICE_URL = "org.openl.tablets.tutorial4";
-    private static final String MULTIMODULE_SERVICE_URL = "multimodule";
-    private static final String TEST_REPOSITORY_PATH = "./test-resources/production-repository/";
-
-    private ApplicationContext applicationContext;
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    @BeforeClass
-    public static void createdRepository() throws Exception {
-        unzipArchive(new File("./test-resources/production-repository.zip"), new File(TEST_REPOSITORY_PATH));
-    }
-
-    @Test
-    public void testExposing() throws Exception {
-        assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        assertNotNull(serviceManager);
-        serviceManager.start();
-        WebServicesDeploymentAdmin deploymentAdmin = applicationContext.getBean("deploymentAdmin",
-                WebServicesDeploymentAdmin.class);
-        final String baseUrl = deploymentAdmin.getBaseAddress();
-        assertEquals(2, applicationContext.getBean("rulesPublisher", RulesPublisher.class).getRunningServices().size());
-
-        JaxWsDynamicClientFactory clientFactory = JaxWsDynamicClientFactory.newInstance();
-        /*final Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(JAXBRIContext.ANNOTATION_READER, new AnnoxAnnotationReader());
-        clientFactory.setJaxbContextProperties(properties);
-        clientFactory.setSimpleBindingEnabled(true);*/
-        
-        Client tutorial4Client = clientFactory.createClient(baseUrl + TUTORIAL4_SERVICE_URL + "?wsdl");
-        Client multimoduleClient = clientFactory.createClient(baseUrl + MULTIMODULE_SERVICE_URL + "?wsdl");
-
-        assertEquals("World, Good Morning!",
-                multimoduleClient.invoke("worldHello", new Object[] { new Integer(10) })[0]);
-        assertEquals(2, CollectionUtils.size(multimoduleClient.invoke("getData1")[0]));
-        assertEquals(3, CollectionUtils.size(multimoduleClient.invoke("getData2")[0]));
-        assertEquals(2, CollectionUtils.size(tutorial4Client.invoke("getCoverage")[0]));
-    }
-
-    @AfterClass
-    public static void deleteCreatedRepository() throws Exception {
-        ProductionRepositoryFactoryProxy.release();
-        File tempRepoFolder = new File(TEST_REPOSITORY_PATH);
-        if (tempRepoFolder.exists()) {
-            FileUtils.deleteDirectory(tempRepoFolder);
-        }
-    }
-
-    @Test
-    public void testServerPrototypes() {
-        assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        assertNotNull(serviceManager);
-        serviceManager.start();
-        WebServicesDeploymentAdmin deploymentAdmin = applicationContext.getBean("deploymentAdmin",
-                WebServicesDeploymentAdmin.class);
-        ServerFactoryBean firstServer = deploymentAdmin.getServerFactoryBean();
-        ServerFactoryBean secondServer = deploymentAdmin.getServerFactoryBean();
-        assertTrue(firstServer != secondServer);
-    }
-
-    @Test
-    public void testRedeployAfterChanges() throws Exception {
-        assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        assertNotNull(serviceManager);
-        IRulesLoader rulesLoader = serviceManager.getRulesLoader();
-        serviceManager.start();
-        OpenLService multimoduleService = serviceManager.getRuleService().findServiceByName("multimodule");
-        OpenLService tutorial4Service = serviceManager.getRuleService().findServiceByName("tutorial4");
-        Deployment domainDeployment = rulesLoader.getDeployment("domain",
-                TestConfigurer.getLastVersion(rulesLoader, "domain"));
-
-        ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
-        new JcrProductionDeployer(new WorkspaceUserImpl("test")).deploy(testDeploymentProject,
-                domainDeployment.getProjects());
-        for (int i = 0; i < 12; i++) {//waiting for redeploying of services during.
-            Thread.sleep(5000); // notifications come asynchroniously
-            if (multimoduleService != serviceManager.getRuleService().findServiceByName("multimodule")) {
-                break;
-            }
-        }
-        assertEquals(2, applicationContext.getBean("rulesPublisher", RulesPublisher.class).getRunningServices().size());
-        assertNotSame(multimoduleService, serviceManager.getRuleService().findServiceByName("multimodule"));
-        //uncomment after the smart redeployment will be implemented
-        //assertSame(tutorial4Service, serviceManager.getRuleService().findServiceByName("tutorial4"));
-    }
-
-    public static void unzipArchive(File archive, File outputDir) throws Exception {
-        ZipFile zipfile = new ZipFile(archive);
-        Enumeration<? extends ZipEntry> e = zipfile.entries();
-        while (e.hasMoreElements()) {
-            ZipEntry entry = e.nextElement();
-            unzipEntry(zipfile, entry, outputDir);
-        }
-    }
-
-    private static void unzipEntry(ZipFile zipfile, ZipEntry entry, File outputDir) throws IOException {
-        if (entry.isDirectory()) {
-            createDir(new File(outputDir, entry.getName()));
-            return;
-        }
-        File outputFile = new File(outputDir, entry.getName());
-        if (!outputFile.getParentFile().exists()) {
-            createDir(outputFile.getParentFile());
-        }
-
-        BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
-        BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-
-        try {
-            IOUtils.copy(inputStream, outputStream);
-        } finally {
-            outputStream.close();
-            inputStream.close();
-        }
-    }
-
-    private static void createDir(File dir) {
-        if (!dir.mkdirs())
-            throw new RuntimeException("Can not create dir " + dir);
-    }
 }
