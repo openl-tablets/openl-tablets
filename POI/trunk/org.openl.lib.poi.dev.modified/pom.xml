@@ -79,11 +79,6 @@
                         <artifactId>commons-logging</artifactId>
                 </dependency>
                 <dependency>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging-api</artifactId>
-                        <version>1.0.4</version>
-                </dependency>
-                <dependency>
                         <groupId>org.apache.poi</groupId>
                         <artifactId>ooxml-schemas</artifactId>
                 </dependency>
