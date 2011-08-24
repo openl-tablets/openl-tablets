@@ -5,9 +5,7 @@ Bundle-SymbolicName: org.openl.poi.lib
 Bundle-Version: 5.8.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Export-Package: javax.xml,
- javax.xml.namespace,
- javax.xml.stream,
+Export-Package: javax.xml.stream,
  javax.xml.stream.events,
  javax.xml.stream.util,
  org.apache.commons.lang,
@@ -142,7 +140,7 @@ Export-Package: javax.xml,
  schemasMicrosoftComVml.impl
 Bundle-ClassPath: lib/commons-logging-1.1.1.jar,
  lib/dom4j-1.6.1.jar,
- lib/stax-api-1.0.1.jar,
  lib/xmlbeans-2.3.0.jar,
  lib/ooxml-schemas-1.1.jar,
- lib/commons-lang-2.6.jar
+ lib/commons-lang-2.6.jar,
+ lib/stax-api-1.0-2.jar
