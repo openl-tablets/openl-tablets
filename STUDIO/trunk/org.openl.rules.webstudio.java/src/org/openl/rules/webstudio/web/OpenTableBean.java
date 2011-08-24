@@ -16,7 +16,7 @@ public class OpenTableBean {
 
     private final String TREE_PAGE = contextPath + "/faces/facelets/leftPanel.xhtml";
     private final String TABLE_PAGE = contextPath + "/faces/facelets/tableeditor/showTable.xhtml";
-    private final String INTRO_PAGE = contextPath + "/home.html";
+    private final String INTRO_PAGE = contextPath + "/faces/facelets/home.xhtml";
     private final String FOOTER_PAGE = contextPath + "/faces/facelets/footerPanel.xhtml";
 
     private String leftPage;
