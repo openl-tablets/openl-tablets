@@ -368,7 +368,7 @@ public class WebStudio {
      */
     public void setCurrentModule(Module module) throws Exception {
         if (currentModule == null
-                || !currentModule.getName().equals(module.getName())) {
+                || !getModuleId(currentModule).equals(getModuleId(module))) {
             model.setModuleInfo(module);
             model.getRecentlyVisitedTables().clear();
         }
