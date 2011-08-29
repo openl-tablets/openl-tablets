@@ -224,7 +224,7 @@ public class XlsBinder implements IOpenBinder {
                 moduleContext.addTypes(compiledDependency.getTypes());
             } catch (Exception ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                        "Can`t add datatype from dependency", moduleNode.getModule());
+                        "Can`t add datatype from dependency", ex, (ISyntaxNode) moduleNode);
                 BindHelper.processError(error);
             }
         }
