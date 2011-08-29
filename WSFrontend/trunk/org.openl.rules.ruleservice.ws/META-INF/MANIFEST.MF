@@ -11,14 +11,7 @@ Require-Bundle: org.openl.rules.ruleservice.ws.lib,
  org.openl.grammars,
  org.openl.j,
  org.openl.j.science,
- org.openl.rules,
- org.openl.rules.diff,
- org.openl.rules.security,
- org.openl.rules.security.standalone,
- org.openl.rules.tableeditor,
- org.openl.rules.webstudio,
- org.openl.rules.webstudio.java,
- org.openl.commons.web
+ org.openl.rules
 Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.servlet,
  org.openl.ruleservice.publish
