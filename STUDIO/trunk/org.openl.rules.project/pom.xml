@@ -12,7 +12,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.project</artifactId>
   <packaging>jar</packaging>
-  <name>OpenL - Rules - Project</name>
+  <name>OpenL - STUDIO - Project</name>
   <description>Classes and utilities to work with OpenL Rules Project</description>
   <url>http://openl-tablets.sf.net/</url>
 
