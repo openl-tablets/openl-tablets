@@ -88,13 +88,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.webstudio.java"
-         download-size="0"
-         install-size="0"
-         version="5.8.1"
-         unpack="false"/>
-
-   <plugin
          id="org.openl.rules.diff"
          download-size="0"
          install-size="0"

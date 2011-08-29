@@ -343,12 +343,6 @@
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
-				<artifactId>org.openl.rules.webstudio.java</artifactId>
-				<version>${openl.version.maven}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.webstudio</artifactId>
 				<version>${openl.version.maven}</version>
 			</dependency>
@@ -470,6 +464,13 @@
 			</dependency>
 
 			<dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio</artifactId>
+                <classifier>sources</classifier>
+                <version>${openl.version.maven}</version>
+            </dependency>
+
+			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository</artifactId>
 				<classifier>sources</classifier>
@@ -493,13 +494,6 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.workspace</artifactId>
-				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.openl.rules</groupId>
-				<artifactId>org.openl.rules.webstudio.java</artifactId>
 				<classifier>sources</classifier>
 				<version>${openl.version.maven}</version>
 			</dependency>
