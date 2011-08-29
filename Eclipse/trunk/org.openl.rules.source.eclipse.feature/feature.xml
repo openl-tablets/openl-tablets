@@ -117,7 +117,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.webstudio.java.source"
+         id="org.openl.rules.webstudio.source"
          download-size="0"
          install-size="0"
          version="5.8.1"
