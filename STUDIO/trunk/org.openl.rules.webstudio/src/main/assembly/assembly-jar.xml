@@ -17,6 +17,10 @@
     <fileSet>
       <directory>META-INF</directory>
     </fileSet>
+    <fileSet>
+        <directory>target/classes</directory>
+        <outputDirectory>webapps/webstudio/WEB-INF/classes</outputDirectory>
+    </fileSet>
   </fileSets>
 
 </assembly>

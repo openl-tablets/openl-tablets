@@ -12,7 +12,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.webstudio</artifactId>
   <packaging>war</packaging>
-  <name>OpenL - STUDIO - WebStudio Web Resources</name>
+  <name>OpenL - STUDIO - WebStudio</name>
   <description>OpenL WebStudio</description>
   <url>http://openl-tablets.sf.net/</url>
 
@@ -40,9 +40,6 @@
               </includes>
             </resource>
           </webResources>
-          <packagingExcludes>
-            WEB-INF/lib/poi-2.5.1-*.jar,
-          </packagingExcludes>
         </configuration>
       </plugin>
 
@@ -124,11 +121,6 @@
   <dependencies>
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio.java</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.tableeditor</artifactId>
     </dependency>
 
@@ -139,7 +131,87 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.workspace</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.project</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.diff</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.richfaces.core</groupId>
+        <artifactId>richfaces-core-impl</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.richfaces.ui</groupId>
+        <artifactId>richfaces-components-ui</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>tomcat</groupId>
+      <artifactId>bootstrap</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.stanford.ejalbert</groupId>
+      <artifactId>BrowserLauncher</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
     </dependency>
 
     <dependency>
