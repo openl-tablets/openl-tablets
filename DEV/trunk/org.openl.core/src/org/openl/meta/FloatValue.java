@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
@@ -14,38 +15,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     private static final long serialVersionUID = -8235832583740963916L;
     
     // <<< INSERT Functions >>>
+	// generate zero for types that are wrappers over primitives
+	private static final org.openl.meta.FloatValue ZERO1 = new org.openl.meta.FloatValue((float)0);
+
 	private float value;
 
-	public static org.openl.meta.FloatValue add(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, Formulas.ADD.toString());
-		
-		return new org.openl.meta.FloatValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
-			Formulas.ADD);		
-	}
-	public static org.openl.meta.FloatValue multiply(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, Formulas.MULTIPLY.toString());
-		
-		return new org.openl.meta.FloatValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
-			Formulas.MULTIPLY);		
-	}
-	public static org.openl.meta.FloatValue subtract(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, Formulas.SUBTRACT.toString());
-		
-		return new org.openl.meta.FloatValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
-			Formulas.SUBTRACT);		
-	}
-	public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, Formulas.DIVIDE.toString());
-		
-		return new org.openl.meta.FloatValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
-			Formulas.DIVIDE);		
-	}
-	public static org.openl.meta.FloatValue rem(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, Formulas.REM.toString());
-		
-		return new org.openl.meta.FloatValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
-			Formulas.REM);		
-	}
 
 	public static boolean eq(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
 		validate(value1, value2, LogicalExpressions.EQ.toString());
@@ -145,6 +119,80 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         return value;
 	}
+	
+	 	
+	
+	//ADD
+	public static org.openl.meta.FloatValue add(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.ADD.toString());
+		//conditions for classes that are wrappers over primitives
+		if (value1 == null || value1.getValue() == 0) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == 0) {
+            return value1;
+        }
+        
+		return new org.openl.meta.FloatValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);	
+	}
+	
+	// MULTIPLY
+	public static org.openl.meta.FloatValue multiply(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.MULTIPLY.toString());
+		if (value1 == null) {
+			return ZERO1;
+		}
+		
+		if (value2 == null) {
+			return ZERO1;
+		}
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	
+	//SUBTRACT
+	public static org.openl.meta.FloatValue subtract(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		if (value1 == null) {
+			return negative(value2);
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	
+	public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null) {
+			if (value2 != null && value2.doubleValue() != 0) {
+				return ZERO1;
+			}
+		}
+		
+		if (value2 == null || value2.doubleValue() == 0) {
+			throw new OpenlNotCheckedException("Division by zero");
+		}
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	
 	
 	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
@@ -291,7 +339,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	
 	 
       
-                            // <<< END INSERT Functions >>>
+                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 

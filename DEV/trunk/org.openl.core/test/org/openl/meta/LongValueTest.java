@@ -25,21 +25,11 @@ public class LongValueTest {
         assertEquals(287, result.getValue());
         
         value2 = null;
-        try {
-            result = LongValue.add(value1, value2);
-            assertNull(result);            
-        } catch (OpenlNotCheckedException e) {
-            assertTrue(true);
-        }
-        
+        assertEquals(187, LongValue.add(value1, value2).intValue());
+                
         value1 = null;
         value2 = null;
-        try {
-            result = LongValue.add(value1, value2);
-            assertNull(result);
-        } catch (OpenlNotCheckedException e) {
-            assertTrue(true);
-        }
+        assertNull(LongValue.add(value1, value2));        
     }
     
     @Test

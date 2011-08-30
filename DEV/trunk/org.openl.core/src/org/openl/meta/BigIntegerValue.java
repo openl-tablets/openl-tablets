@@ -17,38 +17,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     private static final long serialVersionUID = -3936317402079096501L;
     
     // <<< INSERT Functions >>>
+	// generate zero for big types
+	private static final org.openl.meta.BigIntegerValue ZERO1 = new org.openl.meta.BigIntegerValue("0");
+
 	private java.math.BigInteger value;
 
-	public static org.openl.meta.BigIntegerValue add(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-		validate(value1, value2, Formulas.ADD.toString());
-		
-		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
-			Formulas.ADD);		
-	}
-	public static org.openl.meta.BigIntegerValue multiply(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-		validate(value1, value2, Formulas.MULTIPLY.toString());
-		
-		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
-			Formulas.MULTIPLY);		
-	}
-	public static org.openl.meta.BigIntegerValue subtract(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-		validate(value1, value2, Formulas.SUBTRACT.toString());
-		
-		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
-			Formulas.SUBTRACT);		
-	}
-	public static org.openl.meta.BigIntegerValue divide(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-		validate(value1, value2, Formulas.DIVIDE.toString());
-		
-		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
-			Formulas.DIVIDE);		
-	}
-	public static org.openl.meta.BigIntegerValue rem(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-		validate(value1, value2, Formulas.REM.toString());
-		
-		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
-			Formulas.REM);		
-	}
 
 	public static boolean eq(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
 		validate(value1, value2, LogicalExpressions.EQ.toString());
@@ -148,6 +121,80 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         return value;
 	}
+	
+	 	
+	
+	//ADD
+	public static org.openl.meta.BigIntegerValue add(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.ADD.toString());
+		//conditions big types
+		if (value1 == null || value1.getValue() == java.math.BigInteger.ZERO) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == java.math.BigInteger.ZERO) {
+            return value1;
+        }
+        
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);	
+	}
+	
+	// MULTIPLY
+	public static org.openl.meta.BigIntegerValue multiply(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.MULTIPLY.toString());
+		if (value1 == null) {
+			return ZERO1;
+		}
+		
+		if (value2 == null) {
+			return ZERO1;
+		}
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	
+	//SUBTRACT
+	public static org.openl.meta.BigIntegerValue subtract(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		if (value1 == null) {
+			return negative(value2);
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	
+	public static org.openl.meta.BigIntegerValue divide(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null) {
+			if (value2 != null && value2.doubleValue() != 0) {
+				return ZERO1;
+			}
+		}
+		
+		if (value2 == null || value2.doubleValue() == 0) {
+			throw new OpenlNotCheckedException("Division by zero");
+		}
+		
+		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	
 	
 	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
@@ -294,7 +341,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 	
 	 
       
-                            // <<< END INSERT Functions >>>        
+                                                                                    // <<< END INSERT Functions >>>        
 
     // ******* Autocasts 8*************    
 

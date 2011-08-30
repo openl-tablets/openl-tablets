@@ -3,7 +3,6 @@ package org.openl.meta;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.exception.OpenlNotCheckedException;
 
 public class ByteValueTest {
     
@@ -14,18 +13,9 @@ public class ByteValueTest {
         assertEquals(new ByteValue((byte) 5), ByteValue.add(bval1, bval2));
         
         ByteValue nullValue = null;
-        try {
-            assertEquals(bval2, ByteValue.add(nullValue, bval2));
-            fail();
-        } catch (OpenlNotCheckedException e) {
-            assertTrue(true);
-        }
-        try {
-            assertEquals(bval1, ByteValue.add(bval1, nullValue));
-        } catch (OpenlNotCheckedException e) {
-            assertTrue(true);
-        }
+        assertEquals(4, ByteValue.add(nullValue, bval2).intValue());
         
+        assertEquals(1, ByteValue.add(bval1, nullValue).intValue());
         
         ByteValue zeroValue = new ByteValue((byte) 0);
         assertEquals(bval2, ByteValue.add(zeroValue, bval2));
