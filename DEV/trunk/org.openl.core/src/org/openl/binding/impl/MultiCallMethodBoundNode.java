@@ -41,7 +41,11 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         
         // gets the values of array parameters
         Object arrayParameters = methodParameters[arrayArgumentIndex];
-        int paramsLenght = Array.getLength(arrayParameters);        
+        
+        int paramsLenght = 0;
+        if (arrayParameters != null) {
+        	paramsLenght = Array.getLength(arrayParameters);
+        }       
         
         // create an array of results        
         Object results = Array.newInstance(super.getType().getInstanceClass(), paramsLenght);
