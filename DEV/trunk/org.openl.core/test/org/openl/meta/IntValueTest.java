@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.util.math.MathUtils;
 
 public class IntValueTest {
@@ -27,7 +28,7 @@ public class IntValueTest {
         try {
             assertEquals(1, IntValue.divide(value1, value2));
             fail();
-        } catch (ArithmeticException e) {
+        } catch (OpenlNotCheckedException e) {
             assertTrue(true);
         }
     }

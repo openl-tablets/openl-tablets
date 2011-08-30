@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
@@ -14,38 +15,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     private static final long serialVersionUID = -437788531108803012L;
     
     // <<< INSERT Functions >>>
+	// generate zero for types that are wrappers over primitives
+	private static final org.openl.meta.LongValue ZERO1 = new org.openl.meta.LongValue((long)0);
+
 	private long value;
 
-	public static org.openl.meta.LongValue add(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-		validate(value1, value2, Formulas.ADD.toString());
-		
-		return new org.openl.meta.LongValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
-			Formulas.ADD);		
-	}
-	public static org.openl.meta.LongValue multiply(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-		validate(value1, value2, Formulas.MULTIPLY.toString());
-		
-		return new org.openl.meta.LongValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
-			Formulas.MULTIPLY);		
-	}
-	public static org.openl.meta.LongValue subtract(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-		validate(value1, value2, Formulas.SUBTRACT.toString());
-		
-		return new org.openl.meta.LongValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
-			Formulas.SUBTRACT);		
-	}
-	public static org.openl.meta.LongValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-		validate(value1, value2, Formulas.DIVIDE.toString());
-		
-		return new org.openl.meta.LongValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
-			Formulas.DIVIDE);		
-	}
-	public static org.openl.meta.LongValue rem(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-		validate(value1, value2, Formulas.REM.toString());
-		
-		return new org.openl.meta.LongValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
-			Formulas.REM);		
-	}
 
 	public static boolean eq(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
 		validate(value1, value2, LogicalExpressions.EQ.toString());
@@ -145,6 +119,80 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         return value;
 	}
+	
+	 	
+	
+	//ADD
+	public static org.openl.meta.LongValue add(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.ADD.toString());
+		//conditions for classes that are wrappers over primitives
+		if (value1 == null || value1.getValue() == 0) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == 0) {
+            return value1;
+        }
+        
+		return new org.openl.meta.LongValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);	
+	}
+	
+	// MULTIPLY
+	public static org.openl.meta.LongValue multiply(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.MULTIPLY.toString());
+		if (value1 == null) {
+			return ZERO1;
+		}
+		
+		if (value2 == null) {
+			return ZERO1;
+		}
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	
+	//SUBTRACT
+	public static org.openl.meta.LongValue subtract(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		if (value1 == null) {
+			return negative(value2);
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	
+	public static org.openl.meta.LongValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null) {
+			if (value2 != null && value2.doubleValue() != 0) {
+				return ZERO1;
+			}
+		}
+		
+		if (value2 == null || value2.doubleValue() == 0) {
+			throw new OpenlNotCheckedException("Division by zero");
+		}
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	
 	
 	// QUAOTIENT
 	public static LongValue quotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
@@ -291,7 +339,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 	
 	 
       
-                            // <<< END INSERT Functions >>>    
+                                                                                    // <<< END INSERT Functions >>>    
     
     // ******* Autocasts*************
 
