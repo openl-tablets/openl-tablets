@@ -90,7 +90,12 @@ public class GenNumberValueFunctions extends GenRulesCode {
         for (Class<?> clazz : types.keySet()) {
             String sourceFilePath = CodeGenTools.getClassSourcePathInCoreModule(clazz);
             variables.put("tool", new VelocityTool());
-            variables.put("formulas", Formulas.values());
+            variables.put("addFormula", Formulas.ADD);
+            variables.put("multiplyFormula", Formulas.MULTIPLY);
+            variables.put("subtractFormula", Formulas.SUBTRACT);
+            variables.put("divideFormula", Formulas.DIVIDE);
+            
+//            variables.put("formulas", Formulas.values());
             variables.put("logicalExpressions", LogicalExpressions.values());
             variables.put("mathFunctions1", MATH_FUNCTIONS1);
             variables.put("mathFunctions2", MATH_FUNCTIONS2);

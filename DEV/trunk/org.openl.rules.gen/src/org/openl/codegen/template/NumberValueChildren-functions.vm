@@ -1,3 +1,11 @@
+#if (${primitiveType.isPrimitive()}) 	
+	// generate zero for types that are wrappers over primitives
+	private static final $tool.getTypeName($type) ZERO1 = new $tool.getTypeName($type)(($tool.getTypeName($primitiveType))0);
+#else
+	// generate zero for big types
+	private static final $tool.getTypeName($type) ZERO1 = new $tool.getTypeName($type)("0");
+#end
+
 	private $tool.getTypeName($primitiveType) value;
 
 #foreach ($formula in $formulas)
@@ -61,6 +69,91 @@
         }
         return value;
 	}
+	
+	 	
+	
+	//ADD
+	public static $tool.getTypeName($type) ${addFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.ADD.toString());
+#if (${primitiveType.isPrimitive()})
+		//conditions for classes that are wrappers over primitives
+		if (value1 == null || value1.getValue() == 0) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == 0) {
+            return value1;
+        }
+#else
+		//conditions big types
+		if (value1 == null || value1.getValue() == ${tool.getTypeName($primitiveType)}.ZERO) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == ${tool.getTypeName($primitiveType)}.ZERO) {
+            return value1;
+        }
+#end
+        
+		return new $tool.getTypeName($type)(value1, value2, Operators.${addFormula.Name}(value1.getValue(), value2.getValue()), 
+			${addFormula.FullName});	
+	}
+	
+	// MULTIPLY
+	public static $tool.getTypeName($type) ${multiplyFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.MULTIPLY.toString());
+		if (value1 == null) {
+			return ZERO1;
+		}
+		
+		if (value2 == null) {
+			return ZERO1;
+		}
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${multiplyFormula.Name}(value1.getValue(), value2.getValue()), 
+			${multiplyFormula.FullName});		
+	}
+	
+	//SUBTRACT
+	public static $tool.getTypeName($type) ${subtractFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		
+		if (value1 == null) {
+			return negative(value2);
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${subtractFormula.Name}(value1.getValue(), value2.getValue()), 
+			${subtractFormula.FullName});		
+	}
+	
+	public static $tool.getTypeName($type) ${divideFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null) {
+			if (value2 != null && value2.doubleValue() != 0) {
+				return ZERO1;
+			}
+		}
+		
+		if (value2 == null || value2.doubleValue() == 0) {
+			throw new OpenlNotCheckedException("Division by zero");
+		}
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${divideFormula.Name}(value1.getValue(), value2.getValue()), 
+			${divideFormula.FullName});		
+	}
+	
 	
 	// QUAOTIENT
 	public static LongValue ${quaotientFunction.Name}($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
