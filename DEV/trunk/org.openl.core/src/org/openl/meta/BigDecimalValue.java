@@ -122,6 +122,13 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return value;
 	}
 	
+	//REM
+	public static org.openl.meta.BigDecimalValue rem(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 	 	
 	
 	//ADD
@@ -341,7 +348,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	
 	 
       
-                                                                                    // <<< END INSERT Functions >>>
+                                                                                            // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 

@@ -70,6 +70,13 @@
         return value;
 	}
 	
+	//REM
+	public static $tool.getTypeName($type) ${remFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		validate(value1, value2, ${remFormula.FullName}.toString());
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${remFormula.Name}(value1.getValue(), value2.getValue()), 
+			${remFormula.FullName});		
+	}
 	 	
 	
 	//ADD

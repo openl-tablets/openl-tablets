@@ -120,6 +120,13 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return value;
 	}
 	
+	//REM
+	public static org.openl.meta.IntValue rem(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.IntValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 	 	
 	
 	//ADD
@@ -339,7 +346,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	
 	 
       
-                                                                                    // <<< END INSERT Functions >>>
+                                                                                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 

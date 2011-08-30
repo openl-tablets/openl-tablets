@@ -120,6 +120,13 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return value;
 	}
 	
+	//REM
+	public static org.openl.meta.FloatValue rem(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.FloatValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 	 	
 	
 	//ADD
@@ -339,7 +346,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	
 	 
       
-                                                                                    // <<< END INSERT Functions >>>
+                                                                                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
