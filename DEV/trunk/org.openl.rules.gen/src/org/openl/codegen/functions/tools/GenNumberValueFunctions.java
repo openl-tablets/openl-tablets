@@ -95,6 +95,8 @@ public class GenNumberValueFunctions extends GenRulesCode {
             variables.put("subtractFormula", Formulas.SUBTRACT);
             variables.put("divideFormula", Formulas.DIVIDE);
             
+            variables.put("remFormula", Formulas.REM);
+            
 //            variables.put("formulas", Formulas.values());
             variables.put("logicalExpressions", LogicalExpressions.values());
             variables.put("mathFunctions1", MATH_FUNCTIONS1);

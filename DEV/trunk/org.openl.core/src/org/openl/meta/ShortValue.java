@@ -120,6 +120,13 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return value;
 	}
 	
+	//REM
+	public static org.openl.meta.ShortValue rem(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.ShortValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 	 	
 	
 	//ADD
@@ -339,7 +346,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 	
 	 
       
-                                                                                    // <<< END INSERT Functions >>>
+                                                                                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 

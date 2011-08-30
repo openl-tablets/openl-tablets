@@ -120,6 +120,13 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return value;
 	}
 	
+	//REM
+	public static org.openl.meta.LongValue rem(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 	 	
 	
 	//ADD
@@ -339,7 +346,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 	
 	 
       
-                                                                                    // <<< END INSERT Functions >>>    
+                                                                                            // <<< END INSERT Functions >>>    
     
     // ******* Autocasts*************
 

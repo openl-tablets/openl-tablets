@@ -121,6 +121,13 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return value;
 	}
 	
+	//REM
+	public static org.openl.meta.ByteValue rem(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+		validate(value1, value2, Formulas.REM.toString());
+		
+		return new org.openl.meta.ByteValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
 	 	
 	
 	//ADD
@@ -340,7 +347,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 	
 	 
       
-                                        	 // <<< END INSERT Functions >>>
+                                                	 // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
     
