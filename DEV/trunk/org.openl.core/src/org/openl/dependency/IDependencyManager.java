@@ -26,6 +26,11 @@ public interface IDependencyManager {
      */
     void reset(IDependency dependency);
     
+    /**
+     * Remove all dependencies from cache. 
+     */
+    void resetAll();
+    
     
     /**
      * Return flag, describing is it execution mode or not.<br>

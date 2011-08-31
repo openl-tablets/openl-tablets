@@ -41,6 +41,10 @@ public abstract class DependencyManager implements IDependencyManager {
             compiledDependencies.remove(dependencyName);
         }
     }
+
+    public void resetAll() {
+    	compiledDependencies.clear();
+    }
     
     /**
      * In execution mode all meta info that is not used in rules running is being cleaned.
