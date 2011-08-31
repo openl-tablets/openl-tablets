@@ -139,31 +139,35 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
     protected Map<Method, IOpenMember> makeMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
         Map<Method, IOpenMember> methodMap = super.makeMethodMap(engineInterface, moduleOpenClass);
         Map<Method, IOpenMember> processedMethodMap = new HashMap<Method, IOpenMember>();
+        // it is necessary to reset dependency manager to clean up all cached
+        // dependencies that was compiled in lazy mode
+        dependencyManager.resetAll();
         for (Entry<Method, IOpenMember> entry : methodMap.entrySet()) {
             if (entry.getValue() instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) entry.getValue();
-                LazyMethodDispatcher newDispatcher = new LazyMethodDispatcher(dispatcher.getMethod(), null);
-                for (IOpenMethod method : dispatcher.getCandidates()) {
-                    newDispatcher.addMethod(method, makeLazyMethod(method));
-                }
+                LazyMethodDispatcher newDispatcher = makeLazyMethodDispatcher((OpenMethodDispatcher) entry.getValue());
                 processedMethodMap.put(entry.getKey(), newDispatcher);
             } else {
                 if (entry.getValue() instanceof IOpenMethod) {
-                    IOpenMethod method = (IOpenMethod) entry.getValue();
-                    LazyMethod lazyMethod = makeLazyMethod(method);
+                    LazyMethod lazyMethod = makeLazyMethod((IOpenMethod) entry.getValue());
                     processedMethodMap.put(entry.getKey(), lazyMethod);
                 } else if (entry.getValue() instanceof IOpenField) {
-                    IOpenField field = (IOpenField) entry.getValue();
-                    Module declaringModule = moduleStatistic.getModules().get(field.getDeclaringClass());
-                    processedMethodMap.put(entry.getKey(), new LazyField(field.getName(),
-                            declaringModule, dependencyManager, true));
+                    LazyField lazyField = makeLazyField((IOpenField) entry.getValue());
+                    processedMethodMap.put(entry.getKey(), lazyField);
                 } else {
                     LOG.warn(String.format("Unknown IOpenMember type in method map : %s", entry.getValue().getClass()
-                            .getName()));
+                        .getName()));
                 }
             }
         }
         return processedMethodMap;
+    }
+
+    private LazyMethodDispatcher makeLazyMethodDispatcher(OpenMethodDispatcher dispatcher) {
+        LazyMethodDispatcher newDispatcher = new LazyMethodDispatcher(dispatcher.getMethod(), null);
+        for (IOpenMethod method : dispatcher.getCandidates()) {
+            newDispatcher.addMethod(method, makeLazyMethod(method));
+        }
+        return newDispatcher;
     }
 
     private LazyMethod makeLazyMethod(IOpenMethod method) {
@@ -172,7 +176,13 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        return new LazyMethod(method.getName(), argTypes, declaringModule, dependencyManager, true);
+        return new LazyMethod(method.getName(), argTypes, declaringModule, dependencyManager, true, getCompiledOpenClass().getClassLoader());
+    }
+
+    private LazyField makeLazyField(IOpenField field) {
+        Module declaringModule = moduleStatistic.getModules().get(field.getDeclaringClass());
+        return new LazyField(field.getName(), declaringModule, dependencyManager, true, getCompiledOpenClass()
+            .getClassLoader());
     }
 
     private CompiledOpenClass initializeOpenClass() {

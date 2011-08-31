@@ -15,7 +15,6 @@ import java.util.List;
 import org.apache.commons.beanutils.MethodUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
@@ -82,9 +81,7 @@ public class RulesPublisherTest {
         publisher.deploy(service2);
     }
 
-    //FIXME should be a test
     @Test
-    @Ignore
     public void testMultiModuleService() throws MethodInvocationException{
         assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));

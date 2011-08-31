@@ -17,14 +17,23 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private Module module;
     private IDependencyManager dependencyManager;
     private boolean executionMode;
-
-    public LazyMember(Module module, IDependencyManager dependencyManager, boolean executionMode) {
-        this.module = module;
-        this.dependencyManager = dependencyManager;
-        this.executionMode = executionMode;
-    }
-
     /**
+     * ClassLoader used in "lazy" compilation. It should be reused because it
+     * contains generated classes for datatypes.(If we use different
+     * ClassLoaders we can get ClassCastException because generated classes for
+     * datatypes have been loaded by different ClassLoaders).
+     */
+    private ClassLoader classLoader;
+
+    public LazyMember(Module module, IDependencyManager dependencyManager,
+			boolean executionMode, ClassLoader classLoader) {
+		this.module = module;
+		this.dependencyManager = dependencyManager;
+		this.executionMode = executionMode;
+		this.classLoader = classLoader;
+	}
+
+	/**
      * Compiles method declaring the member and returns it.
      * 
      * @return Real member in compiled module.
@@ -35,10 +44,16 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         return ModulesCache.getInstance();
     }
 
+    /**
+     * @return Module containing current member.
+     */
     protected Module getModule() {
         return module;
     }
 
+    /**
+     * @return DependencyManager used for lazy compiling. 
+     */
     protected IDependencyManager getDependencyManager() {
         return dependencyManager;
     }
@@ -46,6 +61,13 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     protected boolean isExecutionMode() {
         return executionMode;
     }
+    
+    /**
+     * @return ClassLoader used for lazy compiling. 
+     */
+    public ClassLoader getClassLoader() {
+		return classLoader;
+	}
 
     public String getDisplayName(int mode) {
         return getMember().getDisplayName(mode);

@@ -99,6 +99,16 @@ class ModulesCache {
         return strategy;
     }
 
+    public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
+            IDependencyManager dependencyManager, ClassLoader classLoader) {
+        RulesInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
+        if (strategy == null) {
+            strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager, classLoader);
+            putToCache(module, strategy);
+        }
+        return strategy;
+    }
+
     /**
      * Removes cached instantiation strategy for the module.
      * 
