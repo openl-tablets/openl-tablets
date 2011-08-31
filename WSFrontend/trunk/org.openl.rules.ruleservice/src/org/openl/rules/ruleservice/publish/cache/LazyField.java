@@ -18,15 +18,15 @@ public class LazyField extends LazyMember<IOpenField> implements IOpenField {
     private String fieldName;
 
     public LazyField(String fieldName, Module module, IDependencyManager dependencyManager,
-            boolean executionMode) {
-        super(module, dependencyManager, executionMode);
+            boolean executionMode, ClassLoader classLoader) {
+        super(module, dependencyManager, executionMode, classLoader);
         this.fieldName = fieldName;
     }
 
     public IOpenField getMember() {
         try {
             CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(), isExecutionMode(),
-                    getDependencyManager()).compile(ReloadType.NO);
+                    getDependencyManager(), getClassLoader()).compile(ReloadType.NO);
             return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy field.", e);
