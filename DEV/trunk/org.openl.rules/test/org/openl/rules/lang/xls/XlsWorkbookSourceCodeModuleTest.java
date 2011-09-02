@@ -15,7 +15,7 @@ public class XlsWorkbookSourceCodeModuleTest{
         try {
             File f = new File("test/rules/test xls/Test with spaces.xls");
             XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(f.toURI().toURL()));
-            assertNotNull(module.sourceFile);
+            assertNotNull(module.getSourceFile());
         } catch (MalformedURLException e) {
             assertFalse(true);
         }

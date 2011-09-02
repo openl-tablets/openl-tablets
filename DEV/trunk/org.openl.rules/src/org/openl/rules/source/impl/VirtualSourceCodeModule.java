@@ -36,5 +36,9 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     public Reader getCharacterStream() {
         return new InputStreamReader(getByteStream());
+    }
+
+    public boolean isModified() {
+        return false;
     } 
 }

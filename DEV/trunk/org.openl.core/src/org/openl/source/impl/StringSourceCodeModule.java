@@ -67,5 +67,8 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-    
+
+    public boolean isModified() {
+        return false;
+    }
 }

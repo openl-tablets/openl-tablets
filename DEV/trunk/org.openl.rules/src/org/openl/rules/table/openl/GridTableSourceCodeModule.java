@@ -67,5 +67,9 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
+
+    public boolean isModified() {
+        return false;
+    }
     
 }

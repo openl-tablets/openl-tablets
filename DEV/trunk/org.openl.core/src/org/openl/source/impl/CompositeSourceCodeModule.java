@@ -97,4 +97,13 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
+
+    public boolean isModified() {
+        for (IOpenSourceCodeModule module : modules) {
+            if (module.isModified()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
