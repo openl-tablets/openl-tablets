@@ -13,21 +13,35 @@ import java.net.URL;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
  */
 public class URLSourceCodeModule extends ASourceCodeModule {
+    private static Log LOG = LogFactory.getLog(URLSourceCodeModule.class);
 
     private URL url;
+    private long lastModified;
 
     public URLSourceCodeModule(URL url) {
         this.url = url;
+        lastModified = getLastModified();
     }
     
     public URL getUrl() {
         return url;
+    }
+    
+    public long getLastModified(){
+        try {
+            return url.openConnection().getLastModified();
+        } catch (IOException e) {
+            LOG.warn(String.format("Failed to open connection for URL \"%s\"", url.toString()), e);
+            return -1;
+        }
     }
 
     public InputStream getByteStream() {
@@ -73,6 +87,10 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     @Override
     public String toString() {
         return url.toString();
+    }
+
+    public boolean isModified() {
+        return getLastModified() != lastModified;
     }
 
 }

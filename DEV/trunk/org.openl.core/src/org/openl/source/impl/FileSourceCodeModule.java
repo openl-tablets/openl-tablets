@@ -26,6 +26,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
 
     private File file;
     private String externalUri;
+    private long lastModified;
 
     public FileSourceCodeModule(String fileName, String uri) {
         this(new File(fileName), uri);
@@ -33,6 +34,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
 
     public FileSourceCodeModule(File file, String uri) {
         this.file = file;
+        lastModified = file.lastModified();
         this.externalUri = uri;
     }
 
@@ -117,6 +119,10 @@ public class FileSourceCodeModule extends ASourceCodeModule {
     @Override
     public String toString() {    
         return file.toString();
+    }
+
+    public boolean isModified() {
+        return file.lastModified() != lastModified;
     }
 
 }

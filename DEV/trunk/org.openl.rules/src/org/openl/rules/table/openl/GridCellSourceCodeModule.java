@@ -125,5 +125,9 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
+
+    public boolean isModified() {
+        return false;
+    }
     
 }

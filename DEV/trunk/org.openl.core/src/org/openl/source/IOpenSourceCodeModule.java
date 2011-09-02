@@ -26,6 +26,8 @@ public interface IOpenSourceCodeModule {
     int getTabSize();
 
     String getUri(int textpos);
+
+    boolean isModified();
     
     /**
      * External parameters for current source code module.<br>

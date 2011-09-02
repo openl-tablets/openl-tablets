@@ -35,9 +35,6 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
     private Collection<XlsWorkbookListener> listeners = new ArrayList<XlsWorkbookListener>();
 
-    /*raised for test*/ File sourceFile;
-    private long lastModified;
-
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
         this(src, loadWorkbook(src));
     }
@@ -45,7 +42,6 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook) {
         super(src);
         this.workbook = workbook;
-        initSourceFile();
         if (workbook instanceof HSSFWorkbook) {
             initWorkbookColors();
         }
@@ -67,15 +63,6 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             } catch (Throwable e) {
                 Log.error("Error trying close input stream:", e);
             }
-        }
-    }
-
-    private void initSourceFile() {
-        try {
-            sourceFile = getFile();
-            lastModified = sourceFile.lastModified();
-        } catch (Exception e) {
-            Log.error("Error when trying to get source file", e);
         }
     }
 
@@ -143,7 +130,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return workbook;
     }
 
-    private File getFile() throws IOException {
+    public File getSourceFile() {
         File sourceFile = null;
         if (src instanceof FileSourceCodeModule) {
             sourceFile = ((FileSourceCodeModule) src).getFile();
@@ -153,26 +140,14 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             try {
                 sourceFile = new File(new URI(getUri()));
             } catch (URISyntaxException me) {
-                throw new IOException("The xls source is not file based");
+                Log.warn("The xls source is not file based");
             }
         }
         return sourceFile;
     }
 
-    public File getSourceFile() {
-        return sourceFile;
-    }
-
-    public boolean isModified() {
-        if (sourceFile == null) {
-            Log.warn(String.format("Undefined source file for [%s]", getUri()));
-            return false;
-        }
-        return sourceFile.lastModified() != lastModified;
-    }
-
     public void save() throws IOException {
-        String fileName = sourceFile.getCanonicalPath();
+        String fileName = getSourceFile().getCanonicalPath();
         saveAs(fileName);
     }
 

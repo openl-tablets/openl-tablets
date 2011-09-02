@@ -89,5 +89,8 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-    
+
+    public boolean isModified() {
+        return workbookSource.isModified();
+    }
 }
