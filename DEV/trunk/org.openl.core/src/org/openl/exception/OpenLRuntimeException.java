@@ -10,7 +10,9 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Stack;
 
+import org.apache.commons.io.output.StringBuilderWriter;
 import org.openl.binding.IBoundNode;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.ILocation;
@@ -53,6 +55,22 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     public OpenLRuntimeException(String message, IBoundNode node) {
         super(message);
         this.node = node;
+    }
+
+    public String getOriginalMessage(){
+        return super.getMessage();
+    }
+
+    @Override
+    public String getMessage() {
+        StringBuilderWriter messageWriter = new StringBuilderWriter();
+        PrintWriter pw = new PrintWriter(messageWriter);
+        pw.println(super.getMessage());
+        if (node != null) {
+            SourceCodeURLTool.printCodeAndError(getLocation(), getSourceModule(), pw);
+            SourceCodeURLTool.printSourceLocation(this, pw);
+        }
+        return messageWriter.toString();
     }
 
     public ILocation getLocation() {
