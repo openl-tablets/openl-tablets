@@ -39,7 +39,7 @@ public class TestUnitResultComparator {
     private static int compareExceptionResult(TestUnit testUnit) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
-            String message = rootCause.getMessage();
+            String message = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
             String expectedMessage = (String) testUnit.getExpectedResult();
             
             // OpenL engine recognizes empty cell as 'null' value.
