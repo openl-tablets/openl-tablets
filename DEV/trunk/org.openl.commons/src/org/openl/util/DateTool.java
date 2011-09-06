@@ -32,13 +32,13 @@ public class DateTool {
 
     public static Date firstDateOfQuarter(int absQuarter) {
         Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), (absQuarter % QUARTERS_IN_YEAR) * (QUARTERS_IN_YEAR - 1), 1);
+        c.set(absQuarter / QUARTERS_IN_YEAR, (absQuarter % QUARTERS_IN_YEAR) * (QUARTERS_IN_YEAR - 1), 1);
         return c.getTime();
     }
 
     public static Date lastDateOfQuarter(int absQuarter) {
         Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), (absQuarter % QUARTERS_IN_YEAR) * MONTHS_IN_QUARTER + 2, 1);
+        c.set(absQuarter / QUARTERS_IN_YEAR, (absQuarter % QUARTERS_IN_YEAR) * MONTHS_IN_QUARTER + 2, 1);
 
         int lastDay = lastDayOfMonth(c.getTime());
 
