@@ -10,7 +10,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
-import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -21,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
@@ -35,7 +33,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public class JcrRepository extends BaseJcrRepository implements RRepository, EventListener {
+public class JcrRepository extends BaseJcrRepository {
     private static final Log LOG = LogFactory.getLog(JcrRepository.class);
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@"

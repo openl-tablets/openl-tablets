@@ -22,7 +22,6 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
-import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -32,7 +31,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository, EventListener {
+public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private static final Log log = LogFactory.getLog(JcrProductionRepository.class);
 
     public static class JCR_SQL2QueryBuilder{
@@ -282,21 +281,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             }
 
         }
-    }
-
-    /**
-     * Releases resources allocated by this Rules Repository instance.
-     */
-    @Override
-    public void release() {
-        try {
-            getSession().getWorkspace().getObservationManager().removeEventListener(this);
-        } catch (RepositoryException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("release", e);
-            }
-        }
-        super.release();
     }
 
     public synchronized boolean removeListener(RDeploymentListener listener) throws RRepositoryException {

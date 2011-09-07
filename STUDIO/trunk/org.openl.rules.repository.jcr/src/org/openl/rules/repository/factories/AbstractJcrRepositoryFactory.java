@@ -47,6 +47,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     private Repository repository;
     protected String repositoryName;
+    private RRepository rulesRepository;
 
     /**
      * Checks whether the JCR instance is prepared for OpenL. If it is the first
@@ -177,6 +178,13 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public RRepository getRepositoryInstance() throws RRepositoryException {
+        if(rulesRepository == null){
+            rulesRepository = createRepository();
+        }
+        return rulesRepository;
+    }
+
+    protected RRepository createRepository() throws RRepositoryException {
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
@@ -212,6 +220,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected abstract void initNodeTypes(NodeTypeManager ntm) throws RepositoryException;
 
     public void release() throws RRepositoryException {
+        getRepositoryInstance().release();
     }
 
     /**

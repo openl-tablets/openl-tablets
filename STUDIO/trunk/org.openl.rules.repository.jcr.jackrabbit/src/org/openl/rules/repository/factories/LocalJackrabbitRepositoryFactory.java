@@ -237,13 +237,13 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     }
     
     @Override
-    public RRepository getRepositoryInstance() throws RRepositoryException {
+    protected RRepository createRepository() throws RRepositoryException {
         if(convert){
             convert();
             convert = false;
         }
         // TODO Auto-generated method stub
-        return super.getRepositoryInstance();
+        return super.createRepository();
     }
     
     /** {@inheritDoc} */
@@ -263,14 +263,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             }
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void release() throws RRepositoryException {
-        if (repository != null) {
-            repository.shutdown();
-            repository = null;
         }
     }
 
