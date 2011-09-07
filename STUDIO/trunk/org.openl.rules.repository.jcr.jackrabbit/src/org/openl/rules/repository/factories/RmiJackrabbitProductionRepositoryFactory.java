@@ -22,7 +22,7 @@ public class RmiJackrabbitProductionRepositoryFactory extends RmiJackrabbitRepos
      * {@inheritDoc}
      */
     @Override
-    public RProductionRepository getRepositoryInstance() throws RRepositoryException {
+    protected RProductionRepository createRepository() throws RRepositoryException {
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");

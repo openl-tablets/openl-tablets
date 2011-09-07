@@ -3,10 +3,15 @@ package org.openl.rules.repository.jcr;
 import javax.jcr.Session;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.observation.EventListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RTransactionManager;
 
-public class BaseJcrRepository {
+public abstract class BaseJcrRepository implements RRepository, EventListener{
+    private static final Log LOG = LogFactory.getLog(BaseJcrRepository.class);
     private final String name;
     /** JCR Session */
     private final Session session;
@@ -60,6 +65,13 @@ public class BaseJcrRepository {
      * Releases resources allocated by this Rules Repository instance.
      */
     public void release() {
+        try {
+            session.getWorkspace().getObservationManager().removeEventListener(this);
+        } catch (RepositoryException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("release", e);
+            }
+        }
         session.logout();
     }
 
