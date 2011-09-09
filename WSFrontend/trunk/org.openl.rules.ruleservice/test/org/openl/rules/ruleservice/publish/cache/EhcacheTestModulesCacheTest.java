@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.cache;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -17,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
@@ -29,7 +27,9 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 public class EhcacheTestModulesCacheTest {
     private static RulesPublisher publisher;
+    
     private static IRulesFrontend frontend;
+    
     private static RulesProjectResolver resolver;
     
     private static OpenLService service1;
@@ -64,11 +64,8 @@ public class EhcacheTestModulesCacheTest {
 
         List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
         service1 = new OpenLService("multiModule", "no_url", modules1, null, false);
-        File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
-        ResolvingStrategy tut4ResolvingStrategy = resolver.isRulesProject(tut4Folder);
-        assertNotNull(tut4ResolvingStrategy);
-        service2 = new OpenLService("tutorial4", "no_url", tut4ResolvingStrategy
-                .resolveProject(tut4Folder).getModules(), "org.openl.rules.tutorial4.Tutorial4Interface", false);
+        List<Module> modules2 = resolveAllModules(new File("./test-resources/multi-module-2"));
+        service2 = new OpenLService("multiModule2", "no_url", modules2, null, false);
     }
     
     @Before
@@ -98,7 +95,7 @@ public class EhcacheTestModulesCacheTest {
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
         assertEquals(1, cache.getStatistics().getCacheMisses());
-        assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule2", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
         assertEquals(2, cache.getStatistics().getCacheMisses());
@@ -106,11 +103,11 @@ public class EhcacheTestModulesCacheTest {
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
         assertEquals(3, cache.getStatistics().getCacheMisses());
-        assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule2", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
         assertEquals(4, cache.getStatistics().getCacheMisses());
-        assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule2", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(1, cache.getStatistics().getCacheHits());
         assertEquals(4, cache.getStatistics().getCacheMisses());
