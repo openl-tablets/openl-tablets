@@ -6,6 +6,7 @@ import java.util.List;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
 
@@ -38,6 +39,8 @@ public class RulesInstantiationFactory implements IRulesInstantiationFactory {
         switch (modules.size()) {
             case 0:
                 throw new RuntimeException("There are no modules to instantiate.");
+            case 1:
+                return RulesInstantiationStrategyFactory.getStrategy(modules.get(0), true, dependencyManager);
             default:
                 LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, true, dependencyManager);
                 if (initializingListeners != null) {
