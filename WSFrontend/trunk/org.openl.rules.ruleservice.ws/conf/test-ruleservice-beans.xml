@@ -16,7 +16,7 @@
 	</bean>
 
 	<!-- Determines the services that should be exposed using RulesLoader.  -->
-	<bean id="serviceConfigurer" class="org.openl.ruleservice.publish.WebServicesExposingTest.TestConfigurer"/>
+	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.management.LastVersionProjectsServiceConfigurer"/>
 
 	<!-- Controls all services currently exposed.
 	Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->

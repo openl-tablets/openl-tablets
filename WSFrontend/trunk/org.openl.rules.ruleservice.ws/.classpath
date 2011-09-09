@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="conf_test"/>
-	<classpathentry kind="src" path="conf"/>
+	<classpathentry excluding="openl-ruleservice-beans.xml|rules-production.properties" kind="src" path="conf"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="binding-conf/aegis"/>
 	<classpathentry kind="src" path="binding-conf/jaxb"/>
