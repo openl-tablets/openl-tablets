@@ -18,7 +18,7 @@
 
 	<!-- Determines the services that should be exposed using RulesLoader.  -->
 	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.management.LastVersionProjectsServiceConfigurer">
-		<property name="provideRuntimeContext" value="true"/>
+		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
 	</bean>
 
 	<!-- Controls all services currently exposed.
