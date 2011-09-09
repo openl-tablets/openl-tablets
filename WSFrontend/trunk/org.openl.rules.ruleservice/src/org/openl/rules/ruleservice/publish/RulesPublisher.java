@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.dependency.IDependencyManager;
+import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
@@ -18,6 +20,7 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.springframework.aop.ThrowsAdvice;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.core.Ordered;
 
 /**
  * Publisher
@@ -27,7 +30,9 @@ import org.springframework.aop.framework.ProxyFactory;
  */
 public class RulesPublisher implements IRulesPublisher {
     private Log log = LogFactory.getLog(RulesPublisher.class);
-
+    
+    private static final String MSG_SEPARATOR = "; ";
+    
     private IRulesInstantiationFactory instantiationFactory;
     private IDeploymentAdmin deploymentAdmin;
     private IDependencyManager dependencyManager;
@@ -71,11 +76,13 @@ public class RulesPublisher implements IRulesPublisher {
                     new ServiceInvocationHandler(serviceBean, serviceClass));
         } else {
             serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
-            serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass, IEngineWrapper.class },
-                    new ServiceInvocationHandler(serviceBean, serviceClass));
+            serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass,
+                    IEngineWrapper.class }, new ServiceInvocationHandler(serviceBean, serviceClass));
         }
         ProxyFactory factory = new ProxyFactory(serviceBean);
+        //factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
         factory.addAdvice(new ExceptionWrapperThrowsAdvice());
+        //factory.addInterface(serviceClass);
         if (!Proxy.isProxyClass(serviceBean.getClass())) {
             factory.setProxyTargetClass(true);
         } else {
@@ -127,7 +134,7 @@ public class RulesPublisher implements IRulesPublisher {
             initService(service);
         } catch (Exception e) {
             if (log.isWarnEnabled()) {
-                log.warn("Failed to initialiaze service" + service.getName(), e);
+                log.warn("Failed to initialiaze service " + service.getName(), e);
             }
             throw new ServiceDeployException(String.format("Failed to initialiaze service \"%s\"", service.getName()),
                     e);
@@ -204,7 +211,7 @@ public class RulesPublisher implements IRulesPublisher {
         this.dependencyManager = dependencyManager;
     }
 
-    public static class ExceptionWrapperThrowsAdvice implements ThrowsAdvice {
+    public static class ExceptionWrapperThrowsAdvice implements ThrowsAdvice, Ordered {
         public void afterThrowing(Method m, Object[] args, Object target, RuntimeException ex) throws Throwable {
             StringBuilder argsTypes = new StringBuilder();
             boolean f = false;
@@ -226,9 +233,36 @@ public class RulesPublisher implements IRulesPublisher {
                 }
                 argsValues.append(arg.toString());
             }
-            throw new RuleServiceWrapperException("During openL rule execution exception was occured. Method name is \""
-                    + m.getName() + "\". Arguments types are: " + argsTypes.toString() + ". "
-                    + "Arguments values are: " + argsValues.toString().replace("\r", "").replace("\n", "") + ". Exception message is: " + ex.getMessage(), ex);
+            StringBuilder sb = new StringBuilder();
+            sb.append("During OpenL rule execution exception was occured. Method name is \"".toUpperCase());
+            sb.append(m.getName());
+            sb.append("\". Arguments types are: ".toUpperCase());
+            sb.append(argsTypes.toString());
+            sb.append(". Arguments values are: ".toUpperCase());
+            sb.append(argsValues.toString().replace("\r", "").replace("\n", ""));
+            sb.append(". Exception class is: ".toUpperCase());
+            sb.append(ex.getClass().toString());
+            sb.append(".");
+            if (ex.getMessage() != null) {
+                sb.append(" Exception message is: ".toUpperCase());
+                sb.append(ex.getMessage());
+            }
+            sb.append(" OpenL clause messages are: ".toUpperCase());
+            Throwable t = ex.getCause();
+            boolean g = false;
+            while(t != null && t.getCause() != t){
+                if ((t instanceof OpenLRuntimeException || t instanceof OpenLException) && t.getMessage() != null){
+                    if (g) sb.append(MSG_SEPARATOR);
+                    g = true;
+                    sb.append(t.getMessage());
+                }
+                t = t.getCause();
+            }
+            throw new RuleServiceWrapperException(sb.toString(), ex);
+        }
+        
+        public int getOrder() {
+            return Ordered.LOWEST_PRECEDENCE;
         }
     }
 }
