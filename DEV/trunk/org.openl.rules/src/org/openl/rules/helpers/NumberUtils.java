@@ -75,18 +75,24 @@ public class NumberUtils {
 		return null;
 	}
 
-	public static int getScale(Double value) {
+	public static int getScale(Double value) {		
+		if (value != Double.NaN) {
+			BigDecimal decimal = BigDecimal.valueOf(value);
 
-		BigDecimal decimal = BigDecimal.valueOf(value);
-
-		return decimal.scale();
+			return decimal.scale();
+		}
+		return 0;
 	}
 	
 	public static int getScale(Number value) {
+		String str = String.valueOf(value);
+		
+		if (!str.equals(String.valueOf(Double.NaN))) {
+			BigDecimal decimal = new BigDecimal(str);
 
-        BigDecimal decimal = new BigDecimal(String.valueOf(value));
-
-        return decimal.scale();
+	        return decimal.scale();
+		}
+        return 0;
     }
 	
 	public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
