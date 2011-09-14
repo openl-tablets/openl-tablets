@@ -17,9 +17,9 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.ruleservice.core.ModuleConfiguration;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.core.ServiceDescription.ModuleConfiguration;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 import org.openl.rules.ruleservice.management.IServiceConfigurer;
 import org.openl.rules.ruleservice.management.ServiceManager;
@@ -119,7 +119,7 @@ public class WebServicesExposingTest implements ApplicationContextAware{
 
         private ServiceDescription resolveTutorial4Service(IRulesLoader loader) {
             final String deploymentName = "org.openl.tablets.tutorial4";
-            List<ModuleConfiguration> modules = new ArrayList<ServiceDescription.ModuleConfiguration>(1);
+            List<ModuleConfiguration> modules = new ArrayList<ModuleConfiguration>(1);
             modules.add(new ModuleConfiguration(deploymentName, getLastVersion(loader, deploymentName), deploymentName,
                     "Tutorial 4 - UServ Product Derby"));
             return new ServiceDescription("tutorial4", TUTORIAL4_SERVICE_URL, "org.openl.rules.tutorial4.Tutorial4Interface" , false, modules);
@@ -128,7 +128,7 @@ public class WebServicesExposingTest implements ApplicationContextAware{
         private ServiceDescription resolveMultimoduleService(IRulesLoader loader) {
             final String multiModuleDeploymentName = "multimodule";
             final String domainDeploymentName = "domain";
-            List<ModuleConfiguration> modules = new ArrayList<ServiceDescription.ModuleConfiguration>(1);
+            List<ModuleConfiguration> modules = new ArrayList<ModuleConfiguration>(1);
             modules.add(new ModuleConfiguration(domainDeploymentName, getLastVersion(loader, domainDeploymentName),
                     domainDeploymentName, "Domain"));
             modules.add(new ModuleConfiguration(multiModuleDeploymentName, getLastVersion(loader,
