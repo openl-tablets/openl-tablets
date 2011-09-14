@@ -11,8 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.ModuleConfiguration;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.core.ServiceDescription.ModuleConfiguration;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 
 /**
@@ -55,7 +55,7 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
             for (AProject project : deployment.getProjects()) {
                 List<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName());
-                List<ModuleConfiguration> moduleConfigurations = new ArrayList<ServiceDescription.ModuleConfiguration>();
+                List<ModuleConfiguration> moduleConfigurations = new ArrayList<ModuleConfiguration>();
                 for (Module module : modulesOfProject) {
                     moduleConfigurations.add(new ModuleConfiguration(deployment.getDeploymentName(), deployment
                             .getCommonVersion(), project.getName(), module.getName()));
