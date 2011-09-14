@@ -14,8 +14,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.ruleservice.core.ModuleConfiguration;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.core.ServiceDescription.ModuleConfiguration;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the
