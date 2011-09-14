@@ -9,93 +9,87 @@ import org.openl.meta.FloatValue;
 
 public class NumberUtils {
 
-	public static boolean isFloatPointNumber(Object object) {
+    public static boolean isFloatPointNumber(Object object) {
 
-		if (object != null) {
-			return isFloatPointType(object.getClass());
-		}
+        if (object != null) {
+            return isFloatPointType(object.getClass());
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     public static boolean isFloatPointType(Class<?> clazz) {
         if (float.class.equals(clazz)
-        		|| double.class.equals(clazz)
-        		|| Float.class.equals(clazz)
-        		|| FloatValue.class.isAssignableFrom(clazz)
-        		|| Double.class.equals(clazz)
-        		|| DoubleValue.class.isAssignableFrom(clazz)
-        		|| BigDecimal.class.equals(clazz)
-        		|| BigDecimalValue.class.equals(clazz)) {
-        	return true;
+                || double.class.equals(clazz)
+                || Float.class.equals(clazz)
+                || FloatValue.class.isAssignableFrom(clazz)
+                || Double.class.equals(clazz)
+                || DoubleValue.class.isAssignableFrom(clazz)
+                || BigDecimal.class.equals(clazz)
+                || BigDecimalValue.class.equals(clazz)) {
+            return true;
         }
         return false;
     }
 
-	public static Double convertToDouble(Object object) {
+    public static Double convertToDouble(Object object) {
 
-		if (float.class.equals(object.getClass())
-				|| Float.class.equals(object.getClass())) {
-			return Double.valueOf(((Float) object).doubleValue());
-		}
-		
-		if (FloatValue.class.isAssignableFrom(object.getClass())) {
+        if (float.class.equals(object.getClass())
+                || Float.class.equals(object.getClass())) {
+            return Double.valueOf(((Float) object).doubleValue());
+        }
+        
+        if (FloatValue.class.isAssignableFrom(object.getClass())) {
             return Double.valueOf(((FloatValue) object).doubleValue());
         }
 
-		if (double.class.equals(object.getClass())
-				|| Double.class.equals(object.getClass())) {
-			return (Double) object;
-		}
+        if (double.class.equals(object.getClass())
+                || Double.class.equals(object.getClass())) {
+            return (Double) object;
+        }
 
-		if (DoubleValue.class.isAssignableFrom(object.getClass())) {
-			return ((DoubleValue) object).doubleValue();
-		}
+        if (DoubleValue.class.isAssignableFrom(object.getClass())) {
+            return ((DoubleValue) object).doubleValue();
+        }
 
-		if (BigDecimal.class.equals(object.getClass())) {
-			return ((BigDecimal) object).doubleValue();
-		}
-		
-		if (BigDecimalValue.class.equals(object.getClass())) {
+        if (BigDecimal.class.equals(object.getClass())) {
+            return ((BigDecimal) object).doubleValue();
+        }
+        
+        if (BigDecimalValue.class.equals(object.getClass())) {
             return ((BigDecimalValue) object).doubleValue();
         }
 
-		return null;
-	}
-
-	public static Double roundValue(Double value, int scale) {
-
-		if (value != null) {
-			BigDecimal roundedValue = new BigDecimal(value);
-			roundedValue = roundedValue.setScale(scale, RoundingMode.HALF_UP);
-
-			return roundedValue.doubleValue();
-		}
-
-		return null;
-	}
-
-	public static int getScale(Double value) {		
-		if (value != Double.NaN) {
-			BigDecimal decimal = BigDecimal.valueOf(value);
-
-			return decimal.scale();
-		}
-		return 0;
-	}
-	
-	public static int getScale(Number value) {
-		String str = String.valueOf(value);
-		
-		if (!str.equals(String.valueOf(Double.NaN))) {
-			BigDecimal decimal = new BigDecimal(str);
-
-	        return decimal.scale();
-		}
-        return 0;
+        return null;
     }
-	
-	public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
+
+    public static Double roundValue(Double value, int scale) {
+
+        if (value != null) {
+            BigDecimal roundedValue = new BigDecimal(value);
+            roundedValue = roundedValue.setScale(scale, RoundingMode.HALF_UP);
+
+            return roundedValue.doubleValue();
+        }
+
+        return null;
+    }
+
+    public static int getScale(Double value) {
+
+        BigDecimal decimal = BigDecimal.valueOf(value);
+
+        return decimal.scale();
+    }
+    
+    public static int getScale(Number value) {
+
+        BigDecimal decimal = new BigDecimal(String.valueOf(value));
+
+        return decimal.scale();
+    }
+    
+    public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
         if (Byte.class.equals(wrapperClass)) {
             return byte.class;
         } else if (Short.class.equals(wrapperClass)) {
