@@ -178,7 +178,7 @@ public abstract class AOpenClass implements IOpenClass {
         if (method == null) {
 			Iterator<IOpenClass> superClasses = superClasses();
 
-			while (superClasses.hasNext()) {
+			while (method == null && superClasses.hasNext()) {
 				method = superClasses.next().getMethod(name, classes);
 			}
 		}
