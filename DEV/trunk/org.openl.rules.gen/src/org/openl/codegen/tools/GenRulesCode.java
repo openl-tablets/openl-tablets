@@ -27,6 +27,7 @@ import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcherHelper;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.xls.RulesCompileContext;
 
@@ -61,6 +62,7 @@ public class GenRulesCode {
 
         generateDefaultPropertiesContextMatcherCode();
         generateMatchingOpenMethodDispatcherCode();
+        generateMatchingOpenMethodDispatcherHelperCode();
     }
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
@@ -137,6 +139,19 @@ public class GenRulesCode {
         processSourceCode(sourceFilePath, "RulesCompileContext-validators.vm", variables);
     }
 
+    private void generateMatchingOpenMethodDispatcherHelperCode() throws IOException {
+        Map<String, Object> variables = new HashMap<String, Object>();
+
+        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
+                .getDimensionalProperties();
+        variables.put("tool", new VelocityTool());
+        variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
+        variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
+
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcherHelper.class);
+        processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcherHelper.vm", variables);
+    }
+    
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -147,7 +162,7 @@ public class GenRulesCode {
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcher.class);
-        processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcher-selectCandidates.vm", variables);
+        processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcher.vm", variables);
     }
 
     private void generateDefaultPropertiesContextMatcherCode() throws IOException {
@@ -209,7 +224,6 @@ public class GenRulesCode {
                 try {
                     String codeSnippet = SourceGenerator.getInstance().generateSource(templateName, variables);
                     sb.append(codeSnippet);
-
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -221,7 +235,6 @@ public class GenRulesCode {
     }
 
     private void loadDefinitions() {
-
         tablePropertyDefinitions = loadTablePropertyDefinitions();
         tablePropertyDefinitionWrappers = new TablePropertyDefinitionWrappers(tablePropertyDefinitions);
         tablePropertyValidatorsWrappers = new TablePropertyValidatorsWrappers(tablePropertyDefinitions);

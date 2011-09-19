@@ -5,7 +5,10 @@ import org.openl.exception.OpenLRuntimeException;
 
 public class MatchingExpressionFactory {
     
-    public IMatchingExpression getMatchingExpression(String operationName, String contextAttribute) {
+    private MatchingExpressionFactory() {
+    }
+    
+    public static IMatchingExpression getMatchingExpression(String operationName, String contextAttribute) {
         IMatchingExpression matchExpression = null;
         operationName = operationName == null ? "" : operationName;
         
@@ -25,7 +28,13 @@ public class MatchingExpressionFactory {
             matchExpression = new EQMatchingExpression(contextAttribute);
         } else if (ContainsMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)){
             matchExpression = new ContainsMatchingExpression(contextAttribute);            
-        } else {
+        } else if (MAXMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)){
+            IMatchingExpression matchingExpression = MatchingExpressionsParser.parse(contextAttribute);
+            matchExpression = new MAXMatchingExpression(matchingExpression);
+        }else if (MINMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)){
+            IMatchingExpression matchingExpression = MatchingExpressionsParser.parse(contextAttribute);
+            matchExpression = new MINMatchingExpression(matchingExpression);
+        }else {
             throw new OpenLRuntimeException(String.format("Unknown match expression operation \"%s\"", operationName));
         } 
         return matchExpression;
