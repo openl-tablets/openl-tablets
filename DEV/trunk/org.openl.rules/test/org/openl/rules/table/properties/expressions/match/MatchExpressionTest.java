@@ -66,7 +66,7 @@ public class MatchExpressionTest {
         String param = "paramTest";
         
         assertEquals(operationNameTest, matchExpression.getMatchExpression().getOperationName());
-        assertEquals(contextAttributeTest, matchExpression.getMatchExpression().getContextAtribute());
+        assertEquals(contextAttributeTest, matchExpression.getMatchExpression().getContextAttribute());
         
         String codeExpressionTest = String.format("%s %s %s", param, operationTest, contextAttributeTest);
         

@@ -84,7 +84,7 @@ public class DimensionPropertiesDomainsCollector {
         String propName = propDef.getName();
         String key = propName + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX;
         if (gatheredDomain != null && !propertiesDomains.containsKey(key)) {
-            propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAtribute(), gatheredDomain);
+            propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAttribute(), gatheredDomain);
             propertiesDomains.put(propName, gatheredDomain);
             propertiesDomains.put(key, gatheredDomain);
         }        

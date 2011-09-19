@@ -36,6 +36,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setCurrentDate(java.util.Date currentDate) {
 		internalMap.put("currentDate", currentDate);
 	}	
+	public java.util.Date getRequestDate() {
+		return (java.util.Date) internalMap.get("requestDate"); 
+	}
+	public void setRequestDate(java.util.Date requestDate) {
+		internalMap.put("requestDate", requestDate);
+	}	
 	public java.lang.String getLob() {
 		return (java.lang.String) internalMap.get("lob"); 
 	}
@@ -59,6 +65,18 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	}
 	public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
 		internalMap.put("usRegion", usRegion);
+	}	
+	public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
+		return (org.openl.rules.enumeration.CurrenciesEnum) internalMap.get("currency"); 
+	}
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
+		internalMap.put("currency", currency);
+	}	
+	public org.openl.rules.enumeration.LanguagesEnum getLang() {
+		return (org.openl.rules.enumeration.LanguagesEnum) internalMap.get("lang"); 
+	}
+	public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
+		internalMap.put("lang", lang);
 	}	
 	public org.openl.rules.enumeration.RegionsEnum getRegion() {
 		return (org.openl.rules.enumeration.RegionsEnum) internalMap.get("region"); 

@@ -4,6 +4,10 @@ public class GEMatchingExpression extends AMatchingExpression {
         
     public static final String OPERATION_NAME = "GE";
     private static final String OPERATION = ">=";
+ 
+    public boolean isContextAttributeExpression() {
+        return false;
+    }
     
     public GEMatchingExpression(String contextAttribute) {
         super(OPERATION_NAME, OPERATION, contextAttribute);        

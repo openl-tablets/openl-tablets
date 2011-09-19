@@ -4,11 +4,14 @@ import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.constraints.DataEnumConstraint;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.expressions.match.MAXMatchingExpression;
+import org.openl.rules.table.properties.expressions.match.MINMatchingExpression;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 public class TablePropertyDefinitionWrapper {
 
     private TablePropertyDefinition tablePropertyDefinition;
+    private String filterName;
     private String operationName;
     private String contextVar;
     private String propertyVar;
@@ -22,12 +25,19 @@ public class TablePropertyDefinitionWrapper {
     private void init() {
 
         MatchingExpression expression = tablePropertyDefinition.getExpression();
-        
+
         if (expression != null) {
-            operationName = expression.getMatchExpression().getOperationName();
+            if (expression.getMatchExpression() instanceof MAXMatchingExpression
+                    || expression.getMatchExpression() instanceof MINMatchingExpression) {
+                operationName = expression.getMatchExpression().getContextAttributeExpression().getOperationName();
+                filterName = expression.getMatchExpression().getOperationName();
+            } else {
+                operationName = expression.getMatchExpression().getOperationName();
+                filterName = null;
+            }
             propertyVar = tablePropertyDefinition.getName();
-            contextVar = expression.getMatchExpression().getContextAtribute();
-        }        
+            contextVar = expression.getMatchExpression().getContextAttribute();
+        }
     }
 
     public TablePropertyDefinition getDefinition() {
@@ -44,6 +54,10 @@ public class TablePropertyDefinitionWrapper {
 
     public String getPropertyVar() {
         return propertyVar;
+    }
+    
+    public String getFilterName() {
+        return filterName;
     }
 
     public boolean isEnum() {

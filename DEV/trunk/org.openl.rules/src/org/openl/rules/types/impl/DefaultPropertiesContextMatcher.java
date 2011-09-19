@@ -22,11 +22,10 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
         return mc.match(props, context);
     }
-    
+
     public void addConstraint(String propertyName, MatchingConstraint<?, ?> ctr) {
         constraints.put(propertyName, ctr);
     }
-    
 
     protected void initilaize() {
         // <<< INSERT >>>
@@ -40,6 +39,24 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			@Override
 			protected java.util.Date getPropertyValue(ITableProperties properties) {
 			    return properties.getEffectiveDate();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
+			    return LE(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("startRequestDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
+
+			@Override
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
+			    return context.getRequestDate();
+			}
+			
+			@Override
+			protected java.util.Date getPropertyValue(ITableProperties properties) {
+			    return properties.getStartRequestDate();
 			}
 			
 			@Override
@@ -116,6 +133,42 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			
 			@Override
 			protected boolean matchNotNulls(org.openl.rules.enumeration.CountriesEnum[] propertyValue, org.openl.rules.enumeration.CountriesEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("currency", new MatchingConstraint<org.openl.rules.enumeration.CurrenciesEnum[], org.openl.rules.enumeration.CurrenciesEnum>() { 
+
+			@Override
+			protected org.openl.rules.enumeration.CurrenciesEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCurrency();
+			}
+			
+			@Override
+			protected org.openl.rules.enumeration.CurrenciesEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCurrency();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(org.openl.rules.enumeration.CurrenciesEnum[] propertyValue, org.openl.rules.enumeration.CurrenciesEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("lang", new MatchingConstraint<org.openl.rules.enumeration.LanguagesEnum[], org.openl.rules.enumeration.LanguagesEnum>() { 
+
+			@Override
+			protected org.openl.rules.enumeration.LanguagesEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getLang();
+			}
+			
+			@Override
+			protected org.openl.rules.enumeration.LanguagesEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getLang();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(org.openl.rules.enumeration.LanguagesEnum[] propertyValue, org.openl.rules.enumeration.LanguagesEnum contextValue) {
 			    return CONTAINS(propertyValue, contextValue);
 			}
 			

@@ -5,6 +5,10 @@ public class EQMatchingExpression extends AMatchingExpression {
     public static final String OPERATION_NAME = "EQ";
     public static final String OPERATION = "==";
     
+    public boolean isContextAttributeExpression() {
+        return false;
+    }
+    
     public EQMatchingExpression(String contextAttribute) {
         super(OPERATION_NAME, OPERATION, contextAttribute);        
     }

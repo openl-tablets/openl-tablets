@@ -7,6 +7,22 @@ public abstract class AMatchingExpression implements IMatchingExpression {
     private String contextAttribute;
     private String operation;
     private String operationName;
+    private IMatchingExpression contextAttributeExpression;
+    
+    public IMatchingExpression getContextAttributeExpression() {
+        return contextAttributeExpression;
+    }
+    
+    public abstract boolean isContextAttributeExpression();
+    
+    public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
+        this.operationName = operationName;
+              
+        if (matchingExpression == null) {
+            throw new IllegalArgumentException("Parameter 'contextAttributeExpression' can not be null");
+        }
+        this.contextAttributeExpression = matchingExpression;       
+    }
     
     public AMatchingExpression(String operationName, String operation, String contextAttribute) {
         this.operationName = operationName;
@@ -32,8 +48,12 @@ public abstract class AMatchingExpression implements IMatchingExpression {
         return null;
     }
     
-    public String getContextAtribute() {
-        return contextAttribute;
+    public String getContextAttribute() {
+        if (!isContextAttributeExpression()){
+            return contextAttribute;
+        }else{
+            return getContextAttributeExpression().getContextAttribute();
+        }
     }
     
     public String getOperation() {        

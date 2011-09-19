@@ -3,8 +3,8 @@ package org.openl.rules.types.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -27,7 +27,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
 /**
- *
+ * 
  * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
@@ -40,8 +40,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     // Business Dimension will have to apply
     private Set<String> propertiesSet;
 
-    private XlsModuleOpenClass moduleOpenClass;    
-    
+    private XlsModuleOpenClass moduleOpenClass;
+
     private ATableTracerNode traceObject;
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
@@ -67,48 +67,49 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         traceObject = null;
         Tracer tracer = Tracer.getTracer();
-        
+
         /**
-         * this block is for overloaded by active property tables without any dimension property.
-         * all not active tables should be ignored.
+         * this block is for overloaded by active property tables without any
+         * dimension property. all not active tables should be ignored.
          */
         List<IOpenMethod> methods = extractCandidates(getCandidates());
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
         removeInactiveMethods(selected);
-        
+
         traceObject = getTracedObject(selected, params);
-        tracer.push(traceObject);    
+        tracer.push(traceObject);
         try {
             return super.invoke(target, params, env);
         } catch (Exception e) {
             traceObject.setError(e);
             return null;
-        } finally {                
+        } finally {
             tracer.pop();
         }
-     
+
     }
 
     private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
         if (selected.size() == 1) {
             /**
-             * if only one table left, we need traced object for this type of table.
+             * if only one table left, we need traced object for this type of
+             * table.
              */
-            return TracedObjectFactory.getTracedObject((IOpenMethod)selected.toArray()[0], params); 
+            return TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0], params);
         } else {
             /**
              * in other case trace object for overloaded methods.
              */
             try {
-                DecisionTable dispatcherTable = (DecisionTable)getDispatcherTable().getMember();
+                DecisionTable dispatcherTable = (DecisionTable) getDispatcherTable().getMember();
                 return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
             } catch (OpenLRuntimeException e) {
-                ATableTracerNode traceObject = 
-                    TracedObjectFactory.getTracedObject((IOpenMethod)selected.toArray()[0], params);
+                ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0],
+                        params);
                 traceObject.setError(e);
                 return traceObject;
             }
-            
+
         }
     }
 
@@ -122,7 +123,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         // Temporal implementation of the active/inactive method feature for
         // overloaded methods only.
-        // 
+        //
         // Use case: if method has the active table property with 'false' value
         // it will be ignored by method dispatcher.
         //
@@ -130,6 +131,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (Tracer.isTracerOn()) {
             traceObject.setResult(selected);
         }
+
+        maxMinSelectCandidates(selected, (IRulesRuntimeContext) context);
+
         switch (selected.size()) {
             case 0:
                 // TODO add more detailed information about error, consider
@@ -146,12 +150,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new OpenLRuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
-                        toString(candidates), context.toString()));
+                throw new OpenLRuntimeException(String.format(
+                        "Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s", toString(candidates),
+                        context.toString()));
         }
 
     }
-    
+
     private TableSyntaxNode[] getTableSyntaxNodes() {
         XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
         return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
@@ -167,16 +172,84 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
-    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        // <<< INSERT MatchingProperties >>>
+    // <<< INSERT MatchingProperties >>>
+	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
 		selectCandidatesByProperty("effectiveDate", selected, context);
+		selectCandidatesByProperty("startRequestDate", selected, context);
 		selectCandidatesByProperty("expirationDate", selected, context);
 		selectCandidatesByProperty("lob", selected, context);
 		selectCandidatesByProperty("usregion", selected, context);
 		selectCandidatesByProperty("country", selected, context);
+		selectCandidatesByProperty("currency", selected, context);
+		selectCandidatesByProperty("lang", selected, context);
 		selectCandidatesByProperty("state", selected, context);
 		selectCandidatesByProperty("region", selected, context);
-        // <<< END INSERT MatchingProperties >>>
+	}
+
+	private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
+		filterMAXCandidatesByProperty("startRequestDate", selected, context);
+	}
+    // <<< END INSERT MatchingProperties >>>
+
+    private void filterMAXCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+        if (selected.size() > 1) {
+            List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
+            
+            Comparable<Object> maximumValue = null;
+            
+            for (IOpenMethod method : selected){
+                ITableProperties props = getTableProperties(method);
+                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
+                if (maximumValue == null){
+                    maximumValue = propValue;
+                }else{
+                    if (maximumValue.compareTo(propValue) < 0){
+                        maximumValue = propValue;
+                    }
+                }
+            }
+            
+            for (IOpenMethod method : selected){
+                ITableProperties props = getTableProperties(method);
+                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
+                if (maximumValue.compareTo(propValue) > 0){
+                    nomatched.add(method);
+                }
+            }
+            
+            selected.removeAll(nomatched);
+        }
+    }
+    
+    @SuppressWarnings("unused")
+    private void filterMINCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+        if (selected.size() > 1) {
+            List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
+            
+            Comparable<Object> minimum = null;
+            
+            for (IOpenMethod method : selected){
+                ITableProperties props = getTableProperties(method);
+                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
+                if (minimum == null){
+                    minimum = propValue;
+                }else{
+                    if (minimum.compareTo(propValue) > 0){
+                        minimum = propValue;
+                    }
+                }
+            }
+            
+            for (IOpenMethod method : selected){
+                ITableProperties props = getTableProperties(method);
+                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
+                if (minimum.compareTo(propValue) < 0){
+                    nomatched.add(method);
+                }
+            }
+            
+            selected.removeAll(nomatched);
+        }
     }
 
     private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
@@ -213,10 +286,10 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
     }
 
-    private ITableProperties getTableProperties(IOpenMethod method) {        
-        //FIXME
+    private ITableProperties getTableProperties(IOpenMethod method) {
+        // FIXME
         TableProperties properties = new TableProperties();
-        if(method.getInfo().getProperties() != null){
+        if (method.getInfo().getProperties() != null) {
             for (Entry<String, Object> property : method.getInfo().getProperties().entrySet()) {
                 properties.setFieldValue(property.getKey(), property.getValue());
             }
@@ -259,9 +332,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         return builder.toString();
     }
-    
+
     private List<IOpenMethod> extractCandidates(List<IOpenMethod> methods) {
         return OpenMethodDispatcherHelper.extractMethods(methods);
     }
-    
+
 }
