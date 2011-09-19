@@ -16,7 +16,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
-import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationHandler;
+import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.runtime.IEngineWrapper;
 import org.springframework.aop.ThrowsAdvice;
 import org.springframework.aop.framework.ProxyFactory;
@@ -72,17 +72,17 @@ public class RulesPublisher implements IRulesPublisher {
         Class<?> serviceClass = service.getServiceClass();
         if (service.isProvideRuntimeContext()) {
             serviceBean = service.getEnhancer().instantiate(ReloadType.NO);
-            serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass },
-                    new ServiceInvocationHandler(serviceBean, serviceClass));
         } else {
             serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
-            serviceBean = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass,
-                    IEngineWrapper.class }, new ServiceInvocationHandler(serviceBean, serviceClass));
         }
         ProxyFactory factory = new ProxyFactory(serviceBean);
-        //factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
-        factory.addAdvice(new ExceptionWrapperThrowsAdvice());
-        //factory.addInterface(serviceClass);
+        factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
+        if (serviceClass.isInterface()) {
+            factory.addInterface(serviceClass);
+            if(!service.isProvideRuntimeContext()){
+                factory.addInterface(IEngineWrapper.class);
+            }
+        }
         if (!Proxy.isProxyClass(serviceBean.getClass())) {
             factory.setProxyTargetClass(true);
         } else {
@@ -209,60 +209,5 @@ public class RulesPublisher implements IRulesPublisher {
             throw new IllegalArgumentException("dependencyManager argument can't be null");
         }
         this.dependencyManager = dependencyManager;
-    }
-
-    public static class ExceptionWrapperThrowsAdvice implements ThrowsAdvice, Ordered {
-        public void afterThrowing(Method m, Object[] args, Object target, RuntimeException ex) throws Throwable {
-            StringBuilder argsTypes = new StringBuilder();
-            boolean f = false;
-            for (Class<?> clazz : m.getParameterTypes()) {
-                if (f) {
-                    argsTypes.append(", ");
-                } else {
-                    f = true;
-                }
-                argsTypes.append(clazz.getName());
-            }
-            StringBuilder argsValues = new StringBuilder();
-            f = false;
-            for (Object arg : args) {
-                if (f) {
-                    argsValues.append(", ");
-                } else {
-                    f = true;
-                }
-                argsValues.append(arg.toString());
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("During OpenL rule execution exception was occured. Method name is \"".toUpperCase());
-            sb.append(m.getName());
-            sb.append("\". Arguments types are: ".toUpperCase());
-            sb.append(argsTypes.toString());
-            sb.append(". Arguments values are: ".toUpperCase());
-            sb.append(argsValues.toString().replace("\r", "").replace("\n", ""));
-            sb.append(". Exception class is: ".toUpperCase());
-            sb.append(ex.getClass().toString());
-            sb.append(".");
-            if (ex.getMessage() != null) {
-                sb.append(" Exception message is: ".toUpperCase());
-                sb.append(ex.getMessage());
-            }
-            sb.append(" OpenL clause messages are: ".toUpperCase());
-            Throwable t = ex.getCause();
-            boolean g = false;
-            while(t != null && t.getCause() != t){
-                if ((t instanceof OpenLRuntimeException || t instanceof OpenLException) && t.getMessage() != null){
-                    if (g) sb.append(MSG_SEPARATOR);
-                    g = true;
-                    sb.append(t.getMessage());
-                }
-                t = t.getCause();
-            }
-            throw new RuleServiceWrapperException(sb.toString(), ex);
-        }
-        
-        public int getOrder() {
-            return Ordered.LOWEST_PRECEDENCE;
-        }
     }
 }
