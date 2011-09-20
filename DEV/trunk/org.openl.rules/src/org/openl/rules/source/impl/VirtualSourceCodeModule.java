@@ -13,7 +13,7 @@ import org.openl.source.impl.ASourceCodeModule;
 
 public class VirtualSourceCodeModule extends ASourceCodeModule {
 
-    private static final String SOURCE_URI = "<virtual_uri>";
+    public static final String SOURCE_URI = "<virtual_uri>";
     
     private Workbook workbook = new HSSFWorkbook();
 
