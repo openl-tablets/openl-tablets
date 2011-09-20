@@ -7,6 +7,7 @@ import org.openl.binding.IBoundCode;
 import org.openl.conf.UserContext;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -67,10 +68,12 @@ public abstract class XlsHelper {
             return StringTool.makeJavaIdentifier(file);
 
         } catch (MalformedURLException e) {
-
-            Log.error("Error URI to name conversion", e);
-
-            return "UndefinedXlsType";
+            if(VirtualSourceCodeModule.SOURCE_URI.equals(uri)){
+                return "VirtualModule";
+            }else{
+                Log.error("Error URI to name conversion", e);
+                return "UndefinedXlsType";
+            }
         }
     }
 }
