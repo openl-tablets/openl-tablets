@@ -74,9 +74,14 @@ public class CompiledOpenClass {
     }
 
     public void throwErrorExceptionsIfAny() {
-        if (hasErrors()) {
-            throw new CompositeOpenlException("Error(s):", parsingErrors, getErrorMessages());
+        if (parsingErrors.length > 0) {
+            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, getErrorMessages());
         }
+
+        if (bindingErrors.length > 0) {
+            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, getErrorMessages());
+        }
+
     }
 
     public List<OpenLMessage> getMessages() {
