@@ -52,7 +52,12 @@ public class DependencyMethodDispatchingTest {
             method.invoke(s.instantiate(ReloadType.NO), 10);
             fail("We are waiting for OpenlRuntimeException");
         } catch (Exception e) {
+        	// Commited to check what is going on on the server
+        	System.out.println(e.getCause().getMessage() + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++-----------------------------------------------------------");
+        	e.printStackTrace();        	
             assertTrue(e.getCause().getMessage().contains("Ambiguous method dispatch"));
+        	
+//        	
         }
     }
 
