@@ -18,6 +18,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -48,14 +49,15 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.addParameter(namespace, name, type);
     }
 
-    public void addType(String namespace, IOpenClass type) throws Exception {
+    public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
         throw new UnsupportedOperationException();
     }
     
-    public void addTypes(Map<String, IOpenClass> types) throws Exception {
+    public void addTypes(Map<String, IOpenClass> types) {
         throw new UnsupportedOperationException();
     }
-
+    
+    //FIXME: method should throw any type of custom exception
     public void removeType(String namespace, IOpenClass type) throws Exception {
         throw new UnsupportedOperationException();
     }
