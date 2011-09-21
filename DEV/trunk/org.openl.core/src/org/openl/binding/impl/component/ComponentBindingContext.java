@@ -3,6 +3,8 @@ package org.openl.binding.impl.component;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -11,6 +13,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -28,6 +31,8 @@ import org.openl.util.StringTool;
  *
  */
 public class ComponentBindingContext extends BindingContextDelegator {
+	
+	private static final Log LOG = LogFactory.getLog(ComponentBindingContext.class); 
     
     private ComponentOpenClass componentOpenClass;
     
@@ -43,27 +48,32 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
     
     @Override
-    public synchronized void addType(String namespace, IOpenClass type)
-            throws Exception {
+    public synchronized void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
 
         String nameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
         add(nameWithNamespace, type);
     }
 
-    private synchronized void add(String nameWithNamespace, IOpenClass type) throws Exception {
+    private synchronized void add(String nameWithNamespace, IOpenClass type) throws OpenLCompilationException {
         Map<String, IOpenClass> map = initInternalTypes();
         
         if (map.containsKey(nameWithNamespace)) {
-            throw new Exception("Type " + nameWithNamespace + " has been defined already");
+            throw new OpenLCompilationException("Type " + nameWithNamespace + " has been defined already");
         }
 
         map.put(nameWithNamespace, type);
     }
     
     @Override
-    public synchronized void addTypes(Map<String, IOpenClass> types) throws Exception {
+    public synchronized void addTypes(Map<String, IOpenClass> types) {
         for (String nameWithNamespace : types.keySet()) {
-            add(nameWithNamespace, types.get(nameWithNamespace));
+        	try {
+        		add(nameWithNamespace, types.get(nameWithNamespace));
+        	} catch (OpenLCompilationException e) {
+        		if (LOG.isWarnEnabled()) {
+        			LOG.warn(e);
+        		}
+			}
         }
     }
 
@@ -88,8 +98,6 @@ public class ComponentBindingContext extends BindingContextDelegator {
         }
         return internalTypes;
     }
-    
-    
     
     @Override
     public IMethodCaller findMethodCaller(String namespace, String methodName,
