@@ -173,82 +173,105 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     // <<< INSERT MatchingProperties >>>
-	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-		selectCandidatesByProperty("effectiveDate", selected, context);
-		selectCandidatesByProperty("startRequestDate", selected, context);
-		selectCandidatesByProperty("expirationDate", selected, context);
-		selectCandidatesByProperty("lob", selected, context);
-		selectCandidatesByProperty("usregion", selected, context);
-		selectCandidatesByProperty("country", selected, context);
-		selectCandidatesByProperty("currency", selected, context);
-		selectCandidatesByProperty("lang", selected, context);
-		selectCandidatesByProperty("state", selected, context);
-		selectCandidatesByProperty("region", selected, context);
-	}
+    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+        selectCandidatesByProperty("effectiveDate", selected, context);
+        selectCandidatesByProperty("startRequestDate", selected, context);
+        selectCandidatesByProperty("expirationDate", selected, context);
+        selectCandidatesByProperty("lob", selected, context);
+        selectCandidatesByProperty("usregion", selected, context);
+        selectCandidatesByProperty("country", selected, context);
+        selectCandidatesByProperty("currency", selected, context);
+        selectCandidatesByProperty("lang", selected, context);
+        selectCandidatesByProperty("state", selected, context);
+        selectCandidatesByProperty("region", selected, context);
+    }
 
-	private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
-		filterMAXCandidatesByProperty("startRequestDate", selected, context);
-	}
+    private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+        filterMAXCandidatesByProperty("startRequestDate", selected, context);
+    }
+
     // <<< END INSERT MatchingProperties >>>
 
     private void filterMAXCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         if (selected.size() > 1) {
             List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
-            
+
             Comparable<Object> maximumValue = null;
-            
-            for (IOpenMethod method : selected){
+
+            for (IOpenMethod method : selected) {
                 ITableProperties props = getTableProperties(method);
-                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
-                if (maximumValue == null){
-                    maximumValue = propValue;
-                }else{
-                    if (maximumValue.compareTo(propValue) < 0){
+                try {
+                    Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(
+                            propName, props);
+                    if (maximumValue == null) {
                         maximumValue = propValue;
+                    } else {
+                        if (maximumValue.compareTo(propValue) < 0) {
+                            maximumValue = propValue;
+                        }
+                    }
+                } catch (OpenLRuntimeException e) {
+                }
+            }
+
+            if (maximumValue != null) {
+                for (IOpenMethod method : selected) {
+                    ITableProperties props = getTableProperties(method);
+                    try {
+                        Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance()
+                                .getPropertyValue(propName, props);
+                        if (maximumValue.compareTo(propValue) > 0) {
+                            nomatched.add(method);
+                        }
+                    } catch (OpenLRuntimeException e) {
+                        nomatched.add(method);
                     }
                 }
+
+                selected.removeAll(nomatched);
             }
-            
-            for (IOpenMethod method : selected){
-                ITableProperties props = getTableProperties(method);
-                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
-                if (maximumValue.compareTo(propValue) > 0){
-                    nomatched.add(method);
-                }
-            }
-            
-            selected.removeAll(nomatched);
         }
     }
-    
+
     @SuppressWarnings("unused")
     private void filterMINCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         if (selected.size() > 1) {
             List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
-            
+
             Comparable<Object> minimum = null;
-            
-            for (IOpenMethod method : selected){
+
+            for (IOpenMethod method : selected) {
                 ITableProperties props = getTableProperties(method);
-                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
-                if (minimum == null){
-                    minimum = propValue;
-                }else{
-                    if (minimum.compareTo(propValue) > 0){
+                try {
+                    Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(
+                            propName, props);
+                    if (minimum == null) {
                         minimum = propValue;
+                    } else {
+                        if (minimum.compareTo(propValue) > 0) {
+                            minimum = propValue;
+                        }
+                    }
+                } catch (OpenLRuntimeException e) {
+                }
+            }
+
+            if (minimum != null) {
+                for (IOpenMethod method : selected) {
+                    ITableProperties props = getTableProperties(method);
+                    try {
+                        Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance()
+                                .getPropertyValue(propName, props);
+                        if (minimum.compareTo(propValue) < 0) {
+                            nomatched.add(method);
+                        }
+                    } catch (OpenLRuntimeException e) {
+                        nomatched.add(method);
                     }
                 }
+
+                selected.removeAll(nomatched);
             }
-            
-            for (IOpenMethod method : selected){
-                ITableProperties props = getTableProperties(method);
-                Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(propName, props);
-                if (minimum.compareTo(propValue) < 0){
-                    nomatched.add(method);
-                }
-            }
-            
-            selected.removeAll(nomatched);
         }
     }
 
