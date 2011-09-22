@@ -74,17 +74,46 @@ public class NumberUtils {
 
         return null;
     }
-
-    public static int getScale(Double value) {
-
-        BigDecimal decimal = BigDecimal.valueOf(value);
-
-        return decimal.scale();
-    }
     
-    public static int getScale(Number value) {
+    /**
+     * Gets the scale of the double value.
+     * 
+     * @param value to get the scale
+     * @return number of values after the comma
+     * 
+     * @throws {@link NullPointerException} if the income is <code>null</code>
+     */
+	public static int getScale(Double value) {
+		if (value == null) {
+			throw new NullPointerException("Null value is not supported");
+		}
+		
+ 		if (!value.equals(Double.NaN) && !value.equals(Double.NEGATIVE_INFINITY)) {
+			BigDecimal decimal = BigDecimal.valueOf(value);
 
-        BigDecimal decimal = new BigDecimal(String.valueOf(value));
+			return decimal.scale();
+		}
+		return 0;
+	}
+    
+	/**
+	 * Gets the scale of the income value
+	 * 
+	 * @param value
+	 * @return number of values after the comma
+	 * 
+	 * @throws {@link NullPointerException} if the income is <code>null</code>
+	 */
+    public static int getScale(Number value) {
+    	if (value == null) {
+			throw new NullPointerException("Null value is not supported");
+		}
+    	
+    	if (value instanceof Double) {
+    		return getScale((Double)value);
+    	}
+    	
+    	BigDecimal decimal = new BigDecimal(String.valueOf(value));
 
         return decimal.scale();
     }
