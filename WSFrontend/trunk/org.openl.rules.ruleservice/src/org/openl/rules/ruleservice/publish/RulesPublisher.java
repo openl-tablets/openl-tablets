@@ -1,26 +1,20 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceException;
-import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceDeployException;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.runtime.IEngineWrapper;
-import org.springframework.aop.ThrowsAdvice;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.core.Ordered;
 
 /**
  * Publisher
@@ -30,8 +24,6 @@ import org.springframework.core.Ordered;
  */
 public class RulesPublisher implements IRulesPublisher {
     private Log log = LogFactory.getLog(RulesPublisher.class);
-    
-    private static final String MSG_SEPARATOR = "; ";
     
     private IRulesInstantiationFactory instantiationFactory;
     private IDeploymentAdmin deploymentAdmin;
@@ -66,6 +58,7 @@ public class RulesPublisher implements IRulesPublisher {
         instantiateServiceBean(service);
     }
 
+    @SuppressWarnings("deprecation")
     private void instantiateServiceBean(OpenLService service) throws InstantiationException, ClassNotFoundException,
             IllegalAccessException {
         Object serviceBean = null;
@@ -75,18 +68,21 @@ public class RulesPublisher implements IRulesPublisher {
         } else {
             serviceBean = service.getInstantiationStrategy().instantiate(ReloadType.NO);
         }
-        ProxyFactory factory = new ProxyFactory(serviceBean);
+        ProxyFactory factory = new ProxyFactory();
         factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
         if (serviceClass.isInterface()) {
             factory.addInterface(serviceClass);
             if(!service.isProvideRuntimeContext()){
                 factory.addInterface(IEngineWrapper.class);
             }
-        }
-        if (!Proxy.isProxyClass(serviceBean.getClass())) {
-            factory.setProxyTargetClass(true);
-        } else {
-            factory.setProxyTargetClass(false);
+        }else{
+            //deprecated approach with wrapper: service class is not interface
+            factory.setTarget(serviceBean);
+            if (!Proxy.isProxyClass(serviceBean.getClass())) {
+                factory.setProxyTargetClass(true);
+            } else {
+                factory.setProxyTargetClass(false);
+            }
         }
         Thread.currentThread().setContextClassLoader(serviceBean.getClass().getClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
