@@ -350,7 +350,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanCheckIn() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isCheckedOut() && selectedProject.isModified() && isGranted(PRIVILEGE_EDIT);
+        return selectedProject.isCheckedOut() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT);
     }
 
     public boolean getCanClose() {
