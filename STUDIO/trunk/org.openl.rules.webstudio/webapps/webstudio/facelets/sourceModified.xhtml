@@ -8,7 +8,7 @@
     <h:head></h:head>
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="sourceModified" value="#{sessionScope.studio.model.sourceModified}" />
+    <c:set var="sourceModified" value="#{studio.model.sourceModified}" />
 
     <script type="text/javascript">
         function sourceModified() {
@@ -19,8 +19,8 @@
     </script>
 
     <h:form>
-        <a4j:poll enabled="#{not sourceModified}" interval="4000"
-            oncomplete="#{sourceModified ? 'sourceModified()' : ''}" />
+        <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000"
+            oncomplete="#{sourceModified ? 'sourceModified()' : ''}"  render="poll" />
     </h:form>
 
 </ui:composition>
