@@ -147,8 +147,11 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     }
 
     public void save() throws IOException {
-        String fileName = getSourceFile().getCanonicalPath();
+        File sourceFile = getSourceFile();
+        long sourceModified = sourceFile.lastModified();
+        String fileName = sourceFile.getCanonicalPath();
         saveAs(fileName);
+        sourceFile.setLastModified(sourceModified);
     }
 
     public void saveAs(String fileName) throws IOException {
