@@ -110,17 +110,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setEffectiveDate(java.util.Date effectiveDate) {
 		setFieldValue("effectiveDate", effectiveDate);
 	}	
-	public java.util.Date getStartRequestDate() {
-		return (java.util.Date) getPropertyValue("startRequestDate"); 
-	}
-	public void setStartRequestDate(java.util.Date startRequestDate) {
-		setFieldValue("startRequestDate", startRequestDate);
-	}	
 	public java.util.Date getExpirationDate() {
 		return (java.util.Date) getPropertyValue("expirationDate"); 
 	}
 	public void setExpirationDate(java.util.Date expirationDate) {
 		setFieldValue("expirationDate", expirationDate);
+	}	
+	public java.util.Date getStartRequestDate() {
+		return (java.util.Date) getPropertyValue("startRequestDate"); 
+	}
+	public void setStartRequestDate(java.util.Date startRequestDate) {
+		setFieldValue("startRequestDate", startRequestDate);
 	}	
 	public java.lang.String getCreatedBy() {
 		return (java.lang.String) getPropertyValue("createdBy"); 

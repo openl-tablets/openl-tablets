@@ -89,33 +89,33 @@ public class DefaultPropertyDefinitions
 		definitions[4].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[5] = new TablePropertyDefinition();
 		definitions[5].setBusinessSearch(true);
-		definitions[5].setConstraints(new org.openl.rules.table.constraints.Constraints("< expirationDate"));
-		definitions[5].setDescription("Start request date");
+		definitions[5].setConstraints(new org.openl.rules.table.constraints.Constraints("> effectiveDate"));
+		definitions[5].setDescription("The table becomes active on effective date and inactive after the expiration dat"
+		 + "e. You can have multiple instances of the same table in the same module with dif"
+		 + "ferent effective/expiration date");
 		definitions[5].setDimensional(true);
-		definitions[5].setDisplayName("Start Request Date");
-		definitions[5].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("max(le(requestDate))"));
+		definitions[5].setDisplayName("Expiration Date");
+		definitions[5].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(currentDate)"));
 		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
 		definitions[5].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[5].setName("startRequestDate");
-		definitions[5].setPrimaryKey(true);
+		definitions[5].setName("expirationDate");
+		definitions[5].setPrimaryKey(false);
 		definitions[5].setSecurityFilter("no");
 		definitions[5].setSystem(false);
 		definitions[5].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[6] = new TablePropertyDefinition();
 		definitions[6].setBusinessSearch(true);
-		definitions[6].setConstraints(new org.openl.rules.table.constraints.Constraints("> effectiveDate"));
-		definitions[6].setDescription("The table becomes active on effective date and inactive after the expiration dat"
-		 + "e. You can have multiple instances of the same table in the same module with dif"
-		 + "ferent effective/expiration date");
+		definitions[6].setConstraints(new org.openl.rules.table.constraints.Constraints("< expirationDate"));
+		definitions[6].setDescription("Start request date");
 		definitions[6].setDimensional(true);
-		definitions[6].setDisplayName("Expiration Date");
-		definitions[6].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(currentDate)"));
+		definitions[6].setDisplayName("Start Request Date");
+		definitions[6].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("max(le(requestDate))"));
 		definitions[6].setFormat("MM/dd/yyyy");
 		definitions[6].setGroup("Business Dimension");
 		definitions[6].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[6].setName("expirationDate");
-		definitions[6].setPrimaryKey(false);
+		definitions[6].setName("startRequestDate");
+		definitions[6].setPrimaryKey(true);
 		definitions[6].setSecurityFilter("no");
 		definitions[6].setSystem(false);
 		definitions[6].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
