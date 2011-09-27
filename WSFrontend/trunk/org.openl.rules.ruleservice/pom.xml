@@ -24,6 +24,7 @@
 				<includes>
 					<include>**/*.properties</include>
 					<include>**/*.xml</include>
+					<include>RulesBasedConfigurerTemplate.xlsx</include>
 				</includes>
 			</resource>
 			<resource>
