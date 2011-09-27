@@ -47,24 +47,6 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("startRequestDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
-
-			@Override
-			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
-			    return context.getRequestDate();
-			}
-			
-			@Override
-			protected java.util.Date getPropertyValue(ITableProperties properties) {
-			    return properties.getStartRequestDate();
-			}
-			
-			@Override
-			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
-			    return LE(propertyValue, contextValue);
-			}
-			
-        });
 		constraints.put("expirationDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
 
 			@Override
@@ -80,6 +62,24 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			@Override
 			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
 			    return GE(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("startRequestDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
+
+			@Override
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
+			    return context.getRequestDate();
+			}
+			
+			@Override
+			protected java.util.Date getPropertyValue(ITableProperties properties) {
+			    return properties.getStartRequestDate();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
+			    return LE(propertyValue, contextValue);
 			}
 			
         });

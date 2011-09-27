@@ -51,17 +51,6 @@ public class MatchingOpenMethodDispatcherHelper {
 			    return properties.getEffectiveDate();
 			}
 		});
-		put("startRequestDate", new PropertyAccessDelegation<java.util.Date, java.util.Date>() { 
-			@Override
-			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
-			    return context.getRequestDate();
-			}
-	
-			@Override
-			protected java.util.Date getPropertyValue(ITableProperties properties) {
-			    return properties.getStartRequestDate();
-			}
-		});
 		put("expirationDate", new PropertyAccessDelegation<java.util.Date, java.util.Date>() { 
 			@Override
 			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
@@ -71,6 +60,17 @@ public class MatchingOpenMethodDispatcherHelper {
 			@Override
 			protected java.util.Date getPropertyValue(ITableProperties properties) {
 			    return properties.getExpirationDate();
+			}
+		});
+		put("startRequestDate", new PropertyAccessDelegation<java.util.Date, java.util.Date>() { 
+			@Override
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
+			    return context.getRequestDate();
+			}
+	
+			@Override
+			protected java.util.Date getPropertyValue(ITableProperties properties) {
+			    return properties.getStartRequestDate();
 			}
 		});
 		put("lob", new PropertyAccessDelegation<java.lang.String, java.lang.String>() { 

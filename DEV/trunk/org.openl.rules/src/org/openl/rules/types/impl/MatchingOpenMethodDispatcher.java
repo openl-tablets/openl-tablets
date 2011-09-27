@@ -173,23 +173,22 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     // <<< INSERT MatchingProperties >>>
-    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        selectCandidatesByProperty("effectiveDate", selected, context);
-        selectCandidatesByProperty("startRequestDate", selected, context);
-        selectCandidatesByProperty("expirationDate", selected, context);
-        selectCandidatesByProperty("lob", selected, context);
-        selectCandidatesByProperty("usregion", selected, context);
-        selectCandidatesByProperty("country", selected, context);
-        selectCandidatesByProperty("currency", selected, context);
-        selectCandidatesByProperty("lang", selected, context);
-        selectCandidatesByProperty("state", selected, context);
-        selectCandidatesByProperty("region", selected, context);
-    }
+	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+		selectCandidatesByProperty("effectiveDate", selected, context);
+		selectCandidatesByProperty("expirationDate", selected, context);
+		selectCandidatesByProperty("startRequestDate", selected, context);
+		selectCandidatesByProperty("lob", selected, context);
+		selectCandidatesByProperty("usregion", selected, context);
+		selectCandidatesByProperty("country", selected, context);
+		selectCandidatesByProperty("currency", selected, context);
+		selectCandidatesByProperty("lang", selected, context);
+		selectCandidatesByProperty("state", selected, context);
+		selectCandidatesByProperty("region", selected, context);
+	}
 
-    private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        filterMAXCandidatesByProperty("startRequestDate", selected, context);
-    }
-
+	private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
+		filterMAXCandidatesByProperty("startRequestDate", selected, context);
+	}
     // <<< END INSERT MatchingProperties >>>
 
     private void filterMAXCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {

@@ -123,10 +123,10 @@ public interface ITableProperties {
 	void setTags(java.lang.String[] tags);
 	java.util.Date getEffectiveDate();
 	void setEffectiveDate(java.util.Date effectiveDate);
-	java.util.Date getStartRequestDate();
-	void setStartRequestDate(java.util.Date startRequestDate);
 	java.util.Date getExpirationDate();
 	void setExpirationDate(java.util.Date expirationDate);
+	java.util.Date getStartRequestDate();
+	void setStartRequestDate(java.util.Date startRequestDate);
 	java.lang.String getCreatedBy();
 	void setCreatedBy(java.lang.String createdBy);
 	java.util.Date getCreatedOn();
