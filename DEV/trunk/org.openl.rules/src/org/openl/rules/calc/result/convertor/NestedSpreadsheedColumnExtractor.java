@@ -22,7 +22,19 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
         this.configuration = configuration;
     }
     
-    @Override
+    public NestedSpreadsheedColumnExtractor (int nestingLevel, ColumnToExtract column, boolean mandatory) {
+    	this(nestingLevel, null, column, mandatory);    	
+    }
+    
+    public NestedSpreadsheetConfiguration<?, ?> getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(NestedSpreadsheetConfiguration<?, ?> configuration) {
+		this.configuration = configuration;
+	}
+
+	@Override
     public void convertAndStoreData(Object from, CompoundStep to) {
         if (from.getClass().isArray()) {
             // process SpreadsheetResult[] as nesting column value.
@@ -39,7 +51,8 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
         }
     }
     
-    private NestedSpreadsheetResultConverter<?, ?> createNextLevelConverter() {
+    @SuppressWarnings("unchecked")
+	private NestedSpreadsheetResultConverter<?, ?> createNextLevelConverter() {
         return new NestedSpreadsheetResultConverter(nestingLevel + 1, configuration);
     }
     

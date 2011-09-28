@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * 
  * @author DLiauchuk
@@ -46,8 +45,20 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
         return new ArrayList<ColumnToExtract>(columnsToExtractForLevels.get(nestingLevel));
     }
     
+    /**
+     * Implement this method to return {@link RowExtractor} for the rows with only simple columns.
+     * 
+     * @param simpleExtractors extractors for simple columns
+     * @return {@link RowExtractor} for the rows with only simple columns
+     */
     protected abstract RowExtractor<Simple> initSimpleRowExtractor(List<SpreadsheetColumnExtractor<Simple>> simpleExtractors);
-
+    
+    /**
+     * Implement this method to return {@link RowExtractor} for the rows contain compound columns.
+     * 
+     * @param compoundExtractors extractors for compound columns
+     * @return {@link RowExtractor} for the rows contain compound columns
+     */
     protected abstract RowExtractor<Compound> initCompoundRowExtractor(List<SpreadsheetColumnExtractor<Compound>> compoundExtractors);
     
     /**
@@ -56,7 +67,7 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
      * @param nestingLevel current nesting level
      * @return {@link RowExtractor} for rows that doesn`t have compound results.
      */
-    private RowExtractor<Simple> getSimpleRowExtractor(int nestingLevel) {
+    public RowExtractor<Simple> getSimpleRowExtractor(int nestingLevel) {
         /** column extractors for all columns that should be extracted in simple row*/ 
         List<SpreadsheetColumnExtractor<Simple>> simpleExtractors = 
             new ArrayList<SpreadsheetColumnExtractor<Simple>>();
@@ -77,7 +88,8 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
      * @param nestingLevel current nesting level
      * @return {@link RowExtractor} for rows that have compound results.
      */
-    private RowExtractor<Compound> getCompoundRowExtractor(int nestingLevel) {
+    @SuppressWarnings("unchecked")
+	public RowExtractor<Compound> getCompoundRowExtractor(int nestingLevel) {
         /** column extractors for all columns that should be extracted in compound row*/
         List<SpreadsheetColumnExtractor<Compound>> compoundExtractors = 
             new ArrayList<SpreadsheetColumnExtractor<Compound>>();
@@ -95,6 +107,15 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
             }
         }   
         return initCompoundRowExtractor(compoundExtractors);
+    }
+    
+    public boolean containsNested(int nestingLevel) {
+    	for (ColumnToExtract column : columnsToExtractForLevels.get(nestingLevel)) {
+    		if (column.containNested()) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
     
 

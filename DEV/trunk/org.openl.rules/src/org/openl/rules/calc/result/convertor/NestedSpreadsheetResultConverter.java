@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultUtils;
 
 /*
  * The example of flat spreadsheet result structure.
@@ -36,27 +35,25 @@ public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound 
        
     private NestedDataRowExtractorsFactory<Simple, Compound> rowExtractorsFactory;
     
-    /** Column name that consider to have as value SpreadsheetResult or SpreadsheetResult[] and can be extracted itself**/
-    private String columnNameConsiderToBeNested;
-        
+    private NestedSpreadsheetConfiguration<Simple, Compound> conf;
+    
+    private int currentNestingLevel;
+    
+    /**
+     * 
+     * @param currentNestingLevel the number of the current nesting level
+     * @param configuration configuration that is used for extracting rows on this and further levels, connat be null.
+     * In that case will throw {@link IllegalArgumentException}
+     */
     public NestedSpreadsheetResultConverter(int currentNestingLevel, NestedSpreadsheetConfiguration<Simple, Compound> configuration) {
-        this.rowExtractorsFactory = configuration.getRowExtractorsFactory(currentNestingLevel);
-        validate(configuration.getColumnsToExtract(currentNestingLevel));
+    	if (configuration == null) {
+    		throw new IllegalArgumentException("Configuration cannot be empty");
+    	}
+    	this.conf = configuration;
+    	this.currentNestingLevel = currentNestingLevel;
+        this.rowExtractorsFactory = configuration.getRowExtractorsFactory(currentNestingLevel); 
     }
-    
-    private void validate(List<ColumnToExtract> columnsToExtract) {
-        int nested = 0;
-        for (ColumnToExtract column : columnsToExtract) {
-            if (column.containNested()) {
-                columnNameConsiderToBeNested = column.getColumnName();
-                nested++;
-            }
-        }
-        if (nested > 1) {
-            throw new IllegalArgumentException("Only one column can return nested value");
-        }
-    }
-    
+       
     /**
      * Converts the spreadsheet result to flat structure.
      * 
@@ -79,44 +76,14 @@ public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound 
         return steps;
     }
 
-    private CodeStep processRow(SpreadsheetResult spreadsheetResult, int row) {
-        Object valueConsiderToBeNested = getValueConsideredToBeNested(spreadsheetResult, row);          
+    private CodeStep processRow(SpreadsheetResult spreadsheetResult, int row) {          
         CodeStep step = null;
         
-        RowExtractor<?> rowExtractor = rowExtractorsFactory.getRowExtractor(containsNested(valueConsiderToBeNested));
-        
+        RowExtractor<?> rowExtractor = rowExtractorsFactory.getRowExtractor(conf.containsNested(currentNestingLevel));
         step = rowExtractor.extract(spreadsheetResult, row);
         
         step.setStepName(spreadsheetResult.getRowName(row));
         return step;
     }
-    
-    /**
-     * Get the value from the given row and the column that is considered to have nested SpreadsheetResults.
-     * 
-     * @param spreadsheetResult current result
-     * @param row current row
-     * @return
-     */
-    private Object getValueConsideredToBeNested(SpreadsheetResult spreadsheetResult, int row) {
-        String typeResolvingColumnName = getColumnNameConsiderToBeNested();
-        int columnIndex = SpreadsheetResultUtils.getColumnIndexByName(typeResolvingColumnName, 
-            spreadsheetResult.getColumnNames());
-        
-        return spreadsheetResult.getValue(row, columnIndex);        
-    }
-    
-    private String getColumnNameConsiderToBeNested() {        
-        return columnNameConsiderToBeNested;
-    }
-
-    private boolean containsNested(Object value) {
-        // TODO: fix me
-        if (value != null && (value.getClass().equals(SpreadsheetResult.class) || 
-                value.getClass().equals(SpreadsheetResult[].class))) {
-            return true;
-        }
-        return false;
-    }
-
+ 
 }
