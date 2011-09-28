@@ -73,6 +73,17 @@ public class MatchingOpenMethodDispatcherHelper {
 			    return properties.getStartRequestDate();
 			}
 		});
+		put("endRequestDate", new PropertyAccessDelegation<java.util.Date, java.util.Date>() { 
+			@Override
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
+			    return context.getRequestDate();
+			}
+	
+			@Override
+			protected java.util.Date getPropertyValue(ITableProperties properties) {
+			    return properties.getEndRequestDate();
+			}
+		});
 		put("lob", new PropertyAccessDelegation<java.lang.String, java.lang.String>() { 
 			@Override
 			protected java.lang.String getContextValue(IRulesRuntimeContext context) {

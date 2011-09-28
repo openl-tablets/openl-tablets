@@ -83,6 +83,24 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
+		constraints.put("endRequestDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
+
+			@Override
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
+			    return context.getRequestDate();
+			}
+			
+			@Override
+			protected java.util.Date getPropertyValue(ITableProperties properties) {
+			    return properties.getEndRequestDate();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
+			    return GE(propertyValue, contextValue);
+			}
+			
+        });
 		constraints.put("lob", new MatchingConstraint<java.lang.String, java.lang.String>() { 
 
 			@Override
