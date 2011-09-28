@@ -1243,6 +1243,12 @@
 				<artifactId>ehcache-core</artifactId>
 				<version>2.4.3</version>
 			</dependency>
+			
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.8.5</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 </project>
