@@ -34,11 +34,22 @@ public class DateFormatter implements IFormatter {
     }
 
     public DateFormatter(String format) {
-        this(new SimpleDateFormat(format));
+        try {
+            this.format = new SimpleDateFormat(format);
+        } catch (Exception e) {
+            LOG.error("Could not create format: " + format);
+            this.format = new SimpleDateFormat();
+        }
     }
 
     public DateFormatter(String format, Locale locale) {
-        this(new SimpleDateFormat(format, locale));
+        try {
+            this.format = new SimpleDateFormat(format, locale);
+        } catch (Exception e) {
+            LOG.error("Could not create format: " + format);
+            this.format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
+                    locale == null ? Locale.getDefault() : locale);
+        }
     }
 
     public String format(Object value) {
