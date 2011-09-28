@@ -150,6 +150,12 @@
 		<groupId>org.jgrapht</groupId>
 		<artifactId>jgrapht-jdk1.5</artifactId>
 	</dependency>
+	
+	<dependency>
+		<groupId>org.mockito</groupId>
+		<artifactId>mockito-all</artifactId>
+		<scope>test</scope>
+	</dependency>
     
   </dependencies>
 
