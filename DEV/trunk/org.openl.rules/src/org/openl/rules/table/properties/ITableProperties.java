@@ -127,6 +127,8 @@ public interface ITableProperties {
 	void setExpirationDate(java.util.Date expirationDate);
 	java.util.Date getStartRequestDate();
 	void setStartRequestDate(java.util.Date startRequestDate);
+	java.util.Date getEndRequestDate();
+	void setEndRequestDate(java.util.Date endRequestDate);
 	java.lang.String getCreatedBy();
 	void setCreatedBy(java.lang.String createdBy);
 	java.util.Date getCreatedOn();

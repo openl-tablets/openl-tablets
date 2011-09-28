@@ -177,6 +177,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 		selectCandidatesByProperty("effectiveDate", selected, context);
 		selectCandidatesByProperty("expirationDate", selected, context);
 		selectCandidatesByProperty("startRequestDate", selected, context);
+		selectCandidatesByProperty("endRequestDate", selected, context);
 		selectCandidatesByProperty("lob", selected, context);
 		selectCandidatesByProperty("usregion", selected, context);
 		selectCandidatesByProperty("country", selected, context);
@@ -188,6 +189,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
 	private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
 		filterMAXCandidatesByProperty("startRequestDate", selected, context);
+		filterMINCandidatesByProperty("endRequestDate", selected, context);
 	}
     // <<< END INSERT MatchingProperties >>>
 
