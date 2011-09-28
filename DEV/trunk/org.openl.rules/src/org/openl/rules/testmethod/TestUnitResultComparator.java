@@ -39,9 +39,14 @@ public class TestUnitResultComparator {
     private static int compareExceptionResult(TestUnit testUnit) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
-            String message = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
-            String expectedMessage = (String) testUnit.getExpectedResult();
-            
+            String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
+            Object expectedResult = testUnit.getExpectedResult();
+            if (expectedResult != null
+                    && !(expectedResult instanceof String)) {
+                return TR_NEQ;
+            }
+            String expectedMessage = (String) expectedResult;
+
             // OpenL engine recognizes empty cell as 'null' value.
             // When user define 'error' expression with empty string as message
             // test cannot be passed because expected message will be 'null' value.
@@ -51,7 +56,7 @@ public class TestUnitResultComparator {
                 expectedMessage = StringUtils.EMPTY;
             }
             
-            if (compareResult(message, expectedMessage)) {
+            if (compareResult(actualMessage, expectedMessage)) {
                 return TR_OK;
             } else {
                 return TR_NEQ;
