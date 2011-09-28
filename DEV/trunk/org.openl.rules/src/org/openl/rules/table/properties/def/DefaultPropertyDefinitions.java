@@ -123,8 +123,8 @@ public class DefaultPropertyDefinitions
 		definitions[7] = new TablePropertyDefinition();
 		definitions[7].setBusinessSearch(true);
 		definitions[7].setConstraints(new org.openl.rules.table.constraints.Constraints("> startRequestDate"));
-		definitions[7].setDescription("The last date when rules are available in production, so the requests can\'t be p"
-		 + "rocessed by these rules");
+		definitions[7].setDescription("The last date when rules are available in production, so the requests can not be"
+		 + " processed by these rules");
 		definitions[7].setDimensional(true);
 		definitions[7].setDisplayName("End Request Date");
 		definitions[7].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("min(ge(requestDate))"));
