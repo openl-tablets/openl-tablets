@@ -107,7 +107,7 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
     }
 
     public int size() {
-        return (int) daysBetween(min, max);
+        return (int) daysBetween(min, max) + 1;
     }
 
     public IType getElementType() {
