@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Configuration for the nested spreadsheet result converter.
+ * Extend it by overriding abstract methods {@link #initCompoundRowExtractor(List)} and {@link #initSimpleRowExtractor(List)}
  * 
  * @author DLiauchuk
  *
@@ -69,8 +71,7 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
      */
     public RowExtractor<Simple> getSimpleRowExtractor(int nestingLevel) {
         /** column extractors for all columns that should be extracted in simple row*/ 
-        List<SpreadsheetColumnExtractor<Simple>> simpleExtractors = 
-            new ArrayList<SpreadsheetColumnExtractor<Simple>>();
+        List<SpreadsheetColumnExtractor<Simple>> simpleExtractors = new ArrayList<SpreadsheetColumnExtractor<Simple>>();
         List<ColumnToExtract> columns = columnsToExtractForLevels.get(nestingLevel);
         
         for (ColumnToExtract column : columns) {
@@ -82,9 +83,9 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
     }
     
     
-    /**
-     * 
+    /** 
      * Creates {@link RowExtractor} for rows that have compound results.
+     * 
      * @param nestingLevel current nesting level
      * @return {@link RowExtractor} for rows that have compound results.
      */
