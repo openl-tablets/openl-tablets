@@ -65,7 +65,7 @@
     }
 
     function updateButtonState() {
-      document.getElementById('mainForm:openSelectedProjectsBtn').disabled = isEmptySelection();
+      //document.getElementById('mainForm:openSelectedProjectsBtn').disabled = isEmptySelection();
     }
   </script>
 
@@ -74,7 +74,8 @@
         <rich:tooltip showDelay="500">Add projects</rich:tooltip>
     </h:commandButton>
 
-    <h:commandButton id="openSelectedProjectsBtn" disabled="true" value="Open" onclick="return !isEmptySelection()" action="#{deploymentController.openSelectedProjects}">
+    <h:commandButton rendered="false" id="openSelectedProjectsBtn" disabled="true" value="Open"
+        onclick="return !isEmptySelection()" action="#{deploymentController.openSelectedProjects}">
         <rich:tooltip showDelay="500">Open selected projects</rich:tooltip>
     </h:commandButton>
   </h:panelGrid>
