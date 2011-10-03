@@ -1,6 +1,5 @@
 package org.openl.rules.table.properties.expressions.match;
 
-import org.openl.exception.OpenLRuntimeException;
 
 public class MINMatchingExpression extends AMatchingExpression {
         
@@ -14,8 +13,14 @@ public class MINMatchingExpression extends AMatchingExpression {
         super(OPERATION_NAME, matchingExpression);
     }
     
-    public String getOperation() {
-        throw new OpenLRuntimeException("Operation is not supported");
-    }
+	public String getOperation() {
+		return ((AMatchingExpression) getContextAttributeExpression())
+				.getOperation();
+	}
+	
+	@Override
+	public String getCodeExpression(String param) {
+		return getContextAttributeExpression().getCodeExpression(param);
+	}
 }
 
