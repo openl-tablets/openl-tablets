@@ -100,7 +100,7 @@ public class DTCheckerImpl implements DTChecker {
             Goal save = new GoalSaveSolutions(C);
             Goal generate = new GoalGenerate(_dt.getVars());
             Goal target = new GoalAnd(new GoalAnd(incompleteness, generate), save);
-            boolean flag = C.execute(target, true);
+            C.execute(target, true);
             return _uncoveredRegions;
         }
     }

@@ -234,7 +234,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
     }
 
-    @SuppressWarnings("unused")
     private void filterMINCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         if (selected.size() > 1) {
             List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
