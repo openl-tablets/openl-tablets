@@ -12,8 +12,14 @@ import org.openl.rules.calc.SpreadsheetResult;
  */
 public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor<CompoundStep> {
     
+	/**
+	 * Indicates the current level of nesting.
+	 */
     private int nestingLevel;
     
+    /**
+     * Configuration for each level of converting.
+     */
     private NestedSpreadsheetConfiguration<?, ?> configuration;
     
     public NestedSpreadsheedColumnExtractor(int nestingLevel, NestedSpreadsheetConfiguration<?, ?> configuration, ColumnToExtract column, boolean mandatory) {
@@ -26,22 +32,42 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
     	this(nestingLevel, null, column, mandatory);    	
     }
     
+    /**
+     * Gets the configuration 
+     *  
+     * @return {@link NestedSpreadsheetConfiguration}
+     */
     public NestedSpreadsheetConfiguration<?, ?> getConfiguration() {
 		return configuration;
 	}
-
+    
+    /**
+     * Setter for the {@link NestedSpreadsheetConfiguration}
+     * 
+     * @param configuration
+     */
 	public void setConfiguration(NestedSpreadsheetConfiguration<?, ?> configuration) {
 		this.configuration = configuration;
 	}
-
+	
+	/**
+	 * Overrides the parent method.
+	 * Analyze the 'from' object if it is a {@link SpreadsheetResult} or an array of it.
+	 * According to this converts and stores the data to object 'to'.
+	 */
 	@Override
     public void convertAndStoreData(Object from, CompoundStep to) {
         if (from.getClass().isArray()) {
             // process SpreadsheetResult[] as nesting column value.
             //
-            for (SpreadsheetResult result : (SpreadsheetResult[]) from) {
-                CompoundStep compoundStep = new CompoundStep();
+            for (SpreadsheetResult result : (SpreadsheetResult[]) from) {            	
+                CompoundStep compoundStep = configuration.getCompoundRowExtractor(nestingLevel).makeRowInstance();
                 compoundStep.setSteps(convertCompoundPremium(result));
+                
+                // additional processing of converted results
+                //
+                postProcess(compoundStep);
+                
                 to.addStep(compoundStep);
             }
         } else {
@@ -49,9 +75,23 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
             //
             to.setSteps(convertCompoundPremium((SpreadsheetResult) from));
         }
+        // additional processing of converted results
+        //
+        postProcess(to);
     }
     
-    @SuppressWarnings("unchecked")
+	/**
+	 * Override this method for your purpose, if there is a need in 
+	 * additional processing of converted result
+	 * 
+	 * @param compoundStep already converted result to {@link CompoundStep}
+	 */
+    protected void postProcess(CompoundStep compoundStep) {
+    	// Default implementation. Do nothing.
+    	// Override it for you purpose		
+	}
+
+	@SuppressWarnings("unchecked")
 	private NestedSpreadsheetResultConverter<?, ?> createNextLevelConverter() {
         return new NestedSpreadsheetResultConverter(nestingLevel + 1, configuration);
     }

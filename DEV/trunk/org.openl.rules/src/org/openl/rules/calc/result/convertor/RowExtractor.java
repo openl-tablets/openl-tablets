@@ -24,8 +24,30 @@ public abstract class RowExtractor<T extends CodeStep> {
         this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
     }
     
+    /**
+     * Creates the instance describing the row.
+     * 
+     * @return <T> the row instance
+     */
     protected abstract T makeRowInstance();
     
+    /**
+     * Additional processing for the extracted row.
+     * Do not implement by default.
+     * 
+     * @param step
+     */
+    protected abstract void afterExtract(T step);
+    
+    /**
+     * Extract the given row from the given spreadsheet result and populates the row 
+     * instance see {@link #makeRowInstance()}
+     * 
+     * @param spreadsheetResult from which the row will be extracted
+     * @param rowIndex index of the row for extraction
+     * 
+     * @return populated row instance with data from spreadsheet row.
+     */
     public T extract(SpreadsheetResult spreadsheetResult, int rowIndex) {
         T rowInstance = makeRowInstance();
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
@@ -36,6 +58,10 @@ public abstract class RowExtractor<T extends CodeStep> {
                 extractor.convertAndStoreData(columnValue, rowInstance);
             }
         }
+        
+        // additional processing for the extracted row
+        //
+        afterExtract(rowInstance);
         return rowInstance;
     }
     

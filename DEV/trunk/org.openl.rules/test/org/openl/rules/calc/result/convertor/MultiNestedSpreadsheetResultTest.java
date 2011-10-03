@@ -51,6 +51,11 @@ public class MultiNestedSpreadsheetResultTest {
 						
 						return new SimpleStep();
 					}
+
+					@Override
+					protected void afterExtract(CodeStep step) {
+						// Do nothing						
+					}
 				};
 			}
 			
@@ -63,6 +68,11 @@ public class MultiNestedSpreadsheetResultTest {
 					@Override
 					protected CompoundStep makeRowInstance() {
 						return new CompoundStep();
+					}
+
+					@Override
+					protected void afterExtract(CompoundStep step) {
+						// Do nothing						
 					}
 				};
 			}
