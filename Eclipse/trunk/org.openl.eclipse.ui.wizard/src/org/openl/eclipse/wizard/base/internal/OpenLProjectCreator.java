@@ -134,13 +134,18 @@ public class OpenLProjectCreator {
         return true;
     }
 
-    public void setupClasspath(boolean isNewProject, String[] sourceDirectories) throws CoreException {
+    public void setupClasspath(boolean isNewProject, String[] sourceDirectories,
+            String[] libraries) throws CoreException {
         IPath projPath = project.getFullPath();
         IPath outputPath = projPath.append("bin");
         Collection<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
 
         for (String sourceDir : sourceDirectories) {
             entries.add(JavaCore.newSourceEntry(projPath.append(sourceDir)));
+        }
+
+        for (String lib : libraries) {
+            entries.add(JavaCore.newLibraryEntry(projPath.append(lib), null, null));
         }
 
         if (isNewProject) {
