@@ -33,6 +33,10 @@ public class TestDoubleValue {
     	assertEquals(14.25, DoubleValue.add(v1, v2).doubleValue(), 0.001);
     	
     	v1 = null;
+    	v2 = new DoubleValue(17.88);
+    	assertEquals(17.88, DoubleValue.add(v1, v2).doubleValue(), 0.001);
+    	
+    	v1 = null;
     	v2 = null;
     	assertNull(DoubleValue.add(v1, v2));
     }
@@ -59,8 +63,12 @@ public class TestDoubleValue {
     	assertEquals(22.22, DoubleValue.subtract(v1, v2).doubleValue(), 0.001);
     	
     	v1 = null;
+    	v2 = new DoubleValue(225.22);
+    	assertEquals(-225.22, DoubleValue.subtract(v1, v2).doubleValue(), 0.001);
+    	
+    	v1 = null;
     	v2 = null;
-    	assertEquals(DoubleValue.ZERO, DoubleValue.subtract(v1, v2));
+    	assertNull(DoubleValue.subtract(v1, v2));
     }
     
     @Test 
@@ -91,7 +99,15 @@ public class TestDoubleValue {
     	
     	v1 = null;
     	v2 = new DoubleValue(22.22);
-    	assertEquals(0, DoubleValue.multiply(v1, v2).doubleValue(), 0.001);
+    	assertEquals(22.22, DoubleValue.multiply(v1, v2).doubleValue(), 0.001);
+    	
+    	v1 = new DoubleValue(25.29);
+    	v2 = null;
+    	assertEquals(25.29, DoubleValue.multiply(v1, v2).doubleValue(), 0.001);
+    	
+    	v1 = null;
+    	v2 = null;
+    	assertNull(DoubleValue.multiply(v1, v2));
     	
     	v1 = new DoubleValue(11.22);
     	v2 = new DoubleValue(0);
@@ -128,25 +144,16 @@ public class TestDoubleValue {
     	    	
     	v1 = null;
     	v2 = new DoubleValue(12);
-    	assertEquals(0, DoubleValue.divide(v1, v2).doubleValue(), 0.001);
+    	assertEquals(0.08333, DoubleValue.divide(v1, v2).doubleValue(), 0.001);
     	
     	v1 = new DoubleValue(34);
     	v2 = null;
-    	try {
-    		DoubleValue.divide(v1, v2);
-    		fail("Division by zero cannot pass");
-    	} catch (OpenlNotCheckedException e) {
-    		assertTrue(true);
-		}
+    	
+    	assertEquals(34,DoubleValue.divide(v1, v2).doubleValue(), 0.1);    	
     	
     	v1 = null;
     	v2 = null;
-    	try {
-    		DoubleValue.divide(v1, v2);
-    		fail("Division by zero cannot pass");
-    	} catch (OpenlNotCheckedException e) {
-    		assertTrue(true);
-		}
+    	assertNull(DoubleValue.divide(v1, v2));
     	
     	v1 = null;
     	v2 = new DoubleValue(0);

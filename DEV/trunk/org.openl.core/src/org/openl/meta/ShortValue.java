@@ -153,11 +153,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 		//
 		//		validate(value1, value2, Formulas.MULTIPLY.toString());
 		if (value1 == null) {
-			return ZERO1;
+			return value2;
 		}
 		
 		if (value2 == null) {
-			return ZERO1;
+			return value1;
 		}
 		
 		return new org.openl.meta.ShortValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
@@ -168,7 +168,10 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 	public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
 		// temporary commented to support operations with nulls
 		//
-		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
+		if (value1 == null && value2 == null) {
+			return null;
+		}
 		
 		if (value1 == null) {
 			return negative(value2);
@@ -182,17 +185,26 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 			Formulas.SUBTRACT);		
 	}
 	
+	// DIVIDE
 	public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
 		// temporary commented to support operations with nulls
 		//
 		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return ZERO1;
+				return new org.openl.meta.ShortValue(value1, value2, divide(new org.openl.meta.ShortValue("1"), value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
-		if (value2 == null || value2.doubleValue() == 0) {
+		if (value2 == null) {
+			return new org.openl.meta.ShortValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+		}
+		
+		if (value2.doubleValue() == 0) {
 			throw new OpenlNotCheckedException("Division by zero");
 		}
 		
@@ -346,7 +358,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 	
 	 
       
-                                                                                            // <<< END INSERT Functions >>>
+                                                                                                                            // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 

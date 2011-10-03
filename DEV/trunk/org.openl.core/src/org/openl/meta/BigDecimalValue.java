@@ -155,11 +155,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 		//
 		//		validate(value1, value2, Formulas.MULTIPLY.toString());
 		if (value1 == null) {
-			return ZERO1;
+			return value2;
 		}
 		
 		if (value2 == null) {
-			return ZERO1;
+			return value1;
 		}
 		
 		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
@@ -170,7 +170,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	public static org.openl.meta.BigDecimalValue subtract(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
 		// temporary commented to support operations with nulls
 		//
-		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
+		if (value1 == null && value2 == null) {
+			return null;
+		}
 		
 		if (value1 == null) {
 			return negative(value2);
@@ -184,17 +187,26 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 			Formulas.SUBTRACT);		
 	}
 	
+	// DIVIDE
 	public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
 		// temporary commented to support operations with nulls
 		//
 		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return ZERO1;
+				return new org.openl.meta.BigDecimalValue(value1, value2, divide(new org.openl.meta.BigDecimalValue("1"), value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
-		if (value2 == null || value2.doubleValue() == 0) {
+		if (value2 == null) {
+			return new org.openl.meta.BigDecimalValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+		}
+		
+		if (value2.doubleValue() == 0) {
 			throw new OpenlNotCheckedException("Division by zero");
 		}
 		
@@ -348,7 +360,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	
 	 
       
-                                                                                            // <<< END INSERT Functions >>>
+                                                                                                                            // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 
