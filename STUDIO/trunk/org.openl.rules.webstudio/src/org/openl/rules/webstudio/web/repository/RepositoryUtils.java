@@ -7,6 +7,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -67,4 +68,12 @@ public class RepositoryUtils {
         }
         return null;
     }
+
+    public static String getTreeNodeId(String name) {
+        if (StringUtils.isNotBlank(name)) {
+            return String.valueOf(name.hashCode());
+        }
+        return null;
+    }
+
 }

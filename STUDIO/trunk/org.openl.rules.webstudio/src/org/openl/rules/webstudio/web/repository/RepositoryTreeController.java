@@ -315,7 +315,8 @@ public class RepositoryTreeController {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             project.delete(userWorkspace.getUser());
             if(repositoryTreeState.isHideDeleted()) {
-                TreeNode projectInTree = repositoryTreeState.getDeploymentRepository().getChild(project.getName());
+                TreeNode projectInTree = repositoryTreeState.getDeploymentRepository().getChild(
+                        RepositoryUtils.getTreeNodeId(project.getName()));
                 repositoryTreeState.deleteNode(projectInTree);
             }
         } catch (ProjectException e) {
@@ -366,12 +367,14 @@ public class RepositoryTreeController {
             RulesProject project = userWorkspace.getProject(projectName);
             if (project.isLocalOnly()) {
                 project.erase(userWorkspace.getUser());
-                TreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                TreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(
+                        RepositoryUtils.getTreeNodeId(project.getName()));
                 repositoryTreeState.deleteNode(projectInTree);
             } else {
                 project.delete(userWorkspace.getUser());
                 if(repositoryTreeState.isHideDeleted()){
-                    TreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(project.getName());
+                    TreeNode projectInTree = repositoryTreeState.getRulesRepository().getChild(
+                            RepositoryUtils.getTreeNodeId(project.getName()));
                     repositoryTreeState.deleteNode(projectInTree);
                 }
             }
