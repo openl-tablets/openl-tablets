@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.diff;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffStatus;
@@ -13,7 +12,6 @@ public class TreeNode extends TreeNodeImpl {
     private DiffTreeNode diffTreeNode;
 
     public TreeNode(DiffTreeNode node) {
-        super(CollectionUtils.isEmpty(node.getChildren()));
         this.diffTreeNode = node;
     }
 
