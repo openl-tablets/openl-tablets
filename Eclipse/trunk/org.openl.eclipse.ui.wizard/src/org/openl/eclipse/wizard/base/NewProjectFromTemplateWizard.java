@@ -92,7 +92,8 @@ public class NewProjectFromTemplateWizard extends BasicNewResourceWizard impleme
 
                     monitor.worked(100);
 
-                    creator.setupClasspath(true, OpenLCore.getTemplateSourceDirectories(customizer));
+                    creator.setupClasspath(true, OpenLCore.getTemplateSourceDirectories(customizer),
+                            OpenLCore.getTemplateLibraries(customizer));
                     monitor.worked(300);
 
                     // refresh workspace project

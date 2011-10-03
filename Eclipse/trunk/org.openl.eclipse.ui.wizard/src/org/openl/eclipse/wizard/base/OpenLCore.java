@@ -25,7 +25,7 @@ public class OpenLCore {
         OpenLProjectCreator creator = new OpenLProjectCreator(project, project.getLocation());
 
         creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
-        creator.setupClasspath(false, getTemplateSourceDirectories(customizer));
+        creator.setupClasspath(false, getTemplateSourceDirectories(customizer), getTemplateLibraries(customizer));
 
         TemplateCopier templateCopier = new TemplateCopier(project, customizer);
 
@@ -61,6 +61,14 @@ public class OpenLCore {
             return new String[0];
         }
         return s.trim().split(",");
+    }
+
+    public static String[] getTemplateLibraries(INewProjectFromTemplateWizardCustomizer customizer) {
+        String libs = getProjectProperties(customizer).getProperty("libs");
+        if (libs == null) {
+            return new String[0];
+        }
+        return libs.trim().split(",");
     }
 
     public static void removeOpenLCapabilities(IProject project) throws CoreException {
