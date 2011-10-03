@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.util.math.MathUtils;
 
 public class IntValueTest {
     
@@ -16,6 +15,51 @@ public class IntValueTest {
         assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);
+    }
+    
+    @Test
+    public void testSubstract() {
+    	IntValue v1 = new IntValue(12);
+    	IntValue v2 = null;    	
+    	assertEquals(12, IntValue.subtract(v1, v2).intValue());
+    	
+    	v1 = null;
+    	v2 = new IntValue(15);
+    	assertEquals(-15, IntValue.subtract(v1, v2).intValue());
+    	
+    	v1 = null;
+    	v2 = null;
+    	assertNull(IntValue.subtract(v1, v2));
+    }
+    
+    @Test
+    public void testAdd() {
+    	IntValue v1 = new IntValue(123);
+    	IntValue v2 = null;    	
+    	assertEquals(123, IntValue.add(v1, v2).intValue());
+    	
+    	v1 = null;
+    	v2 = new IntValue(1578);
+    	assertEquals(1578, IntValue.add(v1, v2).intValue());
+    	
+    	v1 = null;
+    	v2 = null;
+    	assertNull(IntValue.add(v1, v2));
+    }
+    
+    @Test
+    public void testMultiply() {
+    	IntValue v1 = new IntValue(123);
+    	IntValue v2 = null; 
+    	assertEquals(123, IntValue.multiply(v1, v2).intValue());
+    	
+    	v1 = null;
+    	v2 = new IntValue(12);
+    	assertEquals(12, IntValue.multiply(v1, v2).intValue());
+    	
+    	v1 = null;
+    	v2 = null;
+    	assertNull(IntValue.multiply(v1, v2));
     }
     
     @Test
@@ -31,6 +75,18 @@ public class IntValueTest {
         } catch (OpenlNotCheckedException e) {
             assertTrue(true);
         }
+        
+        IntValue val1 = new IntValue(10);
+        IntValue val2 = null;
+        assertEquals(10, IntValue.divide(val1, val2).intValue());
+        
+        val1 = null;
+        val2 = new IntValue(10);
+        assertEquals(0, IntValue.divide(val1, val2).intValue());
+        
+        val1 = null;
+        val2 = null;
+        assertEquals(null, IntValue.divide(val1, val2));
     }
     
     @Test

@@ -114,11 +114,11 @@
 		//
 		//		validate(value1, value2, Formulas.MULTIPLY.toString());
 		if (value1 == null) {
-			return ZERO1;
+			return value2;
 		}
 		
 		if (value2 == null) {
-			return ZERO1;
+			return value1;
 		}
 		
 		return new $tool.getTypeName($type)(value1, value2, Operators.${multiplyFormula.Name}(value1.getValue(), value2.getValue()), 
@@ -129,7 +129,10 @@
 	public static $tool.getTypeName($type) ${subtractFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
 		// temporary commented to support operations with nulls
 		//
-		//		validate(value1, value2, Formulas.SUBTRACT.toString());
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
+		if (value1 == null && value2 == null) {
+			return null;
+		}
 		
 		if (value1 == null) {
 			return negative(value2);
@@ -143,17 +146,26 @@
 			${subtractFormula.FullName});		
 	}
 	
+	// DIVIDE
 	public static $tool.getTypeName($type) ${divideFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
 		// temporary commented to support operations with nulls
 		//
 		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return ZERO1;
+				return new $tool.getTypeName($type)(value1, value2, ${divideFormula.Name}(new $tool.getTypeName($type)("1"), value2).getValue(), ${divideFormula.FullName});
 			}
 		}
 		
-		if (value2 == null || value2.doubleValue() == 0) {
+		if (value2 == null) {
+			return new $tool.getTypeName($type)(value1, value2, value1.getValue(), ${divideFormula.FullName});
+		}
+		
+		if (value2.doubleValue() == 0) {
 			throw new OpenlNotCheckedException("Division by zero");
 		}
 		
