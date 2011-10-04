@@ -12,6 +12,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
@@ -24,8 +25,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     private IOpenMethod testedMethod;
     private IOpenClass methodBasedClass;
     
-    public TestSuiteMethod(String tableName, IOpenMethod testedMethod, TestMethodBoundNode boundNode) {
-        super(TestMethodHelper.makeHeader(tableName, testedMethod), boundNode);
+    public TestSuiteMethod(String tableName, IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
+        super(header, boundNode);
     
         this.tableName = tableName;
         this.testedMethod = testedMethod;
