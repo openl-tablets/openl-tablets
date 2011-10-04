@@ -20,13 +20,14 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class TablePropertiesTest extends BaseOpenlBuilderHelper{
     
-    public TablePropertiesTest() {
+    private static final String PROPERTY_ACTIVE = "active";
+
+	public TablePropertiesTest() {
         super(__src);   
     }
 
     private static String __src = "test/rules/Tutorial_4_Test.xls";
-        
-    private static final String PROPERTY_LANG = "lang";
+    
     private static final String PROPERTY_BUILD_PHASE = "buildPhase";
     private static final String PROPERTY_REGION = "region";
     private static final String PROPERTY_USREGION = "usregion";
@@ -146,9 +147,6 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
         // check that property was overriden on CATEGORY level.
         assertEquals("categoryLevelBuildPhase", (String)allProperties.get(PROPERTY_BUILD_PHASE));
         
-        // check that property was applied by default.
-        assertTrue(allProperties.containsKey(PROPERTY_LANG)); 
-        
         // check that MODULE properties are inherited.
         assertTrue(allProperties.containsKey(PROPERTY_EXPIRATION_DATE));
     }    
@@ -166,11 +164,11 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
         // checks that property PROPERTY_EXPIRATION_DATE is defined on MODULE level.
         assertEquals(InheritanceLevel.MODULE, tableProperties.getPropertyLevelDefinedOn(PROPERTY_EXPIRATION_DATE));
         
-        // checks that property PROPERTY_LANG, that is applied by default, doesn`t have defined level.
-        assertNull(tableProperties.getPropertyLevelDefinedOn(PROPERTY_LANG));
+        // checks that property PROPERTY_ACTIVE, that is applied by default, doesn`t have defined level.
+        assertNull(tableProperties.getPropertyLevelDefinedOn(PROPERTY_ACTIVE));
         
-        // checks that property PROPERTY_LANG is applied by default.
-        assertTrue(tableProperties.isPropertyAppliedByDefault(PROPERTY_LANG));
+        // checks that property PROPERTY_ACTIVE is applied by default.
+        assertTrue(tableProperties.isPropertyAppliedByDefault(PROPERTY_ACTIVE));
         
     }
 }
