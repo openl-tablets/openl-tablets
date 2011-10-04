@@ -3,8 +3,8 @@
  */
 package org.openl.rules.testmethod;
 
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -20,12 +20,12 @@ public class TestMethodHelper {
     public static final String CONTEXT_NAME = "_context_";
     public static final String DESCRIPTION_NAME = "_description_";
 
-    public static IOpenMethodHeader makeHeader(String tableName, IOpenMethod testedMethod) {
+    public static IOpenMethodHeader makeHeader(String tableName, XlsModuleOpenClass module) {
 
         return new OpenMethodHeader(tableName + "TestAll",
             JavaOpenClass.getOpenClass(TestUnitsResults.class),
             IMethodSignature.VOID,
-            testedMethod.getDeclaringClass());
+            module);
     }
 
 }
