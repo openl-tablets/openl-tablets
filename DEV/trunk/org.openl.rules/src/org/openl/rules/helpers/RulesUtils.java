@@ -545,7 +545,7 @@ public class RulesUtils {
     }	
     
     public static java.lang.Byte[] slice(java.lang.Byte[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.lang.Short[] slice(java.lang.Short[] values, int startIndexInclusive) {
@@ -553,7 +553,7 @@ public class RulesUtils {
     }	
     
     public static java.lang.Short[] slice(java.lang.Short[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.lang.Integer[] slice(java.lang.Integer[] values, int startIndexInclusive) {
@@ -561,7 +561,7 @@ public class RulesUtils {
     }	
     
     public static java.lang.Integer[] slice(java.lang.Integer[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.lang.Long[] slice(java.lang.Long[] values, int startIndexInclusive) {
@@ -569,7 +569,7 @@ public class RulesUtils {
     }	
     
     public static java.lang.Long[] slice(java.lang.Long[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.lang.Float[] slice(java.lang.Float[] values, int startIndexInclusive) {
@@ -577,7 +577,7 @@ public class RulesUtils {
     }	
     
     public static java.lang.Float[] slice(java.lang.Float[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.lang.Double[] slice(java.lang.Double[] values, int startIndexInclusive) {
@@ -585,7 +585,7 @@ public class RulesUtils {
     }	
     
     public static java.lang.Double[] slice(java.lang.Double[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.math.BigInteger[] slice(java.math.BigInteger[] values, int startIndexInclusive) {
@@ -593,7 +593,7 @@ public class RulesUtils {
     }	
     
     public static java.math.BigInteger[] slice(java.math.BigInteger[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values, int startIndexInclusive) {
@@ -601,7 +601,7 @@ public class RulesUtils {
     }	
     
     public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static byte[] slice(byte[] values, int startIndexInclusive) {
@@ -609,7 +609,7 @@ public class RulesUtils {
     }	
     
     public static byte[] slice(byte[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static short[] slice(short[] values, int startIndexInclusive) {
@@ -617,7 +617,7 @@ public class RulesUtils {
     }	
     
     public static short[] slice(short[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static int[] slice(int[] values, int startIndexInclusive) {
@@ -625,7 +625,7 @@ public class RulesUtils {
     }	
     
     public static int[] slice(int[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static long[] slice(long[] values, int startIndexInclusive) {
@@ -633,7 +633,7 @@ public class RulesUtils {
     }	
     
     public static long[] slice(long[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static float[] slice(float[] values, int startIndexInclusive) {
@@ -641,7 +641,7 @@ public class RulesUtils {
     }	
     
     public static float[] slice(float[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
     public static double[] slice(double[] values, int startIndexInclusive) {
@@ -649,7 +649,7 @@ public class RulesUtils {
     }	
     
     public static double[] slice(double[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
 
@@ -714,7 +714,7 @@ public class RulesUtils {
 	
     
     
-				// <<< END INSERT Functions >>> 
+					// <<< END INSERT Functions >>> 
 
     public static boolean contains(Object[] array, Object obj) {
         return ArrayUtils.contains(array, obj);

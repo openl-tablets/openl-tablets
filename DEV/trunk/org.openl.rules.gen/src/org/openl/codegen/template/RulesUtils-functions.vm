@@ -76,7 +76,7 @@
     }	
     
     public static $tool.getTypeName($type)[] slice($tool.getTypeName($type)[] values, int startIndexInclusive, int endIndexExclusive) {
-    	return MathUtils.slice(values, startIndexInclusive);
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }	
     
 #end	
