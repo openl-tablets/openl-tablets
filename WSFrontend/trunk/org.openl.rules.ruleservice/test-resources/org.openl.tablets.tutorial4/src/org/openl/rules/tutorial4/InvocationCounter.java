@@ -2,21 +2,17 @@ package org.openl.rules.tutorial4;
 
 import java.lang.reflect.Method;
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
 
-public class InvocationCounter extends ServiceMethodBeforeInterceptor {
+public class InvocationCounter implements ServiceMethodBeforeAdvice {
 
     private static int count = 0;
 
-    public InvocationCounter(Method method) {
-        super(method);
-    }
-
     @Override
-    public void invoke(Object proxy, Object... args) {
+    public void before(Method method, Object proxy, Object... args) throws Throwable {
         count++;
     }
-
+    
     public static int getCount() {
         return count;
     }
