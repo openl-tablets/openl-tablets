@@ -270,7 +270,6 @@ public class DefaultPropertyDefinitions
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setBusinessSearch(false);
 		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: currencies"));
-		definitions[17].setDefaultValue("USD");
 		definitions[17].setDescription("Currency");
 		definitions[17].setDimensional(true);
 		definitions[17].setDisplayName("Currency");
@@ -285,7 +284,6 @@ public class DefaultPropertyDefinitions
 		definitions[18] = new TablePropertyDefinition();
 		definitions[18].setBusinessSearch(false);
 		definitions[18].setConstraints(new org.openl.rules.table.constraints.Constraints("data: languages"));
-		definitions[18].setDefaultValue("ENG");
 		definitions[18].setDescription("Language");
 		definitions[18].setDimensional(true);
 		definitions[18].setDisplayName("Language");
