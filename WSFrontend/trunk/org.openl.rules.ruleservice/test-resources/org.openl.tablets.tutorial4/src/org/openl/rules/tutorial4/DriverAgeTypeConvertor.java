@@ -2,17 +2,12 @@ package org.openl.rules.tutorial4;
 
 import java.lang.reflect.Method;
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterReturningAdvice;
 
-public class DriverAgeTypeConvertor extends ServiceMethodAfterInterceptor<DriverAgeType>{
-
-    public DriverAgeTypeConvertor(Method method) {
-        super(method);
-    }
+public class DriverAgeTypeConvertor implements ServiceMethodAfterReturningAdvice<DriverAgeType> {
 
     @Override
-    public DriverAgeType invoke(Object result, Object... args) {
-        return DriverAgeType.parse((String)result);
+    public DriverAgeType afterReturning(Method method, Object result, Object... args) throws Throwable {
+        return DriverAgeType.parse((String) result);
     }
-
 }
