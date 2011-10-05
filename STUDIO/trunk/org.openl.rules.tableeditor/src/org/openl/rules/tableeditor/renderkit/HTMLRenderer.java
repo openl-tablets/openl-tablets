@@ -135,7 +135,9 @@ public class HTMLRenderer {
                 }
                 result.append("</div>");
 
-                String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
+                String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId()
+                        // name of js variable can't contain ':' symbol
+                        .replaceAll(":", "_");
 
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
                 String afterSave = getEditorJSAction(editor.getOnAfterSave());
