@@ -125,4 +125,9 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         return file.lastModified() != lastModified;
     }
 
+    @Override
+    public void reset() {
+        lastModified = file.lastModified();
+    }
+
 }

@@ -77,5 +77,5 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-    
+    public abstract void reset();
 }
