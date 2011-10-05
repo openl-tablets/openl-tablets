@@ -90,14 +90,14 @@ public class MultiNestedSpreadsheetResultTest {
 		assertEquals(CompoundStep.class, result.get(0).getClass());		
 		// step is simple because doesn`t contain columns for extraction
 		//
-		assertEquals(CompoundStep.class, ((CompoundStep)result.get(0)).getSteps().get(0).getClass());		
+		assertEquals(SimpleStep.class, ((CompoundStep)result.get(0)).getSteps().get(0).getClass());		
 		assertEquals("nestedColumn1", ((CompoundStep)result.get(0)).getSteps().get(0).getCode());
 		
 		assertEquals("secondNested", result.get(1).getCode());
 		assertEquals(CompoundStep.class, result.get(1).getClass());
 		// step is compound because contains column for extraction
 		//
-		assertEquals(CompoundStep.class, ((CompoundStep)result.get(1)).getSteps().get(0).getClass());		
+		assertEquals(SimpleStep.class, ((CompoundStep)result.get(1)).getSteps().get(0).getClass());		
 		assertEquals("nestedColumn2", ((CompoundStep)result.get(1)).getSteps().get(0).getCode());
 	}
 	
