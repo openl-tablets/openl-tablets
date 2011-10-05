@@ -64,6 +64,18 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
     protected abstract RowExtractor<Compound> initCompoundRowExtractor(List<SpreadsheetColumnExtractor<Compound>> compoundExtractors);
     
     /**
+     * Initialize the extractor for the column that is compound.
+     * 
+     * @param nestingLevel current level of nesting
+     * @param column column for extraction
+     * @param mandatory 
+     * @return the extractor for the column that is compound.
+     */
+    protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel, ColumnToExtract column, boolean mandatory) {
+    	return new NestedSpreadsheedColumnExtractor(nestingLevel, this, column, mandatory);
+    }
+    
+    /**
      * 
      * Creates {@link RowExtractor} for rows that doesn`t have compound results.
      * @param nestingLevel current nesting level
@@ -99,8 +111,7 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
             if (column.containNested()) {
                 // create column extractor for nested column value
                 //
-                compoundExtractors.add((SpreadsheetColumnExtractor<Compound>) new NestedSpreadsheedColumnExtractor(nestingLevel, this, 
-                    column, true));
+                compoundExtractors.add((SpreadsheetColumnExtractor<Compound>) initCompoundColumnExtractor(nestingLevel, column, true));
             } else {
                 // not compound column values should be extracted also for compound rows.
                 //
@@ -117,6 +128,17 @@ public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Co
     		}
     	}
     	return false;
+    }
+    
+    public List<ColumnToExtract> getCompoundColumnsToExtract(int nestingLevel) {
+    	List<ColumnToExtract> compoundColumns = new ArrayList<ColumnToExtract>();
+    	
+    	for (ColumnToExtract column : columnsToExtractForLevels.get(nestingLevel)) {
+    		if (column.containNested()) {
+    			compoundColumns.add(column);
+    		}
+    	}
+    	return compoundColumns;
     }
     
 
