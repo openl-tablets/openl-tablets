@@ -11,6 +11,30 @@ import java.util.List;
  *
  */
 public class CompoundStep extends CodeStep {
+	
+	/** These 2 fields currently added for Chartis case.
+	 * In future any customizations of {@link CompoundStep} and {@link SimpleStep}
+	 * will be done by generated datatypes.
+	 * And fields formula, and id will be removed. 
+	 */
+	private Double formula;
+	private String id;
+
+	public Double getFormula() {
+		return formula;
+	}
+
+	public void setFormula(Double formula) {
+		this.formula = formula;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
     
     private List<CodeStep> steps = new ArrayList<CodeStep>();
     
