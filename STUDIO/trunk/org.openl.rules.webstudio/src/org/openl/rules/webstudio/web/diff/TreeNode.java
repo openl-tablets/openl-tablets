@@ -12,6 +12,11 @@ public class TreeNode extends TreeNodeImpl {
     private DiffTreeNode diffTreeNode;
 
     public TreeNode(DiffTreeNode node) {
+        this(node, false);
+    }
+
+    public TreeNode(DiffTreeNode node, boolean leaf) {
+        super(leaf);
         this.diffTreeNode = node;
     }
 

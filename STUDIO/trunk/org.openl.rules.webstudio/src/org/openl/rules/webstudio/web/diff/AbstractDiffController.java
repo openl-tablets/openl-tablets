@@ -138,7 +138,7 @@ public abstract class AbstractDiffController {
                 continue;
                 // TODO implement XlsProjectionDiffer and you don't need that check
             }
-            
+
             if (type.equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(d)) {
                 continue;// skip equal elements
             }
@@ -162,7 +162,7 @@ public abstract class AbstractDiffController {
                                 }
                                 String s = pp1.getName() + ": " + v1 + " -> " + v2;
 
-                                TreeNode2 np = new TreeNode2(d, s);
+                                PropertyNode np = new PropertyNode(d, s);
                                 node.addChild(String.valueOf(idGenerator.getAndIncrement()), np);
                             }
                         }

@@ -3,11 +3,11 @@ package org.openl.rules.webstudio.web.diff;
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 
-public class TreeNode2 extends TreeNode {
+public class PropertyNode extends TreeNode {
     private String title;
 
-    public TreeNode2(DiffTreeNode node, String title) {
-        super(node);
+    public PropertyNode(DiffTreeNode node, String title) {
+        super(node, true);
         this.title = title;
     }
 
