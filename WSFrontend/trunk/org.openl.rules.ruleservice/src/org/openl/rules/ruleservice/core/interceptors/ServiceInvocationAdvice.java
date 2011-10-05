@@ -124,7 +124,7 @@ public class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
     protected Object afterReturningInvocation(Method interfaceMethod, Object result, Object... args) throws Throwable {
         List<ServiceMethodAfterReturningAdvice<?>> postInterceptors = afterReturningInterceptors.get(interfaceMethod);
         if (postInterceptors != null && postInterceptors.size() > 0) {
-            Object ret = null;
+            Object ret = result;
             for (ServiceMethodAfterReturningAdvice<?> interceptor : postInterceptors) {
                 ret = interceptor.afterReturning(interfaceMethod, ret, args);
             }
