@@ -902,11 +902,19 @@ public class RulesUtils {
     public static void out(boolean output) {
         System.out.println(String.valueOf(output));
     }
-
+    
+    /**
+     * Parse the represented string value to the double. 
+     * Uses default Locale for it.
+     */
     public static double parseFormattedDouble(String s) throws ParseException {
         return parseFormattedDouble(s, DEFAULT_DOUBLE_FORMAT);
     }
-
+    
+    /**
+     * Parse the represented string value to the double. 
+     * Uses default Locale for it. See {@link DecimalFormat#DecimalFormat(String)}
+     */
     public static double parseFormattedDouble(String s, String fmt) throws ParseException {
         DecimalFormat df = new DecimalFormat(fmt);
         return df.parse(s).doubleValue();
