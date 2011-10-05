@@ -157,7 +157,7 @@
   <managed-bean>
     <managed-bean-name>uploadExcelDiffController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.diff.UploadExcelDiffController</managed-bean-class>
-    <managed-bean-scope>view</managed-bean-scope>
+    <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
   <!-- studio config -->
