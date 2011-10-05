@@ -93,4 +93,9 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         return getLastModified() != lastModified;
     }
 
+    @Override
+    public void reset() {
+        lastModified = getLastModified();
+    }
+
 }

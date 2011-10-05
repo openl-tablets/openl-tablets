@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.ASourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -148,10 +149,11 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
     public void save() throws IOException {
         File sourceFile = getSourceFile();
-        long sourceModified = sourceFile.lastModified();
         String fileName = sourceFile.getCanonicalPath();
         saveAs(fileName);
-        sourceFile.setLastModified(sourceModified);
+        if (getSource() instanceof ASourceCodeModule) {
+            ((ASourceCodeModule) getSource()).reset();
+        }
     }
 
     public void saveAs(String fileName) throws IOException {

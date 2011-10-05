@@ -40,5 +40,9 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     public boolean isModified() {
         return false;
+    }
+
+    @Override
+    public void reset() {
     } 
 }
