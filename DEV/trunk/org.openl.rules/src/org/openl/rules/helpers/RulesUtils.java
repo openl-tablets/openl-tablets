@@ -906,7 +906,10 @@ public class RulesUtils {
     /**
      * Parse the represented string value to the double. 
      * Uses default Locale for it.
+     * 
+     * Shouldn`t be used.
      */
+    @Deprecated
     public static double parseFormattedDouble(String s) throws ParseException {
         return parseFormattedDouble(s, DEFAULT_DOUBLE_FORMAT);
     }
@@ -914,7 +917,10 @@ public class RulesUtils {
     /**
      * Parse the represented string value to the double. 
      * Uses default Locale for it. See {@link DecimalFormat#DecimalFormat(String)}
+     * 
+     * Shouldn`t be used.
      */
+    @Deprecated
     public static double parseFormattedDouble(String s, String fmt) throws ParseException {
         DecimalFormat df = new DecimalFormat(fmt);
         return df.parse(s).doubleValue();
