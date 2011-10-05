@@ -4,6 +4,6 @@ import java.lang.reflect.Method;
 
 public interface ServiceMethodBeforeAdvice {
 	
-	public void before(Method method, Object proxy, Object... args) throws Throwable;
+	void before(Method method, Object proxy, Object... args) throws Throwable;
 	
 }
