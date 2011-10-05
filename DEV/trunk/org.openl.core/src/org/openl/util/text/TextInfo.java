@@ -48,8 +48,9 @@ public class TextInfo {
             }
         }
 
-        throw new RuntimeException();
-        // return line.length();
+//        throw new RuntimeException();
+        // In case we get EOF position(for some errors)
+        return line.length();
     }
 
     public TextInfo(String text) {
