@@ -32,7 +32,7 @@
             <br />
             <br />
 
-            <rich:dataTable id="paramTable" value="#{tableWizard.parameters}" var="parameter"
+            <h:dataTable id="paramTable" value="#{tableWizard.parameters}" var="parameter"
                 binding="#{tableWizard.parametersTable}">
                 <h:column>
                     <f:facet name="header">
@@ -54,9 +54,7 @@
                     <f:facet name="header">
                         <h:outputText value="Name"/>
                     </f:facet>
-                    <h:inputText id="pname" value="#{parameter.name}">
-                        <rich:validator />
-                    </h:inputText>
+                    <h:inputText id="pname" value="#{parameter.name}" />
                 </h:column>
 
                 <h:column>
@@ -67,7 +65,7 @@
                     </a4j:commandLink>
                     <h:message for="pname" errorClass="error" style="margin-left: 5px;" />
                 </h:column>
-            </rich:dataTable>
+            </h:dataTable>
 
             <br />
             <hr />
