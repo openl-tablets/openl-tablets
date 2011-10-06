@@ -93,13 +93,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, name);
         }
 
-        RRepository writeRep = null;
-
         try {
-            log.debug("Opening temporary write session...");
-            writeRep = RulesRepositoryFactory.getRepositoryInstance();
-            log.debug("Wrapping temporary write project...");
-            AProject newProject = wrapProject(writeRep.createRulesProject(name), false);
+            AProject newProject = wrapProject(rulesRepository.createRulesProject(name), false);
 
             newProject.update(project, user, 0, 0);
         } catch (RRepositoryException e) {
@@ -107,10 +102,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         } catch (Exception e) {
             throw new RepositoryException("Failed to copy project ''{0}''!", e, name);
         } finally {
-            if (writeRep != null) {
-                log.debug("Releasing temporary write session...");
-                writeRep.release();
-            }
             // invalidate cache (rules projects)
             projects.remove(name);
         }
@@ -279,13 +270,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
                     .getUserName());
         }
 
-        RRepository writeRep = null;
-
         try {
-            log.debug("Opening temporary write session...");
-            writeRep = RulesRepositoryFactory.getRepositoryInstance();
-            log.debug("Wrapping temporary write project...");
-            AProject project4Write = wrapProject(writeRep.getRulesProject(name), false);
+            AProject project4Write = wrapProject(rulesRepository.getRulesProject(name), false);
 
             if (major != 0 || minor != 0) {
                 String msg = MsgHelper.format("Raising project version (''{0}'' -> {1}.{2})...", name, major, minor);
@@ -296,10 +282,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         } catch (Exception e) {
             throw new RepositoryException("Failed to update project ''{0}''.", e, name);
         } finally {
-            if (writeRep != null) {
-                log.debug("Releasing temporary write session...");
-                writeRep.release();
-            }
             // invalidate cache (rules projects)
             projects.remove(name);
         }

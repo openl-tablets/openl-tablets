@@ -233,20 +233,7 @@ public class RepositoryTreeController {
         } else if (!NameChecker.checkName(newProjectName)) {
             errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace.hasProject(newProjectName)) {
-            boolean isLocalOnly;
-
-            try {
-                isLocalOnly = userWorkspace.getProject(newProjectName).isLocalOnly();
-            } catch (ProjectException e) {
-                isLocalOnly = false;
-            }
-
-            if (!isLocalOnly) {
-                errorMessage = "Project '" + newProjectName + "' already exists.";
-            }
-
-            // it is possible to copy into the repository local only project
-            // (publish it)
+            errorMessage = "Project '" + newProjectName + "' already exists.";
         }
 
         if (errorMessage != null) {
