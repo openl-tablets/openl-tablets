@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.component.html.HtmlDataTable;
 import javax.faces.model.SelectItem;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -19,7 +20,6 @@ import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
-import org.richfaces.component.UIDataTable;
 
 /**
  * @author Andrei Astrouski
@@ -38,7 +38,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
     private SelectItem[] domainTypes;
     private String parent;
 
-    private UIDataTable parametersTable;
+    private HtmlDataTable parametersTable;
 
     public DatatypeTableCreationWizard() {
     }
@@ -79,11 +79,11 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         return domainTypes;
     }
 
-    public UIDataTable getParametersTable() {
+    public HtmlDataTable getParametersTable() {
         return parametersTable;
     }
 
-    public void setParametersTable(UIDataTable parametersTable) {
+    public void setParametersTable(HtmlDataTable parametersTable) {
         this.parametersTable = parametersTable;
     }
 
