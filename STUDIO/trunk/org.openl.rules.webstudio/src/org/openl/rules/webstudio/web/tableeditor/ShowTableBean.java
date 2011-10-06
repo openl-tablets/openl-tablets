@@ -396,6 +396,8 @@ public class ShowTableBean {
         try {
             new TableServiceImpl(true).removeTable(gridTable);
             studio.rebuildModel();
+            RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
+            visitedTables.getTables().remove(table);
         } catch (TableServiceException e) {
             e.printStackTrace();
             // TODO UI exception
