@@ -159,6 +159,9 @@ public class ParserTest extends TestCase {
     public void testIf() {
         _testType("if (x) a();", "control.if");
     }
+    
+    
+    
 
     public void testLiteral() throws OpenConfigurationException {
         // we should remove suffix the next line produces NumberFormatException
@@ -175,6 +178,11 @@ public class ParserTest extends TestCase {
         _testLiteral("2001-01-01 11:40:33.744", "2001-01-01 11:40:33.744", "literal.datetime");
 
     }
+    
+    public void testRange() throws OpenConfigurationException {
+      _testType("$Step1:$Step7","range.variable");
+    }
+    
 
     public void testLocation() throws OpenConfigurationException {
         String test1 = "\tx";
@@ -214,6 +222,7 @@ public class ParserTest extends TestCase {
 
         NaryNode naryNode = _testOperator("x?y: z", NaryNode.class);
         Assert.assertEquals("op.ternary.qmark", naryNode.getChild(0).getType());
+
     }
 
     public void testParse() {

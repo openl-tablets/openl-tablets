@@ -185,7 +185,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper{
         String tableName = "Rules void testArrayContainsOverlap(TestValidationEnum3 value)";
         
         DesionTableValidationResult dtValidResult = testTable(tableName, null);
-        assertTrue(dtValidResult.hasProblems());
+        assertFalse(dtValidResult.hasProblems());
         assertTrue(dtValidResult.getOverlappings().length == 1);
         DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
         assertEquals("value = V2",overlap.getValues().toString());

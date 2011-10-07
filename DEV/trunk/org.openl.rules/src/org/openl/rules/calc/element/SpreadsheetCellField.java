@@ -15,10 +15,10 @@ public class SpreadsheetCellField extends ASpreadsheetField {
         this.cell = cell;
     }
 
-    @Override
-    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
-        return cell.calculate(spreadsheetResult, targetModule, params, env);
-    }
+//    @Override
+//    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
+//        return cell.calculate(spreadsheetResult, targetModule, params, env);
+//    }
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
@@ -44,7 +44,7 @@ public class SpreadsheetCellField extends ASpreadsheetField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException("Can not write to spreadsheet cell");
+        throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
     }
 
 }

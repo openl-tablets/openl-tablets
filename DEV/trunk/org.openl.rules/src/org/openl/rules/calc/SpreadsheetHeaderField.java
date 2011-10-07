@@ -18,9 +18,9 @@ public class SpreadsheetHeaderField extends ASpreadsheetField {
         this.header = header;
     }
 
-    @Override
-    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
-        return header.getArray(spreadsheetResult, env);
-    }
+//    @Override
+//    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
+//        return header.getArray(spreadsheetResult, env);
+//    }
 
 }

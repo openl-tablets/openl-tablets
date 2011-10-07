@@ -26,8 +26,11 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         System.out.println("Hello1:" + vv);
 
-        Assert.assertEquals(11, ((DesionTableValidationResult)vv).getOverlappings().length);
+        Assert.assertEquals(8, ((DesionTableValidationResult)vv).getOverlappings().length);
         Assert.assertEquals(0, ((DesionTableValidationResult)vv).getUncovered().length);
+        Assert.assertEquals(0, ((DesionTableValidationResult)vv).getOverlappingBlocks().size());
+        Assert.assertEquals(8, ((DesionTableValidationResult)vv).getOverlappingPartialOverlaps().size());
+
     }
 
     @Test
@@ -41,7 +44,8 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         System.out.println("Hello2:" + vv);
 
-        Assert.assertEquals(5, ((DesionTableValidationResult)vv).getOverlappings().length);
+        Assert.assertEquals(1, ((DesionTableValidationResult)vv).getOverlappingBlocks().size());
+        Assert.assertEquals(2, ((DesionTableValidationResult)vv).getOverlappingOverrides().size());
         Assert.assertEquals(1, ((DesionTableValidationResult)vv).getUncovered().length);
         
     }

@@ -104,7 +104,9 @@ public class DesionTableValidationResult implements IValidationResult {
     }
 
     public boolean hasProblems() {
-        return overlappings != null && overlappings.length > 0 || uncovered != null && uncovered.length > 0;
+        
+        return hasErrors() || hasWarnings();
+//        return overlappings != null && overlappings.length > 0 || uncovered != null && uncovered.length > 0;
     }
     
     public boolean hasErrors() {

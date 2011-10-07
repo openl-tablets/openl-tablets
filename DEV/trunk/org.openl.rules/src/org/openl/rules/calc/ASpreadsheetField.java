@@ -10,8 +10,8 @@ public abstract class ASpreadsheetField extends DynamicObjectField {
         super(declaringClass, name, type);
     }
 
-    public abstract Object calculate(SpreadsheetResultCalculator spreadsheetResult,
-            Object targetModule,
-            Object[] params,
-            IRuntimeEnv env);
+//    public abstract Object calculate(SpreadsheetResultCalculator spreadsheetResult,
+//            Object targetModule,
+//            Object[] params,
+//            IRuntimeEnv env);
 }

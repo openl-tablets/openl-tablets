@@ -71,6 +71,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "function", org.openl.binding.impl.MethodNodeBinder.class.getName(),
                 "identifier", org.openl.binding.impl.IdentifierBinder.class.getName(),
                 "identifier.sequence", org.openl.binding.impl.IdentifierSequenceBinder.class.getName(),
+                "range.variable", org.openl.binding.impl.RangeVariableBinder.class.getName(),
                 // ,"chain","org.openl.binding.impl.ChainBinder",
                 "chain", org.openl.binding.impl.BExChainBinder.class.getName(), 
                 "chain.suffix", org.openl.binding.impl.BExChainSuffixBinder.class.getName(),

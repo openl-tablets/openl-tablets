@@ -19,9 +19,13 @@ public class Test1 {
         TestHelper<ITestCalc> testHelper;
         testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
 
+        
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc1(10, 20);
 
+        System.out.println(result.printAsTable());
+        
+        
         Object o1 = result.getValue(0, 0);
         Object o2 = result.getValue(0, 1);
 

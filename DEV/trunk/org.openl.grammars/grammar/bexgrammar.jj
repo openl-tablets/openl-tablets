@@ -426,6 +426,9 @@ TOKEN :
   >
 }
 
+
+
+
 /* IDENTIFIERS */
 
 TOKEN :
@@ -467,8 +470,10 @@ TOKEN :
        "\u0e50"-"\u0e59",
        "\u0ed0"-"\u0ed9",
        "\u1040"-"\u1049"
-      ]
+      ]    
   >
+|
+	<RANGE_VARIABLE: <IDENTIFIER> ":" <IDENTIFIER>>    
 }
 
 ////TOKEN ://{//  < LABEL: <IDENTIFIER> <COLON> >//}
@@ -857,11 +862,15 @@ void PrimaryPrefix() :
 
 //|//LOOKAHEAD(2) ////FilterExpression() IdentifierSequence() 
 
+|
+LOOKAHEAD(2)
+rangeidentifier()
   
 |
 IdentifierSequence()
-//|	
-//	
+
+
+	
   
   
 //|
@@ -962,6 +971,15 @@ void identifier() :
     syntaxBuilder.identifier("identifier", pos(token),token.image);
   }
 }
+
+void rangeidentifier() :
+{}
+{
+	<RANGE_VARIABLE> 
+	{syntaxBuilder.identifier("range.variable", pos(token),token.image);}
+}
+
+
 
 void TypeDimension() :
 {Token x1, x2;}

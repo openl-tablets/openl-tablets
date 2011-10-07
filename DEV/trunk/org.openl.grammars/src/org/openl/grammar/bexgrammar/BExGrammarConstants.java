@@ -259,11 +259,13 @@ public interface BExGrammarConstants {
   /** RegularExpression Id. */
   int DIGIT = 129;
   /** RegularExpression Id. */
-  int SINGLE_LINE_COMMENT = 132;
+  int RANGE_VARIABLE = 130;
   /** RegularExpression Id. */
-  int FORMAL_COMMENT = 133;
+  int SINGLE_LINE_COMMENT = 133;
   /** RegularExpression Id. */
-  int MULTI_LINE_COMMENT = 134;
+  int FORMAL_COMMENT = 134;
+  /** RegularExpression Id. */
+  int MULTI_LINE_COMMENT = 135;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -404,12 +406,13 @@ public interface BExGrammarConstants {
     "<IDENTIFIER>",
     "<LETTER>",
     "<DIGIT>",
-    "<token of kind 130>",
+    "<RANGE_VARIABLE>",
+    "<token of kind 131>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 135>",
+    "<token of kind 136>",
     "\"equals to\"",
     "\"is same as\"",
     "\"does not equal to\"",
