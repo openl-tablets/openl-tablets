@@ -19,7 +19,7 @@ import org.openl.source.IOpenSourceCodeModule;
  * Contains substring of the base code between start and end positions. End
  * position can have either positive or negative values. If positive, it is the
  * absolute end position from the beginning of the base code, if negative it is
- * the relative position from the end o fthe base code
+ * the relative position from the end of the base code
  *
  */
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {

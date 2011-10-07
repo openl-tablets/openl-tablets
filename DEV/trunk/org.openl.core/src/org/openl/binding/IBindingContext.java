@@ -13,6 +13,7 @@ import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -100,6 +101,21 @@ public interface IBindingContext extends ICastFactory {
 	IOpenField findVar(String namespace, String vname, boolean strictMatch)
 			throws AmbiguousVarException;
 
+	/**
+	 * 
+	 * @param namespace
+	 * @param rangeStartName
+	 * @param rangeEndName
+	 * @return reference to the variable holding a range object. The specifics of the range object is
+	 * that it is defined by a pair of the variables called start and end. There is no common range interface, 
+	 * the details must be contained in the implementation of a particular range type
+	 * @throws AmbiguousVarException
+	 */
+	
+    IOpenField findRange(String namespace, String rangeStartName, String rangeEndName)
+        throws AmbiguousVarException, FieldNotFoundException;
+	
+	
 	String getAlias(String name);
 
 	IOpenCast getCast(IOpenClass from, IOpenClass to);

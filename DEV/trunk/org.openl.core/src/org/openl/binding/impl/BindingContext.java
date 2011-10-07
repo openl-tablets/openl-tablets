@@ -17,7 +17,9 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -251,6 +253,12 @@ public class BindingContext implements IBindingContext {
 
     public void setExternalParams(Map<String, Object> externalParams) {
         this.externalParams = externalParams;
+    }
+
+    @Override
+    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
+                                                                                             FieldNotFoundException {
+        throw new FieldNotFoundException("Range:", rangeStartName + ":" + rangeEndName, null);
     }
 
 //  NOTE: A temporary implementation of multi-module feature.

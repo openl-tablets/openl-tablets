@@ -182,7 +182,7 @@ public class SpreadsheetBuilder {
         int columnsCount = columnNamesTable.getWidth();
 
         SpreadsheetOpenClass spreadsheetOpenClass = spreadsheet.getSpreadsheetType();
-        IBindingContext bindingContext = new ComponentBindingContext(this.bindingContext, spreadsheetOpenClass);
+        IBindingContext bindingContext = new SpreadsheetContext(this.bindingContext, spreadsheetOpenClass);
 
         SpreadsheetCell[][] cells = new SpreadsheetCell[rowsCount][columnsCount];
         spreadsheet.setCells(cells);
@@ -517,7 +517,7 @@ public class SpreadsheetBuilder {
         ComponentOpenClass returnType = new ComponentOpenClass(null, spreadsheet.getName() + "ColType" + columnIndex,
                 bindingContext.getOpenL());
 
-        IBindingContextDelegator moduleBindingContext = new ComponentBindingContext(scxt, returnType);
+        IBindingContextDelegator columnBindingContext = new SpreadsheetContext(scxt, returnType);
 
         int height = spreadsheet.getHeight();
 
@@ -550,7 +550,7 @@ public class SpreadsheetBuilder {
             }
         }
 
-        return moduleBindingContext;
+        return columnBindingContext;
     }
 
     private IString2DataConvertor makeConvertor(IOpenClass type) {
@@ -572,7 +572,7 @@ public class SpreadsheetBuilder {
         ComponentOpenClass returnType = new ComponentOpenClass(null, spreadsheet.getName() + "RowType" + rowIndex,
                 bindingContext.getOpenL());
 
-        IBindingContextDelegator componentBindingContext = new ComponentBindingContext(scxt, returnType);
+        IBindingContextDelegator componentBindingContext = new SpreadsheetContext(scxt, returnType);
 
         int width = spreadsheet.getWidth();
 

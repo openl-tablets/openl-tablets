@@ -17,6 +17,7 @@ import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.ISyntaxNode;
@@ -27,7 +28,7 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class BindingContextDelegator implements IBindingContextDelegator {
 
@@ -37,8 +38,13 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         this.delegate = delegate;
     }
 
-   public void addAlias(String name, String value) {
+    public void addAlias(String name, String value) {
         delegate.addAlias(name, value);
+    }
+
+    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
+                                                                                             FieldNotFoundException {
+        return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
     public void addError(SyntaxNodeException error) {
@@ -52,12 +58,12 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
         throw new UnsupportedOperationException();
     }
-    
+
     public void addTypes(Map<String, IOpenClass> types) {
         throw new UnsupportedOperationException();
     }
-    
-    //FIXME: method should throw any type of custom exception
+
+    // FIXME: method should throw any type of custom exception
     public void removeType(String namespace, IOpenClass type) throws Exception {
         throw new UnsupportedOperationException();
     }
@@ -74,8 +80,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.findFieldFor(type, fieldName, strictMatch);
     }
 
-    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes)
-            throws AmbiguousMethodException {
+    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 
@@ -149,8 +154,10 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl.binding.IBindingContext)
+     * 
+     * @see
+     * org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl.binding
+     * .IBindingContext)
      */
     public void setTopDelegate(IBindingContext delegate) {
         if (this.delegate == null) {
@@ -175,14 +182,12 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         delegate.setExternalParams(params);
     }
 
-    
-    
-//  NOTE: A temporary implementation of multi-module feature.
-//    public void addImport(IOpenClass type) {
-//       delegate.addImport(type);
-//    }
-//    
-//    public Collection<IOpenClass> getImports() {
-//        return delegate.getImports();
-//    }
+    // NOTE: A temporary implementation of multi-module feature.
+    // public void addImport(IOpenClass type) {
+    // delegate.addImport(type);
+    // }
+    //
+    // public Collection<IOpenClass> getImports() {
+    // return delegate.getImports();
+    // }
 }
