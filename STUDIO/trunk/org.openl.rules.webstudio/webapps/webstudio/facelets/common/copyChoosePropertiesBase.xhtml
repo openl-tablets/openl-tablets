@@ -96,7 +96,6 @@
 			<ui:insert name="commandButtons" />
 		</h:form>
 
-
 		<rich:popupPanel id="modalVersionChange" width="400" autosized="true">
 			<f:facet name="header">
 				<h:outputText value="Version" />
@@ -147,7 +146,7 @@
 				<h:panelGrid columns="2" style="margin-top: 10px;">
 					<a4j:commandButton value="Add"
 						action="#{propertiesManager.addProperty}"
-						render="propertiesTable,newPropertyDlg,modalVersionChange"
+						render="propertiesTable @form modalVersionChange"
 						oncomplete="#{rich:component('newPropertyDlg')}.hide();"
 						rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}" />
 					<h:commandButton value="Cancel"
