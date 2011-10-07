@@ -116,7 +116,7 @@
 
 				<h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;"
 					cellspacing="0px;">
-					<a4j:commandButton value="Ok" render="editVersionPanel"
+					<a4j:commandButton value="Ok" render="propertiesTable editVersionPanel"
 						oncomplete="#{rich:component('modalVersionChange')}.hide();" />
 					<input type="button" value="Cancel"
 						onclick="#{rich:component('modalVersionChange')}.hide();" />
@@ -146,7 +146,7 @@
 				<h:panelGrid columns="2" style="margin-top: 10px;">
 					<a4j:commandButton value="Add"
 						action="#{propertiesManager.addProperty}"
-						render="propertiesTable @form modalVersionChange"
+						render="propertiesTable @form"
 						oncomplete="#{rich:component('newPropertyDlg')}.hide();"
 						rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}" />
 					<h:commandButton value="Cancel"
