@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:rich="http://richfaces.org/rich"
-                xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-        <c:set var="minVersion" value="#{tableCopierWizard.minNextVersion}" />
-            <h:panelGroup rendered="#{not empty tableCopierWizard.version}">
-            <fieldset>
-                <legend>
-                    <h:outputText value="Current Version: " />
-                    <h:outputText id="currentVersionText" value="#{tableCopierWizard.version.value}" />
-                    <br/>
-                    <h:outputText value="New Version: " />
-                    <h:outputText id="newVersionText" value="#{minVersion}" />
-                </legend>
-                <h:panelGrid columns="2" cellspacing="1" columnClasses="label">
-                    <h:outputLabel for="major" value="Major Version" />
-                    <rich:inputNumberSpinner id="major" value="#{minVersion.major}"
-                        maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion();"
-                        enableManualInput="false" />
-                    <h:outputLabel for="minor" value="Minor Version" />
-                    <rich:inputNumberSpinner id="minor" value="#{minVersion.minor}"
-                        maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion()"
-                        enableManualInput="false" />
-                    <h:outputLabel for="variant" value="Variant Version" />
-                    <rich:inputNumberSpinner id="variant" value="#{minVersion.variant}"
-                        maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion()"
-                        enableManualInput="false" />
-                    <h:inputHidden id="newVersion" value="#{tableCopierWizard.version.value}" />
-                </h:panelGrid>
-            </fieldset>
+    <c:set var="minVersion" value="#{tableCopierWizard.minNextVersion}" />
+
+    <h:panelGroup rendered="#{not empty tableCopierWizard.version}">
+        <fieldset>
+            <legend>
+                <h:outputText value="Current Version: " />
+                <h:outputText id="currentVersionText" value="#{tableCopierWizard.version.value}" />
+                <br/>
+                <h:outputText value="New Version: " />
+                <h:outputText id="newVersionText" value="#{minVersion}" />
+            </legend>
+            <h:panelGrid columns="2" cellspacing="1" columnClasses="label">
+                <h:outputLabel for="major" value="Major Version" />
+                <rich:inputNumberSpinner id="major" value="#{minVersion.major}"
+                    maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion();"
+                    enableManualInput="false" />
+                <h:outputLabel for="minor" value="Minor Version" />
+                <rich:inputNumberSpinner id="minor" value="#{minVersion.minor}"
+                    maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion()"
+                    enableManualInput="false" />
+                <h:outputLabel for="variant" value="Variant Version" />
+                <rich:inputNumberSpinner id="variant" value="#{minVersion.variant}"
+                    maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion()"
+                    enableManualInput="false" />
+                <h:inputHidden id="newVersion" value="#{tableCopierWizard.version.value}" />
+            </h:panelGrid>
+        </fieldset>
 
         <script>
             function adjustNextVersion() {
@@ -40,21 +42,21 @@
             		applyVersion();
             	}
             }
-            
-            function isNotMoreThanPrevious(){
-                var major = new Number($('changeVersionForm:majorEdit').down().value);
+
+            function isNotMoreThanPrevious() {
+                var major = new Number(RichFaces.$('changeVersionForm:major').getValue());
                 if ( major &lt; #{minVersion.major}) {
                     return true;
                 } else if ( major &gt; #{minVersion.major}) {
                     return false;
                 }
-                var minor = new Number($('changeVersionForm:minorEdit').down().value);
+                var minor = new Number(RichFaces.$('changeVersionForm:minor').getValue());
                 if ( minor &lt; #{minVersion.minor}) {
                     return true;
                 } else if ( minor &gt; #{minVersion.minor}) {
                     return false;
                 }
-                var variant = new Number($('changeVersionForm:variantEdit').down().value);
+                var variant = new Number(RichFaces.$('changeVersionForm:variant').getValue());
                 if ( variant &lt; #{minVersion.variant}) {
                     return true;
                 } else if ( variant &gt; #{minVersion.variant}) {
@@ -62,26 +64,25 @@
                 }
                 return false;
             }
-      
+
         	function restoreVersion(){
                 var version = $("changeVersionForm:newVersion").value;
                 var sv = version.split('.');
-                $('changeVersionForm:majorEdit').down().value = sv[0];
-                $('changeVersionForm:minorEdit').down().value = sv[1];
-                $('changeVersionForm:variantEdit').down().value = sv[2];
+                RichFaces.$('changeVersionForm:major').setValue(sv[0]);
+                RichFaces.$('changeVersionForm:minor').setValue(sv[1]);
+                RichFaces.$('changeVersionForm:variant').setValue(sv[2]);
         	}
 
             function applyVersion() {
-                var major = $('changeVersionForm:majorEdit').down().value;
-                var minor = $('changeVersionForm:minorEdit').down().value;
-                var variant = $('changeVersionForm:variantEdit').down().value;
+                var major = RichFaces.$('changeVersionForm:major').getValue();
+                var minor = RichFaces.$('changeVersionForm:minor').getValue();
+                var variant = RichFaces.$('changeVersionForm:variant').getValue();
                 var version = major + "." + minor + "." + variant;
                 $("changeVersionForm:newVersionText").innerHTML = version;
                 $("changeVersionForm:newVersion").value = version;
             }
             applyVersion();
         </script>
-            </h:panelGroup>
-
+    </h:panelGroup>
 
 </ui:composition>
