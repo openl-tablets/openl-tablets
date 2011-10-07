@@ -99,6 +99,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
             File currentSourceFile = projectModel.getSourceByName(fileToRevert.getName());
             try {
                 FileUtils.copyFile(fileToRevert, currentSourceFile);
+                save(fileToRevert);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
                 Log.info("Project was reverted successfully");
