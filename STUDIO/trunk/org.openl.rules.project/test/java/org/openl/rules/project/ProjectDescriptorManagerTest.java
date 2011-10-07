@@ -167,4 +167,17 @@ public class ProjectDescriptorManagerTest {
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
     }
+    
+    @Test
+    public void testModulePathPatterns() throws Exception{
+        ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+        //test ?
+        assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules1.xml").getModules().size());
+        //test *
+        assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules2.xml").getModules().size());
+        //test **
+        assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules3.xml").getModules().size());
+        //test complex
+        assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules4.xml").getModules().size());
+    }
 }

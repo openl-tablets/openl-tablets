@@ -1,0 +1,11 @@
+<project>
+	<id>test</id>
+	<name>test ?</name>
+	<modules>
+		<module>
+			<name>testmodule</name>
+			<type>api</type>
+			<rules-root path="dependencies/testMethodDispatching/**/*.xlsx"/>
+		</module>	
+	</modules>
+</project>
