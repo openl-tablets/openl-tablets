@@ -108,7 +108,9 @@
 			</f:facet>
 
 			<h:form id="changeVersionForm">
-				<ui:include src="/facelets/tableCopier/selectVersionForm.xhtml" />
+                <h:panelGroup id="changeVersionPanel">
+				    <ui:include src="/facelets/tableCopier/selectVersionForm.xhtml" />
+                </h:panelGroup>
 
 				<br />
 				<hr />
@@ -146,7 +148,7 @@
 				<h:panelGrid columns="2" style="margin-top: 10px;">
 					<a4j:commandButton value="Add"
 						action="#{propertiesManager.addProperty}"
-						render="propertiesTable @form"
+						render="propertiesTable @form changeVersionPanel"
 						oncomplete="#{rich:component('newPropertyDlg')}.hide();"
 						rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}" />
 					<h:commandButton value="Cancel"
