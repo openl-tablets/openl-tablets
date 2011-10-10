@@ -7,6 +7,10 @@ public class OpenLMessages {
 
     /**
      * Instances of {@link OpenLMessages} per thread.
+     * 
+     * FIXME: not right to store messages thread local. As there can be a lot of compiled modules in one thread.
+     * And in that case all the messages will be shared between modules.
+     * @author DLiauchuk 
      */
     private static ThreadLocal<OpenLMessages> currentInstance = new ThreadLocal<OpenLMessages>() {
 

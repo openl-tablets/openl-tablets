@@ -15,6 +15,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -41,6 +42,8 @@ public class DatatypeOpenClass extends ADynamicClass {
     
     private IOpenClass superClass;
     
+    private String uri;
+    
     /**
      * see {@link #getPackageName()}
      */
@@ -54,7 +57,15 @@ public class DatatypeOpenClass extends ADynamicClass {
         this.packageName = packageName;
     }
 
-    @Override
+    public String getUri() {
+		return uri;
+	}
+    
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
+	@Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
@@ -133,9 +144,38 @@ public class DatatypeOpenClass extends ADynamicClass {
             return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
         }
         return null;
-    }
-
+    }    
+    
     /**
+     * Override super class implementation to provide possibility to compare datatypes with info about their fields
+     * 
+     * @author DLiauchuk
+     */
+    @Override
+	public int hashCode() {
+    	return new HashCodeBuilder().append(superClass).append(uri).append(packageName).toHashCode();		
+	}
+    
+    /**
+     * Override super class implementation to provide possibility to compare datatypes with info about their fields
+     * Is used in {@link XlsBinder} (method filterDependencyTypes)
+     * 
+     * @author DLiauchuk
+     */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DatatypeOpenClass other = (DatatypeOpenClass) obj;
+		
+		return new EqualsBuilder().append(superClass, other.getSuperClass()).append(uri, other.getUri()).append(packageName, other.getPackageName()).isEquals();
+	}
+
+	/**
      * Constructor with all parameters initialization.
      * 
      * @author PUdalau

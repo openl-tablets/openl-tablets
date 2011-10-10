@@ -54,7 +54,11 @@ public class OpenLCompileManager extends OpenLHolder {
      * @return {@link IOpenClass} instance
      */
     public IOpenClass compileModule(IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
-
+    	/** clear {@link OpenLMessages} as they are stored ThreadLocal. It is not right because in one thread 
+    	 * there can be a lot of compiled modules.
+    	 * @author DLiauchuk
+    	 */
+    	OpenLMessages.getCurrentInstance().clear();
         ProcessedCode processedCode;
         if(executionMode){
             processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), false, dependencyManager);
@@ -81,7 +85,12 @@ public class OpenLCompileManager extends OpenLHolder {
      */
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode,
         IDependencyManager dependencyManager) {
-
+    	
+    	/** clear {@link OpenLMessages} as they are stored ThreadLocal. It is not right because in one thread 
+    	 * there can be a lot of compiled modules.
+    	 * @author DLiauchuk
+    	 */
+    	OpenLMessages.getCurrentInstance().clear();
         ProcessedCode processedCode;
         if (executionMode) {
             processedCode = sourceManager.processSource(source, SourceType.MODULE,
@@ -103,7 +112,7 @@ public class OpenLCompileManager extends OpenLHolder {
         }
         return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
     }
-
+   
     /**
      * Compiles a method.
      * 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.classloader.OpenLClassLoaderHelper;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -80,6 +81,10 @@ public class CompiledOpenClass {
 
         if (bindingErrors.length > 0) {
             throw new CompositeOpenlException("Binding Error(s):", bindingErrors, getErrorMessages());
+        }
+        
+        if (getErrorMessages().size() > 0) {
+        	throw new CompositeOpenlException("Module contains critical errors", null, getErrorMessages());
         }
 
     }
