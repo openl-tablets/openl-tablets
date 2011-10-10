@@ -57,9 +57,9 @@
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
             &#160;
-            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}"
+            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}" title="Delete"
               onclick="if(!window.confirm('Are you sure you want to delete the deployment project?')) {return false;}">
-              <f:param name="deploymentProjectName" value="#{prj.name}" title="Delete"/>
+              <f:param name="deploymentProjectName" value="#{prj.name}" />
               <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" alt="Delete" />
             </h:commandLink>
           </h:panelGroup>
