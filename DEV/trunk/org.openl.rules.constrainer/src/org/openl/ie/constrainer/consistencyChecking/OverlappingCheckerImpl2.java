@@ -26,6 +26,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     
     
     boolean[] removed;
+    boolean[] hadBeenRemoved; 
     int nRemoved = 0;
     
     private void remove(int i)
@@ -78,6 +79,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     public OverlappingCheckerImpl2(CDecisionTable _dt) {
         this._dt = _dt;
         removed = new boolean[_dt.getRules().length];
+        hadBeenRemoved = new boolean[_dt.getRules().length];
     }
 
     public List<Overlapping> checkInternal() {
@@ -94,10 +96,15 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         Goal save = new GoalSaveSolutions(C, overlappingRules);
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(new GoalAnd(overlapping, generate), save);
-        C.execute(target, true);
+        boolean flag = C.execute(target, true);
         testPairOverlappings(overlappingRules);
         return overlappingRules;
-    }    
+    }
+
+    
+    
+    
+    
     
     private void testPairOverlappings(List<Overlapping> overlappingRules) {
 
@@ -126,23 +133,15 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     {    
 //                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = blocks");
                         this.overlappings.add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.BLOCK));
-                        remove(rules[A]);
-                        checkInternal();
-                        restore(rules[A]);
-                        remove(rules[B]);
-                        checkInternal();
-                        restore(rules[B]);
+                        checkWithRemove(rules[A]);
+                        checkWithRemove(rules[B]);
                     }    
                     else if (overrides)
                     {    
 //                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = overrides");
                         this.overlappings.add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
-                        remove(rules[A]);
-                        checkInternal();
-                        restore(rules[A]);
-                        remove(rules[B]);
-                        checkInternal();
-                        restore(rules[B]);
+                        checkWithRemove(rules[A]);
+                        checkWithRemove(rules[B]);
                         
                     }    
 
@@ -150,13 +149,8 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     {    
 //                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = partial overlap");
                         this.overlappings.add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
-                        remove(rules[A]);
-                        checkInternal();
-                        restore(rules[A]);
-                        remove(rules[B]);
-                        checkInternal();
-                        restore(rules[B]);
-                        
+                        checkWithRemove(rules[A]);
+                        checkWithRemove(rules[B]);
                     }    
 
                 }
@@ -165,6 +159,18 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         }
 
     }
+    
+    private void checkWithRemove(int ind)
+    {
+        if (hadBeenRemoved[ind])
+            return;
+        hadBeenRemoved[ind] = true;
+        remove(ind);
+        checkInternal();
+        restore(ind);
+        
+    }
+    
 
     // private class GoalCompare extends GoalImpl
     // {
