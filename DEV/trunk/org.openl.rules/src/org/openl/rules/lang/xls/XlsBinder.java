@@ -221,7 +221,7 @@ public class XlsBinder implements IOpenBinder {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
         for (CompiledOpenClass compiledDependency : moduleDependencies) {
             try {
-                moduleContext.addTypes(compiledDependency.getTypes());
+                moduleContext.addTypes(filterDependencyTypes(compiledDependency.getTypes(), moduleContext.getInternalTypes()));
             } catch (Exception ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
                         "Can`t add datatype from dependency", ex, (ISyntaxNode) moduleNode);
@@ -229,6 +229,29 @@ public class XlsBinder implements IOpenBinder {
             }
         }
         return moduleContext;
+    }
+    
+    /**
+     * Filter the datatypes from dependency, remove those that already presents in datatypes from context and are equal.
+     * Handles the case when for example 'main' module includes 'dependency1'(with A, B datatypes) and 'dependency2' (with C datatype, and
+     * 'dependency2' includes 'dependency1' itself). So to prevent adding datatypes A, B from 'dependency1' and 'dependency2' we handle this case.
+     * 
+     * @param dependencyDatatypes datatypes from dependency module
+     * @param contextTypes datatypes already presented in the context
+     * @return filtered dependency datatypes
+     * 
+     * @author DLiauchuk
+     */
+    private Map<String, IOpenClass> filterDependencyTypes(Map<String, IOpenClass> dependencyDatatypes, Map<String, IOpenClass> contextTypes) {
+    	Map<String, IOpenClass> filteredDependencyDatatypes = new HashMap<String, IOpenClass>();
+    	for (String key : dependencyDatatypes.keySet()) {
+    		IOpenClass dependencyDatatype = dependencyDatatypes.get(key);
+    		IOpenClass contextDatatype = contextTypes.get(key);
+    		if (!dependencyDatatype.equals(contextDatatype)) {
+    			filteredDependencyDatatypes.put(key, dependencyDatatype);
+    		}
+    	}
+    	return filteredDependencyDatatypes;
     }
 
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {

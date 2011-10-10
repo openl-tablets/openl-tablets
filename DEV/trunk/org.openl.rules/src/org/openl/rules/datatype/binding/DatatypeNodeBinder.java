@@ -117,6 +117,11 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			
 			String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
             DatatypeOpenClass tableType = new DatatypeOpenClass(module.getSchema(), typeName, packageName);
+            
+            // set uri to the DatatypeOpenClass for indicating the source of the datatype table
+            //
+            tableType.setUri(tableSource.getUri(0));
+            
 			// Add domain class definition to biding context as internal type.
 			//
 			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);

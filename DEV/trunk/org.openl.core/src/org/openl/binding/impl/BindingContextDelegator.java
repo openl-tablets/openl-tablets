@@ -59,7 +59,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         throw new UnsupportedOperationException();
     }
 
-    public void addTypes(Map<String, IOpenClass> types) {
+    public void addTypes(Map<String, IOpenClass> types) throws OpenLCompilationException {
         throw new UnsupportedOperationException();
     }
 

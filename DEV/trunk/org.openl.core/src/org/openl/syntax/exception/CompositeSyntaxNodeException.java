@@ -61,9 +61,11 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
         if (message != null) {
             printWriter.println(message);
         }
-
-        for (int i = 0; i < errors.length; ++i) {
-            printWriter.println(errors[i]);
+        
+        if (errors != null) {
+        	for (int i = 0; i < errors.length; ++i) {
+                printWriter.println(errors[i]);
+            }
         }
 
         printWriter.close();

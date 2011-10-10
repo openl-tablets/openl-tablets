@@ -64,16 +64,14 @@ public class ComponentBindingContext extends BindingContextDelegator {
         map.put(nameWithNamespace, type);
     }
     
+    public synchronized Map<String, IOpenClass> getInternalTypes() {
+    	return new HashMap<String, IOpenClass>(initInternalTypes());
+    }
+    
     @Override
-    public synchronized void addTypes(Map<String, IOpenClass> types) {
+    public synchronized void addTypes(Map<String, IOpenClass> types) throws OpenLCompilationException {
         for (String nameWithNamespace : types.keySet()) {
-        	try {
-        		add(nameWithNamespace, types.get(nameWithNamespace));
-        	} catch (OpenLCompilationException e) {
-        		if (LOG.isWarnEnabled()) {
-        			LOG.warn(e);
-        		}
-			}
+        	add(nameWithNamespace, types.get(nameWithNamespace));
         }
     }
 
