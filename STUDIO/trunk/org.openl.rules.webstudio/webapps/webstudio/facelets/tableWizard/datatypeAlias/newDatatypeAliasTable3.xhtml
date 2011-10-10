@@ -5,7 +5,6 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
     template="/facelets/common/wizardBase.xhtml">
 
     <ui:define name="title">Add alias values</ui:define>
@@ -32,15 +31,13 @@
             <br />
             <br />
 
-            <rich:dataTable id="valuesTable" value="#{tableWizard.values}" var="value"
+            <h:dataTable id="valuesTable" value="#{tableWizard.values}" var="value"
                 binding="#{tableWizard.valuesTable}">
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Values" />
                     </f:facet>
-                    <h:inputText id="vname" value="#{value.value}">
-                        <rich:validator  />
-                    </h:inputText>
+                    <h:inputText id="vname" value="#{value.value}" />
                 </h:column>
 
                 <h:column>
@@ -51,7 +48,7 @@
                     </a4j:commandLink>
                     <h:message for="vname" errorClass="error" style="margin-left: 5px;" />
                 </h:column>
-            </rich:dataTable>
+            </h:dataTable>
 
             <br />
             <hr />

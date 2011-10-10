@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.component.html.HtmlDataTable;
 import javax.faces.model.SelectItem;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -18,7 +19,6 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
-import org.richfaces.component.UIDataTable;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -38,7 +38,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
     private DomainTree domainTree;
     private SelectItem[] domainTypes;
 
-    private UIDataTable valuesTable;
+    private HtmlDataTable valuesTable;
 
     public DatatypeAliasTableCreationWizard() {
     }
@@ -75,11 +75,11 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
         return domainTypes;
     }
 
-    public UIDataTable getValuesTable() {
+    public HtmlDataTable getValuesTable() {
         return valuesTable;
     }
 
-    public void setValuesTable(UIDataTable valuesTable) {
+    public void setValuesTable(HtmlDataTable valuesTable) {
         this.valuesTable = valuesTable;
     }
 
