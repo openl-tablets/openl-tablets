@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -27,34 +28,46 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
 
     protected abstract RulesInstantiationStrategy getRulesSource();
 
-    private void init() {
+    private void init(IRulesLoader loader) {
         runtimeEnv = new SimpleVM().getRuntimeEnv();
         try {
             rulesOpenClass = getRulesSource().compile(ReloadType.NO).getOpenClass();
             rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
+            RulesBasedServiceConfigurer.loader.set(loader);
         } catch (Exception e) {
             throw new RuntimeException("Failed to instantiate rules based service configurer.", e);
         }
     }
 
-    private Object prepareRules(IRulesLoader loader) {
-        try {
-            init();
-            IOpenField loaderField = rulesOpenClass.getField("loader");
-            loaderField.set(rulesInstance, new IRulesLoader[] { loader }, runtimeEnv);
-            IOpenField deploymentsField = rulesOpenClass.getField("deployments");
-            List<Deployment> deploymentsList = loader.getDeployments();
-            Deployment[] deployments = new Deployment[deploymentsList.size()];
-            deploymentsField.set(rulesInstance, deploymentsList.toArray(deployments), runtimeEnv);
-        } catch (Exception e) {
-            LOG.error("Failed to instantiate rules based service configurer", e);
+    private static ThreadLocal<IRulesLoader> loader = new ThreadLocal<IRulesLoader>();
+
+    /**
+     * Utility method that helps to get RulesLoader instance from rules.
+     * 
+     * @return Rules loader instance.
+     */
+    public static IRulesLoader getLoader() {
+        IRulesLoader loader = RulesBasedServiceConfigurer.loader.get();
+        if (loader == null) {
+            throw new OpenLRuntimeException("Rules loader have not been specified.");
         }
-        return rulesInstance;
+        return loader;
+    }
+
+    /**
+     * Utility method that helps to get deployments from rules.
+     * 
+     * @return Deployments from data source.
+     */
+    public static Deployment[] getDeployments() {
+        List<Deployment> deploymentsList = getLoader().getDeployments();
+        Deployment[] deployments = new Deployment[deploymentsList.size()];
+        return deploymentsList.toArray(deployments);
     }
 
     public List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader) {
         List<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
-        prepareRules(loader);
+        init(loader);
         try {
             IOpenField servicesField = rulesOpenClass.getField(SERVICES_FIELD_NAME);
             Object[] services = (Object[]) servicesField.get(rulesInstance, runtimeEnv);
