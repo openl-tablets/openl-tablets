@@ -35,7 +35,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
 
             List<File> filesToCompare = new ArrayList<File>();
             for (UploadedFile uploadedFile : uploadedFiles) {
-                File fileToCompare = FileTool.toFile(
+                File fileToCompare = FileTool.toTempFile(
                         uploadedFile.getInputStream(), uploadedFile.getName());
                 filesToCompare.add(fileToCompare);
             }
