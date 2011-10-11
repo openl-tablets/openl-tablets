@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openl.util.FileTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
@@ -36,7 +37,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
             List<File> filesToCompare = new ArrayList<File>();
             for (UploadedFile uploadedFile : uploadedFiles) {
                 File fileToCompare = FileTool.toTempFile(
-                        uploadedFile.getInputStream(), uploadedFile.getName());
+                        uploadedFile.getInputStream(), FilenameUtils.getName(uploadedFile.getName()));
                 filesToCompare.add(fileToCompare);
             }
 
