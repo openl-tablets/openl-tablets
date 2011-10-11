@@ -617,4 +617,15 @@ public final class FileTool {
         return file;
     }
 
+    public static File toTempFile(InputStream source, String fileName) {
+        File file = null;
+        try {
+            file = File.createTempFile(fileName, null);
+            FileUtils.copyInputStreamToFile(source, file);
+        } catch (IOException e) {
+            LOG.error("Error when creating file: " + fileName, e);
+        }
+        return file;
+    }
+
 }
