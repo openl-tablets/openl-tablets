@@ -131,28 +131,45 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return workbook;
     }
 
-    public File getSourceFile() {
-        File sourceFile = null;
-        if (src instanceof FileSourceCodeModule) {
-            sourceFile = ((FileSourceCodeModule) src).getFile();
-        } else if (src instanceof URLSourceCodeModule) {
-            sourceFile = new File(((URLSourceCodeModule) src).getUrl().getFile());
-        } else {
-            try {
-                sourceFile = new File(new URI(getUri()));
-            } catch (URISyntaxException me) {
-                Log.warn("The xls source is not file based");
-            }
-        }
-        return sourceFile;
-    }
+    /**
+     * Synch object for file accessing. It is necessary to prevent getting
+     * isMofified info before save operation will be finished.
+     */
+    private Object fileAccessLock = new Object();
 
+    public File getSourceFile() {
+        synchronized (fileAccessLock) {
+            File sourceFile = null;
+            if (src instanceof FileSourceCodeModule) {
+                sourceFile = ((FileSourceCodeModule) src).getFile();
+            } else if (src instanceof URLSourceCodeModule) {
+                sourceFile = new File(((URLSourceCodeModule) src).getUrl().getFile());
+            } else {
+                try {
+                    sourceFile = new File(new URI(getUri()));
+                } catch (URISyntaxException me) {
+                    Log.warn("The xls source is not file based");
+                }
+            }
+            return sourceFile;
+        }
+    }
+    
     public void save() throws IOException {
         File sourceFile = getSourceFile();
         String fileName = sourceFile.getCanonicalPath();
-        saveAs(fileName);
-        if (getSource() instanceof ASourceCodeModule) {
-            ((ASourceCodeModule) getSource()).reset();
+        synchronized (fileAccessLock) {
+            saveAs(fileName);
+            if (getSource() instanceof ASourceCodeModule) {
+                ((ASourceCodeModule) getSource()).reset();
+            }
+        }
+    }
+
+    @Override
+    public boolean isModified() {
+        synchronized (fileAccessLock) {
+            return super.isModified();
         }
     }
 
