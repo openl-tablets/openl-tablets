@@ -75,29 +75,11 @@ public class NumberUtils {
         return null;
     }
     
-    /**
-     * Gets the scale of the double value.
-     * 
-     * @param value to get the scale
-     * @return number of values after the comma
-     * 
-     * @throws {@link NullPointerException} if the income is <code>null</code>
-     */
-	public static int getScale(Double value) {
-		if (value == null) {
-			throw new NullPointerException("Null value is not supported");
-		}
-		
- 		if (!value.equals(Double.NaN) && !value.equals(Double.NEGATIVE_INFINITY)) {
-			BigDecimal decimal = BigDecimal.valueOf(value);
-
-			return decimal.scale();
-		}
-		return 0;
-	}
-    
 	/**
-	 * Gets the scale of the income value
+	 * Gets the scale of the income value.
+	 * Note that if the value will be of type {@link Float} or {@link FloatValue}, the scale will be 
+	 * defined via value.doubleValue() method call.
+	 * And the scale will differ from the income.
 	 * 
 	 * @param value
 	 * @return number of values after the comma
@@ -105,17 +87,44 @@ public class NumberUtils {
 	 * @throws {@link NullPointerException} if the income is <code>null</code>
 	 */
     public static int getScale(Number value) {
-    	if (value == null) {
+    	if (value == null) {    		
 			throw new NullPointerException("Null value is not supported");
 		}
     	
-    	if (value instanceof Double) {
-    		return getScale((Double)value);
+    	if (value instanceof BigDecimal) {
+    		/**
+    		 * If BigDecimal the scale can be taken directly
+    		 */
+    		return ((BigDecimal)value).scale();
     	}
     	
-    	BigDecimal decimal = new BigDecimal(String.valueOf(value));
+    	if (value instanceof BigDecimalValue) {
+    		/**
+    		 * If BigDecimalValue the scale can be taken directly
+    		 */
+    		return ((BigDecimalValue)value).getValue().scale();
+    	}
+    	
+    	if (isFloatPointNumber(value)) {
+    		/**
+    		 * Process as float point value
+    		 */
+    		return getScale(value.doubleValue()); 
+    	} else {
+    		/**
+    		 * Process as integer value
+    		 */
+    		return BigDecimal.valueOf(value.longValue()).scale();
+    	}
+    }
+    
+    public static int getScale(double value) {
+    	if (!Double.isNaN(value) && !Double.isInfinite(value)) {
+    		BigDecimal decimal = BigDecimal.valueOf(value);
 
-        return decimal.scale();
+			return decimal.scale();
+    	}
+    	return 0;
     }
     
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
