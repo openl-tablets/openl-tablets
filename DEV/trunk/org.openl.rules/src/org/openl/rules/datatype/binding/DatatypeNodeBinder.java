@@ -14,6 +14,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -118,9 +119,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
             DatatypeOpenClass tableType = new DatatypeOpenClass(module.getSchema(), typeName, packageName);
             
-            // set uri to the DatatypeOpenClass for indicating the source of the datatype table
+            // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //
-            tableType.setUri(tableSource.getUri(0));
+            tableType.setMetaInfo(new DatatypeMetaInfo(tableSource.getCode(), tableSource.getUri(0)));
             
 			// Add domain class definition to biding context as internal type.
 			//
