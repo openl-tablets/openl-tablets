@@ -13,12 +13,19 @@ public class DatatypeOpenClassTest {
 	
 	private final String DEFAULT_PACKAGE = "default.test";
 	private final String DEFAULT_NAME = "DatatypeTest";
+	private final String ANY_URL = "file://hello";
+	
 	
 	@Test
 	public void testEquals() {
 		DatatypeOpenClass doc1 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE);
+		doc1.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
+		
 		DatatypeOpenClass doc2 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE);
+		doc2.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
+		
 		DatatypeOpenClass doc3 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE);
+		doc3.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
 		// reflexive check
 		//
 		assertTrue(doc1.equals(doc1));

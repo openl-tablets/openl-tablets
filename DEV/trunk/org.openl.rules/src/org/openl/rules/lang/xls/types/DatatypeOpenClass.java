@@ -42,8 +42,6 @@ public class DatatypeOpenClass extends ADynamicClass {
     
     private IOpenClass superClass;
     
-    private String uri;
-    
     /**
      * see {@link #getPackageName()}
      */
@@ -56,15 +54,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         addMethod(new ToStringMethod(this));
         this.packageName = packageName;
     }
-
-    public String getUri() {
-		return uri;
-	}
     
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-
 	@Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
@@ -152,8 +142,8 @@ public class DatatypeOpenClass extends ADynamicClass {
      * @author DLiauchuk
      */
     @Override
-	public int hashCode() {
-    	return new HashCodeBuilder().append(superClass).append(uri).append(packageName).toHashCode();		
+	public int hashCode() {    	
+    	return new HashCodeBuilder().append(superClass).append(getMetaInfo()).append(packageName).toHashCode();		
 	}
     
     /**
@@ -172,7 +162,7 @@ public class DatatypeOpenClass extends ADynamicClass {
 			return false;
 		DatatypeOpenClass other = (DatatypeOpenClass) obj;
 		
-		return new EqualsBuilder().append(superClass, other.getSuperClass()).append(uri, other.getUri()).append(packageName, other.getPackageName()).isEquals();
+		return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(packageName, other.getPackageName()).isEquals();
 	}
 
 	/**
