@@ -5,7 +5,7 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.base-pom</artifactId>
-	<version>5.8.2-SNAPSHOT</version>
+	<version>5.8.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenL - Base</name>
 	<description>Base project with all configurations</description>
@@ -96,7 +96,7 @@
 
 	<properties>
 		<openl.version.eclipse>5.8.1</openl.version.eclipse>
-		<openl.version.maven>5.8.1</openl.version.maven>
+		<openl.version.maven>5.8.1-SNAPSHOT</openl.version.maven>
 		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
 		<org.springsecurity.version>3.0.5.RELEASE</org.springsecurity.version>
 		<org.hibernate.version>3.6.7.Final</org.hibernate.version>
