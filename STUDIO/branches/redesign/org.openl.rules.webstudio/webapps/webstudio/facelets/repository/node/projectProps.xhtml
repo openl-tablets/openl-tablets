@@ -1,0 +1,36 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+    <h:outputText value="Project Name" />
+    <h:outputText value="#{node.name}" style="font-weight: bold" />
+
+    <h:outputText value="Version" />
+    <h:outputText value="#{artefact.version.versionName}" />
+
+    <h:outputText value="Status" />
+    <h:outputText value="#{node.status}" />
+
+    <ui:remove>
+      <h:outputText value="Description" />
+      <h:inputTextarea value="" rows="3" cols="40" />
+
+    </ui:remove>
+
+    <h:outputText value="Created At" />
+    <h:outputText value="#{node.createdAt}">
+    	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+    </h:outputText>
+
+    <h:outputText value="Created By" />
+    <h:outputText value="#{node.createdBy}" />
+  </h:panelGrid>
+
+  <ui:include src="/facelets/repository/node/properties.xhtml">
+    <ui:param name="prefix" value="project"/>
+  </ui:include>
+
+</ui:composition>

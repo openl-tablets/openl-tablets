@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <style type="text/css">
+            html, body, #footerPanel {
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="page">
+
+        <rich:tabPanel id="footerPanel" switchType="client">
+            <rich:tab header="Problems">
+                <ui:include src="/facelets/problems.xhtml" />
+            </rich:tab>
+        </rich:tabPanel>
+
+    </ui:define>
+
+</ui:composition>
