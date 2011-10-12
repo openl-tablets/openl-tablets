@@ -56,11 +56,15 @@ public class MethodUsagesSearcher {
          *         OpenL component.
          */
         public String getTableUri() {
-            if (method instanceof ExecutableRulesMethod) {
-                return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
-            } else if (method instanceof MatchingOpenMethodDispatcher) {
-                return ((MatchingOpenMethodDispatcher) method).getDispatcherTable().getUri();
-            } else {
+            try {
+                if (method instanceof ExecutableRulesMethod) {
+                    return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
+                } else if (method instanceof MatchingOpenMethodDispatcher) {
+                    return ((MatchingOpenMethodDispatcher) method).getDispatcherTable().getUri();
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
                 return null;
             }
         }
