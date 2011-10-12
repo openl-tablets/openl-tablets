@@ -5,10 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterReturningAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ServiceCallAfterReturningInterceptor {
-    Class<? extends ServiceMethodAfterReturningAdvice<?>>[] value(); 
+public @interface ServiceCallAfterInterceptor {
+    Class<? extends ServiceMethodAfterAdvice<?>>[] value(); 
 }
