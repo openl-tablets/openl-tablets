@@ -5,7 +5,7 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.base-pom</artifactId>
-	<version>5.8.1-SNAPSHOT</version>
+	<version>5.8.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenL - Base</name>
 	<description>Base project with all configurations</description>
