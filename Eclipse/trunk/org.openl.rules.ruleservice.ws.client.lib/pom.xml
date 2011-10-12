@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.eclipse-pom</artifactId>
+		<version>5.8.1-SNAPSHOT</version>
+		<relativePath>../org.openl.rules.eclipse-pom</relativePath>
+	</parent>
+
+	<groupId>org.openl.rules</groupId>
+	<artifactId>org.openl.rules.ruleservice.ws.client.lib</artifactId>
+	<packaging>jar</packaging>
+	<name>OpenL - RuleService - Client Libraries</name>
+	<description>Libraries for OpenL Rules Client</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<properties>
+		<ipb.version>3.1.17</ipb.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${project.build.directory}/../lib</directory>
+							<includes>
+								<include>**/*.jar</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/../lib</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<excludeArtifactIds>junit,commons-lang,commons-logging</excludeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<resources>
+			<resource>
+				<directory>${project.build.directory}/..</directory>
+				<includes>
+					<include>lib/**/*.jar</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.mapping.dev</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>com.exigen.ipb.policy</groupId>
+			<artifactId>ipb-policy-domain</artifactId>
+			<version>${ipb.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.exigen.ipb</groupId>
+					<artifactId>ipb-aspects</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.exigen.ipb.product</groupId>
+					<artifactId>ipb-product</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.exigen.ipb</groupId>
+					<artifactId>ipb-docgen</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.exigen.ipb.crm</groupId>
+					<artifactId>ipb-crm</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>  -->
+	</dependencies>
+</project>
