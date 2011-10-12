@@ -8,6 +8,7 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <c:set var="minVersion" value="#{tableCopierWizard.minNextVersion}" />
+
     <h:panelGroup rendered="#{not empty tableCopierWizard.version}">
         <fieldset>
             <legend>
@@ -33,30 +34,30 @@
                 <h:inputHidden id="newVersion" value="#{tableCopierWizard.version.value}" />
             </h:panelGrid>
         </fieldset>
-    
+
         <script>
             function adjustNextVersion() {
-            	if (isNotMoreThanPrevious()) {
-            		restoreVersion();
-            	} else {
-            		applyVersion();
-            	}
+                if (isNotMoreThanPrevious()) {
+                    restoreVersion();
+                } else {
+                    applyVersion();
+                }
             }
 
-            function isNotMoreThanPrevious(){
-                var major = new Number($('changeVersionForm:majorEdit').down().value);
+            function isNotMoreThanPrevious() {
+                var major = new Number(RichFaces.$('changeVersionForm:major').getValue());
                 if ( major &lt; #{minVersion.major}) {
                     return true;
                 } else if ( major &gt; #{minVersion.major}) {
                     return false;
                 }
-                var minor = new Number($('changeVersionForm:minorEdit').down().value);
+                var minor = new Number(RichFaces.$('changeVersionForm:minor').getValue());
                 if ( minor &lt; #{minVersion.minor}) {
                     return true;
                 } else if ( minor &gt; #{minVersion.minor}) {
                     return false;
                 }
-                var variant = new Number($('changeVersionForm:variantEdit').down().value);
+                var variant = new Number(RichFaces.$('changeVersionForm:variant').getValue());
                 if ( variant &lt; #{minVersion.variant}) {
                     return true;
                 } else if ( variant &gt; #{minVersion.variant}) {
@@ -65,18 +66,18 @@
                 return false;
             }
 
-        	function restoreVersion(){
+            function restoreVersion(){
                 var version = $("changeVersionForm:newVersion").value;
                 var sv = version.split('.');
-                $('changeVersionForm:majorEdit').down().value = sv[0];
-                $('changeVersionForm:minorEdit').down().value = sv[1];
-                $('changeVersionForm:variantEdit').down().value = sv[2];
-        	}
+                RichFaces.$('changeVersionForm:major').setValue(sv[0]);
+                RichFaces.$('changeVersionForm:minor').setValue(sv[1]);
+                RichFaces.$('changeVersionForm:variant').setValue(sv[2]);
+            }
 
             function applyVersion() {
-                var major = $('changeVersionForm:majorEdit').down().value;
-                var minor = $('changeVersionForm:minorEdit').down().value;
-                var variant = $('changeVersionForm:variantEdit').down().value;
+                var major = RichFaces.$('changeVersionForm:major').getValue();
+                var minor = RichFaces.$('changeVersionForm:minor').getValue();
+                var variant = RichFaces.$('changeVersionForm:variant').getValue();
                 var version = major + "." + minor + "." + variant;
                 $("changeVersionForm:newVersionText").innerHTML = version;
                 $("changeVersionForm:newVersion").value = version;

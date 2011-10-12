@@ -60,7 +60,7 @@
       <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton id="smartRedeployBtn" disabled="true" value="Redeploy" onclick="return startSmartRedeploy()" action="#{smartRedeployController.redeploy}" />
+        <h:commandButton id="smartRedeployBtn" value="Redeploy" onclick="return startSmartRedeploy();" action="#{smartRedeployController.redeploy}" />
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSmartRedeploy();" />
       </h:panelGrid>
     </h:form>
@@ -109,7 +109,6 @@
       if (isEmptySelection4SmartRedeploy()) return false;
       window._smartRedeployInProgress = true;
 
-      document.getElementById('smartRedeployForm:smartRedeployBtn').disabled = true;
       document.getElementById('cancelBtn').disabled = true;
       document.getElementById('smartRedeployForm:processing').style.visibility = 'visible';
 
