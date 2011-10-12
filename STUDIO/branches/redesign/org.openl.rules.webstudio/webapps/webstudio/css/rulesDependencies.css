@@ -8,12 +8,11 @@ html,body {
     height: 100%;
     margin: auto;
     overflow: hidden;
-    background-color: #1b1b1b;
-    color: #cccccc;
+    color: #272727;
 }
 
 #rulesDepsPanel a {
-    color: white;
+    color: #272727;
     text-decoration: none;
 }
 

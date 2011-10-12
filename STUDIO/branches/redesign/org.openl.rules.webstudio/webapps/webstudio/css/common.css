@@ -1,9 +1,8 @@
 body {
-    font-size: 70%;
     color: #171717;
-    background: #f1f1f1;
-    font-family: verdana, helvetica, arial, sans-serif;
-    margin: 0px;
+    background: #fefefe;
+    font-family: Verdana, Helvetica, Arial;
+    font-size: 70%;
 }
 
 table, input, textarea {
@@ -55,6 +54,7 @@ h3 {
 
 a {
     outline: none;
+    color: #1199ee;
 }
 
 form {
@@ -126,12 +126,6 @@ form {
     border: 1px solid;
 }
 
-.ov-matrix {
-    background: #ffffff;
-    border: 1px solid rgb(0, 0, 0);
-    padding: 4px;
-}
-
 th.data_header {
     background: #eeeeff;
     border: 1px solid;
@@ -159,14 +153,6 @@ table.testtable td {
     padding: 2px 4px;
 }
 
-div.footer {
-    text-align: center;
-    font-size: 110%;
-    color: #8B4513;
-    background-color: transparent;
-    margin: 20px 0px 20px 0px;
-}
-
 .code {
     font-family: Courier New, monospace;
     font-size: 110%;
@@ -185,12 +171,7 @@ span.codeerror {
 }
 
 #userName {
-    background: url(../webresource/images/user.gif) no-repeat right;
-    color: black;
-    font-size: 11px;
     font-weight: bold;
-    padding-right: 19px;
-    padding-top: 2px;
 }
 
 .title {
@@ -235,56 +216,6 @@ span.codeerror {
 .columnProps {
   vertical-align: top;
   width: 100%;
-}
-
-.containerWrapper {
-    background-image: url(../webresource/images/header.png);
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.masthead {
-  width: 100%;
-  height: 70px;
-  background-image: url(../webresource/images/print-logo.gif);
-  background-repeat: no-repeat;
-  min-width: 800px;
-  max-width: 1400px;
-  position: relative;
-  border: medium none;
-  margin: 0px 0px -2px 0px;
-}
-
-.logo {
-  position: absolute;
-  top: 0px;
-  right: 7px;
-}
-
-div#iconbar {
-  border: 0px solid gray;
-  display: block;
-  float: right;
-  height: 16px;
-  position: absolute;
-  top: 51px;
-  right: 10px;
-}
-
-#iconbar a {
-  text-decoration: none;
-  margin-left: 2px;
-  margin-right: 2px;
-}
-
-div#colorScheme {
-  border: 0px solid gray;
-  position: absolute;
-  top: 89px;
-  right: 10px;
-  font-size: 10px;
-  text-align: center;
-  font-weight: bold;
 }
 
 .colDiff {
@@ -419,7 +350,27 @@ table.header thead td {
   padding: 1px 8px 1px !important;
 }
 
-/* RichFaces style */
+.treeMenu {
+    width: 100%;
+    border-bottom: 1px dotted rgb(150,150,150);
+    padding-bottom: 4px;
+}
+
+.treeMenu a {
+    margin-right: 2px;
+}
+
+.tree a {
+    text-decoration: none;
+    color: #111111 !important;
+}
+
+.treeNodeInactive {
+    opacity: 0.35;
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 35);
+}
+
+/* RichFaces styles */
 
 .rf-trn-sel {
     font-weight: bold;
@@ -428,18 +379,49 @@ table.header thead td {
 .rf-tab-hdr {
     vertical-align: middle !important;
     color: #222222 !important;
+    background: none !important;
 }
 
 .rf-tab-hdr-tabline-vis {
     height: 21px !important;
     border: 0 !important;
+    background: none !important;
 }
 
 .rf-tab-cnt {
     border: 0 !important;
+    background: none !important;
 }
 
 .rf-tab-hdr-brd {
     border: 0 !important;
     height: 0 !important;
+}
+
+.view_toolbar {
+    padding: 0 3px;
+}
+
+.view_workspace {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: 5px 0 2px;
+}
+
+.button, .button2 {
+    padding: 4px 6px;
+    text-decoration: none;
+}
+
+.buttonPanel .button {
+    background: orange;
+    color: white;
+    margin: 0px 2px;
+}
+
+.buttonPanel .button2 {
+    background: #44cc55;
+    color: white;
+    margin: 0px 2px;
 }

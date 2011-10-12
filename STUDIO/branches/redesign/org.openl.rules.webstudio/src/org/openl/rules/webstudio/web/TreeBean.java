@@ -35,29 +35,26 @@ public class TreeBean {
         return stateManager;
     }*/
 
-    public String getCurrentSubMode() {
+    public String getCurrentView() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        String mode = studio.getMode().getName();
-        return mode;
+        return studio.getTreeView().getName();
     }
 
-    public void setCurrentSubMode(String currentSubMode) throws Exception {
+    public void setCurrentView(String currentView) throws Exception {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setMode(currentSubMode);
+        studio.setTreeView(currentView);
     }
 
-    public List<SelectItem> getSubModes() {
-        List<SelectItem> subModes = new ArrayList<SelectItem>();
+    public List<SelectItem> getViews() {
+        List<SelectItem> views = new ArrayList<SelectItem>();
         WebStudio studio = WebStudioUtils.getWebStudio();
-        WebStudioViewMode mode = studio.getMode();
-        String modeType = (String) mode.getType();
-        WebStudioViewMode[] modes = studio.getViewSubModes(modeType);
+        WebStudioViewMode[] modes = studio.getTreeViews();
         if (modes != null) {
             for (WebStudioViewMode viewMode : modes) {
-                subModes.add(new SelectItem(viewMode.getName(), viewMode.getDisplayName(INamedThing.REGULAR)));
+                views.add(new SelectItem(viewMode.getName(), viewMode.getDisplayName(INamedThing.REGULAR)));
             }
         }
-        return subModes;
+        return views;
     }
 
     public boolean isProjectHasTests() {

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:authz="http://rules.openl.org/taglibs/acegi">
+
+    <style>
+        #rb {
+            text-align: right;
+            background: #eeeeee;
+            padding: 1px 8px;
+        }
+        #rb a {
+            text-decoration: none;
+        }
+        #ll a {
+            text-decoration: none;
+            padding: 6px 15px;
+            font-size: 110%;
+            color: #444444;
+        }
+        #ll .active {
+            color: #1199ee;
+            border-left: 1px dashed #e5e5e5;
+            border-right: 1px dashed #e5e5e5;
+        }
+    </style>
+
+    <div style="height: 43px;">
+        <div style="position: absolute; left: 11px; top: 7px">
+            <ui:include src="/pages/common/logo.xhtml" />
+        </div>
+        
+        <div id="rb">
+            <a4j:status startText="Loading..." />
+            <span id="userName" title="Current user">
+                <authz:authentication operation="username" />
+            </span>
+            <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/guide/html/#{versionProperties['openl.version']}/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                title="Help">Help</a>
+            <c:if test="#{not systemConfig['security.logout.hidden']}">
+            <a href="#{contextPath}/security_logout" title="Logout"
+                onclick="return confirm('Are you sure you want to logout?')">Logout</a>
+            </c:if>
+        </div>
+
+        <div id="ll" style="position: absolute; top: 22px; right: 255px;">
+            <a href="#{contextPath}/faces/pages/modules/rulesEditor/index.xhtml" class="#{menu=='rules' ? 'active' : ''}">Rules Editor</a><a
+                href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}">Repository</a><a
+                href="#{contextPath}/faces/pages/modules/administration/index.xhtml" class="#{menu=='admin' ? 'active' : ''}">Administration</a>
+
+        </div>
+    </div>
+
+</ui:composition>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Input Business Name and Category</ui:define>
+
+    <ui:define name="data">
+        <script src="#{contextPath}/javascript/validator.js"></script>
+        <style>
+            #categoryNameModule table tr {
+                 vertical-align: top;
+            }
+        </style>
+        <h:form prependId="false">
+            <h:panelGrid columns="3">
+                <h:outputLabel value="Business Name" for="businessName" />
+                <h:inputText id="businessName" value="#{wizard.businessName}">
+                    <rich:validator />
+                </h:inputText>
+                <h:message for="businessName" styleClass="error" />
+            </h:panelGrid>
+            <br />
+    
+            <fieldset id="categoryNameModule">
+              <legend>Category</legend>
+              <h:panelGrid columns="2">
+                  <h:selectOneRadio id="categoryNameSelector" value="#{wizard.categoryNameSelector}"
+                      layout="pageDirection" onchange="updateCategoryNameControls()">
+            	    <f:selectItem itemValue="existing" itemLabel="Existing" />
+            	    <f:selectItem itemValue="new" itemLabel="New" />
+            	    <f:selectItem itemValue="sheetName" itemLabel="As sheet name" />
+            	</h:selectOneRadio>
+                  <h:panelGrid>
+                      <h:selectOneMenu id="categoryNamesList" value="#{wizard.categoryName}">
+                          <f:selectItems value="#{wizard.categoryNamesList}" />
+                      </h:selectOneMenu>
+                      <h:inputText id="newCategoryName" value="#{wizard.newCategoryName}" />
+                  </h:panelGrid>
+              </h:panelGrid>
+            </fieldset>
+
+            <hr />
+            <br />
+
+            <ui:insert name="controlButtons" />
+
+        </h:form>
+
+        <f:verbatim>
+            <script>
+              function updateCategoryNameControls() {
+                  var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
+                  $j('#categoryNamesList').attr("disabled", selectorCheckedValue != 'existing');
+                  $j('#newCategoryName').attr("disabled", selectorCheckedValue != 'new');
+              }
+
+              function validate() {
+                  return validateNewCategoryName();
+              }
+
+              function validateNewCategoryName() {
+                  var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
+                  if (selectorCheckedValue == 'new') {
+                      return validateRequired('newCategoryName', true);
+                  }
+                  return true;
+              }
+
+              updateCategoryNameControls();
+            </script>
+        </f:verbatim>
+    </ui:define>
+
+</ui:composition>

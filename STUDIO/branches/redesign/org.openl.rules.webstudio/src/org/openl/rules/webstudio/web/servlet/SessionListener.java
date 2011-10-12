@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 import javax.servlet.http.*;
 
@@ -47,6 +48,8 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         } else {
             LOG.debug("has rulesUserSession (why?)");
         }
+
+        WebStudioUtils.getWebStudio(event.getSession(), true);
     }
 
     public void sessionDestroyed(HttpSessionEvent event) {

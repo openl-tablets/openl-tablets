@@ -29,22 +29,8 @@ public class MainBean {
     }
 
     private void handleRequestParams() throws Exception {
-        WebStudio studio = WebStudioUtils.getWebStudio(true);
+        WebStudio studio = WebStudioUtils.getWebStudio();
 
-        String showFormulas = FacesUtils.getRequestParameter("showFormulas");
-        if (showFormulas != null) {
-            studio.setShowFormulas(showFormulas);
-        }
-
-        String collapseProperties = FacesUtils.getRequestParameter("collapseProperties");
-        if (collapseProperties != null) {
-            studio.setCollapseProperties(collapseProperties);
-        }
-
-        String mode = FacesUtils.getRequestParameter("mode");
-        if (mode != null) {
-            studio.switchMode(mode);
-        }
         String reload = FacesUtils.getRequestParameter("reload");
         if (reload != null) {
             studio.reset(ReloadType.valueOf(reload.toUpperCase()));

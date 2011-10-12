@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+    <style>
+        td.menu {
+            background: lightblue;
+            text-align: center;
+            vertical-align: middle;
+        }
+        table.menu {
+            position: absolute;
+            visibility: hidden;
+            border: 1px solid rgb(200, 200, 200);
+            font-size: 0px; /* Remove bottom padding in IE 7 */
+        }
+        td.menuButton {
+            border: 1px solid rgb(200, 200, 200);
+            font-size: 0px; /* Remove bottom padding in IE 7 */
+        }
+    </style>
+
+    <script>
+        function showmenu(elmnt) {
+            document.getElementById(elmnt).style.visibility = "visible";
+        }
+        function hidemenu(elmnt) {
+            document.getElementById(elmnt).style.visibility = "hidden";
+        }
+    </script>
+
+    <c:set value="#{tableViewMenuBean.filterHolder}" var="filterHolder" />
+
+    <div class="menudiv" style="width: 150px"
+        onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')">
+        <table cellspacing="0">
+            <tr>
+                <td title="#{filterHolder.filterName}" class="menuButton">
+                    <h:graphicImage url="/webresource/images/#{filterHolder.imageName}" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table class="menu" id="blends">
+                        <tr>
+                        <c:forEach begin="0" end="#{fn:length(tableViewMenuBean.filterImageNames) - 1}"
+                            var="filterId">
+                            <td class="menu">
+                                <a href="?#{tableViewMenuBean.requestParams}&amp;filterType=#{filterId}">
+                                    <h:graphicImage
+                                        url="/webresource/images/#{tableViewMenuBean.filterImageNames[filterId]}"
+                                        alt="#{tableViewMenuBean.filterNames[filterId]}"
+                                        title="#{tableViewMenuBean.filterNames[filterId]}" /></a>
+                            </td>
+                        </c:forEach>
+                        </tr>
+                        <tr>
+                            <td class="menu">
+                                <a href="?#{tableViewMenuBean.requestParamsView}&amp;view=view.developer">
+                                    <img src="webresource/images/developer-view.png" title="Developer (Full) View" /></a>
+                            </td>
+                            <td class="menu">
+                                <a href="?#{tableViewMenuBean.requestParamsView}&amp;view=view.business">
+                                    <img src="webresource/images/business-view.png" title="Business View"/></a>
+                            </td>
+                            <td class="menu">
+                                <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=down">
+                                    <img src="webresource/images/brightness_down.png"
+                                        title="Less Transparent (#{filterHolder.transparency}%)"/></a>
+                            </td>
+                            <td class="menu">
+                                <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=up">
+                                    <img src="webresource/images/brightness_up.png"
+                                        title="More Transparent (#{filterHolder.transparency}%)"/></a>
+                            </td>
+                       </tr>
+                   </table>
+                 </td>
+             </tr>
+         </table>
+     </div>
+
+</ui:composition>

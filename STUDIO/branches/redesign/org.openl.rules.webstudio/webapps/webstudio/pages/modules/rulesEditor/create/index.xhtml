@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <c:set var="wizard" value="#{tableCreatorWizardManager.wizard}" />
+
+    <style>
+        .wz_selected_list_item { background-color: yellow; }
+        fieldset { display: inline; }
+    </style>
+
+    <h:panelGroup id="wizardData">
+        <ui:include src="/pages/modules/rulesEditor/create/step0.xhtml" />
+    </h:panelGroup>
+
+    <script>
+        function go(to) {
+            var contextPath = "#{facesContext.externalContext.request.contextPath}";
+            $j("#wizardData").load(contextPath + "/faces/pages/modules/rulesEditor/create/" + to);
+        }
+    </script>
+
+</ui:composition>

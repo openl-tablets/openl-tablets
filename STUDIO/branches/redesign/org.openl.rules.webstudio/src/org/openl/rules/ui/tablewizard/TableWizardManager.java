@@ -24,9 +24,9 @@ public class TableWizardManager extends TableWizard{
         if (wizard != null) {
             wizard.cancel();
         }
-        return "newTableCancel";
+        return "mainPage";
     }
-    
+
     public String getTableType() {
         return tableType.name();
     }
@@ -86,4 +86,5 @@ public class TableWizardManager extends TableWizard{
             return ret;
         }
     }
+
 }

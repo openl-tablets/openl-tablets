@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <rich:tabPanel switchType="client">
+        <rich:tab header="Navigator">
+            <ui:include src="/pages/modules/rulesEditor/tree.xhtml" />
+        </rich:tab>
+        <rich:tab header="History">
+           <ui:include src="/pages/modules/rulesEditor/history.xhtml" />
+        </rich:tab>
+    </rich:tabPanel>
+
+</ui:composition>

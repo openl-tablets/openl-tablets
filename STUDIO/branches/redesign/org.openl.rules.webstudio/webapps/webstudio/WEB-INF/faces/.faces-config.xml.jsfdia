@@ -2,291 +2,21 @@
 <PROCESS model-entity="JSFProcess">
  <PROCESS-ITEM NAME="rules:" SHAPE="32,129,0,0" model-entity="JSFProcessGroup">
   <PROCESS-ITEM ID="rules::0" NAME="item" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="mainPage::#openTable.xhtml" NAME="output"
-    PATH="/openTable.xhtml" TARGET="rules:#openTable.xhtml"
+   <PROCESS-ITEM-OUTPUT
+    ID="mainPage::#pages#modules#rulesEditor#index.xhtml" NAME="output"
+    PATH="/pages/modules/rulesEditor/index.xhtml"
+    TARGET="rules:#pages#modules#rulesEditor#index.xhtml"
     TITLE="mainPage" model-entity="JSFProcessItemOutput"/>
    <PROCESS-ITEM-OUTPUT
-    ID="wizardSelect::#facelets#tableWizard#newTable0.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable0.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable0.xhtml"
+    ID="wizardSelect::#pages#modules#rulesEditor#create#step0.xhtml"
+    NAME="output1" PATH="/pages/modules/rulesEditor/create/step0.xhtml"
+    TARGET="rules:#pages#modules#rulesEditor#create#step0.xhtml"
     TITLE="wizardSelect" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="newTableCancel::#facelets#home.xhtml"
-    NAME="output2" PATH="/facelets/home.xhtml"
-    TARGET="rules:#facelets#home.xhtml" TITLE="newTableCancel" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable0.xhtml"
-  PATH="/facelets/tableWizard/newTable0.xhtml" SHAPE="1456,129,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable0.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable0.xhtml" model-entity="JSFProcessItem">
    <PROCESS-ITEM-OUTPUT
-    ID="newTable::#facelets#tableWizard#newTable1.xhtml" NAME="output"
-    PATH="/facelets/tableWizard/newTable1.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable1.xhtml"
-    TITLE="newTable" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="newDatatypeTable::#facelets#tableWizard#datatype#newDatatypeTable1.xhtml"
-    NAME="output1"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable1.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable1.xhtml"
-    TITLE="newDatatypeTable" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="newDatatypeAliasTable::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable1.xhtml"
-    NAME="output2"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable1.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable1.xhtml"
-    TITLE="newDatatypeAliasTable" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="newTestTable::#facelets#tableWizard#newTableTest1.xhtml"
-    NAME="output3" PATH="/facelets/tableWizard/newTableTest1.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableTest1.xhtml"
-    TITLE="newTestTable" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="newTableProperty::#facelets#tableWizard#newTableProperty1.xhtml"
-    NAME="output4" PATH="/facelets/tableWizard/newTableProperty1.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableProperty1.xhtml"
-    TITLE="newTableProperty" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable1.xhtml"
-  PATH="/facelets/tableWizard/newTable1.xhtml" SHAPE="1184,145,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable1.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable1.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="next::#facelets#tableWizard#newTable2.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTable2.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable2.xhtml" TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable0.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable0.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable0.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable2.xhtml"
-  PATH="/facelets/tableWizard/newTable2.xhtml" SHAPE="960,129,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable2.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable2.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="next::#facelets#tableWizard#newTable3.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTable3.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable3.xhtml" TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable1.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable1.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable1.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable3.xhtml"
-  PATH="/facelets/tableWizard/newTable3.xhtml" SHAPE="720,145,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable3.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable3.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="next::#facelets#tableWizard#newTable4.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTable4.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable4.xhtml" TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable2.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable2.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable2.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable4.xhtml"
-  PATH="/facelets/tableWizard/newTable4.xhtml" SHAPE="496,129,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable4.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable4.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="next::#facelets#tableWizard#newTable5.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTable5.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable5.xhtml" TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable3.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable3.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable3.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable5.xhtml"
-  PATH="/facelets/tableWizard/newTable5.xhtml" SHAPE="272,529,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable5.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable5.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="next::#facelets#tableWizard#newTable6.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTable6.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable6.xhtml" TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable4.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable4.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable4.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTable6.xhtml"
-  PATH="/facelets/tableWizard/newTable6.xhtml" SHAPE="32,513,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTable6.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTable6.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable5.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTable5.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable5.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatype#newDatatypeTable1.xhtml"
-  PATH="/facelets/tableWizard/datatype/newDatatypeTable1.xhtml"
-  SHAPE="1184,385,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatype#newDatatypeTable1.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatype/newDatatypeTable1.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#datatype#newDatatypeTable2.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable2.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable2.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable0.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable0.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable0.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatype#newDatatypeTable2.xhtml"
-  PATH="/facelets/tableWizard/datatype/newDatatypeTable2.xhtml"
-  SHAPE="960,369,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatype#newDatatypeTable2.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatype/newDatatypeTable2.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#datatype#newDatatypeTable3.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable3.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable3.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#datatype#newDatatypeTable1.xhtml"
-    NAME="output1"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable1.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable1.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatype#newDatatypeTable3.xhtml"
-  PATH="/facelets/tableWizard/datatype/newDatatypeTable3.xhtml"
-  SHAPE="720,385,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatype#newDatatypeTable3.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatype/newDatatypeTable3.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#datatype#newDatatypeTable4.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable4.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable4.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#datatype#newDatatypeTable2.xhtml"
-    NAME="output1"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable2.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable2.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatype#newDatatypeTable4.xhtml"
-  PATH="/facelets/tableWizard/datatype/newDatatypeTable4.xhtml"
-  SHAPE="496,369,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatype#newDatatypeTable4.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatype/newDatatypeTable4.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#datatype#newDatatypeTable3.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatype/newDatatypeTable3.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatype#newDatatypeTable3.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable1.xhtml"
-  PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable1.xhtml"
-  SHAPE="1184,529,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable1.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable1.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable2.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable2.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable2.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable0.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable0.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable0.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable2.xhtml"
-  PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable2.xhtml"
-  SHAPE="960,513,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable2.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable2.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable3.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable3.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable1.xhtml"
-    NAME="output1"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable1.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable1.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable3.xhtml"
-  PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml"
-  SHAPE="720,529,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable3.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable4.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable4.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable4.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable2.xhtml"
-    NAME="output1"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable2.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable2.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable4.xhtml"
-  PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable4.xhtml"
-  SHAPE="496,513,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable4.xhtml:0"
-   NAME="item"
-   PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable4.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable3.xhtml"
-    NAME="output"
-    PATH="/facelets/tableWizard/datatypeAlias/newDatatypeAliasTable3.xhtml"
-    TARGET="rules:#facelets#tableWizard#datatypeAlias#newDatatypeAliasTable3.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTableTest1.xhtml"
-  PATH="/facelets/tableWizard/newTableTest1.xhtml" SHAPE="1184,673,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTableTest1.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTableTest1.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#newTableTest2.xhtml" NAME="output"
-    PATH="/facelets/tableWizard/newTableTest2.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableTest2.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable0.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable0.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable0.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
+    ID="newTableCancel::#pages#modules#rulesEditor#create#step0.xhtml"
+    NAME="output2" PATH="/pages/modules/rulesEditor/create/step0.xhtml"
+    TARGET="rules:#pages#modules#rulesEditor#create#step0.xhtml"
+    TITLE="newTableCancel" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTableTest2.xhtml"
@@ -302,83 +32,6 @@
     ID="prev::#facelets#tableWizard#newTableTest1.xhtml" NAME="output1"
     PATH="/facelets/tableWizard/newTableTest1.xhtml"
     TARGET="rules:#facelets#tableWizard#newTableTest1.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTableTest3.xhtml"
-  PATH="/facelets/tableWizard/newTableTest3.xhtml" SHAPE="720,673,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTableTest3.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTableTest3.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#newTableTest4.xhtml" NAME="output"
-    PATH="/facelets/tableWizard/newTableTest4.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableTest4.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#newTableTest2.xhtml" NAME="output1"
-    PATH="/facelets/tableWizard/newTableTest2.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableTest2.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#tableWizard#newTableTest4.xhtml"
-  PATH="/facelets/tableWizard/newTableTest4.xhtml" SHAPE="496,657,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#tableWizard#newTableTest4.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTableTest4.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#newTableTest3.xhtml" NAME="output"
-    PATH="/facelets/tableWizard/newTableTest3.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableTest3.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#newTableProperty1.xhtml"
-  PATH="/facelets/tableWizard/newTableProperty1.xhtml"
-  SHAPE="1728,145,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#newTableProperty1.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTableProperty1.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#newTableProperty2.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTableProperty2.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableProperty2.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT ID="prev::#facelets#tableWizard#newTable0.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTable0.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTable0.xhtml" TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#newTableProperty2.xhtml"
-  PATH="/facelets/tableWizard/newTableProperty2.xhtml"
-  SHAPE="1952,129,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#newTableProperty2.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTableProperty2.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="next::#facelets#tableWizard#newTableProperty3.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTableProperty3.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableProperty3.xhtml"
-    TITLE="next" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#newTableProperty1.xhtml"
-    NAME="output1" PATH="/facelets/tableWizard/newTableProperty1.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableProperty1.xhtml"
-    TITLE="prev" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM
-  NAME="rules:#facelets#tableWizard#newTableProperty3.xhtml"
-  PATH="/facelets/tableWizard/newTableProperty3.xhtml"
-  SHAPE="2176,145,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM
-   ID="rules:#facelets#tableWizard#newTableProperty3.xhtml:0"
-   NAME="item" PATH="/facelets/tableWizard/newTableProperty3.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="prev::#facelets#tableWizard#newTableProperty2.xhtml"
-    NAME="output" PATH="/facelets/tableWizard/newTableProperty2.xhtml"
-    TARGET="rules:#facelets#tableWizard#newTableProperty2.xhtml"
     TITLE="prev" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
@@ -507,16 +160,18 @@
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#index.xhtml" PATH="/index.xhtml"
   SHAPE="240,33,0,0" model-entity="JSFProcessGroup"/>
- <PROCESS-ITEM NAME="rules:#facelets#repository#main.xhtml"
-  PATH="/facelets/repository/main.xhtml" SHAPE="32,1313,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#facelets#repository#main.xhtml:0" NAME="item"
-   PATH="/facelets/repository/main.xhtml" model-entity="JSFProcessItem">
+ <PROCESS-ITEM NAME="rules:#pages#modules#repository#index.xhtml"
+  PATH="/pages/modules/repository/index.xhtml" SHAPE="32,1153,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#pages#modules#repository#index.xhtml:0"
+   NAME="item" PATH="/pages/modules/repository/index.xhtml" model-entity="JSFProcessItem">
    <PROCESS-ITEM-OUTPUT ID="webstudio::#index.xhtml" NAME="output"
     PATH="/index.xhtml" TARGET="rules:#index.xhtml" TITLE="webstudio" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#facelets#home.xhtml"
-  PATH="/facelets/home.xhtml" SHAPE="272,385,0,0" model-entity="JSFProcessGroup"/>
- <PROCESS-ITEM NAME="rules:#openTable.xhtml" PATH="/openTable.xhtml"
-  SHAPE="272,145,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#pages#modules#rulesEditor#index.xhtml"
+  PATH="/pages/modules/rulesEditor/index.xhtml" SHAPE="272,145,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#pages#modules#rulesEditor#create#step0.xhtml"
+  PATH="/pages/modules/rulesEditor/create/step0.xhtml"
+  SHAPE="272,321,0,0" model-entity="JSFProcessGroup"/>
 </PROCESS>

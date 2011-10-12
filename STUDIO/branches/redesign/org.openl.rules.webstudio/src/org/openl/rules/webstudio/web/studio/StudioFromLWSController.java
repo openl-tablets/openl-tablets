@@ -10,10 +10,10 @@ public class StudioFromLWSController {
 
     private LocalWorkspaceManager localWorkspaceManager;
 
-    public String openStudio() {
+    public String openRulesEditor() {
         HttpSession session = FacesUtils.getSession();
         session.setAttribute("studio", new WebStudio(FacesUtils.getSession()));
-        return "webstudio";
+        return "rulesEditor";
     }
 
     public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {

@@ -40,7 +40,7 @@ public class HeaderBean {
     }
 
     public boolean isRepositoryFailed() {
-        return WebStudioUtils.isRepositoryFailed();
+        return false;//WebStudioUtils.isRepositoryFailed();
     }
 
 }

@@ -1,0 +1,85 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalUploadProject" width="500" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Upload Project" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+        onclick=" RichFaces.$('modalUploadProject').hide();" alt="Close" />
+    </f:facet>
+
+    <rich:tabPanel switchType="client">
+        <rich:tab header="File System">
+            <h:form id="uploadProjectForm">
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                <h:outputLabel for="file" styleClass="required" value="File" />
+            
+                <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                    acceptedTypes="zip, xls, xlsx, xlsm" />
+            
+                <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
+            </h:panelGrid>
+            
+            <hr />
+            
+            <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+                <h:commandButton id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
+                <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
+            </h:panelGrid>
+            </h:form>        
+        </rich:tab>
+        
+        <rich:tab header="Workspace">
+            <h:form>
+                <rich:dataTable value="#{localUpload.projects4Upload}"
+                    rendered="#{not empty localUpload.projects4Upload}"
+                    var="item" width="600" styleClass="standard" rowClasses="odd,even">
+                    <f:facet name="header">
+                        <rich:columnGroup>
+                            <rich:column>
+                                <h:outputText value="Selected" />
+                            </rich:column>
+                            <rich:column>
+                                <h:outputText value="Name" />
+                            </rich:column>
+                        </rich:columnGroup>
+                    </f:facet>
+
+                    <rich:column style="text-align:center; width: 20px;">
+                        <h:selectBooleanCheckbox value="#{item.selected}" />
+                    </rich:column>
+                    <rich:column>
+                        <h:outputText value="#{item.projectName}" />
+                    </rich:column>
+                </rich:dataTable>
+
+                <h:outputText value="All projects are already in repository"
+                    rendered="#{empty localUpload.projects4Upload}" />
+
+                <hr />
+                
+                <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+                    <h:commandButton action="#{localUpload.upload}"
+                        rendered="#{not empty localUpload.projects4Upload}" value="Upload" />
+                    <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
+                </h:panelGrid>
+            </h:form>   
+        </rich:tab>
+    </rich:tabPanel>
+
+  </rich:popupPanel>
+
+  <script>
+    function openUploadProjectDialog() {
+      RichFaces.$('modalUploadProject').show();
+    }
+  </script>
+</ui:composition>

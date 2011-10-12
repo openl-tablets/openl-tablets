@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
+
+    <style>
+        .editToolbar {
+            border-top: 1px dotted rgb(140,140,140);
+            border-bottom: 1px dotted rgb(140,140,140);
+            padding: 3px 5px 1px 0px;
+        }
+        .editToolbar a {
+            margin-left: 7px;
+        }
+        .editToolbar .toolbarDelimeter {
+            border-right: 1px dotted rgb(140,140,140);
+            padding-left: 5px;
+        }
+        .editToolbar .newTestLink {
+            background: url(#{contextPath}/webresource/images/test_new.gif) no-repeat left;
+            padding-left: 19px;
+            text-decoration: none;
+            vertical-align: middle;
+        }
+     </style>
+
+     <script>
+        function open_win(url, name) {
+            window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+        }
+    </script>
+
+    <br />
+
+    <h:panelGroup rendered="#{not empty showTableBean.targetTables}" layout="block"
+        style="margin-bottom: 15px;">
+        <h:panelGroup style="font-weight: bold;">
+            <h:outputText value="Target Table" />
+            <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
+            <h:outputText value=": " />
+        </h:panelGroup>
+
+        <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content"
+            rendered="#{fn:length(showTableBean.targetTables) == 1}">
+            <f:param name="uri" value="#{showTableBean.targetTables[0].uri}" />
+            <h:outputText value="#{showTableBean.targetTables[0].name}" />
+        </h:outputLink>
+
+        <rich:list value="#{showTableBean.targetTables}" var="targetTable"
+            rendered="#{fn:length(showTableBean.targetTables) > 1}" style="margin: 3px 0px 0px;">
+            <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                <f:param name="uri" value="#{targetTable.uri}" />
+                <h:outputText value="#{targetTable.name}" />
+            </h:outputLink>
+        </rich:list>
+    </h:panelGroup>
+
+    <h:form>
+        <div>
+            <table class="editToolbar"><tr><td>
+            <h:outputLink rendered="#{showTableBean.editable}"
+                value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                <f:param name="mode" value="edit" />
+                <f:param name="showFormulas" value="#{showTableBean.showFormulas}" />
+                <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
+            </h:outputLink>
+
+            <h:commandLink rendered="#{showTableBean.editableAsNewVersion}"
+                action="#{tableCopierWizardManager.startWizard}">
+                <a4j:param assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
+                    alt="Edit Table as New Version" title="Edit Table as New Version" />
+            </h:commandLink>
+
+            <h:outputLink rendered="#{showTableBean.editable}"
+                value="#{contextPath}/action/launch" target="hidden">
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                <h:graphicImage
+                    url="/webresource/images/excel.png"
+                    title="Edit Table In Excel - #{showTableBean.uri}"
+                    alt="Edit Table In Excel - #{showTableBean.uri}" />
+            </h:outputLink>
+
+            <h:outputLink rendered="#{showTableBean.copyable}" target="_self"
+                value="#{rulesEditor}/tableCopier/copyTableSelectOptions.xhtml">
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
+            </h:outputLink>
+
+            <a4j:commandLink rendered="#{showTableBean.editable}" action="#{showTableBean.removeTable}"
+                onclick="if(!confirm('Do you really want to remove this table?'))return false;">
+                <h:graphicImage url="/webresource/images/delete.gif" alt="Remove Table" title="Remove Table" />
+            </a4j:commandLink>
+
+            <c:if test="#{!showTableBean.serviceTable}">
+                <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
+                     target="content" value="#{rulesEditor}/test/runAllTests.xhtml">
+                    <f:param value="#{showTableBean.uri}" name="uri" />
+                    <h:graphicImage url="/webresource/images/test_ok.gif"
+                        title="Test" alt="Test" />
+                </h:outputLink>
+
+                <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
+                    <h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml" target="content">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <h:graphicImage url="/webresource/images/test.gif" alt="Run" title="Run" />
+                    </h:outputLink>
+
+                    <c:set var="traceUrl"
+                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
+                    <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
+                        <img src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
+                    <h:commandLink id="traceIntoFile">
+                        <h:graphicImage url="/webresource/images/traceIntoFile.gif"
+                            title="Trace into File" alt="Trace into File" />
+                        <rich:componentControl target="traceIntoFileDlg" operation="show">
+                            <a4j:param noEscape="true" value="event" />
+                            <rich:hashParam>
+                                <a4j:param noEscape="true" name="left" value="traceIntoFileDlgLeft" />
+                                <a4j:param noEscape="true" name="top" value="traceIntoFileDlgTop" />
+                            </rich:hashParam>
+                        </rich:componentControl>
+                    </h:commandLink>
+                    <h:outputLink value="#{rulesEditor}/test/benchmarkMethod.xhtml" target="content">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <h:graphicImage url="/webresource/images/clock-icon.png"
+                            title="Benchmark" alt="Benchmark" />
+                    </h:outputLink>
+                </c:if>
+
+                <a4j:commandLink action="#{showTableBean.switchView}" execute="@this"
+                    render="tePanel">
+                    <f:param name="view" value="business" />
+                    <h:graphicImage url="/webresource/images/business-view.png"
+                        title="Business View" alt="Business View" />
+                </a4j:commandLink>
+
+                <a4j:commandLink action="#{showTableBean.switchView}" execute="@this"
+                    render="tePanel">
+                    <f:param name="view" value="developer" />
+                    <h:graphicImage url="/webresource/images/developer-view.png"
+                        title="Developer View" alt="Developer View" />
+                </a4j:commandLink>
+
+                <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this"
+                    render="tePanel">
+                    <h:graphicImage url="/webresource/images/formula.png"
+                        title="Show Formulas" alt="Show Formulas" />
+                </a4j:commandLink>
+            </c:if>
+        </td>
+        <h:panelGroup rendered="#{showTableBean.canCreateTest}">
+        <td class="toolbarDelimeter"></td>
+        <td>
+            <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
+                styleClass="newTestLink" oncomplete="$j('#content').load('#{contextPath}/faces/pages/modules/rulesEditor/create/index.xhtml')">
+                <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                <h:outputText value="Create Test" />
+            </a4j:commandLink>
+        </td>
+        </h:panelGroup>
+        </tr>
+        </table>
+        </div>
+    </h:form>
+
+    <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
+        <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
+            <span style="margin-right: 4px">Problems</span>
+            <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Problems"
+                onclick="$('problemsPanel').toggle();this.src=(this.title == 'Hide Problems' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Hide Problems' : 'Hide Problems');" />
+        </div>
+        <div id="problemsPanel">
+            <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
+                <ui:param name="messages" value="#{showTableBean.problems}" />
+                <ui:param name="editable" value="#{showTableBean.editable}" />
+            </ui:include>
+            <br />
+        </div>
+    </h:panelGroup>
+
+    <br />
+
+    <script>
+        var traceIntoFileLink = $j(#{rich:element('traceIntoFile')});
+        if (traceIntoFileLink.length) {
+            var traceIntoFileLinkPosition = traceIntoFileLink.offset();
+            var traceIntoFileDlgLeft = traceIntoFileLinkPosition.left;
+            var traceIntoFileDlgTop = traceIntoFileLinkPosition.top + traceIntoFileLink.height() - 2;
+         }
+
+        function search(f) {
+           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
+           	    .find(function(s) {
+                    return s.nodeName == "#text"
+                }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "")
+                  .split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+                  .reject(function(s) {
+                      return !s;
+                  }).join(" ");
+            f.submit();
+        }
+
+        function editInExcel(f) {
+            f.uri.value = "#{showTableBean.uri}";
+            f.submit();
+        }
+
+        function onBeforeSave() {
+            RichFaces.$('saveWindow').show();
+        }
+
+        function onAfterSave() {
+            RichFaces.$('saveWindow').hide();
+
+            top.main.leftFrame.location.href =
+                "#{contextPath}/faces/openTable.xhtml?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
+        }
+
+        function onSaveFailure() {
+            RichFaces.$('saveWindow').hide();
+        }
+    </script>
+
+    <form name="searchForm" method="post" action="#{rulesEditor}/search/simpleSearch.xhtml">
+        <input type="hidden" name="searchQuery" value="" />
+    </form>
+
+    <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
+        <input type="hidden" name="uri" value="" />
+    </form>
+
+    <h:panelGroup id="tePanel">
+    <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView.tableMode}"
+        showLinksBase="#{rulesEditor}/showTable.xhtml"
+        mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+        showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
+        beforeSaveAction="#{showTableBean.beforeSaveAction}"
+        afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
+        onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
+        excludeScripts="prototype">
+
+        <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
+            rendered="#{showTableBean.editable}" >Edit in Excel</h:outputLink>
+        <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
+
+    </rules:tableEditor>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{showTableBean.hasAnyTests}"> <!-- If table has any type of tests, including tests with 
+    test cases, run methods -->
+        <h3>Available Checks and Tests:</h3>
+        <ui:repeat value="#{showTableBean.allTests}" var="test">
+            <p style="margin-left: 10px">
+                <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                    <f:param name="uri" value="#{test.uri}" />
+                    <h:outputText value="#{test.testName}" />
+                </h:outputLink>
+            </p>
+        </ui:repeat>
+    </h:panelGroup>
+
+    <c:set value="#{showTableBean.testRunResults}" var="testResult" />
+    <c:if test="#{testResult.notEmpty and !showTableBean.hasErrors}">
+        <h3>Available Runs:</h3>
+        <c:forEach var="test" items="#{testResult.tests}">
+            <c:forEach var="description"
+                items="#{test.descriptions}" varStatus="status">
+                <p>
+                    <h:panelGroup rendered="#{showTableBean.testable}">
+                        <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                        <h:outputLink value="#{rulesEditor}/test/runAllTests.xhtml" title="Test" target="content">
+                            <f:param value="#{showTableBean.uri}" name="uri" />
+                            <f:param value="#{test.testName}" name="testName" />
+                            <f:param value="#{status.index}" name="testID" />
+                            <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
+                        </h:outputLink>
+                     </h:panelGroup>
+
+                    <f:verbatim>&amp;nbsp;</f:verbatim>
+                    <h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml" title="Run" target="content">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <f:param value="#{test.testName}" name="testName" />
+                        <f:param value="#{status.index}" name="testID" />
+                        <f:param value="#{description}" name="testDescr" />
+                        <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
+                    </h:outputLink>
+                    <f:verbatim>&amp;nbsp;</f:verbatim>
+                    <c:set var="traceUrl"
+                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
+                    <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
+                        <img src="webresource/images/trace.gif"
+                            title="Trace" alt="Trace" /></a>
+                    <f:verbatim>&amp;nbsp;</f:verbatim>
+                    <h:outputLink value="#{rulesEditor}/test/benchmarkMethod.xhtml" title="Benchmark" target="content">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <f:param value="#{test.testName}" name="testName" />
+                        <f:param value="#{status.index}" name="testID" />
+                        <f:param value="#{description}" name="testDescr" />
+                        <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
+                    </h:outputLink>
+                    <f:verbatim>&amp;nbsp;</f:verbatim>
+                    <h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml">
+                        <f:param value="#{showTableBean.uri}" name="uri" />
+                        <f:param value="#{test.testName}" name="testName" />
+                        <f:param value="#{status.index}" name="testID" />
+                        <f:param value="#{description}" name="testDescr" />
+                        <h:outputText value="#{description}" />
+                    </h:outputLink>
+                </p>
+            </c:forEach>
+        </c:forEach>
+    </c:if>
+
+    <rich:popupPanel id="traceIntoFileDlg" width="134" modal="false" autosized="true">
+        <h:form style="text-align: center">
+            <h:panelGrid columns="2">
+                <h:outputText value="Format" />
+                <h:selectOneMenu value="#{traceIntoFileBean.fileFormat}">
+                    <f:selectItems value="#{traceIntoFileBean.fileFormats}" />
+                </h:selectOneMenu>
+                <h:outputText value="" />
+                <h:outputText value="" />
+            </h:panelGrid>
+            <h:commandButton id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
+                onclick="RichFaces.$('traceIntoFileDlg').hide();">
+                <a4j:param assignTo="#{traceIntoFileBean.tableUri}" value="#{showTableBean.uri}" />
+            </h:commandButton>
+            <h:commandButton id="cancelBtn" value="Cancel"
+                onclick="RichFaces.$('traceIntoFileDlg').hide(); return false;" />
+        </h:form>
+    </rich:popupPanel>
+
+</ui:composition>
