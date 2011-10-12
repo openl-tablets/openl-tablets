@@ -1,0 +1,377 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.base-pom</artifactId>
+    <version>5.8.1-SNAPSHOT</version>
+    <relativePath /><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687-->
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.studio-pom</artifactId>
+  <version>5.8.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>OpenL - STUDIO</name>
+  <description>OpenL WebStudio Pom Project</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+  </scm>
+
+  <modules>
+    <module>../org.openl.rules.tableeditor</module>
+    <module>../org.openl.rules.repository</module>
+    <module>../org.openl.rules.repository.jcr</module>
+    <module>../org.openl.rules.repository.jcr.jackrabbit</module>
+    <module>../org.openl.rules.workspace</module>
+    <module>../org.openl.commons.web</module>
+    <module>../org.openl.rules.webstudio</module>
+	<module>../org.openl.rules.project</module>    
+    <module>../org.openl.rules.security</module>
+    <module>../org.openl.rules.security.standalone</module>
+    <module>../org.openl.rules.diff</module>
+    <module>../org.openl.rules.tomcat.lib</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>local-studio-repo</id>
+      <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
+    </repository>
+
+    <!--<repository>
+      <id>jboss</id>
+      <url>http://repository.jboss.com/maven2</url>
+    </repository>
+
+    <repository>
+      <id>apache-incubating</id>
+      <url>http://people.apache.org/repo/m2-incubating-repository/</url>
+    </repository>-->
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>local-studio-plugin-repo</id>
+      <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>../org.openl.rules.studio-pom/checkstyle.xml</configLocation>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <profiles>
+    <profile>
+      <id>internal-deploy</id>
+      <distributionManagement>
+        <site>
+          <id>internal-minsk</id>
+          <url>file://d:/reports/org.openl.rules.studio-pom</url>
+        </site>
+      </distributionManagement>
+    </profile>
+
+    <profile>
+      <id>cobertura-summary-report</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <tasks>
+                <taskdef resource="tasks.properties" />
+
+                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                  <fileset dir="..">
+                    <include name="org.openl.rules.diff\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.tableeditor\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.repository\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.repository.jcr\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.repository.jcr.jackrabbit\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.security\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.security.standalone\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.webstudio\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.commons.web\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.workspace\target\cobertura\cobertura.ser" />
+                  </fileset>
+                </cobertura-merge>
+
+                <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+                  <fileset dir="..\org.openl.rules.diff\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.tableeditor\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.repository\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.repository.jcr\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.repository.jcr.jackrabbit\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.security\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.security.standalone\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.webstudio\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.commons.web\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.workspace\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                </cobertura-report>
+              </tasks>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- DEV -->
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.core</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.j</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.j.science</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.constrainer</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.conf.ant</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <!-- STUDIO -->
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.tableeditor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.repository</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.repository.jcr</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.workspace</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.webstudio</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.project</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons.web</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.security</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.security.standalone</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.diff</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.tomcat.lib</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- Integration Projects -->
+<!-- temporarily disabled: TODO: are they not required?
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.security.integration.ipb</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.runtime.deployer</artifactId>
+        <version>${version}</version>
+      </dependency>
+-->
+      <!-- IPB related -->
+<!-- temporarily disabled for release: do not required
+
+      <dependency>
+        <groupId>com.exigen.ipb</groupId>
+        <artifactId>ipb-security</artifactId>
+        <version>1.0.15</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>com.exigen.ipb</groupId>
+        <artifactId>ipb-base-core</artifactId>
+        <version>1.0.15</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+-->
+
+
+
+    </dependencies>
+  </dependencyManagement>
+
+</project>

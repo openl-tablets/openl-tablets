@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <link href="#{contextPath}/css/tree.css" rel="stylesheet" type="text/css"/>
+        <style>
+            .explainTable td {
+                border: 1px solid rgb(150,150,150);
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="page">
+
+        <c:set var="header" value="#{param.header}" />
+        <c:set var="rootID" value="#{param.rootID}" />
+        <c:set var="showNames" value="#{param.showNames}" />
+        <c:set var="showValues" value="#{param.showValues}" />
+        <c:set var="checkedShowNames" value="#{empty showNames ? '' : 'checked'}" />
+        <c:set var="checkedShowValues" value="#{empty showValues ? '' : 'checked'}" />
+
+        <p /><p />
+
+        <h:form>
+            <table class="treeMenu">
+                <tr>
+                    <td>
+                        <a href="#{contextPath}/faces/facelets/explain/tree.xhtml?rootID=#{rootID}"
+                            title="Tree View"><img src="webresource/images/treeview.gif" /></a>
+                    </td>
+                    <td style="text-align: right">
+                        <h:selectBooleanCheckbox value="#{explainBean.showNames}">
+                            <f:ajax event="change" render="explainData" />
+                        </h:selectBooleanCheckbox>
+                        <h:outputText value="Names" />
+                        <h:selectBooleanCheckbox value="#{explainBean.showValues}">
+                            <f:ajax event="change" render="explainData" />
+                        </h:selectBooleanCheckbox>
+                        <h:outputText value="Values" />
+                    </td>
+                </tr>
+            </table>
+
+            <input type="hidden" name="header" value="#{header}" />
+            <input type="hidden" name="rootID" value="#{rootID}" />
+
+            <p />
+
+            <h:panelGroup id="explainData">
+                <table class="explainTable">
+                    <tr>
+                        <th>Value</th>
+                        <th>Name</th>
+                        <th>Formula</th>
+                    </tr>
+                    <tr>
+                        <ui:repeat value="#{explainBean.explainTree}" var="token">
+                        <td><h:outputText value=" #{token}" escape="false" /></td>
+                        </ui:repeat>
+                    </tr>
+                    <ui:repeat value="#{explainBean.expandedValues}" var="value">
+                    <tr>
+                        <ui:repeat value="#{value}" var="subvalue">
+                        <td><h:outputText value=" #{subvalue}" escape="false" /></td>
+                        </ui:repeat>
+                    </tr>
+                    </ui:repeat>
+                </table>
+            </h:panelGroup>
+        </h:form>
+
+    </ui:define>
+</ui:composition>
