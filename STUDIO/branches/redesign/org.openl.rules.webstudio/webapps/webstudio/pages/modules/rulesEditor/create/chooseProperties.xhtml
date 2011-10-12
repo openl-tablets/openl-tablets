@@ -109,7 +109,9 @@
 			</f:facet>
 
 			<h:form id="changeVersionForm">
-				<ui:include src="/pages/modules/rulesEditor/create/selectVersionForm.xhtml" />
+                <h:panelGroup id="changeVersionPanel">
+                    <ui:include src="/pages/modules/rulesEditor/create/selectVersionForm.xhtml" />
+                </h:panelGroup>
 
 				<br />
 				<hr />
@@ -145,7 +147,7 @@
 				<h:panelGroup style="text-align: center; margin-top: 10px;" layout="block">
 					<a4j:commandButton value="Add"
 						action="#{propertiesManager.addProperty}"
-						render="propertiesTable newPropertySelect modalVersionChange"
+						render="propertiesTable newPropertySelect changeVersionPanel"
 						oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
 					<h:commandButton value="Cancel" style="margin-left: 5px;"
 						onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
